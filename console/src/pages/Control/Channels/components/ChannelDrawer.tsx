@@ -1353,7 +1353,8 @@ export function ChannelDrawer({
 
           {(activeKey === "wecom" ||
             activeKey === "telegram" ||
-            activeKey === "dingtalk") && (
+            activeKey === "dingtalk" ||
+            activeKey === "feishu") && (
             <Form.Item
               name="streaming_enabled"
               label={t("channels.streamingEnabled")}
@@ -1361,6 +1362,8 @@ export function ChannelDrawer({
               tooltip={
                 activeKey === "dingtalk"
                   ? t("channels.streamingEnabledDingtalkHint")
+                  : activeKey === "feishu"
+                  ? t("channels.streamingEnabledFeishuHint")
                   : undefined
               }
             >
