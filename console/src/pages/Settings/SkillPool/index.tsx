@@ -116,7 +116,7 @@ function SkillPoolPage() {
                   >
                     <Badge
                       dot={pool.hasUnseenBuiltinNotice}
-                      color="rgba(255, 157, 77, 1)"
+                      color="rgba(75, 63, 227, 1)"
                       offset={[-4, 4]}
                     >
                       <Button

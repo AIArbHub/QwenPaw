@@ -921,7 +921,7 @@ export function LocalModelManageModal({
                         percent={currentModelDownloadPercent ?? 0}
                         showInfo={false}
                         status="active"
-                        strokeColor="#ff7f16"
+                        strokeColor="#4B3FE3"
                         strokeWidth={10}
                       />
                       <Tooltip title={t("models.localCancelDownloadAction")}>

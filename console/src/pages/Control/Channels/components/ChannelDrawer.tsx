@@ -1380,7 +1380,7 @@ export function ChannelDrawer({
               openExternalLink(finalUrl);
             }}
             className={styles.dingtalkDocBtn}
-            style={{ color: "#FF7F16" }}
+            style={{ color: "#4B3FE3" }}
           >
             {label} Doc
           </Button>
@@ -1392,7 +1392,7 @@ export function ChannelDrawer({
           icon={<LinkOutlined />}
           onClick={() => openExternalLink(TWILIO_CONSOLE_URL)}
           className={styles.dingtalkDocBtn}
-          style={{ color: "#FF7F16" }}
+          style={{ color: "#4B3FE3" }}
         >
           {t("channels.voiceSetupLink")}
         </Button>

@@ -4,20 +4,20 @@
   align-items: center;
   gap: 5px;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  color: #333;
+  color: #404040;
   transition: all 0.15s ease;
   user-select: none;
   max-width: 260px;
 
   &:hover,
   &.triggerActive {
-    border-color: #ff7f16;
-    color: #ff7f16;
-    box-shadow: 0 2px 8px rgba(97, 92, 237, 0.12);
+    border-color: rgba(115, 115, 115, 0.18);
+    color: #171717;
+    box-shadow: 0 2px 8px rgba(23, 23, 23, 0.08);
   }
 
   @media (max-width: 768px) {
@@ -72,14 +72,14 @@
 .triggerArrow {
   flex-shrink: 0;
   font-size: 18px;
-  color: #999;
+  color: #737373;
   transition:
     transform 0.2s,
     color 0.15s;
 
   &.triggerArrowOpen {
     transform: rotate(180deg);
-    color: #ff7f16;
+    color: #171717;
   }
 }
 
@@ -95,10 +95,10 @@
 .panel {
   width: 360px;
   max-height: 480px;
-  border-radius: 8px;
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid rgba(115, 115, 115, 0.12);
+  box-shadow: 0 12px 32px rgba(23, 23, 23, 0.12), 0 2px 8px rgba(23, 23, 23, 0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -116,13 +116,13 @@
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(115, 115, 115, 0.12);
   flex-shrink: 0;
 }
 
 .searchIcon {
   font-size: 14px;
-  color: #999;
+  color: #737373;
   flex-shrink: 0;
 }
 
@@ -132,7 +132,7 @@
   outline: none;
   background: transparent;
   font-size: 14px;
-  color: #333;
+  color: #171717;
   padding: 0;
   min-width: 0;
 
@@ -149,7 +149,7 @@
   transition: color 0.15s;
 
   &:hover {
-    color: #999;
+    color: #737373;
   }
 }
 
@@ -158,7 +158,7 @@
   display: flex;
   gap: 0;
   padding: 0 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(115, 115, 115, 0.12);
   flex-shrink: 0;
 }
 
@@ -170,17 +170,17 @@
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.5px;
-  color: #999;
+  color: #737373;
   cursor: pointer;
   position: relative;
   transition: color 0.15s;
 
   &:hover {
-    color: #666;
+    color: #737373;
   }
 
   &.tabButtonActive {
-    color: #ff7f16;
+    color: #171717;
 
     &::after {
       content: "";
@@ -189,7 +189,7 @@
       left: 20%;
       right: 20%;
       height: 2px;
-      background: #ff7f16;
+      background: #171717;
       border-radius: 1px;
     }
   }
@@ -218,13 +218,13 @@
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 500;
-  color: #999;
+  color: #737373;
   letter-spacing: 0.5px;
   cursor: pointer;
   user-select: none;
 
   &:hover {
-    color: #666;
+    color: #737373;
   }
 }
 
@@ -243,7 +243,7 @@
   transition: color 0.2s;
 
   .providerHeader:hover & {
-    color: #666;
+    color: #737373;
   }
 }
 
@@ -256,23 +256,23 @@
   margin: 0 4px;
   cursor: pointer;
   font-size: 14px;
-  color: #333;
+  color: #171717;
   transition: background 0.12s;
   gap: 8px;
   border-radius: 6px;
 
   &:hover {
-    background: rgba(97, 92, 237, 0.06);
-    color: #333;
+    background: rgba(115, 115, 115, 0.08);
+    color: #171717;
   }
 
   &.modelItemActive {
-    background: rgba(255, 127, 22, 0.08);
-    color: #ff7f16;
+    background: rgba(115, 115, 115, 0.12);
+    color: #171717;
     font-weight: 500;
 
     .modelName {
-      color: #ff7f16;
+      color: #171717;
     }
   }
 }
@@ -321,7 +321,7 @@
 .checkIcon {
   flex-shrink: 0;
   font-size: 14px;
-  color: #ff7f16;
+  color: #171717;
 }
 
 .emptyTip {
@@ -366,7 +366,7 @@
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.03);
   font-size: 12px;
-  color: #8c8c8c;
+  color: #737373;
   line-height: 1.4;
 }
 
@@ -384,13 +384,13 @@
   padding: 8px 16px;
   margin: 4px 4px 0;
   font-size: 12px;
-  color: #999;
+  color: #737373;
   cursor: pointer;
   user-select: none;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid rgba(115, 115, 115, 0.12);
 
   &:hover {
-    color: #666;
+    color: #737373;
   }
 
   :global(.anticon) {
@@ -420,13 +420,13 @@
 .viewMore {
   text-align: center;
   font-size: 12px;
-  color: var(--text-tertiary, rgba(0, 0, 0, 0.45));
+  color: var(--text-tertiary, #737373);
   padding: 6px 0;
   cursor: pointer;
   transition: color 0.2s;
 
   &:hover {
-    color: var(--primary-color, #6366f1);
+    color: var(--primary-color, #171717);
   }
 }
 
@@ -466,8 +466,8 @@
 
     &:hover,
     &.triggerActive {
-      color: #ff7f16;
-      box-shadow: 0 2px 8px rgba(97, 92, 237, 0.2);
+      color: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 2px 8px rgba(255, 255, 255, 0.12);
     }
   }
 
@@ -475,14 +475,14 @@
     color: rgba(255, 255, 255, 0.3);
 
     &.triggerArrowOpen {
-      color: #ff7f16;
+      color: rgba(255, 255, 255, 0.85);
     }
   }
 
   .panel {
     background: #1f1f1f;
     border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 12px 32px rgba(23, 23, 23, 0.12), 0 2px 8px rgba(23, 23, 23, 0.08);
   }
 
   .searchWrapper {
@@ -521,7 +521,7 @@
     }
 
     &.tabButtonActive {
-      color: #ff7f16;
+      color: rgba(255, 255, 255, 0.85);
     }
   }
 
@@ -545,16 +545,16 @@
     color: rgba(255, 255, 255, 0.85);
 
     &:hover {
-      background: rgba(97, 92, 237, 0.15);
+      background: rgba(255, 255, 255, 0.12);
       color: rgba(255, 255, 255, 0.85);
     }
 
     &.modelItemActive {
-      background: rgba(255, 127, 22, 0.12);
-      color: #ff7f16;
+      background: rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.85);
 
       .modelName {
-        color: #ff7f16;
+        color: rgba(255, 255, 255, 0.85);
       }
     }
   }
@@ -576,7 +576,7 @@
   }
 
   .checkIcon {
-    color: #ff7f16;
+    color: rgba(255, 255, 255, 0.85);
   }
 
   .proBanner {
@@ -608,15 +608,15 @@
   }
 
   .connectEntry {
-    color: #818cf8;
+    color: rgba(255, 255, 255, 0.85);
 
     &:hover {
-      background: rgba(99, 102, 241, 0.15);
+      background: rgba(255, 255, 255, 0.12);
     }
   }
 
   .connectIcon {
-    color: #818cf8;
+    color: rgba(255, 255, 255, 0.85);
   }
 
   .connectHint {
