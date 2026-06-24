@@ -18,29 +18,31 @@
 }
 
 .pageLight {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: #F5F5F5;
 }
 
 .pageDark {
-  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  background: #0a0a0a;
 }
 
 .card {
   width: 400px;
   padding: 40px;
   border-radius: 12px;
+  border: 1px solid rgba(115, 115, 115, 0.12);
   text-align: center;
   animation: backend-loading-fadein 0.6s ease-out;
 }
 
 .pageLight .card {
-  background: #fff;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  background: #FFFFFF;
+  box-shadow: 0 12px 32px rgba(23, 23, 23, 0.12);
 }
 
 .pageDark .card {
   background: #1f1f1f;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .logo {
@@ -49,7 +51,7 @@
 }
 
 .progressLabel {
-  color: #333;
+  color: #171717;
 }
 
 .pageDark .progressLabel {
@@ -57,7 +59,7 @@
 }
 
 .statusText {
-  color: #333;
+  color: #171717;
   font-size: 16px;
   font-weight: 500;
   margin: 16px 0 0;
@@ -73,7 +75,7 @@
 }
 
 .hint {
-  color: #888;
+  color: #737373;
   font-size: 13px;
   margin: 8px 0 24px;
 }
@@ -86,7 +88,7 @@
   margin: 0 0 24px;
   padding: 12px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.04);
+  background: rgba(115, 115, 115, 0.08);
   text-align: left;
 }
 
@@ -96,7 +98,7 @@
 
 .summary {
   cursor: pointer;
-  color: #888;
+  color: #737373;
   font-size: 12px;
   line-height: 1.5;
 }
@@ -109,7 +111,7 @@
   max-height: 96px;
   overflow: auto;
   margin: 8px 0 0;
-  color: #888;
+  color: #737373;
   font-size: 12px;
   line-height: 1.5;
   white-space: pre-wrap;
@@ -121,8 +123,8 @@
 }
 
 .retryButton {
-  height: 40px;
-  padding: 0 32px;
+  height: 32px;
+  padding: 0 16px;
   border-radius: 8px;
   border: 0;
   background: var(--qwenpaw-brand-color);

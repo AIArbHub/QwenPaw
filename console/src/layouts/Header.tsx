@@ -315,7 +315,7 @@ export default function Header() {
           {version && (
             <Badge
               dot={!!hasUpdate && !isReady && !isBackgroundActive}
-              color="rgba(255, 157, 77, 1)"
+              color="rgba(75, 63, 227, 1)"
               offset={[4, 28]}
             >
               <span
