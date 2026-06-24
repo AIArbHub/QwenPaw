@@ -21,6 +21,58 @@
   }
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.actionTab {
+  padding: 5px 14px;
+  border-radius: 7px;
+  border: none;
+  font-size: 13px;
+  color: #999;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.18s ease;
+
+  &:hover {
+    color: #666;
+    background: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.disabledTab {
+  color: #4B3FE3 !important;
+  background: #fff !important;
+  cursor: not-allowed;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    color: #4B3FE3 !important;
+    background: #fff !important;
+  }
+}
+
+.title {
+  margin-bottom: 4px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.description {
+  margin: 0;
+  color: #999;
+  font-size: 14px;
+}
+
 .loading {
   text-align: center;
   padding: 60px;
@@ -265,7 +317,7 @@
   }
 
   .notConfigured {
-    color: #ff7f16;
+    color: #4B3FE3;
     font-weight: 500;
   }
 }
@@ -421,7 +473,7 @@
     }
 
     :global(.qwenpaw-switch-checked) {
-      background-color: #ff7f16;
+      background-color: #4B3FE3;
 
       &:hover:not(.qwenpaw-switch-disabled) {
         background-color: #ff9d4d;

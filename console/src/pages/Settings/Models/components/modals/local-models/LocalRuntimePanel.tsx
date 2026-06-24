@@ -199,7 +199,7 @@ export const LocalRuntimePanel = memo(function LocalRuntimePanel({
                 percent={progressPercent ?? 0}
                 showInfo={false}
                 status="active"
-                strokeColor="#ff7f16"
+                strokeColor="#4B3FE3"
                 strokeWidth={10}
               />
               <Tooltip title={t("models.localCancelDownloadAction")}>

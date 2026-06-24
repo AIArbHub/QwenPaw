@@ -1,0 +1,139 @@
+name: Build QwenPaw Installers
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            python_version: '3.11'
+            artifact_name: QwenPaw-Windows
+          - os: macos-latest
+            python_version: '3.11'
+            artifact_name: QwenPaw-macOS
+          - os: ubuntu-latest
+            python_version: '3.11'
+            artifact_name: QwenPaw-Linux
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python_version }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install uv (fast pip)
+        run: pip install uv
+
+      - name: Create venv and install Python dependencies
+        run: |
+          python -m venv .venv
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            .venv\Scripts\pip.exe install --upgrade pip setuptools
+            .venv\Scripts\uv.exe pip install --no-cache-dir -e .
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            .venv/bin/pip install --upgrade pip setuptools
+            .venv/bin/uv pip install --no-cache-dir -e .
+          else
+            .venv/bin/pip install --upgrade pip setuptools
+            .venv/bin/uv pip install --no-cache-dir -e .
+          fi
+        shell: bash
+
+      - name: Install wecom-aibot-python-sdk (no-deps to avoid conflicts)
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            .venv\Scripts\pip.exe install --no-deps wecom-aibot-python-sdk==1.0.2
+          else
+            .venv/bin/pip install --no-deps wecom-aibot-python-sdk==1.0.2
+          fi
+        shell: bash
+
+      - name: Build frontend
+        run: |
+          cd console
+          npm ci --include=dev
+          npm run build
+        shell: bash
+
+      - name: Install PyInstaller
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            .venv\Scripts\pip.exe install pyinstaller
+          else
+            .venv/bin/pip install pyinstaller
+          fi
+        shell: bash
+
+      - name: Run PyInstaller
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            .venv\Scripts\pyinstaller scripts/qwenpaw.spec --distpath dist --workpath build/pyinstaller --clean
+          else
+            .venv/bin/pyinstaller scripts/qwenpaw.spec --distpath dist --workpath build/pyinstaller --clean
+          fi
+        shell: bash
+
+      - name: Create archive (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd dist
+          powershell Compress-Archive -Path QwenPaw -DestinationPath QwenPaw-Windows.zip
+        shell: bash
+
+      - name: Create archive (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd dist
+          zip -r -y QwenPaw-macOS.zip QwenPaw
+        shell: bash
+
+      - name: Create archive (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd dist
+          tar -czf QwenPaw-Linux.tar.gz QwenPaw
+        shell: bash
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            dist/QwenPaw-Windows.zip
+            dist/QwenPaw-macOS.zip
+            dist/QwenPaw-Linux.tar.gz
+          if-no-files-found: ignore
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true

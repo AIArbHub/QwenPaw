@@ -221,7 +221,7 @@ export function ACPDrawer({
             onClick={() => openExternalLink(getACPDocsUrl(i18n.language))}
             title={t("acp.docsHelp")}
             className={styles.dingtalkDocBtn}
-            style={{ color: "#FF7F16" }}
+            style={{ color: "#4B3FE3" }}
           >
             {t("acp.docs")}
           </Button>
