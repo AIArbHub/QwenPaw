@@ -3,9 +3,7 @@
 PyInstaller spec file for QwenPaw Desktop (Tauri sidecar).
 
 Shared spec for both macOS and Windows. Builds an onedir backend bundle so the
-desktop startup can load Python directly without onefile extraction. The same
-bundle also includes a qwenpaw CLI executable for the Windows installer PATH
-option.
+desktop startup can load Python directly without onefile extraction.
 """
 
 import os
@@ -97,10 +95,7 @@ for _pkg in _metadata_pkgs:
         pass
 
 a = Analysis(
-    [
-        str(SRC / "tauri" / "entry.py"),
-        str(SRC / "tauri" / "cli_entry.py"),
-    ],
+    [str(SRC / "tauri" / "entry.py")],
     pathex=[str(REPO_ROOT), str(REPO_ROOT / "src")],
     binaries=[],
     datas=datas,
@@ -122,6 +117,8 @@ a = Analysis(
         *collect_submodules("qwenpaw.app.channels"),
         # ASGI app entry points
         "qwenpaw.app._app",
+        "qwenpaw.app.api",
+        "qwenpaw.app.middleware",
         "qwenpaw.app.multi_agent_manager",
         "qwenpaw.app.chats",
         "qwenpaw.app.task_tracker",
@@ -135,6 +132,8 @@ a = Analysis(
         # package root or when PyInstaller needs the top-level module anchor.
         *collect_submodules("dotenv"),
         "dotenv",
+        "a2a",
+        "a2a.types",
         *collect_submodules("acp"),
         "acp",
         "psutil",
@@ -164,7 +163,7 @@ def script_entry(file_name):
 
 backend_exe = EXE(
     pyz,
-    script_entry("entry.py"),
+    a.scripts,
     [],
     name="ai-arb-backend",
     debug=False,
@@ -180,26 +179,8 @@ backend_exe = EXE(
     exclude_binaries=True,
 )
 
-cli_exe = EXE(
-    pyz,
-    script_entry("cli_entry.py"),
-    [],
-    name="qwenpaw",
-    debug=False,
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=False,
-    console=True,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=codesign_identity,
-    exclude_binaries=True,
-)
-
 coll = COLLECT(
-    backend_exe,
-    cli_exe,
+    exe,
     a.binaries,
     a.datas,
     strip=False,
