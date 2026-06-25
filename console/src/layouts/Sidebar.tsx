@@ -121,9 +121,7 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
   const [accountModalOpen, setAccountModalOpen] = useState(false);
   const [accountLoading, setAccountLoading] = useState(false);
   const [accountForm] = Form.useForm();
-  // Start collapsed on mobile so the first paint does not overlay/obscure
-  // the main content on narrow viewports.
-  const [collapsed, setCollapsed] = useState(isMobileSidebarViewport);
+  const [collapsed, setCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(isMobileSidebarViewport);
   const [hasInboxUnread, setHasInboxUnread] = useState(false);
@@ -181,9 +179,9 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
     const mediaQuery = window.matchMedia(MOBILE_SIDEBAR_QUERY);
     const syncMobileSidebar = () => {
       setIsMobile(mediaQuery.matches);
-      // Collapse on mobile to avoid covering the main content; expand again
-      // when the viewport returns to desktop width.
-      setCollapsed(mediaQuery.matches);
+      if (mediaQuery.matches) {
+        setCollapsed(true);
+      }
     };
 
     syncMobileSidebar();

@@ -245,7 +245,7 @@ function SkillPoolPage() {
             </span>
           </div>
         ) : pool.viewMode === "card" ? (
-          <div className={`${styles.skillsGrid} responsive-grid`}>
+          <div className={styles.skillsGrid}>
             {visibleSkills.map((skill: PoolSkillSpec) => (
               <PoolSkillCard
                 key={skill.name}
