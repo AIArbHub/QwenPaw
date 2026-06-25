@@ -7,6 +7,7 @@ import {
   Button,
   Select,
   Radio,
+  Alert,
 } from "@agentscope-ai/design";
 import { useAppMessage } from "../../../../../hooks/useAppMessage";
 import {
@@ -647,6 +648,28 @@ export function ProviderConfigModal({
       }
       destroyOnHidden
     >
+      {/* SiliconFlow promotion */}
+      {provider.id.includes("siliconflow") && (
+        <Alert
+          type="info"
+          showIcon
+          message={
+            <span>
+              硅基流动注册即送全平台通用代金券 16 元（须填写邀请码 KvmTp5P8）。
+              <a
+                href="https://cloud.siliconflow.cn/i/KvmTp5P8"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ marginLeft: 4 }}
+              >
+                点击立即领取 →
+              </a>
+            </span>
+          }
+          style={{ marginBottom: 16 }}
+        />
+      )}
+
       <Form
         form={form}
         layout="vertical"
@@ -679,10 +702,6 @@ export function ProviderConfigModal({
                 {
                   value: "OpenAIChatModel",
                   label: t("models.protocolOpenAI"),
-                },
-                {
-                  value: "OpenAIResponseModel",
-                  label: t("models.protocolOpenAIResponse"),
                 },
                 {
                   value: "AnthropicChatModel",

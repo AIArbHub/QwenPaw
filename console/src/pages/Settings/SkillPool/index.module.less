@@ -186,7 +186,7 @@
   }
 
   &:focus {
-    border-color: #ff7f16;
+    border-color: #4B3FE3;
   }
 }
 
@@ -570,18 +570,6 @@
   flex-shrink: 0;
 }
 
-.skillEmoji {
-  width: 52px;
-  height: 52px;
-  border-radius: 10px;
-  background: #f7f5f3;
-  font-size: 28px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .titleRow {
   display: flex;
   align-items: center;
@@ -656,7 +644,7 @@
 
   .calendarIcon {
     font-size: 11px;
-    color: rgba(26, 23, 22, 0.45);
+    color: rgba(115, 115, 115, 0.36);
   }
 }
 
@@ -689,7 +677,7 @@
 
 .infoLabel {
   font-size: 12px;
-  color: rgba(26, 23, 22, 0.65);
+  color: #737373;
 }
 
 .infoBlock {
@@ -790,7 +778,7 @@
 /* ─── Tags ────────────────────────────────────────────────────────────────── */
 .descriptionText {
   border-radius: 4px;
-  background: rgba(43, 18, 0, 0.02);
+  background: rgba(115, 115, 115, 0.04);
   box-sizing: border-box;
   border: 1px solid #f3f1f0;
   padding: 2px 4px;
@@ -821,7 +809,7 @@
 
 .metaLabel {
   font-size: 11px;
-  color: rgba(26, 23, 22, 0.65);
+  color: #737373;
   min-width: 60px;
 }
 
@@ -869,7 +857,7 @@
 /* ─── Dark Mode ───────────────────────────────────────────────────────────── */
 :global(.dark-mode) {
   .fileIcon {
-    background: rgba(26, 23, 22, 0.88);
+    background: #171717;
   }
 
   .pageHeader {
@@ -911,7 +899,7 @@
     }
 
     &:focus {
-      border-color: #ff7f16;
+      border-color: #4B3FE3;
     }
   }
 
@@ -959,7 +947,7 @@
   }
 
   .selectedCard {
-    border-color: #ff7f16 !important;
+    border-color: #4B3FE3 !important;
     box-shadow: 0 0 0 1px rgba(255, 127, 22, 0.3) !important;
   }
 
@@ -1169,108 +1157,8 @@
     align-items: stretch;
   }
 
-  .headerRight {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    width: 100%;
-  }
-
   .headerActionsLeft,
-  .headerActionsRight,
-  .batchActions {
+  .headerActionsRight {
     flex-wrap: wrap;
-    width: 100%;
-
-    > * {
-      flex: 1 0 auto;
-      min-width: 0;
-    }
-
-    :global(.qwenpaw-btn) {
-      min-width: 0;
-    }
-  }
-
-  .primaryTransferButton,
-  .primaryActionButton {
-    min-width: 0;
-  }
-
-  .importToolbar {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
-
-  .toolbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  .searchContainer {
-    max-width: none;
-    width: 100%;
-  }
-
-  .searchInput {
-    :global(input) {
-      text-align: center;
-    }
-  }
-
-  .tagSelect {
-    :global {
-      .qwenpaw-select-selection-placeholder,
-      .ant-select-selection-placeholder {
-        text-align: center;
-      }
-
-      .qwenpaw-select-selection-overflow,
-      .ant-select-selection-overflow {
-        justify-content: center;
-      }
-    }
-  }
-
-  .toolbarRight {
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .skillsGrid {
-    /* Grid columns/gap are handled by the shared .responsive-grid utility. */
-    padding: 12px;
-  }
-
-  .skillCard {
-    min-height: auto;
-  }
-
-  :global(.dark-mode) {
-    .descriptionText {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.65);
-    }
-  }
-
-  .cardFooter {
-    position: static;
-    margin-top: 12px;
-    padding: 0;
-    background: transparent;
-  }
-
-  .cardTopRight {
-    gap: 6px;
-  }
-
-  .metaInfoRow {
-    flex-wrap: wrap;
-
-    .metaInfoLabel {
-      min-width: 64px;
-    }
   }
 }

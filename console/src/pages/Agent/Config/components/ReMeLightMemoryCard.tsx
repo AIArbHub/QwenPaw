@@ -8,6 +8,7 @@ import {
   Alert,
 } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
+import { SliderWithValue } from "./SliderWithValue";
 import styles from "../index.module.less";
 
 export function ReMeLightMemoryCard() {
@@ -124,18 +125,26 @@ export function ReMeLightMemoryCard() {
                 </Form.Item>
 
                 <Form.Item
-                  label={t("agentConfig.autoMemorySearchPersistToContext")}
+                  label={t("agentConfig.autoMinScore")}
                   name={[
                     "reme_light_memory_config",
                     "auto_memory_search_config",
-                    "persist_to_context",
+                    "min_score",
                   ]}
-                  valuePropName="checked"
-                  tooltip={t(
-                    "agentConfig.autoMemorySearchPersistToContextTooltip",
-                  )}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("agentConfig.autoMinScoreRequired"),
+                    },
+                  ]}
+                  tooltip={t("agentConfig.autoMinScoreTooltip")}
                 >
-                  <Switch />
+                  <SliderWithValue
+                    min={0}
+                    max={1}
+                    step={0.05}
+                    marks={{ 0: "0", 0.5: "0.5", 1: "1" }}
+                  />
                 </Form.Item>
               </>
             ),
@@ -152,6 +161,26 @@ export function ReMeLightMemoryCard() {
                   message={`${t("agentConfig.embeddingEnableHint")} ${t(
                     "agentConfig.embeddingRestartWarning",
                   )}`}
+                  style={{ marginBottom: 16 }}
+                />
+
+                <Alert
+                  type="info"
+                  showIcon
+                  message={
+                    <span>
+                      推荐：硅基流动提供 BAAI/bge-m3 等免费 Embedding 模型，
+                      注册即送全平台通用代金券 16 元（须填写邀请码 KvmTp5P8）。
+                      <a
+                        href="https://cloud.siliconflow.cn/i/KvmTp5P8"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ marginLeft: 4 }}
+                      >
+                        点击立即领取 →
+                      </a>
+                    </span>
+                  }
                   style={{ marginBottom: 16 }}
                 />
 

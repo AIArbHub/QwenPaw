@@ -59,11 +59,12 @@
   /* Wide mode: widen bubble list and sender while keeping spacing */
   &.wideMode :global {
     .qwenpaw-bubble-list {
-      max-width: none !important;
+      max-width: calc(100% - 48px) !important;
     }
 
-    .qwenpaw-chat-anywhere-sender-wrapper {
-      max-width: none !important;
+    .qwenpaw-sender,
+    [class*="sender-content"] {
+      max-width: calc(100% - 48px) !important;
     }
   }
 
@@ -150,7 +151,7 @@
 .suggestionCommand {
   flex: 0 0 88px;
   min-width: 0;
-  color: #ff7f16;
+  color: #4B3FE3;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -165,7 +166,7 @@
 .suggestionDescription {
   flex: 1;
   min-width: 0;
-  color: rgba(0, 0, 0, 0.45);
+  color: #737373;
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
@@ -187,11 +188,11 @@
 
 :global(.dark-mode) {
   .suggestionCommand {
-    color: #ff7f16;
+    color: #4B3FE3;
   }
 
   .suggestionDescription {
-    color: rgba(255, 255, 255, 0.65);
+    color: rgba(255, 255, 255, 0.55);
   }
 }
 
@@ -200,7 +201,7 @@
   .chat-anywhere-prompt-icon,
   [class*="prompt-icon"],
   [class*="PromptIcon"] {
-    color: #ff7f16 !important;
+    color: #4B3FE3 !important;
   }
 }
 

@@ -4,11 +4,28 @@ body {
   overflow: hidden;
   margin: 0;
   padding: 0;
-  background: #f9f8f4;
+  background: #F5F5F5;
+}
+
+/* TRAE Work: Global font-family */
+body {
+  font-family: "SF Pro Text", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: #171717;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* TRAE Work: Transition utility */
+*, *::before, *::after {
+  transition-property: color, background-color, border-color, box-shadow, opacity;
+  transition-duration: 120ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
 
 .qwenpaw-layout {
-  background: #f9f8f4;
+  background: #F5F5F5;
 }
 
 /* ─── Dark mode global token overrides ─────────────────────────────────────── */
@@ -34,7 +51,7 @@ html.dark-mode .qwenpaw-layout-content {
 
 /* Page content area background */
 html.dark-mode .page-content {
-  background: #141414;
+  background: #1a1a1a;
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
@@ -165,7 +182,7 @@ html.dark-mode .ant-table-cell-fix-right {
 
 html.dark-mode .qwenpaw-table-cell-fix-right-first::after,
 html.dark-mode .ant-table-cell-fix-right-first::after {
-  box-shadow: inset -10px 0 8px -8px rgba(0, 0, 0, 0.45) !important;
+  box-shadow: inset -10px 0 8px -8px #737373 !important;
 }
 
 /* Table pagination */
@@ -182,8 +199,8 @@ html.dark-mode .ant-pagination .ant-pagination-item a {
 
 html.dark-mode .qwenpaw-pagination .qwenpaw-pagination-item-active,
 html.dark-mode .ant-pagination .ant-pagination-item-active {
-  background: #ff7f16 !important;
-  border-color: #ff7f16 !important;
+  background: #6A6FFF !important;
+  border-color: #6A6FFF !important;
 }
 
 html.dark-mode .qwenpaw-pagination .qwenpaw-pagination-item-active a,
@@ -210,7 +227,7 @@ html.dark-mode .qwenpaw-table-column-sorter-up.active,
 html.dark-mode .qwenpaw-table-column-sorter-down.active,
 html.dark-mode .ant-table-column-sorter-up.active,
 html.dark-mode .ant-table-column-sorter-down.active {
-  color: #ff7f16 !important;
+  color: #6A6FFF !important;
 }
 
 /* Checkbox in table */
@@ -222,8 +239,8 @@ html.dark-mode .ant-checkbox-inner {
 
 html.dark-mode .qwenpaw-checkbox-checked .qwenpaw-checkbox-inner,
 html.dark-mode .ant-checkbox-checked .ant-checkbox-inner {
-  background: #ff7f16 !important;
-  border-color: #ff7f16 !important;
+  background: #6A6FFF !important;
+  border-color: #6A6FFF !important;
 }
 
 /* Page titles (h1) */
@@ -316,7 +333,7 @@ html.dark-mode .ant-select-item-option-active {
 html.dark-mode .qwenpaw-select-item-option-selected,
 html.dark-mode .ant-select-item-option-selected {
   background: rgba(97, 92, 237, 0.2) !important;
-  color: #ff7f16 !important;
+  color: #6A6FFF !important;
 }
 
 /* Form labels */
@@ -397,7 +414,7 @@ html.dark-mode
   .ant-picker-time-panel-cell-selected
   .ant-picker-time-panel-cell-inner {
   background: rgba(97, 92, 237, 0.2) !important;
-  color: #ff7f16 !important;
+  color: #6A6FFF !important;
 }
 
 /* DatePicker / RangePicker calendar panel */
@@ -467,7 +484,7 @@ html.dark-mode .ant-picker-cell-disabled {
 /* Today marker */
 html.dark-mode .qwenpaw-picker-cell-today .qwenpaw-picker-cell-inner::before,
 html.dark-mode .ant-picker-cell-today .ant-picker-cell-inner::before {
-  border-color: #ff7f16 !important;
+  border-color: #6A6FFF !important;
 }
 
 /* Selected start/end cell */
@@ -477,7 +494,7 @@ html.dark-mode .qwenpaw-picker-cell-range-start .qwenpaw-picker-cell-inner,
 html.dark-mode .ant-picker-cell-range-start .ant-picker-cell-inner,
 html.dark-mode .qwenpaw-picker-cell-range-end .qwenpaw-picker-cell-inner,
 html.dark-mode .ant-picker-cell-range-end .ant-picker-cell-inner {
-  background: #ff7f16 !important;
+  background: #6A6FFF !important;
   color: #fff !important;
 }
 
@@ -503,7 +520,7 @@ html.dark-mode
 html.dark-mode
   .qwenpaw-picker-cell-in-view.qwenpaw-picker-cell-range-hover-end::after,
 html.dark-mode .ant-picker-cell-in-view.ant-picker-cell-range-hover-end::after {
-  border-color: #ff7f16 !important;
+  border-color: #6A6FFF !important;
 }
 
 /* Panel footer (OK button area) */
@@ -515,7 +532,7 @@ html.dark-mode .ant-picker-footer {
 
 html.dark-mode .qwenpaw-picker-today-btn,
 html.dark-mode .ant-picker-today-btn {
-  color: #ff7f16 !important;
+  color: #6A6FFF !important;
 }
 
 /* Divider between two panels in RangePicker */
@@ -612,12 +629,12 @@ html.dark-mode .ant-modal-body .ant-form-item-extra {
 /* Drawer */
 html.dark-mode .qwenpaw-drawer-content,
 html.dark-mode .ant-drawer-content {
-  background: #141414 !important;
+  background: #1f1f1f !important;
 }
 
 html.dark-mode .qwenpaw-drawer-header,
 html.dark-mode .ant-drawer-header {
-  background: #141414 !important;
+  background: #1f1f1f !important;
   border-bottom-color: rgba(255, 255, 255, 0.08) !important;
 }
 
@@ -638,13 +655,13 @@ html.dark-mode .ant-drawer-close:hover {
 
 html.dark-mode .qwenpaw-drawer-body,
 html.dark-mode .ant-drawer-body {
-  background: #141414 !important;
+  background: #1f1f1f !important;
   color: rgba(255, 255, 255, 0.85) !important;
 }
 
 html.dark-mode .qwenpaw-drawer-footer,
 html.dark-mode .ant-drawer-footer {
-  background: #141414 !important;
+  background: #1f1f1f !important;
   border-top-color: rgba(255, 255, 255, 0.08) !important;
 }
 
@@ -673,12 +690,12 @@ html.dark-mode .ant-slider-rail {
 
 html.dark-mode .qwenpaw-slider-track,
 html.dark-mode .ant-slider-track {
-  background-color: #ff7f16 !important;
+  background-color: #6A6FFF !important;
 }
 
 html.dark-mode .qwenpaw-slider-mark-text,
 html.dark-mode .ant-slider-mark-text {
-  color: #ff7f16 !important;
+  color: #6A6FFF !important;
 }
 
 html.dark-mode .qwenpaw-form-item-label > label .qwenpaw-form-item-tooltip,
@@ -688,7 +705,7 @@ html.dark-mode .ant-form-item-label > label .ant-form-item-tooltip {
 
 html.dark-mode .qwenpaw-slider-handle::after,
 html.dark-mode .ant-slider-handle::after {
-  box-shadow: 0 0 0 2px #ff7f16 !important;
+  box-shadow: 0 0 0 2px #6A6FFF !important;
   background-color: #1f1f1f !important;
 }
 
@@ -710,16 +727,16 @@ html.dark-mode .ant-tooltip-arrow::before {
   background: #2a2a2a !important;
 }
 
-/* Tooltip global override — force opaque background in light mode */
+/* Tooltip global override — TRAE Work uses solid dark bg for tooltips */
 .qwenpaw-tooltip-inner,
 .ant-tooltip-inner {
-  background-color: rgba(0, 0, 0, 0.75) !important;
+  background-color: #262626 !important;
   color: #fff !important;
 }
 
 .qwenpaw-tooltip-arrow::before,
 .ant-tooltip-arrow::before {
-  background: rgba(0, 0, 0, 0.75) !important;
+  background: #262626 !important;
 }
 
 /* Disabled chat input overlay in dark mode */
@@ -804,7 +821,7 @@ html.dark-mode [class*="chat-anywhere"] [class*="message"] code {
 }
 
 html.dark-mode [class*="chat-anywhere"] [class*="message"] a {
-  color: #ff7f16 !important;
+  color: #6A6FFF !important;
 }
 
 /* Tool card content blocks — dark mode text and background overrides.
@@ -895,12 +912,12 @@ html.dark-mode
   min-height: 100vh;
   max-height: 100vh;
   overflow: hidden;
-  background: #f9f8f4;
+  background: #F5F5F5;
 }
 
 .ant-layout-content {
   overflow: hidden;
-  background: #f9f8f4;
+  background: #F5F5F5;
 }
 
 .qwenpaw-bubble-list-wrapper {
@@ -939,16 +956,16 @@ html.dark-mode .qwenpaw-sender-content {
   border-color: rgba(255, 255, 255, 0.15) !important;
 }
 
-/* Menu background in light mode */
+/* Menu background in light mode — TRAE Work uses white bg-menu */
 .qwenpaw-menu,
 .ant-menu {
-  background: #f9f8f4 !important;
+  background: #FFFFFF !important;
 }
 
-/* Menu selected item in light mode */
+/* Menu selected item in light mode — TRAE Work uses neutral overlay */
 .qwenpaw-menu-item-selected,
 .ant-menu-item-selected {
-  background: rgba(43, 18, 0, 0.08) !important;
+  background: rgba(115, 115, 115, 0.12) !important;
   color: inherit !important;
 }
 
@@ -958,15 +975,16 @@ html.dark-mode .qwenpaw-sender-content {
   display: none !important;
 }
 
-/* Group title (一级菜单) in light mode */
+/* Group title (一级菜单) in light mode — TRAE Work uppercase with tracking */
 .qwenpaw-menu-submenu-title,
 .ant-menu-submenu-title {
-  font-family: "PingFang SC", sans-serif !important;
+  font-family: "SF Pro Text", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
   font-size: 12px !important;
   font-weight: 500 !important;
   line-height: 32px !important;
-  letter-spacing: normal !important;
-  color: rgba(26, 23, 22, 0.25) !important;
+  letter-spacing: 0.02em !important;
+  text-transform: uppercase !important;
+  color: rgba(115, 115, 115, 0.36) !important;
 }
 
 /* Remove submenu indent - align with parent in light mode */
@@ -986,8 +1004,7 @@ html.dark-mode .qwenpaw-sender-content {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding-bottom: 8px;
-  padding-right: 8px;
+  padding: 0 16px 16px 0;
 }
 
 .page-header {
@@ -997,12 +1014,10 @@ html.dark-mode .qwenpaw-sender-content {
 .page-content {
   flex: 1 1 auto;
   overflow: auto;
-  background-color: #fff;
-  border-radius: 8px;
-  /* 8px */
+  background-color: #F5F5F5;
+  border-radius: 12px;
   box-sizing: border-box;
-  border: 1px solid #eae9e7;
-  /* #EAE9E7 */
+  border: 1px solid rgba(115, 115, 115, 0.12);
 }
 
 .table-container {
@@ -1066,7 +1081,7 @@ html.dark-mode .qwenpaw-sender-content {
 .qwenpaw-btn-primary.qwenpaw-btn-disabled {
   background-color: #f5f5f5 !important;
   background: #f5f5f5 !important;
-  color: rgba(0, 0, 0, 0.25) !important;
+  color: #A1A1A1 !important;
   border: 1px solid #d9d9d9 !important;
   box-shadow: none !important;
 }
@@ -1117,6 +1132,91 @@ html.dark-mode .qwenpaw-btn-danger[disabled],
 html.dark-mode .qwenpaw-btn-danger.qwenpaw-btn-disabled {
   background: rgba(129, 46, 46, 0.32) !important;
   color: rgba(165, 50, 48, 0.8) !important;
+}
+
+/* ─── TRAE Work: Button style overrides ───────────────────────────────────── */
+
+/* TRAE Work: Primary button uses dark invert style */
+.qwenpaw-btn-primary,
+.ant-btn-primary {
+  background: #262626 !important;
+  border-color: #262626 !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  height: 32px !important;
+  padding: 0 16px !important;
+  font-size: 14px !important;
+  box-shadow: none !important;
+}
+.qwenpaw-btn-primary:hover,
+.ant-btn-primary:hover {
+  background: #404040 !important;
+  border-color: #404040 !important;
+}
+.qwenpaw-btn-primary:active,
+.ant-btn-primary:active {
+  background: #171717 !important;
+  border-color: #171717 !important;
+}
+
+/* TRAE Work: Default button style */
+.qwenpaw-btn-default,
+.ant-btn-default {
+  border-radius: 8px !important;
+  height: 32px !important;
+  padding: 0 16px !important;
+  font-size: 14px !important;
+  border-color: rgba(115, 115, 115, 0.12) !important;
+  color: #171717 !important;
+  box-shadow: none !important;
+}
+.qwenpaw-btn-default:hover,
+.ant-btn-default:hover {
+  border-color: rgba(115, 115, 115, 0.18) !important;
+  color: #171717 !important;
+}
+
+/* TRAE Work: Text button style */
+.qwenpaw-btn-text,
+.ant-btn-text {
+  border-radius: 8px !important;
+  height: 32px !important;
+  font-size: 14px !important;
+  color: #404040 !important;
+}
+.qwenpaw-btn-text:hover,
+.ant-btn-text:hover {
+  background: rgba(115, 115, 115, 0.08) !important;
+  color: #171717 !important;
+}
+
+/* ─── TRAE Work: Input style override ─────────────────────────────────────── */
+.qwenpaw-input,
+.ant-input,
+.qwenpaw-input-affix-wrapper,
+.ant-input-affix-wrapper {
+  border-radius: 8px !important;
+  height: 32px !important;
+  font-size: 14px !important;
+  border-color: rgba(115, 115, 115, 0.12) !important;
+}
+.qwenpaw-input:focus,
+.ant-input:focus,
+.qwenpaw-input-focused,
+.ant-input-focused,
+.qwenpaw-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: #000000 !important;
+  box-shadow: 0 0 0 1px #000000 !important;
+}
+
+/* ─── TRAE Work: Card style override ───────────────────────────────────────── */
+.qwenpaw-card,
+.ant-card {
+  border-radius: 12px !important;
+  border: 1px solid rgba(115, 115, 115, 0.12) !important;
+  box-shadow: none !important;
 }
 
 html.dark-mode .qwenpaw-empty-image,

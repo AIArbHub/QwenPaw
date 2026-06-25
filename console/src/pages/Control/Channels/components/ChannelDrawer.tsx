@@ -269,6 +269,13 @@ export function ChannelDrawer({
       case "imessage":
         return (
           <>
+            <Alert
+              type="warning"
+              showIcon
+              message={t("channels.imessageMacOsOnly")}
+              description={t("channels.imessageMacOsOnlyDesc")}
+              style={{ marginBottom: 16 }}
+            />
             <Form.Item
               name="db_path"
               label="DB Path"
@@ -311,9 +318,6 @@ export function ChannelDrawer({
               tooltip={t("channels.acceptBotMessagesTooltip")}
             >
               <Switch />
-            </Form.Item>
-            <Form.Item name="media_dir" label={t("channels.wechatMediaDir")}>
-              <Input placeholder={defaultMediaDir} />
             </Form.Item>
           </>
         );
@@ -435,13 +439,6 @@ export function ChannelDrawer({
                   </>
                 );
               }}
-            </Form.Item>
-            <Form.Item
-              name="endpoint"
-              label={t("channels.dingtalkEndpoint")}
-              tooltip={t("channels.dingtalkEndpointTooltip")}
-            >
-              <Input placeholder="https://api.dingtalk.com" />
             </Form.Item>
             <Form.Item
               name="at_sender_on_reply"
@@ -1348,7 +1345,7 @@ export function ChannelDrawer({
               openExternalLink(finalUrl);
             }}
             className={styles.dingtalkDocBtn}
-            style={{ color: "#FF7F16" }}
+            style={{ color: "#4B3FE3" }}
           >
             {label} Doc
           </Button>
@@ -1360,7 +1357,7 @@ export function ChannelDrawer({
           icon={<LinkOutlined />}
           onClick={() => openExternalLink(TWILIO_CONSOLE_URL)}
           className={styles.dingtalkDocBtn}
-          style={{ color: "#FF7F16" }}
+          style={{ color: "#4B3FE3" }}
         >
           {t("channels.voiceSetupLink")}
         </Button>
@@ -1408,6 +1405,17 @@ export function ChannelDrawer({
             }
           }}
         >
+          {/* Console channel explanation */}
+          {activeKey === "console" && (
+            <Alert
+              type="info"
+              showIcon
+              message={t("channels.consoleChannelTitle")}
+              description={t("channels.consoleChannelDesc")}
+              style={{ marginBottom: 16 }}
+            />
+          )}
+
           <Form.Item
             name="enabled"
             label={t("common.enabled")}

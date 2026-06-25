@@ -10,19 +10,6 @@
   }
 }
 
-@media (max-width: 768px) {
-  .drawer {
-    :global {
-      .qwenpaw-drawer-content {
-        border-radius: 0 !important;
-      }
-      .qwenpaw-drawer-mask {
-        background: rgba(0, 0, 0, 0.45) !important;
-      }
-    }
-  }
-}
-
 /* Header bar */
 .header {
   display: flex;
@@ -72,7 +59,7 @@
   width: 100%;
   height: 36px;
   border-radius: 6px;
-  background: var(--colorPrimary, #ff9d4d);
+  background: var(--color-primary, #ff9d4d);
   border: none;
   color: #fff;
   font-size: 14px;
@@ -189,20 +176,20 @@
 /* Dark mode */
 :global(.dark-mode) {
   .embeddedPanel {
-    background-color: #141414;
+    background-color: #1f1f1f;
     border-left-color: rgba(255, 255, 255, 0.08);
   }
 
   .drawer {
     :global {
       .qwenpaw-drawer-body {
-        background-color: #141414;
+        background-color: #1f1f1f;
       }
     }
   }
 
   .header {
-    background-color: #141414;
+    background-color: #1f1f1f;
   }
 
   .headerTitle {
@@ -214,22 +201,18 @@
   }
 
   .topGradient {
-    background: linear-gradient(180deg, #141414 0%, rgba(31, 31, 31, 0) 100%);
+    background: linear-gradient(180deg, #1f1f1f 0%, rgba(31, 31, 31, 0) 100%);
   }
 
   .bottomGradient {
-    background: linear-gradient(0deg, #141414 0%, rgba(31, 31, 31, 0) 100%);
+    background: linear-gradient(0deg, #1f1f1f 0%, rgba(31, 31, 31, 0) 100%);
   }
 
   .footer {
-    background-color: #141414;
+    background-color: #1f1f1f;
   }
 
   .footerText {
     color: rgba(255, 255, 255, 0.95);
-  }
-
-  .createButton {
-    background: #c75c00;
   }
 }

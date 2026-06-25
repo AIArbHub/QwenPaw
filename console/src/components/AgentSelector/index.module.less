@@ -5,7 +5,7 @@
   gap: 2px;
   padding: 8px 12px;
   background: #fff;
-  border: 1px solid rgba(26, 23, 22, 0.06);
+  border: 1px solid rgba(115, 115, 115, 0.08);
   border-radius: 8px;
   box-sizing: border-box;
   width: 100%;
@@ -20,17 +20,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(43, 18, 0, 0.04);
-  border: 1px solid rgba(26, 23, 22, 0.08);
+  background: rgba(115, 115, 115, 0.06);
+  border: 1px solid rgba(115, 115, 115, 0.10);
   border-radius: 8px;
-  color: #f07e26;
+  color: #4B3FE3;
   cursor: default;
   margin-bottom: 12px;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(43, 18, 0, 0.08);
-    border-color: rgba(240, 126, 38, 0.3);
+    background: rgba(115, 115, 115, 0.10);
+    border-color: rgba(75, 63, 227, 0.3);
   }
 }
 
@@ -42,7 +42,7 @@
   gap: 4px;
   font-size: 12px;
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.4);
+  color: #737373;
   white-space: nowrap;
   user-select: none;
 
@@ -54,7 +54,7 @@
 .agentCountBadge {
   font-size: 12px;
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.4);
+  color: #737373;
 }
 
 .managementLink {
@@ -63,7 +63,7 @@
   gap: 2px;
   font-size: 12px;
   font-weight: 500;
-  color: #f07e26;
+  color: #4B3FE3;
   background: none;
   border: none;
   padding: 0;
@@ -72,7 +72,7 @@
   flex-shrink: 0;
 
   &:hover {
-    color: #d96c18;
+    color: #3a30c0;
   }
 }
 
@@ -110,7 +110,7 @@
     }
 
     .ant-select-arrow {
-      color: rgba(26, 23, 22, 0.35);
+      color: rgba(115, 115, 115, 0.55);
       right: 8px;
 
       .ant-select-suffix {
@@ -138,7 +138,7 @@
 
   svg {
     flex-shrink: 0;
-    color: #f07e26;
+    color: #4B3FE3;
     opacity: 0.85;
   }
 
@@ -157,14 +157,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px 6px;
-  border-bottom: 1px solid rgba(26, 23, 22, 0.06);
+  border-bottom: 1px solid rgba(115, 115, 115, 0.08);
   margin-bottom: 2px;
 }
 
 .dropdownHeaderTitle {
   font-size: 12px;
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.4);
+  color: #737373;
 }
 
 // ─── Dropdown ─────────────────────────────────────────────────────────────────
@@ -174,7 +174,7 @@
   min-width: 242px !important;
   left: 15px !important;
   top: 140px !important;
-  border: 1px solid rgba(26, 23, 22, 0.06) !important;
+  border: 1px solid rgba(115, 115, 115, 0.08) !important;
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.12),
     0 2px 8px rgba(0, 0, 0, 0.06) !important;
@@ -186,17 +186,17 @@
       transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 
       &:hover {
-        background: rgba(43, 18, 0, 0.06) !important;
+        background: rgba(115, 115, 115, 0.08) !important;
       }
 
       &.qwenpaw-select-item-option-selected {
-        background: rgba(43, 18, 0, 0.06) !important;
+        background: rgba(115, 115, 115, 0.08) !important;
 
         .agentOptionIcon {
-          background: linear-gradient(135deg, #f07e26 0%, #f5a05a 100%);
+          background: linear-gradient(135deg, #4B3FE3 0%, #6A6FFF 100%);
           border-color: transparent;
           color: #ffffff;
-          box-shadow: 0 2px 8px rgba(240, 126, 38, 0.4);
+          box-shadow: 0 2px 8px rgba(75, 63, 227, 0.4);
         }
       }
     }
@@ -208,17 +208,17 @@
       transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 
       &:hover {
-        background: rgba(43, 18, 0, 0.06) !important;
+        background: rgba(115, 115, 115, 0.08) !important;
       }
 
       &.ant-select-item-option-selected {
-        background: rgba(43, 18, 0, 0.06) !important;
+        background: rgba(115, 115, 115, 0.08) !important;
 
         .agentOptionIcon {
-          background: linear-gradient(135deg, #f07e26 0%, #f5a05a 100%);
+          background: linear-gradient(135deg, #4B3FE3 0%, #6A6FFF 100%);
           border-color: transparent;
           color: #ffffff;
-          box-shadow: 0 2px 8px rgba(240, 126, 38, 0.4);
+          box-shadow: 0 2px 8px rgba(75, 63, 227, 0.4);
         }
       }
     }
@@ -250,17 +250,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #fff8f2 0%, #fff0e5 100%);
-  border: 1px solid rgba(240, 126, 38, 0.15);
+  background: linear-gradient(135deg, #f0eeff 0%, #e8e5ff 100%);
+  border: 1px solid rgba(75, 63, 227, 0.15);
   border-radius: 8px;
-  color: #f07e26;
+  color: #4B3FE3;
   transition: all 0.2s ease;
 
   .agentOption:hover & {
-    background: linear-gradient(135deg, #ffe9d4 0%, #fff0e5 100%);
-    border-color: rgba(240, 126, 38, 0.3);
-    color: #f07e26;
-    box-shadow: 0 2px 6px rgba(240, 126, 38, 0.15);
+    background: linear-gradient(135deg, #e0dcff 0%, #e8e5ff 100%);
+    border-color: rgba(75, 63, 227, 0.3);
+    color: #4B3FE3;
+    box-shadow: 0 2px 6px rgba(75, 63, 227, 0.15);
   }
 }
 
@@ -292,7 +292,7 @@
 
 .activeIndicator {
   flex-shrink: 0;
-  color: #f07e26;
+  color: #4B3FE3;
   animation: fadeIn 0.3s ease;
 }
 
@@ -319,10 +319,10 @@
 .agentOptionId {
   font-size: 10px;
   font-family: "SF Mono", "Consolas", "Monaco", monospace;
-  color: rgba(240, 126, 38, 0.45);
+  color: rgba(75, 63, 227, 0.45);
   letter-spacing: 0.3px;
   padding-top: 4px;
-  border-top: 1px solid rgba(240, 126, 38, 0.08);
+  border-top: 1px solid rgba(75, 63, 227, 0.08);
 }
 
 // ─── Dark mode overrides ───────────────────────────────────────────────────────
@@ -335,11 +335,11 @@
   .agentSelectorCollapsed {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.1);
-    color: #f07e26;
+    color: #4B3FE3;
 
     &:hover {
       background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(240, 126, 38, 0.4);
+      border-color: rgba(75, 63, 227, 0.4);
     }
   }
 
@@ -397,16 +397,16 @@
     color: rgba(255, 255, 255, 0.9);
 
     svg {
-      color: #f5a05a;
+      color: #6A6FFF;
       opacity: 0.9;
     }
   }
 
   .managementLink {
-    color: #f5a05a;
+    color: #6A6FFF;
 
     &:hover {
-      color: #f07e26;
+      color: #4B3FE3;
     }
   }
 
@@ -426,10 +426,10 @@
           background: rgba(255, 255, 255, 0.08) !important;
 
           .agentOptionIcon {
-            background: linear-gradient(135deg, #f07e26 0%, #f5a05a 100%);
+            background: linear-gradient(135deg, #4B3FE3 0%, #6A6FFF 100%);
             border-color: transparent;
             color: #ffffff;
-            box-shadow: 0 2px 8px rgba(240, 126, 38, 0.5);
+            box-shadow: 0 2px 8px rgba(75, 63, 227, 0.5);
           }
         }
       }
@@ -439,21 +439,21 @@
   .agentOptionIcon {
     background: linear-gradient(
       135deg,
-      rgba(240, 126, 38, 0.15) 0%,
-      rgba(240, 126, 38, 0.08) 100%
+      rgba(75, 63, 227, 0.15) 0%,
+      rgba(75, 63, 227, 0.08) 100%
     );
-    border-color: rgba(245, 160, 90, 0.2);
-    color: #f5a05a;
+    border-color: rgba(106, 111, 255, 0.2);
+    color: #6A6FFF;
 
     .agentOption:hover & {
       background: linear-gradient(
         135deg,
-        rgba(240, 126, 38, 0.3) 0%,
-        rgba(240, 126, 38, 0.15) 100%
+        rgba(75, 63, 227, 0.3) 0%,
+        rgba(75, 63, 227, 0.15) 100%
       );
-      border-color: rgba(245, 160, 90, 0.4);
-      color: #f5b87a;
-      box-shadow: 0 2px 8px rgba(240, 126, 38, 0.3);
+      border-color: rgba(106, 111, 255, 0.4);
+      color: #8B8FFF;
+      box-shadow: 0 2px 8px rgba(75, 63, 227, 0.3);
     }
   }
 
@@ -466,7 +466,7 @@
   }
 
   .agentOptionId {
-    color: rgba(245, 160, 90, 0.5);
-    border-top-color: rgba(245, 160, 90, 0.12);
+    color: rgba(106, 111, 255, 0.5);
+    border-top-color: rgba(106, 111, 255, 0.12);
   }
 }

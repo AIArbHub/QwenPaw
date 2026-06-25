@@ -102,8 +102,8 @@
 
 .skillsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
   padding: 16px;
 }
 
@@ -138,7 +138,7 @@
 
 /* ─── Skill Card ──────────────────────────────────────────────────────────── */
 .skillCard {
-  min-height: 180px;
+  min-height: 240px;
   height: auto;
   display: flex;
   flex-direction: column;
@@ -171,7 +171,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .cardTopRight {
@@ -264,12 +264,12 @@
 
   .channelIcon {
     font-size: 12px;
-    color: rgba(26, 23, 22, 0.45);
+    color: rgba(115, 115, 115, 0.36);
     flex-shrink: 0;
   }
 
   .channelLabel {
-    color: rgba(26, 23, 22, 0.65);
+    color: #737373;
     flex-shrink: 0;
   }
 
@@ -283,11 +283,11 @@
 }
 
 .fileIcon {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
   background: #f7f5f3;
-  font-size: 26px;
+  font-size: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -295,9 +295,9 @@
 }
 
 .skillEmoji {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
   background: #f7f5f3;
   font-size: 28px;
   line-height: 1;
@@ -310,7 +310,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
   flex-wrap: nowrap;
 }
 
@@ -353,20 +353,20 @@
 .descriptionLabel {
   margin: 0 0 4px 0;
   font-size: 12px;
-  color: rgba(26, 23, 22, 0.65);
+  color: rgba(115, 115, 115, 0.55);
   font-weight: normal;
 }
 
 .descriptionText {
   border-radius: 4px;
-  background: rgba(43, 18, 0, 0.02);
+  background: rgba(115, 115, 115, 0.04);
   box-sizing: border-box;
   border: 1px solid #f3f1f0;
   padding: 2px 4px;
-  line-height: 18px;
+  line-height: 20px;
   margin: 0;
-  font-size: 12px;
-  color: rgba(20, 20, 19, 0.55);
+  font-size: 13px;
+  color: rgba(20, 20, 19, 0.65);
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -376,15 +376,15 @@
 
 /* Description section */
 .descriptionSection {
-  margin-top: 6px;
+  margin-top: 8px;
   flex: 1;
 }
 
 .descriptionSectionLabel {
   display: block;
-  margin: 0 0 3px 0;
-  font-size: 12px;
-  color: rgba(20, 20, 19, 0.45);
+  margin: 0 0 5px 0;
+  font-size: 13px;
+  color: rgba(20, 20, 19, 0.55);
   font-weight: normal;
 }
 
@@ -392,33 +392,32 @@
 .metaInfoRow {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  margin-bottom: 4px;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 6px;
 }
 
 .metaInfoLabel {
-  color: rgba(20, 20, 19, 0.45);
-  min-width: 60px;
+  color: rgba(20, 20, 19, 0.55);
+  min-width: 72px;
   flex-shrink: 0;
+  padding-top: 2px;
 }
 
 .metaInfoValue {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: rgba(20, 20, 19, 0.75);
+  color: rgba(20, 20, 19, 0.88);
   font-weight: 500;
-  padding: 0 6px;
-  border-radius: 3px;
-  background-color: rgba(239, 240, 243, 0.5);
-  font-size: 12px;
-  line-height: 20px;
+  padding: 1px 8px;
+  border-radius: 4px;
+  background-color: rgba(239, 240, 243, 0.6);
 }
 
 .calendarIcon {
   font-size: 11px;
-  color: rgba(26, 23, 22, 0.45);
+  color: rgba(115, 115, 115, 0.36);
 }
 
 .metaContainer {
@@ -436,7 +435,7 @@
 
 .metaLabel {
   font-size: 12px;
-  color: rgba(26, 23, 22, 0.65);
+  color: #737373;
   min-width: 80px;
   flex-shrink: 0;
 }
@@ -619,88 +618,9 @@
     justify-content: space-between;
   }
 
-  .headerRight {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    width: 100%;
-  }
-
   .headerActionsLeft,
-  .headerActionsRight,
-  .batchActions {
+  .headerActionsRight {
     flex-wrap: wrap;
-    width: 100%;
-
-    > * {
-      flex: 1 0 auto;
-      min-width: 0;
-    }
-
-    :global(.qwenpaw-btn) {
-      min-width: 0;
-    }
-  }
-
-  .primaryTransferButton {
-    min-width: 0;
-  }
-
-  .toolbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  .searchContainer {
-    max-width: none;
-    width: 100%;
-  }
-
-  .searchInput {
-    :global(input) {
-      text-align: center;
-    }
-
-    &::placeholder {
-      text-align: center;
-    }
-  }
-
-  .tagSelect {
-    :global {
-      .qwenpaw-select-selection-placeholder,
-      .ant-select-selection-placeholder {
-        text-align: center;
-      }
-
-      .qwenpaw-select-selection-overflow,
-      .ant-select-selection-overflow {
-        justify-content: center;
-      }
-    }
-  }
-
-  .toolbarRight {
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .skillsGrid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 12px;
-  }
-
-  .skillCard {
-    min-height: auto;
-  }
-
-  .cardFooter {
-    position: static;
-    margin-top: 12px;
-    padding: 0;
-    background: transparent;
   }
 
   .descriptionContent {
@@ -807,7 +727,7 @@
   min-width: 0;
 
   &:hover {
-    border-color: #ff7f16;
+    border-color: #4B3FE3;
   }
 
   &.pickerAllCard {
@@ -828,7 +748,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #ff7f16;
+  background: #4B3FE3;
   color: #fff;
   display: flex;
   align-items: center;
@@ -918,7 +838,7 @@
   }
 
   &:focus {
-    border-color: #ff7f16;
+    border-color: #4B3FE3;
   }
 }
 
@@ -1039,122 +959,6 @@
   }
 }
 
-/* ─── Panel Sections (Enabled/Disabled Split) ───────────────────────────── */
-.panelSection {
-  margin: 16px;
-  padding: 20px;
-  background: var(--color-bg-base, #ffffff);
-  border: 1px solid var(--color-border-secondary, #eae8e7);
-  border-radius: 12px;
-}
-
-.panelSectionDashed {
-  margin: 16px;
-  padding: 20px;
-  background: transparent;
-  border: 1px dashed var(--color-border-secondary, #d9d9d9);
-  border-radius: 12px;
-}
-
-.panelTitle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(20, 20, 19, 0.65);
-}
-
-.panelDotGreen {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #52c41a;
-}
-
-.panelDotGray {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(20, 20, 19, 0.25);
-}
-
-.panelCount {
-  margin-left: auto;
-  font-size: 13px;
-  font-weight: 400;
-  color: #52c41a;
-}
-
-/* ─── Disabled Skills Compact List (list mode) ──────────────────────────── */
-.disabledSkillsList {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-/* ─── Disabled Skills Grid (card mode) ──────────────────────────────────── */
-.disabledSkillsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 8px;
-}
-
-.disabledSkillGridItem {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border: 1px solid #f3f4f6;
-  border-radius: 8px;
-  background: #fafafa;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: #fff;
-    border-color: #6366f1;
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
-  }
-}
-
-.disabledSkillGridIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-
-  .skillEmoji {
-    width: 28px;
-    height: 28px;
-    font-size: 16px;
-  }
-}
-
-.disabledSkillGridName {
-  font-size: 13px;
-  font-weight: 500;
-  flex: 1;
-  color: #1a1a1a;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.disabledSkillGridAction {
-  font-size: 11px;
-  color: #6366f1;
-  font-weight: 500;
-  white-space: nowrap;
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
 /* ─── List Mode ─────────────────────────────────────────────────────────── */
 .skillsList {
   display: flex;
@@ -1272,11 +1076,11 @@
 /* ─── Dark mode ─────────────────────────────────────────────────────────────── */
 :global(.dark-mode) {
   .fileIcon {
-    background: rgba(26, 23, 22, 0.88);
+    background: rgba(255, 255, 255, 0.88);
   }
 
   .skillEmoji {
-    background: rgba(26, 23, 22, 0.88);
+    background: rgba(255, 255, 255, 0.88);
   }
 
   .pageHeader {
@@ -1469,7 +1273,7 @@
     }
 
     &:focus {
-      border-color: #ff7f16;
+      border-color: #4B3FE3;
     }
   }
 
@@ -1541,7 +1345,7 @@
   }
 
   .selectedCard {
-    border-color: #ff7f16 !important;
+    border-color: #4B3FE3 !important;
     box-shadow: 0 0 0 1px rgba(255, 127, 22, 0.3) !important;
   }
 
@@ -1599,50 +1403,6 @@
   }
 
   /* List mode - dark mode */
-  .panelSection {
-    background: rgba(255, 255, 255, 0.03);
-    border-color: rgba(255, 255, 255, 0.06);
-  }
-
-  .panelSectionDashed {
-    background: transparent;
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .panelTitle {
-    color: rgba(255, 255, 255, 0.5);
-  }
-
-  .panelDotGreen {
-    background: #34d399;
-  }
-
-  .panelDotGray {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  .panelCount {
-    color: #34d399;
-  }
-
-  .disabledSkillGridItem {
-    background: #2a2a2a;
-    border-color: rgba(255, 255, 255, 0.1);
-
-    &:hover {
-      background: #333;
-      border-color: rgba(99, 102, 241, 0.4);
-    }
-  }
-
-  .disabledSkillGridName {
-    color: rgba(255, 255, 255, 0.85);
-  }
-
-  .disabledSkillGridAction {
-    color: #4da3ff;
-  }
-
   .skillListItem {
     background: #1f1f1f;
     border-color: rgba(255, 255, 255, 0.15);
