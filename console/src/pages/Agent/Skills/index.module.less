@@ -1073,6 +1073,105 @@
   margin-top: 6px;
 }
 
+/* ─── Panel Sections (Enabled / Available groups) ──────────────────────────── */
+
+.panelSection {
+  background: #fafbfc;
+  border: 1px solid #f3f4f6;
+  border-radius: 12px;
+  padding: 18px;
+  margin: 16px;
+}
+
+.panelSectionDashed {
+  background: #fff;
+  border: 1px dashed #e5e7eb;
+  border-radius: 12px;
+  padding: 18px;
+  margin: 0 16px 16px;
+}
+
+.panelTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panelDotGreen {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  flex-shrink: 0;
+}
+
+.panelDotGray {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d1d5db;
+  flex-shrink: 0;
+}
+
+.panelCount {
+  font-size: 11px;
+  color: #10b981;
+  font-weight: 400;
+  margin-left: auto;
+}
+
+/* ─── Disabled Skills Grid ─────────────────────────────────────────────────── */
+
+.disabledSkillsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.disabledSkillGridItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid #f3f4f6;
+  border-radius: 8px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: #fff;
+    border-color: #6A6FFF;
+    box-shadow: 0 2px 8px rgba(106, 111, 255, 0.1);
+  }
+}
+
+.disabledSkillGridName {
+  font-size: 13px;
+  font-weight: 500;
+  flex: 1;
+  color: #1a1a1a;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.disabledSkillGridIcon {
+  flex-shrink: 0;
+}
+
+.disabledSkillGridAction {
+  font-size: 11px;
+  color: #6A6FFF;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 /* ─── Dark mode ─────────────────────────────────────────────────────────────── */
 :global(.dark-mode) {
   .fileIcon {
@@ -1453,5 +1552,46 @@
         }
       }
     }
+  }
+
+  /* Panel sections */
+  .panelSection {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .panelSectionDashed {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .panelTitle {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .panelDotGray {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .panelCount {
+    color: #10b981;
+  }
+
+  .disabledSkillGridItem {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: #6A6FFF;
+    }
+  }
+
+  .disabledSkillGridName {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .disabledSkillGridAction {
+    color: #6A6FFF;
   }
 }
