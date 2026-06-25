@@ -168,7 +168,7 @@ const modalVersion = onDesktop && desktop.version
     }
 
     const faqLang = lang === "zh" ? "zh" : "en";
-    const url = `https://qwenpaw.agentscope.io/docs/faq.${faqLang}.md`;
+    const url = `https://www.aiarb.cn/docs/faq.${faqLang}.md`;
     fetch(url, { cache: "no-cache" })
       .then((res) => (res.ok ? res.text() : Promise.reject()))
       .then((text) => {
