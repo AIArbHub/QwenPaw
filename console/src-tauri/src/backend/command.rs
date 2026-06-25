@@ -97,16 +97,16 @@ fn packaged_python_runtime(app: &tauri::AppHandle) -> Option<PathBuf> {
 #[cfg(not(debug_assertions))]
 fn packaged_backend_executable(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     let executable_name = if cfg!(windows) {
-        "qwenpaw-backend.exe"
+        "ai-arb-backend.exe"
     } else {
-        "qwenpaw-backend"
+        "ai-arb-backend"
     };
     let path = app
         .path()
         .resource_dir()
         .map_err(|err| format!("failed to resolve resource directory: {err}"))?
         .join("binaries")
-        .join("qwenpaw-backend")
+        .join("ai-arb-backend")
         .join(executable_name);
 
     if path.is_file() {

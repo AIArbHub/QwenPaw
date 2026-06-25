@@ -98,7 +98,7 @@ echo ""
 
 echo "== Step 2b: Signing PyInstaller Backend =="
 bash "${SIGN_MACOS_BUNDLE}" \
-    "${REPO_ROOT}/console/src-tauri/binaries/qwenpaw-backend" \
+    "${REPO_ROOT}/console/src-tauri/binaries/ai-arb-backend" \
     "${APPLE_SIGNING_IDENTITY}"
 echo "PyInstaller backend signed"
 echo ""
