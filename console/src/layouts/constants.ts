@@ -2,7 +2,9 @@
 
 export const PYPI_URL = "https://pypi.org/pypi/qwenpaw/json";
 
-export const GITHUB_URL = "https://github.com/agentscope-ai/QwenPaw" as const;
+export const SITE_URL = "https://www.aiarb.cn" as const;
+
+export const GITHUB_URL = SITE_URL;
 
 // ── Timing ────────────────────────────────────────────────────────────────
 
@@ -13,19 +15,13 @@ export const ONE_HOUR_MS = 60 * 60 * 1000;
 export const getWebsiteLang = (lang: string): string =>
   lang.startsWith("zh") ? "zh" : "en";
 
-export const getDocsUrl = (lang: string): string =>
-  `https://qwenpaw.agentscope.io/docs/intro?lang=${getWebsiteLang(lang)}`;
+export const getDocsUrl = (_lang: string): string => SITE_URL;
 
-export const getFaqUrl = (lang: string): string =>
-  `https://qwenpaw.agentscope.io/docs/faq?lang=${getWebsiteLang(lang)}`;
+export const getFaqUrl = (_lang: string): string => SITE_URL;
 
-export const getReleaseNotesUrl = (lang: string): string =>
-  `https://qwenpaw.agentscope.io/release-notes?lang=${getWebsiteLang(lang)}`;
+export const getReleaseNotesUrl = (_lang: string): string => SITE_URL;
 
-export const getFeatureDemosUrl = (lang: string): string =>
-  `https://qwenpaw.agentscope.io/docs/functiondemo?lang=${getWebsiteLang(
-    lang,
-  )}`;
+export const getFeatureDemosUrl = (_lang: string): string => SITE_URL;
 
 // ── Version helpers ────────────────────────────────────────────────────────
 
