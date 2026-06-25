@@ -272,6 +272,13 @@ export function ChannelDrawer({
       case "imessage":
         return (
           <>
+            <Alert
+              type="warning"
+              showIcon
+              message={t("channels.imessageMacOsOnly")}
+              description={t("channels.imessageMacOsOnlyDesc")}
+              style={{ marginBottom: 16 }}
+            />
             <Form.Item
               name="db_path"
               label="DB Path"
@@ -1440,6 +1447,17 @@ export function ChannelDrawer({
             }
           }}
         >
+          {/* Console channel explanation */}
+          {activeKey === "console" && (
+            <Alert
+              type="info"
+              showIcon
+              message={t("channels.consoleChannelTitle")}
+              description={t("channels.consoleChannelDesc")}
+              style={{ marginBottom: 16 }}
+            />
+          )}
+
           <Form.Item
             name="enabled"
             label={t("common.enabled")}

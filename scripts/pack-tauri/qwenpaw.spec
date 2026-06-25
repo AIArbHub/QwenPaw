@@ -166,7 +166,7 @@ backend_exe = EXE(
     pyz,
     script_entry("entry.py"),
     [],
-    name="qwenpaw-backend",
+    name="ai-arb-backend",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -204,5 +204,5 @@ coll = COLLECT(
     a.datas,
     strip=False,
     upx=False,
-    name="qwenpaw-backend",
+    name="ai-arb-backend",
 )

@@ -100,8 +100,8 @@ echo "PyInstaller build complete"
 echo ""
 
 # Verify output
-BACKEND_DIR="${DIST}/pyinstaller/qwenpaw-backend"
-BACKEND_EXE="${BACKEND_DIR}/qwenpaw-backend"
+BACKEND_DIR="${DIST}/pyinstaller/ai-arb-backend"
+BACKEND_EXE="${BACKEND_DIR}/ai-arb-backend"
 CLI_EXE="${BACKEND_DIR}/qwenpaw"
 if [ ! -d "${BACKEND_DIR}" ]; then
     echo "ERROR: Backend bundle directory not found at ${BACKEND_DIR}"
@@ -128,11 +128,11 @@ echo "== Copying to Tauri binaries directory =="
 BINARIES_DIR="${REPO_ROOT}/console/src-tauri/binaries"
 mkdir -p "${BINARIES_DIR}"
 
-DEST="${BINARIES_DIR}/qwenpaw-backend"
+DEST="${BINARIES_DIR}/ai-arb-backend"
 mkdir -p "${DEST}"
 find "${DEST}" -mindepth 1 -exec rm -rf {} +
 cp -R "${BACKEND_DIR}/." "${DEST}/"
-chmod +x "${DEST}/qwenpaw-backend"
+chmod +x "${DEST}/ai-arb-backend"
 chmod +x "${DEST}/qwenpaw"
 echo "Copied to: ${DEST}"
 echo ""

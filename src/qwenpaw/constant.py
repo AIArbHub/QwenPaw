@@ -113,7 +113,7 @@ SECRET_DIR = (
 # Env key for overriding the OS keychain account used for the master key.
 KEYRING_ACCOUNT_ENV = "QWENPAW_KEYRING_ACCOUNT"
 
-PROJECT_NAME = "QwenPaw"
+PROJECT_NAME = "AI Arb"
 
 # Message metadata tags shared across agent middleware and memory managers.
 QWENPAW_MESSAGE_TAG_KEY = "qwenpaw_tag"
@@ -174,7 +174,7 @@ def _discover_agent_languages() -> frozenset[str]:
 
 SUPPORTED_AGENT_LANGUAGES: frozenset[str] = _discover_agent_languages()
 
-BUILTIN_QA_AGENT_ID = "QwenPaw_QA_Agent_0.2"
+BUILTIN_QA_AGENT_ID = "AI_Arb_QA_Agent_0.2"
 BUILTIN_QA_AGENT_NAME = "QA Agent"
 # Default skills when the builtin QA workspace is first created only.
 BUILTIN_QA_AGENT_SKILL_NAMES: tuple[str, ...] = (

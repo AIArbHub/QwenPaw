@@ -10,7 +10,7 @@ metadata:
 
 <!--
   Inspired by Anthropic's `skill-creator` skill (the "creating a skill"
-  portion in particular). Rewritten for QwenPaw.
+  portion in particular). Rewritten for AI Arb.
   Credit: https://github.com/anthropics/skills/blob/main/skill-creator/SKILL.md
 -->
 

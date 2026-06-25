@@ -76,7 +76,10 @@ function ChannelsPage() {
     (key: ChannelKey) => {
       setActiveKey(key);
       setDrawerOpen(true);
-      const channelConfig = channels[key] || { enabled: false, bot_prefix: "" };
+      const channelConfig = channels[key] || {
+      enabled: key === "console",
+      bot_prefix: "",
+    };
       // Migrate legacy allowlist policy to new access control fields
       const accessControlDm =
         channelConfig.access_control_dm ||
