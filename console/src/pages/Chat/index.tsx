@@ -6,7 +6,6 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Button, Modal, Result, Tooltip } from "antd";
 import { useAppMessage } from "../../hooks/useAppMessage";
-import { useIsMobile } from "../../hooks/useIsMobile";
 import { ExclamationCircleOutlined, SettingOutlined } from "@ant-design/icons";
 import { SparkCopyLine, SparkAttachmentLine } from "@agentscope-ai/icons";
 import { usePlugins } from "../../plugins/PluginContext";
@@ -1319,11 +1318,6 @@ export default function ChatPage() {
   >(new Map());
   const { mode: sidebarMode } = useSidebarModeStore();
   const isFullMode = sidebarMode === "full";
-
-  // On mobile viewports the right-side history panel should always be
-  // available regardless of the sidebar mode setting.
-  const isMobile = useIsMobile();
-  const effectiveIsFullMode = isFullMode || isMobile;
 
   // Right-side history panel state
   const [historyPanelOpen, setHistoryPanelOpen] = useState(() => {
@@ -2698,10 +2692,8 @@ export default function ChatPage() {
             <span style={{ flex: 1 }} />
             <ModelSelector />
             <ChatActionGroup
-              onToggleHistory={
-                effectiveIsFullMode ? toggleHistoryPanel : undefined
-              }
-              historyOpen={effectiveIsFullMode ? historyPanelOpen : false}
+              onToggleHistory={isFullMode ? toggleHistoryPanel : undefined}
+              historyOpen={isFullMode ? historyPanelOpen : false}
               isWideMode={isWideMode}
               onToggleWideMode={toggleWideMode}
             />
@@ -3180,29 +3172,19 @@ export default function ChatPage() {
       {/* End of main chat area */}
 
       {/* Right-side history panel (full mode only) */}
-      {effectiveIsFullMode && historyPanelOpen && (
+      {isFullMode && historyPanelOpen && (
         <>
-          {isMobile ? (
+          <div
+            className={styles.historyPanelMask}
+            onClick={toggleHistoryPanel}
+          />
+          <div className={styles.historyPanel}>
             <ChatSessionDrawer
               open={historyPanelOpen}
               onClose={toggleHistoryPanel}
-              embedded={false}
+              embedded
             />
-          ) : (
-            <>
-              <div
-                className={styles.historyPanelMask}
-                onClick={toggleHistoryPanel}
-              />
-              <div className={styles.historyPanel}>
-                <ChatSessionDrawer
-                  open={historyPanelOpen}
-                  onClose={toggleHistoryPanel}
-                  embedded
-                />
-              </div>
-            </>
-          )}
+          </div>
         </>
       )}
 

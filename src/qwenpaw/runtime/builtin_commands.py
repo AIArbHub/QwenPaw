@@ -273,8 +273,6 @@ _CONVERSATION_COMMANDS = frozenset(
         "proactive",
         "plan",
         "system_prompt",
-        "dream",
-        "memorize",
     },
 )
 
@@ -445,12 +443,12 @@ def _make_conversation_adapter(name: str) -> CommandSpec:
 
         try:
             cfg = load_agent_config(agent_id)
-            agent_name = cfg.name if cfg and cfg.name else "AI Arb"
+            agent_name = cfg.name if cfg and cfg.name else "QwenPaw"
         except Exception:
-            agent_name = "AI Arb"
+            agent_name = "QwenPaw"
 
         cmd_handler = CommandHandler(
-            agent_name=agent_name,
+            agent_name="AI Arb",
             state=state,
             agent_id=agent_id,
             memory_manager=getattr(workspace, "memory_manager", None),
