@@ -11,7 +11,6 @@ import {
   PendingApprovalsDrawer,
   useChannels,
   getChannelLabel,
-  ChannelAvailableItem,
   type ChannelKey,
 } from "./components";
 import { PageHeader } from "@/components/PageHeader";
@@ -49,7 +48,7 @@ function ChannelsPage() {
   }, [fetchPendingCount]);
 
   // Sort cards: enabled first, then disabled (preserve orderedKeys order within each group)
-  const { enabledCards, disabledCards } = useMemo(() => {
+  const cards = useMemo(() => {
     const enabledCards: { key: ChannelKey; config: Record<string, unknown> }[] =
       [];
     const disabledCards: {
@@ -69,7 +68,7 @@ function ChannelsPage() {
       }
     });
 
-    return { enabledCards, disabledCards };
+    return [...enabledCards, ...disabledCards];
   }, [channels, orderedKeys, filter, isBuiltin]);
 
   const handleCardClick = useCallback(
@@ -188,69 +187,16 @@ function ChannelsPage() {
             <span className={styles.loadingText}>{t("channels.loading")}</span>
           </div>
         ) : (
-          <>
-            {/* Enabled Channels Section */}
-            <div className={styles.panelSection}>
-              <div className={styles.panelTitle}>
-                <span className={styles.panelDotGreen} />
-                {t("channels.enabledSection")}
-                <span className={styles.panelCount}>
-                  {t("channels.enabledCount", { count: enabledCards.length })}
-                </span>
-              </div>
-
-              {enabledCards.length > 0 ? (
-                <div className={styles.channelsGrid}>
-                  {enabledCards.map(({ key, config }) => (
-                    <ChannelCard
-                      key={key}
-                      channelKey={key}
-                      config={config}
-                      onClick={() => handleCardClick(key)}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.emptyConfigured}>
-                  <p>{t("channels.noEnabledChannels")}</p>
-                  {disabledCards.length > 0 && (
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        document
-                          .getElementById("available-channels")
-                          ?.scrollIntoView({ behavior: "smooth" });
-                      }}
-                    >
-                      {t("channels.goEnableChannels")}
-                    </Button>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Available Channels Section */}
-            {disabledCards.length > 0 && (
-              <div
-                id="available-channels"
-                className={styles.panelSectionDashed}
-              >
-                <div className={styles.panelTitle}>
-                  <span className={styles.panelDotGray} />
-                  {t("channels.availableSection")}
-                </div>
-                <div className={styles.availableGrid}>
-                  {disabledCards.map(({ key }) => (
-                    <ChannelAvailableItem
-                      key={key}
-                      channelKey={key}
-                      onClick={() => handleCardClick(key)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
+          <div className={styles.channelsGrid}>
+            {cards.map(({ key, config }) => (
+              <ChannelCard
+                key={key}
+                channelKey={key}
+                config={config}
+                onClick={() => handleCardClick(key)}
+              />
+            ))}
+          </div>
         )}
       </div>
       <ChannelDrawer
