@@ -11,7 +11,6 @@ import {
   PendingApprovalsDrawer,
   useChannels,
   getChannelLabel,
-  ChannelAvailableItem,
   type ChannelKey,
 } from "./components";
 import { PageHeader } from "@/components/PageHeader";
@@ -55,7 +54,7 @@ function ChannelsPage() {
   }, [fetchPendingCount]);
 
   // Sort cards: enabled first, then disabled (preserve orderedKeys order within each group)
-  const { enabledCards, disabledCards } = useMemo(() => {
+  const cards = useMemo(() => {
     const enabledCards: { key: ChannelKey; config: Record<string, unknown> }[] =
       [];
     const disabledCards: {
@@ -75,7 +74,7 @@ function ChannelsPage() {
       }
     });
 
-    return { enabledCards, disabledCards };
+    return [...enabledCards, ...disabledCards];
   }, [channels, orderedKeys, filter, isBuiltin]);
 
   const handleCardClick = useCallback(
@@ -260,6 +259,7 @@ function ChannelsPage() {
               </div>
             )}
           </>
+
         )}
       </div>
       <ChannelDrawer

@@ -368,9 +368,6 @@ export function ChannelDrawer({
             >
               <Switch />
             </Form.Item>
-            <Form.Item name="media_dir" label={t("channels.wechatMediaDir")}>
-              <Input placeholder={defaultMediaDir} />
-            </Form.Item>
           </>
         );
 
@@ -491,13 +488,6 @@ export function ChannelDrawer({
                   </>
                 );
               }}
-            </Form.Item>
-            <Form.Item
-              name="endpoint"
-              label={t("channels.dingtalkEndpoint")}
-              tooltip={t("channels.dingtalkEndpointTooltip")}
-            >
-              <Input placeholder="https://api.dingtalk.com" />
             </Form.Item>
             <Form.Item
               name="at_sender_on_reply"

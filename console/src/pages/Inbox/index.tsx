@@ -53,12 +53,6 @@ type TabKey = "approvals" | "messages";
 const INBOX_TAB_STORAGE_KEY = "qwenpaw.inbox.activeTab";
 const PUSH_MESSAGES_PAGE_SIZE = 5;
 
-const SOURCE_TYPE_LABEL_KEYS: Record<string, string> = {
-  cron: "inbox.sourceTypeCron",
-  heartbeat: "inbox.sourceTypeHeartbeat",
-  memory: "inbox.sourceTypeMemory",
-};
-
 const resolveInitialTab = (): TabKey => {
   if (typeof window === "undefined") {
     return "messages";
@@ -88,9 +82,6 @@ export default function InboxPage() {
   const [selectedAgentFilter, setSelectedAgentFilter] = useState<
     string | undefined
   >(undefined);
-  const [selectedSourceTypeFilter, setSelectedSourceTypeFilter] = useState<
-    string | undefined
-  >(undefined);
   const [messagesPage, setMessagesPage] = useState(1);
   const [selectedMessageIds, setSelectedMessageIds] = useState<string[]>([]);
   const [batchMode, setBatchMode] = useState(false);
@@ -111,22 +102,14 @@ export default function InboxPage() {
     [agents, t],
   );
   const filteredPushMessages = useMemo(() => {
-    return pushMessages.filter((message) => {
-      if (
-        selectedAgentFilter &&
-        (message.metadata?.agentId || DEFAULT_AGENT_ID) !== selectedAgentFilter
-      ) {
-        return false;
-      }
-      if (
-        selectedSourceTypeFilter &&
-        message.metadata?.sourceType !== selectedSourceTypeFilter
-      ) {
-        return false;
-      }
-      return true;
-    });
-  }, [pushMessages, selectedAgentFilter, selectedSourceTypeFilter]);
+    if (!selectedAgentFilter) {
+      return pushMessages;
+    }
+    return pushMessages.filter(
+      (message) =>
+        (message.metadata?.agentId || DEFAULT_AGENT_ID) === selectedAgentFilter,
+    );
+  }, [pushMessages, selectedAgentFilter]);
   const pushMessageAgentOptions = useMemo(() => {
     const ids = new Set<string>(
       filteredPushMessages.map(
@@ -147,7 +130,7 @@ export default function InboxPage() {
       }));
     return options;
   }, [agentDisplayNameById, filteredPushMessages, pushMessages, t]);
-  const sourceTypeOptions = useMemo(() => {
+const sourceTypeOptions = useMemo(() => {
     const types = new Set<string>(
       pushMessages
         .map((m) => m.metadata?.sourceType)
@@ -160,6 +143,13 @@ export default function InboxPage() {
         label: t(SOURCE_TYPE_LABEL_KEYS[type] || type),
       }));
   }, [pushMessages, t]);
+  const urgentApprovalCount = useMemo(
+    () =>
+      pendingApprovals.filter((item) =>
+        ["high", "critical"].includes(item.severity?.toLowerCase?.() || ""),
+      ).length,
+    [pendingApprovals],
+  );
   const approvalCount = pendingApprovals.length;
   const pagedPushMessages = useMemo(() => {
     const start = (messagesPage - 1) * PUSH_MESSAGES_PAGE_SIZE;
@@ -250,7 +240,7 @@ export default function InboxPage() {
 
   useEffect(() => {
     setMessagesPage(1);
-  }, [selectedAgentFilter, selectedSourceTypeFilter]);
+  }, [selectedAgentFilter]);
 
   const handleViewMessage = (messageId: string) => {
     const found = pushMessages.find((item) => item.id === messageId);
@@ -335,15 +325,6 @@ export default function InboxPage() {
                 options={pushMessageAgentOptions}
                 style={{ width: 180 }}
                 placeholder={t("inbox.filterByAgent")}
-              />
-              <Select
-                size="middle"
-                value={selectedSourceTypeFilter}
-                onChange={(value) => setSelectedSourceTypeFilter(value)}
-                allowClear
-                options={sourceTypeOptions}
-                style={{ width: 160 }}
-                placeholder={t("inbox.filterBySourceType")}
               />
             </div>
             <div className={styles.messagesSelectionTools}>
