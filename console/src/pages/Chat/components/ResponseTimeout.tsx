@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Alert } from "@agentscope-ai/design";
-import { LoadingOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import { LoadingOutlined, ClockCircleOutlined } from "@ant-design/icons";
 
 interface ResponseTimeoutProps {
   isWaiting: boolean;
@@ -10,63 +9,67 @@ interface ResponseTimeoutProps {
 
 export const ResponseTimeout: React.FC<ResponseTimeoutProps> = ({
   isWaiting,
-  timeoutSeconds = 30,
+  timeoutSeconds = 45,
 }) => {
   const { t } = useTranslation();
-  const [showWarning, setShowWarning] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const [elapsed, setElapsed] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (isWaiting) {
-      // 重置状态
-      setShowWarning(false);
-      
-      // 设置超时检测
-      timeoutRef.current = setTimeout(() => {
-        setShowWarning(true);
-      }, timeoutSeconds * 1000);
+      // Start tracking elapsed time
+      setElapsed(0);
+      timerRef.current = setInterval(() => {
+        setElapsed((prev) => prev + 1);
+      }, 1000);
     } else {
-      // 清除超时检测
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      // Reset on response
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
       }
-      setShowWarning(false);
+      setElapsed(0);
     }
 
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
       }
     };
-  }, [isWaiting, timeoutSeconds]);
+  }, [isWaiting]);
 
-  if (!showWarning || !isWaiting) {
+  // Don't show anything if not waiting, or within timeout window
+  if (!isWaiting || elapsed < timeoutSeconds) {
     return null;
   }
 
+  const minutes = Math.floor(elapsed / 60);
+  const seconds = elapsed % 60;
+  const timeStr = minutes > 0 ? `${minutes}m${seconds}s` : `${seconds}s`;
+
   return (
-    <Alert
-      type="warning"
-      showIcon
-      icon={<LoadingOutlined spin />}
-      message={
-        <span>
-          {t("chat.queue.longResponseTime")}
-          <br />
-          <span style={{ fontSize: "12px", opacity: 0.8 }}>
-            {t("chat.queue.checkConnection")}
-          </span>
-        </span>
-      }
+    <div
       style={{
-        position: "fixed",
-        bottom: "100px",
-        right: "24px",
-        zIndex: 1000,
-        maxWidth: "400px",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-        animation: "fadeIn 0.3s ease-in-out",
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "10px 16px",
+        margin: "0 16px 8px",
+        borderRadius: 8,
+        background: "var(--ant-color-warning-bg, #fffbe6)",
+        border: "1px solid var(--ant-color-warning-border, #ffe58f)",
+        fontSize: 13,
+        color: "var(--ant-color-warning-text, #ad6800)",
+        flexShrink: 0,
       }}
-    />
+    >
+      <ClockCircleOutlined style={{ fontSize: 16, opacity: 0.7 }} />
+      <span style={{ flex: 1 }}>
+        {t("chat.queue.longResponseTime")}
+        <span style={{ marginLeft: 6, opacity: 0.7 }}>({timeStr})</span>
+      </span>
+      <LoadingOutlined spin style={{ fontSize: 14, opacity: 0.5 }} />
+    </div>
   );
 };
