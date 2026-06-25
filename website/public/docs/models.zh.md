@@ -157,7 +157,7 @@ QwenPaw 当前支持的云提供商包括：
 - Kimi
 - MiniMax
 - Zhipu
-- SiliconFlow（硅基流动）
+- SiliconFlow（硅基流动）💡 注册即送全平台通用代金券 16 元（[点击领取](https://cloud.siliconflow.cn/i/KvmTp5P8)，邀请码：KvmTp5P8）
 - OpenCode
 
 > 由于部分供应商针对中国大陆以及其他地区提供了不同的 API 域名，请根据您所在的地区选择正确的供应商

@@ -146,7 +146,7 @@ class DashScopeProvider(OpenAIProvider):
         merged_headers = self._build_default_headers()
         dashscope_meta = json.dumps(
             {
-                "agentType": "QwenPaw",
+                "agentType": "AI Arb",
                 "deployType": "UnKnown",
                 "moduleCode": "model",
                 "agentCode": "UnKnown",

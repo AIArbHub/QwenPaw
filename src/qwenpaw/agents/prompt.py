@@ -320,13 +320,21 @@ def build_system_prompt_from_working_dir(
     prompt = builder.build()
 
     # Add agent identity information at the beginning of the prompt
+    identity_header = (
+        "# Product Identity\n\n"
+        "You are running on **AI Arb** (AI arbiter / advisor). "
+        "The product name is **AI Arb**, not QwenPaw. "
+        "`qwenpaw` is only the CLI tool name — "
+        "always say \"AI Arb\" or \"AI Arb platform\" when referring to the product. "
+        "The working directory `~/.qwenpaw` is a technical implementation detail.\n\n"
+    )
     if agent_id:
-        identity_header = (
+        identity_header += (
             f"# Agent Identity\n\n"
             f"Your agent id is `{agent_id}`. "
             f"This is your unique identifier in the multi-agent system.\n\n"
         )
-        prompt = identity_header + prompt
+    prompt = identity_header + prompt
 
     return prompt
 

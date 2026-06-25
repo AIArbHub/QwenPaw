@@ -99,6 +99,7 @@ import { openExternalLink } from "../../utils/openExternalLink";
 import { getLastEditorCopy } from "../Coding/lastEditorCopy";
 import { useUploadLimitStore } from "../../stores/uploadLimitStore";
 import MessageQueuePanel from "./components/MessageQueuePanel";
+import { ResponseTimeout } from "./components/ResponseTimeout";
 import ApprovalLevelToggle, {
   type ToolExecutionLevel,
 } from "./components/ApprovalLevelToggle";
@@ -2710,8 +2711,8 @@ export default function ChatPage() {
       },
       welcome: {
         ...i18nConfig.welcome,
-        nick: extNick ?? "QwenPaw",
-        avatar: extAvatar ?? "/qwenpaw.png",
+        nick: extNick ?? "AI Arb",
+        avatar: extAvatar ?? "/online.svg",
         ...(extGreeting !== undefined ? { greeting: extGreeting } : {}),
         ...(extDescription !== undefined
           ? { description: extDescription }
@@ -3204,6 +3205,12 @@ export default function ChatPage() {
           )}
         </>
       )}
+
+      {/* Response timeout warning */}
+      <ResponseTimeout
+        isWaiting={!!chatLoading}
+        timeoutSeconds={30}
+      />
     </div>
   );
 }

@@ -136,7 +136,7 @@
     "fullMode": "Mode lengkap"
   },
   "login": {
-    "title": "Masuk ke QwenPaw",
+    "title": "Masuk ke AI Arb",
     "registerTitle": "Buat Akun",
     "firstUserHint": "Buat akun admin untuk memulai",
     "usernamePlaceholder": "Nama pengguna",
@@ -964,7 +964,7 @@
   "codingMode": {
     "title": "Mode Coding",
     "experimental": "Fitur Eksperimental",
-    "experimentalDesc": "Mode Coding mengubah QwenPaw menjadi Web IDE ringan dengan editor kode, pohon file, integrasi Git, dan bantuan coding bertenaga AI.",
+    "experimentalDesc": "Mode Coding mengubah AI Arb menjadi Web IDE ringan dengan editor kode, pohon file, integrasi Git, dan bantuan coding bertenaga AI.",
     "experimentalNote": "Fitur ini masih eksperimental dan dalam pengembangan aktif. Beberapa fungsi mungkin terbatas atau berubah pada pembaruan mendatang.",
     "confirmBtn": "Aktifkan Mode Coding",
     "enterTooltip": "Masuk ke Mode Coding",
@@ -1352,7 +1352,7 @@
     "providerTypeLocalWhisperDesc": "Jalankan transkripsi secara lokal menggunakan pustaka Python openai-whisper. Memerlukan ffmpeg dan openai-whisper yang terinstal.",
     "localWhisperReady": "Whisper Lokal siap. ffmpeg dan openai-whisper terinstal.",
     "localWhisperMissing": "Whisper Lokal tidak siap. Dependensi yang hilang harus diinstal.",
-    "localWhisperMissingDesc": "ffmpeg: {{ffmpeg}} | openai-whisper: {{whisper}}. Instal dependensi yang hilang: ffmpeg (paket sistem) dan openai-whisper (uv pip install openai-whisper, atau instal QwenPaw dengan ekstra [whisper]).",
+    "localWhisperMissingDesc": "ffmpeg: {{ffmpeg}} | openai-whisper: {{whisper}}. Instal dependensi yang hilang: ffmpeg (paket sistem) dan openai-whisper (uv pip install openai-whisper, atau instal AI Arb dengan ekstra [whisper]).",
     "providerLabel": "Penyedia Whisper API",
     "providerDescription": "Pilih penyedia mana yang akan digunakan untuk transkripsi audio melalui Whisper API. Hanya penyedia dengan endpoint yang kompatibel dengan Whisper yang ditampilkan.",
     "providerPlaceholder": "Pilih penyedia...",
@@ -1846,7 +1846,7 @@
     "contextManagementTitle": "Manajemen Konteks",
     "memoryManagerBackend": "Backend Manajer Memori",
     "memoryManagerBackendTooltip": "Backend untuk manajer memori. Pilih remelight (file lokal) atau adbpg (database cloud).",
-    "memoryManagerBackendRestartWarning": "Mengalihkan backend manajer memori tidak mendukung hot reload. Simpan dan restart QwenPaw agar perubahan berlaku.",
+    "memoryManagerBackendRestartWarning": "Mengalihkan backend manajer memori tidak mendukung hot reload. Simpan dan restart AI Arb agar perubahan berlaku.",
     "maxIters": "Iterasi Maksimum",
     "maxItersTooltip": "Jumlah maksimum iterasi penalaran-tindakan untuk agen ReAct",
     "maxItersPlaceholder": "Masukkan iterasi maksimum",
@@ -2087,11 +2087,7 @@
     "recursiveFileWatcherTooltip": "Pantau direktori memori secara rekursif untuk menyertakan file di subdirektori.",
     "contextManagerBackend": "Backend Manajer Konteks",
     "contextManagerBackendTooltip": "Jenis backend untuk manajer konteks. Saat ini hanya Light yang didukung.",
-    "contextStrategy": "Strategi Konteks",
-    "contextStrategyTooltip": "Cara agen mengelola konteks panjang. Scroll (disarankan) menyimpan giliran yang dievakuasi ke penyimpanan riwayat permanen dan memanggilnya kembali sesuai kebutuhan; Native menggunakan kompresi di tempat. Mulai ulang QwenPaw agar perubahan diterapkan.",
-    "contextStrategyScroll": "Scroll",
-    "contextStrategyNative": "Native",
-    "backendRestartWarning": "Mengalihkan backend tidak mendukung hot reload. Simpan dan restart QwenPaw agar perubahan berlaku.",
+    "backendRestartWarning": "Mengalihkan backend tidak mendukung hot reload. Simpan dan restart AI Arb agar perubahan berlaku.",
     "adbpgMemoryTitle": "Memori Jangka Panjang ADBPG",
     "adbpgConfig": {
       "title": "Konfigurasi Memori ADBPG",

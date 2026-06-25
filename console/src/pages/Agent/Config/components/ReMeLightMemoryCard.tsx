@@ -155,6 +155,26 @@ export function ReMeLightMemoryCard() {
                   style={{ marginBottom: 16 }}
                 />
 
+                <Alert
+                  type="info"
+                  showIcon
+                  message={
+                    <span>
+                      推荐：硅基流动提供 BAAI/bge-m3 等免费 Embedding 模型，
+                      注册即送全平台通用代金券 16 元（须填写邀请码 KvmTp5P8）。
+                      <a
+                        href="https://cloud.siliconflow.cn/i/KvmTp5P8"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ marginLeft: 4 }}
+                      >
+                        点击立即领取 →
+                      </a>
+                    </span>
+                  }
+                  style={{ marginBottom: 16 }}
+                />
+
                 <Form.Item
                   label={t("agentConfig.embeddingBaseUrl")}
                   name={[

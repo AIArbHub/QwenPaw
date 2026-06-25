@@ -166,8 +166,8 @@ Write-Host "PyInstaller build complete" -ForegroundColor Green
 Write-Host ""
 
 # Verify output
-$BACKEND_DIR = Join-Path $DIST "pyinstaller\qwenpaw-backend"
-$BACKEND_EXE = Join-Path $BACKEND_DIR "qwenpaw-backend.exe"
+$BACKEND_DIR = Join-Path $DIST "pyinstaller\ai-arb-backend"
+$BACKEND_EXE = Join-Path $BACKEND_DIR "ai-arb-backend.exe"
 $CLI_EXE = Join-Path $BACKEND_DIR "qwenpaw.exe"
 if (-not (Test-Path $BACKEND_DIR)) {
     Write-Host "ERROR: Backend bundle directory not found at $BACKEND_DIR" -ForegroundColor Red
@@ -194,7 +194,7 @@ Write-Host "== Copying to Tauri binaries directory ==" -ForegroundColor Yellow
 $BINARIES_DIR = Join-Path $REPO_ROOT "console\src-tauri\binaries"
 New-Item -ItemType Directory -Force -Path $BINARIES_DIR | Out-Null
 
-$DEST = Join-Path $BINARIES_DIR "qwenpaw-backend"
+$DEST = Join-Path $BINARIES_DIR "ai-arb-backend"
 New-Item -ItemType Directory -Force -Path $DEST | Out-Null
 Get-ChildItem -LiteralPath $DEST -Force | Remove-Item -Recurse -Force
 Copy-Item -Recurse -Force (Join-Path $BACKEND_DIR "*") $DEST

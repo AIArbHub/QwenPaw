@@ -123,7 +123,7 @@
   },
   "login": {
     "title": "Đăng nhập",
-    "description": "Nhập mật khẩu để truy cập QwenPaw Console.",
+    "description": "Nhập mật khẩu để truy cập AI Arb Console.",
     "passwordLabel": "Mật khẩu",
     "passwordPlaceholder": "Nhập mật khẩu",
     "submit": "Đăng nhập",
@@ -678,7 +678,7 @@
   "codingMode": {
     "title": "Chế độ Lập trình",
     "experimental": "Tính năng thử nghiệm",
-    "experimentalDesc": "Chế độ Lập trình biến QwenPaw thành một Web IDE nhẹ với trình soạn thảo code, cây thư mục, tích hợp Git và hỗ trợ lập trình bằng AI.",
+    "experimentalDesc": "Chế độ Lập trình biến AI Arb thành một Web IDE nhẹ với trình soạn thảo code, cây thư mục, tích hợp Git và hỗ trợ lập trình bằng AI.",
     "experimentalNote": "Tính năng này đang thử nghiệm và có thể thay đổi trong các bản cập nhật sau.",
     "confirmBtn": "Xác nhận",
     "enterTooltip": "Vào Chế độ Lập trình",
@@ -748,7 +748,7 @@
     "contextManagementTitle": "Quản lý ngữ cảnh",
     "memoryManagerBackend": "Backend quản lý bộ nhớ",
     "memoryManagerBackendTooltip": "Chọn remelight (file cục bộ) hoặc adbpg (cơ sở dữ liệu đám mây).",
-    "memoryManagerBackendRestartWarning": "Đổi backend bộ nhớ yêu cầu khởi động lại QwenPaw.",
+    "memoryManagerBackendRestartWarning": "Đổi backend bộ nhớ yêu cầu khởi động lại AI Arb.",
     "maxIters": "Số vòng lặp tối đa",
     "maxItersTooltip": "Số vòng lặp suy luận-hành động tối đa của ReAct agent",
     "maxItersPlaceholder": "Nhập số vòng lặp",
