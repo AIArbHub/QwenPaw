@@ -3229,10 +3229,11 @@ export default function ChatPage() {
         </>
       )}
 
-      {/* Response timeout warning */}
+      {/* Response timeout warning — inline, detects actual model response */}
       <ResponseTimeout
         isWaiting={!!chatLoading}
-        timeoutSeconds={30}
+        timeoutSeconds={45}
+        chatRef={chatRef}
       />
     </div>
   );
