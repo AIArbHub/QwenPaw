@@ -1,34 +1,68 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { LoadingOutlined, ClockCircleOutlined } from "@ant-design/icons";
+import { ClockCircleOutlined, LoadingOutlined } from "@ant-design/icons";
+import type { IAgentScopeRuntimeWebUIRef } from "@agentscope-ai/chat";
 
 interface ResponseTimeoutProps {
+  /** Whether the SDK is currently in loading state */
   isWaiting: boolean;
+  /** Seconds before showing the timeout indicator */
   timeoutSeconds?: number;
+  /** Chat ref for checking message content arrival */
+  chatRef?: React.RefObject<IAgentScopeRuntimeWebUIRef | null>;
 }
 
+/**
+ * Inline timeout indicator shown when the model hasn't started
+ * responding after `timeoutSeconds`. Appears in normal document flow
+ * so it never blocks overlays (security prompts, approvals, etc.).
+ */
 export const ResponseTimeout: React.FC<ResponseTimeoutProps> = ({
   isWaiting,
   timeoutSeconds = 45,
+  chatRef,
 }) => {
   const { t } = useTranslation();
   const [elapsed, setElapsed] = useState(0);
+  const [hasContent, setHasContent] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Track elapsed time and poll for assistant content
   useEffect(() => {
     if (isWaiting) {
-      // Start tracking elapsed time
       setElapsed(0);
+      setHasContent(false);
+
       timerRef.current = setInterval(() => {
         setElapsed((prev) => prev + 1);
+
+        // Check if any assistant message has content — if so,
+        // the model IS working, so suppress the timeout.
+        if (chatRef?.current?.messages) {
+          try {
+            const msgs = chatRef.current.messages.getMessages();
+            const lastAssistant = [...msgs]
+              .reverse()
+              .find((m) => m.role === "assistant");
+            if (
+              lastAssistant?.cards &&
+              (lastAssistant.msgStatus === "generating" ||
+                lastAssistant.msgStatus === "finished")
+            ) {
+              setHasContent(true);
+            }
+          } catch {
+            // ignore — SDK internals may not be ready
+          }
+        }
       }, 1000);
     } else {
-      // Reset on response
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
       setElapsed(0);
+      setHasContent(false);
     }
 
     return () => {
@@ -37,10 +71,10 @@ export const ResponseTimeout: React.FC<ResponseTimeoutProps> = ({
         timerRef.current = null;
       }
     };
-  }, [isWaiting]);
+  }, [isWaiting, chatRef]);
 
-  // Don't show anything if not waiting, or within timeout window
-  if (!isWaiting || elapsed < timeoutSeconds) {
+  // Suppress when: not waiting, within grace period, or model IS responding
+  if (!isWaiting || elapsed < timeoutSeconds || hasContent) {
     return null;
   }
 
