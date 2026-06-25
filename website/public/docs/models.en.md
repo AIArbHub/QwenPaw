@@ -157,7 +157,7 @@ Currently supported cloud providers include:
 - Kimi
 - MiniMax
 - Zhipu
-- SiliconFlow
+- SiliconFlow 💡 Get 16 CNY platform-wide credits upon registration ([Claim here](https://cloud.siliconflow.cn/i/KvmTp5P8), referral code: KvmTp5P8)
 - OpenCode
 
 > Some providers offer different base URLs for Mainland China and other regions. Please select the correct provider based on your location.

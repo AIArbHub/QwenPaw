@@ -1,6 +1,6 @@
 ---
 name: guidance
-description: "Answer user questions about QwenPaw installation and configuration: first locate and read local documentation, then distill the answer; if local information is insufficient, fall back to the official website documentation."
+description: "Answer user questions about AI Arb installation and configuration: first locate and read local documentation, then distill the answer; if local information is insufficient, fall back to the official website documentation."
 metadata:
   builtin_skill_version: "1.3"
   qwenpaw:
@@ -8,9 +8,9 @@ metadata:
     requires: {}
 ---
 
-# QwenPaw Installation and Configuration Q&A Guide
+# AI Arb Installation and Configuration Q&A Guide
 
-Use this skill when the user asks about **QwenPaw installation, initialization, environment configuration, dependency requirements, or common configuration options**.
+Use this skill when the user asks about **AI Arb installation, initialization, environment configuration, dependency requirements, or common configuration options**.
 
 Core principles:
 
@@ -52,7 +52,7 @@ Run the following script logic to obtain the variable $QWENPAW_ROOT:
 QWENPAW_PATH=$(which qwenpaw 2>/dev/null || whereis qwenpaw | awk '{print $2}')
 
 # Logical deduction: if the path contains .qwenpaw/bin/qwenpaw, the root is three levels up
-# Example: /path/to/QwenPaw/.qwenpaw/bin/qwenpaw -> /path/to/QwenPaw
+# Example: /path/to/AI Arb/.qwenpaw/bin/qwenpaw -> /path/to/AI Arb
 if [[ "$QWENPAW_PATH" == *".qwenpaw/bin/qwenpaw" ]]; then
     QWENPAW_ROOT=$(echo "$QWENPAW_PATH" | sed 's/\/\.qwenpaw\/bin\/qwenpaw//')
 else
@@ -60,7 +60,7 @@ else
     QWENPAW_ROOT=$(dirname $(dirname "$QWENPAW_PATH") 2>/dev/null || echo ".")
 fi
 
-echo "Detected QwenPaw Root: $QWENPAW_ROOT"
+echo "Detected AI Arb Root: $QWENPAW_ROOT"
 ```
 
 Verify and list the documentation directory:

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Input, Modal } from "@agentscope-ai/design";
+import { Button, Input, Modal, Alert } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import type { ProviderInfo } from "../../../../../api/types";
 import type { ProviderGroup } from "../../utils";
@@ -110,6 +110,28 @@ export const ProviderGroupCard = React.memo(function ProviderGroupCard({
 
       {/* Content */}
       <div className={styles.groupCardContent}>
+        {/* SiliconFlow promotion */}
+        {activeProvider.id.includes("siliconflow") && (
+          <Alert
+            type="info"
+            showIcon
+            message={
+              <span>
+                硅基流动注册即送全平台通用代金券 16 元（须填写邀请码 KvmTp5P8）。
+                <a
+                  href="https://cloud.siliconflow.cn/i/KvmTp5P8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ marginLeft: 4 }}
+                >
+                  点击立即领取 →
+                </a>
+              </span>
+            }
+            style={{ marginBottom: 12 }}
+          />
+        )}
+
         <div className={styles.groupCardField}>
           <span className={styles.groupCardFieldLabel}>Endpoint</span>
           <div className={styles.groupCardMono}>

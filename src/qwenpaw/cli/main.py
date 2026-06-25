@@ -172,7 +172,7 @@ def _looks_like_project_path(value: str) -> bool:
         "auto": ("qwenpaw.cli.auto", "auto_group", ".auto"),
     },
 )
-@click.version_option(version=__version__, prog_name="QwenPaw")
+@click.version_option(version=__version__, prog_name="AI Arb")
 @click.option("--host", default=None, help="API Host")
 @click.option(
     "--port",

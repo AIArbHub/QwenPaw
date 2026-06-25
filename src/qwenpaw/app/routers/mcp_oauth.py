@@ -268,7 +268,7 @@ async def _dynamic_register(
 ) -> Optional[str]:
     """Attempt Dynamic Client Registration (RFC 7591); return client_id."""
     payload = {
-        "client_name": "QwenPaw MCP Client",
+        "client_name": "AI Arb MCP Client",
         "redirect_uris": [redirect_uri],
         "grant_types": ["authorization_code", "refresh_token"],
         "response_types": ["code"],
@@ -372,7 +372,7 @@ def _popup_html(
 <html>
 <head>
   <meta charset="utf-8">
-  <title>OAuth - QwenPaw</title>
+  <title>OAuth - AI Arb</title>
   <style>
     body {{
       font-family: -apple-system, BlinkMacSystemFont,

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Modal, Input } from "@agentscope-ai/design";
+import { Button, Modal, Input, Alert } from "@agentscope-ai/design";
 import type { ProviderInfo } from "../../../../../api/types";
 import api from "../../../../../api";
 import { providerApi } from "../../../../../api/modules/provider";
@@ -83,6 +83,28 @@ export const RemoteProviderCard = React.memo(function RemoteProviderCard({
 
       {/* Content - same layout as GroupCard */}
       <div className={styles.groupCardContent}>
+        {/* SiliconFlow promotion */}
+        {provider.id.includes("siliconflow") && (
+          <Alert
+            type="info"
+            showIcon
+            message={
+              <span>
+                硅基流动注册即送全平台通用代金券 16 元（须填写邀请码 KvmTp5P8）。
+                <a
+                  href="https://cloud.siliconflow.cn/i/KvmTp5P8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ marginLeft: 4 }}
+                >
+                  点击立即领取 →
+                </a>
+              </span>
+            }
+            style={{ marginBottom: 12 }}
+          />
+        )}
+
         <div className={styles.groupCardField}>
           <span className={styles.groupCardFieldLabel}>Endpoint</span>
           <div className={styles.groupCardMono}>{provider.base_url || "—"}</div>

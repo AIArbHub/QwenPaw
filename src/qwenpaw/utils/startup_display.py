@@ -280,7 +280,7 @@ def print_ready_banner(
     api_info: Optional[Tuple[str, int]] = None,
     elapsed_seconds: Optional[float] = None,
 ) -> None:
-    """Print a fancy QwenPaw ready banner with rich formatting.
+    """Print a fancy AI Arb ready banner with rich formatting.
 
     Args:
         api_info: Optional tuple of (host, port) for the server URL.
@@ -298,12 +298,51 @@ def print_ready_banner(
     # Extra spacing before banner
     _safe_print(console)
 
-    panel = _build_startup_panel(
-        api_info,
-        elapsed_seconds,
-        status="Ready",
-        ready=True,
-    )
+    if api_info:
+        host, port = api_info
+        url = f"http://{host}:{port}"
+
+        # Create tree structure (Docker/K8s style)
+        tree = Tree(
+            "[bold green]✓[/bold green] [bold]AI Arb[/bold]",
+            guide_style="bright_black",
+        )
+        tree.add("[dim]Status:[/dim]  [bold green]Ready[/bold green]")
+        tree.add(
+            f"[dim]Address:[/dim] [blue underline]{url}[/blue underline]",
+        )
+        if elapsed_seconds is not None:
+            tree.add(
+                f"[dim]Startup:[/dim] [yellow]{elapsed_seconds:.3f}s[/yellow]",
+            )
+
+        # Wrap in clean panel (Apple style)
+        panel = Panel(
+            tree,
+            border_style="green",
+            box=box.ROUNDED,
+            padding=(1, 2),
+            expand=False,
+        )
+    else:
+        # Simple ready message without URL
+        tree = Tree(
+            "[bold green]✓[/bold green] [bold]AI Arb[/bold]",
+            guide_style="bright_black",
+        )
+        tree.add("[dim]Status:[/dim]  [bold green]Ready[/bold green]")
+        if elapsed_seconds is not None:
+            tree.add(
+                f"[dim]Startup:[/dim] [yellow]{elapsed_seconds:.3f}s[/yellow]",
+            )
+
+        panel = Panel(
+            tree,
+            border_style="green",
+            box=box.ROUNDED,
+            padding=(1, 2),
+            expand=False,
+        )
 
     _safe_print(console, panel)
     _safe_print(console)
