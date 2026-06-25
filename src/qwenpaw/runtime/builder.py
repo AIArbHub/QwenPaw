@@ -190,7 +190,7 @@ class AgentBuilder:
         running_config = agent_config.running
 
         agent = QwenPawAgent(
-            name=agent_config.name or "QwenPaw",
+            name=agent_config.name or "AI Arb",
             model=model,
             system_prompt=sys_prompt,
             toolkit=toolkit,

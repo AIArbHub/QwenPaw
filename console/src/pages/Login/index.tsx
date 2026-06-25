@@ -83,8 +83,8 @@ export default function LoginPage() {
         alignItems: "center",
         justifyContent: "center",
         background: isDark
-          ? "linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)"
-          : "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+          ? "#0a0a0a"
+          : "#F5F5F5",
       }}
     >
       <div
@@ -92,26 +92,29 @@ export default function LoginPage() {
           width: 400,
           padding: 32,
           borderRadius: 12,
-          background: isDark ? "#1f1f1f" : "#fff",
+          border: isDark
+            ? "1px solid rgba(255,255,255,0.08)"
+            : "1px solid rgba(115,115,115,0.12)",
+          background: isDark ? "#1f1f1f" : "#FFFFFF",
           boxShadow: isDark
-            ? "0 4px 24px rgba(0,0,0,0.4)"
-            : "0 4px 24px rgba(0,0,0,0.1)",
+            ? "0 12px 32px rgba(0,0,0,0.4)"
+            : "0 12px 32px rgba(23,23,23,0.12)",
         }}
       >
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <img
             src={isDark ? "/logo-dark.svg" : "/logo-light.svg"}
-            alt="QwenPaw"
+            alt="AI Arb"
             style={{ height: 48, marginBottom: 12 }}
           />
-          <h2 style={{ margin: 0, fontWeight: 600, fontSize: 20 }}>
+          <h2 style={{ margin: 0, fontWeight: 600, fontSize: 24, lineHeight: "32px" }}>
             {isRegister ? t("login.registerTitle") : t("login.title")}
           </h2>
           {!hasUsers && (
             <p
               style={{
                 margin: "8px 0 0",
-                color: isDark ? "rgba(255,255,255,0.45)" : "#666",
+                color: isDark ? "rgba(255,255,255,0.45)" : "#737373",
                 fontSize: 13,
               }}
             >
@@ -165,7 +168,7 @@ export default function LoginPage() {
               htmlType="submit"
               loading={loading}
               block
-              style={{ height: 44, borderRadius: 8, fontWeight: 500 }}
+              style={{ height: 40, borderRadius: 8, fontWeight: 500, fontSize: 14 }}
             >
               {isRegister ? t("login.register") : t("login.submit")}
             </Button>

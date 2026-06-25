@@ -6,7 +6,6 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Modal, Result, Tooltip } from "antd";
 import { useAppMessage } from "../../hooks/useAppMessage";
-import { useIsMobile } from "../../hooks/useIsMobile";
 import { ExclamationCircleOutlined, SettingOutlined } from "@ant-design/icons";
 import { SparkCopyLine, SparkAttachmentLine } from "@agentscope-ai/icons";
 import { usePlugins } from "../../plugins/PluginContext";
@@ -98,6 +97,7 @@ import { openExternalLink } from "../../utils/openExternalLink";
 import { getLastEditorCopy } from "../Coding/lastEditorCopy";
 import { useUploadLimitStore } from "../../stores/uploadLimitStore";
 import MessageQueuePanel from "./components/MessageQueuePanel";
+import { ResponseTimeout } from "./components/ResponseTimeout";
 import {
   useMessageQueueStore,
   type QueueItem,
@@ -1286,11 +1286,6 @@ export default function ChatPage() {
   const [planEnabled, setPlanEnabled] = useState(false);
   const { mode: sidebarMode } = useSidebarModeStore();
   const isFullMode = sidebarMode === "full";
-
-  // On mobile viewports the right-side history panel should always be
-  // available regardless of the sidebar mode setting.
-  const isMobile = useIsMobile();
-  const effectiveIsFullMode = isFullMode || isMobile;
 
   // Right-side history panel state
   const [historyPanelOpen, setHistoryPanelOpen] = useState(() => {
@@ -2553,10 +2548,8 @@ export default function ChatPage() {
             <ModelSelector />
             <ChatActionGroup
               planEnabled={planEnabled}
-              onToggleHistory={
-                effectiveIsFullMode ? toggleHistoryPanel : undefined
-              }
-              historyOpen={effectiveIsFullMode ? historyPanelOpen : false}
+              onToggleHistory={isFullMode ? toggleHistoryPanel : undefined}
+              historyOpen={isFullMode ? historyPanelOpen : false}
               isWideMode={isWideMode}
               onToggleWideMode={toggleWideMode}
             />
@@ -2566,8 +2559,8 @@ export default function ChatPage() {
       },
       welcome: {
         ...i18nConfig.welcome,
-        nick: extNick ?? "QwenPaw",
-        avatar: extAvatar ?? "/qwenpaw.png",
+        nick: extNick ?? "AI Arb",
+        avatar: extAvatar ?? "/online.svg",
         ...(extGreeting !== undefined ? { greeting: extGreeting } : {}),
         ...(extDescription !== undefined
           ? { description: extDescription }
@@ -3009,31 +3002,27 @@ export default function ChatPage() {
       {/* End of main chat area */}
 
       {/* Right-side history panel (full mode only) */}
-      {effectiveIsFullMode && historyPanelOpen && (
+      {isFullMode && historyPanelOpen && (
         <>
-          {isMobile ? (
+          <div
+            className={styles.historyPanelMask}
+            onClick={toggleHistoryPanel}
+          />
+          <div className={styles.historyPanel}>
             <ChatSessionDrawer
               open={historyPanelOpen}
               onClose={toggleHistoryPanel}
-              embedded={false}
+              embedded
             />
-          ) : (
-            <>
-              <div
-                className={styles.historyPanelMask}
-                onClick={toggleHistoryPanel}
-              />
-              <div className={styles.historyPanel}>
-                <ChatSessionDrawer
-                  open={historyPanelOpen}
-                  onClose={toggleHistoryPanel}
-                  embedded
-                />
-              </div>
-            </>
-          )}
+          </div>
         </>
       )}
+
+      {/* Response timeout warning */}
+      <ResponseTimeout
+        isWaiting={!!chatLoading}
+        timeoutSeconds={30}
+      />
     </div>
   );
 }

@@ -225,7 +225,6 @@ class DiscordConfig(BaseChannelConfig):
     http_proxy_auth: str = ""
     accept_bot_messages: bool = False
     streaming_enabled: bool = False
-    media_dir: Optional[str] = None
 
 
 class DingTalkConfig(BaseChannelConfig):
@@ -240,7 +239,6 @@ class DingTalkConfig(BaseChannelConfig):
     card_auto_layout: bool = False
     at_sender_on_reply: bool = False
     streaming_enabled: bool = False
-    endpoint: str = ""
 
 
 class FeishuConfig(BaseChannelConfig):
@@ -377,7 +375,7 @@ class VoiceChannelConfig(BaseChannelConfig):
     tts_voice: str = "en-US-Journey-D"
     stt_provider: str = "deepgram"
     language: str = "en-US"
-    welcome_greeting: str = "Hi! This is QwenPaw. How can I help you?"
+    welcome_greeting: str = "Hi! This is AI Arb. How can I help you?"
 
 
 class SIPChannelConfig(BaseChannelConfig):
@@ -397,7 +395,7 @@ class SIPChannelConfig(BaseChannelConfig):
     tts_voice: str = ""
     stt_provider: str = "aliyun"
     language: str = "zh-CN"
-    welcome_greeting: str = "你好，我是QwenPaw"
+    welcome_greeting: str = "你好，我是AI Arb"
     call_timeout: float = 120.0
     livekit_url: str = ""
     livekit_api_key: str = ""
@@ -548,6 +546,16 @@ class AutoMemorySearchConfig(BaseModel):
         ),
     )
 
+    min_score: float = Field(
+        default=0,
+        ge=0.0,
+        le=1.0,
+        description=(
+            "Minimum relevance score for results when auto memory"
+            " search is enabled"
+        ),
+    )
+
     persist_to_context: bool = Field(
         default=True,
         description=(
@@ -581,10 +589,7 @@ class EmbeddingModelConfig(BaseModel):
         default=False,
         description="Whether to use custom dimensions",
     )
-    max_cache_size: int = Field(
-        default=10000,
-        description="Maximum cache size",
-    )
+    max_cache_size: int = Field(default=3000, description="Maximum cache size")
     max_input_length: int = Field(
         default=8192,
         description="Maximum input length for embedding",
@@ -672,7 +677,7 @@ class ReMeLightMemoryConfig(BaseModel):
     )
 
     auto_memory_interval: int | None = Field(
-        default=None,
+        default=1,
         description="Auto memory every N user queries. 1 means auto "
         "memory after every user query, 2 means every 2 queries, etc. "
         "None or <= 0 disables periodic auto memory. WARNING: Setting "
@@ -2212,7 +2217,7 @@ def migrate_legacy_config_to_multi_agent() -> bool:
     default_agent_config = AgentProfileConfig(
         id="default",
         name="Default Agent",
-        description="Default QwenPaw agent",
+        description="Default AI Arb agent",
         workspace_dir=str(default_workspace),
         channels=config.channels if config.channels else None,
         mcp=config.mcp if config.mcp else None,

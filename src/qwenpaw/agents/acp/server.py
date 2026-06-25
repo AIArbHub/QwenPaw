@@ -307,7 +307,7 @@ class QwenPawACPAgent(Agent):
             ),
             agent_info=Implementation(
                 name="qwenpaw",
-                title="QwenPaw",
+                title="AI Arb",
                 version=__version__,
             ),
         )

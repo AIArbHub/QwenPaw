@@ -26,10 +26,10 @@ class OpenRouterProvider(Provider):
     )
 
     _DEFAULT_HEADERS = {
-        "HTTP-Referer": "https://qwenpaw.agentscope.io/",
-        "X-OpenRouter-Title": "QwenPaw",
+        "HTTP-Referer": "https://aiarb.io/",
+        "X-OpenRouter-Title": "AI Arb",
         "X-OpenRouter-Categories": _OPENROUTER_CATEGORIES,
-        "User-Agent": "QwenPaw/1.1",
+        "User-Agent": "AI-Arb/1.1",
     }
 
     def _build_default_headers(self) -> dict:
