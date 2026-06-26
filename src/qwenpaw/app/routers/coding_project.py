@@ -96,6 +96,10 @@ class CloneProjectRequest(BaseModel):
     name: str | None = None  # defaults to repo basename
 
 
+class DeleteProjectRequest(BaseModel):
+    name: str
+
+
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
@@ -462,6 +466,54 @@ async def upload_zip(
         str(project_path),
     )
     return {"path": str(project_path), "name": project_path.name}
+
+
+    return await asyncio.to_thread(_scan)
+
+
+@router.delete("/delete", summary="Delete a coding project")
+async def delete_project(body: DeleteProjectRequest, request: Request) -> dict:
+    """Delete a coding project directory and all its contents.
+
+    If the project was the active coding project, resets to workspace default.
+    """
+    name = body.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Project name cannot be empty")
+
+    workspace = await get_agent_for_request(request)
+    base = _projects_base(workspace.workspace_dir)
+    target = base / name
+
+    # Safety: ensure the target is actually under coding_projects/
+    try:
+        target.resolve().relative_to(base.resolve())
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid project name",
+        )
+
+    if not target.exists():
+        raise HTTPException(status_code=404, detail=f"Project not found: {name}")
+
+    if not target.is_dir():
+        raise HTTPException(status_code=400, detail="Not a directory")
+
+    import shutil
+
+    def _delete() -> str:
+        shutil.rmtree(str(target))
+        return name
+
+    deleted_name = await asyncio.to_thread(_delete)
+
+    # If this was the active project, reset to workspace default
+    coding_dir = get_coding_dir(workspace)
+    if coding_dir.resolve() == target.resolve():
+        await asyncio.to_thread(_save_project_dir, workspace.agent_id, None)
+
+    return {"name": deleted_name, "deleted": True}
 
 
 @router.get(

@@ -2654,6 +2654,7 @@
     "newName": "项目名称",
     "newNamePlaceholder": "my-project",
     "createBtn": "创建项目",
+    "deleteConfirm": "确定要删除项目 \"{{name}}\" 吗？此操作不可撤销，项目目录和所有文件将被永久删除。",
     "switchProject": "切换项目",
     "currentProject": "当前项目",
     "resetToWorkspace": "重置为默认工作区",
