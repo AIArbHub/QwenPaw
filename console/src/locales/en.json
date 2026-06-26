@@ -2541,6 +2541,7 @@
     "newName": "Project Name",
     "newNamePlaceholder": "my-project",
     "createBtn": "Create Project",
+    "deleteConfirm": "Are you sure you want to delete \"{{name}}\"? This cannot be undone — the project directory and all files will be permanently deleted.",
     "switchProject": "Switch Project",
     "currentProject": "Current Project",
     "resetToWorkspace": "Reset to Default Workspace",

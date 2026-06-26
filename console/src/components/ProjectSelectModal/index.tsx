@@ -676,10 +676,15 @@ function NewProjectTab({ onDone }: { onDone: (path: string) => void }) {
 function RecentProjects({
   projects,
   onSelect,
+  onDelete,
+  deleting,
 }: {
   projects: ProjectListItem[];
   onSelect: (path: string) => void;
+  onDelete: (name: string) => void;
+  deleting: string | null;
 }) {
+  const { t } = useTranslation();
   if (projects.length === 0) return null;
   return (
     <div className={styles.recentWrap}>
@@ -693,6 +698,24 @@ function RecentProjects({
               item.is_active ? styles.recentItemActive : ""
             }`}
             onClick={() => onSelect(item.path)}
+            actions={[
+              <X
+                key="delete"
+                size={14}
+                className={styles.deleteIcon}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  if (deleting) return;
+                  if (
+                    window.confirm(
+                      t("codingMode.deleteConfirm", { name: item.name }),
+                    )
+                  ) {
+                    onDelete(item.name);
+                  }
+                }}
+              />,
+            ]}
           >
             <GitBranch size={13} className={styles.recentIcon} />
             <span className={styles.recentName}>{item.name}</span>
@@ -716,6 +739,7 @@ export default function ProjectSelectModal({
   const { t } = useTranslation();
   const { setProjectDir } = useProjectDir();
   const [projects, setProjects] = useState<ProjectListItem[]>([]);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("workspace");
   // The agent's default workspace directory (fetched from backend)
   const [workspaceDir, setWorkspaceDir] = useState<string | null>(null);
@@ -757,6 +781,21 @@ export default function ProjectSelectModal({
     }
     setProjectDir(path);
     onConfirm(path);
+  };
+
+  const handleDelete = async (name: string) => {
+    setDeleting(name);
+    try {
+      await codingProjectApi.delete(name);
+      // Refresh project list
+      const updated = await codingProjectApi.list();
+      setProjects(updated);
+    } catch (err: any) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to delete project:", err);
+    } finally {
+      setDeleting(null);
+    }
   };
 
   const handleCloneDone = async (path: string) => {
@@ -853,6 +892,8 @@ export default function ProjectSelectModal({
       <RecentProjects
         projects={projects}
         onSelect={(p) => void handlePathSelected(p)}
+        onDelete={handleDelete}
+        deleting={deleting}
       />
     </Modal>
   );
