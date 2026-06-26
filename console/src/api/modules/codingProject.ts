@@ -56,7 +56,7 @@ export const codingProjectApi = {
     request<{ name: string; deleted: boolean }>(
       "/workspace/coding-project/delete",
       {
-        method: "DELETE",
+        method: "POST",
         body: JSON.stringify({ name }),
       },
     ),
