@@ -1,18 +1,15 @@
-/**
- * QwenPaw branding logo (logo.png). Favicon uses qwenpaw-symbol.svg.
- */
 interface CatPawIconProps {
   size: number;
   className?: string;
 }
 
-const LOGO_SRC = "/logo.png";
+const LOGO_SRC = "/qwenpaw-symbol.svg";
 
 export function CatPawIcon({ size, className = "" }: CatPawIconProps) {
   return (
     <img
       src={LOGO_SRC}
-      alt=""
+      alt="AI Arb"
       width={size}
       height={size}
       className={className}
@@ -21,7 +18,6 @@ export function CatPawIcon({ size, className = "" }: CatPawIconProps) {
         margin: "0 auto",
         objectFit: "contain",
       }}
-      aria-hidden
     />
   );
 }
