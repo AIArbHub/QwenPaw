@@ -2,18 +2,18 @@
   <!-- AI Arb App Icon: Abstract "A" with circuit nodes on gradient background -->
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#4B3FE3;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#6C5CE7;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#1B2D54;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4A90D9;stop-opacity:1" />
     </linearGradient>
     <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#4B3FE3" flood-opacity="0.3"/>
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#1B2D54" flood-opacity="0.3"/>
     </filter>
   </defs>
   <!-- Background rounded square -->
   <rect x="24" y="24" width="464" height="464" rx="96" fill="url(#bgGrad)" filter="url(#shadow)"/>
   <!-- "A" letterform -->
   <path d="M256 100 L360 400 L320 400 L292 310 L220 310 L192 400 L152 400 Z" fill="#FFFFFF"/>
-  <rect x="224" y="310" width="64" height="20" rx="4" fill="rgba(75,63,227,0.4)"/>
+  <rect x="224" y="310" width="64" height="20" rx="4" fill="rgba(27,45,84,0.4)"/>
   <!-- Circuit nodes -->
   <circle cx="256" cy="100" r="16" fill="#FFFFFF"/>
   <circle cx="152" cy="400" r="16" fill="#FFFFFF"/>
