@@ -51,6 +51,16 @@ export const codingProjectApi = {
   /** List all coding projects under the agent's coding_projects/ directory. */
   list: () => request<ProjectListItem[]>("/workspace/coding-project/list"),
 
+  /** Delete a coding project by name. */
+  delete: (name: string) =>
+    request<{ name: string; deleted: boolean }>(
+      "/workspace/coding-project/delete",
+      {
+        method: "DELETE",
+        body: JSON.stringify({ name }),
+      },
+    ),
+
   /**
    * Copy a local directory into coding_projects/ (excludes node_modules etc.)
    * and set it as the active project.
