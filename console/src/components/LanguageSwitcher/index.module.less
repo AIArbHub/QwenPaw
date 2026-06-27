@@ -25,16 +25,34 @@
 }
 
 // ─── Language Icon Trigger ────────────────────────────────────────────────────
-.languageIcon {
-  width: 18px;
-  height: 18px;
-  display: block;
-  vertical-align: middle;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
 
   &:hover {
-    opacity: 0.8;
+    background: rgba(115, 115, 115, 0.08);
+  }
+}
+
+.flagEmoji {
+  font-size: 16px;
+  line-height: 1;
+  display: inline-block;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+    "Twemoji Mozilla", sans-serif;
+}
+
+.menuItemLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  .flagEmoji {
+    font-size: 16px;
   }
 }
 

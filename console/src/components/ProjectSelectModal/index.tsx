@@ -699,13 +699,16 @@ function RecentProjects({
             }`}
             onClick={() => onSelect(item.path)}
             actions={[
-              <X
+              <Button
                 key="delete"
-                size={14}
-                className={styles.deleteIcon}
+                type="text"
+                size="small"
+                danger
+                loading={deleting === item.name}
+                className={styles.deleteBtn}
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
-                  if (deleting) return;
+                  if (deleting && deleting !== item.name) return;
                   if (
                     window.confirm(
                       t("codingMode.deleteConfirm", { name: item.name }),
@@ -714,7 +717,9 @@ function RecentProjects({
                     onDelete(item.name);
                   }
                 }}
-              />,
+              >
+                {t("codingMode.deleteBtn")}
+              </Button>,
             ]}
           >
             <GitBranch size={13} className={styles.recentIcon} />
