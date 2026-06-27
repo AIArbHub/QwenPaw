@@ -2362,6 +2362,7 @@
     "newName": "プロジェクト名",
     "newNamePlaceholder": "my-project",
     "createBtn": "プロジェクト作成",
+    "deleteBtn": "削除",
     "switchProject": "プロジェクト切替",
     "currentProject": "現在のプロジェクト",
     "resetToWorkspace": "デフォルトワークスペースにリセット",
