@@ -795,6 +795,14 @@ export default function ProjectSelectModal({
       // Refresh project list
       const updated = await codingProjectApi.list();
       setProjects(updated);
+
+      // Sync active project state after delete.
+      // Deleting the active project may cause the backend to fall back to the default workspace.
+      const current = await codingProjectApi.get();
+      setProjectDir(current.is_workspace_default ? null : current.path);
+      if (current.workspace_dir) {
+        setWorkspaceDir(current.workspace_dir);
+      }
     } catch (err: any) {
       // eslint-disable-next-line no-console
       console.error("Failed to delete project:", err);
