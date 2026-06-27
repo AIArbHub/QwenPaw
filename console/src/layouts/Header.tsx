@@ -133,17 +133,11 @@ export default function Header() {
       .catch(() => {});
   }, [onDesktop]);
 
-const hasUpdate = onDesktop && desktop.hasUpdate !== undefined
+  const hasUpdate = onDesktop
     ? desktop.hasUpdate
-    : !!version && !!latestVersion && compareVersions(latestVersion, version) > 0;
-
-const modalVersion = onDesktop && desktop.version 
-    ? desktop.version 
-    : latestVersion;
-
-const modalVersion = onDesktop && desktop.version 
-    ? desktop.version 
-    : latestVersion;
+    : !!version &&
+      !!latestVersion &&
+      compareVersions(latestVersion, version) > 0;
 
   const modalVersion = onDesktop ? desktop.version : latestVersion;
 
