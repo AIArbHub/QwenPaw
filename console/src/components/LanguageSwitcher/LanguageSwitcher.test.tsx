@@ -31,7 +31,9 @@ vi.mock("@agentscope-ai/design", () => ({
     menu,
   }: {
     children: React.ReactNode;
-    menu: { items: Array<{ key: string; label: string; onClick: () => void }> };
+    menu: {
+      items: Array<{ key: string; label: React.ReactNode; onClick: () => void }>;
+    };
   }) => (
     <div>
       {children}
@@ -50,17 +52,22 @@ describe("LanguageSwitcher", () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => vi.clearAllMocks());
 
-  it("renders the language switcher button", () => {
+  it("renders the language switcher trigger", () => {
     renderWithProviders(<LanguageSwitcher />);
-    expect(screen.getByRole("button")).toBeInTheDocument();
+    // The trigger is a span containing the current language flag emoji
+    expect(document.querySelector("ul[role='menu']")).toBeInTheDocument();
   });
 
-  it("shows 4 language options", () => {
+  it("shows 8 language options", () => {
     renderWithProviders(<LanguageSwitcher />);
     expect(screen.getByText("English")).toBeInTheDocument();
     expect(screen.getByText("简体中文")).toBeInTheDocument();
+    expect(screen.getByText("繁體中文")).toBeInTheDocument();
     expect(screen.getByText("日本語")).toBeInTheDocument();
     expect(screen.getByText("Русский")).toBeInTheDocument();
+    expect(screen.getByText("Português (Brasil)")).toBeInTheDocument();
+    expect(screen.getByText("Bahasa Indonesia")).toBeInTheDocument();
+    expect(screen.getByText("Tiếng Việt")).toBeInTheDocument();
   });
 
   it("calls i18n.changeLanguage when a language option is clicked", async () => {

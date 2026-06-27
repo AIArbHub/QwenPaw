@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 260" width="660" height="260">
+  <text x="330" y="78" font-family="'Inter','SF Pro Display','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="80" font-weight="700" text-anchor="middle" letter-spacing="6">
+    <tspan fill="#1B2D54">AI</tspan> <tspan fill="#4A90D9">Arb</tspan>
+  </text>
+  <line x1="190" y1="100" x2="470" y2="100" stroke="#D0D8E4" stroke-width="1"/>
+  <g font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-weight="400" fill="#4A5568" text-anchor="middle">
+    <text x="330" y="140" font-size="22" letter-spacing="0.5">AI Institute of Arbitration</text>
+    <text x="330" y="172" font-size="22" letter-spacing="0.5">Asia Institute of Arbitration</text>
+  </g>
+  <g font-family="'PingFang SC','Microsoft YaHei','Heiti SC',sans-serif" font-weight="400" fill="#4A5568" text-anchor="middle">
+    <text x="330" y="204" font-size="22" letter-spacing="1">AI仲裁研究院  /  亚洲仲裁研究院</text>
+  </g>
+</svg>

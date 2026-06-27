@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "workspace": {
+    "name": "QwenPaw",
+    "createdAt": 1782474389027,
+    "preset": "starter"
+  },
+  "authorizedRoots": [
+    "D:\\BaiduSyncdisk\\Project\\QwenPaw"
+  ],
+  "reload": null
+}

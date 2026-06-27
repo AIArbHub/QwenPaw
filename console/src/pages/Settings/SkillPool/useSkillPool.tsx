@@ -114,6 +114,7 @@ export function useSkillPool() {
   const [batchModeEnabled, setBatchModeEnabled] = useState(false);
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [broadcasting, setBroadcasting] = useState(false);
   const {
     searchQuery,
     setSearchQuery,
@@ -383,6 +384,8 @@ export function useSkillPool() {
     broadcastSkillNames: string[],
     targetWorkspaceIds: string[],
   ) => {
+    if (broadcasting) return;
+    setBroadcasting(true);
     try {
       const conflicts: BroadcastConflict[] = [];
       for (const skillName of broadcastSkillNames) {
@@ -551,6 +554,8 @@ export function useSkillPool() {
             : t("skillPool.broadcastFailed"),
         );
       }
+    } finally {
+      setBroadcasting(false);
     }
   };
 
@@ -1091,6 +1096,7 @@ export function useSkillPool() {
     mode,
     activeSkill,
     broadcastInitialNames,
+    broadcasting,
     configText,
     zipInputRef,
     importBuiltinModalOpen,

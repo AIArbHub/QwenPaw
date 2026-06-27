@@ -18,6 +18,7 @@ interface BroadcastModalProps {
   initialSkillNames: string[];
   onCancel: () => void;
   onConfirm: (skillNames: string[], workspaceIds: string[]) => Promise<void>;
+  confirming: boolean;
 }
 
 export function BroadcastModal({
@@ -27,6 +28,7 @@ export function BroadcastModal({
   initialSkillNames,
   onCancel,
   onConfirm,
+  confirming,
 }: BroadcastModalProps) {
   const { t } = useTranslation();
   const [selectedSkillNames, setSelectedSkillNames] =
@@ -62,9 +64,12 @@ export function BroadcastModal({
       open={open}
       onCancel={handleCancel}
       onOk={() => onConfirm(selectedSkillNames, selectedWorkspaceIds)}
+      confirmLoading={confirming}
       okButtonProps={{
         disabled:
-          selectedSkillNames.length === 0 || selectedWorkspaceIds.length === 0,
+          confirming ||
+          selectedSkillNames.length === 0 ||
+          selectedWorkspaceIds.length === 0,
       }}
       title={t("skillPool.broadcast")}
       width={640}

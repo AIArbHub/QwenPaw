@@ -5,7 +5,7 @@ import { languageApi } from "../../api/modules/language";
 import styles from "./index.module.less";
 import {
   SparkChinese02Line,
-  SparkEnglish02Line,
+  SparkEnglishLine,
   SparkJapanLine,
   SparkRusLine,
   SparkPtLine,
@@ -14,17 +14,22 @@ import {
 interface LanguageConfig {
   key: string;
   label: string;
-  icon: React.ReactElement;
+  icon?: React.ReactElement;
+  flag?: string;
 }
 
 export const LANGUAGE_LIST: LanguageConfig[] = [
-  { key: "en", label: "English", icon: <SparkEnglish02Line /> },
+  { key: "en", label: "English", icon: <SparkEnglishLine /> },
   { key: "zh", label: "简体中文", icon: <SparkChinese02Line /> },
+  { key: "zh-t", label: "繁體中文", icon: <SparkChinese02Line /> },
   { key: "ja", label: "日本語", icon: <SparkJapanLine /> },
   { key: "ru", label: "Русский", icon: <SparkRusLine /> },
   { key: "pt-BR", label: "Português (Brasil)", icon: <SparkPtLine /> },
-  { key: "id", label: "Bahasa Indonesia", icon: <SparkEnglish02Line /> },
-  { key: "vi", label: "Tiếng Việt", icon: <SparkEnglish02Line /> },
+  { key: "id", label: "Bahasa Indonesia", flag: "🇮🇩" },
+  { key: "vi", label: "Tiếng Việt", flag: "🇻🇳" },
+  { key: "fr", label: "Français", flag: "🇫🇷" },
+  { key: "es", label: "Español", flag: "🇪🇸" },
+  { key: "ar", label: "العربية", flag: "🇸🇦" },
 ];
 
 const KNOWN_LANG_KEYS = new Set(LANGUAGE_LIST.map((lang) => lang.key));
@@ -33,9 +38,14 @@ export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
 
   const currentLanguage = i18n.resolvedLanguage || i18n.language;
+  // Exact match first, then try prefix (e.g., zh-TW -> zh), then fallback to en
   const currentLangKey = KNOWN_LANG_KEYS.has(currentLanguage)
     ? currentLanguage
-    : currentLanguage.split("-")[0];
+    : currentLanguage.split("-")[0] === "zh"
+      ? "zh-t"
+      : KNOWN_LANG_KEYS.has(currentLanguage.split("-")[0])
+        ? currentLanguage.split("-")[0]
+        : "en";
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
@@ -47,15 +57,29 @@ export default function LanguageSwitcher() {
       );
   };
 
-  const items: MenuProps["items"] = LANGUAGE_LIST.map(({ key, label }) => ({
+  const items: MenuProps["items"] = LANGUAGE_LIST.map(({ key, label, icon, flag }) => ({
     key,
-    label,
+    label: icon || flag ? (
+      <span className={styles.menuItemLabel}>
+        {icon}
+        {!icon && flag && <span className={styles.flagEmoji}>{flag}</span>}
+        {label}
+      </span>
+    ) : (
+      label
+    ),
     onClick: () => changeLanguage(key),
   }));
 
-  const iconMap: Record<string, React.ReactElement> = Object.fromEntries(
-    LANGUAGE_LIST.map(({ key, icon }) => [key, icon]),
-  );
+  const iconMap: Record<string, React.ReactElement> = {};
+  const flagMap: Record<string, string> = {};
+  for (const lang of LANGUAGE_LIST) {
+    if (lang.icon) iconMap[lang.key] = lang.icon;
+    if (lang.flag) flagMap[lang.key] = lang.flag;
+  }
+
+  const currentIcon = iconMap[currentLangKey];
+  const currentFlag = flagMap[currentLangKey];
 
   return (
     <Dropdown
@@ -63,7 +87,11 @@ export default function LanguageSwitcher() {
       placement="bottomRight"
       overlayClassName={styles.languageDropdown}
     >
-      <Button icon={iconMap[currentLangKey]} type="text" />
+      <Button icon={currentIcon || undefined} className={styles.trigger}>
+        {!currentIcon && currentFlag && (
+          <span className={styles.flagEmoji}>{currentFlag}</span>
+        )}
+      </Button>
     </Dropdown>
   );
 }
