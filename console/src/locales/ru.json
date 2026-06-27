@@ -2457,6 +2457,7 @@
     "newName": "Название проекта",
     "newNamePlaceholder": "мой-проект",
     "createBtn": "Создать проект",
+    "deleteBtn": "Удалить",
     "switchProject": "Сменить проект",
     "currentProject": "Текущий проект",
     "resetToWorkspace": "Сбросить до рабочего пространства по умолчанию",

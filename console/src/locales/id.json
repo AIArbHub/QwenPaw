@@ -897,6 +897,7 @@
     "newName": "Nama Proyek",
     "newNamePlaceholder": "my-project",
     "createBtn": "Buat Proyek",
+    "deleteBtn": "Hapus",
     "switchProject": "Ganti Proyek",
     "currentProject": "Proyek Saat Ini",
     "resetToWorkspace": "Reset ke Workspace Default",

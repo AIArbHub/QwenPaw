@@ -2481,6 +2481,7 @@
     "newName": "Nome do Projeto",
     "newNamePlaceholder": "meu-projeto",
     "createBtn": "Criar Projeto",
+    "deleteBtn": "Excluir",
     "switchProject": "Trocar Projeto",
     "currentProject": "Projeto Atual",
     "resetToWorkspace": "Redefinir para Workspace Padrão",
