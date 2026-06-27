@@ -52,7 +52,7 @@ export default function BackendLoadingPage({
       style={style}
     >
       <div className={styles.card}>
-        <img src="/online.svg" alt="AI Arb" className={styles.logo} />
+        <img src="/ai-arb-avatar.svg" alt="AI Arb" className={styles.logo} />
 
         <Progress
           type="dashboard"

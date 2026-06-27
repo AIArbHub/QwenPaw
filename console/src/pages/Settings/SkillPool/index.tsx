@@ -293,6 +293,7 @@ function SkillPoolPage() {
         skills={pool.skills}
         workspaces={pool.workspaces}
         initialSkillNames={pool.broadcastInitialNames}
+        confirming={pool.broadcasting}
         onCancel={pool.closeModal}
         onConfirm={pool.handleBroadcast}
       />
