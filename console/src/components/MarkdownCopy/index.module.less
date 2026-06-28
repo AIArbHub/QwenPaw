@@ -1,14 +1,13 @@
 .markdownCopy {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  gap: 8px;
 }
 
 .controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
   font-size: 12px;
   font-weight: 600;
   height: 20px;
@@ -33,13 +32,20 @@
   white-space: nowrap;
 }
 
-.markdownViewer {
-  flex: 1;
-  min-height: 300px;
-  max-height: 300px;
-  overflow: auto;
+.markdownViewerWrapper {
+  position: relative;
   border: 1px solid #d9d9d9;
   border-radius: 6px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: var(--ant-color-primary-hover);
+  }
+}
+
+.markdownViewer {
+  overflow: auto;
   background-color: #fff;
   max-width: 100%;
 
@@ -112,19 +118,74 @@
 }
 
 .textareaContainer {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
 }
 
 .textarea {
   font-family: monospace;
   font-size: 13px;
-  resize: vertical;
-  height: min(100%, clamp(280px, 50vh, 640px));
-  min-height: min(240px, 100%);
-  max-height: 100%;
-  padding: 12px;
+}
+
+.editTextareaWrapper {
+  position: relative;
   border: 1px solid #d9d9d9;
   border-radius: 6px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: var(--ant-color-primary-hover);
+  }
+
+  &:focus-within {
+    border-color: var(--ant-color-primary);
+    box-shadow: 0 0 0 2px var(--ant-color-primary-outline);
+  }
+}
+
+.editTextarea {
+  width: 100%;
+  resize: none;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 8px 12px;
+  border: none;
+  outline: none;
+  background-color: #fff;
+  color: var(--ant-color-text);
+  box-sizing: border-box;
+  overflow-y: auto;
+
+  &::placeholder {
+    color: var(--ant-color-text-quaternary);
+  }
+}
+
+.resizeHandle {
+  height: 8px;
+  cursor: ns-resize;
+  background: #fafafa;
+  border-top: 1px solid #f0f0f0;
+  position: relative;
+  user-select: none;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 3px;
+    border-top: 1px solid #bbb;
+    border-bottom: 1px solid #bbb;
+  }
+
+  &:hover {
+    background: #f0f0f0;
+
+    &::after {
+      border-color: var(--ant-color-primary);
+    }
+  }
 }
