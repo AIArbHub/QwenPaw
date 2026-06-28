@@ -116,7 +116,7 @@ function ToolConfigModal({
 
   return (
     <Modal
-      title={`${t("tools.configure")} - ${tool.name}`}
+      title={`${t("tools.configure")} - ${t(`tools.toolNames.${tool.name}`, tool.name)}`}
       open={visible}
       onCancel={onClose}
       onOk={handleSave}
@@ -295,7 +295,7 @@ export default function ToolsPage() {
                         <h3 className={styles.toolName} title={tool.name}>
                           <ToolIcon icon={tool.icon} name={tool.name} />{" "}
                           <span className={styles.toolNameText}>
-                            {tool.name}
+                            {t(`tools.toolNames.${tool.name}`, tool.name)}
                           </span>
                         </h3>
                         <div className={styles.statusContainer}>
@@ -307,7 +307,7 @@ export default function ToolsPage() {
                       </div>
 
                       <p className={styles.toolDescription}>
-                        {tool.description}
+                        {t(`tools.toolDescriptions.${tool.name}`, tool.description)}
                       </p>
 
                       {/* Show config status */}
@@ -405,7 +405,7 @@ export default function ToolsPage() {
                         className={styles.availableItemName}
                         title={tool.name}
                       >
-                        {tool.name}
+                        {t(`tools.toolNames.${tool.name}`, tool.name)}
                       </span>
                       <span className={styles.availableItemAction}>
                         {tool.requires_config && !isToolConfigured(tool)
