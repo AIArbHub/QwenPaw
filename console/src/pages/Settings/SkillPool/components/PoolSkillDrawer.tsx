@@ -142,7 +142,6 @@ export function PoolSkillDrawer({
             onContentChange={onContentChange}
             textareaProps={{
               placeholder: t("skillPool.contentPlaceholder"),
-              rows: 12,
             }}
           />
         </Form.Item>

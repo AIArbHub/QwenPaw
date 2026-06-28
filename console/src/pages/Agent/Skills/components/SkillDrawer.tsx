@@ -318,7 +318,6 @@ export function SkillDrawer({
               ...(!editingSkill && {
                 placeholder: t("skills.contentPlaceholder"),
               }),
-              rows: 12,
             }}
           />
         </Form.Item>
