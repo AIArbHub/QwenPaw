@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Button, Switch, Input } from "@agentscope-ai/design";
 import { CopyOutlined } from "@ant-design/icons";
 import { XMarkdown } from "@ant-design/x-markdown";
@@ -42,6 +42,9 @@ interface MarkdownCopyProps {
   onContentChange?: (content: string) => void;
 }
 
+const MIN_HEIGHT = 200;
+const MAX_HEIGHT_RATIO = 0.8;
+
 export function MarkdownCopy({
   content,
   showMarkdown = true,
@@ -58,6 +61,10 @@ export function MarkdownCopy({
   const [isCopying, setIsCopying] = useState(false);
   const [editContent, setEditContent] = useState(content);
   const [localShowMarkdown, setLocalShowMarkdown] = useState(showMarkdown);
+  const [textareaHeight, setTextareaHeight] = useState(300);
+  const resizingRef = useRef(false);
+  const startYRef = useRef(0);
+  const startHeightRef = useRef(0);
   const markdownContent = useMemo(
     () => stripFrontmatter(content || ""),
     [content],
@@ -73,7 +80,42 @@ export function MarkdownCopy({
     } else {
       setLocalShowMarkdown(showMarkdown);
     }
-  }, [editable, textareaProps.disabled, showMarkdown]);
+  }, [editable, textareaProps.disabled]);
+
+  const handleResizeStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      resizingRef.current = true;
+      startYRef.current = e.clientY;
+      startHeightRef.current = textareaHeight;
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        if (!resizingRef.current) return;
+        const delta = moveEvent.clientY - startYRef.current;
+        const maxH = window.innerHeight * MAX_HEIGHT_RATIO;
+        const newHeight = Math.max(
+          MIN_HEIGHT,
+          Math.min(maxH, startHeightRef.current + delta),
+        );
+        setTextareaHeight(newHeight);
+      };
+
+      const handleMouseUp = () => {
+        resizingRef.current = false;
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      };
+
+      document.body.style.cursor = "ns-resize";
+      document.body.style.userSelect = "none";
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    },
+    [textareaHeight],
+  );
 
   const copyToClipboard = async () => {
     const contentToCopy =
@@ -145,7 +187,6 @@ export function MarkdownCopy({
   };
 
   const defaultTextareaProps = {
-    rows: 12,
     placeholder: t("common.contentPlaceholder"),
     ...textareaProps,
   };
@@ -175,25 +216,51 @@ export function MarkdownCopy({
       )}
 
       {localShowMarkdown ? (
-        <div className={styles.markdownViewer}>
-          <XMarkdown
-            content={markdownContent}
-            {...defaultMarkdownViewerProps}
-            components={mermaidComponents}
-            dompurifyConfig={{
-              ADD_TAGS: ["pre", "code"],
-              ADD_ATTR: ["data-block", "data-state", "data-lang", "class"],
-            }}
+        <div className={styles.markdownViewerWrapper}>
+          <div
+            className={styles.markdownViewer}
+            style={{ height: textareaHeight }}
+          >
+            <XMarkdown
+              content={markdownContent}
+              {...defaultMarkdownViewerProps}
+              components={mermaidComponents}
+              dompurifyConfig={{
+                ADD_TAGS: ["pre", "code"],
+                ADD_ATTR: ["data-block", "data-state", "data-lang", "class"],
+              }}
+            />
+          </div>
+          <div
+            className={styles.resizeHandle}
+            onMouseDown={handleResizeStart}
+          />
+        </div>
+      ) : editable ? (
+        <div className={styles.editTextareaWrapper}>
+          <textarea
+            className={styles.editTextarea}
+            style={{ height: textareaHeight }}
+            value={editContent}
+            onChange={handleContentChange}
+            placeholder={
+              textareaProps.placeholder || t("common.contentPlaceholder")
+            }
+            readOnly={textareaProps.disabled}
+          />
+          <div
+            className={styles.resizeHandle}
+            onMouseDown={handleResizeStart}
           />
         </div>
       ) : (
         <div className={styles.textareaContainer}>
           <Input.TextArea
-            value={editable ? editContent : content}
+            value={content}
             onChange={handleContentChange}
             {...defaultTextareaProps}
             className={styles.textarea}
-            readOnly={!editable || textareaProps.disabled}
+            readOnly
           />
         </div>
       )}
