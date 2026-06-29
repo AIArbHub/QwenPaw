@@ -204,7 +204,7 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
   // Flat nav entries for design mode
   const designFlatNav = useMemo(() => {
     if (sidebarMode !== "design") return [];
-    return DESIGN_MODE_NAV_ITEMS.map((item) => {
+    return DESIGN_MODE_NAV_ITEMS.map((item): FlatMenuEntry => {
       let path = routeIdToPath(item.route, routes) ?? "";
       if (item.key === "core.chat") path = chatPath;
       return {

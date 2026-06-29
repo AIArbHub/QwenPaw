@@ -2592,7 +2592,75 @@ def migrate_legacy_config_to_multi_agent() -> bool:
     print(f"  Default agent workspace: {default_workspace}")
     print(f"  Default agent config: {agent_config_path}")
 
+    # Create builtin arbitrator agent (first time only)
+    _ensure_builtin_arbitrator(config)
+
     return True
+
+
+def _ensure_builtin_arbitrator(config: "Config"):
+    """Create the builtin *arbitrator* agent if it doesn't exist yet.
+
+    This copies the bundled template from *qwenpaw.builtins.arbitrator* into
+    the user's workspace and registers it in *config.agents.profiles*.
+    """
+    import importlib.resources
+
+    arbitrator_id = "arbitrator"
+    # Skip if already created
+    if arbitrator_id in config.agents.profiles:
+        return
+
+    from pathlib import Path
+
+    arbitrator_workspace = Path(f"{WORKING_DIR}/workspaces/{arbitrator_id}").expanduser()
+    if arbitrator_workspace.exists():
+        config.agents.profiles[arbitrator_id] = AgentProfileRef(
+            id=arbitrator_id,
+            workspace_dir=str(arbitrator_workspace),
+        )
+        save_config(config)
+        return
+
+    arbitrator_workspace.mkdir(parents=True, exist_ok=True)
+
+    # Copy bundled template
+    try:
+        pkg_res = importlib.resources.files("qwenpaw.builtins.arbitrator")
+        for item in pkg_res.iterdir():
+            if isinstance(item, importlib.resources.abc.Traversable):
+                dest = arbitrator_workspace / item.name
+                if item.is_dir():
+                    dest.mkdir(exist_ok=True)
+                    _copy_traversable(item, dest)
+                else:
+                    with item.open("rb") as src_f, dest.open("wb") as dst_f:
+                        dst_f.write(src_f.read())
+    except Exception:
+        logger.warning("Failed to bundle arbitrator agent template")
+
+    # Register in config
+    config.agents.profiles[arbitrator_id] = AgentProfileRef(
+        id=arbitrator_id,
+        workspace_dir=str(arbitrator_workspace),
+    )
+    save_config(config)
+    print(f"  Created builtin agent: {arbitrator_id} @ {arbitrator_workspace}")
+
+
+def _copy_traversable(src: "importlib.resources.abc.Traversable", dest: Path) -> None:
+    """Recursively copy a Traversable tree to *dest*."""
+    import importlib.resources
+
+    for item in src.iterdir():
+        dst_item = dest / item.name
+        if item.is_dir():
+            dst_item.mkdir(exist_ok=True)
+            _copy_traversable(item, dst_item)
+        else:
+            dst_item.parent.mkdir(parents=True, exist_ok=True)
+            with item.open("rb") as src_f, dst_item.open("wb") as dst_f:
+                dst_f.write(src_f.read())
 
 
 def get_model_max_input_length(
