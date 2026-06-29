@@ -187,7 +187,9 @@ export function MermaidBlock({ chart }: MermaidBlockProps) {
         <code>{chart}</code>
       </pre>
     );
-            .render(id, trimmedChart)
+  }
+
+  return (
     <div
       className={`mermaid-diagram${isRendering ? " is-loading" : ""}`}
       style={isRendering ? { minHeight: `${reservedHeight}px` } : undefined}
