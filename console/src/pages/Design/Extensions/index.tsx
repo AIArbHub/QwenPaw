@@ -1,11 +1,9 @@
 import { Tabs } from "antd";
-import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import MCPPage from "../../Agent/MCP";
 import ACPPage from "../../Agent/ACP";
 
 export default function DesignExtensionsPage() {
-  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "mcp";
 

@@ -20,6 +20,7 @@ export interface FlatMenuEntry {
   label: ReactNode;
   path: string;
   href?: string;
+  separatorBefore?: boolean;
 }
 
 /** Treat MenuItem.icon (Component or Node) as ReactNode with a given size. */
