@@ -29,6 +29,7 @@ def list_providers() -> list[ProviderInfo]:
                 label=provider.label,
                 available=is_available,
                 reason=reason,
+                supports_browse=provider.supports_browse,
             ),
         )
     return out

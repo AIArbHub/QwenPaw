@@ -132,6 +132,31 @@
   font-size: 13px;
 }
 
+.searchGuide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 24px;
+  border-radius: 8px;
+  border: 1px dashed rgba(22, 119, 255, 0.24);
+  background: rgba(22, 119, 255, 0.03);
+}
+
+.searchGuideIcon {
+  font-size: 36px;
+  opacity: 0.7;
+}
+
+.searchGuideText {
+  font-size: 14px;
+  color: rgba(20, 20, 19, 0.55);
+  text-align: center;
+  max-width: 360px;
+  line-height: 1.6;
+}
+
 /* ─── Error row ──────────────────────────────────────────────────────────── */
 .errorRow {
   background: rgba(245, 34, 45, 0.06);
@@ -251,6 +276,15 @@
     background: rgba(22, 119, 255, 0.12);
     border-color: rgba(22, 119, 255, 0.28);
     color: #6cb2ff;
+  }
+
+  .searchGuide {
+    border-color: rgba(22, 119, 255, 0.28);
+    background: rgba(22, 119, 255, 0.06);
+  }
+
+  .searchGuideText {
+    color: rgba(255, 255, 255, 0.5);
   }
 
   .errorRow {
