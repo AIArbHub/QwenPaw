@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
 import styles from "./index.module.less";
 
@@ -20,14 +20,16 @@ interface MermaidCodeBlockProps {
 }
 
 export function MermaidCodeBlock({ chart }: MermaidCodeBlockProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const trimmedChart = chart.trim();
-  const [svg, setSvg] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isRendering, setIsRendering] = useState<boolean>(!!trimmedChart);
 
   useEffect(() => {
     if (!trimmedChart) {
-      setSvg("");
+      if (containerRef.current) {
+        containerRef.current.innerHTML = "";
+      }
       setError("");
       setIsRendering(false);
       return;
@@ -37,23 +39,22 @@ export function MermaidCodeBlock({ chart }: MermaidCodeBlockProps) {
 
     let cancelled = false;
     const id = `mermaid-${Date.now()}-${idCounter++}`;
-    setSvg("");
     setError("");
     setIsRendering(true);
 
-    mermaid
-      .render(id, trimmedChart)
-      .then(({ svg: rendered }) => {
-        if (!cancelled) {
-          setSvg(rendered);
+    mermaid.render(id, trimmedChart)
+      .then(({ svg, bindFunctions }) => {
+        if (!cancelled && containerRef.current) {
+          containerRef.current.innerHTML = svg;
+          bindFunctions?.(containerRef.current);
           setError("");
           setIsRendering(false);
         }
       })
       .catch((renderError) => {
         if (!cancelled) {
+          console.error("[MermaidCodeBlock] render error:", renderError);
           setError(String(renderError));
-          setSvg("");
           setIsRendering(false);
         }
         const orphan = document.getElementById("d" + id);
@@ -84,12 +85,7 @@ export function MermaidCodeBlock({ chart }: MermaidCodeBlockProps) {
           Loading diagram…
         </div>
       ) : null}
-      {svg ? (
-        <div
-          className={styles.content}
-          dangerouslySetInnerHTML={{ __html: svg }}
-        />
-      ) : null}
+      <div ref={containerRef} className={styles.content} />
     </div>
   );
 }

@@ -68,7 +68,10 @@
     "debug": "調試",
     "plugins": "插件",
     "backups": "備份",
-    "pluginManager": "插件管理"
+    "pluginManager": "插件管理",
+    "extensions": "擴展",
+    "usage": "用量",
+    "ops": "運維"
   },
   "sidebar": {
     "newVersion": "發現新版本 v{{version}}，點擊前往升級",
@@ -83,7 +86,8 @@
       "mode": "模式"
     },
     "simpleMode": "精簡模式",
-    "fullMode": "完整模式"
+    "fullMode": "完整模式",
+    "designMode": "設計版"
   },
   "debug": {
     "title": "調試",
@@ -2771,5 +2775,16 @@
       "LOAD_FAILED": "加載檔案預覽失敗。",
       "LOAD_FAILED_DETAIL": "加載檔案預覽失敗：{{detail}}"
     }
+  },
+  "design": {
+    "skillsHintTitle": "技能、技能池、技能市場有什麼區別？",
+    "skillsHintSummary": "技能分為技能、技能池、技能市場三個層級",
+    "skillsHintInstalled": "📦 技能：類似家裡工作桌，存儲當前智能體已啟用的技能，直接影響對話能力",
+    "skillsHintPool": "🏊 技能池：類似家裡儲物間，存儲已下載但未啟用的技能，可隨時安裝/廣播到智能體",
+    "skillsHintMarket": "🛒 技能市場：類似網上商城，瀏覽和下載社群/雲端/外部技能，下載後進入技能池",
+    "skillsHintFlow": "三者關係：詳見圖示",
+    "skillsHintCollapsed": "技能、技能池、技能市場有什麼區別？",
+    "skillsHintExpand": "查看詳情",
+    "skillsHintDismiss": "知道了"
   }
 }

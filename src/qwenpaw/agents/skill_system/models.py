@@ -51,6 +51,11 @@ class SkillInfo(BaseModel):
     used by APIs, sync state, and channel routing. It is intentionally not
     derived from frontmatter because frontmatter can drift while the on-disk
     workspace identity must remain stable.
+
+    ``display_name`` and ``display_description`` provide locale-aware
+    presentation.  When the user language is non-English they contain a
+    bilingual string (e.g. ``"文件读取工具箱 + file_reader"``); when
+    the user language is English they mirror ``name`` / ``description``.
     """
 
     name: str
@@ -61,6 +66,8 @@ class SkillInfo(BaseModel):
     references: dict[str, Any] = Field(default_factory=dict)
     scripts: dict[str, Any] = Field(default_factory=dict)
     emoji: str = ""
+    display_name: str = ""
+    display_description: str = ""
 
 
 class SkillRequirements(BaseModel):

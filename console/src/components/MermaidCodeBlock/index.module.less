@@ -25,10 +25,12 @@
   padding: 16px;
   display: flex;
   justify-content: center;
+  min-height: 0;
 
-  svg {
+  :global(svg) {
     max-width: 100%;
     height: auto;
+    min-height: 60px;
   }
 }
 

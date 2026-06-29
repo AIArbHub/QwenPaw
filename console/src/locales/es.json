@@ -68,7 +68,10 @@
     "debug": "Debug",
     "plugins": "Plugins",
     "backups": "Backups",
-    "pluginManager": "Plugin Manager"
+    "pluginManager": "Plugin Manager",
+    "extensions": "Extensiones",
+    "usage": "Uso",
+    "ops": "Ops"
   },
   "sidebar": {
     "newVersion": "New version available: v{{version}}, click to upgrade",
@@ -83,7 +86,8 @@
       "mode": "Mode"
     },
     "simpleMode": "Simple Mode",
-    "fullMode": "Full Mode"
+    "fullMode": "Full Mode",
+    "designMode": "Modo Diseño"
   },
   "debug": {
     "title": "Debug",
@@ -2762,5 +2766,16 @@
       "LOAD_FAILED": "Failed to load file preview.",
       "LOAD_FAILED_DETAIL": "Failed to load file preview: {{detail}}"
     }
+  },
+  "design": {
+    "skillsHintTitle": "¿Cuál es la diferencia entre Skills, Pool de Skills y Market?",
+    "skillsHintSummary": "Las Skills se organizan en tres niveles: Skills, Pool de Skills y Market",
+    "skillsHintInstalled": "📦 Skills: Como un escritorio de trabajo en casa, almacena skills activadas para el agente actual, afectando directamente el chat",
+    "skillsHintPool": "🏊 Pool de Skills: Como un cuarto de almacenamiento en casa, guarda skills descargadas pero inactivas, listas para instalar/difundir",
+    "skillsHintMarket": "🛒 Market: Como una tienda online, explora y descarga skills de la comunidad/nube/externas; las descargadas van al Pool",
+    "skillsHintFlow": "Relación: Ver diagrama a continuación",
+    "skillsHintCollapsed": "¿Cuál es la diferencia entre Skills, Pool de Skills y Market?",
+    "skillsHintExpand": "Ver detalles",
+    "skillsHintDismiss": "Entendido"
   }
 }

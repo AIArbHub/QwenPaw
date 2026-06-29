@@ -262,10 +262,10 @@ def configure_skills_interactive(
         if skill_name in installed_by_name:
             skill = installed_by_name[skill_name]
             status = "✓" if skill_name in enabled else "✗"
-            label = f"{skill.name}  [{status}] ({skill.source})"
+            label = f"{skill.display_name or skill.name}  [{status}] ({skill.source})"
         else:
             skill = pool_candidates[skill_name]
-            label = f"{skill.name}  [pool] ({skill.source})"
+            label = f"{skill.display_name or skill.name}  [pool] ({skill.source})"
         options.append((label, skill.name))
 
     click.echo("\n=== Skills Configuration ===")
@@ -351,7 +351,8 @@ def list_cmd(agent_id: str) -> None:
             if skill.name in enabled
             else click.style("✗ disabled", fg="red")
         )
-        click.echo(f"  {skill.name:<30s} {skill.source:<12s} {status}")
+        display = skill.display_name or skill.name
+        click.echo(f"  {display:<30s} {skill.source:<12s} {status}")
 
     click.echo(f"{'─' * 50}")
     enabled_count = sum(1 for s in all_skills if s.name in enabled)
@@ -404,13 +405,14 @@ def info_cmd(
     enabled = bool(entry.get("enabled", False))
     skill_dir = get_workspace_skills_dir(working_dir) / skill_name
 
-    click.echo(f"Skill: {skill.name}")
+    click.echo(f"Skill: {skill.display_name or skill.name}")
     click.echo(f"Enabled: {'yes' if enabled else 'no'}")
     click.echo(f"Channels: {', '.join(channels)}")
     click.echo(f"Source: {skill.source}")
     click.echo(f"Path: {skill_dir}")
     click.echo(
-        "Description: " f"{skill.description or 'No description.'}",
+        "Description: "
+        f"{skill.display_description or skill.description or 'No description.'}",
     )
 
 
