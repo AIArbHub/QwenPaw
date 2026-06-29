@@ -24,6 +24,31 @@ import type { ToolInfo } from "../../../api/modules/tools";
 import { PageHeader } from "@/components/PageHeader";
 import styles from "./index.module.less";
 
+function BilingualText({
+  i18nKey,
+  fallback,
+  className,
+}: {
+  i18nKey: string;
+  fallback: string;
+  className?: string;
+}) {
+  const { t, i18n } = useTranslation();
+  const translated = t(i18nKey, fallback);
+  const isEnglish = i18n.language?.startsWith("en");
+
+  if (isEnglish || translated === fallback) {
+    return <span className={className}>{fallback}</span>;
+  }
+
+  return (
+    <span className={className}>
+      {translated}
+      <span className={styles.bilingualHint}> ({fallback})</span>
+    </span>
+  );
+}
+
 /** Stable background colours for the initial-letter fallback icon. */
 const ICON_PALETTE = [
   "#f56a00",
@@ -74,7 +99,14 @@ function ToolConfigModal({
   const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
   const [loadingConfig, setLoadingConfig] = useState(false);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isEnglish = i18n.language?.startsWith("en");
+
+  const bilingualTitle = (key: string, fallback: string) => {
+    const translated = t(key, fallback);
+    if (isEnglish || translated === fallback) return fallback;
+    return `${translated} (${fallback})`;
+  };
 
   // Fetch latest config from backend whenever the modal opens.
   // Cleanup cancels stale in-flight requests on rapid tool switches.
@@ -116,7 +148,7 @@ function ToolConfigModal({
 
   return (
     <Modal
-      title={`${t("tools.configure")} - ${t(`tools.toolNames.${tool.name}`, tool.name)}`}
+      title={`${t("tools.configure")} - ${bilingualTitle(`tools.toolNames.${tool.name}`, tool.name)}`}
       open={visible}
       onCancel={onClose}
       onOk={handleSave}
@@ -294,9 +326,11 @@ export default function ToolsPage() {
                       <div className={styles.cardHeader}>
                         <h3 className={styles.toolName} title={tool.name}>
                           <ToolIcon icon={tool.icon} name={tool.name} />{" "}
-                          <span className={styles.toolNameText}>
-                            {t(`tools.toolNames.${tool.name}`, tool.name)}
-                          </span>
+                          <BilingualText
+                            i18nKey={`tools.toolNames.${tool.name}`}
+                            fallback={tool.name}
+                            className={styles.toolNameText}
+                          />
                         </h3>
                         <div className={styles.statusContainer}>
                           <span className={styles.statusDot} />
@@ -307,7 +341,10 @@ export default function ToolsPage() {
                       </div>
 
                       <p className={styles.toolDescription}>
-                        {t(`tools.toolDescriptions.${tool.name}`, tool.description)}
+                        <BilingualText
+                          i18nKey={`tools.toolDescriptions.${tool.name}`}
+                          fallback={tool.description}
+                        />
                       </p>
 
                       {/* Show config status */}
@@ -401,12 +438,11 @@ export default function ToolsPage() {
                       onClick={() => handleAvailableItemClick(tool)}
                     >
                       <ToolIcon icon={tool.icon} name={tool.name} />
-                      <span
+                      <BilingualText
+                        i18nKey={`tools.toolNames.${tool.name}`}
+                        fallback={tool.name}
                         className={styles.availableItemName}
-                        title={tool.name}
-                      >
-                        {t(`tools.toolNames.${tool.name}`, tool.name)}
-                      </span>
+                      />
                       <span className={styles.availableItemAction}>
                         {tool.requires_config && !isToolConfigured(tool)
                           ? t("tools.configureAction")

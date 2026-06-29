@@ -222,8 +222,13 @@ export function MarketPanel({
     setDetailItem(null);
   }, []);
 
-  const browseHintLabel = useMemo(() => {
-    if (market.query.trim() || market.category) return "";
+  // Memoize breadcrumb items to avoid re-creating each render
+  const headerItems = useMemo(
+    () => [{ title: t("nav.settings") }, { title: t("nav.market") }],
+    [t],
+  );
+
+  const nonBrowseLabel = useMemo(() => {
     return market.providers
       .filter(
         (p) =>
@@ -234,27 +239,62 @@ export function MarketPanel({
       .map((p) => p.label)
       .join(", ");
   }, [
-    market.query,
-    market.category,
     market.providers,
     market.selectedProviderKeys,
   ]);
 
+  const browseLabel = useMemo(() => {
+    return market.providers
+      .filter(
+        (p) =>
+          p.available &&
+          p.supports_browse &&
+          market.selectedProviderKeys.has(p.key),
+      )
+      .map((p) => p.label)
+      .join(", ");
+  }, [
+    market.providers,
+    market.selectedProviderKeys,
+  ]);
+
+  const hasSelectedProvider = market.selectedProviderKeys.size > 0;
+
+  const browseHintLabel = !market.category && !market.query.trim() && hasSelectedProvider && browseLabel ? browseLabel : "";
+
   return (
     <div className={styles.marketPage}>
       <div className={styles.content}>
+        <ProviderChips
+          providers={market.providers}
+          selectedKeys={market.selectedProviderKeys}
+          onToggle={market.toggleProvider}
+        />
+
         <div className={styles.toolbar}>
-          <ProviderChips
-            providers={market.providers}
-            selectedKeys={market.selectedProviderKeys}
-            onToggle={market.toggleProvider}
-          />
-          <div className={styles.filters}>
-            <CategorySelect
+          {market.query.trim() ? (
+            <div className={styles.searchHint}>
+              {!market.loading &&
+                !market.globalError &&
+                t("market.searchResult", {
+                  keyword: market.query.trim(),
+                  count: market.totalCount,
+                })}
+            </div>
+          ) : !hasSelectedProvider ? (
+            <div className={styles.searchHint}>
+              {t("market.selectProviderHint")}
+            </div>
+          ) : market.anyProviderSupportsBrowse ? (
+            <CategoryTabs
               categories={market.categories}
               active={market.category}
               onSelect={market.setCategory}
             />
+          ) : (
+            <div className={styles.searchHint}>
+              {t("market.searchOnlyHint", { providers: nonBrowseLabel })}
+            </div>
             <Input.Search
               className={styles.searchInput}
               placeholder={t("market.searchPlaceholder")}
@@ -296,6 +336,22 @@ export function MarketPanel({
 
         {market.loading && market.results.length === 0 ? (
           <EmptyState text={t("common.loading")} />
+        ) : market.results.length === 0 && !market.query.trim() ? (
+          <div className={styles.searchGuide}>
+            <span className={styles.searchGuideIcon}>🔍</span>
+            <span className={styles.searchGuideText}>
+              {!hasSelectedProvider
+                ? t("market.selectProviderGuide")
+                : !market.anyProviderSupportsBrowse
+                  ? t("market.searchGuide", { providers: nonBrowseLabel })
+                  : t("market.browseEmpty")}
+            </span>
+            {(market.globalError || market.errors.length > 0) && (
+              <Button onClick={market.retry} loading={market.loading} size="small">
+                {t("market.retry")}
+              </Button>
+            )}
+          </div>
         ) : market.results.length === 0 &&
           (market.globalError || market.errors.length > 0) ? (
           <EmptyState text={t("market.noResults")}>
@@ -354,3 +410,5 @@ export function MarketPanel({
     </div>
   );
 }
+
+export default MarketPage;

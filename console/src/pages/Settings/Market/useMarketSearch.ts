@@ -48,6 +48,7 @@ export interface MarketSearchState {
   autoLoadMore: () => void;
   /** Set when a batch errored, so the sentinel stops auto-retrying. */
   autoLoadBlocked: boolean;
+  anyProviderSupportsBrowse: boolean;
   retry: () => void;
 }
 
@@ -88,13 +89,32 @@ export function useMarketSearch(): MarketSearchState {
 
   // Keep server-provided provider order (QwenPaw first) for ranking.
   const providerKeyList = useMemo(() => {
+    const browseCapable = new Set(
+      providers
+        .filter((p) => p.available && p.supports_browse)
+        .map((p) => p.key),
+    );
     const ordered = providers
       .map((p) => p.key)
-      .filter((k) => selectedProviderKeys.has(k));
+      .filter((k) => {
+        if (!selectedProviderKeys.has(k)) return false;
+        if (category && !browseCapable.has(k)) return false;
+        return true;
+      });
     for (const k of selectedProviderKeys) {
-      if (!ordered.includes(k)) ordered.push(k);
+      if (!ordered.includes(k) && (!category || browseCapable.has(k)))
+        ordered.push(k);
     }
     return ordered;
+  }, [providers, selectedProviderKeys, category]);
+
+  const anyProviderSupportsBrowse = useMemo(() => {
+    return providers.some(
+      (p) =>
+        p.available &&
+        p.supports_browse &&
+        selectedProviderKeys.has(p.key),
+    );
   }, [providers, selectedProviderKeys]);
 
   const providersSeqRef = useRef(0);
@@ -331,6 +351,7 @@ export function useMarketSearch(): MarketSearchState {
     loadMore,
     autoLoadMore,
     autoLoadBlocked,
+    anyProviderSupportsBrowse,
     retry,
   };
 }

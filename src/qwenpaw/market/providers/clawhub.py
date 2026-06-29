@@ -28,6 +28,7 @@ _MAX_PAGE_WALK = 50
 class ClawHubProvider:
     key = "clawhub"
     label = "ClawHub"
+    supports_browse = False
     supports_browse = True
 
     def available(self) -> tuple[bool, str | None]:
