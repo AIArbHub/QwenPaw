@@ -794,6 +794,11 @@ def read_skill_pool_manifest() -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
+def _get_user_language_preference() -> str:
+    from .registry import get_builtin_skill_language_preference
+    return get_builtin_skill_language_preference()
+
+
 def _extract_emoji_from_metadata(metadata: Any) -> str:
     """Extract emoji from metadata.qwenpaw.emoji."""
     if not isinstance(metadata, dict):
@@ -804,7 +809,79 @@ def _extract_emoji_from_metadata(metadata: Any) -> str:
     return ""
 
 
-def read_skill_from_dir(skill_dir: Path, source: str) -> SkillInfo | None:
+def _extract_first_heading(content: str) -> str:
+    for line in content.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("# ") and len(stripped) > 2:
+            return stripped[2:].strip()
+    return ""
+
+
+def _build_display_name(
+    skill_name: str,
+    frontmatter_name: str,
+    local_title: str,
+    *,
+    user_language: str,
+) -> str:
+    canonical = frontmatter_name or skill_name
+    if user_language == "en":
+        return canonical
+    if local_title and local_title != canonical:
+        return f"{local_title} + {canonical}"
+    return canonical
+
+
+def _build_display_description(
+    local_description: str,
+    cross_description: str,
+    *,
+    user_language: str,
+) -> str:
+    if user_language == "en":
+        return local_description
+    if not cross_description or cross_description == local_description:
+        return local_description
+    return f"{local_description} / {cross_description}"
+
+
+def _resolve_cross_language_description(
+    skill_name: str,
+    *,
+    user_language: str,
+) -> str:
+    if user_language == "en":
+        return ""
+    from .registry import _get_packaged_builtin_registry, _select_builtin_variant
+    registry = _get_packaged_builtin_registry()
+    variant = _select_builtin_variant(registry, skill_name, "en")
+    if variant is None:
+        return ""
+    return variant.description
+
+
+def _resolve_cross_language_name(
+    skill_name: str,
+    *,
+    user_language: str,
+) -> str:
+    if user_language == "en":
+        return ""
+    from .registry import _get_packaged_builtin_registry, _select_builtin_variant
+    registry = _get_packaged_builtin_registry()
+    variant = _select_builtin_variant(registry, skill_name, "en")
+    if variant is None:
+        return ""
+    raw = read_frontmatter_safe_from_path(variant.skill_md_path, skill_name)
+    return str(raw.get("name") or "").strip()
+
+
+def read_skill_from_dir(
+    skill_dir: Path,
+    source: str,
+    *,
+    user_language: str | None = None,
+) -> SkillInfo | None:
     if not skill_dir.is_dir():
         return None
 
@@ -816,10 +893,12 @@ def read_skill_from_dir(skill_dir: Path, source: str) -> SkillInfo | None:
         content = read_text_file_with_encoding_fallback(skill_md)
         description = ""
         emoji = ""
+        frontmatter_name = ""
         post: Any = {}
         try:
             post = frontmatter.loads(content)
             description = str(post.get("description", "") or "")
+            frontmatter_name = str(post.get("name") or "").strip()
 
             # Extract emoji from metadata.qwenpaw.emoji
             emoji = _extract_emoji_from_metadata(post.get("metadata", {}))
@@ -835,6 +914,28 @@ def read_skill_from_dir(skill_dir: Path, source: str) -> SkillInfo | None:
         if scripts_dir.exists():
             scripts = _directory_tree(scripts_dir)
 
+        lang = (
+            user_language
+            if user_language is not None
+            else _get_user_language_preference()
+        )
+        cross_desc = _resolve_cross_language_description(
+            skill_dir.name,
+            user_language=lang,
+        )
+        local_title = _extract_first_heading(post.content) if hasattr(post, 'content') else ""
+        display_name = _build_display_name(
+            skill_dir.name,
+            frontmatter_name,
+            local_title,
+            user_language=lang,
+        )
+        display_description = _build_display_description(
+            description,
+            cross_desc,
+            user_language=lang,
+        )
+
         return SkillInfo(
             name=skill_dir.name,
             description=description,
@@ -844,6 +945,8 @@ def read_skill_from_dir(skill_dir: Path, source: str) -> SkillInfo | None:
             references=references,
             scripts=scripts,
             emoji=emoji,
+            display_name=display_name,
+            display_description=display_description,
         )
     except Exception as exc:
         logger.error("Failed to read skill %s: %s", skill_dir, exc)

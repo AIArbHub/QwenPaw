@@ -574,10 +574,46 @@ async def _skill_fallback_handler(
 
     raw = read_text_file_with_encoding_fallback(skill_md)
     post = fm.loads(raw)
-    display_name = post.get("name") or skill_name
+    frontmatter_name = str(post.get("name") or "").strip()
+
+    from ..agents.skill_system.registry import (
+        get_builtin_skill_language_preference,
+        _get_packaged_builtin_registry,
+        _select_builtin_variant,
+    )
+    from ..agents.skill_system.store import (
+        _build_display_name,
+        _build_display_description,
+        _extract_first_heading,
+    )
+
+    lang = get_builtin_skill_language_preference()
+    local_title = _extract_first_heading(
+        post.content if hasattr(post, 'content') else "",
+    )
+    cross_desc = ""
+    variant = _select_builtin_variant(
+        _get_packaged_builtin_registry(),
+        skill_name,
+        "en",
+    )
+    if variant is not None and lang != "en":
+        cross_desc = variant.description
+
+    display_name = _build_display_name(
+        skill_name,
+        frontmatter_name,
+        local_title,
+        user_language=lang,
+    )
 
     if not user_input:
-        desc = post.get("description") or "No description."
+        local_desc = post.get("description") or "No description."
+        display_desc = _build_display_description(
+            local_desc,
+            cross_desc,
+            user_language=lang,
+        )
         return Msg(
             name="assistant",
             role="assistant",
@@ -585,10 +621,10 @@ async def _skill_fallback_handler(
                 TextBlock(
                     type="text",
                     text=(
-                        f"**{skill_name}**\n\n"
+                        f"**{display_name}**\n\n"
                         f"- **command**: `/{skill_name} <input>` to invoke\n"
                         f"- **name**: {display_name}\n"
-                        f"- **description**: {desc}\n"
+                        f"- **description**: {display_desc}\n"
                         f"- **path**: `{skill_dir}`"
                     ),
                 ),

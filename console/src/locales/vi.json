@@ -79,7 +79,10 @@
     "debug": "Gỡ lỗi",
     "plugins": "Plugin",
     "backups": "Sao lưu",
-    "pluginManager": "Quản lý Plugin"
+    "pluginManager": "Quản lý Plugin",
+    "extensions": "Tiện ích mở rộng",
+    "usage": "Sử dụng",
+    "ops": "Vận hành"
   },
   "header": {
     "changelog": "Nhật ký thay đổi",
@@ -104,7 +107,8 @@
       "mode": "Chế độ"
     },
     "simpleMode": "Chế độ đơn giản",
-    "fullMode": "Chế độ đầy đủ"
+    "fullMode": "Chế độ đầy đủ",
+    "designMode": "Chế độ thiết kế"
   },
   "theme": {
     "dark": "Tối",
@@ -1306,6 +1310,17 @@
     "editSession": "Chỉnh sửa phiên",
     "pleaseInputName": "Vui lòng nhập tên phiên",
     "sessionNamePlaceholder": "Tên phiên"
+  },
+  "design": {
+    "skillsHintTitle": "Sự khác biệt giữa Skills, Pool Skills và Market là gì?",
+    "skillsHintSummary": "Skills được tổ chức thành ba cấp: Skills, Pool Skills và Market",
+    "skillsHintInstalled": "📦 Skills: Như bàn làm việc ở nhà, lưu trữ skill đã kích hoạt cho agent hiện tại, ảnh hưởng trực tiếp đến chat",
+    "skillsHintPool": "🏊 Pool Skills: Như phòng chứa ở nhà, lưu trữ skill đã tải nhưng chưa kích hoạt, sẵn sàng cài đặt/phát bất cứ lúc nào",
+    "skillsHintMarket": "🛒 Market: Như cửa hàng trực tuyến, duyệt và tải skill cộng đồng/cloud/extern; skill đã tải sẽ vào Pool",
+    "skillsHintFlow": "Mối quan hệ: Xem sơ đồ bên dưới",
+    "skillsHintCollapsed": "Sự khác biệt giữa Skills, Pool Skills và Market là gì?",
+    "skillsHintExpand": "Xem chi tiết",
+    "skillsHintDismiss": "Đã hiểu"
   },
   "loop": {
     "gotoSettings": "Cài đặt Loop Agent"

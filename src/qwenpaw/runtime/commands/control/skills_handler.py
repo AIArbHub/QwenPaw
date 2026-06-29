@@ -14,6 +14,17 @@ from ....agents.skill_system import (
     get_workspace_skills_dir,
     reconcile_workspace_manifest,
 )
+from ....agents.skill_system.registry import (
+    get_builtin_skill_language_preference,
+    _get_packaged_builtin_registry,
+    _select_builtin_variant,
+)
+from ....agents.skill_system.store import (
+    _build_display_name,
+    _build_display_description,
+    _extract_first_heading,
+    read_frontmatter_safe_from_path,
+)
 from ....agents.utils.file_handling import (
     read_text_file_with_encoding_fallback,
 )
@@ -44,6 +55,32 @@ class SkillsCommandHandler(BaseControlCommandHandler):
             return normalized
         return f"{normalized[: limit - 3].rstrip()}..."
 
+    @staticmethod
+    def _resolve_skill_display(
+        folder_name: str,
+        local_description: str,
+        frontmatter_name: str,
+        local_title: str,
+    ) -> tuple[str, str]:
+        lang = get_builtin_skill_language_preference()
+        registry = _get_packaged_builtin_registry()
+        cross_desc = ""
+        variant = _select_builtin_variant(registry, folder_name, "en")
+        if variant is not None and lang != "en":
+            cross_desc = variant.description
+        display_name = _build_display_name(
+            folder_name,
+            frontmatter_name,
+            local_title,
+            user_language=lang,
+        )
+        display_description = _build_display_description(
+            local_description,
+            cross_desc,
+            user_language=lang,
+        )
+        return display_name, display_description
+
     async def handle(self, context: ControlContext) -> str:
         workspace = context.workspace
         workspace_dir: Path | None = getattr(
@@ -73,20 +110,32 @@ class SkillsCommandHandler(BaseControlCommandHandler):
                 continue
             found = True
 
-            # Read frontmatter for display name.
             skill_md = skill_dir / "SKILL.md"
             description = (
                 entry.get("metadata", {}).get("description")
                 or "No description."
             )
+            frontmatter_name = ""
+            local_title = ""
             if skill_md.exists():
                 raw = read_text_file_with_encoding_fallback(skill_md)
                 post = fm.loads(raw)
                 description = post.get("description") or description
+                frontmatter_name = str(post.get("name") or "").strip()
+                local_title = _extract_first_heading(
+                    post.content if hasattr(post, 'content') else "",
+                )
+
+            display_name, display_description = self._resolve_skill_display(
+                folder_name,
+                description,
+                frontmatter_name,
+                local_title,
+            )
 
             lines.append(
-                f"**{folder_name}**: "
-                f"{self._truncate_description(description)}",
+                f"**{display_name}**: "
+                f"{self._truncate_description(display_description)}",
             )
 
         if not found:

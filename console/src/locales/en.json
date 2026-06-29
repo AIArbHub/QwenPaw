@@ -80,7 +80,10 @@
     "debug": "Debug",
     "plugins": "Plugins",
     "backups": "Backups",
-    "pluginManager": "Plugin Manager"
+    "pluginManager": "Plugin Manager",
+    "extensions": "Extensions",
+    "usage": "Usage",
+    "ops": "Ops"
   },
   "sidebar": {
     "newVersion": "New version available: v{{version}}, click to upgrade",
@@ -121,7 +124,8 @@
       "mode": "Mode"
     },
     "simpleMode": "Simple Mode",
-    "fullMode": "Full Mode"
+    "fullMode": "Full Mode",
+    "designMode": "Design"
   },
   "debug": {
     "title": "Debug",
@@ -2894,6 +2898,17 @@
       "LOAD_FAILED": "Failed to load file preview.",
       "LOAD_FAILED_DETAIL": "Failed to load file preview: {{detail}}"
     }
+  },
+  "design": {
+    "skillsHintTitle": "What's the difference between Skills, Skill Pool, and Market?",
+    "skillsHintSummary": "Skills are organized into three tiers: Skills, Skill Pool, and Market",
+    "skillsHintInstalled": "📦 Skills: Like a work desk at home, storing skills activated for the current agent, directly affecting chat capabilities",
+    "skillsHintPool": "🏊 Skill Pool: Like a storage room at home, storing downloaded but inactive skills, ready to install/broadcast to agents at any time",
+    "skillsHintMarket": "🛒 Market: Like an online store, browse and download community/cloud/external skills; downloaded skills go to the Pool",
+    "skillsHintFlow": "Relationship: See diagram below",
+    "skillsHintCollapsed": "What's the difference between Skills, Skill Pool, and Market?",
+    "skillsHintExpand": "Show details",
+    "skillsHintDismiss": "Got it"
   },
   "loop": {
     "budget": {

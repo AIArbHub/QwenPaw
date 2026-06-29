@@ -134,6 +134,19 @@ export function MermaidBlock({ chart }: MermaidBlockProps) {
     setReservedHeight(estimatedHeight);
 
     mermaid
+      // Debug: log the exact chart text passed to mermaid
+      // eslint-disable-next-line no-console
+      .then(() => {
+        // no-op to keep typescript happy
+      })
+      .catch(() => {
+        // no-op
+      });
+
+    // eslint-disable-next-line no-console
+    console.debug("MERMAID_RENDER_INPUT:", JSON.stringify(trimmedChart));
+
+    mermaid
       .render(id, trimmedChart)
       .then(({ svg: rendered }) => {
         const reserved = Math.max(
@@ -174,9 +187,7 @@ export function MermaidBlock({ chart }: MermaidBlockProps) {
         <code>{chart}</code>
       </pre>
     );
-  }
-
-  return (
+            .render(id, trimmedChart)
     <div
       className={`mermaid-diagram${isRendering ? " is-loading" : ""}`}
       style={isRendering ? { minHeight: `${reservedHeight}px` } : undefined}

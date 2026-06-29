@@ -56,6 +56,15 @@ const PluginManagerPage = lazyImportWithRetry(
   "../../pages/Settings/PluginManager",
 );
 
+// Design mode merged pages
+const DesignSkillsPage = lazyImportWithRetry("../../pages/Design/Skills");
+const DesignExtensionsPage = lazyImportWithRetry(
+  "../../pages/Design/Extensions",
+);
+const DesignAgentPage = lazyImportWithRetry("../../pages/Design/Agent");
+const DesignUsagePage = lazyImportWithRetry("../../pages/Design/Usage");
+const DesignOpsPage = lazyImportWithRetry("../../pages/Design/Ops");
+
 /**
  * "/" lands here. Waits for useSyncCodingMode to populate the store before
  * deciding between /coding and /chat — see MainLayout.tsx history for why.
@@ -123,6 +132,16 @@ export const BUILTIN_ROUTES: Route[] = [
     path: "/plugin-manager",
     component: PluginManagerPage,
   },
+  // Design mode merged routes
+  { id: "design.skills", path: "/design/skills", component: DesignSkillsPage },
+  {
+    id: "design.extensions",
+    path: "/design/extensions",
+    component: DesignExtensionsPage,
+  },
+  { id: "design.agent", path: "/design/agent", component: DesignAgentPage },
+  { id: "design.usage", path: "/design/usage", component: DesignUsagePage },
+  { id: "design.ops", path: "/design/ops", component: DesignOpsPage },
 ];
 
 routeRegistry.addBuiltin(BUILTIN_ROUTES);

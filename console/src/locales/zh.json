@@ -80,7 +80,10 @@
     "debug": "调试",
     "plugins": "插件",
     "backups": "备份",
-    "pluginManager": "插件管理"
+    "pluginManager": "插件管理",
+    "extensions": "扩展",
+    "usage": "用量",
+    "ops": "运维"
   },
   "sidebar": {
     "newVersion": "发现新版本 v{{version}}，点击前往升级",
@@ -121,7 +124,8 @@
       "mode": "模式"
     },
     "simpleMode": "精简模式",
-    "fullMode": "完整模式"
+    "fullMode": "完整模式",
+    "designMode": "设计版"
   },
   "debug": {
     "title": "调试",
@@ -2909,6 +2913,17 @@
       "LOAD_FAILED": "加载文件预览失败。",
       "LOAD_FAILED_DETAIL": "加载文件预览失败：{{detail}}"
     }
+  },
+  "design": {
+    "skillsHintTitle": "技能、技能池、技能市场有什么区别？",
+    "skillsHintSummary": "技能分为技能、技能池、技能市场三个层级",
+    "skillsHintInstalled": "📦 技能：类似家里工作桌，存储当前智能体已激活的技能，直接影响对话能力",
+    "skillsHintPool": "🏊 技能池：类似家里储物间，存储已下载但未激活的技能，可随时安装/广播到智能体",
+    "skillsHintMarket": "🛒 技能市场：类似网上商城，浏览和下载社区/云端/外部技能，下载后进入技能池",
+    "skillsHintFlow": "三者关系：详见图示",
+    "skillsHintCollapsed": "技能、技能池、技能市场有什么区别？",
+    "skillsHintExpand": "查看详情",
+    "skillsHintDismiss": "知道了"
   },
   "loop": {
     "budget": {

@@ -9,7 +9,7 @@ import {
   Badge,
   Popover,
 } from "antd";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAppMessage } from "../hooks/useAppMessage";
@@ -22,6 +22,20 @@ import {
   SparkMenuFoldLine,
   SparkEmailLine,
   SparkSettingLine,
+  SparkMagicWandLine,
+  SparkToolLine,
+  SparkMcpMcpLine,
+  SparkWifiLine,
+  SparkDateLine,
+  SparkLocalFileLine,
+  SparkAgentLine,
+  SparkModePlazaLine,
+  SparkInternetLine,
+  SparkBrowseLine,
+  SparkDataLine,
+  SparkSaveLine,
+  SparkUserGroupLine,
+  SparkVoiceChat01Line,
 } from "@agentscope-ai/icons";
 import SidebarSessionList from "./SidebarSessionList";
 import SidebarSettingsPanel from "./SidebarSettingsPanel";
@@ -71,6 +85,34 @@ const SIMPLE_MODE_WHITELIST = new Set([
   "core.agent-config",
   "core.models",
 ]);
+
+// ── Design mode menu definition ───────────────────────────────────────────
+
+const DESIGN_MODE_NAV_ITEMS: {
+  key: string;
+  route: string;
+  labelKey: string;
+  labelDefault: string;
+  icon: React.ComponentType<any>;
+  separatorBefore?: boolean;
+}[] = [
+  { key: "core.chat", route: "core.chat", labelKey: "nav.chat", labelDefault: "Chat", icon: SparkChatTabFill },
+  { key: "core.inbox", route: "core.inbox", labelKey: "nav.inbox", labelDefault: "Inbox", icon: SparkEmailLine },
+  { key: "design.skills", route: "design.skills", labelKey: "nav.skills", labelDefault: "Skills", icon: SparkMagicWandLine, separatorBefore: true },
+  { key: "core.tools", route: "core.tools", labelKey: "nav.tools", labelDefault: "Tools", icon: SparkToolLine },
+  { key: "design.extensions", route: "design.extensions", labelKey: "nav.extensions", labelDefault: "Extensions", icon: SparkMcpMcpLine },
+  { key: "core.channels", route: "core.channels", labelKey: "nav.channels", labelDefault: "Channels", icon: SparkWifiLine, separatorBefore: true },
+  { key: "core.sessions", route: "core.sessions", labelKey: "nav.sessions", labelDefault: "Sessions", icon: SparkUserGroupLine },
+  { key: "core.cron-jobs", route: "core.cron-jobs", labelKey: "nav.cronJobs", labelDefault: "Cron Jobs", icon: SparkDateLine },
+  { key: "core.heartbeat", route: "core.heartbeat", labelKey: "nav.heartbeat", labelDefault: "Heartbeat", icon: SparkVoiceChat01Line },
+  { key: "core.workspace", route: "core.workspace", labelKey: "nav.workspace", labelDefault: "Files", icon: SparkLocalFileLine, separatorBefore: true },
+  { key: "design.agent", route: "design.agent", labelKey: "nav.agents", labelDefault: "Agent", icon: SparkAgentLine, separatorBefore: true },
+  { key: "core.models", route: "core.models", labelKey: "nav.models", labelDefault: "Models", icon: SparkModePlazaLine },
+  { key: "core.environments", route: "core.environments", labelKey: "nav.environments", labelDefault: "Environments", icon: SparkInternetLine },
+  { key: "core.security", route: "core.security", labelKey: "nav.security", labelDefault: "Security", icon: SparkBrowseLine },
+  { key: "design.usage", route: "design.usage", labelKey: "nav.usage", labelDefault: "Usage", icon: SparkDataLine },
+  { key: "design.ops", route: "design.ops", labelKey: "nav.ops", labelDefault: "Ops", icon: SparkSaveLine },
+];
 
 /**
  * Flatten a MenuItem tree into a leaf-only list for simple sidebar mode.
@@ -158,6 +200,22 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
       ...flattenMenu(settingsMenu, routes, 16),
     ];
   }, [agentMenu, settingsMenu, routes, sidebarMode]);
+
+  // Flat nav entries for design mode
+  const designFlatNav = useMemo(() => {
+    if (sidebarMode !== "design") return [];
+    return DESIGN_MODE_NAV_ITEMS.map((item) => {
+      let path = routeIdToPath(item.route, routes) ?? "";
+      if (item.key === "core.chat") path = chatPath;
+      return {
+        key: item.key,
+        icon: renderIcon(item.icon, 16),
+        label: t(item.labelKey, item.labelDefault),
+        path,
+        separatorBefore: item.separatorBefore,
+      };
+    });
+  }, [routes, sidebarMode, t, chatPath]);
 
   // ── Effects ──────────────────────────────────────────────────────────────
 
@@ -285,6 +343,39 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
     );
   }, [agentMenu, settingsMenu, routes, chatPath, t, hasInboxUnread]);
 
+  // Collapsed nav items for design mode
+  const designCollapsedNavItems = useMemo(() => {
+    if (sidebarMode !== "design") return [];
+    const decorateInboxIcon = (icon: ReactNode): ReactNode => (
+      <span style={{ position: "relative", display: "inline-flex" }}>
+        {icon ?? <SparkEmailLine size={18} />}
+        {hasInboxUnread && (
+          <span
+            style={{
+              position: "absolute",
+              top: -1,
+              right: -3,
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              background: "rgba(75, 63, 227, 1)",
+            }}
+          />
+        )}
+      </span>
+    );
+    return designFlatNav.map((entry) => ({
+      ...entry,
+      icon: entry.key === "core.inbox"
+        ? decorateInboxIcon(entry.icon)
+        : renderIcon(
+            DESIGN_MODE_NAV_ITEMS.find((i) => i.key === entry.key)?.icon ??
+              SparkSettingLine,
+            18,
+          ),
+    }));
+  }, [sidebarMode, designFlatNav, hasInboxUnread]);
+
   // ── Handlers ──────────────────────────────────────────────────────────────
 
   const handleMenuClick = (key: string, allItems: MenuItem[]) => {
@@ -394,6 +485,7 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
   void renderIcon;
 
   const isSimpleExpanded = sidebarMode === "simple" && !collapsed;
+  const isDesignExpanded = sidebarMode === "design" && !collapsed;
 
   return (
     <Sider
@@ -402,11 +494,11 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
         collapsed ? ` ${styles.siderCollapsed}` : ""
       }${isDark ? ` ${styles.siderDark}` : ""}${
         isSimpleExpanded ? ` ${styles.siderSimple}` : ""
-      }`}
+      }${isDesignExpanded ? ` ${styles.siderDesign}` : ""}`}
     >
       {collapsed ? (
         <nav className={styles.collapsedNav}>
-          {collapsedNavItems.map((item) => {
+          {(sidebarMode === "design" ? designCollapsedNavItems : collapsedNavItems).map((item) => {
             const isActive =
               item.key === "core.chat"
                 ? isChatActive
@@ -498,6 +590,69 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
           </div>
 
           {/* Session list — fills remaining space */}
+          <SidebarSessionList
+            onNewChat={handleNewChat}
+            onSessionClick={handleSidebarSessionClick}
+          />
+        </>
+      ) : isDesignExpanded ? (
+        <>
+          {/* Design mode: flat nav with separators, no groups */}
+          <div className={styles.agentScopedSection}>
+            <div className={styles.agentSelectorContainer}>
+              <AgentSelector collapsed={collapsed} />
+            </div>
+            <div className={styles.designNavItems}>
+              {designFlatNav.map((entry) => (
+                <React.Fragment key={entry.key}>
+                  {entry.separatorBefore && (
+                    <div className={styles.designSeparator} />
+                  )}
+                  <button
+                    className={`${styles.designNavItem} ${
+                      (entry.key === "core.chat"
+                        ? isChatActive
+                        : selectedKey === entry.key)
+                        ? styles.designNavItemActive
+                        : ""
+                    }`}
+                    onClick={() =>
+                      entry.path
+                        ? navigate(entry.path)
+                        : undefined
+                    }
+                  >
+                    {entry.key === "core.inbox" ? (
+                      <span
+                        style={{
+                          position: "relative",
+                          display: "inline-flex",
+                        }}
+                      >
+                        {entry.icon ?? <SparkEmailLine size={16} />}
+                        {hasInboxUnread && (
+                          <span
+                            style={{
+                              position: "absolute",
+                              top: -1,
+                              right: -3,
+                              width: 6,
+                              height: 6,
+                              borderRadius: "50%",
+                              background: "rgba(75, 63, 227, 1)",
+                            }}
+                          />
+                        )}
+                      </span>
+                    ) : (
+                      entry.icon
+                    )}
+                    <span>{entry.label}</span>
+                  </button>
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
           <SidebarSessionList
             onNewChat={handleNewChat}
             onSessionClick={handleSidebarSessionClick}

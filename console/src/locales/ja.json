@@ -75,7 +75,10 @@
     "plugins": "プラグイン",
     "acp": "ACP",
     "backups": "バックアップ",
-    "pluginManager": "プラグインマネージャー"
+    "pluginManager": "プラグインマネージャー",
+    "extensions": "拡張機能",
+    "usage": "使用量",
+    "ops": "運用"
   },
   "debug": {
     "title": "デバッグ",
@@ -1773,7 +1776,8 @@
       "mode": "モード"
     },
     "simpleMode": "シンプルモード",
-    "fullMode": "フルモード"
+    "fullMode": "フルモード",
+    "designMode": "デザインモード"
   },
   "chat": {
     "modelSelectTooltip": "モデルを選択",
@@ -2693,6 +2697,17 @@
     },
     "execute": "{{tool}} を実行",
     "executeDefault": "ツールを実行"
+  },
+  "design": {
+    "skillsHintTitle": "スキル、スキルプール、スキルマーケットの違いは？",
+    "skillsHintSummary": "スキルはスキル、スキルプール、マーケットの3層で構成されています",
+    "skillsHintInstalled": "📦 スキル：家の仕事机のようなもの、現在のエージェントで有効化されたスキル、会話能力に直接影響",
+    "skillsHintPool": "🏊 スキルプール：家の収納部屋のようなもの、ダウンロード済みだが未有効化のスキル、いつでもエージェントにインストール/ブロードキャスト可能",
+    "skillsHintMarket": "🛒 スキルマーケット：ネットショップのようなもの、コミュニティ/クラウド/外部スキルの閲覧とダウンロード、ダウンロード後はスキルプールへ",
+    "skillsHintFlow": "関係：図を参照",
+    "skillsHintCollapsed": "スキル、スキルプール、スキルマーケットの違いは？",
+    "skillsHintExpand": "詳細を見る",
+    "skillsHintDismiss": "わかった"
   },
   "loop": {
     "gotoSettings": "エージェント Loop 設定"

@@ -1186,3 +1186,72 @@
     }
   }
 }
+
+// ─── Design mode: flat nav with separators ────────────────────────────────────
+
+.designNavItems {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 4px;
+}
+
+.designNavItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #404040;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  text-align: left;
+
+  &:hover {
+    background: rgba(115, 115, 115, 0.08);
+    color: #171717;
+  }
+}
+
+.designNavItemActive {
+  background: rgba(75, 63, 227, 0.08);
+  color: #4B3FE3;
+  font-weight: 500;
+}
+
+.designSeparator {
+  height: 1px;
+  margin: 6px 12px;
+  background: rgba(115, 115, 115, 0.12);
+}
+
+// ─── Design mode dark overrides ───────────────────────────────────────────────
+
+.siderDesign {
+  :global(.dark-mode) & {
+    .designNavItem {
+      color: rgba(255, 255, 255, 0.75);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.95);
+      }
+    }
+
+    .designNavItemActive {
+      background: rgba(75, 63, 227, 0.15);
+      color: rgba(120, 110, 255, 0.95);
+    }
+
+    .designSeparator {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+}

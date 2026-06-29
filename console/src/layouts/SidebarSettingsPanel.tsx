@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { SunMoon } from "lucide-react";
 import { Select } from "antd";
+import { Palette } from "lucide-react";
 import {
   SparkSunLine,
   SparkMoonLine,
@@ -50,7 +51,7 @@ export default function SidebarSettingsPanel({
 }: SidebarSettingsPanelProps) {
   const { t, i18n } = useTranslation();
   const { themeMode, setThemeMode } = useTheme();
-  const { mode: sidebarMode, toggleMode: toggleSidebarMode } =
+  const { mode: sidebarMode, setMode: setSidebarMode } =
     useSidebarModeStore();
   const [closeBehavior, setCloseBehavior] = React.useState<CloseBehavior>(() =>
     isTauriRuntime() ? getRememberedCloseAction() ?? "ask" : "ask",
@@ -178,29 +179,44 @@ export default function SidebarSettingsPanel({
         <span className={styles.label}>
           {t("sidebar.settings.mode", "Mode")}
         </span>
-        <button
-          className={`${styles.optBtn} ${styles.optBtnBlock}`}
-          onClick={() => {
-            toggleSidebarMode();
-            onClose?.();
-          }}
-        >
-          {sidebarMode === "simple" ? (
-            <>
-              <SparkFullscreenLine size={14} />
-              <span className={styles.optLabel}>
-                {t("sidebar.fullMode", "Full Mode")}
-              </span>
-            </>
-          ) : (
-            <>
-              <SparkExitFullscreenLine size={14} />
-              <span className={styles.optLabel}>
-                {t("sidebar.simpleMode", "Simple Mode")}
-              </span>
-            </>
-          )}
-        </button>
+        <div className={styles.options}>
+          <button
+            title={t("sidebar.fullMode", "Full Mode")}
+            className={`${styles.optBtn} ${
+              sidebarMode === "full" ? styles.optBtnActive : ""
+            }`}
+            onClick={() => {
+              setSidebarMode("full");
+              onClose?.();
+            }}
+          >
+            <SparkFullscreenLine size={14} />
+          </button>
+          <button
+            title={t("sidebar.simpleMode", "Simple Mode")}
+            className={`${styles.optBtn} ${
+              sidebarMode === "simple" ? styles.optBtnActive : ""
+            }`}
+            onClick={() => {
+              setSidebarMode("simple");
+              onClose?.();
+            }}
+          >
+            <SparkExitFullscreenLine size={14} />
+          </button>
+          <button
+            title={t("sidebar.designMode", "Design Mode")}
+            className={`${styles.optBtn} ${
+              sidebarMode === "design" ? styles.optBtnActive : ""
+            }`}
+            onClick={() => {
+              setSidebarMode("design");
+              onClose?.();
+            }}
+          >
+            <Palette size={14} />
+          </button>
+        </div>
       </div>
     </div>
   );

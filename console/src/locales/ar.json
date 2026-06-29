@@ -68,7 +68,10 @@
     "debug": "Debug",
     "plugins": "Plugins",
     "backups": "Backups",
-    "pluginManager": "Plugin Manager"
+    "pluginManager": "Plugin Manager",
+    "extensions": "الملحقات",
+    "usage": "الاستخدام",
+    "ops": "العمليات"
   },
   "sidebar": {
     "newVersion": "New version available: v{{version}}, click to upgrade",
@@ -83,7 +86,8 @@
       "mode": "Mode"
     },
     "simpleMode": "Simple Mode",
-    "fullMode": "Full Mode"
+    "fullMode": "Full Mode",
+    "designMode": "وضع التصميم"
   },
   "debug": {
     "title": "Debug",
@@ -2762,5 +2766,16 @@
       "LOAD_FAILED": "Failed to load file preview.",
       "LOAD_FAILED_DETAIL": "Failed to load file preview: {{detail}}"
     }
+  },
+  "design": {
+    "skillsHintTitle": "ما الفرق بين المهارات ومجموعة المهارات والسوق؟",
+    "skillsHintSummary": "المهارات منظمة في ثلاث مستويات: المهارات ومجموعة المهارات والسوق",
+    "skillsHintInstalled": "📦 المهارات: كمكتب عمل في المنزل، تخزن المهارات المفعّلة للوكيل الحالي، تؤثر مباشرة على المحادثة",
+    "skillsHintPool": "🏊 مجموعة المهارات: كغرفة تخزين في المنزل، تخزن المهارات المنزّلة لكن غير المفعّلة، جاهزة للتثبيت/البث في أي وقت",
+    "skillsHintMarket": "🛒 السوق: كمتج إلكتروني، تصفح وتنزيل مهارات المجتمع/السحابة/الخارجية؛ المهارات المنزّلة تذهب إلى المجموعة",
+    "skillsHintFlow": "العلاقة: انظر المخطط أدناه",
+    "skillsHintCollapsed": "ما الفرق بين المهارات ومجموعة المهارات والسوق؟",
+    "skillsHintExpand": "عرض التفاصيل",
+    "skillsHintDismiss": "فهمت"
   }
 }

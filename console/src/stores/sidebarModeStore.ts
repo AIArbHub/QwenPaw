@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 const STORAGE_KEY = "qwenpaw_sidebar_mode";
 
-export type SidebarMode = "simple" | "full";
+export type SidebarMode = "simple" | "full" | "design";
 
 interface SidebarModeState {
   mode: SidebarMode;
@@ -14,7 +14,8 @@ export const useSidebarModeStore = create<SidebarModeState>((set) => ({
   mode: (() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      return stored === "simple" ? "simple" : "full";
+      if (stored === "simple" || stored === "design") return stored;
+      return "full";
     } catch {
       return "full";
     }
@@ -22,12 +23,14 @@ export const useSidebarModeStore = create<SidebarModeState>((set) => ({
 
   toggleMode: () =>
     set((state) => {
-      const next: SidebarMode = state.mode === "simple" ? "full" : "simple";
+      const cycle: SidebarMode[] = ["full", "simple", "design"];
+      const idx = cycle.indexOf(state.mode);
+      const next = cycle[(idx + 1) % cycle.length];
       try {
-        if (next === "simple") {
-          localStorage.setItem(STORAGE_KEY, "simple");
-        } else {
+        if (next === "full") {
           localStorage.removeItem(STORAGE_KEY);
+        } else {
+          localStorage.setItem(STORAGE_KEY, next);
         }
       } catch {
         // storage unavailable
@@ -37,10 +40,10 @@ export const useSidebarModeStore = create<SidebarModeState>((set) => ({
 
   setMode: (mode: SidebarMode) => {
     try {
-      if (mode === "simple") {
-        localStorage.setItem(STORAGE_KEY, "simple");
-      } else {
+      if (mode === "full") {
         localStorage.removeItem(STORAGE_KEY);
+      } else {
+        localStorage.setItem(STORAGE_KEY, mode);
       }
     } catch {
       // storage unavailable

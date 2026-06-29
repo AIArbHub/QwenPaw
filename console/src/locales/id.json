@@ -77,7 +77,10 @@
     "debug": "Debug",
     "plugins": "Plugin",
     "pluginManager": "Manajer Plugin",
-    "backups": "Cadangan"
+    "backups": "Cadangan",
+    "extensions": "Ekstensi",
+    "usage": "Penggunaan",
+    "ops": "Operasi"
   },
   "header": {
     "changelog": "Catatan Perubahan",
@@ -133,7 +136,8 @@
       "mode": "Mode"
     },
     "simpleMode": "Mode sederhana",
-    "fullMode": "Mode lengkap"
+    "fullMode": "Mode lengkap",
+    "designMode": "Mode desain"
   },
   "login": {
     "title": "Masuk ke AI Arb",
@@ -2065,6 +2069,17 @@
       "memoryIsolation": "Isolasi Memori (per-agen)",
       "searchTimeout": "Timeout Pencarian"
     }
+  },
+  "design": {
+    "skillsHintTitle": "Apa perbedaan antara Skills, Pool Skill, dan Market?",
+    "skillsHintSummary": "Skill diorganisasikan dalam tiga tingkat: Skills, Pool Skill, dan Market",
+    "skillsHintInstalled": "📦 Skills: Seperti meja kerja di rumah, menyimpan skill yang diaktifkan untuk agen saat ini, langsung mempengaruhi kemampuan chat",
+    "skillsHintPool": "🏊 Pool Skill: Seperti gudang di rumah, menyimpan skill yang diunduh tapi tidak aktif, siap diinstal/disiarkan kapan saja",
+    "skillsHintMarket": "🛒 Market: Seperti toko online, jelajahi dan unduh skill komunitas/cloud/eksternal; skill yang diunduh masuk ke Pool",
+    "skillsHintFlow": "Hubungan: Lihat diagram di bawah",
+    "skillsHintCollapsed": "Apa perbedaan antara Skills, Pool Skill, dan Market?",
+    "skillsHintExpand": "Lihat detail",
+    "skillsHintDismiss": "Mengerti"
   },
   "loop": {
     "gotoSettings": "Pengaturan Loop Agen"

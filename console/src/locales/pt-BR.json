@@ -77,7 +77,10 @@
     "debug": "Depuracao",
     "plugins": "Plugins",
     "backups": "Backups",
-    "pluginManager": "Gerenciador de Plugins"
+    "pluginManager": "Gerenciador de Plugins",
+    "extensions": "Extensões",
+    "usage": "Uso",
+    "ops": "Operações"
   },
   "debug": {
     "title": "Depuracao",
@@ -1980,7 +1983,8 @@
       "mode": "Modo"
     },
     "simpleMode": "Modo simples",
-    "fullMode": "Modo completo"
+    "fullMode": "Modo completo",
+    "designMode": "Modo design"
   },
   "chat": {
     "modelSelectTooltip": "Selecionar Modelo",
@@ -2732,6 +2736,17 @@
     },
     "execute": "Executar {{tool}}",
     "executeDefault": "Executar ferramenta"
+  },
+  "design": {
+    "skillsHintTitle": "Qual a diferença entre Skills, Pool de Skills e Market?",
+    "skillsHintSummary": "Skills são organizadas em três níveis: Skills, Pool de Skills e Market",
+    "skillsHintInstalled": "📦 Skills: Como uma mesa de trabalho em casa, armazena skills ativadas para o agente atual, afetando diretamente o chat",
+    "skillsHintPool": "🏊 Pool de Skills: Como um depósito em casa, armazena skills baixadas mas inativas, prontas para instalar/difundir a qualquer momento",
+    "skillsHintMarket": "🛒 Market: Como uma loja online, navegue e baixe skills da comunidade/nuvem/externas; skills baixadas vão para o Pool",
+    "skillsHintFlow": "Relação: Veja o diagrama abaixo",
+    "skillsHintCollapsed": "Qual a diferença entre Skills, Pool de Skills e Market?",
+    "skillsHintExpand": "Ver detalhes",
+    "skillsHintDismiss": "Entendi"
   },
   "loop": {
     "gotoSettings": "Configurações de Loop do Agente"
