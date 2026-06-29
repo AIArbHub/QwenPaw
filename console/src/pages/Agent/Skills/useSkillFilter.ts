@@ -4,6 +4,8 @@ import { SKILL_TAG_FILTER_PREFIX } from "@/constants/skill";
 interface Filterable {
   name: string;
   description?: string;
+  display_name?: string;
+  display_description?: string;
   tags?: string[];
 }
 
@@ -30,7 +32,9 @@ export function useSkillFilter<T extends Filterable>(skills: T[]) {
       const matchesText =
         !q ||
         skill.name.toLowerCase().includes(q) ||
-        (skill.description || "").toLowerCase().includes(q);
+        (skill.display_name || "").toLowerCase().includes(q) ||
+        (skill.description || "").toLowerCase().includes(q) ||
+        (skill.display_description || "").toLowerCase().includes(q);
       const matchesTag =
         selectedTags.length === 0 ||
         selectedTags.some((tag) => skill.tags?.includes(tag));

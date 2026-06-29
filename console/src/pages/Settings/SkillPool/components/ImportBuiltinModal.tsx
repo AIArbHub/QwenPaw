@@ -190,7 +190,7 @@ export function ImportBuiltinModal({
                   </span>
                 )}
                 <Tooltip title={item.name}>
-                  <div className={skillStyles.pickerCardTitle}>{item.name}</div>
+                  <div className={skillStyles.pickerCardTitle}>{item.display_name || item.name}</div>
                 </Tooltip>
                 <div className={skillStyles.pickerCardMeta}>
                   {t("skillPool.sourceVersion")}:{" "}

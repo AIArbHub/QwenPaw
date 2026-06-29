@@ -2434,8 +2434,10 @@ export default function ChatPage() {
       .sort((a, b) => a.name.localeCompare(b.name))
       .map((skill) => ({
         command: `/${skill.name}`,
-        value: skill.name,
-        description: "",
+        value: loopSkillNames.has(skill.name)
+          ? `__loop__${skill.name}`
+          : skill.name,
+        description: skill.display_description || skill.description || "",
       }));
     const handleBeforeSubmit = async () => {
       if (isComposingRef.current) return false;

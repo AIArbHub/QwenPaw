@@ -306,7 +306,7 @@ function SkillsPage() {
                         {getSkillVisual(skill.name, skill.emoji)}
                       </span>
                       <span className={styles.disabledSkillGridName}>
-                        {skill.name}
+                        {skill.display_name || skill.name}
                       </span>
                       <span
                         className={styles.disabledSkillGridAction}
