@@ -219,7 +219,7 @@ export const SkillCard = React.memo(function SkillCard({
       <div className={styles.titleRow}>
         <Tooltip title={skill.name}>
           <h3 className={styles.skillTitle}>
-            {skill.name}{" "}
+            {skill.display_name || skill.name}{" "}
             {isBuiltin ? (
               <span className={styles.builtinTag}>{t("skills.builtin")}</span>
             ) : (
@@ -272,7 +272,7 @@ export const SkillCard = React.memo(function SkillCard({
         <span className={styles.descriptionSectionLabel}>
           {t("skills.skillDescription")}
         </span>
-        <p className={styles.descriptionText}>{skill.description || "-"}</p>
+        <p className={styles.descriptionText}>{skill.display_description || skill.description || "-"}</p>
       </div>
 
       {/* Footer - only show on hover or batch mode, always on mobile */}

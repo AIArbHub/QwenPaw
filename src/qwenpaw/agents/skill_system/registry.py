@@ -536,11 +536,43 @@ def _build_builtin_import_candidate(
         )
         for language, variant in sorted(variants.items())
     }
+    from .store import _build_display_name, _build_display_description, _extract_first_heading, read_text_file_with_encoding_fallback
+
+    local_title = ""
+    cross_desc = ""
+    if preferred_variant is not None:
+        try:
+            raw_content = read_text_file_with_encoding_fallback(
+                preferred_variant.skill_md_path,
+            )
+            import frontmatter as _fm
+            _post = _fm.loads(raw_content)
+            local_title = _extract_first_heading(
+                _post.content if hasattr(_post, "content") else "",
+            )
+        except Exception:
+            pass
+        en_variant = variants.get("en")
+        if en_variant is not None and pref != "en":
+            cross_desc = en_variant.description
+    display_name = _build_display_name(
+        canonical_name,
+        canonical_name,
+        local_title,
+        user_language=pref,
+    )
+    display_description = _build_display_description(
+        preferred_variant.description if preferred_variant else "",
+        cross_desc,
+        user_language=pref,
+    )
     return {
         "name": canonical_name,
         "description": preferred_variant.description
         if preferred_variant
         else "",
+        "display_name": display_name,
+        "display_description": display_description,
         "version_text": preferred_variant.version_text
         if preferred_variant
         else "",

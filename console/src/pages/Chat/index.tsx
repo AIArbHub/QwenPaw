@@ -2395,7 +2395,7 @@ export default function ChatPage() {
         value: loopSkillNames.has(skill.name)
           ? `__loop__${skill.name}`
           : skill.name,
-        description: "",
+        description: skill.display_description || skill.description || "",
       }));
     const loopOnlySuggestions: CommandSuggestion[] = useLoopStore
       .getState()

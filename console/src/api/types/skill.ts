@@ -8,6 +8,8 @@ export type SkillSyncStatus =
 export interface SkillSpec {
   name: string;
   description?: string;
+  display_name?: string;
+  display_description?: string;
   version_text?: string;
   content: string;
   source: string;
@@ -23,6 +25,8 @@ export interface SkillSpec {
 export interface PoolSkillSpec {
   name: string;
   description?: string;
+  display_name?: string;
+  display_description?: string;
   version_text?: string;
   content: string;
   source: string;
@@ -61,6 +65,8 @@ export interface WorkspaceSkillSummary {
 export interface BuiltinImportSpec {
   name: string;
   description?: string;
+  display_name?: string;
+  display_description?: string;
   version_text?: string;
   current_version_text?: string;
   current_source?: string;

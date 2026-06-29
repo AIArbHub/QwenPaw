@@ -156,7 +156,7 @@ export function BroadcastModal({
                   <div
                     className={`${styles.pickerCardTitle} ${styles.compactPickerTitle}`}
                   >
-                    {skill.name}
+                    {skill.display_name || skill.name}
                   </div>
                 </Tooltip>
               </div>

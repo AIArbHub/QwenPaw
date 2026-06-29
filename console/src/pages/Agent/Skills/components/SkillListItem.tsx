@@ -59,7 +59,7 @@ export function SkillListItem({
         </span>
         <div className={styles.listItemInfo}>
           <div className={styles.listItemHeader}>
-            <span className={styles.skillTitle}>{skill.name}</span>
+            <span className={styles.skillTitle}>{skill.display_name || skill.name}</span>
             <span className={styles.typeBadge}>
               {isBuiltin ? t("skills.builtin") : t("skills.custom")}
             </span>
@@ -70,7 +70,7 @@ export function SkillListItem({
               </span>
             )}
           </div>
-          <p className={styles.listItemDesc}>{skill.description || "-"}</p>
+          <p className={styles.listItemDesc}>{skill.display_description || skill.description || "-"}</p>
           {!!skill.tags?.length && (
             <div className={styles.listItemTags}>
               {skill.tags.map((tag) => (

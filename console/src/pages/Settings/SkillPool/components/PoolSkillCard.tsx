@@ -102,7 +102,7 @@ export function PoolSkillCard({
       <div className={styles.titleRow}>
         <Tooltip title={skill.name}>
           <h3 className={styles.skillTitle}>
-            {skill.name}{" "}
+            {skill.display_name || skill.name}{" "}
             {isBuiltin ? (
               <span className={styles.builtinTag}>
                 {t("skillPool.builtin")}
@@ -154,7 +154,7 @@ export function PoolSkillCard({
         <span className={styles.descriptionSectionLabel}>
           {t("skills.skillDescription")}
         </span>
-        <p className={styles.descriptionText}>{skill.description || "-"}</p>
+        <p className={styles.descriptionText}>{skill.display_description || skill.description || "-"}</p>
       </div>
 
       {/* Footer - show on hover, batch mode, or mobile (no hover) */}

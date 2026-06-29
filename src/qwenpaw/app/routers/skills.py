@@ -236,6 +236,8 @@ class HubSkillSpec(BaseModel):
 class BuiltinImportSpec(BaseModel):
     name: str
     description: str = ""
+    display_name: str = ""
+    display_description: str = ""
     version_text: str = ""
     current_version_text: str = ""
     current_source: str = ""
