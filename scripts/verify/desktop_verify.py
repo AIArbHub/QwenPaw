@@ -144,9 +144,9 @@ def verify_frontend(base_url: str) -> None:
             f"Frontend root did not return HTML (first 200 chars): "
             f"{body[:200]}",
         )
-    if "qwenpaw" not in lower:
+    if "qwenpaw" not in lower and "ai arb" not in lower and "aiarb" not in lower:
         raise RuntimeError(
-            "Frontend HTML does not mention QwenPaw — wrong bundle?",
+            "Frontend HTML does not mention AI Arb / QwenPaw — wrong bundle?",
         )
     print("PASS  GET / -> frontend HTML served")
 

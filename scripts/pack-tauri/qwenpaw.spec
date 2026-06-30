@@ -169,7 +169,7 @@ backend_exe = EXE(
     pyz,
     a.scripts,
     [],
-    name="ai-arb-backend",
+    name="aiarb",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

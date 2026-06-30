@@ -89,7 +89,7 @@ jobs:
           ENV_DIR="$APP/Contents/Resources/env"
           PYTHON="$ENV_DIR/bin/python"
           (cd "$ENV_DIR" && ./bin/conda-unpack 2>/dev/null || true)
-          export PYTHONHOME="$ENV_DIR" PYTHONNOUSERSITE=1
+          export PYTHONNOUSERSITE=1
           export PATH="$ENV_DIR/bin:$PATH"
           CERT_FILE="$("$PYTHON" -c 'import certifi,sys; sys.stdout.write(certifi.where())' 2>/dev/null || true)"
           if [ -n "${CERT_FILE:-}" ] && [ -f "$CERT_FILE" ]; then
@@ -210,10 +210,11 @@ jobs:
         if: always()
         shell: pwsh
         run: |
+          $ErrorActionPreference = "Continue"
           $pidFile = Join-Path $env:RUNNER_TEMP "qwenpaw-desktop.pid"
           if (Test-Path $pidFile) {
-            $pidValue = (Get-Content $pidFile | Select-Object -First 1).Trim()
-            if ($pidValue) { taskkill /F /PID $pidValue 2>$null | Out-Null }
+            $processId = (Get-Content $pidFile | Select-Object -First 1).Trim()
+            if ($processId) { taskkill /F /PID $processId 2>$null | Out-Null }
           }
           exit 0
 
