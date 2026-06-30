@@ -22,6 +22,8 @@ import re
 import sys
 import tarfile
 import tempfile
+import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -57,14 +59,31 @@ def _python_exe(dest: Path) -> Path:
     return dest / "python" / "bin" / "python3"
 
 
-def _http_get(url: str) -> bytes:
-    request = urllib.request.Request(url)
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
-    if token:
-        request.add_header("Authorization", f"Bearer {token}")
-    request.add_header("User-Agent", "qwenpaw-build")
-    with urllib.request.urlopen(request, timeout=120) as resp:
-        return resp.read()
+def _http_get(url: str, max_retries: int = 5, retry_delay: float = 30.0) -> bytes:
+    for attempt in range(max_retries):
+        try:
+            request = urllib.request.Request(url)
+            token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+            if token:
+                request.add_header("Authorization", f"Bearer {token}")
+            request.add_header("User-Agent", "qwenpaw-build")
+            with urllib.request.urlopen(request, timeout=120) as resp:
+                return resp.read()
+        except urllib.error.HTTPError as e:
+            if e.code == 403 and attempt < max_retries - 1:
+                wait_time = retry_delay * (attempt + 1)
+                print(f"Rate limited (attempt {attempt + 1}/{max_retries}), waiting {wait_time}s...")
+                time.sleep(wait_time)
+            else:
+                raise
+        except Exception as e:
+            if attempt < max_retries - 1:
+                wait_time = retry_delay * (attempt + 1)
+                print(f"Request failed: {e} (attempt {attempt + 1}/{max_retries}), waiting {wait_time}s...")
+                time.sleep(wait_time)
+            else:
+                raise
+    raise RuntimeError(f"Failed after {max_retries} retries")
 
 
 def _find_asset_url(xy: str, triple: str) -> str:
