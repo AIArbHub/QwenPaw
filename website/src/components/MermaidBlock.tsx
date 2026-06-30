@@ -133,16 +133,6 @@ export function MermaidBlock({ chart }: MermaidBlockProps) {
     setIsRendering(true);
     setReservedHeight(estimatedHeight);
 
-    mermaid
-      // Debug: log the exact chart text passed to mermaid
-      // eslint-disable-next-line no-console
-      .then(() => {
-        // no-op to keep typescript happy
-      })
-      .catch(() => {
-        // no-op
-      });
-
     // eslint-disable-next-line no-console
     console.debug("MERMAID_RENDER_INPUT:", JSON.stringify(trimmedChart));
 
