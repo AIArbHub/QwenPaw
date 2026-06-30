@@ -7,6 +7,7 @@ that the Coding Mode IDE operates on.
 
 All endpoints are mounted under ``/workspace/coding-project/``.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -629,3 +630,5 @@ async def list_projects(request: Request) -> list[dict]:
                     },
                 )
         return results
+
+    return await asyncio.to_thread(_scan)
