@@ -290,9 +290,9 @@ docker run -p 127.0.0.1:8088:8088 \
 
 #### 下载
 
-从 [官方下载页](https://qwenpaw.agentscope.io/downloads) 下载桌面应用：
-- **Windows**：`QwenPaw-Setup-<version>.exe`
-- **macOS**：`QwenPaw-<version>-macOS.zip`（推荐 Apple Silicon）
+从 [GitHub Releases](https://github.com/agentscope-ai/QwenPaw/releases) 下载桌面应用：
+- **Windows**: `AI-Arb-<version>-Windows.zip`
+- **macOS**: `AI-Arb-<version>-macOS.zip` (推荐 Apple Silicon)
 
 #### 特点
 
@@ -313,12 +313,12 @@ docker run -p 127.0.0.1:8088:8088 \
   右键点击（或 Control + 点击）QwenPaw 应用 → **「打开」** → 在对话框中再次点击 **「打开」**。这会告诉 Gatekeeper 你信任该应用；之后可以像往常一样双击启动。
 
 - **在系统设置中允许**
-  如果仍被阻止，进入 **系统设置 → 隐私与安全性**，向下滚动找到类似 *「已阻止 'QwenPaw'，因为无法验证开发者」* 的提示，点击 **「仍要打开」** 或 **「允许」**。
+  如果仍被阻止，进入 **系统设置 → 隐私与安全性**，向下滚动找到类似 *"已阻止 'AI Arb'，因为无法验证开发者"* 的提示，点击 **"仍要打开"** 或 **"允许"**。
 
 - **移除隔离属性（不推荐大多数用户）**
   在终端运行：
-  `xattr -cr /Applications/QwenPaw.app`
-  （或使用解压后的 `.app` 路径）。这会清除「从互联网下载」的隔离标志，使警告通常不会出现，但不如使用 **右键 → 打开** 安全和可控。
+  `xattr -cr /Applications/AI Arb.app`
+  （或使用解压后的 `.app` 路径）。这会清除"从互联网下载"的隔离标志，使警告通常不会出现，但不如使用 **右键 → 打开** 安全和可控。
 
 详细使用说明、故障排除和常见问题，请参见 [桌面应用指南](https://qwenpaw.agentscope.io/docs/desktop)。
 

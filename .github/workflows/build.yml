@@ -1,4 +1,4 @@
-name: Build QwenPaw Installers
+name: Build AI Arb Installers
 
 on:
   push:
@@ -94,21 +94,21 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           cd dist
-          powershell Compress-Archive -Path QwenPaw -DestinationPath QwenPaw-Windows.zip
+          powershell Compress-Archive -Path QwenPaw -DestinationPath AI-Arb-Windows.zip
         shell: bash
 
       - name: Create archive (macOS)
         if: matrix.os == 'macos-latest'
         run: |
           cd dist
-          zip -r -y QwenPaw-macOS.zip QwenPaw
+          zip -r -y AI-Arb-macOS.zip QwenPaw
         shell: bash
 
       - name: Create archive (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           cd dist
-          tar -czf QwenPaw-Linux.tar.gz QwenPaw
+          tar -czf AI-Arb-Linux.tar.gz QwenPaw
         shell: bash
 
       - name: Upload artifact
@@ -116,9 +116,9 @@ jobs:
         with:
           name: ${{ matrix.artifact_name }}
           path: |
-            dist/QwenPaw-Windows.zip
-            dist/QwenPaw-macOS.zip
-            dist/QwenPaw-Linux.tar.gz
+            dist/AI-Arb-Windows.zip
+            dist/AI-Arb-macOS.zip
+            dist/AI-Arb-Linux.tar.gz
           if-no-files-found: ignore
 
   release:

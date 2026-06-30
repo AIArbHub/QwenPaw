@@ -258,7 +258,7 @@ jobs:
             ## macOS Desktop — ${mention('macos')}
 
             1. Go to the [Release page](${releaseUrl})
-            2. Download \`QwenPaw-${version}-macOS.zip\`
+            2. Download \`AI-Arb-${version}-macOS.zip\`
             3. Unzip, drag `AI Arb.app` to Applications, launch
 
             - [ ] Download and unzip succeed

@@ -257,13 +257,13 @@ or running commands.
 1. **Download the installer**
    Go to [GitHub Releases](https://github.com/agentscope-ai/QwenPaw/releases) to download the version for your system:
 
-   - Windows: `QwenPaw-Setup-<version>.exe`
-   - macOS: `QwenPaw-<version>-macOS.zip`
+   - Windows: `AI-Arb-<version>-Windows.zip`
+   - macOS: `AI-Arb-<version>-macOS.zip`
 
 2. **Install and launch**
 
-   - **Windows**: Double-click the `.exe` file to install following the wizard, then double-click the desktop shortcut to launch
-   - **macOS**: Extract the `.zip` to get `QwenPaw.app`, first time requires right-click and select "Open" to bypass system security restrictions
+   - **Windows**: Extract the `.zip` file, then double-click to run
+   - **macOS**: Extract the `.zip` to get `AI Arb.app`, first time requires right-click and select "Open" to bypass system security restrictions
 
 3. **First launch note**
    The first launch may take 10-60 seconds (depending on your system configuration).

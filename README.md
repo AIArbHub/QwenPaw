@@ -290,9 +290,9 @@ If you're not comfortable with command-line tools, you can download and use Qwen
 
 #### Download
 
-Download the desktop app from [the official download page](https://qwenpaw.agentscope.io/downloads):
-- **Windows**: `QwenPaw-Setup-<version>.exe`
-- **macOS**: `QwenPaw-<version>-macOS.zip` (Apple Silicon recommended)
+Download the desktop app from [GitHub Releases](https://github.com/agentscope-ai/QwenPaw/releases):
+- **Windows**: `AI-Arb-<version>-Windows.zip`
+- **macOS**: `AI-Arb-<version>-macOS.zip` (Apple Silicon recommended)
 
 #### Features
 
@@ -313,11 +313,11 @@ When you download the QwenPaw macOS app from Releases, macOS may show: *"Apple c
   Right-click (or Control+click) the QwenPaw app → **Open** → in the dialog click **Open** again. This tells Gatekeeper you trust the app; after that you can double-click to launch as usual.
 
 - **Allow in System Settings**
-  If it is still blocked, go to **System Settings → Privacy & Security**, scroll to the message like *"QwenPaw was blocked because it is from an unidentified developer"*, and click **Open Anyway** or **Allow**.
+  If it is still blocked, go to **System Settings → Privacy & Security**, scroll to the message like *"AI Arb was blocked because it is from an unidentified developer"*, and click **Open Anyway** or **Allow**.
 
 - **Remove quarantine attribute (not recommended for most users)**
   In Terminal run:
-  `xattr -cr /Applications/QwenPaw.app`
+  `xattr -cr /Applications/AI Arb.app`
   (or use the path to the `.app` after unzipping). This clears the "downloaded from the internet" quarantine flag so the warning usually does not appear, but is less safe and controllable than using **Right-click → Open**.
 
 For detailed usage instructions, troubleshooting, and common issues, see the [Desktop Application Guide](https://qwenpaw.agentscope.io/docs/desktop).

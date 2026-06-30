@@ -224,13 +224,13 @@ docker run -p 127.0.0.1:8088:8088 \
 1. **下载安装包**
    前往 [GitHub Releases](https://github.com/agentscope-ai/QwenPaw/releases) 下载对应系统的版本：
 
-   - Windows: `QwenPaw-Setup-<version>.exe`
-   - macOS: `QwenPaw-<version>-macOS.zip`
+   - Windows: `AI-Arb-<version>-Windows.zip`
+   - macOS: `AI-Arb-<version>-macOS.zip`
 
 2. **安装并启动**
 
-   - **Windows**: 双击 `.exe` 文件按向导安装，完成后双击桌面快捷方式启动
-   - **macOS**: 解压 `.zip` 得到 `QwenPaw.app`，首次需右键选择"打开"以绕过系统安全限制
+   - **Windows**: 解压 `.zip` 文件后双击运行
+   - **macOS**: 解压 `.zip` 得到 `AI Arb.app`，首次需右键选择"打开"以绕过系统安全限制
 
 3. **首次启动提示**
    首次启动可能需要 10-60 秒（取决于系统配置），应用需要初始化 Python 环境和加载依赖，请耐心等待浏览器窗口自动打开。
