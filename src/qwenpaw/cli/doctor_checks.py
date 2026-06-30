@@ -213,10 +213,10 @@ def environment_summary_lines(
             + (server_python_note or "(unknown)"),
         )
     lines.append(f"working_dir: {WORKING_DIR}")
-    wd_qp = os.getenv("QWENPAW_WORKING_DIR")
+    wd_qp = os.getenv("AIARB_WORKING_DIR") or os.getenv("QWENPAW_WORKING_DIR")
     wd_legacy = os.getenv("COPAW_WORKING_DIR")
     if wd_qp:
-        lines.append(f"QWENPAW_WORKING_DIR (env): {wd_qp}")
+        lines.append(f"AIARB_WORKING_DIR (env): {wd_qp}")
     elif wd_legacy:
         lines.append(f"COPAW_WORKING_DIR (env, legacy): {wd_legacy}")
     lines.append(f"sqlite library: {sqlite3.sqlite_version}")

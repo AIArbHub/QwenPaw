@@ -116,7 +116,7 @@ cd ..
 echo "Tauri app built"
 echo ""
 
-APP_PATH="${BUNDLE_DIR}/macos/QwenPaw Desktop.app"
+APP_PATH="${BUNDLE_DIR}/macos/AI Arb Desktop.app"
 if [ ! -d "${APP_PATH}" ]; then
     echo "ERROR: No Tauri macOS app found at ${APP_PATH}"
     exit 1
@@ -147,7 +147,7 @@ STAGED_APP_PATH="${DIST_DIR}/$(basename "${APP_PATH}")"
 echo ".app copied to ${STAGED_APP_PATH}"
 
 # Create ZIP archive
-ZIP_NAME="${DIST_ROOT}/QwenPaw-Tauri-${VERSION}-macOS.zip"
+ZIP_NAME="${DIST_ROOT}/AI-Arb-Tauri-${VERSION}-macOS.zip"
 if [ -f "${ZIP_NAME}" ]; then
     rm -f "${ZIP_NAME}"
 fi
@@ -168,7 +168,7 @@ else
 fi
 echo ""
 
-UPDATER_NAME="${DIST_ROOT}/QwenPaw-Tauri-${VERSION}-macOS.app.tar.gz"
+UPDATER_NAME="${DIST_ROOT}/AI-Arb-Tauri-${VERSION}-macOS.app.tar.gz"
 case "$(uname -m)" in
     arm64 | aarch64) UPDATER_TARGET="darwin-aarch64" ;;
     *) UPDATER_TARGET="darwin-x86_64" ;;

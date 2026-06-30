@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 
 # 1. Run NSIS silent install (matches real user installer).
 #    /S = silent, run the installer to completion before continuing.
-$installer = Get-ChildItem dist/QwenPaw-Tauri-*-Windows-setup.exe |
+$installer = Get-ChildItem dist/AI-Arb-Tauri-*-Windows-setup.exe |
   Select-Object -First 1
 if (-not $installer) { throw "NSIS installer not found in dist/" }
 Write-Host "Installing $($installer.Name) silently..."
@@ -27,12 +27,12 @@ foreach ($hive in @("HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
                     "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
                     "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall")) {
   $reg = Get-ChildItem $hive -ErrorAction SilentlyContinue |
-    Where-Object { (Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue).DisplayName -match "QwenPaw" } |
+    Where-Object { (Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue).DisplayName -match "AI Arb" } |
     Select-Object -First 1
   if ($reg) {
     $loc = (Get-ItemProperty $reg.PSPath).InstallLocation
     if ($loc -and (Test-Path $loc)) {
-      $found = Get-ChildItem -Path $loc -Filter "qwenpaw-desktop.exe" `
+      $found = Get-ChildItem -Path $loc -Filter "ai-arb-desktop.exe" `
         -Recurse -Depth 3 -ErrorAction SilentlyContinue |
         Select-Object -First 1
       if ($found) { $tauriExe = $found.FullName; break }
@@ -43,14 +43,14 @@ foreach ($hive in @("HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
 # Fallback: search known install candidate directories.
 if (-not $tauriExe) {
   $candidateRoots = @(
-    (Join-Path $env:LOCALAPPDATA "QwenPaw Desktop"),
-    (Join-Path $env:LOCALAPPDATA "Programs\QwenPaw Desktop"),
-    (Join-Path $env:ProgramFiles "QwenPaw Desktop"),
-    (Join-Path ${env:ProgramFiles(x86)} "QwenPaw Desktop")
+    (Join-Path $env:LOCALAPPDATA "AI Arb Desktop"),
+    (Join-Path $env:LOCALAPPDATA "Programs\AI Arb Desktop"),
+    (Join-Path $env:ProgramFiles "AI Arb Desktop"),
+    (Join-Path ${env:ProgramFiles(x86)} "AI Arb Desktop")
   )
   foreach ($root in $candidateRoots) {
     if (Test-Path $root) {
-      $found = Get-ChildItem -Path $root -Filter "qwenpaw-desktop.exe" `
+      $found = Get-ChildItem -Path $root -Filter "ai-arb-desktop.exe" `
         -Recurse -Depth 3 -ErrorAction SilentlyContinue |
         Select-Object -First 1
       if ($found) { $tauriExe = $found.FullName; break }
@@ -60,11 +60,11 @@ if (-not $tauriExe) {
 
 if (-not $tauriExe) {
   Write-Host "=== DEBUG: install location not found ==="
-  Write-Host "Registry entries matching QwenPaw:"
+  Write-Host "Registry entries matching AI Arb:"
   foreach ($hive in @("HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
                       "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall")) {
     Get-ChildItem $hive -ErrorAction SilentlyContinue |
-      Where-Object { (Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue).DisplayName -match "QwenPaw" } |
+      Where-Object { (Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue).DisplayName -match "AI Arb" } |
       ForEach-Object { Write-Host "  $((Get-ItemProperty $_.PSPath).InstallLocation)" }
   }
   throw "Tauri exe not found after NSIS install"
@@ -89,9 +89,9 @@ $env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = "--remote-debugging-port=$cdpPort"
 Start-Process -FilePath $tauriExe
 
 # 4. Wait for the sidecar to write the port file and respond.
-#    The sidecar writes desktop_port at WORKING_DIR root (~/.qwenpaw),
+#    The sidecar writes desktop_port at WORKING_DIR root (~/.aiarb),
 #    not inside the workspace dir.
-$portFile = Join-Path $env:USERPROFILE ".qwenpaw\desktop_port"
+$portFile = Join-Path $env:USERPROFILE ".aiarb\desktop_port"
 $port = $null
 $deadline = (Get-Date).AddSeconds(120)
 while ((Get-Date) -lt $deadline) {
@@ -117,7 +117,7 @@ if (-not $port) {
 
 # 5. Auto-init creates BOOTSTRAP.md during startup. Remove it afterwards so
 #    the verifier can drive the agent in normal QA mode.
-$bootstrapMd = Join-Path $env:USERPROFILE ".qwenpaw\workspaces\default\BOOTSTRAP.md"
+$bootstrapMd = Join-Path $env:USERPROFILE ".aiarb\workspaces\default\BOOTSTRAP.md"
 if (Test-Path $bootstrapMd) { Remove-Item -Force $bootstrapMd }
 
 # 6. Wait for CDP endpoint to become available.

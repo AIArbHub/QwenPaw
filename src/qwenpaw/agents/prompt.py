@@ -326,7 +326,7 @@ def build_system_prompt_from_working_dir(
         "The product name is **AI Arb**, not QwenPaw. "
         "`qwenpaw` is only the CLI tool name — "
         "always say \"AI Arb\" or \"AI Arb platform\" when referring to the product. "
-        "The working directory `~/.qwenpaw` is a technical implementation detail.\n\n"
+        "The working directory `~/.aiarb` is a technical implementation detail.\n\n"
     )
     if agent_id:
         identity_header += (

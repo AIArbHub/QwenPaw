@@ -362,7 +362,7 @@ def _run_shutdown_for_update(
     command.append("shutdown")
 
     click.echo("")
-    click.echo("Running `qwenpaw shutdown` before updating...")
+    click.echo("Running `aiarb shutdown` before updating...")
 
     try:
         result = subprocess.run(
@@ -561,7 +561,7 @@ def _run_update_worker_foreground(plan_path: Path) -> int:
             return proc.wait()
     except KeyboardInterrupt:
         click.echo("")
-        click.echo("[qwenpaw] Update interrupted. Stopping installer...")
+        click.echo("[ai-arb] Update interrupted. Stopping installer...")
         _terminate_update_worker(proc)
         return 130
 
@@ -591,10 +591,10 @@ def run_update_worker(plan_path: str | Path) -> int:
 
     click.echo("")
     click.echo(
-        "[qwenpaw] Updating QwenPaw "
+        "[ai-arb] Updating AI Arb "
         f"{plan['current_version']} -> {plan['latest_version']}...",
     )
-    click.echo(f"[qwenpaw] Using installer: {plan['installer_label']}")
+    click.echo(f"[ai-arb] Using installer: {plan['installer_label']}")
 
     try:
         with subprocess.Popen(
@@ -609,7 +609,7 @@ def run_update_worker(plan_path: str | Path) -> int:
                     click.echo(line.rstrip())
             return_code = proc.wait()
     except FileNotFoundError as exc:
-        click.echo(f"[qwenpaw] Update failed: {exc}")
+        click.echo(f"[ai-arb] Update failed: {exc}")
         return_code = 1
     finally:
         try:
@@ -618,16 +618,16 @@ def run_update_worker(plan_path: str | Path) -> int:
             pass
 
     if return_code == 0:
-        click.echo("[qwenpaw] Update completed successfully.")
+        click.echo("[ai-arb] Update completed successfully.")
         click.echo(
-            "[qwenpaw] Please restart any running QwenPaw service "
+            "[ai-arb] Please restart any running AI Arb service "
             "to use the new version.",
         )
     else:
-        click.echo(f"[qwenpaw] Update failed with exit code {return_code}.")
+        click.echo(f"[ai-arb] Update failed with exit code {return_code}.")
         click.echo(
-            "[qwenpaw] Please fix the error above and run "
-            "`qwenpaw update` again.",
+            "[ai-arb] Please fix the error above and run "
+            "`aiarb update` again.",
         )
 
     return return_code
@@ -694,7 +694,7 @@ def update_cmd(ctx: click.Context, yes: bool, prerelease: bool) -> None:
 
     version_check = _is_newer_version(latest_version, __version__)
     if version_check is False:
-        click.echo("QwenPaw is already up to date.")
+        click.echo("AI Arb is already up to date.")
         return
 
     if not _confirm_source_override(info, yes):
@@ -766,7 +766,7 @@ def update_cmd(ctx: click.Context, yes: bool, prerelease: bool) -> None:
     }
     plan_path = _write_worker_plan(plan)
     click.echo("")
-    click.echo("Starting QwenPaw update...")
+    click.echo("Starting AI Arb update...")
 
     if sys.platform == "win32":
         _run_update_worker_detached(plan_path)

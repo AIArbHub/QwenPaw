@@ -216,7 +216,7 @@ if (Test-Path $pythonExe) {
 }
 
 # Main launcher .bat (will be hidden by VBS)
-$LauncherBat = Join-Path $EnvRoot "QwenPaw Desktop.bat"
+$LauncherBat = Join-Path $EnvRoot "AI Arb Desktop.bat"
 @"
 @echo off
 cd /d "%~dp0"
@@ -245,14 +245,14 @@ if defined CERT_FILE (
   )
 )
 
-if not exist "%USERPROFILE%\.qwenpaw\config.json" (
+if not exist "%USERPROFILE%\.aiarb\config.json" (
   "%~dp0python.exe" -u -m qwenpaw init --defaults --accept-security
 )
 "%~dp0python.exe" -u -m qwenpaw desktop --log-level %QWENPAW_LOG_LEVEL%
 "@ | Set-Content -Path $LauncherBat -Encoding ASCII
 
 # Debug launcher .bat (shows console)
-$DebugBat = Join-Path $EnvRoot "QwenPaw Desktop (Debug).bat"
+$DebugBat = Join-Path $EnvRoot "AI Arb Desktop (Debug).bat"
 @"
 @echo off
 cd /d "%~dp0"
@@ -282,7 +282,7 @@ if defined CERT_FILE (
 )
 
 echo ====================================
-echo QwenPaw Desktop - Debug Mode
+echo AI Arb Desktop - Debug Mode
 echo ====================================
 echo Working Directory: %cd%
 echo Python: "%~dp0python.exe"
@@ -293,24 +293,24 @@ echo SSL_CERT_FILE: %SSL_CERT_FILE%
 echo REQUESTS_CA_BUNDLE: %REQUESTS_CA_BUNDLE%
 echo CURL_CA_BUNDLE: %CURL_CA_BUNDLE%
 echo.
-if not exist "%USERPROFILE%\.qwenpaw\config.json" (
+if not exist "%USERPROFILE%\.aiarb\config.json" (
   echo [Init] Creating config...
   "%~dp0python.exe" -u -m qwenpaw init --defaults --accept-security
 )
-echo [Launch] Starting QwenPaw Desktop with log-level=%QWENPAW_LOG_LEVEL%...
+echo [Launch] Starting AI Arb Desktop with log-level=%QWENPAW_LOG_LEVEL%...
 echo Press Ctrl+C to stop
 echo.
 "%~dp0python.exe" -u -m qwenpaw desktop --log-level %QWENPAW_LOG_LEVEL%
 echo.
-echo [Exit] QwenPaw Desktop closed
+echo [Exit] AI Arb Desktop closed
 pause
 "@ | Set-Content -Path $DebugBat -Encoding ASCII
 
 # VBScript launcher (no console window)
-$LauncherVbs = Join-Path $EnvRoot "QwenPaw Desktop.vbs"
+$LauncherVbs = Join-Path $EnvRoot "AI Arb Desktop.vbs"
 @"
 Set WshShell = CreateObject("WScript.Shell")
-batPath = CreateObject("Scripting.FileSystemObject").GetParentFolderName(WScript.ScriptFullName) & "\QwenPaw Desktop.bat"
+batPath = CreateObject("Scripting.FileSystemObject").GetParentFolderName(WScript.ScriptFullName) & "\AI Arb Desktop.bat"
 WshShell.Run Chr(34) & batPath & Chr(34), 0, False
 Set WshShell = Nothing
 "@ | Set-Content -Path $LauncherVbs -Encoding ASCII
@@ -353,7 +353,7 @@ if (-not $Version) {
 if (-not $Version) { $Version = "0.0.0"; Write-Host "[build_win] WARN: Using fallback version 0.0.0" }
 Write-Host "[build_win] Version determined: $Version"
 Write-Host "[build_win] QWENPAW_VERSION=$Version OUTPUT_EXE will be under $Dist"
-$OutInstaller = Join-Path (Join-Path $RepoRoot $Dist) "QwenPaw-Setup-$Version.exe"
+$OutInstaller = Join-Path (Join-Path $RepoRoot $Dist) "AI-Arb-Setup-$Version.exe"
 # Pass absolute paths to NSIS (keep backslashes).
 $UnpackedFull = (Resolve-Path $EnvRoot).Path
 $OutputExeNsi = [System.IO.Path]::GetFullPath($OutInstaller)

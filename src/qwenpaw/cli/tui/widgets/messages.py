@@ -63,7 +63,7 @@ class AgentLabel(Static):
 
     def __init__(self) -> None:
         super().__init__(
-            Text("qwenpaw", style="bold #b48cff"),
+            Text("ai-arb", style="bold #b48cff"),
             classes="agentlabel",
         )
 
@@ -72,13 +72,11 @@ class WelcomeMessage(Static):
     """Startup greeting rendered as embossed terminal pixels (static)."""
 
     _LOGO_PIXELS = (
-        " ███████                              ████████    O O O",
-        "███   ███ ███   ███  ██████  ███████  ███   ███  ███████  ███   ███",
-        "███   ███ ███   ███ ███  ███ ███  ███ ███   ███ ███   ███ ███   ███",
-        "███   ███ ███ █ ███ ████████ ███  ███ █████████ ███   ███ ███ █ ███",
-        "███ █ ███ █████████ ███      ███  ███ ███       ███   ███ █████████",
-        " ███████   ███ ███   ██████  ███  ███ ███        █████ ██  ███ ███",
-        "     ████",
+        "  █    ██████    █     ████   ████",
+        " █ █     ██     █ █    █   █  █  █",
+        "█   █    ██    █   █   ████   ███ ",
+        "█████    ██    █████   █ █    █  █",
+        "█   █  ██████  █   █   █  █   ████",
     )
 
     def __init__(

@@ -132,7 +132,7 @@ def _submit_background_task(
         click.echo()
         click.echo("💡 Don't wait - continue with other tasks!")
         click.echo("   Check status later (10-60s depending on complexity):")
-        click.echo(f"  qwenpaw agents chat --background --task-id {task_id}")
+        click.echo(f"  aiarb agents chat --background --task-id {task_id}")
 
     except Exception as e:
         click.echo(f"ERROR: Failed to submit task: {e}", err=True)

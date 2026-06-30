@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""qwenpaw uninstall — remove the QwenPaw environment and CLI wrapper."""
+"""aiarb uninstall — remove the AI Arb environment and CLI wrapper."""
 from __future__ import annotations
 
 import shutil
@@ -24,15 +24,15 @@ _SHELL_PROFILES = (
 
 def _remove_path_entry(profile: Path) -> bool:
     """
-    Remove QwenPaw PATH lines from a shell profile. Returns True if changed.
+    Remove AI Arb PATH lines from a shell profile. Returns True if changed.
     """
     if not profile.is_file():
         return False
 
     text = profile.read_text()
-    # Remove the "# QwenPaw" comment line and the export PATH line
+    # Remove the "# AI Arb" comment line and the export PATH line
     cleaned = re.sub(
-        r"\n?# QwenPaw\nexport PATH=\"\$HOME/\.qwenpaw/bin:\$PATH\"\n?",
+        r"\n?# (QwenPaw|AI Arb)\nexport PATH=\"\$HOME/\.(qwenpaw|aiarb)/bin:\$PATH\"\n?",
         "\n",
         text,
     )
@@ -51,14 +51,14 @@ def _remove_path_entry(profile: Path) -> bool:
 )
 @click.option("--yes", is_flag=True, help="Do not prompt for confirmation")
 def uninstall_cmd(purge: bool, yes: bool) -> None:
-    """Remove QwenPaw environment, CLI wrapper, and shell PATH entries."""
+    """Remove AI Arb environment, CLI wrapper, and shell PATH entries."""
     wd = WORKING_DIR
 
     if purge:
-        click.echo(f"This will remove ALL QwenPaw data in {wd}")
+        click.echo(f"This will remove ALL AI Arb data in {wd}")
     else:
         click.echo(
-            "This will remove the QwenPaw Python environment and CLI wrapper.",
+            "This will remove the AI Arb Python environment and CLI wrapper.",
         )
         click.echo(f"Your configuration and data in {wd} will be preserved.")
 
@@ -86,4 +86,4 @@ def uninstall_cmd(purge: bool, yes: bool) -> None:
             click.echo(f"  Cleaned {profile}")
 
     click.echo("")
-    click.echo("QwenPaw uninstalled. Please restart your terminal.")
+    click.echo("AI Arb uninstalled. Please restart your terminal.")

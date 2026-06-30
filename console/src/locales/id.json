@@ -103,7 +103,7 @@
       "title": "Versi baru tersedia: v{{version}}",
       "viewReleases": "Lihat Rilis",
       "installDesktopUpdate": "Perbarui Sekarang",
-      "desktopInstallHint": "QwenPaw Desktop {{version}} siap dipasang. Aplikasi akan dimulai ulang setelah pembaruan.",
+      "desktopInstallHint": "AI Arb Desktop {{version}} siap dipasang. Aplikasi akan dimulai ulang setelah pembaruan.",
       "checking": "Memeriksa pembaruan…",
       "checkingHint": "Memeriksa versi terbaru",
       "downloading": "Mengunduh pembaruan",
