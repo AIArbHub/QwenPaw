@@ -12,6 +12,7 @@ This script downloads the matching ``install_only`` build and extracts it to
 ``<dest>/python``. Run it with the SAME interpreter used for the PyInstaller
 build so the bundled runtime version matches automatically.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -59,11 +60,15 @@ def _python_exe(dest: Path) -> Path:
     return dest / "python" / "bin" / "python3"
 
 
-def _http_get(url: str, max_retries: int = 5, retry_delay: float = 30.0) -> bytes:
+def _http_get(
+    url: str, max_retries: int = 5, retry_delay: float = 30.0
+) -> bytes:
     for attempt in range(max_retries):
         try:
             request = urllib.request.Request(url)
-            token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+            token = os.environ.get("GITHUB_TOKEN") or os.environ.get(
+                "GH_TOKEN"
+            )
             if token:
                 request.add_header("Authorization", f"Bearer {token}")
             request.add_header("User-Agent", "qwenpaw-build")

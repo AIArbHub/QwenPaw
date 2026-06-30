@@ -5,7 +5,19 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Optional, Union, Dict, List, Literal, Any, Set
+from typing import (
+    TYPE_CHECKING,
+    Optional,
+    Union,
+    Dict,
+    List,
+    Literal,
+    Any,
+    Set,
+)
+
+if TYPE_CHECKING:
+    import importlib.resources.abc
 
 from pydantic import (
     BaseModel,
@@ -2651,8 +2663,8 @@ def _ensure_builtin_arbitrator(config: "Config"):
     print(f"  Created builtin agent: {arbitrator_id} @ {arbitrator_workspace}")
 
 
-def _copy_traversable(  # type: ignore[name-defined]
-    src: "importlib.resources.abc.Traversable",  # noqa: F821
+def _copy_traversable(
+    src: "importlib.resources.abc.Traversable",
     dest: Path,
 ) -> None:
     """Recursively copy a Traversable tree to *dest*."""
