@@ -588,7 +588,7 @@ async def _skill_fallback_handler(
 
     lang = get_builtin_skill_language_preference()
     local_title = _extract_first_heading(
-        post.content if hasattr(post, 'content') else "",
+        post.content if hasattr(post, "content") else "",
     )
     cross_desc = ""
     variant = _select_builtin_variant(

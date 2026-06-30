@@ -314,6 +314,7 @@ jobs:
           # 1. Unpack the freshly built zip into an isolated verify dir.
           mkdir -p dist/verify-legacy
           unzip -q dist/AI-Arb-*-macOS.zip -d dist/verify-legacy
+          rm -rf dist/verify-legacy/__MACOSX
           APP="$(find dist/verify-legacy -maxdepth 2 -name '*.app' -type d | head -1)"
           if [ -z "$APP" ]; then
             echo "::error::AI Arb.app not found inside zip"

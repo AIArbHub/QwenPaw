@@ -61,13 +61,15 @@ def _python_exe(dest: Path) -> Path:
 
 
 def _http_get(
-    url: str, max_retries: int = 5, retry_delay: float = 30.0
+    url: str,
+    max_retries: int = 5,
+    retry_delay: float = 30.0,
 ) -> bytes:
     for attempt in range(max_retries):
         try:
             request = urllib.request.Request(url)
             token = os.environ.get("GITHUB_TOKEN") or os.environ.get(
-                "GH_TOKEN"
+                "GH_TOKEN",
             )
             if token:
                 request.add_header("Authorization", f"Bearer {token}")
@@ -80,7 +82,7 @@ def _http_get(
                 print(
                     f"Rate limited (attempt"
                     f" {attempt + 1}/{max_retries}),"
-                    f" waiting {wait_time}s..."
+                    f" waiting {wait_time}s...",
                 )
                 time.sleep(wait_time)
             else:
@@ -91,7 +93,7 @@ def _http_get(
                 print(
                     f"Request failed: {e} "
                     f"(attempt {attempt + 1}/{max_retries}), "
-                    f"waiting {wait_time}s..."
+                    f"waiting {wait_time}s...",
                 )
                 time.sleep(wait_time)
             else:

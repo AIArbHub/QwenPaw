@@ -130,12 +130,12 @@ class AgentIdentityContributor(SyncPromptContributor):
                 "NOT QwenPaw. "
                 "`qwenpaw` is only the CLI tool name; "
                 "`~/.aiarb` is a technical data directory. "
-                "Always say \"AI Arb\" or "
-                "\"AI Arb platform\" "
+                'Always say "AI Arb" or '
+                '"AI Arb platform" '
                 "when introducing yourself. "
-                "NEVER say \"QwenPaw platform\" "
+                'NEVER say "QwenPaw platform" '
                 "or call yourself "
-                "\"QwenPaw Agent\".\n"
+                '"QwenPaw Agent".\n'
             )
 
         if not agent_id:

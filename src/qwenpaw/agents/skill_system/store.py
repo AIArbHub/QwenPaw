@@ -796,6 +796,7 @@ def read_skill_pool_manifest() -> dict[str, Any]:
 
 def _get_user_language_preference() -> str:
     from .registry import get_builtin_skill_language_preference
+
     return get_builtin_skill_language_preference()
 
 
@@ -856,6 +857,7 @@ def _resolve_cross_language_description(
         _get_packaged_builtin_registry,
         _select_builtin_variant,
     )
+
     registry = _get_packaged_builtin_registry()
     variant = _select_builtin_variant(registry, skill_name, "en")
     if variant is None:
@@ -874,6 +876,7 @@ def _resolve_cross_language_name(
         _get_packaged_builtin_registry,
         _select_builtin_variant,
     )
+
     registry = _get_packaged_builtin_registry()
     variant = _select_builtin_variant(registry, skill_name, "en")
     if variant is None:
@@ -931,7 +934,7 @@ def read_skill_from_dir(
         )
         local_title = (
             _extract_first_heading(post.content)
-            if hasattr(post, 'content')
+            if hasattr(post, "content")
             else ""
         )
         display_name = _build_display_name(

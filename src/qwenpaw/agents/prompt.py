@@ -325,7 +325,7 @@ def build_system_prompt_from_working_dir(
         "You are running on **AI Arb** (AI arbiter / advisor). "
         "The product name is **AI Arb**, not QwenPaw. "
         "`qwenpaw` is only the CLI tool name — "
-        "always say \"AI Arb\" or \"AI Arb platform\" when referring to the product. "
+        'always say "AI Arb" or "AI Arb platform" when referring to the product. '
         "The working directory `~/.aiarb` is a technical implementation detail.\n\n"
     )
     if agent_id:

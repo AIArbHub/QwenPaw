@@ -122,7 +122,7 @@ class SkillsCommandHandler(BaseControlCommandHandler):
                 description = post.get("description") or description
                 frontmatter_name = str(post.get("name") or "").strip()
                 local_title = _extract_first_heading(
-                    post.content if hasattr(post, 'content') else "",
+                    post.content if hasattr(post, "content") else "",
                 )
 
             display_name, display_description = self._resolve_skill_display(
