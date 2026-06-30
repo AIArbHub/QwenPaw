@@ -72,14 +72,22 @@ def _http_get(url: str, max_retries: int = 5, retry_delay: float = 30.0) -> byte
         except urllib.error.HTTPError as e:
             if e.code == 403 and attempt < max_retries - 1:
                 wait_time = retry_delay * (attempt + 1)
-                print(f"Rate limited (attempt {attempt + 1}/{max_retries}), waiting {wait_time}s...")
+                print(
+                    f"Rate limited (attempt"
+                    f" {attempt + 1}/{max_retries}),"
+                    f" waiting {wait_time}s..."
+                )
                 time.sleep(wait_time)
             else:
                 raise
         except Exception as e:
             if attempt < max_retries - 1:
                 wait_time = retry_delay * (attempt + 1)
-                print(f"Request failed: {e} (attempt {attempt + 1}/{max_retries}), waiting {wait_time}s...")
+                print(
+                    f"Request failed: {e} "
+                    f"(attempt {attempt + 1}/{max_retries}), "
+                    f"waiting {wait_time}s..."
+                )
                 time.sleep(wait_time)
             else:
                 raise

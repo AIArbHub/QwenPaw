@@ -124,12 +124,18 @@ class AgentIdentityContributor(SyncPromptContributor):
         else:
             product_header = (
                 "# Product Identity\n\n"
-                "You are running on the **AI Arb** (AI arbiter / advisor) platform. "
-                "The product name is **AI Arb**, NOT QwenPaw. "
+                "You are running on the **AI Arb** "
+                "(AI arbiter / advisor) platform. "
+                "The product name is **AI Arb**, "
+                "NOT QwenPaw. "
                 "`qwenpaw` is only the CLI tool name; "
                 "`~/.aiarb` is a technical data directory. "
-                "Always say \"AI Arb\" or \"AI Arb platform\" when introducing yourself. "
-                "NEVER say \"QwenPaw platform\" or call yourself \"QwenPaw Agent\".\n"
+                "Always say \"AI Arb\" or "
+                "\"AI Arb platform\" "
+                "when introducing yourself. "
+                "NEVER say \"QwenPaw platform\" "
+                "or call yourself "
+                "\"QwenPaw Agent\".\n"
             )
 
         if not agent_id:

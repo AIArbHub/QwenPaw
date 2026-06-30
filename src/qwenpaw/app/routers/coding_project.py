@@ -476,7 +476,10 @@ async def delete_project(body: DeleteProjectRequest, request: Request) -> dict:
     """
     name = body.name.strip()
     if not name:
-        raise HTTPException(status_code=400, detail="Project name cannot be empty")
+        raise HTTPException(
+            status_code=400,
+            detail="Project name cannot be empty",
+        )
 
     workspace = await get_agent_for_request(request)
     base = _projects_base(workspace.workspace_dir)
@@ -485,14 +488,17 @@ async def delete_project(body: DeleteProjectRequest, request: Request) -> dict:
     # Safety: ensure the target is actually under coding_projects/
     try:
         target.resolve().relative_to(base.resolve())
-    except ValueError:
+    except ValueError as exc:
         raise HTTPException(
             status_code=400,
             detail="Invalid project name",
-        )
+        ) from exc
 
     if not target.exists():
-        raise HTTPException(status_code=404, detail=f"Project not found: {name}")
+        raise HTTPException(
+            status_code=404,
+            detail=f"Project not found: {name}",
+        )
 
     if not target.is_dir():
         raise HTTPException(status_code=400, detail="Not a directory")
@@ -623,5 +629,3 @@ async def list_projects(request: Request) -> list[dict]:
                     },
                 )
         return results
-
-    return await asyncio.to_thread(_scan)

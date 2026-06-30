@@ -852,7 +852,10 @@ def _resolve_cross_language_description(
 ) -> str:
     if user_language == "en":
         return ""
-    from .registry import _get_packaged_builtin_registry, _select_builtin_variant
+    from .registry import (
+        _get_packaged_builtin_registry,
+        _select_builtin_variant,
+    )
     registry = _get_packaged_builtin_registry()
     variant = _select_builtin_variant(registry, skill_name, "en")
     if variant is None:
@@ -867,7 +870,10 @@ def _resolve_cross_language_name(
 ) -> str:
     if user_language == "en":
         return ""
-    from .registry import _get_packaged_builtin_registry, _select_builtin_variant
+    from .registry import (
+        _get_packaged_builtin_registry,
+        _select_builtin_variant,
+    )
     registry = _get_packaged_builtin_registry()
     variant = _select_builtin_variant(registry, skill_name, "en")
     if variant is None:
@@ -923,7 +929,11 @@ def read_skill_from_dir(
             skill_dir.name,
             user_language=lang,
         )
-        local_title = _extract_first_heading(post.content) if hasattr(post, 'content') else ""
+        local_title = (
+            _extract_first_heading(post.content)
+            if hasattr(post, 'content')
+            else ""
+        )
         display_name = _build_display_name(
             skill_dir.name,
             frontmatter_name,

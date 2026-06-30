@@ -442,10 +442,9 @@ def _make_conversation_adapter(name: str) -> CommandSpec:
             pass
 
         try:
-            cfg = load_agent_config(agent_id)
-            _agent_name = cfg.name if cfg and cfg.name else "QwenPaw"
+            load_agent_config(agent_id)
         except Exception:
-            _agent_name = "QwenPaw"
+            pass
 
         cmd_handler = CommandHandler(
             agent_name="AI Arb",
@@ -509,7 +508,7 @@ def _parse_skill_query(query: str) -> tuple[str, str] | None:
     return (name, user_input) if name else None
 
 
-# pylint: disable-next=too-many-return-statements
+# pylint: disable-next=too-many-return-statements,too-many-branches
 async def _skill_fallback_handler(
     raw_text: str,
     ctx: Any,

@@ -2614,7 +2614,9 @@ def _ensure_builtin_arbitrator(config: "Config"):
     if arbitrator_id in config.agents.profiles:
         return
 
-    arbitrator_workspace = Path(f"{WORKING_DIR}/workspaces/{arbitrator_id}").expanduser()
+    arbitrator_workspace = Path(
+        f"{WORKING_DIR}/workspaces/{arbitrator_id}"
+    ).expanduser()
     if arbitrator_workspace.exists():
         config.agents.profiles[arbitrator_id] = AgentProfileRef(
             id=arbitrator_id,
@@ -2649,7 +2651,10 @@ def _ensure_builtin_arbitrator(config: "Config"):
     print(f"  Created builtin agent: {arbitrator_id} @ {arbitrator_workspace}")
 
 
-def _copy_traversable(src: "importlib.resources.abc.Traversable", dest: Path) -> None:
+def _copy_traversable(  # type: ignore[name-defined]
+    src: "importlib.resources.abc.Traversable",  # noqa: F821
+    dest: Path,
+) -> None:
     """Recursively copy a Traversable tree to *dest*."""
     import importlib.resources
 
