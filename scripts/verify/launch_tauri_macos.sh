@@ -6,8 +6,14 @@ set -euo pipefail
 # 1. Unpack the freshly built Tauri zip.
 echo "[launch_tauri_macos] Unpacking zip..."
 mkdir -p dist/verify-tauri
-unzip -q dist/AI-Arb-Tauri-*-macOS.zip -d dist/verify-tauri
-APP="$(find dist/verify-tauri -maxdepth 3 -name '*.app' -type d | head -1)"
+ZIP_FILE="$(find dist -maxdepth 1 -name '*macOS*.zip' -type f | head -1)"
+if [ -z "$ZIP_FILE" ]; then
+  echo "::error::Tauri macOS zip not found in dist/"
+  exit 1
+fi
+echo "[launch_tauri_macos] Found zip: $ZIP_FILE"
+unzip -q "$ZIP_FILE" -d dist/verify-tauri
+APP="$(find dist/verify-tauri -maxdepth 3 -name '*.app' -type d -not -path '*__MACOSX*' | head -1)"
 if [ -z "$APP" ]; then
   echo "::error::Tauri .app not found inside zip"
   exit 1

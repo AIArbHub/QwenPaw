@@ -122,9 +122,9 @@ fn packaged_node_runtime(app: &tauri::AppHandle) -> Option<PathBuf> {
 #[cfg(not(debug_assertions))]
 fn packaged_backend_executable(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     let executable_name = if cfg!(windows) {
-        "ai-arb-backend.exe"
+        "aiarb.exe"
     } else {
-        "ai-arb-backend"
+        "aiarb"
     };
     let path = app
         .path()

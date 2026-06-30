@@ -64,40 +64,55 @@ def _python_exe(dest: Path) -> Path:
     return dest / "python" / "bin" / "python3"
 
 
-def _http_get(url: str) -> bytes:
-    request = urllib.request.Request(url)
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
-    if token:
-        request.add_header("Authorization", f"Bearer {token}")
-    request.add_header("User-Agent", "qwenpaw-build")
-    for attempt in range(1, HTTP_ATTEMPTS + 1):
+def _http_get(url: str, max_retries: int | None = None, retry_delay: float = 30.0, timeout: int | None = None) -> bytes:
+    # Use module-level defaults when explicit values are not provided
+    max_retries = max_retries if max_retries is not None else HTTP_ATTEMPTS
+    timeout = timeout if timeout is not None else HTTP_TIMEOUT_SECONDS
+
+    for attempt in range(1, max_retries + 1):
         try:
-            with urllib.request.urlopen(
-                request,
-                timeout=HTTP_TIMEOUT_SECONDS,
-            ) as resp:
+            request = urllib.request.Request(url)
+            token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+            if token:
+                request.add_header("Authorization", f"Bearer {token}")
+            request.add_header("User-Agent", "qwenpaw-build")
+            with urllib.request.urlopen(request, timeout=timeout) as resp:
                 return resp.read()
         except urllib.error.HTTPError as exc:
-            if (
-                exc.code not in RETRYABLE_HTTP_STATUS
-                or attempt == HTTP_ATTEMPTS
-            ):
+            # Rate limiting (403) -- use linear backoff based on retry_delay
+            if exc.code == 403 and attempt < max_retries:
+                wait = retry_delay * attempt
+                print(
+                    f"Rate limited (HTTP 403) fetching {url}; retrying in {wait}s ({attempt}/{max_retries})",
+                )
+            # Other retryable HTTP statuses use exponential backoff
+            elif exc.code in RETRYABLE_HTTP_STATUS and attempt < max_retries:
+                wait = 2 ** (attempt - 1)
+                print(
+                    f"HTTP {exc.code} fetching {url}; retrying in {wait}s ({attempt}/{max_retries})",
+                )
+            else:
                 raise
-            wait = 2 ** (attempt - 1)
-            print(
-                f"HTTP {exc.code} fetching {url}; "
-                f"retrying in {wait}s ({attempt}/{HTTP_ATTEMPTS})",
-            )
         except OSError as exc:
-            if attempt == HTTP_ATTEMPTS:
+            # Preserve previous behavior for OS-level errors
+            if attempt == max_retries:
                 raise
             wait = 2 ** (attempt - 1)
             print(
-                f"{type(exc).__name__} fetching {url}: {exc}; "
-                f"retrying in {wait}s ({attempt}/{HTTP_ATTEMPTS})",
+                f"{type(exc).__name__} fetching {url}: {exc}; retrying in {wait}s ({attempt}/{max_retries})",
             )
+        except Exception as exc:
+            # Generic fallback for unexpected errors; retry with linear backoff
+            if attempt < max_retries:
+                wait = retry_delay * attempt
+                print(
+                    f"Request failed fetching {url}: {exc} (attempt {attempt}/{max_retries}), waiting {wait}s...",
+                )
+            else:
+                raise
+
         time.sleep(wait)
-    raise RuntimeError(f"failed to fetch {url}")
+    raise RuntimeError(f"failed to fetch {url} after {max_retries} retries")
 
 
 def _release_url(release: str | None) -> str:
