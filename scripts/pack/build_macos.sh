@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-click build: console -> conda-pack -> QwenPaw.app. Run from repo root.
+# One-click build: console -> conda-pack -> AI Arb.app. Run from repo root.
 # Requires: conda, node/npm (for console). Optional: icon.icns in assets/.
 
 set -e
@@ -178,7 +178,7 @@ INFOPLIST
 echo "== Built ${APP_DIR} =="
 # Optional: create zip for distribution (set CREATE_ZIP=1)
 if [[ -n "${CREATE_ZIP}" ]]; then
-  ZIP_NAME="${DIST}/QwenPaw-${VERSION}-macOS.zip"
+  ZIP_NAME="${DIST}/AI-Arb-${VERSION}-macOS.zip"
   ditto -c -k --sequesterRsrc --keepParent "${APP_DIR}" "${ZIP_NAME}"
   echo "== Created ${ZIP_NAME} =="
 fi
