@@ -173,12 +173,17 @@ case "$(uname -m)" in
     arm64 | aarch64) UPDATER_TARGET="darwin-aarch64" ;;
     *) UPDATER_TARGET="darwin-x86_64" ;;
 esac
-python "${REPO_ROOT}/scripts/pack-tauri/generate_update_manifest.py" stage \
-    --bundle-dir "${BUNDLE_DIR}/macos" \
-    --pattern '*.app.tar.gz' \
-    --target "${UPDATER_TARGET}" \
-    --output "${UPDATER_NAME}" \
-    --pubkey-config "${REPO_ROOT}/console/src-tauri/tauri.version.conf.json"
+if compgen -G "${BUNDLE_DIR}/macos/*.app.tar.gz" > /dev/null 2>&1; then
+    python "${REPO_ROOT}/scripts/pack-tauri/generate_update_manifest.py" stage \
+        --bundle-dir "${BUNDLE_DIR}/macos" \
+        --pattern '*.app.tar.gz' \
+        --target "${UPDATER_TARGET}" \
+        --output "${UPDATER_NAME}" \
+        --pubkey-config "${REPO_ROOT}/console/src-tauri/tauri.version.conf.json"
+else
+    UPDATER_NAME="(skipped — no .app.tar.gz found)"
+    echo "Skipping updater staging: no .app.tar.gz in ${BUNDLE_DIR}/macos"
+fi
 
 echo ""
 echo "========================================="

@@ -23,7 +23,6 @@ from ....agents.skill_system.store import (
     _build_display_name,
     _build_display_description,
     _extract_first_heading,
-    read_frontmatter_safe_from_path,
 )
 from ....agents.utils.file_handling import (
     read_text_file_with_encoding_fallback,

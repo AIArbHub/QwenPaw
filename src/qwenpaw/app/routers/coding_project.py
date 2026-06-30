@@ -468,9 +468,6 @@ async def upload_zip(
     return {"path": str(project_path), "name": project_path.name}
 
 
-    return await asyncio.to_thread(_scan)
-
-
 @router.post("/delete", summary="Delete a coding project")
 async def delete_project(body: DeleteProjectRequest, request: Request) -> dict:
     """Delete a coding project directory and all its contents.
