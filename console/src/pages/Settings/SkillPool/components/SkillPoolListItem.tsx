@@ -63,7 +63,9 @@ export function SkillPoolListItem({
         </span>
         <div className={styles.listItemInfo}>
           <div className={styles.listItemHeader}>
-            <span className={styles.skillTitle}>{skill.display_name || skill.name}</span>
+            <span className={styles.skillTitle}>
+              {skill.display_name || skill.name}
+            </span>
             <span
               className={`${styles.statusValue} ${
                 styles[getPoolBuiltinStatusTone(skill.sync_status)]
@@ -77,7 +79,9 @@ export function SkillPoolListItem({
               </span>
             )}
           </div>
-          <p className={styles.listItemDesc}>{skill.display_description || skill.description || "-"}</p>
+          <p className={styles.listItemDesc}>
+            {skill.display_description || skill.description || "-"}
+          </p>
         </div>
       </div>
       <div className={styles.listItemRight}>

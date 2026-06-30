@@ -348,8 +348,9 @@ export function AgentModal({
                       <CheckOutlined />
                     </span>
                   )}
-                  <div className={styles.pickerCardTitle}>{skill.display_name || skill.name}</div>
-
+                  <div className={styles.pickerCardTitle}>
+                    {skill.display_name || skill.name}
+                  </div>
                 </div>
               );
             })}

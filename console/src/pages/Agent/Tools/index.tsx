@@ -148,7 +148,10 @@ function ToolConfigModal({
 
   return (
     <Modal
-      title={`${t("tools.configure")} - ${bilingualTitle(`tools.toolNames.${tool.name}`, tool.name)}`}
+      title={`${t("tools.configure")} - ${bilingualTitle(
+        `tools.toolNames.${tool.name}`,
+        tool.name,
+      )}`}
       open={visible}
       onCancel={onClose}
       onOk={handleSave}

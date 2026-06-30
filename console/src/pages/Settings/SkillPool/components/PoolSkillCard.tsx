@@ -154,7 +154,9 @@ export function PoolSkillCard({
         <span className={styles.descriptionSectionLabel}>
           {t("skills.skillDescription")}
         </span>
-        <p className={styles.descriptionText}>{skill.display_description || skill.description || "-"}</p>
+        <p className={styles.descriptionText}>
+          {skill.display_description || skill.description || "-"}
+        </p>
       </div>
 
       {/* Footer - show on hover, batch mode, or mobile (no hover) */}

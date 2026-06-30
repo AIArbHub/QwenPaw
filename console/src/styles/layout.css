@@ -4,12 +4,19 @@ body {
   overflow: hidden;
   margin: 0;
   padding: 0;
-  background: #F5F5F5;
+  background: #f5f5f5;
 }
 
 /* TRAE Work: Global font-family */
 body {
-  font-family: "SF Pro Text", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    "SF Pro Text",
+    "PingFang SC",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   font-size: 14px;
   line-height: 20px;
   color: #171717;
@@ -18,14 +25,17 @@ body {
 }
 
 /* TRAE Work: Transition utility */
-*, *::before, *::after {
-  transition-property: color, background-color, border-color, box-shadow, opacity;
+*,
+*::before,
+*::after {
+  transition-property: color, background-color, border-color, box-shadow,
+    opacity;
   transition-duration: 120ms;
   transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
 
 .qwenpaw-layout {
-  background: #F5F5F5;
+  background: #f5f5f5;
 }
 
 /* ─── Dark mode global token overrides ─────────────────────────────────────── */
@@ -199,8 +209,8 @@ html.dark-mode .ant-pagination .ant-pagination-item a {
 
 html.dark-mode .qwenpaw-pagination .qwenpaw-pagination-item-active,
 html.dark-mode .ant-pagination .ant-pagination-item-active {
-  background: #6A6FFF !important;
-  border-color: #6A6FFF !important;
+  background: #6a6fff !important;
+  border-color: #6a6fff !important;
 }
 
 html.dark-mode .qwenpaw-pagination .qwenpaw-pagination-item-active a,
@@ -227,7 +237,7 @@ html.dark-mode .qwenpaw-table-column-sorter-up.active,
 html.dark-mode .qwenpaw-table-column-sorter-down.active,
 html.dark-mode .ant-table-column-sorter-up.active,
 html.dark-mode .ant-table-column-sorter-down.active {
-  color: #6A6FFF !important;
+  color: #6a6fff !important;
 }
 
 /* Checkbox in table */
@@ -239,8 +249,8 @@ html.dark-mode .ant-checkbox-inner {
 
 html.dark-mode .qwenpaw-checkbox-checked .qwenpaw-checkbox-inner,
 html.dark-mode .ant-checkbox-checked .ant-checkbox-inner {
-  background: #6A6FFF !important;
-  border-color: #6A6FFF !important;
+  background: #6a6fff !important;
+  border-color: #6a6fff !important;
 }
 
 /* Page titles (h1) */
@@ -333,7 +343,7 @@ html.dark-mode .ant-select-item-option-active {
 html.dark-mode .qwenpaw-select-item-option-selected,
 html.dark-mode .ant-select-item-option-selected {
   background: rgba(97, 92, 237, 0.2) !important;
-  color: #6A6FFF !important;
+  color: #6a6fff !important;
 }
 
 /* Form labels */
@@ -414,7 +424,7 @@ html.dark-mode
   .ant-picker-time-panel-cell-selected
   .ant-picker-time-panel-cell-inner {
   background: rgba(97, 92, 237, 0.2) !important;
-  color: #6A6FFF !important;
+  color: #6a6fff !important;
 }
 
 /* DatePicker / RangePicker calendar panel */
@@ -484,7 +494,7 @@ html.dark-mode .ant-picker-cell-disabled {
 /* Today marker */
 html.dark-mode .qwenpaw-picker-cell-today .qwenpaw-picker-cell-inner::before,
 html.dark-mode .ant-picker-cell-today .ant-picker-cell-inner::before {
-  border-color: #6A6FFF !important;
+  border-color: #6a6fff !important;
 }
 
 /* Selected start/end cell */
@@ -494,7 +504,7 @@ html.dark-mode .qwenpaw-picker-cell-range-start .qwenpaw-picker-cell-inner,
 html.dark-mode .ant-picker-cell-range-start .ant-picker-cell-inner,
 html.dark-mode .qwenpaw-picker-cell-range-end .qwenpaw-picker-cell-inner,
 html.dark-mode .ant-picker-cell-range-end .ant-picker-cell-inner {
-  background: #6A6FFF !important;
+  background: #6a6fff !important;
   color: #fff !important;
 }
 
@@ -520,7 +530,7 @@ html.dark-mode
 html.dark-mode
   .qwenpaw-picker-cell-in-view.qwenpaw-picker-cell-range-hover-end::after,
 html.dark-mode .ant-picker-cell-in-view.ant-picker-cell-range-hover-end::after {
-  border-color: #6A6FFF !important;
+  border-color: #6a6fff !important;
 }
 
 /* Panel footer (OK button area) */
@@ -532,7 +542,7 @@ html.dark-mode .ant-picker-footer {
 
 html.dark-mode .qwenpaw-picker-today-btn,
 html.dark-mode .ant-picker-today-btn {
-  color: #6A6FFF !important;
+  color: #6a6fff !important;
 }
 
 /* Divider between two panels in RangePicker */
@@ -690,12 +700,12 @@ html.dark-mode .ant-slider-rail {
 
 html.dark-mode .qwenpaw-slider-track,
 html.dark-mode .ant-slider-track {
-  background-color: #6A6FFF !important;
+  background-color: #6a6fff !important;
 }
 
 html.dark-mode .qwenpaw-slider-mark-text,
 html.dark-mode .ant-slider-mark-text {
-  color: #6A6FFF !important;
+  color: #6a6fff !important;
 }
 
 html.dark-mode .qwenpaw-form-item-label > label .qwenpaw-form-item-tooltip,
@@ -705,7 +715,7 @@ html.dark-mode .ant-form-item-label > label .ant-form-item-tooltip {
 
 html.dark-mode .qwenpaw-slider-handle::after,
 html.dark-mode .ant-slider-handle::after {
-  box-shadow: 0 0 0 2px #6A6FFF !important;
+  box-shadow: 0 0 0 2px #6a6fff !important;
   background-color: #1f1f1f !important;
 }
 
@@ -821,7 +831,7 @@ html.dark-mode [class*="chat-anywhere"] [class*="message"] code {
 }
 
 html.dark-mode [class*="chat-anywhere"] [class*="message"] a {
-  color: #6A6FFF !important;
+  color: #6a6fff !important;
 }
 
 /* Tool card content blocks — dark mode text and background overrides.
@@ -912,12 +922,12 @@ html.dark-mode
   min-height: 100vh;
   max-height: 100vh;
   overflow: hidden;
-  background: #F5F5F5;
+  background: #f5f5f5;
 }
 
 .ant-layout-content {
   overflow: hidden;
-  background: #F5F5F5;
+  background: #f5f5f5;
 }
 
 .qwenpaw-bubble-list-wrapper {
@@ -959,7 +969,7 @@ html.dark-mode .qwenpaw-sender-content {
 /* Menu background in light mode — TRAE Work uses white bg-menu */
 .qwenpaw-menu,
 .ant-menu {
-  background: #FFFFFF !important;
+  background: #ffffff !important;
 }
 
 /* Menu selected item in light mode — TRAE Work uses neutral overlay */
@@ -978,7 +988,14 @@ html.dark-mode .qwenpaw-sender-content {
 /* Group title (一级菜单) in light mode — TRAE Work uppercase with tracking */
 .qwenpaw-menu-submenu-title,
 .ant-menu-submenu-title {
-  font-family: "SF Pro Text", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+  font-family:
+    "SF Pro Text",
+    "PingFang SC",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif !important;
   font-size: 12px !important;
   font-weight: 500 !important;
   line-height: 32px !important;
@@ -1014,7 +1031,7 @@ html.dark-mode .qwenpaw-sender-content {
 .page-content {
   flex: 1 1 auto;
   overflow: auto;
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
   border-radius: 12px;
   box-sizing: border-box;
   border: 1px solid rgba(115, 115, 115, 0.12);
@@ -1081,7 +1098,7 @@ html.dark-mode .qwenpaw-sender-content {
 .qwenpaw-btn-primary.qwenpaw-btn-disabled {
   background-color: #f5f5f5 !important;
   background: #f5f5f5 !important;
-  color: #A1A1A1 !important;
+  color: #a1a1a1 !important;
   border: 1px solid #d9d9d9 !important;
   box-shadow: none !important;
 }

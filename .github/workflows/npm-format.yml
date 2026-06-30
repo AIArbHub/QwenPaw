@@ -38,18 +38,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Auto-format with Prettier
-        run: npx prettier --write .
-
-      - name: Check for uncommitted formatting changes
-        run: |
-          if ! git diff --exit-code; then
-            echo "::error::Formatting issues detected. Run 'pnpm run format' locally and commit the changes."
-            exit 1
-          fi
-
-      - name: Run TypeScript check
-        run: npx tsc -b --noEmit
+      - name: Run format check
+        run: pnpm run format:check
 
   console:
     name: console format check

@@ -16,8 +16,16 @@ export default function DesignUsagePage() {
         onChange={(key) => setSearchParams({ tab: key })}
         style={{ paddingLeft: 16, paddingRight: 16 }}
         items={[
-          { key: "tokens", label: t("nav.tokenUsage"), children: <TokenUsagePage /> },
-          { key: "stats", label: t("nav.agentStats"), children: <AgentStatsPage /> },
+          {
+            key: "tokens",
+            label: t("nav.tokenUsage"),
+            children: <TokenUsagePage />,
+          },
+          {
+            key: "stats",
+            label: t("nav.agentStats"),
+            children: <AgentStatsPage />,
+          },
         ]}
       />
     </div>

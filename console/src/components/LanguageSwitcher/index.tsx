@@ -42,10 +42,10 @@ export default function LanguageSwitcher() {
   const currentLangKey = KNOWN_LANG_KEYS.has(currentLanguage)
     ? currentLanguage
     : currentLanguage.split("-")[0] === "zh"
-      ? "zh-t"
-      : KNOWN_LANG_KEYS.has(currentLanguage.split("-")[0])
-        ? currentLanguage.split("-")[0]
-        : "en";
+    ? "zh-t"
+    : KNOWN_LANG_KEYS.has(currentLanguage.split("-")[0])
+    ? currentLanguage.split("-")[0]
+    : "en";
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
@@ -57,19 +57,22 @@ export default function LanguageSwitcher() {
       );
   };
 
-  const items: MenuProps["items"] = LANGUAGE_LIST.map(({ key, label, icon, flag }) => ({
-    key,
-    label: icon || flag ? (
-      <span className={styles.menuItemLabel}>
-        {icon}
-        {!icon && flag && <span className={styles.flagEmoji}>{flag}</span>}
-        {label}
-      </span>
-    ) : (
-      label
-    ),
-    onClick: () => changeLanguage(key),
-  }));
+  const items: MenuProps["items"] = LANGUAGE_LIST.map(
+    ({ key, label, icon, flag }) => ({
+      key,
+      label:
+        icon || flag ? (
+          <span className={styles.menuItemLabel}>
+            {icon}
+            {!icon && flag && <span className={styles.flagEmoji}>{flag}</span>}
+            {label}
+          </span>
+        ) : (
+          label
+        ),
+      onClick: () => changeLanguage(key),
+    }),
+  );
 
   const iconMap: Record<string, React.ReactElement> = {};
   const flagMap: Record<string, string> = {};

@@ -117,7 +117,8 @@ export const ProviderGroupCard = React.memo(function ProviderGroupCard({
             showIcon
             message={
               <span>
-                硅基流动注册即送全平台通用代金券 16 元（须填写邀请码 KvmTp5P8）。
+                硅基流动注册即送全平台通用代金券 16 元（须填写邀请码
+                KvmTp5P8）。
                 <a
                   href="https://cloud.siliconflow.cn/i/KvmTp5P8"
                   target="_blank"

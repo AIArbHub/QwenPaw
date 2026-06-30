@@ -96,22 +96,122 @@ const DESIGN_MODE_NAV_ITEMS: {
   icon: React.ComponentType<any>;
   separatorBefore?: boolean;
 }[] = [
-  { key: "core.chat", route: "core.chat", labelKey: "nav.chat", labelDefault: "Chat", icon: SparkChatTabFill },
-  { key: "core.inbox", route: "core.inbox", labelKey: "nav.inbox", labelDefault: "Inbox", icon: SparkEmailLine },
-  { key: "design.skills", route: "design.skills", labelKey: "nav.skills", labelDefault: "Skills", icon: SparkMagicWandLine, separatorBefore: true },
-  { key: "core.tools", route: "core.tools", labelKey: "nav.tools", labelDefault: "Tools", icon: SparkToolLine },
-  { key: "design.extensions", route: "design.extensions", labelKey: "nav.extensions", labelDefault: "Extensions", icon: SparkMcpMcpLine },
-  { key: "core.channels", route: "core.channels", labelKey: "nav.channels", labelDefault: "Channels", icon: SparkWifiLine, separatorBefore: true },
-  { key: "core.sessions", route: "core.sessions", labelKey: "nav.sessions", labelDefault: "Sessions", icon: SparkUserGroupLine },
-  { key: "core.cron-jobs", route: "core.cron-jobs", labelKey: "nav.cronJobs", labelDefault: "Cron Jobs", icon: SparkDateLine },
-  { key: "core.heartbeat", route: "core.heartbeat", labelKey: "nav.heartbeat", labelDefault: "Heartbeat", icon: SparkVoiceChat01Line },
-  { key: "core.workspace", route: "core.workspace", labelKey: "nav.workspace", labelDefault: "Files", icon: SparkLocalFileLine, separatorBefore: true },
-  { key: "design.agent", route: "design.agent", labelKey: "nav.agents", labelDefault: "Agent", icon: SparkAgentLine, separatorBefore: true },
-  { key: "core.models", route: "core.models", labelKey: "nav.models", labelDefault: "Models", icon: SparkModePlazaLine },
-  { key: "core.environments", route: "core.environments", labelKey: "nav.environments", labelDefault: "Environments", icon: SparkInternetLine },
-  { key: "core.security", route: "core.security", labelKey: "nav.security", labelDefault: "Security", icon: SparkBrowseLine },
-  { key: "design.usage", route: "design.usage", labelKey: "nav.usage", labelDefault: "Usage", icon: SparkDataLine },
-  { key: "design.ops", route: "design.ops", labelKey: "nav.ops", labelDefault: "Ops", icon: SparkSaveLine },
+  {
+    key: "core.chat",
+    route: "core.chat",
+    labelKey: "nav.chat",
+    labelDefault: "Chat",
+    icon: SparkChatTabFill,
+  },
+  {
+    key: "core.inbox",
+    route: "core.inbox",
+    labelKey: "nav.inbox",
+    labelDefault: "Inbox",
+    icon: SparkEmailLine,
+  },
+  {
+    key: "design.skills",
+    route: "design.skills",
+    labelKey: "nav.skills",
+    labelDefault: "Skills",
+    icon: SparkMagicWandLine,
+    separatorBefore: true,
+  },
+  {
+    key: "core.tools",
+    route: "core.tools",
+    labelKey: "nav.tools",
+    labelDefault: "Tools",
+    icon: SparkToolLine,
+  },
+  {
+    key: "design.extensions",
+    route: "design.extensions",
+    labelKey: "nav.extensions",
+    labelDefault: "Extensions",
+    icon: SparkMcpMcpLine,
+  },
+  {
+    key: "core.channels",
+    route: "core.channels",
+    labelKey: "nav.channels",
+    labelDefault: "Channels",
+    icon: SparkWifiLine,
+    separatorBefore: true,
+  },
+  {
+    key: "core.sessions",
+    route: "core.sessions",
+    labelKey: "nav.sessions",
+    labelDefault: "Sessions",
+    icon: SparkUserGroupLine,
+  },
+  {
+    key: "core.cron-jobs",
+    route: "core.cron-jobs",
+    labelKey: "nav.cronJobs",
+    labelDefault: "Cron Jobs",
+    icon: SparkDateLine,
+  },
+  {
+    key: "core.heartbeat",
+    route: "core.heartbeat",
+    labelKey: "nav.heartbeat",
+    labelDefault: "Heartbeat",
+    icon: SparkVoiceChat01Line,
+  },
+  {
+    key: "core.workspace",
+    route: "core.workspace",
+    labelKey: "nav.workspace",
+    labelDefault: "Files",
+    icon: SparkLocalFileLine,
+    separatorBefore: true,
+  },
+  {
+    key: "design.agent",
+    route: "design.agent",
+    labelKey: "nav.agents",
+    labelDefault: "Agent",
+    icon: SparkAgentLine,
+    separatorBefore: true,
+  },
+  {
+    key: "core.models",
+    route: "core.models",
+    labelKey: "nav.models",
+    labelDefault: "Models",
+    icon: SparkModePlazaLine,
+  },
+  {
+    key: "core.environments",
+    route: "core.environments",
+    labelKey: "nav.environments",
+    labelDefault: "Environments",
+    icon: SparkInternetLine,
+  },
+  {
+    key: "core.security",
+    route: "core.security",
+    labelKey: "nav.security",
+    labelDefault: "Security",
+    icon: SparkBrowseLine,
+  },
+  {
+    key: "design.usage",
+    route: "design.usage",
+    labelKey: "nav.usage",
+    labelDefault: "Usage",
+    icon: SparkDataLine,
+  },
+  {
+    key: "design.ops",
+    route: "design.ops",
+    labelKey: "nav.ops",
+    labelDefault: "Ops",
+    icon: SparkSaveLine,
+  },
 ];
 
 /**
@@ -366,13 +466,14 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
     );
     return designFlatNav.map((entry) => ({
       ...entry,
-      icon: entry.key === "core.inbox"
-        ? decorateInboxIcon(entry.icon)
-        : renderIcon(
-            DESIGN_MODE_NAV_ITEMS.find((i) => i.key === entry.key)?.icon ??
-              SparkSettingLine,
-            18,
-          ),
+      icon:
+        entry.key === "core.inbox"
+          ? decorateInboxIcon(entry.icon)
+          : renderIcon(
+              DESIGN_MODE_NAV_ITEMS.find((i) => i.key === entry.key)?.icon ??
+                SparkSettingLine,
+              18,
+            ),
     }));
   }, [sidebarMode, designFlatNav, hasInboxUnread]);
 
@@ -498,7 +599,10 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
     >
       {collapsed ? (
         <nav className={styles.collapsedNav}>
-          {(sidebarMode === "design" ? designCollapsedNavItems : collapsedNavItems).map((item) => {
+          {(sidebarMode === "design"
+            ? designCollapsedNavItems
+            : collapsedNavItems
+          ).map((item) => {
             const isActive =
               item.key === "core.chat"
                 ? isChatActive
@@ -610,16 +714,16 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
                   )}
                   <button
                     className={`${styles.designNavItem} ${
-                      (entry.key === "core.chat"
-                        ? isChatActive
-                        : selectedKey === entry.key)
+                      (
+                        entry.key === "core.chat"
+                          ? isChatActive
+                          : selectedKey === entry.key
+                      )
                         ? styles.designNavItemActive
                         : ""
                     }`}
                     onClick={() =>
-                      entry.path
-                        ? navigate(entry.path)
-                        : undefined
+                      entry.path ? navigate(entry.path) : undefined
                     }
                   >
                     {entry.key === "core.inbox" ? (

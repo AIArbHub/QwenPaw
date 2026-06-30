@@ -111,9 +111,7 @@ export function useMarketSearch(): MarketSearchState {
   const anyProviderSupportsBrowse = useMemo(() => {
     return providers.some(
       (p) =>
-        p.available &&
-        p.supports_browse &&
-        selectedProviderKeys.has(p.key),
+        p.available && p.supports_browse && selectedProviderKeys.has(p.key),
     );
   }, [providers, selectedProviderKeys]);
 

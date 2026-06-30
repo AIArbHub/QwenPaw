@@ -259,10 +259,7 @@ function MarketPage() {
       )
       .map((p) => p.label)
       .join(", ");
-  }, [
-    market.providers,
-    market.selectedProviderKeys,
-  ]);
+  }, [market.providers, market.selectedProviderKeys]);
 
   const browseLabel = useMemo(() => {
     return market.providers
@@ -274,14 +271,17 @@ function MarketPage() {
       )
       .map((p) => p.label)
       .join(", ");
-  }, [
-    market.providers,
-    market.selectedProviderKeys,
-  ]);
+  }, [market.providers, market.selectedProviderKeys]);
 
   const hasSelectedProvider = market.selectedProviderKeys.size > 0;
 
-  const browseHintLabel = !market.category && !market.query.trim() && hasSelectedProvider && browseLabel ? browseLabel : "";
+  const browseHintLabel =
+    !market.category &&
+    !market.query.trim() &&
+    hasSelectedProvider &&
+    browseLabel
+      ? browseLabel
+      : "";
 
   return (
     <div className={styles.marketPage}>
@@ -356,11 +356,15 @@ function MarketPage() {
               {!hasSelectedProvider
                 ? t("market.selectProviderGuide")
                 : !market.anyProviderSupportsBrowse
-                  ? t("market.searchGuide", { providers: nonBrowseLabel })
-                  : t("market.browseEmpty")}
+                ? t("market.searchGuide", { providers: nonBrowseLabel })
+                : t("market.browseEmpty")}
             </span>
             {(market.globalError || market.errors.length > 0) && (
-              <Button onClick={market.retry} loading={market.loading} size="small">
+              <Button
+                onClick={market.retry}
+                loading={market.loading}
+                size="small"
+              >
                 {t("market.retry")}
               </Button>
             )}

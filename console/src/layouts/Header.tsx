@@ -141,7 +141,6 @@ export default function Header() {
 
   const modalVersion = onDesktop ? desktop.version : latestVersion;
 
-
   const handleOpenUpdateModal = () => {
     setUpdateMarkdown("");
     setUpdateModalOpen(true);
