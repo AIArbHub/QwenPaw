@@ -18,7 +18,7 @@ DIST="${DIST:-dist}"
 VERSION=$(sed -n 's/^__version__[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' src/qwenpaw/__version__.py)
 
 echo "========================================="
-echo "QwenPaw PyInstaller Build"
+echo "AI Arb PyInstaller Build"
 echo "========================================="
 echo "Version: ${VERSION}"
 echo "Repository: ${REPO_ROOT}"
@@ -101,14 +101,9 @@ echo ""
 
 # Verify output
 BACKEND_DIR="${DIST}/pyinstaller/ai-arb-backend"
-BACKEND_EXE="${BACKEND_DIR}/ai-arb-backend"
-CLI_EXE="${BACKEND_DIR}/qwenpaw"
+CLI_EXE="${BACKEND_DIR}/aiarb"
 if [ ! -d "${BACKEND_DIR}" ]; then
     echo "ERROR: Backend bundle directory not found at ${BACKEND_DIR}"
-    exit 1
-fi
-if [ ! -f "${BACKEND_EXE}" ]; then
-    echo "ERROR: Backend executable not found at ${BACKEND_EXE}"
     exit 1
 fi
 if [ ! -f "${CLI_EXE}" ]; then
@@ -132,8 +127,7 @@ DEST="${BINARIES_DIR}/ai-arb-backend"
 mkdir -p "${DEST}"
 find "${DEST}" -mindepth 1 -exec rm -rf {} +
 cp -R "${BACKEND_DIR}/." "${DEST}/"
-chmod +x "${DEST}/ai-arb-backend"
-chmod +x "${DEST}/qwenpaw"
+chmod +x "${DEST}/aiarb"
 echo "Copied to: ${DEST}"
 echo ""
 

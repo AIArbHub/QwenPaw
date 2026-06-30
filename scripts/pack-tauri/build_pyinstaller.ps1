@@ -167,14 +167,9 @@ Write-Host ""
 
 # Verify output
 $BACKEND_DIR = Join-Path $DIST "pyinstaller\ai-arb-backend"
-$BACKEND_EXE = Join-Path $BACKEND_DIR "ai-arb-backend.exe"
-$CLI_EXE = Join-Path $BACKEND_DIR "qwenpaw.exe"
+$CLI_EXE = Join-Path $BACKEND_DIR "aiarb.exe"
 if (-not (Test-Path $BACKEND_DIR)) {
     Write-Host "ERROR: Backend bundle directory not found at $BACKEND_DIR" -ForegroundColor Red
-    exit 1
-}
-if (-not (Test-Path $BACKEND_EXE)) {
-    Write-Host "ERROR: Backend executable not found at $BACKEND_EXE" -ForegroundColor Red
     exit 1
 }
 if (-not (Test-Path $CLI_EXE)) {
