@@ -32,7 +32,11 @@ vi.mock("@agentscope-ai/design", () => ({
   }: {
     children: React.ReactNode;
     menu: {
-      items: Array<{ key: string; label: React.ReactNode; onClick: () => void }>;
+      items: Array<{
+        key: string;
+        label: React.ReactNode;
+        onClick: () => void;
+      }>;
     };
   }) => (
     <div>

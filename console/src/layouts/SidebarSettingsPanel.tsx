@@ -51,8 +51,7 @@ export default function SidebarSettingsPanel({
 }: SidebarSettingsPanelProps) {
   const { t, i18n } = useTranslation();
   const { themeMode, setThemeMode } = useTheme();
-  const { mode: sidebarMode, setMode: setSidebarMode } =
-    useSidebarModeStore();
+  const { mode: sidebarMode, setMode: setSidebarMode } = useSidebarModeStore();
   const [closeBehavior, setCloseBehavior] = React.useState<CloseBehavior>(() =>
     isTauriRuntime() ? getRememberedCloseAction() ?? "ask" : "ask",
   );

@@ -82,9 +82,7 @@ export default function LoginPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: isDark
-          ? "#0a0a0a"
-          : "#F5F5F5",
+        background: isDark ? "#0a0a0a" : "#F5F5F5",
       }}
     >
       <div
@@ -107,7 +105,14 @@ export default function LoginPage() {
             alt="AI Arb"
             style={{ height: 48, marginBottom: 12 }}
           />
-          <h2 style={{ margin: 0, fontWeight: 600, fontSize: 24, lineHeight: "32px" }}>
+          <h2
+            style={{
+              margin: 0,
+              fontWeight: 600,
+              fontSize: 24,
+              lineHeight: "32px",
+            }}
+          >
             {isRegister ? t("login.registerTitle") : t("login.title")}
           </h2>
           {!hasUsers && (
@@ -168,7 +173,12 @@ export default function LoginPage() {
               htmlType="submit"
               loading={loading}
               block
-              style={{ height: 40, borderRadius: 8, fontWeight: 500, fontSize: 14 }}
+              style={{
+                height: 40,
+                borderRadius: 8,
+                fontWeight: 500,
+                fontSize: 14,
+              }}
             >
               {isRegister ? t("login.register") : t("login.submit")}
             </Button>

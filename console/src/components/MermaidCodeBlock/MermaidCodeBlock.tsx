@@ -42,7 +42,8 @@ export function MermaidCodeBlock({ chart }: MermaidCodeBlockProps) {
     setError("");
     setIsRendering(true);
 
-    mermaid.render(id, trimmedChart)
+    mermaid
+      .render(id, trimmedChart)
       .then(({ svg, bindFunctions }) => {
         if (!cancelled && containerRef.current) {
           containerRef.current.innerHTML = svg;

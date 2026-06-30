@@ -66,7 +66,9 @@ export function PoolSkillListItem({
         </span>
         <div className={styles.listItemInfo}>
           <div className={styles.listItemHeader}>
-            <span className={styles.skillTitle}>{skill.display_name || skill.name}</span>
+            <span className={styles.skillTitle}>
+              {skill.display_name || skill.name}
+            </span>
             {isSkillBuiltin(skill.source) && (
               <span className={styles.typeBadge}>{t("skillPool.builtin")}</span>
             )}
@@ -83,7 +85,9 @@ export function PoolSkillListItem({
               </span>
             )}
           </div>
-          <p className={styles.listItemDesc}>{skill.display_description || skill.description || "-"}</p>
+          <p className={styles.listItemDesc}>
+            {skill.display_description || skill.description || "-"}
+          </p>
           <SkillTagChips tags={skill.tags} />
         </div>
       </div>

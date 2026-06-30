@@ -18,10 +18,22 @@ export default function DesignOpsPage() {
         onChange={(key) => setSearchParams({ tab: key })}
         style={{ paddingLeft: 16, paddingRight: 16 }}
         items={[
-          { key: "backups", label: t("nav.backups"), children: <BackupsPage /> },
+          {
+            key: "backups",
+            label: t("nav.backups"),
+            children: <BackupsPage />,
+          },
           { key: "debug", label: t("nav.debug"), children: <DebugPage /> },
-          { key: "voice", label: t("nav.voiceTranscription"), children: <VoiceTranscriptionPage /> },
-          { key: "plugins", label: t("nav.pluginManager"), children: <PluginManagerPage /> },
+          {
+            key: "voice",
+            label: t("nav.voiceTranscription"),
+            children: <VoiceTranscriptionPage />,
+          },
+          {
+            key: "plugins",
+            label: t("nav.pluginManager"),
+            children: <PluginManagerPage />,
+          },
         ]}
       />
     </div>

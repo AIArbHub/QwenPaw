@@ -815,14 +815,18 @@ export default function Docs() {
                             // of the arrow tokens (common in translated content).
                             // Example: `Pool <--> 复制/同步互通 Work` ->
                             //          `Pool <-- 复制/同步通 --> Work`
-                            chart = chart.replace(/([^\s]+)\s+<-->\s+(.+?)\s+([^\s]+)/g, (_m, src, label, dst) => {
-                              return `${src} <-- ${label} --> ${dst}`;
-                            });
+                            chart = chart.replace(
+                              /([^\s]+)\s+<-->\s+(.+?)\s+([^\s]+)/g,
+                              (_m, src, label, dst) => {
+                                return `${src} <-- ${label} --> ${dst}`;
+                              },
+                            );
 
                             // Convert dotted-arrow labels like `-.调用技能.->` to
                             // include quotes around the label so parser accepts it.
-                            chart = chart.replace(/-\.([^\.]+)\.->/g, (_m, lbl) =>
-                              `-. "${lbl.trim()}" .->`,
+                            chart = chart.replace(
+                              /-\.([^\.]+)\.->/g,
+                              (_m, lbl) => `-. "${lbl.trim()}" .->`,
                             );
                             return <MermaidBlock chart={chart} />;
                           }

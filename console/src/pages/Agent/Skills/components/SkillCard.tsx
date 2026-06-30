@@ -269,7 +269,12 @@ export const SkillCard = React.memo(function SkillCard({
 
       {/* Description */}
       <div className={styles.descriptionSection}>
-        <p className={styles.descriptionText}>{skill.display_description || skill.description || "-"}</p>
+        <span className={styles.descriptionSectionLabel}>
+          {t("skills.skillDescription")}
+        </span>
+        <p className={styles.descriptionText}>
+          {skill.display_description || skill.description || "-"}
+        </p>
       </div>
 
       {/* Footer - only show on hover or batch mode, always on mobile */}

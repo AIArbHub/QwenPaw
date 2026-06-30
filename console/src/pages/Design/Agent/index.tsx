@@ -18,8 +18,16 @@ export default function DesignAgentPage() {
         style={{ paddingLeft: 16, paddingRight: 16 }}
         items={[
           { key: "manage", label: t("nav.agents"), children: <AgentsPage /> },
-          { key: "config", label: t("nav.agentConfig"), children: <AgentConfigPage /> },
-          { key: "stats", label: t("nav.agentStats"), children: <AgentStatsPage /> },
+          {
+            key: "config",
+            label: t("nav.agentConfig"),
+            children: <AgentConfigPage />,
+          },
+          {
+            key: "stats",
+            label: t("nav.agentStats"),
+            children: <AgentStatsPage />,
+          },
         ]}
       />
     </div>

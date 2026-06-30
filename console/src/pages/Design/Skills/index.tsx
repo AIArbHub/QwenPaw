@@ -67,9 +67,7 @@ export default function DesignSkillsPage() {
           showIcon
           message={t("design.skillsHintCollapsed")}
           style={{ margin: "8px 16px 0", cursor: "pointer" }}
-          action={
-            <a onClick={handleExpand}>{t("design.skillsHintExpand")}</a>
-          }
+          action={<a onClick={handleExpand}>{t("design.skillsHintExpand")}</a>}
         />
       ) : (
         <Alert
@@ -79,7 +77,9 @@ export default function DesignSkillsPage() {
           message={t("design.skillsHintTitle")}
           description={
             <div style={{ lineHeight: 1.8 }}>
-              <div style={{ marginBottom: 4 }}>{t("design.skillsHintSummary")}</div>
+              <div style={{ marginBottom: 4 }}>
+                {t("design.skillsHintSummary")}
+              </div>
               <div>{t("design.skillsHintInstalled")}</div>
               <div>{t("design.skillsHintPool")}</div>
               <div>{t("design.skillsHintMarket")}</div>
@@ -118,8 +118,16 @@ export default function DesignSkillsPage() {
         onChange={(key) => setSearchParams({ tab: key })}
         style={{ paddingLeft: 16, paddingRight: 16 }}
         items={[
-          { key: "installed", label: t("nav.skills"), children: <SkillsPage /> },
-          { key: "pool", label: t("nav.skillPool"), children: <SkillPoolPage /> },
+          {
+            key: "installed",
+            label: t("nav.skills"),
+            children: <SkillsPage />,
+          },
+          {
+            key: "pool",
+            label: t("nav.skillPool"),
+            children: <SkillPoolPage />,
+          },
           { key: "market", label: t("nav.market"), children: <MarketPage /> },
         ]}
       />
