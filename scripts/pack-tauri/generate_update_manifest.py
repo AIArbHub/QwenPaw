@@ -64,7 +64,8 @@ def cmd_stage(args: argparse.Namespace) -> None:
     source = _find_source(bundle_dir, args.pattern)
     sig_source = source.with_suffix(source.suffix + ".sig")
     if not sig_source.is_file():
-        raise SystemExit(f"no updater signature found at {sig_source}")
+        print(f"Skipping updater staging: no .sig file at {sig_source}")
+        return
 
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)

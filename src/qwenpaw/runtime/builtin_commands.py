@@ -443,9 +443,9 @@ def _make_conversation_adapter(name: str) -> CommandSpec:
 
         try:
             cfg = load_agent_config(agent_id)
-            agent_name = cfg.name if cfg and cfg.name else "QwenPaw"
+            _agent_name = cfg.name if cfg and cfg.name else "QwenPaw"
         except Exception:
-            agent_name = "QwenPaw"
+            _agent_name = "QwenPaw"
 
         cmd_handler = CommandHandler(
             agent_name="AI Arb",

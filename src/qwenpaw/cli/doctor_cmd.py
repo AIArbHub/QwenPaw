@@ -676,7 +676,8 @@ def run_doctor_checks(
         failed = True
         click.echo(click.style("FAIL", fg="red") + f" — {detail}", err=True)
         _doctor_fix_hint(
-            "Fix: set `AIARB_WORKING_DIR` (or legacy `QWENPAW_WORKING_DIR`/`COPAW_WORKING_DIR`) "
+            "Fix: set `AIARB_WORKING_DIR` "
+            "(or legacy `QWENPAW_WORKING_DIR`/`COPAW_WORKING_DIR`) "
             "or run `qwenpaw init`. "
             "Preview the plan (no writes): `qwenpaw doctor fix --dry-run "
             "--only ensure-working-dir` if the parent path exists and is "

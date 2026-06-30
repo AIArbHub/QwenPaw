@@ -2605,13 +2605,14 @@ def _ensure_builtin_arbitrator(config: "Config"):
     the user's workspace and registers it in *config.agents.profiles*.
     """
     import importlib.resources
+    import importlib.resources.abc
+
+    from .utils import save_config
 
     arbitrator_id = "arbitrator"
     # Skip if already created
     if arbitrator_id in config.agents.profiles:
         return
-
-    from pathlib import Path
 
     arbitrator_workspace = Path(f"{WORKING_DIR}/workspaces/{arbitrator_id}").expanduser()
     if arbitrator_workspace.exists():
