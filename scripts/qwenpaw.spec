@@ -168,7 +168,7 @@ cli_exe = EXE(
     cli_pyz,
     cli.scripts,
     [],
-    name="qwenpaw",
+    name="aiarb",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -187,5 +187,5 @@ coll = COLLECT(
     cli.datas,
     strip=False,
     upx=False,
-    name="QwenPaw",
+    name="ai-arb-backend",
 )

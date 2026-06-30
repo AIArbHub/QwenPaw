@@ -83,8 +83,9 @@ jobs:
           set -euo pipefail
           mkdir -p dist/verify-legacy
           unzip -q dist/AI-Arb-*-macOS.zip -d dist/verify-legacy
-          APP="$(find dist/verify-legacy -maxdepth 2 -name '*.app' -type d | head -1)"
+          APP="$(find dist/verify-legacy -maxdepth 2 -name '*.app' -type d -not -path '*__MACOSX*' | head -1)"
           if [ -z "$APP" ]; then echo "::error::AI Arb.app not found"; exit 1; fi
+          echo "Found app at: $APP"
           ENV_DIR="$APP/Contents/Resources/env"
           PYTHON="$ENV_DIR/bin/python"
           (cd "$ENV_DIR" && ./bin/conda-unpack 2>/dev/null || true)
