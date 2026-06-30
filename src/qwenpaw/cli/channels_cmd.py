@@ -435,7 +435,7 @@ def configure_wechat(current_config: WeChatConfig) -> WeChatConfig:
     bot_token_file = click.prompt(
         "bot_token file path",
         default=(
-            current_config.bot_token_file or "~/.qwenpaw/wechat_bot_token"
+            current_config.bot_token_file or "~/.aiarb/wechat_bot_token"
         ),
         type=str,
     )

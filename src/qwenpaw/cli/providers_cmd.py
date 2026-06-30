@@ -787,7 +787,7 @@ def list_local_cmd() -> None:
 
     if not models:
         click.echo("No local models downloaded.")
-        click.echo("Use 'qwenpaw models download <repo_id>' to download one.")
+        click.echo("Use 'aiarb models download <repo_id>' to download one.")
         return
 
     click.echo(f"\n=== Local Models ({len(models)}) ===")

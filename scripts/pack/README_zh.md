@@ -52,7 +52,7 @@ PYTHONNOUSERSITE=1 PYTHONPATH= PYTHONHOME="$APP_ENV" "$APP_ENV/bin/python" -m qw
 
 `PYTHONNOUSERSITE=1` 可防止 Python 加载 `~/.local/lib/pythonX.Y/site-packages` 中的包，避免与打包环境冲突。所有标准输出和错误（包括 Python traceback）都会打在终端里；可加 `--log-level debug` 查看更详细日志。
 
-若**双击** .app 没有任何窗口出现，启动器会把 stderr/stdout 写入 `~/.qwenpaw/desktop.log`，可打开该文件查看报错。
+若**双击** .app 没有任何窗口出现，启动器会把 stderr/stdout 写入 `~/.aiarb/desktop.log`，可打开该文件查看报错。
 
 首次打开时，macOS 可能弹出「请求访问桌面的文件」：请点**允许**，否则部分功能可能不可用或窗口会关闭。
 

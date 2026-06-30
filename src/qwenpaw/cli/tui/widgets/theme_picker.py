@@ -54,7 +54,7 @@ class ThemePicker(ModalScreen[ThemeInfo | str | None]):
 
     def compose(self) -> ComposeResult:
         with Vertical(id="theme-modal"):
-            yield Static("Pick a QwenPaw vibe", id="theme-title")
+            yield Static("Pick an AI Arb vibe", id="theme-title")
             yield Input(
                 placeholder="Search or type a custom theme prompt",
                 id="theme-search",

@@ -270,7 +270,7 @@ def _migrate_workspace_items_from_source(
     """Migrate all workspace items from a single source directory.
 
     Args:
-        source_dir: Source directory (e.g., ~/.qwenpaw or WORKING_DIR)
+        source_dir: Source directory (e.g., ~/.aiarb or WORKING_DIR)
         target_dir: Target directory (e.g., workspaces/default/)
         migrated_items: List to append migrated item names
     """

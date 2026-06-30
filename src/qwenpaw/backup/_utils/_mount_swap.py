@@ -27,9 +27,9 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-OLD_CONTENT_DIR_NAME = ".qwenpaw_restore_old"
-STATE_FILE_NAME = ".qwenpaw_restore_state"
-STATE_TMP_FILE_NAME = ".qwenpaw_restore_state.tmp"
+OLD_CONTENT_DIR_NAME = ".aiarb_restore_old"
+STATE_FILE_NAME = ".aiarb_restore_state"
+STATE_TMP_FILE_NAME = ".aiarb_restore_state.tmp"
 
 STATE_EVACUATING_OLD = "evacuating_old"
 STATE_INSTALLING_NEW = "installing_new"

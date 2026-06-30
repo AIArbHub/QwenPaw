@@ -8,7 +8,7 @@ cd "$REPO_ROOT"
 PACK_DIR="$(cd "$(dirname "$0")" && pwd)"
 DIST="${DIST:-dist}"
 ARCHIVE="${DIST}/qwenpaw-env.tar.gz"
-APP_NAME="QwenPaw"
+APP_NAME="AI Arb"
 APP_DIR="${DIST}/${APP_NAME}.app"
 
 echo "== Building wheel (includes console frontend) =="
@@ -56,11 +56,11 @@ if [[ -x "${APP_DIR}/Contents/Resources/env/bin/conda-unpack" ]]; then
   (cd "${APP_DIR}/Contents/Resources/env" && ./bin/conda-unpack)
 fi
 
-# Launcher: force packed env; when no TTY log to ~/.qwenpaw/desktop.log (no exec so we see errors)
+# Launcher: force packed env; when no TTY log to ~/.aiarb/desktop.log (no exec so we see errors)
 cat > "${APP_DIR}/Contents/MacOS/${APP_NAME}" << 'LAUNCHER'
 #!/usr/bin/env bash
 ENV_DIR="$(cd "$(dirname "$0")/../Resources/env" && pwd)"
-LOG="$HOME/.qwenpaw/desktop.log"
+LOG="$HOME/.aiarb/desktop.log"
 unset PYTHONPATH
 export PYTHONHOME="$ENV_DIR"
 export PYTHONNOUSERSITE=1
@@ -88,8 +88,8 @@ cd "$HOME" || true
 LOG_LEVEL="${QWENPAW_LOG_LEVEL:-info}"
 
 if [ ! -t 2 ]; then
-  mkdir -p "$HOME/.qwenpaw"
-  { echo "=== $(date) QwenPaw starting ==="
+  mkdir -p "$HOME/.aiarb"
+  { echo "=== $(date) AI Arb starting ==="
     echo "ENV_DIR=$ENV_DIR"
     echo "Python: $ENV_DIR/bin/python (exists=$([ -x "$ENV_DIR/bin/python" ] && echo yes || echo no))"
     echo "PATH=$PATH"
@@ -109,7 +109,7 @@ if [ ! -t 2 ]; then
     echo "ERROR: python not executable at $ENV_DIR/bin/python"
     exit 1
   fi
-  if [ ! -f "$HOME/.qwenpaw/config.json" ]; then
+  if [ ! -f "$HOME/.aiarb/config.json" ]; then
     "$ENV_DIR/bin/python" -u -m qwenpaw init --defaults --accept-security
   fi
   echo "Launching python with log-level=$LOG_LEVEL..."
@@ -124,7 +124,7 @@ if [ ! -t 2 ]; then
   echo "--- Full log: $LOG (scroll up for Python traceback if app exited early) ---"
   exit $EXIT
 fi
-if [ ! -f "$HOME/.qwenpaw/config.json" ]; then
+if [ ! -f "$HOME/.aiarb/config.json" ]; then
   "$ENV_DIR/bin/python" -u -m qwenpaw init --defaults --accept-security
 fi
 exec "$ENV_DIR/bin/python" -u -m qwenpaw desktop --log-level "$LOG_LEVEL"
@@ -164,13 +164,13 @@ cat > "${APP_DIR}/Contents/Info.plist" << INFOPLIST
 <plist version="1.0">
 <dict>
   <key>CFBundleExecutable</key><string>${APP_NAME}</string>
-  <key>CFBundleIdentifier</key><string>com.qwenpaw.desktop</string>
+  <key>CFBundleIdentifier</key><string>io.aiarb.desktop</string>
   <key>CFBundleName</key><string>${APP_NAME}</string>
   <key>CFBundleVersion</key><string>${VERSION}</string>
   <key>CFBundleShortVersionString</key><string>${VERSION}</string>
   ${ICON_PLIST}<key>NSHighResolutionCapable</key><true/>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
-  <key>NSDesktopFolderUsageDescription</key><string>QwenPaw may access files in your Desktop folder if you use file-related features. You can choose Don'\''t Allow; the app will still run with limited file access.</string>
+  <key>NSDesktopFolderUsageDescription</key><string>AI Arb may access files in your Desktop folder if you use file-related features. You can choose Don'\''t Allow; the app will still run with limited file access.</string>
 </dict>
 </plist>
 INFOPLIST

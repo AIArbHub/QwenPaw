@@ -1950,7 +1950,7 @@
       "title": "Novo Versao available: v{{version}}",
       "viewReleases": "Visualizar Releases",
       "installDesktopUpdate": "Atualizar agora",
-      "desktopInstallHint": "QwenPaw Desktop {{version}} está pronto para instalar. O aplicativo será reiniciado após a atualização.",
+      "desktopInstallHint": "AI Arb Desktop {{version}} está pronto para instalar. O aplicativo será reiniciado após a atualização.",
       "checking": "Verificando atualizações…",
       "checkingHint": "Confirmando a versão mais recente",
       "downloading": "Baixando atualização",

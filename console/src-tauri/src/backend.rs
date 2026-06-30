@@ -132,7 +132,7 @@ pub(crate) fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Erro
             .targets([
                 Target::new(TargetKind::Stdout),
                 Target::new(TargetKind::LogDir {
-                    file_name: Some("qwenpaw-desktop".into()),
+                    file_name: Some("ai-arb-desktop".into()),
                 }),
             ])
             .level(log::LevelFilter::Info)

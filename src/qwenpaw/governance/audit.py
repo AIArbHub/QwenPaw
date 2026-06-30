@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """AuditLog — Audit records for each assert_policy + audit call.
 
-Storage: single-file SQLite (~/.qwenpaw/audit.db), global singleton.
+Storage: single-file SQLite (~/.aiarb/audit.db), global singleton.
 - record() writes immediately, no in-memory buffer
 - query() supports filtering by workspace / agent / tool / decision /
   time range, with pagination

@@ -91,7 +91,7 @@
       "title": "New version available: v{{version}}",
       "viewReleases": "View Releases",
       "installDesktopUpdate": "Update Now",
-      "desktopInstallHint": "QwenPaw Desktop {{version}} is ready to install. The app will restart after the update.",
+      "desktopInstallHint": "AI Arb Desktop {{version}} is ready to install. The app will restart after the update.",
       "checking": "Checking for updates…",
       "checkingHint": "Confirming the latest release",
       "downloading": "Downloading update",

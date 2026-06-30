@@ -21,7 +21,7 @@ param(
 $ErrorActionPreference = "SilentlyContinue"
 
 $root = $InstallDir.TrimEnd("\") + "\"
-$imageNames = @("qwenpaw-backend.exe", "qwenpaw.exe")
+$imageNames = @("ai-arb-backend.exe", "qwenpaw.exe")
 
 function Get-ScopedBackendIds {
     $procs = foreach ($name in $imageNames) {

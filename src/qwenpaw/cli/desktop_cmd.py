@@ -175,7 +175,7 @@ def desktop_cmd(
     port_file = str(WORKING_DIR / "desktop_port")
     port, held_socket = get_stable_port(port_file, host)
     url = f"http://{host}:{port}"
-    click.echo(f"Starting QwenPaw app on {url} (port {port})")
+    click.echo(f"Starting AI Arb app on {url} (port {port})")
     logger.info("Server subprocess starting...")
 
     env = os.environ.copy()
@@ -243,7 +243,7 @@ def desktop_cmd(
                 logger.info("HTTP ready, creating webview window...")
                 api = WebViewAPI()
                 webview.create_window(
-                    "QwenPaw Desktop",
+                    "AI Arb Desktop",
                     url,
                     width=1280,
                     height=800,

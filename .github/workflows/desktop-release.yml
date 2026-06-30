@@ -1,9 +1,9 @@
-# Build QwenPaw Desktop:
+# Build AI Arb Desktop:
 # - Legacy desktop: Windows (conda-pack + NSIS), macOS (conda-pack -> .app)
 # - Tauri desktop: Windows/macOS app bundles with PyInstaller backend sidecar
 # Runs on release publish and manual dispatch.
 
-name: QwenPaw Desktop Build
+name: AI Arb Desktop Build
 
 on:
   release:
@@ -106,11 +106,98 @@ jobs:
 
       - name: Verify desktop (Legacy Windows)
         timeout-minutes: 10
-        uses: ./.github/actions/verify-legacy-windows
-        with:
-          dashscope-api-key: ${{ secrets.QWENPAW_DASHSCOPE_API_KEY }}
-          version: ${{ steps.version.outputs.version }}
-          runner-python: ${{ steps.runner-python.outputs.python-path }}
+        shell: pwsh
+        env:
+          QWENPAW_DASHSCOPE_API_KEY: ${{ secrets.QWENPAW_DASHSCOPE_API_KEY }}
+          RUNNER_PYTHON: ${{ steps.runner-python.outputs.python-path }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          # 1. Locate the freshly built NSIS installer.
+          $installer = Get-ChildItem dist/AI-Arb-Setup-*.exe |
+            Select-Object -First 1
+          if (-not $installer) { throw "No AI-Arb-Setup-*.exe found in dist/" }
+
+          # 2. Silent install to a deterministic ASCII path under RUNNER_TEMP
+          #    so we don't need to reverse-lookup the install location.
+          #    NSIS requires /D=<path> to be the LAST argument and unquoted.
+          $installDir = Join-Path $env:RUNNER_TEMP "AI-Arb-Verify"
+          if (Test-Path $installDir) { Remove-Item -Recurse -Force $installDir }
+          $nsisArgs = "/S /D=$installDir"
+          Write-Host "Installer: $($installer.FullName)"
+          Write-Host "Install dir: $installDir"
+          Start-Process -FilePath $installer.FullName -ArgumentList $nsisArgs -Wait
+
+          # 3. NSIS runs asynchronously even with -Wait; poll for python.exe.
+          $bundledPython = Join-Path $installDir "python.exe"
+          $deadline = (Get-Date).AddSeconds(120)
+          while (-not (Test-Path $bundledPython)) {
+            if ((Get-Date) -gt $deadline) {
+              throw "python.exe not present at $bundledPython after 120s"
+            }
+            Start-Sleep -Seconds 2
+          }
+          Write-Host "Bundled interpreter located: $bundledPython"
+
+          # 4. Initialise workspace and start the desktop backend in the
+          #    background. Use the bundled python so dependencies match the
+          #    actual installed env users will use.
+          $env:PYTHONNOUSERSITE = "1"
+          & $bundledPython -m qwenpaw init --defaults --accept-security
+          if ($LASTEXITCODE -ne 0) { throw "qwenpaw init failed ($LASTEXITCODE)" }
+
+          # Skip the BootstrapHook onboarding script so the verifier
+          # can drive the agent in normal QA mode (see
+          # scripts/verify/desktop_verify.py::verify_ui_chat docstring).
+          $bootstrapMd = Join-Path $env:USERPROFILE ".qwenpaw\workspaces\default\BOOTSTRAP.md"
+          if (Test-Path $bootstrapMd) { Remove-Item -Force $bootstrapMd }
+
+          $stdoutLog = Join-Path $env:RUNNER_TEMP "qwenpaw-desktop-stdout.log"
+          $stderrLog = Join-Path $env:RUNNER_TEMP "qwenpaw-desktop-stderr.log"
+          $proc = Start-Process -PassThru -NoNewWindow `
+            -FilePath $bundledPython `
+            -ArgumentList "-m","qwenpaw","app","--host","127.0.0.1","--port","8088" `
+            -RedirectStandardOutput $stdoutLog `
+            -RedirectStandardError $stderrLog
+          $proc.Id | Out-File -FilePath (Join-Path $env:RUNNER_TEMP "qwenpaw-desktop.pid") -Encoding ascii
+
+          # 5. Wait for /api/version (~120s budget).
+          $ready = $false
+          for ($i = 1; $i -le 60; $i++) {
+            try {
+              $resp = Invoke-WebRequest -Uri http://127.0.0.1:8088/api/version `
+                -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
+              if ($resp.StatusCode -eq 200) {
+                Write-Host "Server up after ~$([int]($i*2))s"
+                $ready = $true
+                break
+              }
+            } catch { Start-Sleep -Seconds 2 }
+          }
+          if (-not $ready) {
+            Write-Host "::error::Server did not respond within 120s"
+            exit 1
+          }
+
+          # 6. Cross-version sanity: backend version must match source.
+          $expected = "${{ steps.version.outputs.version }}"
+          $payload = (Invoke-WebRequest -Uri http://127.0.0.1:8088/api/version `
+            -UseBasicParsing -TimeoutSec 10).Content | ConvertFrom-Json
+          $actual = $payload.version
+          if ($actual -ne $expected) {
+            Write-Host "::error::Desktop version mismatch: expected=$expected actual=$actual"
+            exit 1
+          }
+
+          # 7. Run the shared verifier with the runner's python (where
+          #    Playwright + Chromium are installed) so the installed env
+          #    stays untouched.
+          & $env:RUNNER_PYTHON scripts/verify/desktop_verify.py `
+            --base-url http://127.0.0.1:8088 `
+            --ui-mode legacy `
+            --headed
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Stop desktop server (Legacy Windows)
         if: always()
@@ -133,7 +220,7 @@ jobs:
           }
 
           # Uninstall to leave the runner clean.
-          $installDir = Join-Path $env:RUNNER_TEMP "QwenPaw-Verify"
+          $installDir = Join-Path $env:RUNNER_TEMP "AI-Arb-Verify"
           $uninstaller = Join-Path $installDir "Uninstall.exe"
           if (Test-Path $uninstaller) {
             Start-Process -FilePath $uninstaller -ArgumentList "/S" -Wait `
@@ -164,8 +251,8 @@ jobs:
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
-          name: QwenPaw-Desktop-Windows-${{ steps.version.outputs.version }}
-          path: dist/QwenPaw-Setup-*.exe
+          name: AI-Arb-Desktop-Windows-${{ steps.version.outputs.version }}
+          path: dist/AI-Arb-Setup-*.exe
 
   build-macos:
     needs: [check-release-secrets]
@@ -226,10 +313,10 @@ jobs:
 
           # 1. Unpack the freshly built zip into an isolated verify dir.
           mkdir -p dist/verify-legacy
-          unzip -q dist/QwenPaw-*-macOS.zip -d dist/verify-legacy
+          unzip -q dist/AI-Arb-*-macOS.zip -d dist/verify-legacy
           APP="$(find dist/verify-legacy -maxdepth 2 -name '*.app' -type d | head -1)"
           if [ -z "$APP" ]; then
-            echo "::error::QwenPaw.app not found inside zip"
+            echo "::error::AI Arb.app not found inside zip"
             exit 1
           fi
           ENV_DIR="$APP/Contents/Resources/env"
@@ -323,8 +410,8 @@ jobs:
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
         with:
-          name: QwenPaw-Desktop-macOS-${{ steps.version.outputs.version }}
-          path: dist/QwenPaw-*.zip
+          name: AI-Arb-Desktop-macOS-${{ steps.version.outputs.version }}
+          path: dist/AI-Arb-*.zip
 
   build-tauri-windows:
     needs: [check-release-secrets]
@@ -399,7 +486,7 @@ jobs:
             --bundle-dir console/src-tauri/target/release/bundle/nsis `
             --pattern '*-setup.exe' `
             --target windows-x86_64 `
-            --output "dist/QwenPaw-Tauri-${{ steps.version.outputs.version }}-Windows-setup.exe" `
+            --output "dist/AI-Arb-Tauri-${{ steps.version.outputs.version }}-Windows-setup.exe" `
             --pubkey-config console/src-tauri/tauri.version.conf.json
 
       - name: Verify desktop (Tauri Windows)
@@ -414,14 +501,14 @@ jobs:
         run: |
           $ErrorActionPreference = "Continue"
           # Kill the Tauri shell and its sidecar subprocess by name.
-          Get-Process -Name "qwenpaw-desktop" -ErrorAction SilentlyContinue |
+          Get-Process -Name "ai-arb-desktop" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
-          Get-Process -Name "qwenpaw-backend" -ErrorAction SilentlyContinue |
+          Get-Process -Name "ai-arb-backend" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
           Start-Sleep -Seconds 2
-          Get-Process -Name "qwenpaw-desktop" -ErrorAction SilentlyContinue |
+          Get-Process -Name "ai-arb-desktop" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
-          Get-Process -Name "qwenpaw-backend" -ErrorAction SilentlyContinue |
+          Get-Process -Name "ai-arb-backend" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
           exit 0
 
@@ -449,8 +536,8 @@ jobs:
       - name: Upload Tauri Windows artifact
         uses: actions/upload-artifact@v4
         with:
-          name: QwenPaw-Desktop-Tauri-Windows-${{ steps.version.outputs.version }}
-          path: dist/QwenPaw-Tauri-*-Windows-setup.exe
+          name: AI-Arb-Desktop-Tauri-Windows-${{ steps.version.outputs.version }}
+          path: dist/AI-Arb-Tauri-*-Windows-setup.exe
 
       - name: Upload Tauri Windows updater metadata
         if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.upload_to_oss == 'true')
@@ -458,7 +545,7 @@ jobs:
         with:
           name: tauri-updater-meta-windows
           path: |
-            dist/QwenPaw-Tauri-*-Windows-setup.exe.sig
+            dist/AI-Arb-Tauri-*-Windows-setup.exe.sig
             dist/tauri-windows-x86_64-updater.json
 
   build-tauri-macos:
@@ -533,11 +620,11 @@ jobs:
         if: always()
         run: |
           # Kill the Tauri shell and its sidecar subprocess.
-          pkill -f "QwenPaw Desktop" 2>/dev/null || true
-          pkill -f "qwenpaw-backend" 2>/dev/null || true
+          pkill -f "AI Arb Desktop" 2>/dev/null || true
+          pkill -f "ai-arb-backend" 2>/dev/null || true
           sleep 2
-          pkill -9 -f "QwenPaw Desktop" 2>/dev/null || true
-          pkill -9 -f "qwenpaw-backend" 2>/dev/null || true
+          pkill -9 -f "AI Arb Desktop" 2>/dev/null || true
+          pkill -9 -f "ai-arb-backend" 2>/dev/null || true
           # Best-effort: kill anything sitting on the detected port.
           if [ -n "${BASE_URL:-}" ]; then
             PORT="${BASE_URL##*:}"
@@ -569,8 +656,8 @@ jobs:
       - name: Upload Tauri macOS artifact
         uses: actions/upload-artifact@v4
         with:
-          name: QwenPaw-Desktop-Tauri-macOS-${{ steps.version.outputs.version }}
-          path: dist/QwenPaw-Tauri-*-macOS.zip
+          name: AI-Arb-Desktop-Tauri-macOS-${{ steps.version.outputs.version }}
+          path: dist/AI-Arb-Tauri-*-macOS.zip
 
       - name: Upload Tauri macOS updater metadata
         if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.upload_to_oss == 'true')
@@ -578,8 +665,8 @@ jobs:
         with:
           name: tauri-updater-meta-macos
           path: |
-            dist/QwenPaw-Tauri-*-macOS.app.tar.gz
-            dist/QwenPaw-Tauri-*-macOS.app.tar.gz.sig
+            dist/AI-Arb-Tauri-*-macOS.app.tar.gz
+            dist/AI-Arb-Tauri-*-macOS.app.tar.gz.sig
             dist/tauri-darwin-*-updater.json
 
   upload-release:
@@ -609,15 +696,15 @@ jobs:
 
       - name: Move artifacts to root for upload
         run: |
-          mv QwenPaw-Desktop-Windows-*/QwenPaw-Setup-*.exe . 2>/dev/null || true
-          mv QwenPaw-Desktop-macOS-*/QwenPaw-*.zip . 2>/dev/null || true
-          mv QwenPaw-Desktop-Tauri-Windows-*/QwenPaw-Tauri-*-Windows-setup.exe . 2>/dev/null || true
-          mv QwenPaw-Desktop-Tauri-macOS-*/QwenPaw-Tauri-*-macOS.zip . 2>/dev/null || true
+          mv AI-Arb-Desktop-Windows-*/AI-Arb-Setup-*.exe . 2>/dev/null || true
+          mv AI-Arb-Desktop-macOS-*/AI-Arb-*.zip . 2>/dev/null || true
+          mv AI-Arb-Desktop-Tauri-Windows-*/AI-Arb-Tauri-*-Windows-setup.exe . 2>/dev/null || true
+          mv AI-Arb-Desktop-Tauri-macOS-*/AI-Arb-Tauri-*-macOS.zip . 2>/dev/null || true
           # Updater metadata from internal artifacts
-          mv tauri-updater-meta-windows/QwenPaw-Tauri-*-Windows-setup.exe.sig . 2>/dev/null || true
+          mv tauri-updater-meta-windows/AI-Arb-Tauri-*-Windows-setup.exe.sig . 2>/dev/null || true
           mv tauri-updater-meta-windows/tauri-windows-*-updater.json . 2>/dev/null || true
-          mv tauri-updater-meta-macos/QwenPaw-Tauri-*-macOS.app.tar.gz . 2>/dev/null || true
-          mv tauri-updater-meta-macos/QwenPaw-Tauri-*-macOS.app.tar.gz.sig . 2>/dev/null || true
+          mv tauri-updater-meta-macos/AI-Arb-Tauri-*-macOS.app.tar.gz . 2>/dev/null || true
+          mv tauri-updater-meta-macos/AI-Arb-Tauri-*-macOS.app.tar.gz.sig . 2>/dev/null || true
           mv tauri-updater-meta-macos/tauri-darwin-*-updater.json . 2>/dev/null || true
 
       - name: Generate Tauri updater manifest
@@ -629,24 +716,24 @@ jobs:
           for f in tauri-windows-*-updater.json tauri-darwin-*-updater.json; do
             [ -f "$f" ] && metadata_args+=(--metadata "$f")
           done
-          NOTES="${RELEASE_BODY:-QwenPaw Desktop ${{ steps.version.outputs.version }}}"
+          NOTES="${RELEASE_BODY:-AI Arb Desktop ${{ steps.version.outputs.version }}}"
           python scripts/pack-tauri/generate_update_manifest.py manifest \
             --version "${{ steps.version.outputs.version }}" \
             --base-url "https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}" \
             "${metadata_args[@]}" \
             --notes "$NOTES" \
-            --output qwenpaw-tauri-latest.json
+            --output AI-Arb-Tauri-latest.json
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            QwenPaw-Setup-*.exe
-            QwenPaw-[0-9]*-macOS.zip
-            QwenPaw-Tauri-*-Windows-setup.exe
-            QwenPaw-Tauri-*-macOS.zip
-            QwenPaw-Tauri-*-macOS.app.tar.gz
-            qwenpaw-tauri-latest.json
+            AI-Arb-Setup-*.exe
+            AI-Arb-[0-9]*-macOS.zip
+            AI-Arb-Tauri-*-Windows-setup.exe
+            AI-Arb-Tauri-*-macOS.zip
+            AI-Arb-Tauri-*-macOS.app.tar.gz
+            AI-Arb-Tauri-latest.json
           fail-on-unmatched-files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -701,10 +788,10 @@ jobs:
             -L CH
 
       - name: Process and upload Windows artifacts
-        if: hashFiles('QwenPaw-Desktop-Windows-*/*.exe') != ''
+        if: hashFiles('AI-Arb-Desktop-Windows-*/*.exe') != ''
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          WIN_EXE=$(find QwenPaw-Desktop-Windows-* -name "QwenPaw-Setup-*.exe" | head -1)
+          WIN_EXE=$(find AI-Arb-Desktop-Windows-* -name "AI-Arb-Setup-*.exe" | head -1)
 
           if [ -z "$WIN_EXE" ]; then
             echo "No Windows exe found, skipping"
@@ -723,35 +810,35 @@ jobs:
 
           # Upload file (versioned)
           ossutil cp "$WIN_EXE" \
-            "oss://${OSS_BUCKET}/files/apps/desktop/win/QwenPaw-Setup-${VERSION}.exe" \
+            "oss://${OSS_BUCKET}/files/apps/desktop/win/AI-Arb-Setup-${VERSION}.exe" \
             --acl public-read \
             --force
 
           # Upload file (latest)
           ossutil cp "$WIN_EXE" \
-            "oss://${OSS_BUCKET}/files/apps/desktop/win/QwenPaw-Setup-latest.exe" \
+            "oss://${OSS_BUCKET}/files/apps/desktop/win/AI-Arb-Setup-latest.exe" \
             --acl public-read \
             --force
 
           # Upload metadata (versioned)
           ossutil cp win-metadata.json \
-            "oss://${OSS_BUCKET}/metadata/apps/desktop/win/QwenPaw-Setup-${VERSION}.exe.json" \
+            "oss://${OSS_BUCKET}/metadata/apps/desktop/win/AI-Arb-Setup-${VERSION}.exe.json" \
             --acl public-read \
             --force
 
           # Upload metadata (latest)
           ossutil cp win-metadata.json \
-            "oss://${OSS_BUCKET}/metadata/apps/desktop/win/QwenPaw-Setup-latest.exe.json" \
+            "oss://${OSS_BUCKET}/metadata/apps/desktop/win/AI-Arb-Setup-latest.exe.json" \
             --acl public-read \
             --force
 
           echo "✓ Windows artifacts uploaded"
 
       - name: Process and upload macOS artifacts
-        if: hashFiles('QwenPaw-Desktop-macOS-*/*.zip') != ''
+        if: hashFiles('AI-Arb-Desktop-macOS-*/*.zip') != ''
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          MAC_ZIP=$(find QwenPaw-Desktop-macOS-* -name "QwenPaw-*.zip" | head -1)
+          MAC_ZIP=$(find AI-Arb-Desktop-macOS-* -name "AI-Arb-*.zip" | head -1)
 
           if [ -z "$MAC_ZIP" ]; then
             echo "No macOS zip found, skipping"
@@ -770,32 +857,32 @@ jobs:
 
           # Upload file (versioned)
           ossutil cp "$MAC_ZIP" \
-            "oss://${OSS_BUCKET}/files/apps/desktop/mac/QwenPaw-${VERSION}-macOS.zip" \
+            "oss://${OSS_BUCKET}/files/apps/desktop/mac/AI-Arb-${VERSION}-macOS.zip" \
             --acl public-read \
             --force
 
           # Upload file (latest)
           ossutil cp "$MAC_ZIP" \
-            "oss://${OSS_BUCKET}/files/apps/desktop/mac/QwenPaw-latest-macOS.zip" \
+            "oss://${OSS_BUCKET}/files/apps/desktop/mac/AI-Arb-latest-macOS.zip" \
             --acl public-read \
             --force
 
           # Upload metadata (versioned)
           ossutil cp mac-metadata.json \
-            "oss://${OSS_BUCKET}/metadata/apps/desktop/mac/QwenPaw-${VERSION}-macOS.zip.json" \
+            "oss://${OSS_BUCKET}/metadata/apps/desktop/mac/AI-Arb-${VERSION}-macOS.zip.json" \
             --acl public-read \
             --force
 
           # Upload metadata (latest)
           ossutil cp mac-metadata.json \
-            "oss://${OSS_BUCKET}/metadata/apps/desktop/mac/QwenPaw-latest-macOS.zip.json" \
+            "oss://${OSS_BUCKET}/metadata/apps/desktop/mac/AI-Arb-latest-macOS.zip.json" \
             --acl public-read \
             --force
 
           echo "✓ macOS artifacts uploaded"
 
       - name: Process and upload Tauri artifacts
-        if: hashFiles('QwenPaw-Desktop-Tauri-*/*') != ''
+        if: hashFiles('AI-Arb-Desktop-Tauri-*/*') != ''
         run: |
           VERSION="${{ steps.version.outputs.version }}"
 
@@ -841,19 +928,19 @@ jobs:
           }
 
           upload_tauri_artifact \
-            "QwenPaw-Desktop-Tauri-Windows-*" \
-            "QwenPaw-Tauri-*-Windows-setup.exe" \
+            "AI-Arb-Desktop-Tauri-Windows-*" \
+            "AI-Arb-Tauri-*-Windows-setup.exe" \
             "win-tauri" \
-            "QwenPaw-Tauri-${VERSION}-Windows-setup.exe" \
-            "QwenPaw-Tauri-latest-Windows-setup.exe" \
+            "AI-Arb-Tauri-${VERSION}-Windows-setup.exe" \
+            "AI-Arb-Tauri-latest-Windows-setup.exe" \
             "win-tauri-metadata.json"
 
           upload_tauri_artifact \
-            "QwenPaw-Desktop-Tauri-macOS-*" \
-            "QwenPaw-Tauri-*-macOS.zip" \
+            "AI-Arb-Desktop-Tauri-macOS-*" \
+            "AI-Arb-Tauri-*-macOS.zip" \
             "mac-tauri" \
-            "QwenPaw-Tauri-${VERSION}-macOS.zip" \
-            "QwenPaw-Tauri-latest-macOS.zip" \
+            "AI-Arb-Tauri-${VERSION}-macOS.zip" \
+            "AI-Arb-Tauri-latest-macOS.zip" \
             "mac-tauri-metadata.json"
 
       - name: Upload Tauri macOS updater archive to OSS
@@ -861,13 +948,13 @@ jobs:
         if: hashFiles('tauri-updater-meta-macos/*.app.tar.gz') != ''
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          APP_TAR_GZ=$(find tauri-updater-meta-macos -name "QwenPaw-Tauri-*-macOS.app.tar.gz" | head -1)
+          APP_TAR_GZ=$(find tauri-updater-meta-macos -name "AI-Arb-Tauri-*-macOS.app.tar.gz" | head -1)
           if [ -z "$APP_TAR_GZ" ]; then
             echo "No macOS .app.tar.gz found, skipping"
             exit 0
           fi
           ossutil cp "$APP_TAR_GZ" \
-            "oss://${OSS_BUCKET}/files/apps/desktop/mac-tauri/QwenPaw-Tauri-${VERSION}-macOS.app.tar.gz" \
+            "oss://${OSS_BUCKET}/files/apps/desktop/mac-tauri/AI-Arb-Tauri-${VERSION}-macOS.app.tar.gz" \
             --acl public-read \
             --force
 
@@ -877,7 +964,7 @@ jobs:
           # The manifest generator expects the artifact binary alongside the
           # sidecar JSON.  After artifact splitting the exe lives in a separate
           # artifact directory, so we symlink it into the meta directory.
-          for f in QwenPaw-Desktop-Tauri-Windows-*/QwenPaw-Tauri-*-Windows-setup.exe; do
+          for f in AI-Arb-Desktop-Tauri-Windows-*/AI-Arb-Tauri-*-Windows-setup.exe; do
             [ -f "$f" ] && ln -sf "../$f" tauri-updater-meta-windows/ 2>/dev/null || true
           done
 
@@ -901,7 +988,7 @@ jobs:
             echo "No Tauri updater sidecars found, skipping OSS manifest"
             exit 0
           fi
-          NOTES="${RELEASE_BODY:-QwenPaw Desktop ${VERSION}}"
+          NOTES="${RELEASE_BODY:-AI Arb Desktop ${VERSION}}"
           python scripts/pack-tauri/generate_update_manifest.py manifest \
             --version "$VERSION" \
             --base-url "$OSS_BASE" \
@@ -909,9 +996,9 @@ jobs:
             --target-base "darwin-aarch64=${OSS_BASE}/mac-tauri" \
             "${metadata_args[@]}" \
             --notes "$NOTES" \
-            --output qwenpaw-tauri-latest-oss.json
-          ossutil cp qwenpaw-tauri-latest-oss.json \
-            "oss://${OSS_BUCKET}/metadata/qwenpaw-tauri-latest.json" \
+            --output AI-Arb-Tauri-latest-oss.json
+          ossutil cp AI-Arb-Tauri-latest-oss.json \
+            "oss://${OSS_BUCKET}/metadata/AI-Arb-Tauri-latest.json" \
             --acl public-read \
             --force
 
@@ -933,7 +1020,7 @@ jobs:
           # Merge Windows metadata if exists
           if [ -f "win-metadata.json" ]; then
             python scripts/pack/generate_oss_metadata.py \
-              --file "$(find QwenPaw-Desktop-Windows-* -name 'QwenPaw-Setup-*.exe' | head -1)" \
+              --file "$(find AI-Arb-Desktop-Windows-* -name 'AI-Arb-Setup-*.exe' | head -1)" \
               --product desktop \
               --platform win \
               --version "$VERSION" \
@@ -945,7 +1032,7 @@ jobs:
           # Merge macOS metadata if exists
           if [ -f "mac-metadata.json" ]; then
             python scripts/pack/generate_oss_metadata.py \
-              --file "$(find QwenPaw-Desktop-macOS-* -name 'QwenPaw-*.zip' | head -1)" \
+              --file "$(find AI-Arb-Desktop-macOS-* -name 'AI-Arb-*.zip' | head -1)" \
               --product desktop \
               --platform mac \
               --version "$VERSION" \
@@ -974,13 +1061,13 @@ jobs:
 
           merge_tauri_metadata \
             "win-tauri-metadata.json" \
-            "QwenPaw-Desktop-Tauri-Windows-*" \
-            "QwenPaw-Tauri-*-Windows-setup.exe" \
+            "AI-Arb-Desktop-Tauri-Windows-*" \
+            "AI-Arb-Tauri-*-Windows-setup.exe" \
             "win-tauri"
           merge_tauri_metadata \
             "mac-tauri-metadata.json" \
-            "QwenPaw-Desktop-Tauri-macOS-*" \
-            "QwenPaw-Tauri-*-macOS.zip" \
+            "AI-Arb-Desktop-Tauri-macOS-*" \
+            "AI-Arb-Tauri-*-macOS.zip" \
             "mac-tauri"
 
           # Upload updated desktop/index.json

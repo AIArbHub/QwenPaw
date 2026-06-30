@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/fork", tags=["fork"])
 
-_WORKTREE_BASE = ".qwenpaw/worktrees"
+_WORKTREE_BASE = ".aiarb/worktrees"
 
 _LOCALHOST_ADDRS = {"127.0.0.1", "::1", "localhost"}
 

@@ -76,12 +76,39 @@ jobs:
           python-version: "3.10"
 
       - name: Verify desktop (Legacy macOS)
-        uses: ./.github/actions/verify-legacy-macos
-        with:
-          dashscope-api-key: ${{ secrets.QWENPAW_DASHSCOPE_API_KEY }}
-          version: ${{ steps.version.outputs.version }}
-          runner-python: ${{ steps.runner-python.outputs.python-path }}
-          allow-flaky-llm: "true"
+        env:
+          QWENPAW_DASHSCOPE_API_KEY: ${{ secrets.QWENPAW_DASHSCOPE_API_KEY }}
+          RUNNER_PYTHON: ${{ steps.runner-python.outputs.python-path }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist/verify-legacy
+          unzip -q dist/AI-Arb-*-macOS.zip -d dist/verify-legacy
+          APP="$(find dist/verify-legacy -maxdepth 2 -name '*.app' -type d | head -1)"
+          if [ -z "$APP" ]; then echo "::error::AI Arb.app not found"; exit 1; fi
+          ENV_DIR="$APP/Contents/Resources/env"
+          PYTHON="$ENV_DIR/bin/python"
+          (cd "$ENV_DIR" && ./bin/conda-unpack 2>/dev/null || true)
+          export PYTHONHOME="$ENV_DIR" PYTHONNOUSERSITE=1
+          export PATH="$ENV_DIR/bin:$PATH"
+          CERT_FILE="$("$PYTHON" -c 'import certifi,sys; sys.stdout.write(certifi.where())' 2>/dev/null || true)"
+          if [ -n "${CERT_FILE:-}" ] && [ -f "$CERT_FILE" ]; then
+            export SSL_CERT_FILE="$CERT_FILE" REQUESTS_CA_BUNDLE="$CERT_FILE"
+          fi
+          "$PYTHON" -m qwenpaw init --defaults --accept-security
+          rm -f "$HOME/.qwenpaw/workspaces/default/BOOTSTRAP.md"
+          nohup "$PYTHON" -m qwenpaw app --host 127.0.0.1 --port 8088 \
+            > "$RUNNER_TEMP/qwenpaw-desktop-stdout.log" \
+            2> "$RUNNER_TEMP/qwenpaw-desktop-stderr.log" &
+          echo $! > "$RUNNER_TEMP/qwenpaw-desktop.pid"
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:8088/api/version >/dev/null; then
+              echo "Server up after ~$((i*2))s"; break
+            fi
+            if [ "$i" = "60" ]; then echo "::error::Server timeout"; exit 1; fi
+            sleep 2
+          done
+          "$RUNNER_PYTHON" scripts/verify/desktop_verify.py \
+            --base-url http://127.0.0.1:8088 --ui-mode legacy --headed --allow-flaky-llm
 
       - name: Stop desktop server
         if: always()
@@ -138,12 +165,45 @@ jobs:
           python-version: "3.10"
 
       - name: Verify desktop (Legacy Windows)
-        uses: ./.github/actions/verify-legacy-windows
-        with:
-          dashscope-api-key: ${{ secrets.QWENPAW_DASHSCOPE_API_KEY }}
-          version: ${{ steps.version.outputs.version }}
-          runner-python: ${{ steps.runner-python.outputs.python-path }}
-          allow-flaky-llm: "true"
+        shell: pwsh
+        env:
+          QWENPAW_DASHSCOPE_API_KEY: ${{ secrets.QWENPAW_DASHSCOPE_API_KEY }}
+          RUNNER_PYTHON: ${{ steps.runner-python.outputs.python-path }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          $ErrorActionPreference = "Stop"
+          $installer = Get-ChildItem dist/AI-Arb-Setup-*.exe | Select-Object -First 1
+          if (-not $installer) { throw "No installer found" }
+          $installDir = Join-Path $env:RUNNER_TEMP "AI-Arb-Verify"
+          if (Test-Path $installDir) { Remove-Item -Recurse -Force $installDir }
+          Start-Process -FilePath $installer.FullName -ArgumentList "/S /D=$installDir" -Wait
+          $bundledPython = Join-Path $installDir "python.exe"
+          $deadline = (Get-Date).AddSeconds(120)
+          while (-not (Test-Path $bundledPython)) {
+            if ((Get-Date) -gt $deadline) { throw "python.exe not found after 120s" }
+            Start-Sleep -Seconds 2
+          }
+          $env:PYTHONNOUSERSITE = "1"
+          & $bundledPython -m qwenpaw init --defaults --accept-security
+          if ($LASTEXITCODE -ne 0) { throw "init failed" }
+          $bootstrapMd = Join-Path $env:USERPROFILE ".qwenpaw\workspaces\default\BOOTSTRAP.md"
+          if (Test-Path $bootstrapMd) { Remove-Item -Force $bootstrapMd }
+          $stdoutLog = Join-Path $env:RUNNER_TEMP "qwenpaw-desktop-stdout.log"
+          $stderrLog = Join-Path $env:RUNNER_TEMP "qwenpaw-desktop-stderr.log"
+          $proc = Start-Process -PassThru -NoNewWindow -FilePath $bundledPython `
+            -ArgumentList "-m","qwenpaw","app","--host","127.0.0.1","--port","8088" `
+            -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
+          $proc.Id | Out-File -FilePath (Join-Path $env:RUNNER_TEMP "qwenpaw-desktop.pid") -Encoding ascii
+          $ready = $false
+          for ($i = 1; $i -le 60; $i++) {
+            try {
+              $r = Invoke-WebRequest -Uri http://127.0.0.1:8088/api/version -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
+              if ($r.StatusCode -eq 200) { Write-Host "Server up"; $ready = $true; break }
+            } catch { Start-Sleep -Seconds 2 }
+          }
+          if (-not $ready) { Write-Host "::error::Server timeout"; exit 1 }
+          & $env:RUNNER_PYTHON scripts/verify/desktop_verify.py --base-url http://127.0.0.1:8088 --ui-mode legacy --headed --allow-flaky-llm
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Stop desktop server
         if: always()
@@ -224,11 +284,11 @@ jobs:
       - name: Stop desktop server
         if: always()
         run: |
-          pkill -f "QwenPaw Desktop" 2>/dev/null || true
-          pkill -f "qwenpaw-backend" 2>/dev/null || true
+          pkill -f "AI Arb Desktop" 2>/dev/null || true
+          pkill -f "ai-arb-backend" 2>/dev/null || true
           sleep 2
-          pkill -9 -f "QwenPaw Desktop" 2>/dev/null || true
-          pkill -9 -f "qwenpaw-backend" 2>/dev/null || true
+          pkill -9 -f "AI Arb Desktop" 2>/dev/null || true
+          pkill -9 -f "ai-arb-backend" 2>/dev/null || true
 
   tauri-windows:
     if: >-
@@ -302,13 +362,13 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Continue"
-          Get-Process -Name "qwenpaw-desktop" -ErrorAction SilentlyContinue |
+          Get-Process -Name "ai-arb-desktop" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
-          Get-Process -Name "qwenpaw-backend" -ErrorAction SilentlyContinue |
+          Get-Process -Name "ai-arb-backend" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
           Start-Sleep -Seconds 2
-          Get-Process -Name "qwenpaw-desktop" -ErrorAction SilentlyContinue |
+          Get-Process -Name "ai-arb-desktop" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
-          Get-Process -Name "qwenpaw-backend" -ErrorAction SilentlyContinue |
+          Get-Process -Name "ai-arb-backend" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
           exit 0

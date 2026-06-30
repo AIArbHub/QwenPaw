@@ -646,7 +646,7 @@ def install(source: str, force: bool):
             pass
 
     click.echo("\nNext steps:")
-    click.echo("   1. Start QwenPaw to load the plugin")
+    click.echo("   1. Start AI Arb to load the plugin")
     click.echo("   2. Configure the plugin in the web UI")
 
 

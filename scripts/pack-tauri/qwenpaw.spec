@@ -100,6 +100,10 @@ a = Analysis(
     binaries=[],
     datas=datas,
     hiddenimports=[
+        # Python stdlib encodings (required for filesystem encoding on macOS)
+        "encodings",
+        "encodings.utf_8",
+        "encodings.latin_1",
         # uvicorn internals (not auto-discovered by PyInstaller)
         "uvicorn.logging",
         "uvicorn.loops",
@@ -180,7 +184,7 @@ backend_exe = EXE(
 )
 
 coll = COLLECT(
-    exe,
+    backend_exe,
     a.binaries,
     a.datas,
     strip=False,

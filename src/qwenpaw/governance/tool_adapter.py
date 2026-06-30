@@ -49,7 +49,7 @@ def _is_execution_level_off() -> bool:
 
         from ..constant import WORKING_DIR
 
-        policy_path = Path(WORKING_DIR) / ".qwenpaw" / "policy.yaml"
+        policy_path = Path(WORKING_DIR) / ".aiarb" / "policy.yaml"
         if not policy_path.exists():
             return False
         with open(policy_path, "r", encoding="utf-8") as f:

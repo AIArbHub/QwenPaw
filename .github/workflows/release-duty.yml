@@ -259,7 +259,7 @@ jobs:
 
             1. Go to the [Release page](${releaseUrl})
             2. Download \`QwenPaw-${version}-macOS.zip\`
-            3. Unzip, drag \`QwenPaw.app\` to Applications, launch
+            3. Unzip, drag `AI Arb.app` to Applications, launch
 
             - [ ] Download and unzip succeed
             - [ ] App launches without crash
@@ -273,8 +273,8 @@ jobs:
             ## Windows Desktop — ${mention('windows')}
 
             1. Go to the [Release page](${releaseUrl})
-            2. Download \`QwenPaw-Setup-${version}.exe\`
-            3. Run the installer, follow the wizard, launch QwenPaw
+            2. Download \`AI-Arb-Setup-${version}.exe\`
+            3. Run the installer, follow the wizard, launch AI Arb
 
             - [ ] Installer runs without error
             - [ ] App launches without crash

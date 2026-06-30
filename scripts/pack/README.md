@@ -54,7 +54,7 @@ PYTHONNOUSERSITE=1 PYTHONPATH= PYTHONHOME="$APP_ENV" "$APP_ENV/bin/python" -m qw
 
 The `PYTHONNOUSERSITE=1` prevents Python from loading packages from `~/.local/lib/pythonX.Y/site-packages`, which can conflict with the packaged environment. All stdout/stderr (including Python tracebacks) will appear in the terminal. Use this to debug startup errors or to run with `--log-level debug`.
 
-When you **double-click** the .app and nothing appears, the launcher writes stderr/stdout to `~/.qwenpaw/desktop.log`. Inspect that file for errors.
+When you **double-click** the .app and nothing appears, the launcher writes stderr/stdout to `~/.aiarb/desktop.log`. Inspect that file for errors.
 
 On first launch macOS may ask for “Desktop” or “Files and Folders” access: click **Allow** so the app can run properly; if you click Don’t Allow, the window may close.
 

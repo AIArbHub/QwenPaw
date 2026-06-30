@@ -30,8 +30,9 @@ _TOOL_FILE_PARAMS: dict[str, tuple[str, ...]] = {
     "write_text_file": ("file_path", "path"),
 }
 
-_SECRET_DIR_CURRENT_NAME = ".qwenpaw.secret"
-_SECRET_DIR_LEGACY_NAME = ".copaw.secret"
+_SECRET_DIR_CURRENT_NAME = ".aiarb.secret"
+_SECRET_DIR_LEGACY_NAME = ".qwenpaw.secret"
+_SECRET_DIR_LEGACY2_NAME = ".copaw.secret"
 
 
 def _with_platform_trailing_sep(path: str | Path) -> str:
@@ -45,6 +46,7 @@ def _with_platform_trailing_sep(path: str | Path) -> str:
 _COMPAT_SECRET_DIRS: tuple[str, ...] = (
     _with_platform_trailing_sep(SECRET_DIR),
     _with_platform_trailing_sep(Path.home() / _SECRET_DIR_LEGACY_NAME),
+    _with_platform_trailing_sep(Path.home() / _SECRET_DIR_LEGACY2_NAME),
     _with_platform_trailing_sep(Path.home() / _SECRET_DIR_CURRENT_NAME),
 )
 

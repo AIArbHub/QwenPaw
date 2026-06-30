@@ -87,18 +87,22 @@ class EnvVarLoader:
 
 
 # WORKING_DIR priority:
-# 1. QWENPAW_WORKING_DIR / COPAW_WORKING_DIR env var is set → use it
+# 1. AIARB_WORKING_DIR / QWENPAW_WORKING_DIR / COPAW_WORKING_DIR env var → use it
 # 2. ~/.copaw exists (legacy installation) → use it as-is
-# 3. Default → ~/.qwenpaw
-_explicit_working_dir = _get_env("QWENPAW_WORKING_DIR")
+# 3. ~/.qwenpaw exists (legacy installation) → use it as-is
+# 4. Default → ~/.aiarb
+_explicit_working_dir = _get_env("AIARB_WORKING_DIR") or _get_env("QWENPAW_WORKING_DIR")
 if _explicit_working_dir:
     WORKING_DIR = Path(_explicit_working_dir).expanduser().resolve()
 else:
     _legacy_copaw_dir = Path("~/.copaw").expanduser()
+    _legacy_qwenpaw_dir = Path("~/.qwenpaw").expanduser()
     if _legacy_copaw_dir.exists():
         WORKING_DIR = _legacy_copaw_dir.resolve()
+    elif _legacy_qwenpaw_dir.exists():
+        WORKING_DIR = _legacy_qwenpaw_dir.resolve()
     else:
-        WORKING_DIR = Path("~/.qwenpaw").expanduser().resolve()
+        WORKING_DIR = Path("~/.aiarb").expanduser().resolve()
 SECRET_DIR = (
     Path(
         EnvVarLoader.get_str(

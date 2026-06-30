@@ -440,7 +440,7 @@ class WeChatConfig(BaseChannelConfig):
 
     bot_token:              Bearer token obtained after QR code login.
     bot_token_file:         Path to persist/load the bot_token
-                            (default ~/.qwenpaw/wechat_bot_token).
+                            (default ~/.aiarb/wechat_bot_token).
     base_url:               iLink API base URL (leave empty to use default).
     media_dir:              Local directory for downloaded media files.
     message_merge_enabled:  When True, merge multiple outgoing text messages
