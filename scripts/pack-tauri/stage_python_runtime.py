@@ -71,11 +71,10 @@ def _http_get(url: str, max_retries: int | None = None, retry_delay: float = 30.
     timeout = timeout if timeout is not None else HTTP_TIMEOUT_SECONDS
 
     for attempt in range(1, max_retries + 1):
-
         try:
             request = urllib.request.Request(url)
             token = os.environ.get("GITHUB_TOKEN") or os.environ.get(
-                "GH_TOKEN"
+                "GH_TOKEN",
             )
             if token:
                 request.add_header("Authorization", f"Bearer {token}")
@@ -114,6 +113,7 @@ def _http_get(url: str, max_retries: int | None = None, retry_delay: float = 30.
                 wait = retry_delay * attempt
                 print(
                     f"Request failed fetching {url}: {exc} (attempt {attempt}/{max_retries}), waiting {wait}s...",
+
                 )
                 time.sleep(wait)
             else:

@@ -550,6 +550,7 @@ def _build_builtin_import_candidate(
                 preferred_variant.skill_md_path,
             )
             import frontmatter as _fm
+
             _post = _fm.loads(raw_content)
             local_title = _extract_first_heading(
                 _post.content if hasattr(_post, "content") else "",

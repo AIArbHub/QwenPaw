@@ -416,11 +416,7 @@ def info_cmd(
     click.echo(f"Channels: {', '.join(channels)}")
     click.echo(f"Source: {skill.source}")
     click.echo(f"Path: {skill_dir}")
-    desc = (
-        skill.display_description
-        or skill.description
-        or "No description."
-    )
+    desc = skill.display_description or skill.description or "No description."
     click.echo(f"Description: {desc}")
 
 

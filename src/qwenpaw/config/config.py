@@ -18,9 +18,6 @@ from typing import (
     Set,
 )
 
-if TYPE_CHECKING:
-    import importlib.resources.abc
-
 from pydantic import (
     BaseModel,
     Field,
@@ -51,6 +48,9 @@ from ..constant import (
 )
 from ..utils.io_utils import write_json_atomic
 from ..utils.logging import sanitize_log_value
+
+if TYPE_CHECKING:
+    import importlib.resources.abc
 
 logger = logging.getLogger(__name__)
 
@@ -2917,7 +2917,7 @@ def _ensure_builtin_arbitrator(config: "Config"):
         return
 
     arbitrator_workspace = Path(
-        f"{WORKING_DIR}/workspaces/{arbitrator_id}"
+        f"{WORKING_DIR}/workspaces/{arbitrator_id}",
     ).expanduser()
     if arbitrator_workspace.exists():
         config.agents.profiles[arbitrator_id] = AgentProfileRef(
