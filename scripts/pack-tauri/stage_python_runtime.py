@@ -93,6 +93,8 @@ def _http_get(url: str, max_retries: int | None = None, retry_delay: float = 30.
                 )
             else:
                 raise
+            # Wait before the next retry
+            time.sleep(wait)
         except OSError as exc:
             # Preserve previous behavior for OS-level errors
             if attempt == max_retries:
@@ -101,6 +103,7 @@ def _http_get(url: str, max_retries: int | None = None, retry_delay: float = 30.
             print(
                 f"{type(exc).__name__} fetching {url}: {exc}; retrying in {wait}s ({attempt}/{max_retries})",
             )
+            time.sleep(wait)
         except Exception as exc:
             # Generic fallback for unexpected errors; retry with linear backoff
             if attempt < max_retries:
@@ -108,6 +111,10 @@ def _http_get(url: str, max_retries: int | None = None, retry_delay: float = 30.
                 print(
                     f"Request failed fetching {url}: {exc} (attempt {attempt}/{max_retries}), waiting {wait}s...",
                 )
+                time.sleep(wait)
+            else:
+                raise
+
             else:
                 raise
 

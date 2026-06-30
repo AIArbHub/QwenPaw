@@ -536,7 +536,11 @@ def _build_builtin_import_candidate(
         )
         for language, variant in sorted(variants.items())
     }
-    from .store import _build_display_name, _build_display_description, _extract_first_heading
+    from .store import (
+        _build_display_name,
+        _build_display_description,
+        _extract_first_heading,
+    )
 
     local_title = ""
     cross_desc = ""

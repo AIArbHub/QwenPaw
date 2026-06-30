@@ -262,10 +262,16 @@ def configure_skills_interactive(
         if skill_name in installed_by_name:
             skill = installed_by_name[skill_name]
             status = "✓" if skill_name in enabled else "✗"
-            label = f"{skill.display_name or skill.name}  [{status}] ({skill.source})"
+            label = (
+                f"{skill.display_name or skill.name}"
+                f"  [{status}] ({skill.source})"
+            )
         else:
             skill = pool_candidates[skill_name]
-            label = f"{skill.display_name or skill.name}  [pool] ({skill.source})"
+            label = (
+                f"{skill.display_name or skill.name}"
+                f"  [pool] ({skill.source})"
+            )
         options.append((label, skill.name))
 
     click.echo("\n=== Skills Configuration ===")
@@ -410,10 +416,12 @@ def info_cmd(
     click.echo(f"Channels: {', '.join(channels)}")
     click.echo(f"Source: {skill.source}")
     click.echo(f"Path: {skill_dir}")
-    click.echo(
-        "Description: "
-        f"{skill.display_description or skill.description or 'No description.'}",
+    desc = (
+        skill.display_description
+        or skill.description
+        or "No description."
     )
+    click.echo(f"Description: {desc}")
 
 
 @skills_group.command("install")

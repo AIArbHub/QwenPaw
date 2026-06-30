@@ -32,7 +32,8 @@ def _remove_path_entry(profile: Path) -> bool:
     text = profile.read_text()
     # Remove the "# AI Arb" comment line and the export PATH line
     cleaned = re.sub(
-        r"\n?# (QwenPaw|AI Arb)\nexport PATH=\"\$HOME/\.(qwenpaw|aiarb)/bin:\$PATH\"\n?",
+        r"\n?# (QwenPaw|AI Arb)\n"
+        r"export PATH=\"\$HOME/\.(qwenpaw|aiarb)/bin:\$PATH\"\n?",
         "\n",
         text,
     )
