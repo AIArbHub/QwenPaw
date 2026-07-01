@@ -320,6 +320,7 @@ jobs:
             echo "::error::AI Arb.app not found inside zip"
             exit 1
           fi
+          APP="$(realpath "$APP")"
           ENV_DIR="$APP/Contents/Resources/env"
           PYTHON="$ENV_DIR/bin/python"
 
@@ -327,7 +328,10 @@ jobs:
           (cd "$ENV_DIR" && ./bin/conda-unpack 2>/dev/null || true)
 
           # 3. Force the bundled interpreter to ignore user site-packages.
-          export PYTHONHOME="$ENV_DIR"
+          #    NOTE: Do NOT set PYTHONHOME — conda-unpack already fixes the
+          #    prefix.  Setting PYTHONHOME overrides the auto-detection and
+          #    causes "No module named 'encodings'" when the path contains
+          #    spaces (e.g. "AI Arb.app").
           export PYTHONNOUSERSITE=1
           export PATH="$ENV_DIR/bin:$PATH"
 
