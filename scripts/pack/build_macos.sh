@@ -134,6 +134,8 @@ chmod +x "${APP_DIR}/Contents/MacOS/${APP_NAME}"
 # Icon: use pre-generated icon.icns
 if [[ -f "${PACK_DIR}/assets/icon.icns" ]]; then
   echo "== Using pre-generated icon.icns =="
+  cp "${PACK_DIR}/assets/icon.icns" "${APP_DIR}/Contents/Resources/env/"
+  echo "Copied icon.icns to env dir for pywebview"
 else
   echo "Warning: icon.icns not found at ${PACK_DIR}/assets/icon.icns"
   echo "Generate it first: bash scripts/pack/generate_icons.sh"
