@@ -4,9 +4,12 @@ $ErrorActionPreference = "Stop"
 
 # 1. Run NSIS silent install (matches real user installer).
 #    /S = silent, run the installer to completion before continuing.
-$installer = Get-ChildItem dist/*-setup.exe, dist/bundle/nsis/*-setup.exe `
+$installer = Get-ChildItem `
+  dist/*-setup.exe, `
+  dist/bundle/nsis/*-setup.exe, `
+  console/src-tauri/target/release/bundle/nsis/*-setup.exe `
   -ErrorAction SilentlyContinue |
-  Where-Object { $_.Name -match "AI Arb|AI-Arb" } |
+  Where-Object { $_.Name -match "AI Arb|AI-Arb|QwenPaw" } |
   Select-Object -First 1
 if (-not $installer) { throw "NSIS installer not found in dist/" }
 Write-Host "Installing $($installer.Name) silently..."
