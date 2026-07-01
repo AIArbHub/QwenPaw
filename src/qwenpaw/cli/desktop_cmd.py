@@ -138,6 +138,72 @@ def _stream_reader(in_stream, out_stream) -> None:
             pass
 
 
+def _find_icon() -> str | None:
+    """Return the path to the app icon, or None if not found."""
+    exe_dir = os.path.dirname(os.path.abspath(sys.executable))
+    candidates = [
+        os.path.join(exe_dir, "icon.ico"),
+        os.path.join(exe_dir, "icon.icns"),
+        os.path.join(exe_dir, "icon.png"),
+    ]
+    if sys.platform == "darwin":
+        parent = os.path.dirname(exe_dir)
+        candidates.extend([
+            os.path.join(parent, "icon.icns"),
+            os.path.join(parent, "icon.png"),
+        ])
+        grandparent = os.path.dirname(parent)
+        if grandparent.endswith(".app"):
+            candidates.extend([
+                os.path.join(grandparent, "Contents", "Resources", "icon.icns"),
+                os.path.join(grandparent, "Contents", "Resources", "icon.png"),
+            ])
+    for p in candidates:
+        if os.path.isfile(p):
+            return p
+    repo_root = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    )
+    for rel in [
+        os.path.join("scripts", "pack", "assets", "icon.ico"),
+        os.path.join("scripts", "pack", "assets", "icon.png"),
+    ]:
+        p = os.path.join(repo_root, rel)
+        if os.path.isfile(p):
+            return p
+    return None
+
+
+def _set_windows_app_id(icon_path: str | None) -> None:
+    """Set the Windows AppUserModelID so the taskbar shows our icon."""
+    if sys.platform != "win32":
+        return
+    try:
+        import ctypes
+
+        app_id = "AIArb.Desktop"
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
+
+        if icon_path and icon_path.endswith(".ico"):
+            import ctypes.wintypes
+
+            hwnd = ctypes.windll.kernel32.GetConsoleWindow()
+            if hwnd:
+                hicon = ctypes.windll.user32.LoadImageW(
+                    None,
+                    icon_path,
+                    1,
+                    0,
+                    0,
+                    0x00000010 | 0x00000040,
+                )
+                if hicon:
+                    ctypes.windll.user32.SendMessageW(hwnd, 0x0080, 0, hicon)
+                    ctypes.windll.user32.SendMessageW(hwnd, 0x0080, 1, hicon)
+    except Exception:
+        logger.debug("Failed to set Windows app identity", exc_info=True)
+
+
 @click.command("desktop")
 @click.option(
     "--host",
@@ -167,6 +233,9 @@ def desktop_cmd(
     """
     # Setup logger for desktop command (separate from backend subprocess)
     setup_logger(log_level)
+
+    icon_path = _find_icon()
+    _set_windows_app_id(icon_path)
 
     # get_stable_port() returns (port, socket) — the socket is kept open
     # to hold the port until the subprocess is about to bind it, minimizing
@@ -242,14 +311,17 @@ def desktop_cmd(
             if _wait_for_http(host, port):
                 logger.info("HTTP ready, creating webview window...")
                 api = WebViewAPI()
-                webview.create_window(
-                    "AI Arb Desktop",
-                    url,
-                    width=1280,
-                    height=800,
-                    text_select=True,
-                    js_api=api,
-                )
+                window_kwargs: dict = {
+                    "title": "AI Arb Desktop",
+                    "url": url,
+                    "width": 1280,
+                    "height": 800,
+                    "text_select": True,
+                    "js_api": api,
+                }
+                if icon_path:
+                    window_kwargs["icon"] = icon_path
+                webview.create_window(**window_kwargs)
                 logger.info(
                     "Calling webview.start() (blocks until closed)...",
                 )
