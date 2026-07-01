@@ -84,7 +84,7 @@ jobs:
           mkdir -p dist/verify-legacy
           unzip -q dist/AI-Arb-*-macOS.zip -d dist/verify-legacy
           rm -rf dist/verify-legacy/__MACOSX
-          APP="$(find dist/verify-legacy -name '*.app' -type d | head -1)"
+          APP="$(find dist/verify-legacy -not -path '*/__MACOSX/*' -name '*.app' -type d | head -1)"
           if [ -z "$APP" ]; then echo "::error::AI Arb.app not found"; exit 1; fi
           echo "Found app at: $APP"
           ENV_DIR="$APP/Contents/Resources/env"

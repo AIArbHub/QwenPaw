@@ -315,7 +315,7 @@ jobs:
           mkdir -p dist/verify-legacy
           unzip -q dist/AI-Arb-*-macOS.zip -d dist/verify-legacy
           rm -rf dist/verify-legacy/__MACOSX
-          APP="$(find dist/verify-legacy -maxdepth 2 -name '*.app' -type d | head -1)"
+          APP="$(find dist/verify-legacy -not -path '*/__MACOSX/*' -maxdepth 3 -name '*.app' -type d | head -1)"
           if [ -z "$APP" ]; then
             echo "::error::AI Arb.app not found inside zip"
             exit 1
@@ -735,7 +735,7 @@ jobs:
             AI-Arb-Tauri-*-macOS.zip
             AI-Arb-Tauri-*-macOS.app.tar.gz
             AI-Arb-Tauri-latest.json
-          fail-on-unmatched-files: false
+          fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
