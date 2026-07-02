@@ -87,25 +87,102 @@ class EnvVarLoader:
 
 
 # WORKING_DIR priority:
-# 1. AIARB_WORKING_DIR / QWENPAW_WORKING_DIR
-#    / COPAW_WORKING_DIR env var → use it
-# 2. ~/.copaw exists (legacy installation) → use it as-is
-# 3. ~/.qwenpaw exists (legacy installation) → use it as-is
-# 4. Default → ~/.aiarb
+# 1. AIARB_WORKING_DIR / QWENPAW_WORKING_DIR env var → use it
+# 2. Default → ~/.aiarb (always create and use .aiarb)
+# If legacy ~/.qwenpaw or ~/.copaw exists → migrate data to ~/.aiarb once
+# After migration, rewrite all config paths from legacy roots to ~/.aiarb
+_aiarb_default_dir = Path("~/.aiarb").expanduser()
 _explicit_working_dir = _get_env("AIARB_WORKING_DIR") or _get_env(
     "QWENPAW_WORKING_DIR",
 )
 if _explicit_working_dir:
     WORKING_DIR = Path(_explicit_working_dir).expanduser().resolve()
 else:
-    _legacy_copaw_dir = Path("~/.copaw").expanduser()
-    _legacy_qwenpaw_dir = Path("~/.qwenpaw").expanduser()
-    if _legacy_copaw_dir.exists():
-        WORKING_DIR = _legacy_copaw_dir.resolve()
-    elif _legacy_qwenpaw_dir.exists():
-        WORKING_DIR = _legacy_qwenpaw_dir.resolve()
-    else:
-        WORKING_DIR = Path("~/.aiarb").expanduser().resolve()
+    _legacy_dirs = [
+        d
+        for d in (Path("~/.qwenpaw").expanduser(), Path("~/.copaw").expanduser())
+        if d.is_dir()
+    ]
+    _need_migrate_files = _legacy_dirs and not _aiarb_default_dir.is_dir()
+    if _need_migrate_files:
+        import shutil
+
+        _aiarb_default_dir.mkdir(parents=True, exist_ok=True)
+        for _legacy_dir in _legacy_dirs:
+            for _item in _legacy_dir.iterdir():
+                _dest = _aiarb_default_dir / _item.name
+                if _dest.exists():
+                    continue
+                try:
+                    if _item.is_symlink():
+                        continue
+                    if _item.is_dir():
+                        if _item.resolve() == _dest.resolve():
+                            continue
+                        shutil.copytree(
+                            str(_item),
+                            str(_dest),
+                            symlinks=False,
+                            ignore_dangling_symlinks=True,
+                        )
+                    else:
+                        shutil.copy2(str(_item), str(_dest))
+                except Exception as exc:
+                    print(f"[WORKING_DIR] Failed to migrate {_item.name}: {exc}")
+
+    _need_rewrite_paths = bool(_legacy_dirs)
+    if _need_rewrite_paths:
+        import json
+
+        _aiarb_default_dir.mkdir(parents=True, exist_ok=True)
+        _new_root = str(_aiarb_default_dir.resolve())
+        _legacy_root_strs = []
+        for _ld in _legacy_dirs:
+            _legacy_root_strs.append(str(_ld.resolve()))
+        _legacy_root_strs += [
+            "~/.qwenpaw",
+            "~/.copaw",
+            str(Path("~/.qwenpaw").expanduser().resolve()),
+            str(Path("~/.copaw").expanduser().resolve()),
+        ]
+
+        def _rewrite_legacy_paths(obj):
+            if isinstance(obj, dict):
+                return {k: _rewrite_legacy_paths(v) for k, v in obj.items()}
+            if isinstance(obj, list):
+                return [_rewrite_legacy_paths(v) for v in obj]
+            if isinstance(obj, str):
+                for _old_root in _legacy_root_strs:
+                    if obj.startswith(_old_root):
+                        return _new_root + obj[len(_old_root) :]
+            return obj
+
+        _main_config = _aiarb_default_dir / "config.json"
+        if _main_config.is_file():
+            try:
+                with open(_main_config, "r", encoding="utf-8") as _f:
+                    _cfg_data = json.load(_f)
+                _cfg_data = _rewrite_legacy_paths(_cfg_data)
+                with open(_main_config, "w", encoding="utf-8") as _f:
+                    json.dump(_cfg_data, _f, indent=2, ensure_ascii=False)
+            except Exception as exc:
+                print(f"[WORKING_DIR] Failed to rewrite config.json: {exc}")
+
+        _workspaces_dir = _aiarb_default_dir / "workspaces"
+        if _workspaces_dir.is_dir():
+            for _agent_cfg in _workspaces_dir.glob("*/agent.json"):
+                try:
+                    with open(_agent_cfg, "r", encoding="utf-8") as _f:
+                        _acfg = json.load(_f)
+                    _acfg = _rewrite_legacy_paths(_acfg)
+                    with open(_agent_cfg, "w", encoding="utf-8") as _f:
+                        json.dump(_acfg, _f, indent=2, ensure_ascii=False)
+                except Exception as exc:
+                    print(f"[WORKING_DIR] Failed to rewrite {_agent_cfg}: {exc}")
+
+    WORKING_DIR = _aiarb_default_dir.resolve()
+
+WORKING_DIR.mkdir(parents=True, exist_ok=True)
 SECRET_DIR = (
     Path(
         EnvVarLoader.get_str(

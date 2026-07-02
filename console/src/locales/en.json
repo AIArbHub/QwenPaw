@@ -485,6 +485,8 @@
     "namePlaceholder": "e.g.: My Agent",
     "descriptionPlaceholder": "Briefly describe this agent's purpose...",
     "workspaceHelp": "Leave empty to auto-generate in ~/.aiarb/workspaces/<id>",
+    "browseFolder": "Browse",
+    "migrateWorkspace": "Migrate files to new workspace",
     "dragHandleTooltip": "Drag to reorder agents",
     "reorderSuccess": "Agent order saved",
     "reorderFailed": "Failed to save agent order",

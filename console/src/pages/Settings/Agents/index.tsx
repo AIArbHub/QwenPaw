@@ -120,6 +120,22 @@ export default function AgentsPage() {
             targets: [{ workspace_id: editingAgent.id }],
           });
         }
+
+        const newWorkspaceDir = workspace_dir?.trim();
+        const oldWorkspaceDir = editingAgent.workspace_dir;
+        if (
+          newWorkspaceDir &&
+          oldWorkspaceDir &&
+          newWorkspaceDir !== oldWorkspaceDir
+        ) {
+          const migrateFiles = values.migrate_workspace !== false;
+          await agentsApi.migrateWorkspace(editingAgent.id, {
+            new_workspace_dir: newWorkspaceDir,
+            migrate_files: migrateFiles,
+          });
+          payload.workspace_dir = newWorkspaceDir;
+        }
+
         await agentsApi.updateAgent(editingAgent.id, payload);
         installedSkillsRef.current = [
           ...previousInstalledSkills,

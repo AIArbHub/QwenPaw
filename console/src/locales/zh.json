@@ -288,6 +288,8 @@
     "namePlaceholder": "例如：我的智能体",
     "descriptionPlaceholder": "简要描述这个智能体的用途...",
     "workspaceHelp": "留空将自动生成在 ~/.aiarb/workspaces/<id> 目录",
+    "browseFolder": "浏览",
+    "migrateWorkspace": "迁移文件到新工作区",
     "dragHandleTooltip": "拖拽调整智能体顺序",
     "reorderSuccess": "智能体顺序已保存",
     "reorderFailed": "保存智能体顺序失败",

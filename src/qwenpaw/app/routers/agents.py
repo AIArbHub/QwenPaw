@@ -403,6 +403,99 @@ async def update_agent(
     return agent_config
 
 
+class MigrateWorkspaceRequest(BaseModel):
+    new_workspace_dir: str
+    migrate_files: bool = True
+
+
+class MigrateWorkspaceResponse(BaseModel):
+    success: bool
+    old_workspace_dir: str
+    new_workspace_dir: str
+    migrated: bool
+
+
+@router.post(
+    "/{agentId}/migrate-workspace",
+    response_model=MigrateWorkspaceResponse,
+    summary="Migrate agent workspace",
+    description="Change agent workspace directory with optional file migration",
+)
+async def migrate_workspace(
+    agentId: str = PathParam(...),
+    body: MigrateWorkspaceRequest = Body(...),
+    request: Request = None,
+) -> MigrateWorkspaceResponse:
+    """Migrate agent workspace to a new directory."""
+    import shutil
+
+    config = load_config()
+
+    if agentId not in config.agents.profiles:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Agent '{agentId}' not found",
+        )
+
+    old_dir = Path(config.agents.profiles[agentId].workspace_dir).expanduser()
+    new_dir = Path(body.new_workspace_dir).expanduser()
+
+    if new_dir.resolve() == old_dir.resolve():
+        return MigrateWorkspaceResponse(
+            success=True,
+            old_workspace_dir=str(old_dir),
+            new_workspace_dir=str(new_dir),
+            migrated=False,
+        )
+
+    migrated = False
+    if body.migrate_files and old_dir.is_dir():
+        new_dir.mkdir(parents=True, exist_ok=True)
+        for item in old_dir.iterdir():
+            dest = new_dir / item.name
+            if not dest.exists():
+                try:
+                    if item.is_dir():
+                        shutil.copytree(str(item), str(dest))
+                    else:
+                        shutil.copy2(str(item), str(dest))
+                except Exception as exc:
+                    logger.warning(
+                        "Failed to migrate %s: %s", item.name, exc,
+                    )
+        migrated = True
+    else:
+        new_dir.mkdir(parents=True, exist_ok=True)
+
+    config.agents.profiles[agentId] = AgentProfileRef(
+        id=agentId,
+        workspace_dir=str(new_dir),
+        enabled=config.agents.profiles[agentId].enabled,
+    )
+    save_config(config)
+
+    existing_config = load_agent_config(agentId)
+    existing_config.workspace_dir = str(new_dir)
+    save_agent_config(agentId, existing_config)
+
+    schedule_agent_reload(request, agentId)
+
+    logger.info(
+        "Migrated agent %s workspace: %s -> %s (migrated_files=%s)",
+        agentId,
+        old_dir,
+        new_dir,
+        migrated,
+    )
+
+    return MigrateWorkspaceResponse(
+        success=True,
+        old_workspace_dir=str(old_dir),
+        new_workspace_dir=str(new_dir),
+        migrated=migrated,
+    )
+
+
 @router.delete(
     "/{agentId}",
     summary="Delete agent",

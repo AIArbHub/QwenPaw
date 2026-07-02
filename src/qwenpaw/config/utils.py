@@ -50,24 +50,27 @@ _agent_config_lock = threading.Lock()
 
 
 def _normalize_working_dir_bound_paths(data: object) -> object:
-    """Normalize legacy ~/.copaw-bound paths to current WORKING_DIR.
+    """Normalize legacy ~/.copaw / ~/.qwenpaw paths to current WORKING_DIR.
 
     This keeps QWENPAW_WORKING_DIR effective even if user config files contain
     older hard-coded paths like "~/.copaw/media" or
-    "/Users/x/.copaw/workspaces/...".
+    "/Users/x/.qwenpaw/workspaces/...".
     Only rewrites known working-dir-bound keys.
     """
-    legacy_root_tilde = "~/.copaw"
-    legacy_root_abs = str(Path(legacy_root_tilde).expanduser().resolve())
+    legacy_roots = [
+        ("~/.copaw", str(Path("~/.copaw").expanduser().resolve())),
+        ("~/.qwenpaw", str(Path("~/.qwenpaw").expanduser().resolve())),
+    ]
     new_root_abs = str(WORKING_DIR)
 
     def _rewrite_path_value(v: object) -> object:
         if not isinstance(v, str) or not v:
             return v
-        if v.startswith(legacy_root_tilde):
-            return new_root_abs + v[len(legacy_root_tilde) :]
-        if v.startswith(legacy_root_abs):
-            return new_root_abs + v[len(legacy_root_abs) :]
+        for legacy_tilde, legacy_abs in legacy_roots:
+            if v.startswith(legacy_tilde):
+                return new_root_abs + v[len(legacy_tilde) :]
+            if v.startswith(legacy_abs):
+                return new_root_abs + v[len(legacy_abs) :]
         return v
 
     def _walk(obj: object, key: str | None = None) -> object:

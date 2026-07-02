@@ -77,4 +77,19 @@ export const agentsApi = {
     request<{ success: boolean; avatar: null }>(`/agents/${agentId}/avatar`, {
       method: "DELETE",
     }),
+
+  // Migrate workspace to new directory with optional file migration
+  migrateWorkspace: (
+    agentId: string,
+    payload: { new_workspace_dir: string; migrate_files?: boolean },
+  ) =>
+    request<{
+      success: boolean;
+      old_workspace_dir: string;
+      new_workspace_dir: string;
+      migrated: boolean;
+    }>(`/agents/${agentId}/migrate-workspace`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
 };
