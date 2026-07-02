@@ -1,6 +1,6 @@
 import { Select, Tag, Tooltip } from "antd";
 import { useEffect, useState } from "react";
-import { Bot, CheckCircle, EyeOff, ChevronRight } from "lucide-react";
+import { CheckCircle, EyeOff, ChevronRight } from "lucide-react";
 import { SparkDownLine, SparkUpLine } from "@agentscope-ai/icons";
 import { useAgentStore } from "../../stores/agentStore";
 import { agentsApi } from "../../api/modules/agents";
@@ -9,6 +9,55 @@ import { getAgentDisplayName } from "../../utils/agentDisplayName";
 import { useNavigate } from "react-router-dom";
 import { useAppMessage } from "../../hooks/useAppMessage";
 import styles from "./index.module.less";
+
+const DEFAULT_AVATAR = "/ai-arb-avatar.svg";
+
+function AgentAvatar({
+  avatar,
+  size = 16,
+}: {
+  avatar?: string | null;
+  size?: number;
+}) {
+  const [src, setSrc] = useState(avatar || DEFAULT_AVATAR);
+  const [fallback, setFallback] = useState(false);
+
+  useEffect(() => {
+    setSrc(avatar || DEFAULT_AVATAR);
+    setFallback(false);
+  }, [avatar]);
+
+  if (fallback && src !== DEFAULT_AVATAR) {
+    return (
+      <img
+        src={DEFAULT_AVATAR}
+        alt=""
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          objectFit: "cover",
+          flexShrink: 0,
+        }}
+      />
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt=""
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        objectFit: "cover",
+        flexShrink: 0,
+      }}
+      onError={() => setFallback(true)}
+    />
+  );
+}
 
 interface AgentSelectorProps {
   collapsed?: boolean;
@@ -96,7 +145,7 @@ export default function AgentSelector({
         overlayInnerStyle={{ background: "rgba(0,0,0,0.75)", color: "#fff" }}
       >
         <div className={styles.agentSelectorCollapsed}>
-          <Bot size={18} strokeWidth={2} />
+          <AgentAvatar avatar={currentAgentInfo?.avatar} size={18} />
         </div>
       </Tooltip>
     );
@@ -149,7 +198,7 @@ export default function AgentSelector({
             disabled={!agent.enabled}
             label={
               <div className={styles.selectedAgentLabel}>
-                <Bot size={14} strokeWidth={2} />
+                <AgentAvatar avatar={agent.avatar} size={14} />
                 <span>{getAgentDisplayName(agent, t)}</span>
                 {!agent.enabled && <EyeOff size={12} strokeWidth={2} />}
               </div>
@@ -161,7 +210,7 @@ export default function AgentSelector({
             >
               <div className={styles.agentOptionHeader}>
                 <div className={styles.agentOptionIcon}>
-                  <Bot size={16} strokeWidth={2} />
+                  <AgentAvatar avatar={agent.avatar} size={16} />
                 </div>
                 <div className={styles.agentOptionContent}>
                   <div className={styles.agentOptionName}>

@@ -6,9 +6,11 @@ Provides RESTful API for managing multiple agent instances.
 
 import json
 import logging
+import uuid
 from pathlib import Path
-from fastapi import APIRouter, Body, HTTPException, Request
+from fastapi import APIRouter, Body, HTTPException, Request, UploadFile, File
 from fastapi import Path as PathParam
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, field_validator
 
 from qwenpaw.exceptions import (
@@ -47,6 +49,7 @@ class AgentSummary(BaseModel):
     workspace_dir: str
     enabled: bool
     active_model: ModelSlotConfig | None = None
+    avatar: str | None = None
 
 
 class AgentListResponse(BaseModel):
@@ -189,6 +192,7 @@ async def list_agents() -> AgentListResponse:
                     workspace_dir=agent_ref.workspace_dir,
                     enabled=getattr(agent_ref, "enabled", True),
                     active_model=active_model,
+                    avatar=getattr(agent_config, "avatar", None),
                 ),
             )
         except Exception:  # noqa: E722
@@ -199,6 +203,7 @@ async def list_agents() -> AgentListResponse:
                     description="",
                     workspace_dir=agent_ref.workspace_dir,
                     enabled=getattr(agent_ref, "enabled", True),
+                    avatar=None,
                 ),
             )
 
@@ -609,3 +614,136 @@ def _initialize_agent_workspace(
                 ensure_ascii=False,
                 indent=2,
             )
+
+
+_AVATAR_ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
+_AVATAR_MAX_SIZE_BYTES = 2 * 1024 * 1024
+_AVATARS_DIR_NAME = "avatars"
+
+
+def _get_avatars_dir() -> Path:
+    """Return the global avatars directory under WORKING_DIR."""
+    avatars_dir = Path(WORKING_DIR) / _AVATARS_DIR_NAME
+    avatars_dir.mkdir(parents=True, exist_ok=True)
+    return avatars_dir
+
+
+@router.post(
+    "/{agentId}/avatar",
+    summary="Upload agent avatar",
+    description="Upload a custom avatar image for an agent",
+)
+async def upload_agent_avatar(
+    agentId: str = PathParam(...),
+    file: UploadFile = File(..., description="Avatar image file"),
+) -> dict:
+    """Upload a custom avatar image for an agent."""
+    config = load_config()
+
+    if agentId not in config.agents.profiles:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Agent '{agentId}' not found",
+        )
+
+    if not file.filename:
+        raise HTTPException(
+            status_code=400,
+            detail="No filename provided",
+        )
+
+    ext = Path(file.filename).suffix.lower()
+    if ext not in _AVATAR_ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File extension '{ext}' not allowed. Allowed: {', '.join(sorted(_AVATAR_ALLOWED_EXTENSIONS))}",
+        )
+
+    data = await file.read()
+    if len(data) > _AVATAR_MAX_SIZE_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File too large. Maximum size: {_AVATAR_MAX_SIZE_BYTES // (1024 * 1024)}MB",
+        )
+
+    avatars_dir = _get_avatars_dir()
+
+    existing_config = load_agent_config(agentId)
+    old_avatar = getattr(existing_config, "avatar", None)
+    if old_avatar and old_avatar.startswith(f"/api/agents/avatars/"):
+        old_filename = old_avatar.rsplit("/", 1)[-1]
+        old_filepath = avatars_dir / old_filename
+        if old_filepath.exists():
+            try:
+                old_filepath.unlink()
+            except OSError:
+                pass
+
+    filename = f"{agentId}_{uuid.uuid4().hex[:8]}{ext}"
+    filepath = avatars_dir / filename
+    with open(filepath, "wb") as f:
+        f.write(data)
+
+    avatar_url = f"/api/agents/avatars/{filename}"
+    existing_config.avatar = avatar_url
+    save_agent_config(agentId, existing_config)
+
+    return {"success": True, "avatar": avatar_url}
+
+
+@router.get(
+    "/avatars/{filename}",
+    summary="Get agent avatar file",
+    description="Serve an uploaded agent avatar image",
+)
+async def get_agent_avatar(
+    filename: str = PathParam(...),
+):
+    """Serve an uploaded agent avatar image."""
+    avatars_dir = _get_avatars_dir()
+    filepath = avatars_dir / filename
+
+    if not filepath.exists() or not filepath.is_file():
+        raise HTTPException(status_code=404, detail="Avatar not found")
+
+    resolved = filepath.resolve()
+    avatars_resolved = avatars_dir.resolve()
+    if not resolved.is_relative_to(avatars_resolved):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    return FileResponse(str(filepath))
+
+
+@router.delete(
+    "/{agentId}/avatar",
+    summary="Delete agent avatar",
+    description="Remove custom avatar and revert to default",
+)
+async def delete_agent_avatar(
+    agentId: str = PathParam(...),
+) -> dict:
+    """Delete custom avatar for an agent, reverting to default."""
+    config = load_config()
+
+    if agentId not in config.agents.profiles:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Agent '{agentId}' not found",
+        )
+
+    existing_config = load_agent_config(agentId)
+    old_avatar = getattr(existing_config, "avatar", None)
+
+    if old_avatar and old_avatar.startswith("/api/agents/avatars/"):
+        old_filename = old_avatar.rsplit("/", 1)[-1]
+        old_filepath = _get_avatars_dir() / old_filename
+        if old_filepath.exists():
+            try:
+                old_filepath.unlink()
+            except OSError:
+                pass
+
+    existing_config.avatar = None
+    save_agent_config(agentId, existing_config)
+
+    return {"success": True, "avatar": None}

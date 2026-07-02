@@ -317,7 +317,17 @@
     "modelHelp": "为此智能体指定特定的 LLM 模型。留空则使用全局默认模型。",
     "modelPlaceholder": "使用全局默认",
     "noConfiguredModels": "暂无已配置的模型",
-    "modelColumn": "模型"
+    "modelColumn": "模型",
+    "avatar": "头像",
+    "avatarUpload": "上传头像",
+    "avatarDelete": "删除头像",
+    "avatarHelp": "支持 PNG、JPG、GIF、WebP、SVG 格式，最大 2MB",
+    "avatarTypeInvalid": "不支持的图片格式，请上传 PNG、JPG、GIF、WebP 或 SVG",
+    "avatarTooLarge": "图片大小超过 2MB 限制",
+    "avatarUploadSuccess": "头像上传成功",
+    "avatarUploadFailed": "头像上传失败",
+    "avatarDeleteSuccess": "头像已删除",
+    "avatarDeleteFailed": "头像删除失败"
   },
   "acp": {
     "title": "ACP",

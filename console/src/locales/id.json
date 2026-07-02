@@ -367,7 +367,17 @@
     "modelHelp": "Tetapkan model LLM khusus untuk agen ini. Kosongkan untuk memakai default global.",
     "modelPlaceholder": "Gunakan default global",
     "noConfiguredModels": "Tidak ada model yang dikonfigurasi",
-    "modelColumn": "Model"
+    "modelColumn": "Model",
+    "avatar": "Avatar",
+    "avatarUpload": "Unggah Avatar",
+    "avatarDelete": "Hapus Avatar",
+    "avatarHelp": "Mendukung format PNG, JPG, GIF, WebP, SVG, maksimal 2MB",
+    "avatarTypeInvalid": "Format gambar tidak didukung. Unggah PNG, JPG, GIF, WebP atau SVG",
+    "avatarTooLarge": "Ukuran gambar melebihi batas 2MB",
+    "avatarUploadSuccess": "Avatar berhasil diunggah",
+    "avatarUploadFailed": "Gagal mengunggah avatar",
+    "avatarDeleteSuccess": "Avatar dihapus",
+    "avatarDeleteFailed": "Gagal menghapus avatar"
   },
   "skills": {
     "title": "Skill",

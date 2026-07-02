@@ -1490,6 +1490,10 @@ class AgentProfileConfig(BaseModel):
         default_factory=PlanConfig,
         description="Plan mode configuration for this agent",
     )
+    avatar: Optional[str] = Field(
+        default=None,
+        description="Custom avatar URL for this agent (uploaded image path or URL)",
+    )
     coding_mode: CodingModeConfig = Field(
         default_factory=CodingModeConfig,
         description="Coding Mode configuration for this agent",

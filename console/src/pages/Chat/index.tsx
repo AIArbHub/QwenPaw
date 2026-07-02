@@ -1129,7 +1129,7 @@ export default function ChatPage() {
       model_name: string;
     }>
   >([]);
-  const { selectedAgent } = useAgentStore();
+  const { selectedAgent, agents } = useAgentStore();
   const { toolRenderConfig } = usePlugins();
   const extScalar = useChatScalarSnapshot();
   const extLists = useChatListSnapshot();
@@ -2704,7 +2704,7 @@ export default function ChatPage() {
       welcome: {
         ...i18nConfig.welcome,
         nick: extNick ?? "AI Arb",
-        avatar: extAvatar ?? "/online.svg",
+        avatar: extAvatar ?? agents?.find((a) => a.id === selectedAgent)?.avatar ?? "/ai-arb-avatar.svg",
         ...(extGreeting !== undefined ? { greeting: extGreeting } : {}),
         ...(extDescription !== undefined
           ? { description: extDescription }

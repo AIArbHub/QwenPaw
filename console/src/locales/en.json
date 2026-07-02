@@ -514,7 +514,17 @@
     "modelHelp": "Assign a specific LLM model to this agent. Leave empty to use the global default.",
     "modelPlaceholder": "Use global default",
     "noConfiguredModels": "No configured models",
-    "modelColumn": "Model"
+    "modelColumn": "Model",
+    "avatar": "Avatar",
+    "avatarUpload": "Upload Avatar",
+    "avatarDelete": "Delete Avatar",
+    "avatarHelp": "Supports PNG, JPG, GIF, WebP, SVG formats, max 2MB",
+    "avatarTypeInvalid": "Unsupported image format. Please upload PNG, JPG, GIF, WebP or SVG",
+    "avatarTooLarge": "Image size exceeds 2MB limit",
+    "avatarUploadSuccess": "Avatar uploaded successfully",
+    "avatarUploadFailed": "Avatar upload failed",
+    "avatarDeleteSuccess": "Avatar deleted",
+    "avatarDeleteFailed": "Avatar delete failed"
   },
   "skills": {
     "title": "Skills",

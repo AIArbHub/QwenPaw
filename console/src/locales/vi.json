@@ -447,7 +447,17 @@
     "defaultDisplayName": "Agent mặc định",
     "currentWorkspace": "Agent hiện tại",
     "switchSuccess": "Đã chuyển agent thành công",
-    "switchFailed": "Chuyển agent thất bại"
+    "switchFailed": "Chuyển agent thất bại",
+    "avatar": "Ảnh đại diện",
+    "avatarUpload": "Tải lên ảnh đại diện",
+    "avatarDelete": "Xóa ảnh đại diện",
+    "avatarHelp": "Hỗ trợ định dạng PNG, JPG, GIF, WebP, SVG, tối đa 2MB",
+    "avatarTypeInvalid": "Định dạng ảnh không được hỗ trợ. Vui lòng tải lên PNG, JPG, GIF, WebP hoặc SVG",
+    "avatarTooLarge": "Kích thước ảnh vượt quá giới hạn 2MB",
+    "avatarUploadSuccess": "Tải lên ảnh đại diện thành công",
+    "avatarUploadFailed": "Tải lên ảnh đại diện thất bại",
+    "avatarDeleteSuccess": "Đã xóa ảnh đại diện",
+    "avatarDeleteFailed": "Xóa ảnh đại diện thất bại"
   },
   "environments": {
     "parent": "Cài đặt",

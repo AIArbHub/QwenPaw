@@ -472,7 +472,17 @@
     "modelHelp": "Assign a specific LLM model to this agent. Leave empty to use the global default.",
     "modelPlaceholder": "Use global default",
     "noConfiguredModels": "No configured models",
-    "modelColumn": "Model"
+    "modelColumn": "Model",
+    "avatar": "الصورة الرمزية",
+    "avatarUpload": "رفع الصورة الرمزية",
+    "avatarDelete": "حذف الصورة الرمزية",
+    "avatarHelp": "يدعم صيغ PNG وJPG وGIF وWebP وSVG، الحد الأقصى 2 ميجابايت",
+    "avatarTypeInvalid": "صيغة الصورة غير مدعومة. يرجى رفع PNG أو JPG أو GIF أو WebP أو SVG",
+    "avatarTooLarge": "حجم الصورة يتجاوز حد 2 ميجابايت",
+    "avatarUploadSuccess": "تم رفع الصورة الرمزية بنجاح",
+    "avatarUploadFailed": "فشل في رفع الصورة الرمزية",
+    "avatarDeleteSuccess": "تم حذف الصورة الرمزية",
+    "avatarDeleteFailed": "فشل في حذف الصورة الرمزية"
   },
   "skills": {
     "title": "Skills",

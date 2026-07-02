@@ -1,4 +1,6 @@
 import { request } from "../request";
+import { getApiUrl } from "../config";
+import { buildAuthHeaders } from "../authHeaders";
 import type {
   AgentListResponse,
   AgentProfileConfig,
@@ -52,4 +54,27 @@ export const agentsApi = {
         body: JSON.stringify({ enabled }),
       },
     ),
+
+  // Upload agent avatar
+  uploadAvatar: async (agentId: string, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const headers = buildAuthHeaders();
+    const response = await fetch(getApiUrl(`/agents/${agentId}/avatar`), {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Upload failed" }));
+      throw new Error(error.detail || "Upload failed");
+    }
+    return response.json() as Promise<{ success: boolean; avatar: string }>;
+  },
+
+  // Delete agent avatar
+  deleteAvatar: (agentId: string) =>
+    request<{ success: boolean; avatar: null }>(`/agents/${agentId}/avatar`, {
+      method: "DELETE",
+    }),
 };
