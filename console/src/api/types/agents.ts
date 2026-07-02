@@ -18,6 +18,7 @@ export interface AgentSummary {
   pinned?: boolean;
   startup_status?: AgentStartupStatus;
   active_model?: ModelSlotConfig | null;
+  avatar?: string | null;
 }
 
 export interface AgentListResponse {
@@ -36,6 +37,7 @@ export interface AgentProfileConfig {
   workspace_dir?: string;
   approval_level?: string;
   active_model?: ModelSlotConfig | null;
+  avatar?: string | null;
   channels?: unknown;
   mcp?: unknown;
   heartbeat?: unknown;

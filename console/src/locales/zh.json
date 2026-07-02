@@ -390,7 +390,17 @@
     "copyOptionJobs": "jobs.json",
     "copyOptionJobsHint": "仅复制任务定义，不含历史；新智能体创建后会立即按计划执行。",
     "copySuccess": "智能体配置复制成功",
-    "copyFailed": "智能体配置复制失败"
+    "copyFailed": "智能体配置复制失败",
+    "avatar": "头像",
+    "avatarUpload": "上传头像",
+    "avatarDelete": "删除头像",
+    "avatarHelp": "支持 PNG、JPG、GIF、WebP、SVG 格式，最大 2MB",
+    "avatarTypeInvalid": "不支持的图片格式，请上传 PNG、JPG、GIF、WebP 或 SVG",
+    "avatarTooLarge": "图片大小超过 2MB 限制",
+    "avatarUploadSuccess": "头像上传成功",
+    "avatarUploadFailed": "头像上传失败",
+    "avatarDeleteSuccess": "头像已删除",
+    "avatarDeleteFailed": "头像删除失败"
   },
   "acp": {
     "title": "ACP",

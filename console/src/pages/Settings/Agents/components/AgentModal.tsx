@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import {
   Modal,
   Form,
@@ -9,8 +9,9 @@ import {
   Typography,
   Empty,
   Spin,
+  message as antMessage,
 } from "antd";
-import { CheckOutlined } from "@ant-design/icons";
+import { CheckOutlined, UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import type { AgentSummary } from "@/api/types/agents";
 import type { ProviderInfo } from "@/api/types/provider";
@@ -18,8 +19,11 @@ import { getAgentDisplayName } from "@/utils/agentDisplayName";
 import type { PoolSkillSpec } from "@/api/types/skill";
 import { skillApi } from "@/api/modules/skill";
 import { providerApi } from "@/api/modules/provider";
+import { agentsApi } from "@/api/modules/agents";
 import { providerIcon } from "../../Models/components/providerIcon";
 import styles from "../index.module.less";
+
+const DEFAULT_AVATAR = "/ai-arb-avatar.svg";
 
 const { Text } = Typography;
 
@@ -56,6 +60,9 @@ export function AgentModal({
   const [loadingSkills, setLoadingSkills] = useState(false);
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const selectedProviderId = Form.useWatch("active_model_provider", form);
   const selectedModelId = Form.useWatch("active_model_model", form);
@@ -86,6 +93,9 @@ export function AgentModal({
 
   useEffect(() => {
     if (!open) return;
+
+    setAvatarUrl(editingAgent?.avatar || null);
+    setUploadingAvatar(false);
 
     setLoadingProviders(true);
     providerApi
@@ -121,6 +131,46 @@ export function AgentModal({
       })
       .finally(() => setLoadingSkills(false));
   }, [editingAgent, onInstalledSkillsLoaded, onSelectedSkillsChange, open]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingAgent) return;
+
+    const allowedTypes = ["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"];
+    if (!allowedTypes.includes(file.type)) {
+      antMessage.error(t("agent.avatarTypeInvalid"));
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      antMessage.error(t("agent.avatarTooLarge"));
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const result = await agentsApi.uploadAvatar(editingAgent.id, file);
+      setAvatarUrl(result.avatar);
+      antMessage.success(t("agent.avatarUploadSuccess"));
+    } catch (error: any) {
+      antMessage.error(error.message || t("agent.avatarUploadFailed"));
+    } finally {
+      setUploadingAvatar(false);
+      if (avatarInputRef.current) {
+        avatarInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleAvatarDelete = async () => {
+    if (!editingAgent) return;
+    try {
+      await agentsApi.deleteAvatar(editingAgent.id);
+      setAvatarUrl(null);
+      antMessage.success(t("agent.avatarDeleteSuccess"));
+    } catch (error: any) {
+      antMessage.error(error.message || t("agent.avatarDeleteFailed"));
+    }
+  };
 
   const handleProviderChange = (providerId: string) => {
     form.setFieldsValue({
@@ -222,6 +272,53 @@ export function AgentModal({
             rows={3}
           />
         </Form.Item>
+        {editingAgent && (
+          <Form.Item label={t("agent.avatar")}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <img
+                src={avatarUrl || DEFAULT_AVATAR}
+                alt=""
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: "1px solid #d9d9d9",
+                }}
+              />
+              <Space>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+                  style={{ display: "none" }}
+                  onChange={handleAvatarUpload}
+                />
+                <Button
+                  icon={<UploadOutlined />}
+                  loading={uploadingAvatar}
+                  onClick={() => avatarInputRef.current?.click()}
+                  size="small"
+                >
+                  {t("agent.avatarUpload")}
+                </Button>
+                {avatarUrl && (
+                  <Button
+                    icon={<DeleteOutlined />}
+                    onClick={handleAvatarDelete}
+                    size="small"
+                    danger
+                  >
+                    {t("agent.avatarDelete")}
+                  </Button>
+                )}
+              </Space>
+            </div>
+            <Text type="secondary" style={{ fontSize: 12, marginTop: 4, display: "block" }}>
+              {t("agent.avatarHelp")}
+            </Text>
+          </Form.Item>
+        )}
         <Form.Item label={t("agent.model")} help={t("agent.modelHelp")}>
           <Space.Compact style={{ width: "100%" }}>
             <Select

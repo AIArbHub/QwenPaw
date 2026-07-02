@@ -607,7 +607,17 @@
     "copyOptionJobs": "jobs.json",
     "copyOptionJobsHint": "Copies job definitions only, not run history. The new agent will start running them on schedule after creation.",
     "copySuccess": "Agent configuration copied successfully",
-    "copyFailed": "Failed to copy agent configuration"
+    "copyFailed": "Failed to copy agent configuration",
+    "avatar": "Avatar",
+    "avatarUpload": "Upload Avatar",
+    "avatarDelete": "Delete Avatar",
+    "avatarHelp": "Supports PNG, JPG, GIF, WebP, SVG formats, max 2MB",
+    "avatarTypeInvalid": "Unsupported image format. Please upload PNG, JPG, GIF, WebP or SVG",
+    "avatarTooLarge": "Image size exceeds 2MB limit",
+    "avatarUploadSuccess": "Avatar uploaded successfully",
+    "avatarUploadFailed": "Avatar upload failed",
+    "avatarDeleteSuccess": "Avatar deleted",
+    "avatarDeleteFailed": "Avatar delete failed"
   },
   "skills": {
     "title": "Skills",

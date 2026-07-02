@@ -1,4 +1,4 @@
-import { Select, Tooltip } from "antd";
+import { Select, Tag, Tooltip } from "antd";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import {
@@ -10,6 +10,7 @@ import {
   Pin,
   Power,
   PowerOff,
+  EyeOff,
 } from "lucide-react";
 import { SparkDownLine, SparkUpLine } from "@agentscope-ai/icons";
 import { useAgentStore } from "../../stores/agentStore";
@@ -22,6 +23,55 @@ import { useAppMessage } from "../../hooks/useAppMessage";
 import { AgentStatusIndicator } from "../AgentStatusIndicator";
 import { useAgentLongPress } from "./useAgentLongPress";
 import styles from "./index.module.less";
+
+const DEFAULT_AVATAR = "/ai-arb-avatar.svg";
+
+function AgentAvatar({
+  avatar,
+  size = 16,
+}: {
+  avatar?: string | null;
+  size?: number;
+}) {
+  const [src, setSrc] = useState(avatar || DEFAULT_AVATAR);
+  const [fallback, setFallback] = useState(false);
+
+  useEffect(() => {
+    setSrc(avatar || DEFAULT_AVATAR);
+    setFallback(false);
+  }, [avatar]);
+
+  if (fallback && src !== DEFAULT_AVATAR) {
+    return (
+      <img
+        src={DEFAULT_AVATAR}
+        alt=""
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          objectFit: "cover",
+          flexShrink: 0,
+        }}
+      />
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt=""
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        objectFit: "cover",
+        flexShrink: 0,
+      }}
+      onError={() => setFallback(true)}
+    />
+  );
+}
 
 interface AgentSelectorProps {
   collapsed?: boolean;
@@ -207,7 +257,7 @@ export default function AgentSelector({
         overlayInnerStyle={{ background: "rgba(0,0,0,0.75)", color: "#fff" }}
       >
         <div className={styles.agentSelectorCollapsed}>
-          <Bot size={18} strokeWidth={2} />
+          <AgentAvatar avatar={currentAgentInfo?.avatar} size={18} />
           {currentAgentInfo && (
             <span className={styles.collapsedStatusIndicator}>
               <AgentStatusIndicator
@@ -413,7 +463,7 @@ export default function AgentSelector({
           </div>
         )}
       >
-        <Select.OptGroup label={t("agent.pinnedAgents")}>
+        <Select.OptGroup label={t("agent.pinnedAgents")}> 
           {pinnedAgents.map((agent) => (
             <Select.Option
               key={agent.id}
@@ -425,8 +475,9 @@ export default function AgentSelector({
                     status={agent.startup_status}
                     enabled={agent.enabled}
                   />
-                  <Bot size={14} strokeWidth={2} />
+                  <AgentAvatar avatar={agent.avatar} size={14} />
                   <span>{getAgentDisplayName(agent, t)}</span>
+                  {!agent.enabled && <EyeOff size={12} strokeWidth={2} />}
                 </div>
               }
             >
@@ -446,8 +497,12 @@ export default function AgentSelector({
                       status={agent.startup_status}
                       enabled={agent.enabled}
                     />
-                    <Bot size={14} strokeWidth={2} />
+                    <AgentAvatar avatar={agent.avatar} size={14} />
                     <span>{getAgentDisplayName(agent, t)}</span>
+                    {!agent.enabled && <EyeOff size={12} strokeWidth={2} />}
+                  </div>
+                }
+              >
                   </div>
                 }
               >
