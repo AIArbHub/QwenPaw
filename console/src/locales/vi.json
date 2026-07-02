@@ -404,6 +404,8 @@
   "workspace": {
     "title": "Tệp tin",
     "workspacePath": "Workspace:",
+    "openInFolder": "Mở trong thư mục cục bộ",
+    "openInFolderNotDesktop": "Tính năng này chỉ khả dụng trong ứng dụng desktop. Vui lòng mở thủ công: {{path}}",
     "noFiles": "Không có tệp tin",
     "coreFiles": "Tệp cốt lõi",
     "coreFilesDesc": "Định nghĩa nhân cách, danh tính và hướng dẫn công cụ.",
@@ -1203,6 +1205,8 @@
   },
   "skills": {
     "title": "Kỹ năng",
+    "openInFolder": "Mở trong thư mục cục bộ",
+    "openInFolderNotDesktop": "Tính năng này chỉ khả dụng trong ứng dụng desktop. Vui lòng mở thủ công: {{path}}",
     "description": "Quản lý kỹ năng và khả năng của agent.",
     "importHub": "Hub nhập kỹ năng",
     "importHubHint": "Nhập kỹ năng từ URL hub trực tuyến vào workspace hiện tại",

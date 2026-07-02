@@ -4,6 +4,7 @@ import {
   AppstoreOutlined,
   CloseOutlined,
   DeleteOutlined,
+  FolderOpenOutlined,
   ImportOutlined,
   PlusOutlined,
   ReloadOutlined,
@@ -27,11 +28,18 @@ import { useSkillPool } from "./useSkillPool";
 import { useProgressiveRender } from "../../../hooks/useProgressiveRender";
 import { PageHeader } from "@/components/PageHeader";
 import type { PoolSkillSpec } from "../../../api/types";
+import { openInFolder, deriveSkillPoolDir } from "../../../utils/openInFolder";
+import { useAgentStore } from "../../../stores/agentStore";
+import { useAppMessage } from "../../../hooks/useAppMessage";
 import styles from "./index.module.less";
 
 function SkillPoolPage() {
   const { t } = useTranslation();
   const pool = useSkillPool();
+  const { agents } = useAgentStore();
+  const { message } = useAppMessage();
+  const workspaceDir = agents[0]?.workspace_dir;
+  const poolDir = workspaceDir ? deriveSkillPoolDir(workspaceDir) : undefined;
   const builtinNoticeLines = getBuiltinNoticeLines(pool.builtinNotice, t);
   const {
     visibleItems: visibleSkills,
@@ -43,6 +51,24 @@ function SkillPoolPage() {
     <div className={styles.skillsPage}>
       <PageHeader
         items={[{ title: t("nav.settings") }, { title: t("nav.skillPool") }]}
+        afterBreadcrumb={
+          poolDir ? (
+            <Button
+              size="small"
+              icon={<FolderOpenOutlined />}
+              onClick={async () => {
+                const result = await openInFolder(poolDir);
+                if (!result.success && result.reason === "not_tauri") {
+                  message.warning(t("skills.openInFolderNotDesktop", { path: result.path }));
+                } else if (!result.success && result.reason === "error") {
+                  message.error(String(result.error));
+                }
+              }}
+            >
+              {t("skills.openInFolder")}
+            </Button>
+          ) : null
+        }
         extra={
           <div className={styles.headerRight}>
             <input
@@ -320,6 +346,11 @@ function SkillPoolPage() {
         workspaces={pool.workspaces}
         autoUpdateEnabled={pool.autoUpdateEnabled}
         autoUpdateTargets={pool.autoUpdateTargets}
+        poolSkillDir={
+          pool.mode === "edit" && pool.activeSkill && poolDir
+            ? `${poolDir}/${pool.activeSkill.name}`
+            : undefined
+        }
         onClose={pool.closeDrawer}
         onSave={pool.handleSavePoolSkill}
         onContentChange={pool.handleDrawerContentChange}

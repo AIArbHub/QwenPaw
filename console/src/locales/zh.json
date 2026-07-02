@@ -108,7 +108,7 @@
       "errors": {
         "network": "连接不上更新服务器，请检查网络后重试。",
         "signature": "更新文件签名校验失败，请重新尝试下载。",
-        "appLocation": "QwenPaw 正在从 macOS 只读位置运行。请先将 QwenPaw.app 移动到“应用程序”文件夹，从那里启动后再重试更新。",
+        "appLocation": "AI Arb 正在从 macOS 只读位置运行。请先将 AI Arb.app 移动到\u201c应用程序\u201d文件夹，从那里启动后再重试更新。",
         "other": "更新失败。"
       },
       "updateLater": "后台下载",
@@ -222,6 +222,8 @@
   "workspace": {
     "title": "文件",
     "workspacePath": "工作区路径：",
+    "openInFolder": "在本地文件夹中打开",
+    "openInFolderNotDesktop": "此功能仅在桌面应用中可用，请手动在文件管理器中打开：{{path}}",
     "noFiles": "没有文件",
     "coreFiles": "核心文件",
     "coreFilesDesc": "引导角色、身份和工具指南。",
@@ -285,7 +287,7 @@
     "nameRequired": "请输入智能体名称",
     "namePlaceholder": "例如：我的智能体",
     "descriptionPlaceholder": "简要描述这个智能体的用途...",
-    "workspaceHelp": "留空将自动生成在 ~/.qwenpaw/workspaces/<id> 目录",
+    "workspaceHelp": "留空将自动生成在 ~/.aiarb/workspaces/<id> 目录",
     "dragHandleTooltip": "拖拽调整智能体顺序",
     "reorderSuccess": "智能体顺序已保存",
     "reorderFailed": "保存智能体顺序失败",
@@ -370,6 +372,8 @@
   "skills": {
     "title": "技能",
     "description": "管理智能体技能和能力。",
+    "openInFolder": "在本地文件夹中打开",
+    "openInFolderNotDesktop": "此功能仅在桌面应用中可用，请手动在文件管理器中打开：{{path}}",
     "importHub": "导入 Hub",
     "importHubHint": "通过支持的 Hub URL 将技能导入到当前工作区",
     "importSkills": "导入技能",
@@ -1110,7 +1114,7 @@
     "wechatBotTokenTooltip": "扫码登录后获取的 Bearer Token。留空时将在启动时引导扫码登录。",
     "wechatBotTokenPlaceholder": "扫码登录后自动填入，也可手动粘贴",
     "wechatBotTokenFile": "Token 文件路径",
-    "wechatBotTokenFileTooltip": "Token 持久化存储路径，默认为 ~/.qwenpaw/wechat_bot_token",
+    "wechatBotTokenFileTooltip": "Token 持久化存储路径，默认为 ~/.aiarb/wechat_bot_token",
     "wechatMediaDir": "媒体文件目录",
     "wechatMessageMerge": "消息合并",
     "wechatMessageMergeTooltip": "将多条回复消息合并为更少的消息发送，避免触发微信 context_token 10 条消息的限制。开启并设置延时为 0 时，所有文本回复将在请求结束后合并为一条消息发送。设置正数延时（毫秒）则合并该时间窗口内的相邻消息。",
@@ -2476,7 +2480,7 @@
     "noProvidersWarning": "未找到支持转写的提供商。请配置一个 OpenAI 提供商以启用语音转写。",
     "transcriptionInfoTitle": "转写工作原理",
     "transcriptionInfoDesc": "Whisper API 转写使用 OpenAI 兼容的 /v1/audio/transcriptions 端点。需要配置一个支持 Whisper 端点的提供商（如 OpenAI）。请在上方选择具体的提供商以启用转写。",
-    "transcriptionInfoDescLocal": "本地 Whisper 转写直接在您的设备上运行 openai-whisper 库。需要同时安装 ffmpeg（用于音频解码）和 openai-whisper Python 包。无需 API Key 或网络连接。安装命令：uv pip install 'qwenpaw[whisper]'。"
+    "transcriptionInfoDescLocal": "本地 Whisper 转写直接在您的设备上运行 openai-whisper 库。需要同时安装 ffmpeg（用于音频解码）和 openai-whisper Python 包。无需 API Key 或网络连接。安装命令：uv pip install 'aiarb[whisper]'。"
   },
   "backup": {
     "title": "备份",
@@ -2557,7 +2561,7 @@
     "restoreModeCustomDesc": "选择要恢复的内容，如部分智能体、配置等；当前已有但不在本次恢复范围内的其他智能体不会被移除",
     "restoreModeFullDisabled": "仅完整备份可用",
     "defaultWorkspaceDir": "智能体默认工作目录",
-    "defaultWorkspaceDirPlaceholder": "留空时将使用 ~/.qwenpaw/workspaces",
+    "defaultWorkspaceDirPlaceholder": "留空时将使用 ~/.aiarb/workspaces",
     "defaultWorkspaceDirHint": "待恢复的智能体的工作路径不存在时，智能体将保存在 <默认路径>/<智能体ID> 下，存在时则使用智能体的原始工作路径。",
     "restoreStrategy": "恢复策略",
     "restoreStrategyPreserve": "保留本地安全和 MCP 配置",
@@ -2684,7 +2688,7 @@
     "marketDownloads": "下载量",
     "marketDeveloper": "开发者",
     "compatWarningTitle": "兼容性警告",
-    "compatWarningContent": "该插件标注适配 QwenPaw {{labels}}，而您当前的 QwenPaw 版本为 {{version}}。安装后可能出现错误，是否确认继续？",
+    "compatWarningContent": "该插件标注适配 AI Arb {{labels}}，而您当前的 AI Arb 版本为 {{version}}。安装后可能出现错误，是否确认继续？",
     "compatWarningConfirm": "仍然安装"
   },
   "codingMode": {

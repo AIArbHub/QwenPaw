@@ -1,6 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import { Button } from "@agentscope-ai/design";
+import { openInFolder } from "../../../utils/openInFolder";
+import { useAppMessage } from "../../../hooks/useAppMessage";
 import {
   SkillCard,
   SkillDrawer,
@@ -16,9 +18,14 @@ import { PageHeader } from "@/components/PageHeader";
 import { useSkillsPage } from "./useSkillsPage";
 import styles from "./index.module.less";
 import { useMemo, useCallback } from "react";
+import { useAgentStore } from "../../../stores/agentStore";
 
 function SkillsPage() {
   const { t } = useTranslation();
+  const { selectedAgent, agents } = useAgentStore();
+  const workspaceDir = agents.find((a) => a.id === selectedAgent)?.workspace_dir;
+  const skillsDir = workspaceDir ? `${workspaceDir}/skills` : undefined;
+  const { message } = useAppMessage();
   const {
     skills,
     visibleSkills,
@@ -114,6 +121,24 @@ function SkillsPage() {
     <div className={styles.skillsPage}>
       <PageHeader
         items={[{ title: t("nav.agent") }, { title: t("skills.title") }]}
+        afterBreadcrumb={
+          skillsDir ? (
+            <Button
+              size="small"
+              icon={<FolderOpenOutlined />}
+              onClick={async () => {
+                const result = await openInFolder(skillsDir);
+                if (!result.success && result.reason === "not_tauri") {
+                  message.warning(t("skills.openInFolderNotDesktop", { path: result.path }));
+                } else if (!result.success && result.reason === "error") {
+                  message.error(String(result.error));
+                }
+              }}
+            >
+              {t("skills.openInFolder")}
+            </Button>
+          ) : null
+        }
         extra={
           <HeaderActions
             batchModeEnabled={batchModeEnabled}
@@ -297,6 +322,11 @@ function SkillsPage() {
         availableTags={allTags}
         onClose={handleDrawerClose}
         onSubmit={handleSubmit}
+        skillDir={
+          editingSkill && workspaceDir
+            ? `${workspaceDir}/skills/${editingSkill.name}`
+            : undefined
+        }
       />
     </div>
   );

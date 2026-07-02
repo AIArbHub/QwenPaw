@@ -2,12 +2,13 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Drawer, Form, Input, Button, Select } from "@agentscope-ai/design";
 import { useAppMessage } from "../../../../hooks/useAppMessage";
 import { useTranslation } from "react-i18next";
-import { ThunderboltOutlined, StopOutlined } from "@ant-design/icons";
+import { ThunderboltOutlined, StopOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import type { FormInstance } from "antd";
 import type { SkillSpec } from "../../../../api/types";
 import { MarkdownCopy } from "../../../../components/MarkdownCopy/MarkdownCopy";
 import { api } from "../../../../api";
 import { deriveInstalledFromLabel } from "../../../../utils/skill";
+import { openInFolder } from "../../../../utils/openInFolder";
 
 /** Parse YAML frontmatter from a `---`-delimited content string. */
 export function parseFrontmatter(
@@ -71,6 +72,7 @@ interface SkillDrawerProps {
   onClose: () => void;
   onSubmit: (values: SkillSpec) => void;
   onContentChange?: (content: string) => void;
+  skillDir?: string;
 }
 
 export function SkillDrawer({
@@ -81,6 +83,7 @@ export function SkillDrawer({
   onClose,
   onSubmit,
   onContentChange,
+  skillDir,
 }: SkillDrawerProps) {
   const { t, i18n } = useTranslation();
   const [showMarkdown, setShowMarkdown] = useState(true);
@@ -282,7 +285,28 @@ export function SkillDrawer({
     <Drawer
       width={520}
       placement="right"
-      title={editingSkill ? t("skills.viewSkill") : t("skills.createSkill")}
+      title={
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span>{editingSkill ? t("skills.viewSkill") : t("skills.createSkill")}</span>
+          {editingSkill && skillDir && (
+            <Button
+              size="small"
+              type="link"
+              icon={<FolderOpenOutlined />}
+              onClick={async () => {
+                const result = await openInFolder(skillDir);
+                if (!result.success && result.reason === "not_tauri") {
+                  message.warning(t("skills.openInFolderNotDesktop", { path: result.path }));
+                } else if (!result.success && result.reason === "error") {
+                  message.error(String(result.error));
+                }
+              }}
+            >
+              {t("skills.openInFolder")}
+            </Button>
+          )}
+        </div>
+      }
       open={open}
       onClose={onClose}
       destroyOnHidden

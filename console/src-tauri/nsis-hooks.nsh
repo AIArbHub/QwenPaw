@@ -1,6 +1,8 @@
 !include LogicLib.nsh
 !include nsDialogs.nsh
 
+BrandingText "AI Arb Desktop"
+
 Var QwenPawCliPathCheckbox
 Var QwenPawCliPathState
 

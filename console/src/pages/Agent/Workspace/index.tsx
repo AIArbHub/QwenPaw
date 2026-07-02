@@ -1,6 +1,6 @@
 import { useAgentsData, FileListPanel, FileEditor } from "./components";
 import styles from "./index.module.less";
-import { UploadOutlined, DownloadOutlined } from "@ant-design/icons";
+import { UploadOutlined, DownloadOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import { Button, Tooltip } from "@agentscope-ai/design";
 import { workspaceApi } from "../../../api/modules/workspace";
 import { useEffect, useRef, useState } from "react";
@@ -9,11 +9,15 @@ import { PageHeader } from "@/components/PageHeader";
 import { useAppMessage } from "../../../hooks/useAppMessage";
 import { useUploadLimitStore } from "../../../stores/uploadLimitStore";
 import { DownloadCancelledError } from "../../../utils/downloadFileFromUrl";
+import { openInFolder } from "../../../utils/openInFolder";
+import { useAgentStore } from "../../../stores/agentStore";
 import type { MarkdownFile, DailyMemoryFile } from "../../../api/types";
 
 export default function WorkspacePage() {
   const { t } = useTranslation();
   const { message } = useAppMessage();
+  const { selectedAgent, agents } = useAgentStore();
+  const agentWorkspaceDir = agents.find((a) => a.id === selectedAgent)?.workspace_dir;
   const {
     files,
     selectedFile,
@@ -170,12 +174,30 @@ export default function WorkspacePage() {
         className={styles.pageHeader}
         items={[{ title: t("nav.agent") }, { title: t("workspace.title") }]}
         afterBreadcrumb={
-          <p className={styles.workspacePath}>
-            {t("workspace.workspacePath")}{" "}
-            {workspacePath === null
-              ? t("common.loading")
-              : workspacePath || t("workspace.noFiles")}
-          </p>
+          <div className={styles.workspacePathRow}>
+            <p className={styles.workspacePath}>
+              {t("workspace.workspacePath")}{" "}
+              {workspacePath === null
+                ? t("common.loading")
+                : workspacePath || agentWorkspaceDir || t("workspace.noFiles")}
+            </p>
+            {(workspacePath || agentWorkspaceDir) && (
+              <Button
+                size="small"
+                icon={<FolderOpenOutlined />}
+                onClick={async () => {
+                  const result = await openInFolder(workspacePath || agentWorkspaceDir!);
+                  if (!result.success && result.reason === "not_tauri") {
+                    message.warning(t("workspace.openInFolderNotDesktop", { path: result.path }));
+                  } else if (!result.success && result.reason === "error") {
+                    message.error(String(result.error));
+                  }
+                }}
+              >
+                {t("workspace.openInFolder")}
+              </Button>
+            )}
+          </div>
         }
         extra={
           <div className={styles.workspaceInfo}>

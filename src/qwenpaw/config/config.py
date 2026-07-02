@@ -638,7 +638,7 @@ class EmbeddingModelConfig(BaseModel):
         description="Whether to enable embedding cache",
     )
     use_dimensions: bool = Field(
-        default=False,
+        default=True,
         description="Whether to use custom dimensions",
     )
     max_cache_size: int = Field(default=3000, description="Maximum cache size")

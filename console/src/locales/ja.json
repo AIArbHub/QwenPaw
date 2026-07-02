@@ -141,7 +141,7 @@
     "nameRequired": "エージェント名を入力してください",
     "namePlaceholder": "例：マイエージェント",
     "descriptionPlaceholder": "このエージェントの目的を簡単に説明してください...",
-    "workspaceHelp": "空欄のままにすると、~/.qwenpaw/workspaces/<id> に自動生成されます",
+    "workspaceHelp": "空欄のままにすると、~/.aiarb/workspaces/<id> に自動生成されます",
     "dragHandleTooltip": "ドラッグしてエージェントの順序を変更",
     "reorderSuccess": "エージェントの順序を保存しました",
     "reorderFailed": "エージェントの順序を保存できませんでした",
@@ -188,6 +188,8 @@
   "workspace": {
     "title": "ファイル",
     "workspacePath": "ワークスペース:",
+    "openInFolder": "ローカルフォルダで開く",
+    "openInFolderNotDesktop": "この機能はデスクトップアプリでのみ利用可能です。手動で開いてください：{{path}}",
     "noFiles": "ファイルなし",
     "coreFiles": "コアファイル",
     "coreFilesDesc": "ペルソナ・アイデンティティ・ツールガイダンスを設定します。",
@@ -212,6 +214,8 @@
   },
   "skills": {
     "title": "スキル",
+    "openInFolder": "ローカルフォルダで開く",
+    "openInFolderNotDesktop": "この機能はデスクトップアプリでのみ利用可能です。手動で開いてください：{{path}}",
     "description": "エージェントのスキルと機能を管理します。",
     "importHub": "Hub から取り込む",
     "importHubHint": "サポートされている Hub URL から現在のワークスペースにスキルを取り込みます",
@@ -241,7 +245,7 @@
     "pleaseInputName": "スキル名を入力してください",
     "pleaseInputContent": "スキルの内容を入力してください",
     "skillNamePlaceholder": "例: weather_query",
-    "contentPlaceholder": "---\nname: <スキル名> (必須)\ndescription: <スキルの説明> (必須)\nmetadata: { \"qwenpaw\": { \"emoji\": \"🔧\" } }\n---\n\nスキルの実装内容...\n\n# 例:\n# ---\n# name: cron\n# description: qwenpawコマンド経由でcronジョブを管理 - タスクの作成・照会・一時停止・再開・削除\n# metadata: { \"qwenpaw\": { \"emoji\": \"⏰\" } }\n# ---",
+    "contentPlaceholder": "---\nname: <スキル名> (必須)\ndescription: <スキルの説明> (必須)\nmetadata: { \"aiarb\": { \"emoji\": \"🔧\" } }\n---\n\nスキルの実装内容...\n\n# 例:\n# ---\n# name: cron\n# description: aiarbコマンド経由でcronジョブを管理 - タスクの作成・照会・一時停止・再開・削除\n# metadata: { \"aiarb\": { \"emoji\": \"⏰\" } }\n# ---",
     "createSuccess": "スキルを作成しました",
     "createFailed": "スキルの作成に失敗しました",
     "deleteConfirm": "このスキルを削除してもよろしいですか？",
@@ -855,7 +859,7 @@
     "wechatBotTokenTooltip": "QRコードログイン後に取得したBearerトークン。空の場合は起動時にQRコードログインが案内されます。",
     "wechatBotTokenPlaceholder": "QRログイン後に自動入力、または手動で貼り付け",
     "wechatBotTokenFile": "Tokenファイルパス",
-    "wechatBotTokenFileTooltip": "Botトークンの保存パス。デフォルトは ~/.qwenpaw/wechat_bot_token",
+    "wechatBotTokenFileTooltip": "Botトークンの保存パス。デフォルトは ~/.aiarb/wechat_bot_token",
     "wechatMediaDir": "メディアディレクトリ",
     "wechatMessageMerge": "メッセージ統合",
     "wechatMessageMergeTooltip": "複数の返信メッセージを統合して送信し、WeChat の context_token あたり10件のメッセージ制限を回避します。遅延を0に設定すると、すべてのテキスト返信がリクエスト終了時に1つのメッセージに統合されます。正の遅延値（ミリ秒）は、その時間内の隣接メッセージを統合します。",
@@ -1770,7 +1774,7 @@
       "errors": {
         "network": "更新サーバーに接続できませんでした。インターネット接続を確認して再試行してください。",
         "signature": "更新ファイルの署名検証に失敗しました。もう一度ダウンロードしてください。",
-        "appLocation": "QwenPaw は読み取り専用の macOS の場所から実行されています。QwenPaw.app を Applications フォルダーへ移動し、そこから起動してからもう一度更新してください。",
+        "appLocation": "AI Arb は読み取り専用の macOS の場所から実行されています。AI Arb.app を Applications フォルダーへ移動し、そこから起動してからもう一度更新してください。",
         "other": "更新に失敗しました。"
       },
       "updateLater": "バックグラウンドでダウンロード",
@@ -2172,7 +2176,7 @@
     "noProvidersWarning": "文字起こし対応のプロバイダーが見つかりません。音声文字起こしを有効にするには、OpenAI プロバイダーを設定してください。",
     "transcriptionInfoTitle": "文字起こしの仕組み",
     "transcriptionInfoDesc": "Whisper API 文字起こしは OpenAI 互換の /v1/audio/transcriptions エンドポイントを使用します。Whisper 対応エンドポイントを持つプロバイダー（例: OpenAI）の設定が必要です。上記で具体的なプロバイダーを選択して文字起こしを有効にしてください。",
-    "transcriptionInfoDescLocal": "ローカル Whisper 文字起こしは、お使いのマシン上で直接 openai-whisper ライブラリを実行します。ffmpeg（音声デコード用）と openai-whisper Python パッケージの両方のインストールが必要です。API キーやネットワーク接続は不要です。インストール：uv pip install 'qwenpaw[whisper]'。"
+    "transcriptionInfoDescLocal": "ローカル Whisper 文字起こしは、お使いのマシン上で直接 openai-whisper ライブラリを実行します。ffmpeg（音声デコード用）と openai-whisper Python パッケージの両方のインストールが必要です。API キーやネットワーク接続は不要です。インストール：uv pip install 'aiarb[whisper]'。"
   },
   "acp": {
     "title": "ACP",
@@ -2291,7 +2295,7 @@
     "restoreModeCustomDesc": "復元する内容を選択します（特定のエージェント、設定など）；今回の復元範囲外の既存エージェントは削除されません",
     "restoreModeFullDisabled": "フルバックアップのみ",
     "defaultWorkspaceDir": "エージェントデフォルトワークスペースディレクトリ",
-    "defaultWorkspaceDirPlaceholder": "空欄の場合は ~/.qwenpaw/workspaces を使用",
+    "defaultWorkspaceDirPlaceholder": "空欄の場合は ~/.aiarb/workspaces を使用",
     "defaultWorkspaceDirHint": "エージェントの元のワークスペースパスが存在しない場合、エージェントは <デフォルトパス>/<エージェントID> に保存されます。存在する場合は元のパスが使用されます。",
     "restoreStrategy": "復元戦略",
     "restoreStrategyPreserve": "ローカルのセキュリティ設定と MCP を保持",
