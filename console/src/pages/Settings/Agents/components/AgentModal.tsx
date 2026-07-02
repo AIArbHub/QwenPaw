@@ -9,10 +9,13 @@ import {
   Typography,
   Empty,
   Spin,
+  Checkbox,
   message as antMessage,
 } from "antd";
-import { CheckOutlined, UploadOutlined, DeleteOutlined } from "@ant-design/icons";
+import { CheckOutlined, UploadOutlined, DeleteOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import { open } from "@tauri-apps/plugin-dialog";
+import { isTauri } from "@tauri-apps/api/core";
 import type { AgentSummary } from "@/api/types/agents";
 import type { ProviderInfo } from "@/api/types/provider";
 import { getAgentDisplayName } from "@/utils/agentDisplayName";
@@ -383,11 +386,31 @@ export function AgentModal({
           label={t("agent.workspace")}
           help={!editingAgent ? t("agent.workspaceHelp") : undefined}
         >
-          <Input
-            placeholder="~/.qwenpaw/workspaces/my-agent"
-            disabled={!!editingAgent}
-          />
+          <Space.Compact style={{ width: "100%" }}>
+            <Input
+              placeholder="~/.aiarb/workspaces/my-agent"
+              style={{ flex: 1 }}
+            />
+            {isTauri() && (
+              <Button
+                icon={<FolderOpenOutlined />}
+                onClick={async () => {
+                  const selected = await open({ directory: true, multiple: false });
+                  if (selected && typeof selected === "string") {
+                    form.setFieldsValue({ workspace_dir: selected });
+                  }
+                }}
+              >
+                {t("agent.browseFolder")}
+              </Button>
+            )}
+          </Space.Compact>
         </Form.Item>
+        {editingAgent && (
+          <Form.Item name="migrate_workspace" valuePropName="checked">
+            <Checkbox>{t("agent.migrateWorkspace")}</Checkbox>
+          </Form.Item>
+        )}
       </Form>
 
       <div style={{ marginTop: 4 }}>
