@@ -53,7 +53,7 @@ from patch_runner import (  # noqa: E402
 from router import build_router  # noqa: E402
 
 # Logger uses ``qwenpaw.*`` so messages appear in the project logger
-# (``~/.qwenpaw/qwenpaw.log``).
+# (``~/.aiarb/qwenpaw.log``).
 logger = logging.getLogger("qwenpaw.pet_desktop")
 
 

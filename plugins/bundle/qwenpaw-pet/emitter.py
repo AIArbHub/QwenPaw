@@ -659,7 +659,7 @@ def start_desktop_interactive() -> dict[str, Any]:
             ),
             hint=(
                 "See log file under QwenPaw pet runtime "
-                "(often ~/.qwenpaw-pet/runtime/pet-desktop.log)."
+                "(often ~/.aiarb-pet/runtime/pet-desktop.log)."
             ),
         )
 

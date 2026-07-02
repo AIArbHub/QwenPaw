@@ -18,7 +18,7 @@ def home_dir() -> Path:
     return Path(
         os.environ.get(
             "QWENPAW_PET_HOME",
-            str(Path.home() / ".qwenpaw-pet"),
+            str(Path.home() / ".aiarb-pet"),
         ),
     )
 
@@ -35,10 +35,16 @@ def qwenpaw_working_dir() -> Path:
 
         return Path(WORKING_DIR).expanduser().resolve()
     except Exception:
+        aiarb_dir = Path("~/.aiarb").expanduser()
+        if aiarb_dir.exists():
+            return aiarb_dir.resolve()
+        legacy_qwenpaw = Path("~/.qwenpaw").expanduser()
+        if legacy_qwenpaw.exists():
+            return legacy_qwenpaw.resolve()
         legacy_copaw = Path("~/.copaw").expanduser()
         if legacy_copaw.exists():
             return legacy_copaw.resolve()
-        return Path("~/.qwenpaw").expanduser().resolve()
+        return aiarb_dir.resolve()
 
 
 def runtime_dir() -> Path:

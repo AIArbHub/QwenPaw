@@ -630,7 +630,7 @@ def _plan_fixes(
                     and target.exists()
                     and any(target.iterdir())
                 ):
-                    bkp_root = r / ".qwenpaw-doctor-fix-backups"
+                    bkp_root = r / ".aiarb-doctor-fix-backups"
                     sid = _utc_session_id()
                     bkp = bkp_root / sid
                     prev = bkp / "previous-console-bundle"

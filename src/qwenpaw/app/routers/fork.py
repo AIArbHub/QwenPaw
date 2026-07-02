@@ -179,7 +179,7 @@ async def _create_worktree(
     project_dir: Path,
     worktree_id: str,
 ) -> tuple[Path, str]:
-    """Create git worktree at <project_dir>/.qwenpaw/worktrees/<id>.
+    """Create git worktree at <project_dir>/.aiarb/worktrees/<id>.
 
     Returns (worktree_path, branch_name).
     """

@@ -2342,7 +2342,7 @@ def load_agent_config(  # pylint: disable=too-many-branches,too-many-statements
         # One-shot migration: rename legacy ``channels.weixin`` key to
         # ``channels.wechat`` and rewrite the file on disk so future loads
         # see the canonical key directly. This rewrite must happen BEFORE
-        # any in-memory normalization (e.g. ~/.copaw path rewriting) so we
+        # any in-memory normalization (e.g. ~/.qwenpaw / ~/.copaw path rewriting) so we
         # only persist the key rename, not unrelated runtime transforms.
         channels = data.get("channels")
         if isinstance(channels, dict) and "weixin" in channels:
@@ -2393,9 +2393,9 @@ def load_agent_config(  # pylint: disable=too-many-branches,too-many-statements
                 except OSError:
                     pass
 
-        # Normalize legacy ~/.copaw-bound paths to current WORKING_DIR.
+        # Normalize legacy ~/.qwenpaw / ~/.copaw-bound paths to current WORKING_DIR.
         # This keeps QWENPAW_WORKING_DIR effective even if existing agent.json
-        # contains older hard-coded paths like "~/.copaw/media".
+        # contains older hard-coded paths like "~/.qwenpaw/media" or "~/.copaw/media".
         # NOTE: this transform is applied in-memory only; it must not be
         # persisted back to disk.
         try:
@@ -2549,33 +2549,41 @@ def migrate_legacy_config_to_multi_agent() -> bool:
 
     # Migrate existing workspace files from legacy default working dir.
     # When QWENPAW_WORKING_DIR is customized, historical data may still exist
-    # under "~/.copaw".
-    old_workspace = Path("~/.copaw").expanduser().resolve()
+    # under "~/.qwenpaw" or "~/.copaw".
+    _legacy_workspace_dirs = [
+        d
+        for d in (
+            Path("~/.qwenpaw").expanduser().resolve(),
+            Path("~/.copaw").expanduser().resolve(),
+        )
+        if d.is_dir()
+    ]
 
-    # Move sessions, memory, and other workspace files
-    for item_name in ["sessions", "memory", "jobs.json"]:
-        old_path = old_workspace / item_name
-        if old_path.exists():
-            new_path = default_workspace / item_name
-            if not new_path.exists():
-                import shutil
+    for old_workspace in _legacy_workspace_dirs:
+        # Move sessions, memory, and other workspace files
+        for item_name in ["sessions", "memory", "jobs.json"]:
+            old_path = old_workspace / item_name
+            if old_path.exists():
+                new_path = default_workspace / item_name
+                if not new_path.exists():
+                    import shutil
 
-                if old_path.is_dir():
-                    shutil.copytree(old_path, new_path)
-                else:
-                    shutil.copy2(old_path, new_path)
-                print(f"  Migrated {item_name} to default workspace")
+                    if old_path.is_dir():
+                        shutil.copytree(old_path, new_path)
+                    else:
+                        shutil.copy2(old_path, new_path)
+                    print(f"  Migrated {item_name} to default workspace")
 
-    # Copy markdown files (AGENTS.md, SOUL.md, PROFILE.md)
-    for md_file in ["AGENTS.md", "SOUL.md", "PROFILE.md"]:
-        old_md = old_workspace / md_file
-        if old_md.exists():
-            new_md = default_workspace / md_file
-            if not new_md.exists():
-                import shutil
+        # Copy markdown files (AGENTS.md, SOUL.md, PROFILE.md)
+        for md_file in ["AGENTS.md", "SOUL.md", "PROFILE.md"]:
+            old_md = old_workspace / md_file
+            if old_md.exists():
+                new_md = default_workspace / md_file
+                if not new_md.exists():
+                    import shutil
 
-                shutil.copy2(old_md, new_md)
-                print(f"  Migrated {md_file} to default workspace")
+                    shutil.copy2(old_md, new_md)
+                    print(f"  Migrated {md_file} to default workspace")
 
     # Update root config.json to new structure
     # CRITICAL: Preserve legacy agent fields for downgrade compatibility
