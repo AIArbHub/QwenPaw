@@ -63,7 +63,7 @@ pub(crate) fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Erro
 
     let mut tray = TrayIconBuilder::new()
         .menu(&menu)
-        .tooltip("QwenPaw Desktop")
+        .tooltip("AI Arb Desktop")
         .on_menu_event(|app, event| match event.id().as_ref() {
             SHOW_MENU_ID => show_main_window(app),
             QUIT_MENU_ID => exit_app(app),
@@ -206,3 +206,4 @@ fn exit_app(app: &tauri::AppHandle) {
         app.exit(0);
     });
 }
+

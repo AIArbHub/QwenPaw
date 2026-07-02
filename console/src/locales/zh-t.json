@@ -180,6 +180,8 @@
   "workspace": {
     "title": "檔案",
     "workspacePath": "工作區路徑：",
+    "openInFolder": "在本地資料夾中開啟",
+    "openInFolderNotDesktop": "此功能僅在桌面應用中可用，請手動在檔案管理員中開啟：{{path}}",
     "noFiles": "沒有檔案",
     "coreFiles": "核心檔案",
     "coreFilesDesc": "引導角色、身份和工具指南。",
@@ -243,7 +245,7 @@
     "nameRequired": "請輸入智能體名稱",
     "namePlaceholder": "例如：我的智能體",
     "descriptionPlaceholder": "簡要描述這個智能體的用途...",
-    "workspaceHelp": "留空將自動生成在 ~/.qwenpaw/workspaces/<id> 目錄",
+    "workspaceHelp": "留空將自動生成在 ~/.aiarb/workspaces/<id> 目錄",
     "dragHandleTooltip": "拖拽調整智能體順序",
     "reorderSuccess": "智能體順序已儲存",
     "reorderFailed": "儲存智能體順序失敗",
@@ -327,6 +329,8 @@
   },
   "skills": {
     "title": "技能",
+    "openInFolder": "在本地資料夾中開啟",
+    "openInFolderNotDesktop": "此功能僅在桌面應用中可用，請手動在檔案管理員中開啟：{{path}}",
     "description": "管理智能體技能和能力。",
     "importHub": "導入 Hub",
     "importHubHint": "通過支援的 Hub URL 將技能導入到當前工作區",
@@ -1046,7 +1050,7 @@
     "wechatBotTokenTooltip": "掃碼登錄後獲取的 Bearer Token。留空時將在啟動時引導掃碼登錄。",
     "wechatBotTokenPlaceholder": "掃碼登錄後自動填入，也可手動粘貼",
     "wechatBotTokenFile": "Token 檔案路徑",
-    "wechatBotTokenFileTooltip": "Token 持久化存儲路徑，默認為 ~/.qwenpaw/wechat_bot_token",
+    "wechatBotTokenFileTooltip": "Token 持久化存儲路徑，默認為 ~/.aiarb/wechat_bot_token",
     "wechatMediaDir": "媒體檔案目錄",
     "wechatMessageMerge": "訊息合併",
     "wechatMessageMergeTooltip": "將多條回復訊息合併為更少的訊息發送，避免觸發微信 context_token 10 條訊息的限制。開啟並設置延時為 0 時，所有文本回復將在請求結束後合併為一條訊息發送。設置正數延時（毫秒）則合併該時間窗口內的相鄰訊息。",
@@ -2330,7 +2334,7 @@
     "noProvidersWarning": "未找到支援轉寫的供應商。請配置一個 OpenAI 供應商以啟用語音轉寫。",
     "transcriptionInfoTitle": "轉寫工作原理",
     "transcriptionInfoDesc": "Whisper API 轉寫使用 OpenAI 兼容的 /v1/audio/transcriptions 端點。需要配置一個支援 Whisper 端點的供應商（如 OpenAI）。請在上方選擇具體的供應商以啟用轉寫。",
-    "transcriptionInfoDescLocal": "本地 Whisper 轉寫直接在您的設備上運行 openai-whisper 庫。需要同時安裝 ffmpeg（用於音頻解碼）和 openai-whisper Python 包。無需 API Key 或網絡連接。安裝命令：uv pip install 'qwenpaw[whisper]'。"
+    "transcriptionInfoDescLocal": "本地 Whisper 轉寫直接在您的設備上運行 openai-whisper 庫。需要同時安裝 ffmpeg（用於音頻解碼）和 openai-whisper Python 包。無需 API Key 或網絡連接。安裝命令：uv pip install 'aiarb[whisper]'。"
   },
   "backup": {
     "title": "備份",
@@ -2411,7 +2415,7 @@
     "restoreModeCustomDesc": "選擇要恢復的內容，如部分智能體、配置等；當前已有但不在本次恢復範圍內的其他智能體不會被移除",
     "restoreModeFullDisabled": "僅完整備份可用",
     "defaultWorkspaceDir": "智能體默認工作目錄",
-    "defaultWorkspaceDirPlaceholder": "留空時將使用 ~/.qwenpaw/workspaces",
+    "defaultWorkspaceDirPlaceholder": "留空時將使用 ~/.aiarb/workspaces",
     "defaultWorkspaceDirHint": "待恢復的智能體的工作路徑不存在時，智能體將儲存在 <默認路徑>/<智能體ID> 下，存在時則使用智能體的原始工作路徑。",
     "restoreStrategy": "恢復策略",
     "restoreStrategyPreserve": "保留本地安全和 MCP 配置",

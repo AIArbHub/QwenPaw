@@ -6,7 +6,10 @@ import {
   Select,
   Switch,
 } from "@agentscope-ai/design";
+import { FolderOpenOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import { openInFolder } from "../../../../utils/openInFolder";
+import { useAppMessage } from "../../../../hooks/useAppMessage";
 import type {
   PoolSkillSpec,
   WorkspaceSkillSummary,
@@ -36,6 +39,7 @@ interface PoolSkillDrawerProps {
   workspaces?: WorkspaceSkillSummary[];
   autoUpdateEnabled?: boolean;
   autoUpdateTargets?: string[];
+  poolSkillDir?: string;
   onClose: () => void;
   onSave: () => void;
   onContentChange: (content: string) => void;
@@ -58,6 +62,7 @@ export function PoolSkillDrawer({
   workspaces = [],
   autoUpdateEnabled = false,
   autoUpdateTargets = [],
+  poolSkillDir,
   onClose,
   onSave,
   onContentChange,
@@ -69,15 +74,37 @@ export function PoolSkillDrawer({
   validateFrontmatter,
 }: PoolSkillDrawerProps) {
   const { t } = useTranslation();
+  const { message } = useAppMessage();
 
   return (
     <Drawer
       width={520}
       placement="right"
       title={
-        mode === "edit"
-          ? t("skillPool.editTitle", { name: activeSkill?.name || "" })
-          : t("skillPool.createTitle")
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span>
+            {mode === "edit"
+              ? t("skillPool.editTitle", { name: activeSkill?.name || "" })
+              : t("skillPool.createTitle")}
+          </span>
+          {mode === "edit" && activeSkill && poolSkillDir && (
+            <Button
+              size="small"
+              type="link"
+              icon={<FolderOpenOutlined />}
+              onClick={async () => {
+                const result = await openInFolder(poolSkillDir);
+                if (!result.success && result.reason === "not_tauri") {
+                  message.warning(t("skills.openInFolderNotDesktop", { path: result.path }));
+                } else if (!result.success && result.reason === "error") {
+                  message.error(String(result.error));
+                }
+              }}
+            >
+              {t("skills.openInFolder")}
+            </Button>
+          )}
+        </div>
       }
       open={mode === "create" || mode === "edit"}
       onClose={onClose}
