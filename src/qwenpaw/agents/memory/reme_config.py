@@ -597,6 +597,7 @@ def _base_components() -> dict[str, Any]:
                 "model": "",
                 "credential": {"api_key": "", "base_url": ""},
                 "parameters": {},
+                "dimensions": 1024,
             },
         },
         "embedding_store": {
@@ -637,17 +638,18 @@ def _apply_embedding_config(
         else ""
     )
 
-    components["as_embedding"]["default"].update(
-        {
-            "backend": embedding_config.backend,
-            "model": embedding_config.model_name,
-            "credential": {
-                "api_key": embedding_config.api_key,
-                "base_url": embedding_config.base_url,
-            },
-            "parameters": parameters,
+    _embedding_component: dict[str, Any] = {
+        "backend": embedding_config.backend,
+        "model": embedding_config.model_name,
+        "credential": {
+            "api_key": embedding_config.api_key,
+            "base_url": embedding_config.base_url,
         },
-    )
+        "parameters": parameters,
+    }
+    if embedding_config.use_dimensions and "dimensions" in parameters:
+        _embedding_component["dimensions"] = parameters["dimensions"]
+    components["as_embedding"]["default"].update(_embedding_component)
     components["embedding_store"]["default"].update(
         {
             "enable_cache": embedding_config.enable_cache,
