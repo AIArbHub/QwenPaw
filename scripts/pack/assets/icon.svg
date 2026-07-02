@@ -1,30 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" version="1.1" width="512" height="512" viewBox="0 0 512 512">
-  <!-- AI Arb App Icon: Abstract "A" with circuit nodes on gradient background -->
-  <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1B2D54;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#4A90D9;stop-opacity:1" />
-    </linearGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#1B2D54" flood-opacity="0.3"/>
-    </filter>
-  </defs>
-  <!-- Background rounded square -->
-  <rect x="24" y="24" width="464" height="464" rx="96" fill="url(#bgGrad)" filter="url(#shadow)"/>
-  <!-- "A" letterform -->
-  <path d="M256 100 L360 400 L320 400 L292 310 L220 310 L192 400 L152 400 Z" fill="#FFFFFF"/>
-  <rect x="224" y="310" width="64" height="20" rx="4" fill="rgba(27,45,84,0.4)"/>
-  <!-- Circuit nodes -->
-  <circle cx="256" cy="100" r="16" fill="#FFFFFF"/>
-  <circle cx="152" cy="400" r="16" fill="#FFFFFF"/>
-  <circle cx="360" cy="400" r="16" fill="#FFFFFF"/>
-  <!-- Small decorative dots -->
-  <circle cx="100" cy="150" r="8" fill="rgba(255,255,255,0.4)"/>
-  <circle cx="412" cy="150" r="8" fill="rgba(255,255,255,0.4)"/>
-  <circle cx="100" cy="360" r="8" fill="rgba(255,255,255,0.4)"/>
-  <circle cx="412" cy="360" r="8" fill="rgba(255,255,255,0.4)"/>
-  <!-- Connection lines -->
-  <line x1="256" y1="116" x2="256" y2="150" stroke="rgba(255,255,255,0.6)" stroke-width="4" stroke-dasharray="6,6"/>
-  <line x1="168" y1="388" x2="192" y2="355" stroke="rgba(255,255,255,0.6)" stroke-width="4" stroke-dasharray="6,6"/>
-  <line x1="344" y1="388" x2="320" y2="355" stroke="rgba(255,255,255,0.6)" stroke-width="4" stroke-dasharray="6,6"/>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="200" height="200" viewBox="0 0 200 200">
+  <text x="100" y="150" text-anchor="middle" font-family="'Inter','SF Pro Display','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="140" font-weight="700" letter-spacing="1">
+    <tspan fill="#1B2D54">A</tspan><tspan fill="#4A90D9">A</tspan>
+  </text>
 </svg>
