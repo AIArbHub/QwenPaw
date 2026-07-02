@@ -21,10 +21,16 @@ def qwenpaw_working_dir() -> Path:
 
         return Path(WORKING_DIR).expanduser().resolve()
     except Exception:
+        aiarb_dir = Path("~/.aiarb").expanduser()
+        if aiarb_dir.exists():
+            return aiarb_dir.resolve()
+        legacy_qwenpaw = Path("~/.qwenpaw").expanduser()
+        if legacy_qwenpaw.exists():
+            return legacy_qwenpaw.resolve()
         legacy = Path("~/.copaw").expanduser()
         if legacy.exists():
             return legacy.resolve()
-        return Path("~/.qwenpaw").expanduser().resolve()
+        return aiarb_dir.resolve()
 
 
 def pets_install_dir() -> Path:

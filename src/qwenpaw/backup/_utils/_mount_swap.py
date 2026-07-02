@@ -8,7 +8,7 @@ to rename the mount directory itself (typically ``EBUSY`` on Linux).
 
 This module keeps the mount directory stable and swaps only its children:
 
-1. ``evacuating_old``: move existing children into ``.qwenpaw_restore_old``.
+1. ``evacuating_old``: move existing children into ``.aiarb_restore_old``.
 2. ``installing_new``: move staged children from the sibling ``.restore_tmp``.
 3. ``committed``: new contents are live; only cleanup remains.
 

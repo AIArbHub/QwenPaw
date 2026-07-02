@@ -65,7 +65,7 @@ def _tracing_factory(ctx: Any, agent_config: Any) -> TracingMiddleware | None:
     if workspace_dir is None:
         return None
 
-    trace_file = Path(workspace_dir) / ".qwenpaw" / "trace.log"
+    trace_file = Path(workspace_dir) / ".aiarb" / "trace.log"
     return TracingMiddleware(trace_file=trace_file)
 
 

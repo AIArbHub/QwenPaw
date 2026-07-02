@@ -121,7 +121,7 @@ class FileLoopGate(LoopGate):
         sid: str,
     ) -> Path:
         """Session-scoped state directory."""
-        return workspace_dir / ".qwenpaw" / "loop_state" / sid
+        return workspace_dir / ".aiarb" / "loop_state" / sid
 
 
 __all__ = ["FileLoopGate"]

@@ -186,14 +186,17 @@ def _get_blocked_history_path() -> Path:
 
         return WORKING_DIR / _BLOCKED_HISTORY_FILE
     except Exception:
-        legacy2_dir = Path.home() / _WORKING_DIR_LEGACY2_NAME
+        current_dir = Path.home() / _WORKING_DIR_CURRENT_NAME
         legacy_dir = Path.home() / _WORKING_DIR_LEGACY_NAME
+        legacy2_dir = Path.home() / _WORKING_DIR_LEGACY2_NAME
         base_dir = (
-            legacy2_dir
-            if legacy2_dir.exists()
+            current_dir
+            if current_dir.exists()
             else legacy_dir
             if legacy_dir.exists()
-            else Path.home() / _WORKING_DIR_CURRENT_NAME
+            else legacy2_dir
+            if legacy2_dir.exists()
+            else current_dir
         )
         return base_dir / _BLOCKED_HISTORY_FILE
 
