@@ -224,6 +224,19 @@
     "createFirstHarvest": "Create Your First Harvest",
     "createSuccess": "Harvest created successfully",
     "emptyApprovals": "No pending approvals",
+    "emptyApprovalHistory": "No approval history",
+    "approvalPending": "Pending",
+    "approvalHistory": "History",
+    "filterBySeverity": "Filter by severity",
+    "filterByStatus": "Filter by status",
+    "clearHistory": "Clear History",
+    "clearHistoryConfirm": "Are you sure you want to clear all approval history? This action cannot be undone.",
+    "approvalSeverity": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "critical": "Critical"
+    },
     "emptyPush": "No push messages",
     "wobbleEnable": "Enable approval wobble notification",
     "wobbleDisable": "Disable approval wobble notification",
@@ -255,7 +268,28 @@
     "detailPayload": "Payload",
     "detailExecutionTrace": "Execution Trace",
     "detailTraceEmpty": "No execution trace available",
-    "filterByAgent": "Filter by agent"
+    "filterByAgent": "Filter by agent",
+    "filterBySource": "Filter by source",
+    "filterByPriority": "Filter by priority",
+    "unreadOnly": "Unread only",
+    "notificationSettings": "Notification Settings",
+    "notificationSettingsDesc": "Manage how push messages are displayed and received.",
+    "muteSettings": "Mute",
+    "muteSettingsDesc": "Temporarily hide messages from a source. Messages are still received in the background and will reappear when unmuted.",
+    "blockSettings": "Block",
+    "blockSettingsDesc": "Completely stop receiving messages from a source. Only new messages will appear when unblocked.",
+    "sourceType": {
+      "heartbeat": "Heartbeat",
+      "cron": "Cron Job",
+      "memory": "Auto Memory",
+      "skill_autoupdate": "Skill Sync"
+    },
+    "priority": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent"
+    }
   },
   "acp": {
     "title": "ACP",
@@ -2877,7 +2911,14 @@
     "approvePattern": "Approve Pattern",
     "strictModeHint": "Always allow is unavailable in strict mode",
     "approveExact": "Approve Exact",
-    "approvalScope": "Approval scope"
+    "approvalScope": "Approval scope",
+    "statusApproved": "Approved",
+    "statusDenied": "Denied",
+    "statusTimeout": "Timed Out",
+    "statusCancelled": "Cancelled",
+    "statusSuperseded": "Superseded",
+    "createdAt": "Created at",
+    "resolvedAt": "Resolved at"
   },
   "pluginManager": {
     "title": "Plugin Manager",

@@ -2585,16 +2585,17 @@
     "denied": "ツール呼び出しが拒否されました",
     "approveFailed": "承認に失敗しました",
     "denyFailed": "拒否に失敗しました",
-    "approvePattern": "常に許可",
+    "approvePattern": "パターンを承認",
     "strictModeHint": "厳格モードでは常に許可できません",
-    "approveExact": "今回のみ",
+    "approveExact": "原文のみ承認",
     "approvalScope": "承認スコープ",
-    "details": "詳細",
-    "timeoutAutoDenied": "タイムアウト、自動拒否",
-    "acknowledge": "了解",
-    "builtinSource": "組み込み",
-    "ownerAgent": "オーナーエージェント",
-    "executingAgent": "実行エージェント"
+    "statusApproved": "承認済み",
+    "statusDenied": "拒否済み",
+    "statusTimeout": "タイムアウト",
+    "statusCancelled": "キャンセル済み",
+    "statusSuperseded": "置換済み",
+    "createdAt": "作成日時",
+    "resolvedAt": "処理日時"
   },
   "pluginManager": {
     "title": "プラグインマネージャー",
@@ -2692,6 +2693,19 @@
     "createFirstHarvest": "最初の Harvest を作成",
     "createSuccess": "Harvest を作成しました",
     "emptyApprovals": "保留中の承認はありません",
+    "emptyApprovalHistory": "承認履歴はありません",
+    "approvalPending": "待機中",
+    "approvalHistory": "履歴",
+    "filterBySeverity": "重大度で絞り込み",
+    "filterByStatus": "ステータスで絞り込み",
+    "clearHistory": "履歴をクリア",
+    "clearHistoryConfirm": "すべての承認履歴をクリアしますか？この操作は元に戻せません。",
+    "approvalSeverity": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "critical": "重大"
+    },
     "emptyPush": "通知はありません",
     "wobbleEnable": "承認の揺れ通知を有効にする",
     "wobbleDisable": "承認の揺れ通知を無効にする",
@@ -2722,7 +2736,29 @@
     "detailContent": "出力",
     "detailPayload": "追加情報",
     "detailExecutionTrace": "実行トレース",
-    "detailTraceEmpty": "実行トレースはありません"
+    "detailTraceEmpty": "実行トレースはありません",
+    "filterByAgent": "Agentで絞り込み",
+    "filterBySource": "ソースで絞り込み",
+    "filterByPriority": "優先度で絞り込み",
+    "unreadOnly": "未読のみ",
+    "notificationSettings": "通知設定",
+    "notificationSettingsDesc": "プッシュメッセージの表示と受信方法を管理します。",
+    "muteSettings": "ミュート",
+    "muteSettingsDesc": "ソースのメッセージを一時的に非表示にします。メッセージはバックグラウンドで受信され、ミュート解除時に再表示されます。",
+    "blockSettings": "ブロック",
+    "blockSettingsDesc": "ソースからのメッセージ受信を完全に停止します。ブロック解除後は新しいメッセージのみ表示されます。",
+    "sourceType": {
+      "heartbeat": "ハートビート",
+      "cron": "定期実行",
+      "memory": "自動メモリ",
+      "skill_autoupdate": "スキル同期"
+    },
+    "priority": {
+      "low": "低",
+      "normal": "通常",
+      "high": "高",
+      "urgent": "緊急"
+    }
   },
   "codingMode": {
     "title": "コーディングモード",

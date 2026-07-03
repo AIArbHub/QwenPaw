@@ -2735,6 +2735,19 @@
     "createFirstHarvest": "Crie sua primeira colheita",
     "createSuccess": "Colheita criada com sucesso",
     "emptyApprovals": "Nenhuma aprovação pendente",
+    "emptyApprovalHistory": "Nenhum histórico de aprovação",
+    "approvalPending": "Pendente",
+    "approvalHistory": "Histórico",
+    "filterBySeverity": "Filtrar por severidade",
+    "filterByStatus": "Filtrar por status",
+    "clearHistory": "Limpar histórico",
+    "clearHistoryConfirm": "Tem certeza de que deseja limpar todo o histórico de aprovações? Esta ação não pode ser desfeita.",
+    "approvalSeverity": {
+      "low": "Baixa",
+      "medium": "Média",
+      "high": "Alta",
+      "critical": "Crítica"
+    },
     "emptyPush": "Nenhuma mensagem push",
     "wobbleEnable": "Ativar notificação de aprovação por vibração",
     "wobbleDisable": "Desativar notificação de aprovação por vibração",
@@ -2765,7 +2778,29 @@
     "detailContent": "Saída",
     "detailPayload": "Dados",
     "detailExecutionTrace": "Rastro de execução",
-    "detailTraceEmpty": "Nenhum rastro de execução disponível"
+    "detailTraceEmpty": "Nenhum rastro de execução disponível",
+    "filterByAgent": "Filtrar por agente",
+    "filterBySource": "Filtrar por origem",
+    "filterByPriority": "Filtrar por prioridade",
+    "unreadOnly": "Somente não lidas",
+    "notificationSettings": "Configurações de notificação",
+    "notificationSettingsDesc": "Gerencie como as mensagens push são exibidas e recebidas.",
+    "muteSettings": "Silenciar",
+    "muteSettingsDesc": "Ocultar temporariamente mensagens de uma origem. As mensagens ainda são recebidas em segundo plano e reaparecerão ao desativar o silêncio.",
+    "blockSettings": "Bloquear",
+    "blockSettingsDesc": "Parar completamente de receber mensagens de uma origem. Apenas mensagens novas aparecerão ao desbloquear.",
+    "sourceType": {
+      "heartbeat": "Heartbeat",
+      "cron": "Tarefa agendada",
+      "memory": "Memória automática",
+      "skill_autoupdate": "Sincronização de skills"
+    },
+    "priority": {
+      "low": "Baixa",
+      "normal": "Normal",
+      "high": "Alta",
+      "urgent": "Urgente"
+    }
   },
   "codingMode": {
     "title": "Modo de Codificação",

@@ -145,8 +145,21 @@
     "createHarvest": "Create Harvest",
     "createFirstHarvest": "Create Your First Harvest",
     "createSuccess": "Harvest created successfully",
-    "emptyApprovals": "No pending approvals",
-    "emptyPush": "No push messages",
+    "emptyApprovals": "Aucune approbation en attente",
+    "emptyApprovalHistory": "Aucun historique d'approbation",
+    "approvalPending": "En attente",
+    "approvalHistory": "Historique",
+    "filterBySeverity": "Filtrer par sévérité",
+    "filterByStatus": "Filtrer par statut",
+    "clearHistory": "Effacer l'historique",
+    "clearHistoryConfirm": "Voulez-vous vraiment effacer tout l'historique des approbations ? Cette action est irréversible.",
+    "approvalSeverity": {
+      "low": "Faible",
+      "medium": "Moyen",
+      "high": "Élevé",
+      "critical": "Critique"
+    },
+    "emptyPush": "Aucun message push",
     "emptyHarvests": "No harvests yet",
     "statusReadyToHarvest": "Ready to Harvest",
     "statusGrowing": "Growing",
@@ -175,7 +188,28 @@
     "detailPayload": "Payload",
     "detailExecutionTrace": "Execution Trace",
     "detailTraceEmpty": "No execution trace available",
-    "filterByAgent": "Filter by agent"
+    "filterByAgent": "Filter by agent",
+    "filterBySource": "Filtrer par source",
+    "filterByPriority": "Filtrer par priorité",
+    "unreadOnly": "Non lus uniquement",
+    "notificationSettings": "Paramètres de notification",
+    "notificationSettingsDesc": "Gérez l'affichage et la réception des messages push.",
+    "muteSettings": "Silencieux",
+    "muteSettingsDesc": "Masquez temporairement les messages d'une source. Les messages sont toujours reçus en arrière-plan et réapparaîtront lorsque le mode silencieux est désactivé.",
+    "blockSettings": "Bloquer",
+    "blockSettingsDesc": "Arrêtez complètement de recevoir les messages d'une source. Seuls les nouveaux messages apparaîtront lorsque le blocage est désactivé.",
+    "sourceType": {
+      "heartbeat": "Heartbeat",
+      "cron": "Tâche planifiée",
+      "memory": "Mémoire auto",
+      "skill_autoupdate": "Synchro compétences"
+    },
+    "priority": {
+      "low": "Bas",
+      "normal": "Normal",
+      "high": "Élevé",
+      "urgent": "Urgent"
+    }
   },
   "acp": {
     "title": "ACP",

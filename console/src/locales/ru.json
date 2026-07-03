@@ -2710,6 +2710,19 @@
     "createFirstHarvest": "Создайте первый сбор",
     "createSuccess": "Сбор успешно создан",
     "emptyApprovals": "Нет ожидающих подтверждений",
+    "emptyApprovalHistory": "Нет истории подтверждений",
+    "approvalPending": "Ожидающие",
+    "approvalHistory": "История",
+    "filterBySeverity": "Фильтр по важности",
+    "filterByStatus": "Фильтр по статусу",
+    "clearHistory": "Очистить историю",
+    "clearHistoryConfirm": "Вы уверены, что хотите очистить всю историю подтверждений? Это действие нельзя отменить.",
+    "approvalSeverity": {
+      "low": "Низкий",
+      "medium": "Средний",
+      "high": "Высокий",
+      "critical": "Критический"
+    },
     "emptyPush": "Нет push-сообщений",
     "wobbleEnable": "Включить уведомление о подтверждении",
     "wobbleDisable": "Отключить уведомление о подтверждении",
@@ -2740,7 +2753,29 @@
     "detailContent": "Вывод",
     "detailPayload": "Данные",
     "detailExecutionTrace": "Трассировка выполнения",
-    "detailTraceEmpty": "Трассировка выполнения недоступна"
+    "detailTraceEmpty": "Трассировка выполнения недоступна",
+    "filterByAgent": "Фильтр по агенту",
+    "filterBySource": "Фильтр по источнику",
+    "filterByPriority": "Фильтр по приоритету",
+    "unreadOnly": "Только непрочитанные",
+    "notificationSettings": "Настройки уведомлений",
+    "notificationSettingsDesc": "Управление отображением и получением push-сообщений.",
+    "muteSettings": "Без звука",
+    "muteSettingsDesc": "Временно скрыть сообщения от источника. Сообщения по-прежнему поступают в фоновом режиме и появятся при отключении беззвучного режима.",
+    "blockSettings": "Блокировать",
+    "blockSettingsDesc": "Полностью прекратить получение сообщений от источника. При разблокировке появятся только новые сообщения.",
+    "sourceType": {
+      "heartbeat": "Heartbeat",
+      "cron": "Cron-задача",
+      "memory": "Автоматическая память",
+      "skill_autoupdate": "Синхронизация навыков"
+    },
+    "priority": {
+      "low": "Низкий",
+      "normal": "Обычный",
+      "high": "Высокий",
+      "urgent": "Срочный"
+    }
   },
   "codingMode": {
     "title": "Режим кодирования",

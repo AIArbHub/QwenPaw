@@ -322,6 +322,19 @@
     "createFirstHarvest": "Tạo thu hoạch đầu tiên",
     "createSuccess": "Tạo thu hoạch thành công",
     "emptyApprovals": "Không có phê duyệt nào đang chờ",
+    "emptyApprovalHistory": "Không có lịch sử phê duyệt",
+    "approvalPending": "Chờ phê duyệt",
+    "approvalHistory": "Đã phê duyệt",
+    "filterBySeverity": "Lọc theo mức độ",
+    "filterByStatus": "Lọc theo trạng thái",
+    "clearHistory": "Xóa lịch sử",
+    "clearHistoryConfirm": "Bạn có chắc muốn xóa tất cả lịch sử phê duyệt? Hành động này không thể hoàn tác.",
+    "approvalSeverity": {
+      "low": "Thấp",
+      "medium": "Trung bình",
+      "high": "Cao",
+      "critical": "Nghiêm trọng"
+    },
     "emptyPush": "Không có tin nhắn đẩy",
     "wobbleEnable": "Bật thông báo rung phê duyệt",
     "wobbleDisable": "Tắt thông báo rung phê duyệt",
@@ -353,7 +366,28 @@
     "detailPayload": "Payload",
     "detailExecutionTrace": "Trace thực thi",
     "detailTraceEmpty": "Không có trace",
-    "filterByAgent": "Lọc theo agent"
+    "filterByAgent": "Lọc theo agent",
+    "filterBySource": "Lọc theo nguồn",
+    "filterByPriority": "Lọc theo mức ưu tiên",
+    "unreadOnly": "Chỉ chưa đọc",
+    "notificationSettings": "Cài đặt thông báo",
+    "notificationSettingsDesc": "Quản lý cách hiển thị và nhận thông báo đẩy.",
+    "muteSettings": "Tắt tiếng",
+    "muteSettingsDesc": "Tạm thời ẩn tin nhắn từ một nguồn. Tin nhắn vẫn được nhận trong nền và sẽ hiển thị lại khi bật tiếng.",
+    "blockSettings": "Chặn",
+    "blockSettingsDesc": "Ngừng hoàn toàn việc nhận tin nhắn từ một nguồn. Chỉ tin nhắn mới sẽ hiển thị khi bỏ chặn.",
+    "sourceType": {
+      "heartbeat": "Heartbeat",
+      "cron": "Cron Job",
+      "memory": "Tự động ghi nhớ",
+      "skill_autoupdate": "Đồng bộ kỹ năng"
+    },
+    "priority": {
+      "low": "Thấp",
+      "normal": "Bình thường",
+      "high": "Cao",
+      "urgent": "Khẩn cấp"
+    }
   },
   "acp": {
     "title": "ACP",

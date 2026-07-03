@@ -145,8 +145,21 @@
     "createHarvest": "Create Harvest",
     "createFirstHarvest": "Create Your First Harvest",
     "createSuccess": "Harvest created successfully",
-    "emptyApprovals": "No pending approvals",
-    "emptyPush": "No push messages",
+    "emptyApprovals": "Sin aprobaciones pendientes",
+    "emptyApprovalHistory": "Sin historial de aprobaciones",
+    "approvalPending": "Pendiente",
+    "approvalHistory": "Historial",
+    "filterBySeverity": "Filtrar por severidad",
+    "filterByStatus": "Filtrar por estado",
+    "clearHistory": "Borrar historial",
+    "clearHistoryConfirm": "¿Está seguro de que desea borrar todo el historial de aprobaciones? Esta acción no se puede deshacer.",
+    "approvalSeverity": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta",
+      "critical": "Crítica"
+    },
+    "emptyPush": "Sin mensajes push",
     "emptyHarvests": "No harvests yet",
     "statusReadyToHarvest": "Ready to Harvest",
     "statusGrowing": "Growing",
@@ -175,7 +188,28 @@
     "detailPayload": "Payload",
     "detailExecutionTrace": "Execution Trace",
     "detailTraceEmpty": "No execution trace available",
-    "filterByAgent": "Filter by agent"
+    "filterByAgent": "Filter by agent",
+    "filterBySource": "Filtrar por origen",
+    "filterByPriority": "Filtrar por prioridad",
+    "unreadOnly": "Solo no leídos",
+    "notificationSettings": "Ajustes de notificaciones",
+    "notificationSettingsDesc": "Gestiona cómo se muestran y reciben los mensajes push.",
+    "muteSettings": "Silenciar",
+    "muteSettingsDesc": "Oculta temporalmente los mensajes de un origen. Los mensajes se siguen recibiendo en segundo plano y reaparecerán al desactivar el silencio.",
+    "blockSettings": "Bloquear",
+    "blockSettingsDesc": "Deja de recibir completamente los mensajes de un origen. Solo los mensajes nuevos aparecerán al desbloquear.",
+    "sourceType": {
+      "heartbeat": "Heartbeat",
+      "cron": "Tarea programada",
+      "memory": "Memoria automática",
+      "skill_autoupdate": "Sincronización de habilidades"
+    },
+    "priority": {
+      "low": "Bajo",
+      "normal": "Normal",
+      "high": "Alto",
+      "urgent": "Urgente"
+    }
   },
   "acp": {
     "title": "ACP",

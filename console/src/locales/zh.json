@@ -224,6 +224,19 @@
     "createFirstHarvest": "创建第一个 Harvest",
     "createSuccess": "Harvest 创建成功",
     "emptyApprovals": "暂无待审批项",
+    "emptyApprovalHistory": "暂无审批历史",
+    "approvalPending": "待审批",
+    "approvalHistory": "已审批",
+    "filterBySeverity": "按严重性筛选",
+    "filterByStatus": "按状态筛选",
+    "clearHistory": "清空历史",
+    "clearHistoryConfirm": "确定清空所有审批历史记录吗？此操作不可撤销。",
+    "approvalSeverity": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "critical": "严重"
+    },
     "emptyPush": "暂无推送消息",
     "wobbleEnable": "开启审批震动提醒",
     "wobbleDisable": "关闭审批震动提醒",
@@ -255,7 +268,28 @@
     "detailPayload": "附加信息",
     "detailExecutionTrace": "执行轨迹",
     "detailTraceEmpty": "暂无执行轨迹",
-    "filterByAgent": "按 Agent 筛选"
+    "filterByAgent": "按 Agent 筛选",
+    "filterBySource": "按来源筛选",
+    "filterByPriority": "按优先级筛选",
+    "unreadOnly": "仅未读",
+    "notificationSettings": "通知设置",
+    "notificationSettingsDesc": "管理推送消息的显示与接收方式。",
+    "muteSettings": "免打扰",
+    "muteSettingsDesc": "临时隐藏某来源的消息，消息仍在后台接收，重新打开后历史消息会恢复显示。",
+    "blockSettings": "屏蔽",
+    "blockSettingsDesc": "彻底停止接收某来源的消息，重新打开后只能看到新消息。",
+    "sourceType": {
+      "heartbeat": "心跳任务",
+      "cron": "定时任务",
+      "memory": "自动记忆",
+      "skill_autoupdate": "技能同步"
+    },
+    "priority": {
+      "low": "低",
+      "normal": "普通",
+      "high": "高",
+      "urgent": "紧急"
+    }
   },
   "workspace": {
     "title": "文件",
@@ -2888,7 +2922,14 @@
     "approvePattern": "批准通用规则",
     "strictModeHint": "严格模式下无法总是允许",
     "approveExact": "仅批准原文",
-    "approvalScope": "批准范围"
+    "approvalScope": "批准范围",
+    "statusApproved": "已批准",
+    "statusDenied": "已拒绝",
+    "statusTimeout": "已超时",
+    "statusCancelled": "已取消",
+    "statusSuperseded": "已替换",
+    "createdAt": "创建时间",
+    "resolvedAt": "处理时间"
   },
   "pluginManager": {
     "title": "插件管理",

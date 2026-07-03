@@ -145,8 +145,21 @@
     "createHarvest": "Create Harvest",
     "createFirstHarvest": "Create Your First Harvest",
     "createSuccess": "Harvest created successfully",
-    "emptyApprovals": "No pending approvals",
-    "emptyPush": "No push messages",
+    "emptyApprovals": "لا توجد موافقات معلقة",
+    "emptyApprovalHistory": "لا يوجد سجل موافقات",
+    "approvalPending": "معلق",
+    "approvalHistory": "السجل",
+    "filterBySeverity": "تصفية حسب الخطورة",
+    "filterByStatus": "تصفية حسب الحالة",
+    "clearHistory": "مسح السجل",
+    "clearHistoryConfirm": "هل أنت متأكد من مسح سجل الموافقات بالكامل؟ لا يمكن التراجع عن هذا الإجراء.",
+    "approvalSeverity": {
+      "low": "منخفض",
+      "medium": "متوسط",
+      "high": "مرتفع",
+      "critical": "حرج"
+    },
+    "emptyPush": "لا توجد رسائل",
     "emptyHarvests": "No harvests yet",
     "statusReadyToHarvest": "Ready to Harvest",
     "statusGrowing": "Growing",
@@ -175,7 +188,28 @@
     "detailPayload": "Payload",
     "detailExecutionTrace": "Execution Trace",
     "detailTraceEmpty": "No execution trace available",
-    "filterByAgent": "Filter by agent"
+    "filterByAgent": "Filter by agent",
+    "filterBySource": "تصفية حسب المصدر",
+    "filterByPriority": "تصفية حسب الأولوية",
+    "unreadOnly": "غير المقروءة فقط",
+    "notificationSettings": "إعدادات الإشعارات",
+    "notificationSettingsDesc": "إدارة كيفية عرض واستقبال الرسائل.",
+    "muteSettings": "كتم",
+    "muteSettingsDesc": "إخفاء مؤقت للرسائل من مصدر. لا تزال الرسائل مستلمة في الخلفية وستظهر مرة أخرى عند إلغاء الكتم.",
+    "blockSettings": "حظر",
+    "blockSettingsDesc": "إيقاف استقبال الرسائل من مصدر بالكامل. فقط الرسائل الجديدة ستظهر عند إلغاء الحظر.",
+    "sourceType": {
+      "heartbeat": "نبض القلب",
+      "cron": "مهمة مجدولة",
+      "memory": "ذاكرة تلقائية",
+      "skill_autoupdate": "مزامنة المهارات"
+    },
+    "priority": {
+      "low": "منخفض",
+      "normal": "عادي",
+      "high": "مرتفع",
+      "urgent": "عاجل"
+    }
   },
   "acp": {
     "title": "ACP",

@@ -130,7 +130,14 @@ const mapEventToPushMessage = (
   },
 });
 
-export const useInboxData = () => {
+export interface InboxFilters {
+  sourceType?: string;
+  agentId?: string;
+  unreadOnly?: boolean;
+  excludedSourceTypes?: string[];
+}
+
+export const useInboxData = (filters?: InboxFilters) => {
   const { t } = useTranslation();
   const agents = useAgentStore((state) => state.agents);
   const agentsById = useMemo(
@@ -155,6 +162,8 @@ export const useInboxData = () => {
   resolveAgentNameRef.current = resolveAgentName;
   const tRef = useRef(t);
   tRef.current = t;
+  const filtersRef = useRef(filters);
+  filtersRef.current = filters;
   const [summary, setSummary] = useState<InboxSummary>({
     approvals: { total: 0, urgent: 0 },
     pushMessages: { total: 0, unread: 0 },
@@ -170,11 +179,18 @@ export const useInboxData = () => {
 
   const loadPushMessages = useCallback(async () => {
     try {
-      const res = await api.getInboxEvents({ limit: 200 });
+      const f = filtersRef.current;
+      const res = await api.getInboxEvents({
+        limit: 200,
+        source_type: f?.sourceType,
+        agent_id: f?.agentId,
+        unread_only: f?.unreadOnly,
+      });
+      const excluded = new Set(f?.excludedSourceTypes || []);
       const events = [...(res?.events || [])].filter((event) =>
         ["cron", "heartbeat", "memory", "skill_autoupdate"].includes(
           event.source_type,
-        ),
+        ) && !excluded.has(event.source_type),
       );
       events.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
       const nextItems: PushMessage[] = events.map((event) =>

@@ -146,6 +146,19 @@
     "createFirstHarvest": "創建第一個 Harvest",
     "createSuccess": "Harvest 創建成功",
     "emptyApprovals": "暫無待審批項",
+    "emptyApprovalHistory": "暫無審批歷史",
+    "approvalPending": "待審批",
+    "approvalHistory": "已審批",
+    "filterBySeverity": "按嚴重性篩選",
+    "filterByStatus": "按狀態篩選",
+    "clearHistory": "清空歷史",
+    "clearHistoryConfirm": "確定清空所有審批歷史記錄嗎？此操作不可撤銷。",
+    "approvalSeverity": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "critical": "嚴重"
+    },
     "emptyPush": "暫無推播訊息",
     "emptyHarvests": "暫無 Harvest 任務",
     "statusReadyToHarvest": "可立即收穫",
@@ -175,7 +188,28 @@
     "detailPayload": "附加資訊",
     "detailExecutionTrace": "執行軌跡",
     "detailTraceEmpty": "暫無執行軌跡",
-    "filterByAgent": "按 Agent 篩選"
+    "filterByAgent": "按 Agent 篩選",
+    "filterBySource": "按來源篩選",
+    "filterByPriority": "按優先級篩選",
+    "unreadOnly": "僅未讀",
+    "notificationSettings": "通知設定",
+    "notificationSettingsDesc": "管理推送訊息的顯示與接收方式。",
+    "muteSettings": "免打擾",
+    "muteSettingsDesc": "臨時隱藏某來源的訊息，訊息仍在背景接收，重新開啟後歷史訊息會恢復顯示。",
+    "blockSettings": "封鎖",
+    "blockSettingsDesc": "徹底停止接收某來源的訊息，重新開啟後只能看到新訊息。",
+    "sourceType": {
+      "heartbeat": "心跳任務",
+      "cron": "定時任務",
+      "memory": "自動記憶",
+      "skill_autoupdate": "技能同步"
+    },
+    "priority": {
+      "low": "低",
+      "normal": "普通",
+      "high": "高",
+      "urgent": "緊急"
+    }
   },
   "workspace": {
     "title": "檔案",
@@ -2481,7 +2515,17 @@
     "cancelTask": "取消任務",
     "denyFailed": "拒絕失敗",
     "timeoutAutoDenied": "已超時，自動拒絕",
-    "acknowledge": "我知道了"
+    "acknowledge": "我知道了",
+    "approvePattern": "批准通用規則",
+    "approveExact": "僅批准原文",
+    "approvalScope": "批准範圍",
+    "statusApproved": "已批准",
+    "statusDenied": "已拒絕",
+    "statusTimeout": "已超時",
+    "statusCancelled": "已取消",
+    "statusSuperseded": "已替換",
+    "createdAt": "創建時間",
+    "resolvedAt": "處理時間"
   },
   "plan": {
     "title": "計劃",

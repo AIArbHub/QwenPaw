@@ -1141,6 +1141,19 @@
     "createFirstHarvest": "Buat Panen Pertama Anda",
     "createSuccess": "Panen berhasil dibuat",
     "emptyApprovals": "Tidak ada persetujuan yang tertunda",
+    "emptyApprovalHistory": "Tidak ada riwayat persetujuan",
+    "approvalPending": "Tertunda",
+    "approvalHistory": "Riwayat",
+    "filterBySeverity": "Filter berdasarkan tingkat keparahan",
+    "filterByStatus": "Filter berdasarkan status",
+    "clearHistory": "Hapus riwayat",
+    "clearHistoryConfirm": "Apakah Anda yakin ingin menghapus semua riwayat persetujuan? Tindakan ini tidak dapat dibatalkan.",
+    "approvalSeverity": {
+      "low": "Rendah",
+      "medium": "Sedang",
+      "high": "Tinggi",
+      "critical": "Kritis"
+    },
     "emptyPush": "Tidak ada pesan push",
     "wobbleEnable": "Aktifkan notifikasi getar persetujuan",
     "wobbleDisable": "Nonaktifkan notifikasi getar persetujuan",
@@ -1172,7 +1185,28 @@
     "detailPayload": "Payload",
     "detailExecutionTrace": "Jejak Eksekusi",
     "detailTraceEmpty": "Tidak ada jejak eksekusi",
-    "filterByAgent": "Filter berdasarkan agen"
+    "filterByAgent": "Filter berdasarkan agen",
+    "filterBySource": "Filter berdasarkan sumber",
+    "filterByPriority": "Filter berdasarkan prioritas",
+    "unreadOnly": "Hanya belum dibaca",
+    "notificationSettings": "Pengaturan Notifikasi",
+    "notificationSettingsDesc": "Kelola cara pesan push ditampilkan dan diterima.",
+    "muteSettings": "Bisukan",
+    "muteSettingsDesc": "Sembunyikan sementara pesan dari suatu sumber. Pesan masih diterima di latar belakang dan akan muncul kembali saat bisukan dinonaktifkan.",
+    "blockSettings": "Blokir",
+    "blockSettingsDesc": "Hentikan sepenuhnya penerimaan pesan dari suatu sumber. Hanya pesan baru yang akan muncul saat blokir dinonaktifkan.",
+    "sourceType": {
+      "heartbeat": "Heartbeat",
+      "cron": "Cron Job",
+      "memory": "Memori Otomatis",
+      "skill_autoupdate": "Sinkronisasi Skill"
+    },
+    "priority": {
+      "low": "Rendah",
+      "normal": "Normal",
+      "high": "Tinggi",
+      "urgent": "Mendesak"
+    }
   },
   "acp": {
     "title": "ACP",

@@ -43,6 +43,12 @@
 .wobbleToggleActive {
   color: #ff7f16 !important;
 }
+.approvalSubTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+}
 
 .tabContent {
   padding-bottom: 8px;
@@ -62,6 +68,81 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 12px;
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filterIcon {
+  color: rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
+}
+
+.settingsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fafafa;
+}
+
+.settingsTitle {
+  font-weight: 600;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.settingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settingsSection + .settingsSection {
+  padding-top: 10px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.08);
+}
+
+.settingsSectionTitle {
+  font-weight: 600;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.settingsSectionDesc {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  line-height: 1.5;
+}
+
+.settingsDesc {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.5);
+  line-height: 1.5;
+}
+
+.settingsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.settingsItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settingsItemLabel {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.75);
 }
 
 .messagesSelectionTools {
@@ -445,8 +526,29 @@
   .messageDetailLabel,
   .traceLoading,
   .traceEmpty,
-  .summaryRow {
+  .summaryRow,
+  .settingsDesc,
+  .settingsSectionDesc,
+  .settingsItemLabel {
     color: rgba(255, 255, 255, 0.55);
+  }
+
+  .settingsPanel {
+    background: #1f1f1f;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .settingsTitle,
+  .settingsSectionTitle {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .settingsSection + .settingsSection {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .filterIcon {
+    color: rgba(255, 255, 255, 0.45);
   }
 
   .messageDetailContent,
@@ -549,6 +651,15 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+  }
+
+  .filterRow {
+    width: 100%;
+    flex-wrap: wrap;
+
+    :global(.ant-select) {
+      width: 100% !important;
+    }
   }
 
   .messagesSelectionTools {
