@@ -286,24 +286,26 @@ export function MarketPanel({
               {t("market.selectProviderHint")}
             </div>
           ) : market.anyProviderSupportsBrowse ? (
-            <CategoryTabs
+            <CategorySelect
               categories={market.categories}
               active={market.category}
               onSelect={market.setCategory}
             />
           ) : (
-            <div className={styles.searchHint}>
-              {t("market.searchOnlyHint", { providers: nonBrowseLabel })}
-            </div>
-            <Input.Search
-              className={styles.searchInput}
-              placeholder={t("market.searchPlaceholder")}
-              allowClear
-              value={market.query}
-              onChange={(e) => market.setQuery(e.target.value)}
-              aria-label={t("market.searchPlaceholder")}
-            />
-          </div>
+            <>
+              <div className={styles.searchHint}>
+                {t("market.searchOnlyHint", { providers: nonBrowseLabel })}
+              </div>
+              <Input.Search
+                className={styles.searchInput}
+                placeholder={t("market.searchPlaceholder")}
+                allowClear
+                value={market.query}
+                onChange={(e) => market.setQuery(e.target.value)}
+                aria-label={t("market.searchPlaceholder")}
+              />
+            </>
+          )}
         </div>
 
         {market.query.trim() && !market.loading && !market.globalError && (
