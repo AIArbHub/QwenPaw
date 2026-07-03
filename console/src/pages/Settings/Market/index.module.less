@@ -64,6 +64,59 @@
   }
 }
 
+.chipConfigIcon {
+  margin-left: 4px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+/* ─── Provider config modal ──────────────────────────────────────────────── */
+.configModalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.configModalDesc {
+  font-size: 13px;
+  color: var(--ant-color-text-secondary, rgba(0, 0, 0, 0.45));
+  margin: 0;
+  line-height: 1.6;
+}
+
+.configField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.configLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ant-color-text, rgba(0, 0, 0, 0.88));
+}
+
+.configHelpLink {
+  font-size: 13px;
+  color: var(--ant-color-primary, #1677ff);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+}
+
 /* ─── Toolbar (second layer: category tabs + search) ─────────────────────── */
 .toolbar {
   display: flex;

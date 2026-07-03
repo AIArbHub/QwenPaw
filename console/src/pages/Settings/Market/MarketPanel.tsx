@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Input, Select, Tooltip } from "@agentscope-ai/design";
-import { Check } from "lucide-react";
+import { Button, Input, Modal, Select, Tooltip, message } from "@agentscope-ai/design";
+import { Check, Settings2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAgentStore } from "../../../stores/agentStore";
 import { useMarketSearch } from "./useMarketSearch";
@@ -10,6 +10,7 @@ import {
   type InstallQueueItem,
 } from "./useMarketInstall";
 import type { MarketResult } from "../../../api/modules/market";
+import { envApi } from "../../../api/modules/env";
 import { ResultCard, DetailDrawer, QueueItem, EmptyState } from "./components";
 import styles from "./index.module.less";
 
@@ -52,11 +53,23 @@ const InstallQueuePanel = memo(function InstallQueuePanel({
   );
 });
 
-/** Multi-select provider chips (first filter layer) */
+const PROVIDER_ENV_MAP: Record<string, { keys: string[]; labels: Record<string, string>; helpUrl?: string; helpLabelKey?: string }> = {
+  aliyun: {
+    keys: ["ALIBABA_CLOUD_ACCESS_KEY_ID", "ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
+    labels: {
+      ALIBABA_CLOUD_ACCESS_KEY_ID: "AccessKey ID",
+      ALIBABA_CLOUD_ACCESS_KEY_SECRET: "AccessKey Secret",
+    },
+    helpUrl: "https://usercenter.console.aliyun.com/#/manage/ak",
+    helpLabelKey: "market.configAliyunHelp",
+  },
+};
+
 const ProviderChips = memo(function ProviderChips({
   providers,
   selectedKeys,
   onToggle,
+  onRefreshProviders,
 }: {
   providers: {
     key: string;
@@ -66,12 +79,60 @@ const ProviderChips = memo(function ProviderChips({
   }[];
   selectedKeys: Set<string>;
   onToggle: (key: string) => void;
+  onRefreshProviders: () => void;
 }) {
   const { t } = useTranslation();
+  const [configuringProvider, setConfiguringProvider] = useState<string | null>(null);
+  const [configValues, setConfigValues] = useState<Record<string, string>>({});
+  const [configSaving, setConfigSaving] = useState(false);
+
+  const envSpec = configuringProvider ? PROVIDER_ENV_MAP[configuringProvider] : null;
+
+  const handleOpenConfig = useCallback((providerKey: string) => {
+    const spec = PROVIDER_ENV_MAP[providerKey];
+    if (!spec) return;
+    const initial: Record<string, string> = {};
+    for (const k of spec.keys) {
+      initial[k] = "";
+    }
+    setConfigValues(initial);
+    setConfiguringProvider(providerKey);
+  }, []);
+
+  const handleConfigSave = useCallback(async () => {
+    if (!configuringProvider || !envSpec) return;
+    setConfigSaving(true);
+    try {
+      const currentEnvs = await envApi.listEnvs();
+      const envMap: Record<string, string> = {};
+      for (const e of currentEnvs) {
+        envMap[e.key] = e.value;
+      }
+      for (const k of envSpec.keys) {
+        const val = configValues[k]?.trim();
+        if (!val) {
+          message.error(t("market.configFieldRequired", { field: envSpec.labels[k] || k }));
+          setConfigSaving(false);
+          return;
+        }
+        envMap[k] = val;
+      }
+      await envApi.saveEnvs(envMap);
+      message.success(t("market.configSaved"));
+      setConfiguringProvider(null);
+      onRefreshProviders();
+    } catch (err) {
+      message.error(err instanceof Error ? err.message : t("market.configSaveFailed"));
+    } finally {
+      setConfigSaving(false);
+    }
+  }, [configuringProvider, envSpec, configValues, onRefreshProviders, t]);
+
   return (
     <div className={styles.providerChips}>
       {providers.map((p) => {
         const active = selectedKeys.has(p.key);
+        const hasConfig = !!PROVIDER_ENV_MAP[p.key];
         const klass = [
           styles.chip,
           active ? styles.chipActive : "",
@@ -104,10 +165,70 @@ const ProviderChips = memo(function ProviderChips({
             >
               {active && <Check size={12} strokeWidth={3} />}
               {p.label}
+              {!p.available && hasConfig && (
+                <Settings2
+                  size={12}
+                  className={styles.chipConfigIcon}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenConfig(p.key);
+                  }}
+                />
+              )}
             </span>
           </Tooltip>
         );
       })}
+
+      <Modal
+        open={configuringProvider !== null}
+        title={t("market.configProviderTitle", {
+          provider: configuringProvider
+            ? providers.find((p) => p.key === configuringProvider)?.label ?? configuringProvider
+            : "",
+        })}
+        okText={t("market.configSave")}
+        cancelText={t("common.cancel")}
+        onOk={handleConfigSave}
+        onCancel={() => setConfiguringProvider(null)}
+        confirmLoading={configSaving}
+        destroyOnClose
+      >
+        <div className={styles.configModalContent}>
+          <p className={styles.configModalDesc}>
+            {t("market.configProviderDesc", {
+              provider: configuringProvider
+                ? providers.find((p) => p.key === configuringProvider)?.label ?? configuringProvider
+                : "",
+            })}
+          </p>
+          {envSpec?.helpUrl && (
+            <a
+              className={styles.configHelpLink}
+              href={envSpec.helpUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {envSpec.helpLabelKey ? t(envSpec.helpLabelKey) : t("market.configGetCredentials")}
+            </a>
+          )}
+          {envSpec?.keys.map((k) => (
+            <div key={k} className={styles.configField}>
+              <label className={styles.configLabel}>
+                {envSpec.labels[k] || k}
+              </label>
+              <Input.Password
+                value={configValues[k] ?? ""}
+                onChange={(e) =>
+                  setConfigValues((prev) => ({ ...prev, [k]: e.target.value }))
+                }
+                placeholder={envSpec.labels[k] || k}
+                autoComplete="off"
+              />
+            </div>
+          ))}
+        </div>
+      </Modal>
     </div>
   );
 });
@@ -269,33 +390,28 @@ export function MarketPanel({
           providers={market.providers}
           selectedKeys={market.selectedProviderKeys}
           onToggle={market.toggleProvider}
+          onRefreshProviders={market.refreshProviders}
         />
 
         <div className={styles.toolbar}>
-          {market.query.trim() ? (
-            <div className={styles.searchHint}>
-              {!market.loading &&
-                !market.globalError &&
-                t("market.searchResult", {
-                  keyword: market.query.trim(),
-                  count: market.totalCount,
-                })}
-            </div>
-          ) : !hasSelectedProvider ? (
+          {!hasSelectedProvider ? (
             <div className={styles.searchHint}>
               {t("market.selectProviderHint")}
             </div>
-          ) : market.anyProviderSupportsBrowse ? (
-            <CategorySelect
-              categories={market.categories}
-              active={market.category}
-              onSelect={market.setCategory}
-            />
           ) : (
             <>
-              <div className={styles.searchHint}>
-                {t("market.searchOnlyHint", { providers: nonBrowseLabel })}
-              </div>
+              {market.anyProviderSupportsBrowse && (
+                <CategorySelect
+                  categories={market.categories}
+                  active={market.category}
+                  onSelect={market.setCategory}
+                />
+              )}
+              {!market.anyProviderSupportsBrowse && (
+                <div className={styles.searchHint}>
+                  {t("market.searchOnlyHint", { providers: nonBrowseLabel })}
+                </div>
+              )}
               <Input.Search
                 className={styles.searchInput}
                 placeholder={t("market.searchPlaceholder")}

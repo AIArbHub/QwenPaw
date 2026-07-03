@@ -50,6 +50,7 @@ export interface MarketSearchState {
   autoLoadBlocked: boolean;
   anyProviderSupportsBrowse: boolean;
   retry: () => void;
+  refreshProviders: () => void;
 }
 
 function errorMessage(err: unknown): string {
@@ -351,5 +352,6 @@ export function useMarketSearch(): MarketSearchState {
     autoLoadBlocked,
     anyProviderSupportsBrowse,
     retry,
+    refreshProviders: fetchProviders,
   };
 }

@@ -684,6 +684,12 @@
   "market": {
     "searchPlaceholder": "Tìm kiếm kỹ năng trên các nền tảng",
     "providerUnavailable": "Nhà cung cấp không khả dụng",
+    "configProviderTitle": "Cấu hình {{provider}}",
+    "configProviderDesc": "Nhập thông tin xác thực cần thiết cho {{provider}}. Sẽ có hiệu lực ngay sau khi lưu. Thông tin xác thực được mã hóa và lưu trữ trong biến môi trường phía máy chủ.",
+    "configSave": "Lưu & Kích hoạt",
+    "configSaved": "Đã lưu thông tin xác thực, đang làm mới trạng thái nhà cung cấp…",
+    "configSaveFailed": "Lưu thông tin xác thực thất bại",
+    "configFieldRequired": "{{field}} là bắt buộc",
     "noResults": "Không có kết quả",
     "startTyping": "Nhập từ khóa để tìm kiếm",
     "browseHint": "Chọn danh mục hoặc nhập từ khóa để duyệt kỹ năng trong {{providers}}",
