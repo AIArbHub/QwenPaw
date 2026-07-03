@@ -684,6 +684,7 @@
   "market": {
     "searchPlaceholder": "Tìm kiếm kỹ năng trên các nền tảng",
     "providerUnavailable": "Nhà cung cấp không khả dụng",
+    "providerConfigRequired": "Nhấn cấu hình để kích hoạt",
     "configProviderTitle": "Cấu hình {{provider}}",
     "configProviderDesc": "Nhập thông tin xác thực cần thiết cho {{provider}}. Sẽ có hiệu lực ngay sau khi lưu. Thông tin xác thực được mã hóa và lưu trữ trong biến môi trường phía máy chủ.",
     "configSave": "Lưu & Kích hoạt",

@@ -2859,6 +2859,7 @@
     "categoryPlaceholder": "Buscar categoria",
     "searchResult": "{{count}} habilidades encontradas para \"{{keyword}}\"",
     "providerUnavailable": "Provedor indisponível",
+    "providerConfigRequired": "Clique para configurar e ativar",
     "configProviderTitle": "Configurar {{provider}}",
     "configProviderDesc": "Insira as credenciais necessárias para {{provider}}. Elas entrarão em vigor imediatamente após salvar. As credenciais são criptografadas e armazenadas nas variáveis de ambiente do servidor.",
     "configSave": "Salvar e Ativar",

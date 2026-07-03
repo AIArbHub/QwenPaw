@@ -3054,6 +3054,7 @@
     "categoryPlaceholder": "搜索分类",
     "searchResult": "\"{{keyword}}\" 相关技能共搜索到 {{count}} 个结果",
     "providerUnavailable": "数据源不可用",
+    "providerConfigRequired": "点击配置后可用",
     "configProviderTitle": "配置 {{provider}}",
     "configProviderDesc": "请输入 {{provider}} 所需的凭证信息，保存后将自动生效。凭证会加密存储在服务端环境变量中。",
     "configSave": "保存并启用",

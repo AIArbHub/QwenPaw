@@ -2834,6 +2834,7 @@
     "categoryPlaceholder": "Поиск категории",
     "searchResult": "Найдено навыков по запросу \"{{keyword}}\": {{count}}",
     "providerUnavailable": "Источник недоступен",
+    "providerConfigRequired": "Нажмите для настройки и активации",
     "configProviderTitle": "Настроить {{provider}}",
     "configProviderDesc": "Введите учётные данные, необходимые для {{provider}}. Они вступят в силу сразу после сохранения. Учётные данные шифруются и хранятся в переменных окружения на сервере.",
     "configSave": "Сохранить и включить",

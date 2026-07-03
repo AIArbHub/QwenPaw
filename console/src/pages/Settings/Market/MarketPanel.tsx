@@ -1,5 +1,12 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Input, Modal, Select, Tooltip, message } from "@agentscope-ai/design";
+import {
+  Button,
+  Input,
+  Modal,
+  Select,
+  Tooltip,
+  message,
+} from "@agentscope-ai/design";
 import { Check, Settings2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAgentStore } from "../../../stores/agentStore";
@@ -53,7 +60,15 @@ const InstallQueuePanel = memo(function InstallQueuePanel({
   );
 });
 
-const PROVIDER_ENV_MAP: Record<string, { keys: string[]; labels: Record<string, string>; helpUrl?: string; helpLabelKey?: string }> = {
+const PROVIDER_ENV_MAP: Record<
+  string,
+  {
+    keys: string[];
+    labels: Record<string, string>;
+    helpUrl?: string;
+    helpLabelKey?: string;
+  }
+> = {
   aliyun: {
     keys: ["ALIBABA_CLOUD_ACCESS_KEY_ID", "ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
     labels: {
@@ -82,11 +97,15 @@ const ProviderChips = memo(function ProviderChips({
   onRefreshProviders: () => void;
 }) {
   const { t } = useTranslation();
-  const [configuringProvider, setConfiguringProvider] = useState<string | null>(null);
+  const [configuringProvider, setConfiguringProvider] = useState<string | null>(
+    null,
+  );
   const [configValues, setConfigValues] = useState<Record<string, string>>({});
   const [configSaving, setConfigSaving] = useState(false);
 
-  const envSpec = configuringProvider ? PROVIDER_ENV_MAP[configuringProvider] : null;
+  const envSpec = configuringProvider
+    ? PROVIDER_ENV_MAP[configuringProvider]
+    : null;
 
   const handleOpenConfig = useCallback((providerKey: string) => {
     const spec = PROVIDER_ENV_MAP[providerKey];
@@ -111,7 +130,9 @@ const ProviderChips = memo(function ProviderChips({
       for (const k of envSpec.keys) {
         const val = configValues[k]?.trim();
         if (!val) {
-          message.error(t("market.configFieldRequired", { field: envSpec.labels[k] || k }));
+          message.error(
+            t("market.configFieldRequired", { field: envSpec.labels[k] || k }),
+          );
           setConfigSaving(false);
           return;
         }
@@ -122,7 +143,9 @@ const ProviderChips = memo(function ProviderChips({
       setConfiguringProvider(null);
       onRefreshProviders();
     } catch (err) {
-      message.error(err instanceof Error ? err.message : t("market.configSaveFailed"));
+      message.error(
+        err instanceof Error ? err.message : t("market.configSaveFailed"),
+      );
     } finally {
       setConfigSaving(false);
     }
@@ -146,6 +169,8 @@ const ProviderChips = memo(function ProviderChips({
             title={
               p.available
                 ? undefined
+                : hasConfig
+                ? t("market.providerConfigRequired")
                 : p.reason ?? t("market.providerUnavailable")
             }
           >
@@ -184,7 +209,8 @@ const ProviderChips = memo(function ProviderChips({
         open={configuringProvider !== null}
         title={t("market.configProviderTitle", {
           provider: configuringProvider
-            ? providers.find((p) => p.key === configuringProvider)?.label ?? configuringProvider
+            ? providers.find((p) => p.key === configuringProvider)?.label ??
+              configuringProvider
             : "",
         })}
         okText={t("market.configSave")}
@@ -198,7 +224,8 @@ const ProviderChips = memo(function ProviderChips({
           <p className={styles.configModalDesc}>
             {t("market.configProviderDesc", {
               provider: configuringProvider
-                ? providers.find((p) => p.key === configuringProvider)?.label ?? configuringProvider
+                ? providers.find((p) => p.key === configuringProvider)?.label ??
+                  configuringProvider
                 : "",
             })}
           </p>
@@ -209,7 +236,9 @@ const ProviderChips = memo(function ProviderChips({
               target="_blank"
               rel="noopener noreferrer"
             >
-              {envSpec.helpLabelKey ? t(envSpec.helpLabelKey) : t("market.configGetCredentials")}
+              {envSpec.helpLabelKey
+                ? t(envSpec.helpLabelKey)
+                : t("market.configGetCredentials")}
             </a>
           )}
           {envSpec?.keys.map((k) => (

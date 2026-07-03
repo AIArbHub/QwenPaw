@@ -1055,6 +1055,7 @@
     "categoryPlaceholder": "Cari kategori",
     "searchResult": "Ditemukan {{count}} skill yang cocok dengan \"{{keyword}}\"",
     "providerUnavailable": "Sumber tidak tersedia",
+    "providerConfigRequired": "Klik untuk mengonfigurasi dan mengaktifkan",
     "configProviderTitle": "Konfigurasi {{provider}}",
     "configProviderDesc": "Masukkan kredensial yang diperlukan oleh {{provider}}. Akan berlaku segera setelah disimpan. Kredensial dienkripsi dan disimpan dalam variabel lingkungan sisi server.",
     "configSave": "Simpan & Aktifkan",

@@ -83,6 +83,17 @@ def _get_client() -> Any:
         return _client_cache
 
 
+def reset_client_cache() -> None:
+    """Invalidate the cached SDK client so the next call rebuilds it.
+
+    Call this after environment variables (AK/SK) are updated so that
+    the new credentials are picked up.
+    """
+    global _client_cache
+    with _client_lock:
+        _client_cache = None
+
+
 def _unwrap(resp: Any) -> Any:
     """tea_openapi returns {"body": <parsed>, "headers": ..., "statusCode"}."""
     if isinstance(resp, dict) and "body" in resp:

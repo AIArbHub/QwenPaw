@@ -2638,6 +2638,7 @@
     "categoryAll": "All",
     "searchResult": "Found {{count}} skills matching \"{{keyword}}\"",
     "providerUnavailable": "المزود غير متاح",
+    "providerConfigRequired": "انقر للتكوين والتفعيل",
     "configProviderTitle": "تكوين {{provider}}",
     "configProviderDesc": "أدخل بيانات الاعتماد المطلوبة لـ {{provider}}. ستدخل حيز التنفيذ فور الحفظ. يتم تشفير بيانات الاعتماد وتخزينها في متغيرات البيئة من جانب الخادم.",
     "configSave": "حفظ وتفعيل",

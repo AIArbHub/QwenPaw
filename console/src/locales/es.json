@@ -2638,6 +2638,7 @@
     "categoryAll": "All",
     "searchResult": "Found {{count}} skills matching \"{{keyword}}\"",
     "providerUnavailable": "Proveedor no disponible",
+    "providerConfigRequired": "Haga clic para configurar y activar",
     "configProviderTitle": "Configurar {{provider}}",
     "configProviderDesc": "Ingrese las credenciales requeridas por {{provider}}. Tendrán efecto inmediatamente después de guardar. Las credenciales se cifran y almacenan en las variables de entorno del servidor.",
     "configSave": "Guardar y Activar",

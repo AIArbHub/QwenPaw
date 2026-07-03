@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from ...envs import load_envs, save_envs, delete_env_var
+from ...market.providers.aliyun import reset_client_cache as _reset_aliyun_client
 
 router = APIRouter(prefix="/envs", tags=["envs"])
 
@@ -60,6 +61,7 @@ async def batch_save_envs(
             )
     cleaned = {k.strip(): v for k, v in body.items()}
     save_envs(cleaned)
+    _reset_aliyun_client()
     return [EnvVar(key=k, value=v) for k, v in sorted(cleaned.items())]
 
 
@@ -77,4 +79,5 @@ async def delete_env(key: str) -> List[EnvVar]:
             detail=f"Env var '{key}' not found",
         )
     envs = delete_env_var(key)
+    _reset_aliyun_client()
     return [EnvVar(key=k, value=v) for k, v in sorted(envs.items())]

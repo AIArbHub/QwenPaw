@@ -2817,6 +2817,7 @@
     "categoryPlaceholder": "カテゴリを検索",
     "searchResult": "「{{keyword}}」に一致するスキルが {{count}} 件見つかりました",
     "providerUnavailable": "ソースが利用できません",
+    "providerConfigRequired": "設定すると利用可能になります",
     "configProviderTitle": "{{provider}} を設定",
     "configProviderDesc": "{{provider}} に必要な認証情報を入力してください。保存後すぐに有効になります。認証情報はサーバー側の環境変数に暗号化されて保存されます。",
     "configSave": "保存して有効化",

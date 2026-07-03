@@ -2655,6 +2655,7 @@
     "categoryAll": "全部",
     "searchResult": "\"{{keyword}}\" 相關技能共搜尋到 {{count}} 個結果",
     "providerUnavailable": "數據源不可用",
+    "providerConfigRequired": "點擊配置後可用",
     "configProviderTitle": "配置 {{provider}}",
     "configProviderDesc": "請輸入 {{provider}} 所需的憑證資訊，儲存後將自動生效。憑證會加密存儲在服務端環境變數中。",
     "configSave": "儲存並啟用",

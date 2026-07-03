@@ -2638,6 +2638,7 @@
     "categoryAll": "All",
     "searchResult": "Found {{count}} skills matching \"{{keyword}}\"",
     "providerUnavailable": "Fournisseur indisponible",
+    "providerConfigRequired": "Cliquez pour configurer et activer",
     "configProviderTitle": "Configurer {{provider}}",
     "configProviderDesc": "Entrez les identifiants requis par {{provider}}. Ils prendront effet immédiatement après l'enregistrement. Les identifiants sont chiffrés et stockés dans les variables d'environnement du serveur.",
     "configSave": "Enregistrer et activer",
