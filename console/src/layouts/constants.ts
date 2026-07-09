@@ -1,6 +1,6 @@
 // ── URLs ──────────────────────────────────────────────────────────────────
 
-export const PYPI_URL = "https://pypi.org/pypi/aiarb/json";
+export const PYPI_URL = "https://pypi.org/pypi/qwenpaw/json";
 
 export const SITE_URL = "https://www.aiarb.cn" as const;
 

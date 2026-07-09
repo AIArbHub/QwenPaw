@@ -192,10 +192,10 @@ def _get_blocked_history_path() -> Path:
         base_dir = (
             current_dir
             if current_dir.exists()
-            else legacy_dir
-            if legacy_dir.exists()
             else legacy2_dir
             if legacy2_dir.exists()
+            else legacy_dir
+            if legacy_dir.exists()
             else current_dir
         )
         return base_dir / _BLOCKED_HISTORY_FILE

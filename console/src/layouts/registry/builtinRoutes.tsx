@@ -55,6 +55,11 @@ const PluginManagerPage = lazyImportWithRetry(
   "../../pages/Settings/PluginManager",
 );
 const AppCenterPage = lazyImportWithRetry("../../pages/AppCenter");
+const MootPage = lazyImportWithRetry("../../pages/Moot");
+const KnowledgePage = lazyImportWithRetry("../../pages/Knowledge");
+const CasesPage = lazyImportWithRetry("../../pages/Cases");
+const WikiPage = lazyImportWithRetry("../../pages/Wiki");
+const DesensitizePage = lazyImportWithRetry("../../pages/Desensitize");
 
 // Design mode merged pages
 const DesignSkillsPage = lazyImportWithRetry("../../pages/Design/Skills");
@@ -77,7 +82,9 @@ function DefaultRedirect() {
       <Spin
         tip={t("common.loading")}
         style={{ display: "block", margin: "20vh auto" }}
-      />
+      >
+        <div />
+      </Spin>
     );
   }
   return <Navigate to={codingMode ? "/coding" : "/chat"} replace />;
@@ -95,6 +102,16 @@ export const BUILTIN_ROUTES: Route[] = [
   { id: "core.channels", path: "/channels", component: ChannelsPage },
   { id: "core.sessions", path: "/sessions", component: SessionsPage },
   { id: "core.inbox", path: "/inbox", component: InboxPage },
+  { id: "core.moot", path: "/moot", component: MootPage },
+  { id: "core.moot-tribunal", path: "/tribunal", component: MootPage },
+  { id: "core.knowledge", path: "/knowledge", component: KnowledgePage },
+  { id: "core.cases", path: "/cases", component: CasesPage },
+  { id: "core.wiki", path: "/wiki", component: WikiPage },
+  {
+    id: "core.desensitize",
+    path: "/desensitize",
+    component: DesensitizePage,
+  },
   { id: "core.cron-jobs", path: "/cron-jobs", component: CronJobsPage },
   { id: "core.heartbeat", path: "/heartbeat", component: HeartbeatPage },
   { id: "core.skills", path: "/skills", component: SkillsPage },

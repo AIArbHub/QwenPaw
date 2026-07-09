@@ -1024,6 +1024,7 @@ html.dark-mode .qwenpaw-sender-content {
   display: flex;
   flex-direction: column;
   padding: 0 16px 16px 0;
+  min-width: 0;
 }
 
 .page-header {
@@ -1032,6 +1033,7 @@ html.dark-mode .qwenpaw-sender-content {
 
 .page-content {
   flex: 1 1 auto;
+  min-width: 0;
   overflow: auto;
   background-color: #f5f5f5;
   border-radius: 12px;

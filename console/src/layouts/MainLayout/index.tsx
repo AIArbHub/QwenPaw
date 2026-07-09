@@ -72,7 +72,9 @@ export default function MainLayout() {
                   <Spin
                     tip={t("common.loading")}
                     style={{ display: "block", margin: "20vh auto" }}
-                  />
+                  >
+                    <div />
+                  </Spin>
                 }
               >
                 <Routes>

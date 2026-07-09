@@ -1242,3 +1242,266 @@ async def put_allow_no_auth_hosts(
     config.security.allow_no_auth_hosts = normalized_hosts
     save_config(config)
     return AllowNoAuthHostsResponse(hosts=normalized_hosts)
+
+
+# ── Document Parser / OCR Configuration ─────────────────────────────────
+
+
+def _check_paddleocr_status() -> dict:
+    import importlib
+    try:
+        mod = importlib.import_module("paddleocr")
+        version = getattr(mod, "__version__", "unknown")
+        return {"installed": True, "version": version}
+    except ImportError:
+        return {"installed": False, "version": None}
+    except Exception as e:
+        return {"installed": False, "version": None, "error": str(e)}
+
+
+@router.get(
+    "/documents/parser",
+    summary="Get document parser configuration",
+    description="Retrieve parser settings including OCR configuration",
+)
+async def get_documents_parser() -> dict:
+    config = load_config()
+    parser_cfg = config.documents.parser
+    return {
+        "default_mode": parser_cfg.default_mode,
+        "mineru_api_key": parser_cfg.mineru_api_key[:8] + "..." if len(parser_cfg.mineru_api_key) > 8 else parser_cfg.mineru_api_key,
+        "mineru_base_url": parser_cfg.mineru_base_url,
+        "local_ocr_enabled": parser_cfg.local_ocr_enabled,
+        "local_ocr_lang": parser_cfg.local_ocr_lang,
+        "mineru_configured": bool(parser_cfg.mineru_api_key),
+        "paddleocr_installed": _check_paddleocr_status(),
+    }
+
+
+# ── PaddleOCR 一键安装 ─────────────────────────────────────────────────
+
+import logging as _logging
+_logger = _logging.getLogger(__name__)
+
+# 国内镜像源
+MIRROR_TSINGHUA = "https://pypi.tuna.tsinghua.edu.cn/simple"
+MIRROR_ALIYUN = "https://mirrors.aliyun.com/pypi/simple/"
+
+
+@router.post(
+    "/documents/parser/install-paddleocr",
+    summary="One-click install PaddleOCR",
+    description="Install paddleocr and paddlepaddle via pip. Use mirror for users in China.",
+)
+async def install_paddleocr(body: dict = Body(default={})):
+    """一键安装 PaddleOCR，支持国内镜像源加速，兼容 Windows / macOS / Linux。"""
+    import subprocess
+    import sys
+    import platform
+    import asyncio
+    import traceback
+    from urllib.parse import urlparse
+
+    use_mirror = body.get("use_mirror", True)
+    mirror_url = body.get("mirror_url", MIRROR_TSINGHUA)
+
+    is_macos = platform.system() == "Darwin"
+    is_arm_mac = is_macos and platform.machine() == "arm64"
+
+    packages = ["paddleocr"]
+
+    if is_arm_mac:
+        packages.append("paddlepaddle")
+    else:
+        packages.append("paddlepaddle")
+
+    cmd = [sys.executable, "-m", "pip", "install"] + packages
+
+    if use_mirror:
+        cmd += ["-i", mirror_url]
+        try:
+            host = urlparse(mirror_url).hostname
+            if host:
+                cmd += ["--trusted-host", host]
+        except Exception:
+            cmd += ["--trusted-host", "pypi.tuna.tsinghua.edu.cn"]
+
+    # 安装完成后，确保 pyyaml 不被降级（paddleocr 依赖 pyyaml>=6 但 reme-ai 需要 >=6.0.3）
+    cmd_post = [sys.executable, "-m", "pip", "install", "pyyaml>=6.0.3"]
+    if use_mirror:
+        cmd_post += ["-i", mirror_url]
+        try:
+            host = urlparse(mirror_url).hostname
+            if host:
+                cmd_post += ["--trusted-host", host]
+        except Exception:
+            cmd_post += ["--trusted-host", "pypi.tuna.tsinghua.edu.cn"]
+
+    try:
+        _logger.info("Installing PaddleOCR (platform=%s, arm_mac=%s): %s", platform.system(), is_arm_mac, " ".join(cmd))
+
+        def _run_pip():
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=600,
+            )
+            return result
+
+        def _run_pip_fix():
+            result = subprocess.run(
+                cmd_post,
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+            return result
+
+        loop = asyncio.get_running_loop()
+        proc_result = await loop.run_in_executor(None, _run_pip)
+
+        output = (proc_result.stdout or "") + (proc_result.stderr or "")
+        output_lines = output.strip().splitlines()
+        output = "\n".join(output_lines[-80:])
+
+        # 安装成功后，修复 pyyaml 降级问题
+        if proc_result.returncode == 0:
+            try:
+                fix_result = await loop.run_in_executor(None, _run_pip_fix)
+                fix_output = (fix_result.stdout or "") + (fix_result.stderr or "")
+                fix_lines = fix_output.strip().splitlines()
+                if fix_lines:
+                    output += "\n--- 修复 PyYAML 版本 ---\n" + "\n".join(fix_lines[-10:])
+            except Exception as e:
+                output += f"\n[PyYAML fix skipped: {e}]"
+
+        if proc_result.returncode == 0:
+            try:
+                import importlib
+                _pmod = importlib.import_module("qwenpaw.parsers.paddleocr_parser")
+                _pmod._PADDLEOCR_AVAILABLE = True
+            except Exception:
+                pass
+            try:
+                from . import knowledge as _kmod
+                _kmod._parser_router = None
+            except Exception:
+                pass
+            status = _check_paddleocr_status()
+            return {
+                "success": True,
+                "output": output,
+                "paddleocr_installed": status,
+                "message": "PaddleOCR 安装成功",
+                "platform": platform.system(),
+                "is_arm_mac": is_arm_mac,
+            }
+        else:
+            tip = ""
+            if is_arm_mac and "arm64" in output.lower() or "aarch64" in output.lower() or "not find" in output.lower():
+                tip = "Apple Silicon (M系列芯片) 可能需要 Rosetta 环境运行 Python，或使用 conda 安装。"
+            return {
+                "success": False,
+                "output": output or f"pip exit code: {proc_result.returncode}",
+                "paddleocr_installed": _check_paddleocr_status(),
+                "message": f"安装失败（exit code {proc_result.returncode}），请查看日志或手动安装。{tip}",
+                "platform": platform.system(),
+                "is_arm_mac": is_arm_mac,
+            }
+    except subprocess.TimeoutExpired:
+        return {
+            "success": False,
+            "output": "安装超时（10分钟），请尝试手动安装",
+            "paddleocr_installed": _check_paddleocr_status(),
+            "message": "安装超时，请尝试手动安装",
+        }
+    except FileNotFoundError:
+        pip_path = sys.executable
+        return {
+            "success": False,
+            "output": f"找不到 Python/pip，当前路径：{pip_path}",
+            "paddleocr_installed": _check_paddleocr_status(),
+            "message": f"找不到 Python/pip（{pip_path}），请确认环境配置",
+        }
+    except Exception as e:
+        tb = traceback.format_exc()
+        _logger.error("PaddleOCR install error: %s\n%s", e, tb)
+        return {
+            "success": False,
+            "output": f"{e}\n{tb}" if str(e) else tb,
+            "paddleocr_installed": _check_paddleocr_status(),
+            "message": f"安装出错：{e or type(e).__name__}",
+        }
+
+
+@router.get(
+    "/documents/parser/ocr-status",
+    summary="Check OCR engine installation status",
+    description="Check whether PaddleOCR and other OCR engines are installed and available",
+)
+async def get_ocr_status() -> dict:
+    config = load_config()
+    parser_cfg = config.documents.parser
+    result = _check_paddleocr_status()
+    return {
+        "paddleocr": result,
+        "mineru_configured": bool(parser_cfg.mineru_api_key),
+        "local_ocr_enabled": parser_cfg.local_ocr_enabled,
+        "default_mode": parser_cfg.default_mode,
+    }
+
+
+@router.put(
+    "/documents/parser",
+    summary="Update document parser configuration",
+    description="Update parser settings including MinerU API key and local OCR",
+)
+async def put_documents_parser(
+    body: dict = Body(
+        ...,
+        description="Parser configuration fields to update",
+    ),
+) -> dict:
+    config = load_config()
+    parser_cfg = config.documents.parser
+
+    if "default_mode" in body:
+        mode = body["default_mode"]
+        if mode not in ("auto", "cloud_ocr", "local_only"):
+            raise HTTPException(status_code=400, detail=f"Invalid default_mode: {mode}")
+        parser_cfg.default_mode = mode
+
+    if "mineru_api_key" in body:
+        new_key = body["mineru_api_key"]
+        if new_key.endswith("..."):
+            pass
+        else:
+            parser_cfg.mineru_api_key = str(new_key)
+
+    if "mineru_base_url" in body:
+        parser_cfg.mineru_base_url = str(body["mineru_base_url"])
+
+    if "local_ocr_enabled" in body:
+        parser_cfg.local_ocr_enabled = bool(body["local_ocr_enabled"])
+
+    if "local_ocr_lang" in body:
+        parser_cfg.local_ocr_lang = str(body["local_ocr_lang"])
+
+    save_config(config)
+
+    try:
+        from . import knowledge as _kmod
+        _kmod._parser_router = None
+    except Exception:
+        pass
+
+    return {
+        "default_mode": parser_cfg.default_mode,
+        "mineru_api_key": parser_cfg.mineru_api_key[:8] + "..." if len(parser_cfg.mineru_api_key) > 8 else parser_cfg.mineru_api_key,
+        "mineru_base_url": parser_cfg.mineru_base_url,
+        "local_ocr_enabled": parser_cfg.local_ocr_enabled,
+        "local_ocr_lang": parser_cfg.local_ocr_lang,
+        "mineru_configured": bool(parser_cfg.mineru_api_key),
+        "paddleocr_installed": _check_paddleocr_status(),
+    }

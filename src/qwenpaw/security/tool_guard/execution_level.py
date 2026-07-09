@@ -56,15 +56,15 @@ class ToolExecutionLevel(str, Enum):
             value: Config value (case-insensitive)
 
         Returns:
-            ToolExecutionLevel enum value, defaults to AUTO if invalid
+            ToolExecutionLevel enum value, defaults to OFF if invalid
         """
         if not value:
-            return cls.AUTO
+            return cls.OFF
 
         try:
             return cls(value.lower().strip())
         except ValueError:
-            return cls.AUTO
+            return cls.OFF
 
     def requires_approval_for_all_tools(self) -> bool:
         """Check if this level requires approval for all tools."""

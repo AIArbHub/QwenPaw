@@ -1,0 +1,126 @@
+.pickerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.browseShortcuts {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.browseBreadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1px;
+  padding: 6px 10px;
+  background: var(--ant-color-fill-quaternary);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  min-height: 32px;
+}
+
+.breadcrumbItem {
+  display: inline-flex;
+  align-items: center;
+}
+
+.breadcrumbSep {
+  color: var(--ant-color-text-quaternary);
+  flex-shrink: 0;
+}
+
+.breadcrumbSeg {
+  cursor: pointer;
+  padding: 1px 3px;
+  border-radius: 3px;
+  color: var(--ant-color-primary);
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--ant-color-primary-bg);
+  }
+}
+
+.breadcrumbCurrent {
+  color: var(--ant-color-text);
+  font-weight: 600;
+  cursor: default;
+
+  &:hover {
+    background: none;
+  }
+}
+
+.browseList {
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--ant-color-border);
+  border-radius: 8px;
+}
+
+.browseItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-bottom: 1px solid
+    var(--ant-color-border-secondary, rgba(0, 0, 0, 0.04));
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--ant-color-primary-bg);
+
+    .browseItemChevron {
+      opacity: 1;
+    }
+  }
+}
+
+.browseItemIcon {
+  color: var(--ant-color-primary);
+  flex-shrink: 0;
+}
+
+.browseItemName {
+  flex: 1;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.browseItemChevron {
+  color: var(--ant-color-text-quaternary);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.browseEmpty {
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ant-color-text-secondary);
+}
+
+.selectedPath {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--ant-color-fill-quaternary);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  color: var(--ant-color-primary);
+  word-break: break-all;
+}

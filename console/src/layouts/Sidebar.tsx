@@ -26,16 +26,15 @@ import {
   SparkToolLine,
   SparkMcpMcpLine,
   SparkWifiLine,
-  SparkDateLine,
   SparkLocalFileLine,
   SparkAgentLine,
+  SparkBarChartLine,
   SparkModePlazaLine,
   SparkInternetLine,
   SparkBrowseLine,
   SparkDataLine,
   SparkSaveLine,
   SparkUserGroupLine,
-  SparkVoiceChat01Line,
 } from "@agentscope-ai/icons";
 import SidebarSessionList from "./SidebarSessionList";
 import SidebarSettingsPanel from "./SidebarSettingsPanel";
@@ -85,10 +84,9 @@ const INBOX_BADGE_POLLING_MS = 6000;
 
 /** Menu item IDs that remain visible in simple sidebar mode (no groups). */
 const SIMPLE_MODE_WHITELIST = new Set([
-  "core.inbox",
-  "core.cron-jobs",
-  "core.agent-config",
+  "core.knowledge",
   "core.models",
+  "core.agents",
 ]);
 
 // ── Design mode menu definition ───────────────────────────────────────────
@@ -107,13 +105,6 @@ const DESIGN_MODE_NAV_ITEMS: {
     labelKey: "nav.chat",
     labelDefault: "Chat",
     icon: SparkChatTabFill,
-  },
-  {
-    key: "core.inbox",
-    route: "core.inbox",
-    labelKey: "nav.inbox",
-    labelDefault: "Inbox",
-    icon: SparkEmailLine,
   },
   {
     key: "design.skills",
@@ -151,20 +142,6 @@ const DESIGN_MODE_NAV_ITEMS: {
     labelKey: "nav.sessions",
     labelDefault: "Sessions",
     icon: SparkUserGroupLine,
-  },
-  {
-    key: "core.cron-jobs",
-    route: "core.cron-jobs",
-    labelKey: "nav.cronJobs",
-    labelDefault: "Cron Jobs",
-    icon: SparkDateLine,
-  },
-  {
-    key: "core.heartbeat",
-    route: "core.heartbeat",
-    labelKey: "nav.heartbeat",
-    labelDefault: "Heartbeat",
-    icon: SparkVoiceChat01Line,
   },
   {
     key: "core.workspace",
@@ -271,22 +248,37 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(isMobileSidebarViewport);
-  const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
-  const [hasPendingApprovals, setHasPendingApprovals] = useState(false);
-  const [shakeInbox, setShakeInbox] = useState(false);
-  const [wobbleEnabled] = useInboxWobble();
-  const currentApprovalIdsRef = useRef<Set<string>>(new Set());
-  const seenApprovalIdsRef = useRef<Set<string>>(new Set());
+const [hasInboxUnread, setHasInboxUnread] = useState(false);
+const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
+const [hasPendingApprovals, setHasPendingApprovals] = useState(false);
+const [shakeInbox, setShakeInbox] = useState(false);
+const [wobbleEnabled] = useInboxWobble();
+const currentApprovalIdsRef = useRef<Set<string>>(new Set());
+const seenApprovalIdsRef = useRef<Set<string>>(new Set());
+const [sidebarTab, setSidebarTab] = useState<"agent" | "arbitration">("agent");
+
+const ARBITRATION_ROUTE_IDS = useMemo(
+  () => new Set(["core.knowledge", "core.moot", "core.desensitize", "core.wiki", "core.cases"]),
+  [],
+);
+
+useEffect(() => {
+  if (ARBITRATION_ROUTE_IDS.has(selectedKey)) {
+    setSidebarTab("arbitration");
+  }
+}, [selectedKey, ARBITRATION_ROUTE_IDS]);
 
   // Sidebar mode: "simple" (only core items) or "full" (everything)
   const { mode: sidebarMode } = useSidebarModeStore();
 
   // Menu + route snapshots from registry (builtin + plugin registrations merged).
+  const rawArbitrationMenu = useMenuItems("primary.arbitration");
   const rawAgentMenu = useMenuItems("primary.agentScoped");
   const rawSettingsMenu = useMenuItems("primary.settings");
   const routes = useRoutes();
 
-  // Apply simple-mode filtering when enabled
+  // Arbitration menu: never filtered by whitelist — all domain features visible
+  const arbitrationMenu = rawArbitrationMenu;
   const agentMenu = useMemo(
     () =>
       sidebarMode === "simple"
@@ -303,13 +295,18 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
   );
 
   // Flat nav entries for simple mode (icon + label + path)
-  const simpleFlatNav = useMemo(() => {
+  const simpleAgentFlatNav = useMemo(() => {
     if (sidebarMode !== "simple") return [];
     return [
       ...flattenMenu(agentMenu, routes, 16),
       ...flattenMenu(settingsMenu, routes, 16),
     ];
   }, [agentMenu, settingsMenu, routes, sidebarMode]);
+
+  const simpleArbitrationFlatNav = useMemo(() => {
+    if (sidebarMode !== "simple") return [];
+    return flattenMenu(rawArbitrationMenu, routes, 16);
+  }, [rawArbitrationMenu, routes, sidebarMode]);
 
   // Flat nav entries for design mode
   const designFlatNav = useMemo(() => {
@@ -326,6 +323,11 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
       };
     });
   }, [routes, sidebarMode, t, chatPath]);
+
+  const designArbitrationFlatNav = useMemo(() => {
+    if (sidebarMode !== "design") return [];
+    return flattenMenu(rawArbitrationMenu, routes, 16);
+  }, [rawArbitrationMenu, routes, sidebarMode]);
 
   // ── Effects ──────────────────────────────────────────────────────────────
 
@@ -460,12 +462,17 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
     );
   };
 
-  const getItemClassName = (item: MenuItem) => {
-    if (item.id === "core.inbox" && effectiveShake) {
-      return styles.inboxShake;
-    }
-    return undefined;
-  };
+const getItemClassName = (item: MenuItem) => {
+  if (item.id === "core.inbox" && effectiveShake) {
+    return styles.inboxShake;
+  }
+  return undefined;
+};
+
+const arbitrationMenuItems = useMemo(
+  () => toAntdItems(arbitrationMenu, { collapsed }),
+  [arbitrationMenu, collapsed],
+);
 
   const agentMenuItems = useMemo(
     () =>
@@ -486,20 +493,21 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
   );
 
   const openKeys = useMemo(
-    () => [...deriveOpenKeys(agentMenu), ...deriveOpenKeys(settingsMenu)],
-    [agentMenu, settingsMenu],
+    () => [
+      ...deriveOpenKeys(arbitrationMenu),
+      ...deriveOpenKeys(agentMenu),
+      ...deriveOpenKeys(settingsMenu),
+    ],
+    [arbitrationMenu, agentMenu, settingsMenu],
   );
 
   const collapsedNavItems = useMemo(() => {
-    // Sticky chat is its own carve-out (lives outside menu data — see builtinMenu.ts).
     const stickyChat: FlatMenuEntry = {
       key: "core.chat",
       icon: <SparkChatTabFill size={18} />,
       path: chatPath,
       label: t("nav.chat"),
     };
-    // Inbox in collapsed mode shows a dot overlay on its icon (kept Sidebar-local
-    // for the same reason as decorateLabel: live state isn't menu data).
     const decorateInboxIcon = (icon: ReactNode): ReactNode => (
       <span style={{ position: "relative", display: "inline-flex" }}>
         {icon ?? <SparkEmailLine size={18} />}
@@ -518,25 +526,28 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
         )}
       </span>
     );
-    const flat = [
+    const arbitrationFlat = flattenMenu(arbitrationMenu, routes, 18);
+    const agentFlat = [
       stickyChat,
       ...flattenMenu(agentMenu, routes, 18),
       ...flattenMenu(settingsMenu, routes, 18),
     ];
+    const separator: FlatMenuEntry = {
+      key: "__collapsed_separator__",
+      icon: <span className={styles.collapsedSeparator} />,
+      path: "",
+      label: "",
+    };
+    const flat =
+      arbitrationFlat.length > 0
+        ? [...arbitrationFlat, separator, ...agentFlat]
+        : agentFlat;
     return flat.map((entry) =>
       entry.key === "core.inbox"
         ? { ...entry, icon: decorateInboxIcon(entry.icon) }
         : entry,
     );
-  }, [
-    agentMenu,
-    settingsMenu,
-    routes,
-    chatPath,
-    t,
-    hasInboxUnread,
-    inboxDotColor,
-  ]);
+}, [arbitrationMenu, agentMenu, settingsMenu, routes, chatPath, t, hasInboxUnread, inboxDotColor]);
 
   // Collapsed nav items for design mode
   const designCollapsedNavItems = useMemo(() => {
@@ -700,6 +711,11 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
             ? designCollapsedNavItems
             : collapsedNavItems
           ).map((item) => {
+            if (item.key === "__collapsed_separator__") {
+              return (
+                <div key={item.key} className={styles.collapsedSeparator} />
+              );
+            }
             const isActive =
               item.key === "core.chat"
                 ? isChatActive
@@ -739,176 +755,333 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
         </nav>
       ) : isSimpleExpanded ? (
         <>
-          {/* Simple mode: flat nav items + session list */}
-          <div className={styles.agentScopedSection}>
-            <div className={styles.agentSelectorContainer}>
-              <AgentSelector collapsed={collapsed} />
-            </div>
-            {/* Flat nav items (no groups) */}
-            <div className={styles.simpleNavItems}>
-              {simpleFlatNav.map((entry) => {
-                const isInbox = entry.key === "core.inbox";
-                const isActive = selectedKey === entry.key;
-                return (
-                  <button
-                    key={entry.key}
-                    className={`${styles.simpleNavItem} ${
-                      isActive ? styles.simpleNavItemActive : ""
-                    }${
-                      isInbox && effectiveShake ? ` ${styles.inboxShake}` : ""
-                    }`}
-                    onMouseEnter={isInbox ? handleInboxHover : undefined}
-                    onClick={() =>
-                      entry.href
-                        ? window.open(
-                            entry.href,
-                            "_blank",
-                            "noopener,noreferrer",
-                          )
-                        : navigate(entry.path)
-                    }
-                  >
-                    {isInbox ? (
-                      <span
-                        style={{
-                          position: "relative",
-                          display: "inline-flex",
-                        }}
-                      >
-                        {entry.icon ?? <SparkEmailLine size={16} />}
-                        {hasInboxUnread && (
-                          <span
-                            style={{
-                              position: "absolute",
-                              top: -1,
-                              right: -3,
-                              width: 6,
-                              height: 6,
-                              borderRadius: "50%",
-                              background: inboxDotColor,
-                            }}
-                          />
-                        )}
-                      </span>
-                    ) : (
-                      entry.icon
-                    )}
-                    <span>{entry.label}</span>
-                  </button>
-                );
-              })}
-            </div>
+          {/* Tab switcher */}
+          <div className={styles.tabSwitcher}>
+            <button
+              className={`${styles.tabButton} ${
+                sidebarTab === "agent" ? styles.tabButtonActive : ""
+              }`}
+              onClick={() => setSidebarTab("agent")}
+            >
+              <SparkAgentLine size={14} />
+              <span>{t("sidebar.tab.agent")}</span>
+            </button>
+            <button
+              className={`${styles.tabButton} ${
+                sidebarTab === "arbitration" ? styles.tabButtonActive : ""
+              }`}
+              onClick={() => setSidebarTab("arbitration")}
+            >
+              <SparkBarChartLine size={14} />
+              <span>{t("sidebar.tab.arbitration")}</span>
+            </button>
+          </div>
           </div>
 
-          {/* Session list — fills remaining space */}
-          <SidebarSessionList
-            onNewChat={handleNewChat}
-            onSessionClick={handleSidebarSessionClick}
-          />
+          {sidebarTab === "agent" ? (
+            <>
+              <div className={styles.agentScopedSection}>
+                <div className={styles.agentSelectorContainer}>
+                  <AgentSelector collapsed={collapsed} />
+                </div>
+                <div className={styles.simpleNavItems}>
+                  {simpleAgentFlatNav.map((entry) => {
+                    const isInbox = entry.key === "core.inbox";
+                    const isActive = selectedKey === entry.key;
+                    return (
+                      <button
+                        key={entry.key}
+                        className={`${styles.simpleNavItem} ${
+                          isActive ? styles.simpleNavItemActive : ""
+                        }`}
+                        onClick={() =>
+                          entry.href
+                            ? window.open(
+                                entry.href,
+                                "_blank",
+                                "noopener,noreferrer",
+                              )
+                            : navigate(entry.path)
+                        }
+                      >
+                        {isInbox ? (
+                          <span
+                            style={{
+                              position: "relative",
+                              display: "inline-flex",
+                            }}
+                          >
+                            {entry.icon ?? <SparkEmailLine size={16} />}
+                            {hasInboxUnread && (
+                              <span
+                                style={{
+                                  position: "absolute",
+                                  top: -1,
+                                  right: -3,
+                                  width: 6,
+                                  height: 6,
+                                  borderRadius: "50%",
+                                  background: "rgba(75, 63, 227, 1)",
+                                }}
+                              />
+                            )}
+                          </span>
+                        ) : (
+                          entry.icon
+                        )}
+                        <span>{entry.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <SidebarSessionList
+                onNewChat={handleNewChat}
+                onSessionClick={handleSidebarSessionClick}
+              />
+            </>
+          ) : (
+            <>
+              <div className={styles.arbitrationSection}>
+                <div className={styles.simpleNavItems}>
+                  {simpleArbitrationFlatNav.map((entry) => {
+                    const isActive = selectedKey === entry.key;
+                    return (
+                      <button
+                        key={entry.key}
+                        className={`${styles.simpleNavItem} ${
+                          isActive ? styles.simpleNavItemActive : ""
+                        }`}
+                        onClick={() =>
+                          entry.href
+                            ? window.open(
+                                entry.href,
+                                "_blank",
+                                "noopener,noreferrer",
+                              )
+                            : navigate(entry.path)
+                        }
+                      >
+                        {entry.icon}
+                        <span>{entry.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <SidebarSessionList
+                onNewChat={handleNewChat}
+                onSessionClick={handleSidebarSessionClick}
+              />
+            </>
+          )}
         </>
       ) : isDesignExpanded ? (
         <>
-          {/* Design mode: flat nav with separators, no groups */}
-          <div className={styles.agentScopedSection}>
-            <div className={styles.agentSelectorContainer}>
-              <AgentSelector collapsed={collapsed} />
-            </div>
-            <div className={styles.designNavItems}>
-              {designFlatNav.map((entry) => (
-                <React.Fragment key={entry.key}>
-                  {entry.separatorBefore && (
-                    <div className={styles.designSeparator} />
-                  )}
-                  <button
-                    className={`${styles.designNavItem} ${
-                      (
-                        entry.key === "core.chat"
-                          ? isChatActive
-                          : selectedKey === entry.key
-                      )
-                        ? styles.designNavItemActive
-                        : ""
-                    }`}
-                    onClick={() =>
-                      entry.path ? navigate(entry.path) : undefined
-                    }
-                  >
-                    {entry.key === "core.inbox" ? (
-                      <span
-                        style={{
-                          position: "relative",
-                          display: "inline-flex",
-                        }}
+          {/* Tab switcher */}
+          <div className={styles.tabSwitcher}>
+            <button
+              className={`${styles.tabButton} ${
+                sidebarTab === "agent" ? styles.tabButtonActive : ""
+              }`}
+              onClick={() => setSidebarTab("agent")}
+            >
+              <SparkAgentLine size={14} />
+              <span>{t("sidebar.tab.agent")}</span>
+            </button>
+            <button
+              className={`${styles.tabButton} ${
+                sidebarTab === "arbitration" ? styles.tabButtonActive : ""
+              }`}
+              onClick={() => setSidebarTab("arbitration")}
+            >
+              <SparkBarChartLine size={14} />
+              <span>{t("sidebar.tab.arbitration")}</span>
+            </button>
+          </div>
+
+          {sidebarTab === "agent" ? (
+            <>
+              <div className={styles.agentScopedSection}>
+                <div className={styles.agentSelectorContainer}>
+                  <AgentSelector collapsed={collapsed} />
+                </div>
+                <div className={styles.designNavItems}>
+                  {designFlatNav.map((entry) => (
+                    <React.Fragment key={entry.key}>
+                      {entry.separatorBefore && (
+                        <div className={styles.designSeparator} />
+                      )}
+                      <button
+                        className={`${styles.designNavItem} ${
+                          (
+                            entry.key === "core.chat"
+                              ? isChatActive
+                              : selectedKey === entry.key
+                          )
+                            ? styles.designNavItemActive
+                            : ""
+                        }`}
+                        onClick={() =>
+                          entry.path ? navigate(entry.path) : undefined
+                        }
                       >
-                        {entry.icon ?? <SparkEmailLine size={16} />}
-                        {hasInboxUnread && (
+                        {entry.key === "core.inbox" ? (
                           <span
                             style={{
-                              position: "absolute",
-                              top: -1,
-                              right: -3,
-                              width: 6,
-                              height: 6,
-                              borderRadius: "50%",
-                              background: "rgba(75, 63, 227, 1)",
+                              position: "relative",
+                              display: "inline-flex",
                             }}
-                          />
+                          >
+                            {entry.icon ?? <SparkEmailLine size={16} />}
+                            {hasInboxUnread && (
+                              <span
+                                style={{
+                                  position: "absolute",
+                                  top: -1,
+                                  right: -3,
+                                  width: 6,
+                                  height: 6,
+                                  borderRadius: "50%",
+                                  background: "rgba(75, 63, 227, 1)",
+                                }}
+                              />
+                            )}
+                          </span>
+                        ) : (
+                          entry.icon
                         )}
-                      </span>
-                    ) : (
-                      entry.icon
-                    )}
-                    <span>{entry.label}</span>
-                  </button>
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-          <SidebarSessionList
-            onNewChat={handleNewChat}
-            onSessionClick={handleSidebarSessionClick}
-          />
+                        <span>{entry.label}</span>
+                      </button>
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+              <SidebarSessionList
+                onNewChat={handleNewChat}
+                onSessionClick={handleSidebarSessionClick}
+              />
+            </>
+          ) : (
+            <>
+              <div className={styles.arbitrationSection}>
+                <div className={styles.designNavItems}>
+                  {designArbitrationFlatNav.map((entry) => (
+                    <button
+                      key={entry.key}
+                      className={`${styles.designNavItem} ${
+                        selectedKey === entry.key
+                          ? styles.designNavItemActive
+                          : ""
+                      }`}
+                      onClick={() =>
+                        entry.path ? navigate(entry.path) : undefined
+                      }
+                    >
+                      {entry.icon}
+                      <span>{entry.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <SidebarSessionList
+                onNewChat={handleNewChat}
+                onSessionClick={handleSidebarSessionClick}
+              />
+            </>
+          )}
         </>
       ) : (
         <>
-          {/* Agent-scoped section: selector + Chat + Control + Workspace */}
-          <div className={styles.agentScopedSection}>
-            <div className={styles.agentSelectorContainer}>
-              <AgentSelector collapsed={collapsed} />
-              {/* Chat entry — sticky together with agent selector */}
-              <button
-                className={`${styles.stickyChatButton}${
-                  isChatActive ? ` ${styles.stickyChatButtonActive}` : ""
-                }`}
-                onClick={() => navigate(chatPath)}
-              >
-                <SparkChatTabFill size={16} />
-                <span>{t("nav.chat")}</span>
-              </button>
-            </div>
-            <Slot name="sider.top" kind="fill" />
-            <Menu
-              mode="inline"
-              selectedKeys={[selectedKey]}
-              openKeys={openKeys}
-              onClick={({ key }) => handleMenuClick(String(key), agentMenu)}
-              items={agentMenuItems}
-              theme={isDark ? "dark" : "light"}
-              className={styles.sideMenu}
-            />
+          {/* Tab switcher */}
+          <div className={styles.tabSwitcher}>
+            <button
+              className={`${styles.tabButton} ${
+                sidebarTab === "agent" ? styles.tabButtonActive : ""
+              }`}
+              onClick={() => setSidebarTab("agent")}
+            >
+              <SparkAgentLine size={14} />
+              <span>{t("sidebar.tab.agent")}</span>
+            </button>
+            <button
+              className={`${styles.tabButton} ${
+                sidebarTab === "arbitration" ? styles.tabButtonActive : ""
+              }`}
+              onClick={() => setSidebarTab("arbitration")}
+            >
+              <SparkBarChartLine size={14} />
+              <span>{t("sidebar.tab.arbitration")}</span>
+            </button>
           </div>
 
-          {/* Global settings section */}
-          <Menu
-            mode="inline"
-            selectedKeys={[selectedKey]}
-            openKeys={openKeys}
-            onClick={({ key }) => handleMenuClick(String(key), settingsMenu)}
-            items={settingsMenuItems}
-            theme={isDark ? "dark" : "light"}
-            className={styles.sideMenu}
-          />
-          <Slot name="sider.bottom" kind="fill" />
+          {sidebarTab === "agent" ? (
+            <>
+              {/* Agent-scoped section: selector + Chat + Control + Workspace */}
+              <div className={styles.agentScopedSection}>
+                <div className={styles.agentSelectorContainer}>
+                  <AgentSelector collapsed={collapsed} />
+                  <button
+                    className={`${styles.stickyChatButton}${
+                      isChatActive
+                        ? ` ${styles.stickyChatButtonActive}`
+                        : ""
+                    }`}
+                    onClick={() => navigate(chatPath)}
+                  >
+                    <SparkChatTabFill size={16} />
+                    <span>{t("nav.chat")}</span>
+                  </button>
+                </div>
+                <Slot name="sider.top" kind="fill" />
+                <Menu
+                  mode="inline"
+                  selectedKeys={[selectedKey]}
+                  openKeys={openKeys}
+                  onClick={({ key }) =>
+                    handleMenuClick(String(key), agentMenu)
+                  }
+                  items={agentMenuItems}
+                  theme={isDark ? "dark" : "light"}
+                  className={styles.sideMenu}
+                />
+              </div>
+
+              {/* Global settings section */}
+              <Menu
+                mode="inline"
+                selectedKeys={[selectedKey]}
+                openKeys={openKeys}
+                onClick={({ key }) =>
+                  handleMenuClick(String(key), settingsMenu)
+                }
+                items={settingsMenuItems}
+                theme={isDark ? "dark" : "light"}
+                className={styles.sideMenu}
+              />
+              <Slot name="sider.bottom" kind="fill" />
+            </>
+          ) : (
+            <>
+              {/* Arbitration domain section */}
+              {arbitrationMenuItems.length > 0 && (
+                <div className={styles.arbitrationSection}>
+                  <Menu
+                    mode="inline"
+                    selectedKeys={[selectedKey]}
+                    openKeys={openKeys}
+                    onClick={({ key }) =>
+                      handleMenuClick(String(key), arbitrationMenu)
+                    }
+                    items={arbitrationMenuItems}
+                    theme={isDark ? "dark" : "light"}
+                    className={styles.sideMenu}
+                  />
+                </div>
+              )}
+              <Slot name="sider.bottom" kind="fill" />
+            </>
+          )}
         </>
       )}
 

@@ -657,7 +657,7 @@ class GovernancePolicy:
     audit_level: str = "all"  # "all" | "write_only" | "none"
 
     # v2.0 fields
-    execution_level: str = "smart"  # "off" | "auto" | "smart" | "strict"
+    execution_level: str = "off"  # "off" | "auto" | "smart" | "strict"
     sensitive_paths: List[str] = field(default_factory=list)
     shell_evasion_checks: dict[str, bool] = field(default_factory=dict)
     detection_rules: List[DetectionRuleConfig] = field(default_factory=list)
@@ -1228,14 +1228,14 @@ def load_governance_policy(
         env_blacklist = list(DEFAULT_ENV_BLACKLIST)
 
     # ── v2.0 fields ──
-    execution_level = data.get("execution_level", "smart")
+    execution_level = data.get("execution_level", "off")
     if execution_level not in ("off", "auto", "smart", "strict"):
         logger.warning(
             "load_governance_policy: invalid execution_level '%s'; "
-            "defaulting to 'smart'.",
+            "defaulting to 'off'.",
             execution_level,
         )
-        execution_level = "smart"
+        execution_level = "off"
 
     sensitive_paths = data.get("sensitive_paths", [])
     if not isinstance(sensitive_paths, list):
@@ -1387,7 +1387,7 @@ def _create_default_policy(
         builtin_rules=builtin_rules,
         user_rules=user_rules,
         env_blacklist=list(DEFAULT_ENV_BLACKLIST),
-        execution_level="smart",
+        execution_level="off",
         sensitive_paths=list(_DEFAULT_SENSITIVE_PATHS),
         shell_evasion_checks=dict(_DEFAULT_SHELL_EVASION_CHECKS),
         detection_rules=_get_default_detection_rules(),

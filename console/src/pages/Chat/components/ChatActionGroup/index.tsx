@@ -6,6 +6,7 @@ import {
   ExpandAltOutlined,
   CompressOutlined,
   MoreOutlined,
+  CheckSquareOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { Dropdown, Flex, Tooltip } from "antd";
@@ -20,6 +21,10 @@ interface ChatActionGroupProps {
   historyOpen?: boolean;
   isWideMode?: boolean;
   onToggleWideMode?: () => void;
+  /** Callback to enter multi-select mode */
+  onMultiSelect?: () => void;
+  /** Whether multi-select mode is active */
+  multiSelectActive?: boolean;
 }
 
 const ChatActionGroup: React.FC<ChatActionGroupProps> = ({
@@ -27,6 +32,8 @@ const ChatActionGroup: React.FC<ChatActionGroupProps> = ({
   historyOpen = false,
   isWideMode = false,
   onToggleWideMode,
+  onMultiSelect,
+  multiSelectActive = false,
 }) => {
   const { t } = useTranslation();
 
@@ -36,7 +43,7 @@ const ChatActionGroup: React.FC<ChatActionGroupProps> = ({
   // mobile. This saves space on phones while keeping actions visible on desktop.
   const isCompact = useIsMobile();
 
-  // Build "more" dropdown items for compact mode: History, WideMode.
+  // Build "more" dropdown items for compact mode: History, WideMode, MultiSelect.
   const moreItems: MenuProps["items"] = [];
   if (onToggleHistory) {
     moreItems.push({
@@ -62,6 +69,18 @@ const ChatActionGroup: React.FC<ChatActionGroupProps> = ({
       onClick: () => onToggleWideMode(),
     });
   }
+  if (onMultiSelect) {
+    moreItems.push({
+      key: "multiSelect",
+      icon: <CheckSquareOutlined />,
+      label: (
+        <div style={{ textAlign: "center" }}>
+          {t("chat.multiSelect", "多选")}
+        </div>
+      ),
+      onClick: () => onMultiSelect(),
+    });
+  }
 
   return (
     <Flex gap={8} align="center">
@@ -73,6 +92,22 @@ const ChatActionGroup: React.FC<ChatActionGroupProps> = ({
           onClick={createNewSession}
         />
       </Tooltip>
+
+      {/* Multi-select button */}
+      {onMultiSelect && !isCompact && (
+        <Tooltip title={t("chat.multiSelect", "多选")} mouseEnterDelay={0.5}>
+          <IconButton
+            bordered={false}
+            icon={<CheckSquareOutlined />}
+            style={
+              multiSelectActive
+                ? { color: "var(--color-primary, #ff9d4d)" }
+                : undefined
+            }
+            onClick={onMultiSelect}
+          />
+        </Tooltip>
+      )}
 
       {/* History + WideMode: inline when NOT compact */}
       {!isCompact && onToggleHistory && (
@@ -104,7 +139,7 @@ const ChatActionGroup: React.FC<ChatActionGroupProps> = ({
         </Tooltip>
       )}
 
-      {/* Compact mode: collapse History/WideMode into more dropdown */}
+      {/* Compact mode: collapse History/WideMode/MultiSelect into more dropdown */}
       {isCompact && moreItems.length > 0 && (
         <Dropdown
           menu={{ items: moreItems }}

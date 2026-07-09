@@ -36,15 +36,16 @@ function getErrorMessageFromBody(
   return text;
 }
 
-function buildHeaders(method?: string, extra?: HeadersInit): Headers {
-  // Normalize extra to a Headers instance for consistent handling
+function buildHeaders(method?: string, extra?: HeadersInit, body?: BodyInit | null): Headers {
   const headers = extra instanceof Headers ? extra : new Headers(extra);
 
-  // Only add Content-Type for methods that typically have a body
   if (method && ["POST", "PUT", "PATCH"].includes(method.toUpperCase())) {
-    // Don't override if caller explicitly set Content-Type
     if (!headers.has("Content-Type")) {
-      headers.set("Content-Type", "application/json");
+      if (body instanceof FormData) {
+        // Let the browser set Content-Type with proper multipart boundary
+      } else {
+        headers.set("Content-Type", "application/json");
+      }
     }
   }
 
@@ -76,7 +77,7 @@ export async function request<T = unknown>(
 ): Promise<T> {
   const url = getApiUrl(path);
   const method = options.method || "GET";
-  const headers = buildHeaders(method, options.headers);
+  const headers = buildHeaders(method, options.headers, options.body);
   const {
     timeout = DEFAULT_TIMEOUT_MS,
     retries = DEFAULT_RETRIES,
@@ -149,40 +150,5 @@ export async function request<T = unknown>(
         return (await response.text()) as unknown as T;
       }
 
-      return (await response.json()) as T;
-    } catch (error) {
-      if (
-        error instanceof DOMException &&
-        error.name === "AbortError" &&
-        !timedOut
-      ) {
-        // External abort (caller cancelled): do not retry, rethrow as-is
-        throw error;
-      }
-
-      if (error instanceof DOMException && error.name === "AbortError") {
-        // Timeout-triggered abort
-        lastError = new Error(
-          `Request timeout after ${timeout}ms: ${method} ${path}`,
-        );
-
-        // Retry if we have attempts remaining
-        if (attempt < retries) {
-          await new Promise((resolve) => setTimeout(resolve, retryDelay));
-          continue;
-        }
-      } else {
-        // Non-timeout errors should not retry
-        throw error;
-      }
-    } finally {
-      clearTimeout(timeoutId);
-      if (onCallerAbort && callerSignal) {
-        callerSignal.removeEventListener("abort", onCallerAbort);
-      }
-    }
-  }
-
-  // All retries exhausted
-  throw lastError;
+  return (await response.json()) as T;
 }

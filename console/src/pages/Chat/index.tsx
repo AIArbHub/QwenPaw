@@ -4,10 +4,11 @@ import {
   type IAgentScopeRuntimeWebUIRef,
 } from "@agentscope-ai/chat";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Button, Modal, Result, Tooltip } from "antd";
+import { Alert, Button, Modal, Result, Tooltip, message as antMessage, Spin } from "antd";
 import { useAppMessage } from "../../hooks/useAppMessage";
 import { ExclamationCircleOutlined, SettingOutlined } from "@ant-design/icons";
 import { SparkCopyLine, SparkAttachmentLine } from "@agentscope-ai/icons";
+import { MessageDeleteAction, MessageShareAction, MessageMultiSelectBar, extractContent } from "./components/MessageActions";
 import { usePlugins } from "../../plugins/PluginContext";
 import { useTranslation } from "react-i18next";
 import i18n from "../../i18n";
@@ -1180,6 +1181,11 @@ export default function ChatPage() {
     [location.pathname],
   );
   const [showModelPrompt, setShowModelPrompt] = useState(false);
+  const [multiSelectMode, setMultiSelectMode] = useState(false);
+  const [selectedBubbleEls, setSelectedBubbleEls] = useState<Set<HTMLElement>>(new Set());
+  const [showMultiShareModal, setShowMultiShareModal] = useState(false);
+  const [multiShareImage, setMultiShareImage] = useState("");
+  const [, forceUpdate] = useState(0);
   const [rateLimitAlternatives, setRateLimitAlternatives] = useState<
     Array<{
       provider_id: string;
@@ -1190,6 +1196,77 @@ export default function ChatPage() {
   >([]);
   const { selectedAgent, agents } = useAgentStore();
   const { toolRenderConfig } = usePlugins();
+
+  // 多选模式：给消息气泡注入/移除勾选框
+  useEffect(() => {
+    if (!multiSelectMode) {
+      // 退出多选模式时清除所有勾选框和样式
+      selectedBubbleEls.forEach((el) => {
+        el.style.outline = "";
+        const cb = el.querySelector('[data-multiselect-cb]');
+        if (cb) cb.remove();
+      });
+      setSelectedBubbleEls(new Set());
+      return;
+    }
+
+    // 进入多选模式时给每个气泡注入勾选框
+    // 用更广泛的选择器匹配所有消息气泡
+    const allBubbleContainers = document.querySelectorAll(
+      '[class*="bubble-list"] > div'
+    );
+    const bubbles: HTMLElement[] = [];
+    allBubbleContainers.forEach((container) => {
+      // 找到实际的气泡元素（包含内容的子元素）
+      const bubble = container.querySelector(
+        '[class*="bubble-end"], [class*="bubble-start"]'
+      ) as HTMLElement | null;
+      if (bubble) {
+        bubbles.push(bubble);
+      } else {
+        // 如果没找到带 bubble-end/start 的，把容器本身作为气泡
+        bubbles.push(container as HTMLElement);
+      }
+    });
+    bubbles.forEach((el) => {
+      if (el.querySelector('[data-multiselect-cb]')) return;
+      const cb = document.createElement('div');
+      cb.setAttribute('data-multiselect-cb', 'true');
+      cb.style.cssText = `
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #bbb;
+        border-radius: 4px;
+        background: #fff;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        color: transparent;
+        transition: all 0.2s;
+        pointer-events: none;
+        line-height: 1;
+      `;
+      if (getComputedStyle(el).position === 'static') {
+        el.style.position = 'relative';
+      }
+      el.appendChild(cb);
+    });
+
+    return () => {
+      bubbles.forEach((el) => {
+        const cb = el.querySelector('[data-multiselect-cb]');
+        if (cb) cb.remove();
+        el.style.outline = '';
+        el.style.position = el.style.position === 'relative' ? '' : el.style.position;
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [multiSelectMode]);
   const extScalar = useChatScalarSnapshot();
   const extLists = useChatListSnapshot();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -2712,6 +2789,8 @@ export default function ChatPage() {
               historyOpen={isFullMode ? historyPanelOpen : false}
               isWideMode={isWideMode}
               onToggleWideMode={toggleWideMode}
+              onMultiSelect={() => setMultiSelectMode(true)}
+              multiSelectActive={multiSelectMode}
             />
             {pluginRightHeader}
           </>
@@ -2726,8 +2805,18 @@ export default function ChatPage() {
           ? { description: extDescription }
           : {}),
         ...(extPrompts !== undefined ? { prompts: extPrompts } : {}),
-        // SDK uses `render` if present and ignores the other fields.
-        ...(wrappedWelcomeRender ? { render: wrappedWelcomeRender } : {}),
+        // 自定义 welcome 渲染：session 加载中时显示 loading 而非欢迎页
+        ...(wrappedWelcomeRender
+          ? { render: wrappedWelcomeRender }
+          : chatLoading
+            ? {
+                render: () => (
+                  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "60%", opacity: 0.5 }}>
+                    <Spin size="large" />
+                  </div>
+                ),
+              }
+            : {}),
       },
       sender: {
         ...(i18nConfig as any)?.sender,
@@ -2960,6 +3049,46 @@ export default function ChatPage() {
               );
             },
           },
+          // 删除按钮
+          {
+            render: () => (
+              <MessageDeleteAction
+                onClick={() => {
+                  // 查找并删除当前消息气泡
+                  const bubbleList = document.querySelector('[class*="bubble-list"]');
+                  if (bubbleList) {
+                    const bubbles = bubbleList.querySelectorAll('[class*="bubble-end"], [class*="bubble-start"]');
+                    bubbles.forEach((bubble) => {
+                      if (bubble.contains((event as any).currentTarget)) {
+                        bubble.remove();
+                        antMessage.success("已删除");
+                      }
+                    });
+                  }
+                }}
+              />
+            ),
+          },
+          // 分享按钮
+          {
+            render: ({
+              data,
+            }: {
+              data: { data?: Record<string, unknown> };
+            }) => {
+              const role = data?.data?.role;
+              const createdAt = data?.data?.created_at;
+              const textContent = extractContent(data);
+              
+              return (
+                <MessageShareAction
+                  content={textContent}
+                  sender={typeof role === "string" ? role : ""}
+                  timestamp={typeof createdAt === "number" ? createdAt : 0}
+                />
+              );
+            },
+          },
           ...pluginActions,
         ],
         replace: true,
@@ -2988,6 +3117,46 @@ export default function ChatPage() {
                   .then(() => message.success(t("common.copied")))
                   .catch(() => message.error(t("common.copyFailed")));
               }
+            },
+          },
+          // 用户消息删除按钮
+          {
+            render: () => (
+              <MessageDeleteAction
+                onClick={() => {
+                  const bubbleList = document.querySelector('[class*="bubble-list"]');
+                  if (bubbleList) {
+                    const bubbles = bubbleList.querySelectorAll('[class*="bubble-end"]');
+                    bubbles.forEach((bubble) => {
+                      if (bubble.contains((event as any).currentTarget)) {
+                        bubble.remove();
+                        antMessage.success("已删除");
+                      }
+                    });
+                  }
+                }}
+              />
+            ),
+          },
+          // 用户消息分享按钮
+          {
+            render: ({
+              data,
+            }: {
+              data: { created_at?: number; input?: any[] };
+            }) => {
+              const text = (data?.input || [])
+                .map(extractUserMessageText)
+                .join("\n")
+                .trim();
+              
+              return (
+                <MessageShareAction
+                  content={text}
+                  sender="user"
+                  timestamp={data?.created_at || 0}
+                />
+              );
             },
           },
           ...pluginRequestActions,
@@ -3046,11 +3215,317 @@ export default function ChatPage() {
               : styles.chatMessagesArea
           }
         >
+          {/* 多选工具栏 */}
+          {multiSelectMode && (
+            <div
+              style={{
+                padding: "8px 16px",
+                background: "#f0f5ff",
+                borderBottom: "1px solid #d6e4ff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                zIndex: 10,
+                position: "relative",
+              }}
+            >
+              <span style={{ color: "#1890ff", fontWeight: 500, fontSize: 13 }}>
+                多选模式：已选 {selectedBubbleEls.size} 条消息（点击消息气泡选择/取消）
+              </span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    // 统一获取所有带勾选框的气泡
+                    const allBubbles = Array.from(
+                      document.querySelectorAll('[data-multiselect-cb]')
+                    ).map((cb) => cb.parentElement as HTMLElement).filter(Boolean);
+                    const allSelected = selectedBubbleEls.size === allBubbles.length && allBubbles.length > 0;
+                    if (allSelected) {
+                      // 取消全选
+                      allBubbles.forEach((el) => {
+                        el.style.outline = "";
+                        const cb = el.querySelector('[data-multiselect-cb]') as HTMLElement;
+                        if (cb) {
+                          cb.style.borderColor = "#bbb";
+                          cb.style.background = "#fff";
+                          cb.style.color = "transparent";
+                          cb.textContent = "";
+                        }
+                      });
+                      setSelectedBubbleEls(new Set());
+                    } else {
+                      // 全选
+                      const newSet = new Set<HTMLElement>();
+                      allBubbles.forEach((el) => {
+                        newSet.add(el);
+                        el.style.outline = "2px solid #1890ff";
+                        el.style.outlineOffset = "2px";
+                        const cb = el.querySelector('[data-multiselect-cb]') as HTMLElement;
+                        if (cb) {
+                          cb.style.borderColor = "#1890ff";
+                          cb.style.background = "#1890ff";
+                          cb.style.color = "#fff";
+                          cb.textContent = "✓";
+                        }
+                      });
+                      setSelectedBubbleEls(newSet);
+                    }
+                    forceUpdate((n) => n + 1);
+                  }}
+                >
+                  {selectedBubbleEls.size > 0 && selectedBubbleEls.size === document.querySelectorAll('[data-multiselect-cb]').length ? "取消全选" : "全选"}
+                </Button>
+                <Button
+                  size="small"
+                  danger
+                  disabled={selectedBubbleEls.size === 0}
+                  onClick={() => {
+                    Modal.confirm({
+                      title: "确认删除",
+                      content: `确定要删除选中的 ${selectedBubbleEls.size} 条消息吗？`,
+                      okText: "删除",
+                      okType: "danger",
+                      cancelText: "取消",
+                      onOk: () => {
+                        selectedBubbleEls.forEach((el) => el.remove());
+                        setSelectedBubbleEls(new Set());
+                        setMultiSelectMode(false);
+                        antMessage.success("已删除选中消息");
+                      },
+                    });
+                  }}
+                >
+                  删除选中
+                </Button>
+                <Button
+                  size="small"
+                  type="primary"
+                  disabled={selectedBubbleEls.size === 0}
+                  onClick={() => {
+                    // 生成多消息分享图片
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    if (!ctx) return;
+
+                    const canvasWidth = 600;
+                    const padding = 40;
+                    const headerHeight = 80;
+                    const footerHeight = 60;
+                    const lineHeight = 24;
+                    const bubbleGap = 16;
+                    const maxLineWidth = canvasWidth - padding * 2 - 20; // = 500
+
+                    // 设置字体后再计算换行
+                    ctx.font = "14px Arial";
+
+                    // 收集所有选中消息的文本
+                    const messages: { sender: string; content: string }[] = [];
+                    selectedBubbleEls.forEach((el) => {
+                      const textEl = el.querySelector('[class*="bubble-content"], [class*="markdown-body"], [class*="markdown"], [class*="content"]');
+                      const senderEl = el.querySelector('[class*="bubble-header"], [class*="name"]');
+                      messages.push({
+                        sender: senderEl?.textContent?.trim() || "",
+                        content: textEl?.textContent?.trim() || el.textContent?.trim() || "",
+                      });
+                    });
+
+                    // 计算高度：先按换行符分割，再逐字符换行
+                    const allLines: string[][] = [];
+                    messages.forEach((msg) => {
+                      const lines: string[] = [];
+                      const paragraphs = msg.content.split("\n");
+                      for (const para of paragraphs) {
+                        if (!para) {
+                          lines.push("");
+                          continue;
+                        }
+                        let currentLine = "";
+                        for (let i = 0; i < para.length; i++) {
+                          const testLine = currentLine + para[i];
+                          if (ctx.measureText(testLine).width > maxLineWidth && currentLine) {
+                            lines.push(currentLine);
+                            currentLine = para[i];
+                          } else {
+                            currentLine = testLine;
+                          }
+                        }
+                        if (currentLine) lines.push(currentLine);
+                      }
+                      allLines.push(lines);
+                    });
+
+                    const totalMsgHeight = allLines.reduce((sum, lines) => sum + lines.length * lineHeight + bubbleGap + 30, 0);
+                    canvas.width = canvasWidth;
+                    canvas.height = headerHeight + totalMsgHeight + footerHeight + padding;
+
+                    // 背景
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // Header
+                    const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+                    gradient.addColorStop(0, "#1890ff");
+                    gradient.addColorStop(1, "#722ed1");
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, canvas.width, headerHeight);
+
+                    ctx.fillStyle = "#ffffff";
+                    ctx.font = "bold 24px Arial";
+                    ctx.fillText("AI Arb", padding, 50);
+                    ctx.font = "13px Arial";
+                    ctx.fillStyle = "rgba(255,255,255,0.85)";
+                    ctx.fillText(`${messages.length} 条消息`, padding, 70);
+
+                    // 消息内容
+                    let y = headerHeight + padding;
+                    messages.forEach((msg, idx) => {
+                      // 发送者
+                      if (msg.sender) {
+                        ctx.fillStyle = "#1890ff";
+                        ctx.font = "bold 13px Arial";
+                        ctx.textAlign = "left";
+                        ctx.fillText(msg.sender, padding, y);
+                        y += 20;
+                      }
+                      // 气泡背景
+                      const lines = allLines[idx];
+                      const bubbleHeight = lines.length * lineHeight + 16;
+                      ctx.fillStyle = "#f5f5f5";
+                      ctx.fillRect(padding, y - 12, canvas.width - padding * 2, bubbleHeight);
+                      // 文本
+                      ctx.fillStyle = "#262626";
+                      ctx.font = "14px Arial";
+                      lines.forEach((line) => {
+                        ctx.fillText(line, padding + 10, y);
+                        y += lineHeight;
+                      });
+                      y += bubbleGap + 10;
+                    });
+
+                    // Footer
+                    ctx.fillStyle = "#fafafa";
+                    ctx.fillRect(0, canvas.height - footerHeight, canvas.width, footerHeight);
+                    ctx.fillStyle = "#8c8c8c";
+                    ctx.font = "12px Arial";
+                    ctx.textAlign = "center";
+                    ctx.fillText("AI Arb", canvas.width / 2, canvas.height - footerHeight + 25);
+                    ctx.fillText("www.aiarb.cn", canvas.width / 2, canvas.height - footerHeight + 45);
+
+                    setMultiShareImage(canvas.toDataURL("image/png"));
+                    setShowMultiShareModal(true);
+                  }}
+                >
+                  分享选中
+                </Button>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    setMultiSelectMode(false);
+                    setSelectedBubbleEls(new Set());
+                  }}
+                >
+                  退出多选
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div
+            onClick={(e) => {
+              if (!multiSelectMode) return;
+              // 点击气泡时切换选中状态
+              const target = e.target as HTMLElement;
+              // 优先查找带勾选框的气泡元素
+              const cbEl = target.closest('[data-multiselect-cb]') as HTMLElement | null;
+              let bubble: HTMLElement | null = null;
+              if (cbEl) {
+                bubble = cbEl.parentElement;
+              } else {
+                // 点击气泡内部，向上找到包含勾选框的容器
+                bubble = target.closest('[class*="bubble-end"], [class*="bubble-start"]') as HTMLElement | null;
+                if (bubble && !bubble.querySelector('[data-multiselect-cb]')) {
+                  // 向上继续查找
+                  let parent = bubble.parentElement;
+                  while (parent && !parent.querySelector('[data-multiselect-cb]')) {
+                    parent = parent.parentElement;
+                  }
+                  bubble = parent || bubble;
+                }
+              }
+              if (bubble) {
+                const actualBubble = cbEl ? (cbEl.parentElement as HTMLElement) : bubble;
+                setSelectedBubbleEls((prev) => {
+                  const next = new Set(prev);
+                  const cb = actualBubble.querySelector('[data-multiselect-cb]') as HTMLElement;
+                  if (next.has(actualBubble)) {
+                    next.delete(actualBubble);
+                    actualBubble.style.outline = "";
+                    if (cb) {
+                      cb.style.borderColor = "#bbb";
+                      cb.style.background = "#fff";
+                      cb.style.color = "transparent";
+                      cb.textContent = "";
+                    }
+                  } else {
+                    next.add(actualBubble);
+                    actualBubble.style.outline = "2px solid #1890ff";
+                    actualBubble.style.outlineOffset = "2px";
+                    if (cb) {
+                      cb.style.borderColor = "#1890ff";
+                      cb.style.background = "#1890ff";
+                      cb.style.color = "#fff";
+                      cb.textContent = "✓";
+                    }
+                  }
+                  return next;
+                });
+                forceUpdate((n) => n + 1);
+              }
+            }}
+            style={{ height: "100%", cursor: multiSelectMode ? "pointer" : "default" }}
+          >
           <AgentScopeRuntimeWebUI
             ref={chatRef}
             key={refreshKey}
             options={options}
           />
+          </div>
+
+          {/* 多选分享弹窗 */}
+          <Modal
+            title="分享聊天记录"
+            open={showMultiShareModal}
+            onCancel={() => setShowMultiShareModal(false)}
+            footer={[
+              <Button key="close" onClick={() => setShowMultiShareModal(false)}>
+                关闭
+              </Button>,
+              <Button
+                key="download"
+                type="primary"
+                onClick={() => {
+                  if (!multiShareImage) return;
+                  const link = document.createElement("a");
+                  link.download = `ai-arb-${Date.now()}.png`;
+                  link.href = multiShareImage;
+                  link.click();
+                  antMessage.success("图片已下载");
+                }}
+              >
+                下载图片
+              </Button>,
+            ]}
+            width={700}
+          >
+            {multiShareImage && (
+              <img
+                src={multiShareImage}
+                alt="Share"
+                style={{ maxWidth: "100%", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}
+              />
+            )}
+          </Modal>
         </div>
 
         {/* Rate-limit guidance banner */}

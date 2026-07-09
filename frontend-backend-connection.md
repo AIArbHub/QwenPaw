@@ -305,3 +305,121 @@ Chat.tsx 接收并逐字渲染到页面
     ▼
 用户看到 AI 回复 ✓
 ```
+
+---
+
+## 脱敏 / 知识库 / 案件卷宗 / Wiki 模块架构
+
+### 模块关系图
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        QwenPaw 功能模块                              │
+│                                                                     │
+│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐            │
+│  │  脱敏工作台   │   │   知识库      │   │  案件卷宗     │            │
+│  │ (独立运行)    │   │              │   │              │            │
+│  │              │   │  上传文档     │   │  引用案件     │            │
+│  │ 直接输入文本  │   │  → 解析MD    │   │  → 解析MD    │            │
+│  │ 或上传文件    │   │  → 脱敏      │   │  → 脱敏      │            │
+│  │              │   │              │   │              │            │
+│  │ 三种模式：    │   │              │   │              │            │
+│  │ · 纯本地     │   │              │   │              │            │
+│  │ · 本地+AI   │   │              │   │              │            │
+│  │ · 纯AI      │   │              │   │              │            │
+│  └──────┬───────┘   └──────┬───────┘   └──────┬───────┘            │
+│         │                  │                   │                    │
+│         │  (可选导入)       │                   │                    │
+│         │◄─────────────────┤                   │                    │
+│         │                  │  (可选导入)        │                    │
+│         │◄─────────────────┼───────────────────┤                    │
+│         │                  │                   │                    │
+│         ▼                  ▼                   ▼                    │
+│  ┌─────────────────────────────────────────────────────────┐       │
+│  │                      Wiki 编译引擎                        │       │
+│  │                                                         │       │
+│  │  输入：知识库脱敏文档 + 案件卷宗脱敏文档                      │       │
+│  │  输出：结构化 Wiki 页面（问答对、知识图谱）                   │       │
+│  └─────────────────────────────────────────────────────────┘       │
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────┐       │
+│  │                   大模型服务 (统一配置)                     │       │
+│  │                                                         │       │
+│  │  设置 > 模型管理 → ProviderManager.get_active_chat_model()│       │
+│  │  所有 AI 功能共用同一套模型配置                              │       │
+│  └─────────────────────────────────────────────────────────┘       │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 文件存储架构
+
+```
+~/.aiarb/                              ← 全局工作目录 (WORKING_DIR)
+├── knowledge_base/                    ← 知识库主目录
+│   ├── files/                         ← 原始上传文件
+│   ├── _parsed/                       ← 解析后的 Markdown
+│   ├── _desensitized/                 ← 脱敏后的 Markdown
+│   ├── _backfill/                     ← 回填映射表（加密存储）
+│   ├── _wiki/                         ← Wiki 编译结果
+│   └── _meta.json                     ← 文档元数据索引
+├── cases/                             ← 案件卷宗文件
+│   ├── {case_id}/                     ← 每个案件一个目录
+│   │   ├── _parsed/                   ← 解析后的 Markdown
+│   │   └── _desensitized/             ← 脱敏后的 Markdown
+│   └── _meta.json                     ← 案件元数据索引
+└── (脱敏工作台直接输入不写入磁盘)        ← 仅内存处理，用户手动保存
+```
+
+**关键设计原则**：
+- **脱敏工作台独立**：直接输入的文本仅在会话中处理，不自动保存到知识库
+- **模块间可选导入**：知识库/案件卷宗的文档可勾选导入脱敏工作台，但不是必须
+- **Wiki 引用来源**：Wiki 页面记录 `source_doc_ids` 和 `source_case_ids`，可追溯来源
+
+### 脱敏三种模式
+
+| 模式 | API mode 值 | 处理流程 | 数据安全 | 适用场景 |
+|------|-------------|----------|----------|----------|
+| **纯本地** | `local` | 仅本地正则规则替换 | ⭐⭐⭐ 数据不出本机 | 结构化数据（身份证、手机号等） |
+| **本地+AI** | `local_ai` | 先本地正则 → AI 补充遗漏 | ⭐⭐ 正则结果再发AI | **推荐模式**，兼顾安全与效果 |
+| **纯AI** | `ai` | 完全由 AI 分析脱敏 | ⭐ 需联网发送原文 | 非结构化数据（对话、叙述等） |
+
+### LLM 调用链路
+
+```
+前端选择 AI 模式
+    │
+    ▼
+API: POST /api/knowledge/desensitize-text  { mode: "local_ai" }
+    │
+    ▼
+knowledge.py 路由
+    │  from ...knowledge.desensitize_llm import get_llm_call_fn
+    │  llm_fn = get_llm_call_fn()
+    ▼
+desensitize_llm.py::get_llm_call_fn()
+    │  from ..providers.provider_manager import ProviderManager
+    │  model = ProviderManager.get_active_chat_model()
+    │  返回 async (prompt) -> str 的闭包
+    ▼
+llm_desensitize(text, llm_call_fn=llm_fn)
+    │  response = await llm_call_fn(prompt)
+    │  解析 JSON 响应 → 提取新映射
+    ▼
+返回脱敏结果 + 映射表
+```
+
+### 关键文件速查（脱敏/知识库/Wiki）
+
+| 文件 | 作用 |
+|------|------|
+| `console/src/pages/Desensitize/index.tsx` | 脱敏工作台页面（直接输入、模式选择、结果展示） |
+| `console/src/pages/Desensitize/index.module.less` | 脱敏页面样式（含模式卡片选择器） |
+| `console/src/api/modules/knowledge.ts` | 知识库/脱敏 API 调用（含 `desensitizeText`） |
+| `console/src/locales/zh.json` | 中文翻译（desensitize 命名空间） |
+| `src/qwenpaw/app/routers/knowledge.py` | 知识库/脱敏 API 路由（含 `/desensitize-text`） |
+| `src/qwenpaw/knowledge/desensitize.py` | 本地正则脱敏引擎（`local_desensitize`） |
+| `src/qwenpaw/knowledge/desensitize_llm.py` | AI 脱敏引擎 + `get_llm_call_fn` 辅助函数 |
+| `src/qwenpaw/knowledge/backfill.py` | 回填映射表管理（加密存储、还原） |
+| `src/qwenpaw/knowledge/models.py` | 数据模型（KnowledgeDoc、DesensitizeRule 等） |
+| `src/qwenpaw/wiki/engine.py` | Wiki 编译引擎（引用知识库/案件卷宗内容） |
+| `src/qwenpaw/providers/provider_manager.py` | 模型提供商管理（`get_active_chat_model`） |

@@ -44,6 +44,8 @@ def build_reme_app_config(
             "resource_dir": reme_config.resource_dir,
             "daily_dir": reme_config.daily_dir,
             "digest_dir": reme_config.digest_dir,
+            "knowledge_dir": reme_config.knowledge_dir,
+            "wiki_dir": reme_config.wiki_dir,
             "language": agent_config.language,
             "timezone": user_timezone or "Asia/Shanghai",
             "enable_logo": False,
@@ -556,6 +558,15 @@ def _base_config() -> dict[str, Any]:
         },
         "components": _base_components(),
     }
+
+
+def _index_watch_rules(
+    enable_search_raw_log: bool,
+) -> tuple[list[str], list[str]]:
+    """Return directories/suffixes indexed by ReMe search jobs."""
+    if enable_search_raw_log:
+        return ["daily_dir", "digest_dir", "resource_dir", "knowledge_dir", "wiki_dir"], ["md", "jsonl"]
+    return ["daily_dir", "digest_dir", "knowledge_dir", "wiki_dir"], ["md"]
 
 
 def _base_components() -> dict[str, Any]:

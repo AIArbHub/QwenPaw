@@ -88,7 +88,7 @@ export default function LanguageSwitcher() {
     <Dropdown
       menu={{ items, selectedKeys: [currentLangKey] }}
       placement="bottomRight"
-      overlayClassName={styles.languageDropdown}
+      rootClassName={styles.languageDropdown}
     >
       <Button icon={currentIcon || undefined} className={styles.trigger}>
         {!currentIcon && currentFlag && (

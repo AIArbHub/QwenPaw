@@ -769,6 +769,138 @@ class ReMeLightMemoryConfig(BaseModel):
         default_factory=EmbeddingModelConfig,
     )
 
+    knowledge_dir: str = Field(
+        default="knowledge",
+        description="Subdirectory for knowledge base documents",
+    )
+    wiki_dir: str = Field(
+        default="wiki",
+        description="Subdirectory for LLM Wiki compiled pages",
+    )
+    rebuild_memory_index_on_start: bool = Field(
+        default=False,
+        description=(
+            "Whether to clear and rebuild the memory search index when the"
+            " agent starts. Set to False to skip re-indexing and only monitor"
+            " new file changes."
+        ),
+    )
+
+
+class DesensitizeRuleConfig(BaseModel):
+    name: str = Field(default="", description="Rule name")
+    pattern: str = Field(default="", description="Regex pattern")
+    placeholder: str = Field(default="", description="Placeholder template, e.g. PERSON_{seq:03d}")
+    group: int = Field(default=0, description="Regex group index to capture")
+    enabled: bool = Field(default=True, description="Whether rule is active")
+
+
+class DesensitizeConfig(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    enabled: bool = Field(
+        default=True,
+        description="Whether to enable desensitization pipeline",
+    )
+    rules: list[DesensitizeRuleConfig] = Field(
+        default_factory=list,
+        description="Custom desensitize rules (empty = use built-in defaults)",
+    )
+    llm_optimize: bool = Field(
+        default=True,
+        description="Whether to run LLM-based secondary desensitization",
+    )
+    llm_optimize_model: str = Field(
+        default="",
+        description="Model for LLM desensitization (empty = use agent default)",
+    )
+
+
+class ParserConfig(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    default_mode: str = Field(
+        default="auto",
+        description="Default parse mode: auto / cloud_ocr / local_only",
+    )
+    mineru_api_key: str = Field(
+        default="",
+        description="MinerU cloud API key for OCR",
+    )
+    mineru_base_url: str = Field(
+        default="https://mineru.net/api/v4",
+        description="MinerU API base URL",
+    )
+    local_ocr_enabled: bool = Field(
+        default=True,
+        description="Enable PaddleOCR for local OCR (no data leaves the machine)",
+    )
+    local_ocr_lang: str = Field(
+        default="ch",
+        description="PaddleOCR language: ch / en / etc.",
+    )
+
+
+class OutputConfig(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    output_dir: str = Field(
+        default="output",
+        description="Output directory (relative to workspace or absolute path)",
+    )
+    naming_pattern: str = Field(
+        default="{date}_{type}",
+        description="File naming pattern for output documents",
+    )
+    auto_organize: bool = Field(
+        default=True,
+        description="Auto-organize output by date/case",
+    )
+
+
+class KnowledgeScopeRule(BaseModel):
+    field: str = Field(default="", description="category / owner / tags / file_type")
+    op: str = Field(default="eq", description="eq / contains / prefix")
+    value: str | list = Field(default="", description="Filter value")
+
+
+class KnowledgeScopeConfig(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    include_rules: list[KnowledgeScopeRule] = Field(
+        default_factory=list,
+        description="Include rules (any match makes doc visible)",
+    )
+    exclude_rules: list[KnowledgeScopeRule] = Field(
+        default_factory=list,
+        description="Exclude rules (higher priority than include)",
+    )
+    external_paths: list[dict] = Field(
+        default_factory=list,
+        description="External knowledge folder references",
+    )
+
+
+class DocumentConfig(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    knowledge_scope: KnowledgeScopeConfig | None = Field(
+        default=None,
+        description="Knowledge scope configuration for this agent",
+    )
+    desensitize: DesensitizeConfig = Field(
+        default_factory=DesensitizeConfig,
+        description="Desensitization pipeline configuration",
+    )
+    parser: ParserConfig = Field(
+        default_factory=ParserConfig,
+        description="Document parser configuration",
+    )
+    output: OutputConfig = Field(
+        default_factory=OutputConfig,
+        description="Output document configuration",
+    )
+
 
 class ContextCompactConfig(BaseModel):
     """Context compaction configuration."""
@@ -1761,6 +1893,10 @@ class AgentProfileConfig(BaseModel):
         default_factory=CodingModeConfig,
         description="Coding Mode configuration for this agent",
     )
+    documents: DocumentConfig = Field(
+        default_factory=DocumentConfig,
+        description="Document management configuration (knowledge, cases, output, desensitization)",
+    )
 
 
 class AgentsConfig(BaseModel):
@@ -2276,7 +2412,7 @@ class ToolGuardConfig(BaseModel):
 class FileGuardConfig(BaseModel):
     """File guard settings under ``security.file_guard``."""
 
-    enabled: bool = True
+    enabled: bool = False
     sensitive_files: List[str] = Field(default_factory=list)
     allow_preview_outside_workspace: bool = True
 
@@ -2306,7 +2442,7 @@ class SkillScannerConfig(BaseModel):
     """
 
     mode: Literal["block", "warn", "off"] = Field(
-        default="warn",
+        default="off",
         description="Scanner mode: block, warn, or off.",
     )
     timeout: int = Field(
@@ -2390,6 +2526,10 @@ class Config(BaseModel):
     last_dispatch: Optional[LastDispatchConfig] = None
     security: SecurityConfig = Field(default_factory=SecurityConfig)
     acp: ACPConfig = Field(default_factory=ACPConfig)
+    documents: DocumentConfig = Field(
+        default_factory=DocumentConfig,
+        description="Document management configuration (knowledge, cases, output, desensitization, parser)",
+    )
     show_tool_details: bool = True
     user_timezone: str = Field(
         default_factory=detect_system_timezone,

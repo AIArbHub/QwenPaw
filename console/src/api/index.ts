@@ -28,6 +28,9 @@ import { languageApi } from "./modules/language";
 import { backupApi } from "./modules/backup";
 import { consoleApi } from "./modules/console";
 import { accessControlApi } from "./modules/accessControl";
+import { knowledgeApi } from "./modules/knowledge";
+import { casesApi } from "./modules/cases";
+import { wikiApi } from "./modules/wiki";
 
 export const api = {
   // Root
@@ -99,6 +102,15 @@ export const api = {
 
   // Access Control
   ...accessControlApi,
+
+  // Knowledge Base
+  ...knowledgeApi,
+
+  // Case Files
+  ...casesApi,
+
+  // Wiki
+  ...wikiApi,
 };
 
 export default api;

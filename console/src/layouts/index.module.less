@@ -60,6 +60,75 @@
   -ms-overflow-style: none;
   /* IE and Edge */
 
+  // Tab switcher: agent | arbitration
+  .tabSwitcher {
+    flex-shrink: 0;
+    display: flex;
+    gap: 2px;
+    padding: 8px 4px 4px;
+    background: rgba(115, 115, 115, 0.04);
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+
+  .tabButton {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #737373;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      color 0.2s;
+
+    &:hover {
+      background: rgba(115, 115, 115, 0.08);
+      color: #404040;
+    }
+  }
+
+  .tabButtonActive {
+    background: #ffffff;
+    color: #171717;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+    &:hover {
+      background: #ffffff;
+      color: #171717;
+    }
+  }
+
+  // Collapsed separator between arbitration and agent icons
+  .collapsedSeparator {
+    width: 24px;
+    height: 1px;
+    background: rgba(115, 115, 115, 0.15);
+    margin: 4px auto;
+  }
+
+  // Arbitration domain section: desensitize, knowledge, cases, wiki, moot
+  .arbitrationSection {
+    flex-shrink: 0;
+    border-radius: 12px;
+    border: 1px solid rgba(115, 115, 115, 0.08);
+    padding: 8px;
+    margin-bottom: 8px;
+
+    :global {
+      .qwenpaw-menu {
+        background: transparent !important;
+      }
+    }
+  }
+
   // Agent-scoped section: selector + Chat + Control + Workspace
   .agentScopedSection {
     flex-shrink: 0;
@@ -276,6 +345,41 @@
 .siderDark {
   background: #1a1a1a !important;
   border-right-color: rgba(255, 255, 255, 0.08) !important;
+
+  // Tab switcher (dark mode)
+  .tabSwitcher {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .tabButton {
+    color: rgba(255, 255, 255, 0.5);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.75);
+    }
+  }
+
+  .tabButtonActive {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  .collapsedSeparator {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  // Arbitration section (dark mode)
+  .arbitrationSection {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
 
   // Agent-scoped section (dark mode)
   .agentScopedSection {
