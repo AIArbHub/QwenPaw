@@ -562,4 +562,4 @@ export function MarketPanel({
   );
 }
 
-export default MarketPage;
+export default MarketPanel;

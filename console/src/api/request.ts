@@ -150,5 +150,30 @@ export async function request<T = unknown>(
         return (await response.text()) as unknown as T;
       }
 
-  return (await response.json()) as T;
+      return (await response.json()) as T;
+    } catch (err) {
+      lastError = err as Error;
+
+      // If caller aborted, don't retry
+      if (callerSignal?.aborted) {
+        throw lastError;
+      }
+
+      // If more attempts remain, wait and retry
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, retryDelay));
+        continue;
+      }
+
+      throw lastError;
+    } finally {
+      clearTimeout(timeoutId);
+      if (onCallerAbort && callerSignal) {
+        callerSignal.removeEventListener("abort", onCallerAbort);
+      }
+    }
+  }
+
+  // Should never reach here, but satisfy TypeScript
+  throw lastError ?? new Error("Request failed");
 }
