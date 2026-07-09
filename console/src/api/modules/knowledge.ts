@@ -309,12 +309,12 @@ export const knowledgeApi = {
       local_ocr_enabled: boolean;
       local_ocr_lang: string;
       mineru_configured: boolean;
-      paddleocr_installed: { installed: boolean; version: string | null; error?: string };
+      paddleocr_installed: { installed: boolean; version: string | null; error?: string; runtime_ok?: boolean; runtime_error?: string };
     }>("/config/documents/parser"),
 
   getOcrStatus: () =>
     request<{
-      paddleocr: { installed: boolean; version: string | null; error?: string };
+      paddleocr: { installed: boolean; version: string | null; error?: string; runtime_ok?: boolean; runtime_error?: string };
       mineru_configured: boolean;
       local_ocr_enabled: boolean;
       default_mode: string;
@@ -334,7 +334,7 @@ export const knowledgeApi = {
       local_ocr_enabled: boolean;
       local_ocr_lang: string;
       mineru_configured: boolean;
-      paddleocr_installed: { installed: boolean; version: string | null; error?: string };
+      paddleocr_installed: { installed: boolean; version: string | null; error?: string; runtime_ok?: boolean; runtime_error?: string };
     }>("/config/documents/parser", {
       method: "PUT",
       body: JSON.stringify(params),
@@ -344,7 +344,7 @@ export const knowledgeApi = {
     request<{
       success: boolean;
       output: string;
-      paddleocr_installed: { installed: boolean; version: string | null; error?: string };
+      paddleocr_installed: { installed: boolean; version: string | null; error?: string; runtime_ok?: boolean; runtime_error?: string };
       message: string;
       platform?: string;
       is_arm_mac?: boolean;

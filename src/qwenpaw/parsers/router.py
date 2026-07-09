@@ -96,10 +96,10 @@ class ParserRouter:
         if self._local_ocr and self._local_ocr.available:
             logger.info("Using PaddleOCR for %s", file_path.name)
             result = await self._local_ocr.parse(file_path)
-            if result and len(result.strip()) >= _FALLBACK_MIN_CHARS:
+            if result and not result.startswith("[Image file:") and not result.startswith("[Cannot parse:") and len(result.strip()) >= _FALLBACK_MIN_CHARS:
                 return result
 
-        logger.warning("All OCR methods failed for %s, falling back to local", file_path.name)
+        logger.warning("All OCR methods failed for %s, falling back to native", file_path.name)
         return await self._native_pipeline(file_path)
 
     async def _via_mineru(self, file_path: Path) -> str:
@@ -107,13 +107,30 @@ class ParserRouter:
 
     async def _local_only(self, file_path: Path, ext: str) -> str:
         if ext in _SCAN_EXTENSIONS or ext in _PDF_EXTENSION:
+            if not self._local_ocr:
+                logger.warning(
+                    "Local OCR disabled: PaddleOCRParser not initialized (local_ocr_enabled=False in config)"
+                )
+            elif not self._local_ocr.available:
+                logger.warning(
+                    "Local OCR unavailable: paddleocr module cannot be imported at runtime"
+                )
+
             if self._local_ocr and self._local_ocr.available:
                 logger.info("Using PaddleOCR (local_only) for %s", file_path.name)
                 result = await self._local_ocr.parse(file_path)
                 if result and len(result.strip()) >= _FALLBACK_MIN_CHARS:
                     return result
+                logger.warning(
+                    "PaddleOCR returned empty/short result (< %d chars) for %s",
+                    _FALLBACK_MIN_CHARS,
+                    file_path.name,
+                )
             if ext in _SCAN_EXTENSIONS:
-                return "[Image file: local OCR not available]"
+                reason = "disabled" if not self._local_ocr else (
+                    "paddleocr not importable" if not self._local_ocr.available else "empty result"
+                )
+                return f"[Image file: local OCR not available ({reason})]"
             has_text = await self._check_pdf_text_layer(file_path)
             if has_text:
                 return await self._native_pipeline(file_path)

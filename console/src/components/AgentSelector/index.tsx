@@ -254,7 +254,7 @@ export default function AgentSelector({
             : selectedAgent
         }
         placement="right"
-        overlayInnerStyle={{ background: "rgba(0,0,0,0.75)", color: "#fff" }}
+        styles={{ body: { background: "rgba(0,0,0,0.75)", color: "#fff" } }}
       >
         <div className={styles.agentSelectorCollapsed}>
           <AgentAvatar avatar={currentAgentInfo?.avatar} size={18} />

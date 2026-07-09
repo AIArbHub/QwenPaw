@@ -145,6 +145,7 @@ export default function DesensitizeWorkbench() {
 
   const [scanFolder, setScanFolder] = useState("");
   const [scanning, setScanning] = useState(false);
+  const [scannedFiles, setScannedFiles] = useState<any[]>([]);
 
   const [taskList, setTaskList] = useState<any[]>([]);
   const [viewingTask, setViewingTask] = useState<any | null>(null);
@@ -156,7 +157,7 @@ export default function DesensitizeWorkbench() {
     local_ocr_enabled: boolean;
     local_ocr_lang: string;
     mineru_configured: boolean;
-    paddleocr_installed: { installed: boolean; version: string | null; error?: string };
+    paddleocr_installed: { installed: boolean; version: string | null; error?: string; runtime_ok?: boolean; runtime_error?: string };
   } | null>(null);
   const [parserSaving, setParserSaving] = useState(false);
   const [ocrStatusLoading, setOcrStatusLoading] = useState(false);
@@ -164,6 +165,7 @@ export default function DesensitizeWorkbench() {
   const [ocrTryResult, setOcrTryResult] = useState<string | null>(null);
   const [ocrTryEngine, setOcrTryEngine] = useState<string>("");
   const [ocrTryError, setOcrTryError] = useState<string>("");
+  const [ocrTryDiagnostics, setOcrTryDiagnostics] = useState<Record<string, string> | null>(null);
   const [ocrEngine, setOcrEngine] = useState<"auto" | "cloud_ocr" | "local_only">("auto");
   const [paddleInstalling, setPaddleInstalling] = useState(false);
   const [paddleInstallLog, setPaddleInstallLog] = useState<string | null>(null);
@@ -178,11 +180,16 @@ export default function DesensitizeWorkbench() {
   }, []);
   const isMac = useMemo(() => navigator.platform?.toUpperCase().includes("MAC") || /Mac|iPod|iPhone|iPad/.test(navigator.userAgent), []);
   const pipCmd = useMemo(() => {
-    const base = isCNUser
-      ? "pip install paddleocr paddlepaddle -i https://pypi.tuna.tsinghua.edu.cn/simple"
-      : "pip install paddleocr paddlepaddle";
-    return base;
-  }, [isCNUser]);
+    if (isMac) {
+      return isCNUser
+        ? "pip install paddleocr paddlepaddle -i https://pypi.tuna.tsinghua.edu.cn/simple"
+        : "pip install paddleocr paddlepaddle";
+    }
+    // Windows: 使用 2.x 版本避免 oneDNN 兼容性问题
+    return isCNUser
+      ? 'pip install "paddleocr==2.9.1" "paddlepaddle==2.6.2" -i https://pypi.tuna.tsinghua.edu.cn/simple'
+      : 'pip install "paddleocr==2.9.1" "paddlepaddle==2.6.2"';
+  }, [isCNUser, isMac]);
 
   useEffect(() => {
     knowledgeApi.getParserConfig().then(setParserConfig).catch(() => {});
@@ -231,6 +238,7 @@ export default function DesensitizeWorkbench() {
     setOcrTryResult(null);
     setOcrTryEngine("");
     setOcrTryError("");
+    setOcrTryDiagnostics(null);
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -243,6 +251,9 @@ export default function DesensitizeWorkbench() {
       setOcrTryEngine(data.engine || "");
       if (data.error) {
         setOcrTryError(data.error);
+      }
+      if (data.diagnostics) {
+        setOcrTryDiagnostics(data.diagnostics);
       }
     } catch {
       message.error(t("ocrTryError", "OCR 识别失败，请检查 OCR 配置"));
@@ -763,7 +774,13 @@ export default function DesensitizeWorkbench() {
                   </div>
 
                   {/* 文件选择区 */}
-                  {selectedFiles.length === 0 ? (
+                  {scanning ? (
+                    <div className={styles.fileDropZone}>
+                      <Spin tip="正在扫描文件夹中的文件..." size="large">
+                        <div style={{ minHeight: 100 }} />
+                      </Spin>
+                    </div>
+                  ) : selectedFiles.length === 0 ? (
                     <div className={styles.fileDropZone}>
                       <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
                         <Upload
@@ -782,7 +799,7 @@ export default function DesensitizeWorkbench() {
                         >
                           <div className={styles.fileDropCard}>
                             <UploadOutlined style={{ fontSize: 32, color: "var(--ant-color-primary)" }} />
-                            <div style={{ fontWeight: 600, fontSize: 14, marginTop: 8 }}>上传文件</div>
+                            <div style={{ fontWeight: 600, fontSize: 14, marginTop: 8 }}>选择文件</div>
                             <div style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)" }}>PDF / Word / Excel / TXT 等</div>
                           </div>
                         </Upload>
@@ -811,7 +828,7 @@ export default function DesensitizeWorkbench() {
                         <span style={{ fontSize: 13, color: "var(--ant-color-text-secondary)" }}>
                           已选 {selectedFiles.length} 个文件：
                         </span>
-                        <Button size="small" type="link" danger onClick={() => setSelectedFiles([])}>
+                        <Button size="small" type="link" danger onClick={() => { setSelectedFiles([]); setScannedFiles([]); }}>
                           清空
                         </Button>
                       </div>
@@ -823,12 +840,14 @@ export default function DesensitizeWorkbench() {
                             background: "var(--ant-color-fill-quaternary)",
                           }}>
                             <FileTextOutlined style={{ color: "var(--ant-color-primary)" }} />
-                            <span style={{ flex: 1, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            <span style={{ flex: 1, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={f.path || f.name}>
                               {f.name}
                             </span>
-                            {f.size && (
-                              <span style={{ fontSize: 11, color: "var(--ant-color-text-tertiary)" }}>
-                                {(f.size / 1024).toFixed(0)}KB
+                            {f.size != null && (
+                              <span style={{ fontSize: 11, color: "var(--ant-color-text-tertiary)", flexShrink: 0 }}>
+                                {f.size >= 1048576
+                                  ? `${(f.size / 1048576).toFixed(1)}MB`
+                                  : `${(f.size / 1024).toFixed(0)}KB`}
                               </span>
                             )}
                             <Button
@@ -1068,21 +1087,45 @@ export default function DesensitizeWorkbench() {
                   title={folderPickerTarget === "input" ? "选择文件夹" : "选择输出文件夹"}
                   open={folderPickerOpen}
                   onCancel={() => setFolderPickerOpen(false)}
-                  onOk={() => {
+                  onOk={async () => {
                     if (folderPickerTarget === "output") {
                       // 输出路径选择
                       if (scanFolder) {
                         setOutputPath(scanFolder);
                         setOutputMode("custom");
                       }
+                      setFolderPickerOpen(false);
                     } else {
                       // 输入文件夹选择 - 扫描文件夹中的文件
-                      if (scanFolder) {
-                        message.info(`已选择文件夹：${scanFolder}，正在扫描文件...`);
-                        // 这里可以调用扫描API，暂时用模拟
+                      if (!scanFolder) {
+                        setFolderPickerOpen(false);
+                        return;
+                      }
+                      setFolderPickerOpen(false);
+                      setScanning(true);
+                      setScannedFiles([]);
+                      try {
+                        const res = await knowledgeApi.scanFolder(scanFolder);
+                        if (res.files && res.files.length > 0) {
+                          setScannedFiles(res.files);
+                          setSelectedFiles(
+                            res.files.map((f: any) => ({
+                              name: f.name,
+                              size: f.size,
+                              path: f.path,
+                              type: f.type,
+                            })),
+                          );
+                          message.success(`扫描完成，共找到 ${res.file_count} 个支持的文件`);
+                        } else {
+                          message.warning("该文件夹中未找到支持的文件（PDF / Word / Excel / TXT 等）");
+                        }
+                      } catch (err: any) {
+                        message.error(err?.message || "扫描文件夹失败，请检查路径是否正确");
+                      } finally {
+                        setScanning(false);
                       }
                     }
-                    setFolderPickerOpen(false);
                   }}
                   okText="确认"
                   cancelText="取消"
@@ -1278,6 +1321,32 @@ export default function DesensitizeWorkbench() {
                             <Text type="secondary" style={{ fontSize: 12 }}>
                               {t("cloudOcrNote", "数据将发送至MinerU云端处理，请阅读其隐私政策。")}
                             </Text>
+
+                            <Collapse
+                              size="small"
+                              ghost
+                              style={{ marginTop: 8 }}
+                              items={[{
+                                key: "mineru-guide",
+                                label: <Text type="secondary" style={{ fontSize: 12 }}>MinerU 配置指引</Text>,
+                                children: (
+                                  <div style={{ fontSize: 12, lineHeight: 1.8 }}>
+                                    <p style={{ fontWeight: 500, marginBottom: 4 }}>如何获取 API Key：</p>
+                                    <ol style={{ paddingLeft: 16, margin: 0 }}>
+                                      <li>访问 <a href="https://mineru.net" target="_blank" rel="noopener noreferrer">mineru.net</a> 注册账号</li>
+                                      <li>登录后进入「API 密钥」页面</li>
+                                      <li>点击「创建新密钥」，复制生成的 Key</li>
+                                      <li>将 Key 粘贴到上方「API 密钥」输入框，点击外部自动保存</li>
+                                    </ol>
+                                    <div style={{ marginTop: 8, padding: "6px 8px", background: "var(--ant-color-fill-quaternary)", borderRadius: 4 }}>
+                                      <Text type="secondary" style={{ fontSize: 11 }}>
+                                        💡 提示：MinerU 提供免费额度，超出后按量计费。识别精度高，适合对质量要求较高的场景。如需完全离线使用，请选择本地 PaddleOCR。
+                                      </Text>
+                                    </div>
+                                  </div>
+                                ),
+                              }]}
+                            />
                           </div>
                         </div>
 
@@ -1499,7 +1568,7 @@ export default function DesensitizeWorkbench() {
                                     }} />
                                   </div>
                                   {!isMac && (
-                                    <p>2. 如有 NVIDIA 显卡，可安装 GPU 版本加速：将 paddlepaddle 替换为 paddlepaddle-gpu</p>
+                                    <p>2. 如有 NVIDIA 显卡，可安装 GPU 版本加速：将 paddlepaddle==2.6.2 替换为 paddlepaddle-gpu==2.6.2</p>
                                   )}
                                   {isMac && (
                                     <p>2. Apple Silicon (M系列) Mac 如安装失败，可尝试使用 conda：conda install paddlepaddle</p>
@@ -1553,13 +1622,14 @@ export default function DesensitizeWorkbench() {
                       </div>
 
                       {/* 引擎状态指示器 */}
-                      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+                      <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
                         <Tag
-                          color={parserConfig?.paddleocr_installed?.installed ? "success" : "default"}
+                          color={parserConfig?.paddleocr_installed?.installed ? (parserConfig.paddleocr_installed.runtime_ok ? "success" : "warning") : "default"}
                           icon={<SafetyCertificateOutlined />}
                           style={{ fontSize: 11 }}
                         >
                           PaddleOCR {parserConfig?.paddleocr_installed?.installed ? `v${parserConfig.paddleocr_installed.version}` : "未安装"}
+                          {parserConfig?.paddleocr_installed?.installed && !parserConfig.paddleocr_installed.runtime_ok && " (运行异常)"}
                         </Tag>
                         <Tag
                           color={parserConfig?.mineru_configured ? "success" : "default"}
@@ -1569,6 +1639,15 @@ export default function DesensitizeWorkbench() {
                           MinerU {parserConfig?.mineru_configured ? "已配置" : "未配置"}
                         </Tag>
                       </div>
+
+                      {parserConfig?.paddleocr_installed?.runtime_error && (
+                        <Alert
+                          type="warning"
+                          showIcon
+                          style={{ marginBottom: 12, fontSize: 12 }}
+                          message={`PaddleOCR 运行时错误: ${parserConfig.paddleocr_installed.runtime_error}`}
+                        />
+                      )}
 
                       <Upload
                         accept=".pdf,.jpg,.jpeg,.png,.tiff,.tif,.bmp,.webp"
@@ -1617,6 +1696,18 @@ export default function DesensitizeWorkbench() {
                           </div>
                           {ocrTryError && (
                             <Alert type="warning" message={ocrTryError} style={{ margin: "8px 12px" }} />
+                          )}
+                          {ocrTryDiagnostics && (
+                            <Alert
+                              type="info"
+                              style={{ margin: "8px 12px" }}
+                              message={
+                                <div style={{ fontSize: 12 }}>
+                                  <div>本地 OCR: {ocrTryDiagnostics.local_ocr}</div>
+                                  <div>云端 OCR: {ocrTryDiagnostics.cloud_ocr}</div>
+                                </div>
+                              }
+                            />
                           )}
                           <div className={styles.ocrTryResultContent}>
                             {ocrTryResult || <Text type="secondary">{t("ocrTryNoResult", "未能识别到文字内容")}</Text>}

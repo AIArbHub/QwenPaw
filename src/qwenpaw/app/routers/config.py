@@ -1252,7 +1252,23 @@ def _check_paddleocr_status() -> dict:
     try:
         mod = importlib.import_module("paddleocr")
         version = getattr(mod, "__version__", "unknown")
-        return {"installed": True, "version": version}
+
+        # 轻量级运行时验证：只检查 PaddleOCR 和 PaddlePaddle 是否都能导入
+        # 不创建实例（创建实例会触发模型下载，太重）
+        runtime_ok = False
+        runtime_error = None
+        try:
+            from paddleocr import PaddleOCR
+            import paddle
+            _paddle_ver = getattr(paddle, "__version__", "unknown")
+            runtime_ok = True
+        except Exception as e:
+            runtime_error = f"{type(e).__name__}: {e}"
+
+        result = {"installed": True, "version": version, "runtime_ok": runtime_ok}
+        if runtime_error:
+            result["runtime_error"] = runtime_error
+        return result
     except ImportError:
         return {"installed": False, "version": None}
     except Exception as e:
@@ -1305,15 +1321,19 @@ async def install_paddleocr(body: dict = Body(default={})):
     use_mirror = body.get("use_mirror", True)
     mirror_url = body.get("mirror_url", MIRROR_TSINGHUA)
 
+    is_windows = platform.system() == "Windows"
     is_macos = platform.system() == "Darwin"
     is_arm_mac = is_macos and platform.machine() == "arm64"
 
-    packages = ["paddleocr"]
-
-    if is_arm_mac:
-        packages.append("paddlepaddle")
+    # PaddleOCR 3.x + PaddlePaddle 3.x 在 Windows 上存在 oneDNN 兼容性 bug
+    # (NotImplementedError: ConvertPirAttribute2RuntimeAttribute not support)
+    # Windows 上使用 2.x 版本，macOS/Linux 使用 3.x 版本
+    if is_windows:
+        packages = ["paddleocr==2.9.1", "paddlepaddle==2.6.2"]
     else:
-        packages.append("paddlepaddle")
+        # macOS / Linux: 使用最新版 PaddleOCR 3.x
+        # Apple Silicon 需要从 PaddlePaddle 官方源安装 paddlepaddle
+        packages = ["paddleocr", "paddlepaddle"]
 
     cmd = [sys.executable, "-m", "pip", "install"] + packages
 

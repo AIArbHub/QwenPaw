@@ -725,10 +725,7 @@ const arbitrationMenuItems = useMemo(
                 key={item.key}
                 title={item.label}
                 placement="right"
-                overlayInnerStyle={{
-                  background: "rgba(0,0,0,0.75)",
-                  color: "#fff",
-                }}
+                styles={{ body: { background: "rgba(0,0,0,0.75)", color: "#fff" } }}
               >
                 <button
                   className={`${styles.collapsedNavItem} ${

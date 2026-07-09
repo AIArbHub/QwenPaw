@@ -968,8 +968,22 @@ async def ocr_try(file: UploadFile = File(...), engine: str = "auto"):
         tmp_path = Path(tmp.name)
 
     used_engine = engine
+    diagnostics: dict = {}
     try:
         parser = _get_parser()
+
+        # Collect diagnostics about local OCR availability
+        if parser._local_ocr is None:
+            diagnostics["local_ocr"] = "disabled in config (local_ocr_enabled=False)"
+        elif not parser._local_ocr.available:
+            diagnostics["local_ocr"] = "paddleocr module not importable at runtime"
+        else:
+            diagnostics["local_ocr"] = "available"
+
+        if not parser._mineru.available:
+            diagnostics["cloud_ocr"] = "MinerU not configured (no API key)"
+        else:
+            diagnostics["cloud_ocr"] = "available"
 
         if engine == "cloud_ocr":
             text = await parser.parse(tmp_path, parse_mode="cloud_ocr")
@@ -979,16 +993,16 @@ async def ocr_try(file: UploadFile = File(...), engine: str = "auto"):
             used_engine = "local_only"
         else:
             text = await parser.parse(tmp_path, parse_mode="cloud_ocr")
-            if not text or text.startswith("[Cannot parse:") or text.startswith("[MinerU:"):
+            if not text or text.startswith("[Cannot parse:") or text.startswith("[MinerU:") or text.startswith("[Image file:"):
                 text = await parser.parse(tmp_path, parse_mode="local_only")
                 used_engine = "local_only"
             else:
                 used_engine = "cloud_ocr"
 
-        return {"text": text or "", "engine": used_engine}
+        return {"text": text or "", "engine": used_engine, "diagnostics": diagnostics}
     except Exception as e:
         logger.error("OCR try failed: %s", e)
-        return {"text": "", "error": str(e), "engine": used_engine}
+        return {"text": "", "error": str(e), "engine": used_engine, "diagnostics": diagnostics}
     finally:
         try:
             tmp_path.unlink()

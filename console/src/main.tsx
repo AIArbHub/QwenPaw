@@ -55,7 +55,11 @@ if (typeof window !== "undefined") {
 
   console.error = function (...args: unknown[]) {
     const msg = args[0]?.toString() || "";
-    if (msg.includes(":first-child") || msg.includes("pseudo class")) {
+    if (
+      msg.includes(":first-child") ||
+      msg.includes("pseudo class") ||
+      msg.includes("[getThemeColors]")
+    ) {
       return;
     }
     originalError.apply(console, args as []);
