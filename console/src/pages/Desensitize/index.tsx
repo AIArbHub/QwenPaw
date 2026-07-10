@@ -57,6 +57,7 @@ import {
 } from "antd";
 import { PageHeader } from "@/components/PageHeader";
 import { knowledgeApi } from "@/api/modules/knowledge";
+import { getApiUrl } from "@/api/config";
 import FolderPicker from "@/components/FolderPicker";
 import { ResizableTextArea } from "@/components/ResizableTextArea";
 import styles from "./index.module.less";
@@ -178,6 +179,21 @@ export default function DesensitizeWorkbench() {
     output?: string;
     message?: string;
   } | null>(null);
+  const [deployProgress, setDeployProgress] = useState<{
+    task_id: string;
+    status: string;
+    stage: string;
+    progress: number;
+    message: string;
+    error: string;
+  } | null>(null);
+  const [precheckResult, setPrecheckResult] = useState<{
+    can_deploy: boolean;
+    checks: Record<string, any>;
+    warnings: string[];
+    blockers: string[];
+  } | null>(null);
+  const [prechecking, setPrechecking] = useState(false);
   const isCNUser = useMemo(() => {
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
@@ -251,29 +267,105 @@ export default function DesensitizeWorkbench() {
   const handleDeployMineru = async () => {
     setDeploying(true);
     setDeployResult(null);
+    setDeployProgress(null);
     try {
       const res = await knowledgeApi.deployLocalMineru({
         use_mirror: isCNUser,
         mirror_url: isCNUser ? "https://pypi.tuna.tsinghua.edu.cn/simple" : undefined,
       });
-      setDeployResult(res);
-      if (res.success) {
-        message.success(res.message || "本地文档引擎部署成功！");
-        await refreshOcrStatus();
-        const cfg = await knowledgeApi.getParserConfig();
-        setParserConfig(cfg);
+
+      if (res.task_id) {
+        const ssePath = knowledgeApi.getDeployProgressSSEUrl(res.task_id);
+        const fullUrl = getApiUrl(ssePath);
+
+        const evtSource = new EventSource(fullUrl);
+
+        evtSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            setDeployProgress(data);
+
+            if (data.status === "completed") {
+              evtSource.close();
+              setDeploying(false);
+              const successMsg = data.message || "本地文档引擎部署成功！";
+              setDeployResult({
+                success: true,
+                stage: data.stage,
+                message: successMsg,
+              });
+              message.success(successMsg);
+              refreshOcrStatus();
+              knowledgeApi.getParserConfig().then(setParserConfig).catch(() => {});
+            } else if (data.status === "failed") {
+              evtSource.close();
+              setDeploying(false);
+              const failMsg = data.error || "部署失败";
+              setDeployResult({
+                success: false,
+                stage: data.stage,
+                error: failMsg,
+                output: data.result?.output as string | undefined,
+              });
+              message.error(failMsg);
+            }
+          } catch {
+            // ignore parse errors
+          }
+        };
+
+        evtSource.onerror = () => {
+          evtSource.close();
+          knowledgeApi.getDeployTaskStatus(res.task_id).then((status) => {
+            if (status.status === "completed") {
+              setDeployResult({ success: true, stage: status.stage, message: status.message });
+              message.success(status.message || "部署成功");
+            } else if (status.status === "failed") {
+              setDeployResult({ success: false, stage: status.stage, error: status.error });
+              message.error(status.error || "部署失败");
+            } else {
+              setDeployResult({
+                success: false,
+                error: "SSE 连接中断，部署可能仍在后台进行中，请稍后检查服务状态",
+              });
+              message.warning("连接中断，部署可能仍在进行中");
+            }
+            setDeploying(false);
+          }).catch(() => {
+            setDeploying(false);
+            setDeployResult({ success: false, error: "无法获取部署状态" });
+          });
+        };
       } else {
-        message.error(res.error || "部署失败");
+        setDeploying(false);
+        setDeployResult({ success: false, error: res.message || "部署任务创建失败" });
+        message.error(res.message || "部署请求失败");
       }
     } catch (err: any) {
-      const isAbort = err.name === "AbortError" || (err.message || "").includes("abort");
-      const errorMsg = isAbort
-        ? "请求超时，部署可能仍在后台进行中，请稍后检查服务状态"
-        : `请求失败: ${err.message || err}`;
-      setDeployResult({ success: false, error: errorMsg });
-      message.error(isAbort ? "请求超时，请稍后检查状态" : "部署请求失败");
-    } finally {
       setDeploying(false);
+      const errorMsg = `请求失败: ${err.message || err}`;
+      setDeployResult({ success: false, error: errorMsg });
+      message.error("部署请求失败");
+    }
+  };
+
+  const handlePrecheckMineru = async () => {
+    setPrechecking(true);
+    setPrecheckResult(null);
+    try {
+      const res = await knowledgeApi.precheckLocalMineru();
+      setPrecheckResult(res);
+      if (!res.can_deploy) {
+        message.error(`环境检查未通过: ${res.blockers.join("; ")}`);
+      } else if (res.warnings.length > 0) {
+        message.warning(`环境检查通过，但有警告: ${res.warnings.join("; ")}`);
+      } else {
+        message.success("环境检查通过，可以开始部署");
+      }
+    } catch (err: any) {
+      message.error(`环境检查失败: ${err.message || err}`);
+    } finally {
+      setPrechecking(false);
     }
   };
 
@@ -1460,6 +1552,72 @@ export default function DesensitizeWorkbench() {
                                   style={{ marginBottom: 12 }}
                                 />
 
+                                <Collapse
+                                  ghost
+                                  size="small"
+                                  style={{ marginBottom: 12 }}
+                                  items={[
+                                    {
+                                      key: "hw",
+                                      label: (
+                                        <span style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>
+                                          <DatabaseOutlined style={{ marginRight: 4 }} />
+                                          硬件要求
+                                        </span>
+                                      ),
+                                      children: (
+                                        <div style={{ fontSize: 12 }}>
+                                          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                                            <thead>
+                                              <tr style={{ borderBottom: "1px solid var(--ant-color-border)" }}>
+                                                <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>组件</th>
+                                                <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>最低配置</th>
+                                                <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>推荐配置</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              <tr style={{ borderBottom: "1px solid var(--ant-color-border-secondary)" }}>
+                                                <td style={{ padding: "4px 8px" }}>GPU</td>
+                                                <td style={{ padding: "4px 8px" }}>
+                                                  <Tag color="orange" style={{ margin: 0, fontSize: 11 }}>8GB 显存</Tag>
+                                                  <div style={{ color: "var(--ant-color-text-tertiary)", marginTop: 2 }}>3060Ti / 4060 等</div>
+                                                </td>
+                                                <td style={{ padding: "4px 8px" }}>
+                                                  <Tag color="green" style={{ margin: 0, fontSize: 11 }}>16GB+ 显存</Tag>
+                                                  <div style={{ color: "var(--ant-color-text-tertiary)", marginTop: 2 }}>3090 / 4090 / A100</div>
+                                                </td>
+                                              </tr>
+                                              <tr style={{ borderBottom: "1px solid var(--ant-color-border-secondary)" }}>
+                                                <td style={{ padding: "4px 8px" }}>CPU</td>
+                                                <td style={{ padding: "4px 8px" }}>4 核</td>
+                                                <td style={{ padding: "4px 8px" }}>8 核及以上</td>
+                                              </tr>
+                                              <tr style={{ borderBottom: "1px solid var(--ant-color-border-secondary)" }}>
+                                                <td style={{ padding: "4px 8px" }}>内存</td>
+                                                <td style={{ padding: "4px 8px" }}>8 GB</td>
+                                                <td style={{ padding: "4px 8px" }}>16 GB 及以上</td>
+                                              </tr>
+                                              <tr style={{ borderBottom: "1px solid var(--ant-color-border-secondary)" }}>
+                                                <td style={{ padding: "4px 8px" }}>磁盘</td>
+                                                <td style={{ padding: "4px 8px" }}>20 GB 可用</td>
+                                                <td style={{ padding: "4px 8px" }}>50 GB+ (SSD)</td>
+                                              </tr>
+                                              <tr>
+                                                <td style={{ padding: "4px 8px" }}>Python</td>
+                                                <td style={{ padding: "4px 8px" }} colSpan={2}>3.10 ~ 3.12</td>
+                                              </tr>
+                                            </tbody>
+                                          </table>
+                                          <div style={{ marginTop: 8, padding: "6px 8px", background: "var(--ant-color-info-bg)", borderRadius: 4, color: "var(--ant-color-text-secondary)" }}>
+                                            <strong>Pipeline 模式</strong>（通用）：无需 GPU，仅 CPU 即可运行，适合日常文档<br />
+                                            <strong>Hybrid 模式</strong>（高精度）：需要 NVIDIA GPU（8GB+ 显存），精度更高
+                                          </div>
+                                        </div>
+                                      ),
+                                    },
+                                  ]}
+                                />
+
                                 <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
                                   <div style={{ flex: 1 }}>
                                     <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>
@@ -1499,16 +1657,73 @@ export default function DesensitizeWorkbench() {
                                   </div>
                                 </div>
 
-                                <Button
-                                  type="primary"
-                                  size="large"
-                                  icon={<DownloadOutlined />}
-                                  loading={deploying}
-                                  onClick={handleDeployMineru}
-                                  block
-                                >
-                                  {deploying ? "正在部署..." : "一键部署本地文档引擎"}
-                                </Button>
+                                <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                                  <Button
+                                    icon={<WarningOutlined />}
+                                    loading={prechecking}
+                                    onClick={handlePrecheckMineru}
+                                    style={{ flex: 1 }}
+                                  >
+                                    {prechecking ? "检测中..." : "环境检测"}
+                                  </Button>
+                                  <Button
+                                    type="primary"
+                                    size="large"
+                                    icon={<DownloadOutlined />}
+                                    loading={deploying}
+                                    onClick={handleDeployMineru}
+                                    style={{ flex: 2 }}
+                                  >
+                                    {deploying ? "正在部署..." : "一键部署本地文档引擎"}
+                                  </Button>
+                                </div>
+
+                                {precheckResult && (
+                                  <div style={{
+                                    padding: 12,
+                                    background: precheckResult.can_deploy ? "#f6ffed" : "#fff2f0",
+                                    borderRadius: 8,
+                                    marginBottom: 12,
+                                    fontSize: 12,
+                                  }}>
+                                    <div style={{ fontWeight: "bold", marginBottom: 6, color: precheckResult.can_deploy ? "#52c41a" : "#ff4d4f" }}>
+                                      {precheckResult.can_deploy ? "✅ 环境检查通过" : "❌ 环境检查未通过"}
+                                    </div>
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+                                      {Object.entries(precheckResult.checks).map(([key, val]: [string, any]) => (
+                                        <div key={key} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                          <span style={{ color: val.ok ? "#52c41a" : "#ff4d4f" }}>
+                                            {val.ok ? "✓" : "✗"}
+                                          </span>
+                                          <span>
+                                            {key === "python" && `Python ${val.version || ""}`}
+                                            {key === "gpu" && (val.available
+                                              ? `${val.best_name || "GPU"} ${val.best_vram_gb ? `(${val.best_vram_gb}GB)` : ""}`
+                                              : val.note || "无 GPU")}
+                                            {key === "memory" && (val.total_gb
+                                              ? `内存 ${val.total_gb}GB`
+                                              : val.note || "未知")}
+                                            {key === "disk" && `磁盘 ${val.free_gb ? `${val.free_gb}GB` : ""}`}
+                                            {key === "network" && `网络 ${val.pypi ? "(PyPI)" : val.mirror ? "(镜像)" : ""}`}
+                                            {key === "port" && `端口 ${val.port || 8000}`}
+                                            {key === "venv" && `${val.exists ? "已有环境" : "待创建"}`}
+                                            {key === "installed" && `${val.installed ? `已安装${val.version ? ` v${val.version}` : ""}` : "待安装"}`}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                    {precheckResult.warnings.length > 0 && (
+                                      <div style={{ marginTop: 6, color: "#faad14" }}>
+                                        ⚠ {precheckResult.warnings.join("; ")}
+                                      </div>
+                                    )}
+                                    {precheckResult.blockers.length > 0 && (
+                                      <div style={{ marginTop: 6, color: "#ff4d4f" }}>
+                                        🚫 {precheckResult.blockers.join("; ")}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
 
                                 <Text type="secondary" style={{ fontSize: 12, display: "block", marginTop: 8, marginBottom: 8 }}>
                                   {deploying
@@ -1517,7 +1732,7 @@ export default function DesensitizeWorkbench() {
                                   }
                                 </Text>
 
-                                {deploying && (
+                                {deploying && deployProgress && (
                                   <div style={{
                                     padding: 12,
                                     background: "#0d1117",
@@ -1527,9 +1742,35 @@ export default function DesensitizeWorkbench() {
                                     fontFamily: "monospace",
                                     marginBottom: 12,
                                   }}>
-                                    <div style={{ color: "#7ee787" }}>▶ 正在部署本地文档引擎...</div>
-                                    <div style={{ color: "#8b949e", marginTop: 4 }}>安装步骤：准备环境 → 安装程序 → 启动服务</div>
-                                    <div style={{ color: "#8b949e" }}>请耐心等待，部署期间请勿关闭此页面</div>
+                                    <div style={{ color: "#7ee787" }}>▶ {deployProgress.message || "正在部署本地文档引擎..."}</div>
+                                    <div style={{ marginTop: 8, background: "#21262d", borderRadius: 4, height: 8, overflow: "hidden" }}>
+                                      <div style={{
+                                        height: "100%",
+                                        background: "#58a6ff",
+                                        borderRadius: 4,
+                                        transition: "width 0.5s ease",
+                                        width: `${deployProgress.progress}%`,
+                                      }} />
+                                    </div>
+                                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, color: "#8b949e" }}>
+                                      <span>{deployProgress.stage === "venv" ? "准备环境" : deployProgress.stage === "install" ? "安装程序" : deployProgress.stage === "start" ? "启动服务" : deployProgress.stage}</span>
+                                      <span>{deployProgress.progress}%</span>
+                                    </div>
+                                    <Spin size="small" style={{ marginTop: 8 }} />
+                                  </div>
+                                )}
+
+                                {deploying && !deployProgress && (
+                                  <div style={{
+                                    padding: 12,
+                                    background: "#0d1117",
+                                    borderRadius: 8,
+                                    color: "#58a6ff",
+                                    fontSize: 12,
+                                    fontFamily: "monospace",
+                                    marginBottom: 12,
+                                  }}>
+                                    <div style={{ color: "#7ee787" }}>▶ 正在创建部署任务...</div>
                                     <Spin size="small" style={{ marginTop: 8 }} />
                                   </div>
                                 )}

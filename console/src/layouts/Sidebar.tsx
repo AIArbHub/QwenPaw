@@ -28,7 +28,6 @@ import {
   SparkWifiLine,
   SparkLocalFileLine,
   SparkAgentLine,
-  SparkBarChartLine,
   SparkModePlazaLine,
   SparkInternetLine,
   SparkBrowseLine,
@@ -570,7 +569,15 @@ const arbitrationMenuItems = useMemo(
         )}
       </span>
     );
-    return designFlatNav.map((entry) => ({
+    // Include arbitration items in collapsed design mode
+    const arbitrationFlat = flattenMenu(arbitrationMenu, routes, 18);
+    const separator: FlatMenuEntry = {
+      key: "__collapsed_separator__",
+      icon: <span className={styles.collapsedSeparator} />,
+      path: "",
+      label: "",
+    };
+    const designItems = designFlatNav.map((entry) => ({
       ...entry,
       icon:
         entry.key === "core.inbox"
@@ -581,7 +588,10 @@ const arbitrationMenuItems = useMemo(
               18,
             ),
     }));
-  }, [sidebarMode, designFlatNav, hasInboxUnread]);
+    return arbitrationFlat.length > 0
+      ? [...arbitrationFlat, separator, ...designItems]
+      : designItems;
+  }, [sidebarMode, designFlatNav, hasInboxUnread, arbitrationMenu, routes]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -683,6 +693,7 @@ const arbitrationMenuItems = useMemo(
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
+  // Unified menu: no tab switcher — all items in a single list.
 
   const siderWidth = collapsed ? (isMobile ? 56 : 72) : 240;
   // Sticky chat is active when on /chat* or /coding routes.
@@ -693,7 +704,7 @@ const arbitrationMenuItems = useMemo(
 
   // On mobile, the expanded sidebar shows sessions (like simple mode) instead
   // of the full menu — matching the desktop history panel UX.
-  const isSimpleExpanded = (sidebarMode === "simple" || isMobile) && !collapsed;
+  const isSimpleExpanded = sidebarMode === "simple" && !collapsed;
   const isDesignExpanded = sidebarMode === "design" && !collapsed;
 
   return (
@@ -1044,41 +1055,33 @@ const arbitrationMenuItems = useMemo(
                 />
               </div>
 
-              {/* Global settings section */}
-              <Menu
-                mode="inline"
-                selectedKeys={[selectedKey]}
-                openKeys={openKeys}
-                onClick={({ key }) =>
-                  handleMenuClick(String(key), settingsMenu)
-                }
-                items={settingsMenuItems}
-                theme={isDark ? "dark" : "light"}
-                className={styles.sideMenu}
-              />
-              <Slot name="sider.bottom" kind="fill" />
-            </>
-          ) : (
-            <>
-              {/* Arbitration domain section */}
-              {arbitrationMenuItems.length > 0 && (
-                <div className={styles.arbitrationSection}>
-                  <Menu
-                    mode="inline"
-                    selectedKeys={[selectedKey]}
-                    openKeys={openKeys}
-                    onClick={({ key }) =>
-                      handleMenuClick(String(key), arbitrationMenu)
-                    }
-                    items={arbitrationMenuItems}
-                    theme={isDark ? "dark" : "light"}
-                    className={styles.sideMenu}
-                  />
-                </div>
-              )}
-              <Slot name="sider.bottom" kind="fill" />
-            </>
-          )}
+            {/* Agent-scoped menu */}
+            <Menu
+              mode="inline"
+              selectedKeys={[selectedKey]}
+              openKeys={openKeys}
+              onClick={({ key }) =>
+                handleMenuClick(String(key), agentMenu)
+              }
+              items={agentMenuItems}
+              theme={isDark ? "dark" : "light"}
+              className={styles.sideMenu}
+            />
+          </div>
+
+          {/* Global settings section */}
+          <Menu
+            mode="inline"
+            selectedKeys={[selectedKey]}
+            openKeys={openKeys}
+            onClick={({ key }) =>
+              handleMenuClick(String(key), settingsMenu)
+            }
+            items={settingsMenuItems}
+            theme={isDark ? "dark" : "light"}
+            className={styles.sideMenu}
+          />
+          <Slot name="sider.bottom" kind="fill" />
         </>
       )}
 

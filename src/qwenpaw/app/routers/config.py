@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+import uuid
 from datetime import datetime, timezone
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import (
     APIRouter,
@@ -13,6 +14,8 @@ from fastapi import (
     Query,
     Request,
 )
+from fastapi.responses import StreamingResponse
+
 from pydantic import BaseModel, Field
 
 from ..utils import schedule_agent_reload
@@ -1362,12 +1365,79 @@ async def put_documents_parser(
     }
 
 
-# ── MinerU 本地一键部署 ────────────────────────────────────────────────
+# ── MinerU 本地一键部署（异步任务 + SSE 进度推送） ──────────────────────
 
 import logging as _logging
+import json as _json
 _logger = _logging.getLogger(__name__)
 
 _MINERU_PORT = 8000
+
+
+class _DeployTask:
+    __slots__ = ("task_id", "status", "stage", "progress", "message", "error",
+                 "result", "created_at", "updated_at", "_subscribers")
+
+    def __init__(self, task_id: str):
+        self.task_id = task_id
+        self.status = "pending"
+        self.stage = ""
+        self.progress = 0
+        self.message = ""
+        self.error = ""
+        self.result: Optional[dict] = None
+        self.created_at = datetime.now(timezone.utc).isoformat()
+        self.updated_at = self.created_at
+        self._subscribers: List[asyncio.Queue] = []
+
+    def update(self, *, stage: str = "", progress: int = -1,
+               message: str = "", error: str = "", status: str = "",
+               result: Optional[dict] = None):
+        if stage:
+            self.stage = stage
+        if progress >= 0:
+            self.progress = min(progress, 100)
+        if message:
+            self.message = message
+        if error:
+            self.error = error
+        if status:
+            self.status = status
+        if result is not None:
+            self.result = result
+        self.updated_at = datetime.now(timezone.utc).isoformat()
+        for q in self._subscribers:
+            try:
+                q.put_nowait(self._snapshot())
+            except asyncio.QueueFull:
+                pass
+
+    def _snapshot(self) -> dict:
+        return {
+            "task_id": self.task_id,
+            "status": self.status,
+            "stage": self.stage,
+            "progress": self.progress,
+            "message": self.message,
+            "error": self.error,
+            "result": self.result,
+            "updated_at": self.updated_at,
+        }
+
+    def subscribe(self) -> asyncio.Queue:
+        q: asyncio.Queue = asyncio.Queue(maxsize=64)
+        self._subscribers.append(q)
+        return q
+
+    def unsubscribe(self, q: asyncio.Queue):
+        try:
+            self._subscribers.remove(q)
+        except ValueError:
+            pass
+
+
+_deploy_tasks: Dict[str, _DeployTask] = {}
+_deploy_lock = asyncio.Lock()
 
 
 def _get_mineru_venv_dir() -> str:
@@ -1460,38 +1530,256 @@ async def get_local_mineru_status():
 
 
 @router.post(
+    "/documents/parser/deploy-local-mineru/precheck",
+    summary="Pre-check environment for MinerU local deployment",
+    description="Check Python version, disk space, network connectivity, and port availability before deployment.",
+)
+async def deploy_local_mineru_precheck(body: dict = Body(default={})):
+    import os
+    import sys
+    import shutil
+
+    port = body.get("port", _MINERU_PORT)
+    checks: dict = {"python": {}, "disk": {}, "network": {}, "port": {}, "venv": {}, "installed": {}, "gpu": {}, "memory": {}}
+    warnings: list = []
+    blockers: list = []
+
+    py_ver = sys.version_info
+    checks["python"] = {
+        "version": f"{py_ver.major}.{py_ver.minor}.{py_ver.micro}",
+        "path": sys.executable,
+        "ok": py_ver >= (3, 10),
+    }
+    if py_ver < (3, 10):
+        blockers.append(f"Python 版本过低 ({py_ver.major}.{py_ver.minor})，需要 3.10+")
+    elif py_ver < (3, 11):
+        warnings.append("Python 3.10 可用但建议升级到 3.11+ 以获得更好性能")
+    if py_ver > (3, 12):
+        blockers.append(f"Python 版本过高 ({py_ver.major}.{py_ver.minor})，MinerU 不支持 3.13+，请使用 3.10~3.12")
+
+    venv_dir = _get_mineru_venv_dir()
+    parent_dir = os.path.dirname(venv_dir)
+    try:
+        usage = shutil.disk_usage(parent_dir)
+        free_gb = usage.free / (1024 ** 3)
+        checks["disk"] = {
+            "free_gb": round(free_gb, 1),
+            "ok": free_gb > 5,
+        }
+        if free_gb < 2:
+            blockers.append(f"磁盘空间不足（剩余 {free_gb:.1f} GB），至少需要 2 GB")
+        elif free_gb < 5:
+            warnings.append(f"磁盘空间较紧张（剩余 {free_gb:.1f} GB），建议预留 5 GB 以上")
+    except Exception as e:
+        checks["disk"] = {"ok": False, "error": str(e)}
+        warnings.append("无法检测磁盘空间")
+
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=5) as client:
+            try:
+                await client.head("https://pypi.org/")
+                checks["network"] = {"pypi": True, "ok": True}
+            except Exception:
+                try:
+                    await client.head("https://pypi.tuna.tsinghua.edu.cn/")
+                    checks["network"] = {"pypi": False, "mirror": True, "ok": True}
+                    warnings.append("PyPI 官方源不可达，将使用镜像源")
+                except Exception:
+                    checks["network"] = {"pypi": False, "mirror": False, "ok": False}
+                    blockers.append("网络不可达，无法下载安装包。请检查网络连接")
+    except ImportError:
+        checks["network"] = {"ok": True, "note": "httpx 未安装，跳过网络检测"}
+
+    import socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock.bind(("127.0.0.1", port))
+        checks["port"] = {"port": port, "available": True, "ok": True}
+    except OSError:
+        checks["port"] = {"port": port, "available": False, "ok": False}
+        if _is_mineru_running(port):
+            warnings.append(f"端口 {port} 已被 MinerU 服务占用，部署后将复用现有服务")
+        else:
+            blockers.append(f"端口 {port} 已被其他程序占用，请更换端口或关闭占用程序")
+    finally:
+        sock.close()
+
+    existing_python = _get_mineru_python()
+    checks["venv"] = {
+        "exists": existing_python is not None,
+        "path": venv_dir,
+        "ok": True,
+    }
+
+    install_info = _is_mineru_installed()
+    checks["installed"] = {
+        "installed": install_info.get("installed", False),
+        "version": install_info.get("version"),
+        "ok": True,
+    }
+    if install_info.get("installed"):
+        warnings.append(f"MinerU 已安装 (v{install_info.get('version', '?')})，将跳过安装步骤")
+
+    try:
+        import subprocess
+        nvidia_result = subprocess.run(
+            ["nvidia-smi", "--query-gpu=name,memory.total", "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=10,
+        )
+        if nvidia_result.returncode == 0 and nvidia_result.stdout.strip():
+            gpus = []
+            for line in nvidia_result.stdout.strip().splitlines():
+                parts = [p.strip() for p in line.split(",")]
+                if len(parts) >= 2:
+                    name = parts[0]
+                    try:
+                        vram = float(parts[1])
+                    except ValueError:
+                        vram = 0
+                    gpus.append({"name": name, "vram_mb": vram, "vram_gb": round(vram / 1024, 1)})
+            if gpus:
+                best = max(gpus, key=lambda g: g["vram_mb"])
+                checks["gpu"] = {
+                    "available": True,
+                    "count": len(gpus),
+                    "gpus": gpus,
+                    "best_name": best["name"],
+                    "best_vram_gb": best["vram_gb"],
+                    "ok": best["vram_mb"] >= 8192,
+                }
+                if best["vram_mb"] < 8192:
+                    warnings.append(
+                        f"GPU 显存不足（{best['name']}: {best['vram_gb']}GB），Hybrid 模式需要 8GB+ 显存。Pipeline 模式可正常使用"
+                    )
+                else:
+                    pass
+            else:
+                checks["gpu"] = {"available": False, "ok": True, "note": "未检测到 NVIDIA GPU，Pipeline 模式可正常使用"}
+                warnings.append("未检测到 NVIDIA GPU，Hybrid 模式不可用。Pipeline 模式可正常使用")
+        else:
+            checks["gpu"] = {"available": False, "ok": True, "note": "nvidia-smi 不可用，Pipeline 模式可正常使用"}
+            warnings.append("未检测到 NVIDIA GPU，Hybrid 模式不可用。Pipeline 模式可正常使用")
+    except FileNotFoundError:
+        checks["gpu"] = {"available": False, "ok": True, "note": "未安装 NVIDIA 驱动，Pipeline 模式可正常使用"}
+        warnings.append("未安装 NVIDIA 驱动，Hybrid 模式不可用。Pipeline 模式可正常使用")
+    except Exception as e:
+        checks["gpu"] = {"available": False, "ok": True, "error": str(e)}
+        warnings.append("GPU 检测失败，Pipeline 模式可正常使用")
+
+    try:
+        import psutil
+        total_gb = psutil.virtual_memory().total / (1024 ** 3)
+        checks["memory"] = {
+            "total_gb": round(total_gb, 1),
+            "ok": total_gb >= 8,
+        }
+        if total_gb < 8:
+            warnings.append(f"内存不足（{total_gb:.1f} GB），建议 16 GB 以上以获得更好性能")
+        elif total_gb < 16:
+            warnings.append(f"内存偏小（{total_gb:.1f} GB），建议 16 GB 以上以获得更好性能")
+    except ImportError:
+        try:
+            if sys.platform == "win32":
+                import ctypes
+
+                class MEMORYSTATUSEX(ctypes.Structure):
+                    _fields_ = [
+                        ("dwLength", ctypes.c_ulong),
+                        ("dwMemoryLoad", ctypes.c_ulong),
+                        ("ullTotalPhys", ctypes.c_ulonglong),
+                        ("ullAvailPhys", ctypes.c_ulonglong),
+                        ("ullTotalPageFile", ctypes.c_ulonglong),
+                        ("ullAvailPageFile", ctypes.c_ulonglong),
+                        ("ullTotalVirtual", ctypes.c_ulonglong),
+                        ("ullAvailVirtual", ctypes.c_ulonglong),
+                        ("ullAvailExtendedVirtual", ctypes.c_ulonglong),
+                    ]
+
+                ms = MEMORYSTATUSEX()
+                ms.dwLength = ctypes.sizeof(ms)
+                ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(ms))
+                total_gb = ms.ullTotalPhys / (1024 ** 3)
+            else:
+                total_gb = 0
+            if total_gb > 0:
+                checks["memory"] = {"total_gb": round(total_gb, 1), "ok": total_gb >= 8}
+                if total_gb < 8:
+                    warnings.append(f"内存不足（{total_gb:.1f} GB），建议 16 GB 以上")
+            else:
+                checks["memory"] = {"ok": True, "note": "无法检测内存大小"}
+        except Exception:
+            checks["memory"] = {"ok": True, "note": "无法检测内存大小"}
+    except Exception as e:
+        checks["memory"] = {"ok": True, "error": str(e)}
+
+    can_deploy = len(blockers) == 0
+    return {
+        "can_deploy": can_deploy,
+        "checks": checks,
+        "warnings": warnings,
+        "blockers": blockers,
+    }
+
+
+@router.post(
     "/documents/parser/deploy-local-mineru",
-    summary="One-click deploy local MinerU",
-    description="Create isolated venv, install magic-pdf[full], start API server. No Docker needed.",
+    summary="Start async MinerU local deployment",
+    description="Start an asynchronous deployment task. Returns task_id for progress tracking via SSE.",
 )
 async def deploy_local_mineru(body: dict = Body(default={})):
     import subprocess
     import sys
-    import asyncio
     import os
-    import traceback
+
+    async with _deploy_lock:
+        for tid, t in _deploy_tasks.items():
+            if t.status in ("pending", "running"):
+                return {
+                    "task_id": tid,
+                    "status": t.status,
+                    "message": "已有部署任务正在执行中",
+                }
+
+        task_id = uuid.uuid4().hex[:12]
+        task = _DeployTask(task_id)
+        _deploy_tasks[task_id] = task
 
     port = body.get("port", _MINERU_PORT)
     mirror_url = body.get("mirror_url", "https://pypi.tuna.tsinghua.edu.cn/simple")
     use_mirror = body.get("use_mirror", True)
+
+    asyncio.create_task(_run_deploy(task, port, mirror_url, use_mirror))
+
+    return {
+        "task_id": task_id,
+        "status": "pending",
+        "message": "部署任务已创建，请通过 SSE 监听进度",
+    }
+
+
+async def _run_deploy(task: _DeployTask, port: int, mirror_url: str, use_mirror: bool):
+    import subprocess
+    import sys
+    import os
+    import traceback
+
     venv_dir = _get_mineru_venv_dir()
 
-    # ── Step 1: Create venv if not exists ────────────────────────────
-    if not _get_mineru_python():
-        _logger.info("Creating MinerU virtual environment at %s", venv_dir)
-        try:
+    try:
+        # ── Step 1: Create venv ──────────────────────────────────────
+        if not _get_mineru_python():
+            task.update(stage="venv", progress=5, message="正在创建虚拟环境...", status="running")
+
             def _create_venv():
                 if os.path.isdir(venv_dir):
-                    _logger.info("Removing incomplete venv at %s", venv_dir)
                     import shutil
                     shutil.rmtree(venv_dir, ignore_errors=True)
-
                 result = subprocess.run(
                     [sys.executable, "-m", "venv", venv_dir],
                     capture_output=True, text=True, timeout=60,
                 )
                 if result.returncode != 0:
-                    _logger.warning("venv creation failed, trying --without-pip: %s", result.stderr)
                     if os.path.isdir(venv_dir):
                         import shutil
                         shutil.rmtree(venv_dir, ignore_errors=True)
@@ -1501,27 +1789,30 @@ async def deploy_local_mineru(body: dict = Body(default={})):
                     )
                 return result
 
-            venv_result = await asyncio.get_running_loop().run_in_executor(None, _create_venv)
-            if venv_result.returncode != 0:
-                return {
-                    "success": False, "stage": "venv",
-                    "error": f"创建虚拟环境失败: {(venv_result.stderr or '')[:300]}",
-                }
-        except Exception as e:
-            return {
-                "success": False, "stage": "venv",
-                "error": f"创建虚拟环境异常: {e}",
-            }
+            try:
+                venv_result = await asyncio.get_running_loop().run_in_executor(None, _create_venv)
+                if venv_result.returncode != 0:
+                    task.update(stage="venv", progress=10, status="failed",
+                                error=f"创建虚拟环境失败: {(venv_result.stderr or '')[:300]}")
+                    return
+            except Exception as e:
+                task.update(stage="venv", progress=10, status="failed",
+                            error=f"创建虚拟环境异常: {e}")
+                return
+        else:
+            task.update(stage="venv", progress=15, message="虚拟环境已存在，跳过创建")
 
-    mineru_python = _get_mineru_python()
-    if not mineru_python:
-        return {"success": False, "stage": "venv", "error": "虚拟环境创建后未找到 Python"}
+        mineru_python = _get_mineru_python()
+        if not mineru_python:
+            task.update(stage="venv", progress=15, status="failed",
+                        error="虚拟环境创建后未找到 Python 解释器")
+            return
 
-    # ── Step 2: Install mineru[all] ──────────────────────────────
-    install_info = _is_mineru_installed()
-    if not install_info.get("installed"):
-        _logger.info("Installing mineru[all] into MinerU venv...")
-        try:
+        # ── Step 2: Install mineru[all] ──────────────────────────────
+        install_info = _is_mineru_installed()
+        if not install_info.get("installed"):
+            task.update(stage="install", progress=20, message="正在安装 MinerU 及依赖包（首次约需 5-15 分钟）...", status="running")
+
             def _pip_install():
                 ensurepip_result = subprocess.run(
                     [mineru_python, "-m", "ensurepip", "--upgrade"],
@@ -1530,8 +1821,10 @@ async def deploy_local_mineru(body: dict = Body(default={})):
                 if ensurepip_result.returncode != 0:
                     _logger.warning("ensurepip failed: %s", ensurepip_result.stderr)
 
-                cmd = [mineru_python, "-m", "pip", "install", "--upgrade", "pip"]
-                subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+                subprocess.run(
+                    [mineru_python, "-m", "pip", "install", "--upgrade", "pip"],
+                    capture_output=True, text=True, timeout=120,
+                )
 
                 try:
                     subprocess.run(
@@ -1546,53 +1839,56 @@ async def deploy_local_mineru(body: dict = Body(default={})):
                     cmd += ["-i", mirror_url, "--trusted-host", "pypi.tuna.tsinghua.edu.cn"]
                 return subprocess.run(cmd, capture_output=True, text=True, timeout=900)
 
-            install_result = await asyncio.get_running_loop().run_in_executor(None, _pip_install)
-            output = (install_result.stdout or "") + (install_result.stderr or "")
-            output_tail = "\n".join(output.strip().splitlines()[-20:])
+            try:
+                task.update(stage="install", progress=25, message="正在下载并安装依赖包...")
+                install_result = await asyncio.get_running_loop().run_in_executor(None, _pip_install)
+                output = (install_result.stdout or "") + (install_result.stderr or "")
+                output_tail = "\n".join(output.strip().splitlines()[-20:])
 
-            if install_result.returncode != 0:
-                return {
-                    "success": False, "stage": "install",
-                    "error": f"pip install 失败 (exit {install_result.returncode})",
-                    "output": output_tail,
-                }
-        except subprocess.TimeoutExpired:
-            return {
-                "success": False, "stage": "install",
-                "error": "pip install 超时（15分钟），网络可能较慢，请重试",
-            }
-        except Exception as e:
-            return {
-                "success": False, "stage": "install",
-                "error": f"安装异常: {e}",
-            }
+                if install_result.returncode != 0:
+                    task.update(stage="install", progress=30, status="failed",
+                                error=f"安装失败 (exit {install_result.returncode})",
+                                result={"output": output_tail})
+                    return
+            except subprocess.TimeoutExpired:
+                task.update(stage="install", progress=30, status="failed",
+                            error="安装超时（15分钟），网络可能较慢，请重试")
+                return
+            except Exception as e:
+                task.update(stage="install", progress=30, status="failed",
+                            error=f"安装异常: {e}")
+                return
 
-    # ── Step 3: Start API server ─────────────────────────────────────
-    if _is_mineru_running(port):
-        base_url = f"http://localhost:{port}/api/v4"
-        config = load_config()
-        config.documents.parser.mineru_mode = "local"
-        config.documents.parser.mineru_base_url = base_url
-        if not config.documents.parser.mineru_api_key:
-            config.documents.parser.mineru_api_key = "local"
-        save_config(config)
-        try:
-            from . import knowledge as _kmod
-            _kmod._parser_router = None
-        except Exception:
-            pass
-        return {
-            "success": True, "stage": "already_running", "base_url": base_url,
-            "message": "MinerU 本地服务已在运行，已自动配置",
-        }
+            task.update(stage="install", progress=60, message="MinerU 安装完成")
+        else:
+            task.update(stage="install", progress=60, message="MinerU 已安装，跳过安装步骤")
 
-    api_cmd = _get_mineru_api_cmd()
-    if not api_cmd:
-        api_cmd = [mineru_python, "-m", "mineru.cli", "api", "--host", "0.0.0.0"]
+        # ── Step 3: Start API server ─────────────────────────────────
+        if _is_mineru_running(port):
+            base_url = f"http://localhost:{port}/api/v4"
+            config = load_config()
+            config.documents.parser.mineru_mode = "local"
+            config.documents.parser.mineru_base_url = base_url
+            if not config.documents.parser.mineru_api_key:
+                config.documents.parser.mineru_api_key = "local"
+            save_config(config)
+            try:
+                from . import knowledge as _kmod
+                _kmod._parser_router = None
+            except Exception:
+                pass
+            task.update(stage="start", progress=100, status="completed",
+                        message="MinerU 本地服务已在运行，已自动配置",
+                        result={"success": True, "stage": "already_running", "base_url": base_url})
+            return
 
-    api_cmd += ["--port", str(port)]
+        task.update(stage="start", progress=70, message="正在启动 MinerU API 服务...")
 
-    try:
+        api_cmd = _get_mineru_api_cmd()
+        if not api_cmd:
+            api_cmd = [mineru_python, "-m", "mineru.cli", "api", "--host", "0.0.0.0"]
+        api_cmd += ["--port", str(port)]
+
         log_dir = os.path.join(
             os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
             "logs",
@@ -1617,7 +1913,6 @@ async def deploy_local_mineru(body: dict = Body(default={})):
                 popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
             else:
                 popen_kwargs["start_new_session"] = True
-
             proc = subprocess.Popen(api_cmd, **popen_kwargs)
 
         with open(pid_path, "w") as pid_f:
@@ -1625,21 +1920,22 @@ async def deploy_local_mineru(body: dict = Body(default={})):
 
         _logger.info("Started MinerU API server (PID=%d, port=%d, venv=%s)", proc.pid, port, venv_dir)
 
-        # Wait for API to be ready
+        task.update(stage="start", progress=75, message=f"服务进程已启动 (PID={proc.pid})，等待 API 就绪...")
+
         from ...parsers.mineru_parser import MinerUParser
         base_url = f"http://localhost:{port}/api/v4"
         for _attempt in range(36):
             await asyncio.sleep(5)
-            # Check if process is still alive
             if proc.poll() is not None:
                 with open(log_path) as f:
                     log_content = f.read()[-1000:]
-                return {
-                    "success": False, "stage": "start",
-                    "error": f"MinerU 进程意外退出 (exit code {proc.returncode})",
-                    "output": log_content,
-                    "log_path": log_path,
-                }
+                task.update(stage="start", progress=80, status="failed",
+                            error=f"MinerU 进程意外退出 (exit code {proc.returncode})",
+                            result={"output": log_content, "log_path": log_path})
+                return
+            progress = 75 + min(_attempt * 2, 20)
+            task.update(stage="start", progress=progress,
+                        message=f"等待 API 就绪... ({_attempt * 5}s)")
             status = await MinerUParser.check_local_deployment(base_url)
             if status.get("reachable"):
                 config = load_config()
@@ -1653,23 +1949,70 @@ async def deploy_local_mineru(body: dict = Body(default={})):
                     _kmod._parser_router = None
                 except Exception:
                     pass
-                return {
-                    "success": True, "stage": "started", "base_url": base_url,
-                    "pid": proc.pid,
-                    "message": "MinerU 本地部署成功！已自动配置，所有数据在本地处理",
-                }
+                task.update(stage="start", progress=100, status="completed",
+                            message="MinerU 本地部署成功！已自动配置，所有数据在本地处理",
+                            result={"success": True, "stage": "started", "base_url": base_url, "pid": proc.pid})
+                return
 
-        return {
-            "success": False, "stage": "health_check",
-            "error": "服务已启动但 API 未就绪（等待超时 3 分钟），请稍后手动检测连接",
-            "base_url": base_url, "pid": proc.pid, "log_path": log_path,
-        }
+        task.update(stage="start", progress=95, status="failed",
+                    error="服务已启动但 API 未就绪（等待超时 3 分钟），请稍后检查服务状态",
+                    result={"base_url": base_url, "pid": proc.pid, "log_path": log_path})
+
     except Exception as e:
-        return {
-            "success": False, "stage": "start",
-            "error": f"启动 MinerU API 失败: {e}",
-            "output": traceback.format_exc()[:500],
-        }
+        task.update(stage=task.stage or "unknown", progress=task.progress, status="failed",
+                    error=f"部署异常: {e}",
+                    result={"output": traceback.format_exc()[:500]})
+
+
+@router.get(
+    "/documents/parser/deploy-local-mineru/progress/{task_id}",
+    summary="SSE stream for deployment progress",
+    description="Server-Sent Events endpoint to receive real-time deployment progress updates.",
+)
+async def deploy_local_mineru_progress(task_id: str, request: Request):
+    task = _deploy_tasks.get(task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+
+    queue = task.subscribe()
+
+    async def event_stream():
+        try:
+            yield f"data: {_json.dumps(task._snapshot())}\n\n"
+            while True:
+                if await request.is_disconnected():
+                    break
+                try:
+                    snapshot = await asyncio.wait_for(queue.get(), timeout=15)
+                    yield f"data: {_json.dumps(snapshot)}\n\n"
+                    if snapshot.get("status") in ("completed", "failed"):
+                        break
+                except asyncio.TimeoutError:
+                    yield f": keepalive\n\n"
+        finally:
+            task.unsubscribe(queue)
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@router.get(
+    "/documents/parser/deploy-local-mineru/status/{task_id}",
+    summary="Get deployment task status",
+    description="Get the current status of an asynchronous deployment task.",
+)
+async def deploy_local_mineru_task_status(task_id: str):
+    task = _deploy_tasks.get(task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    return task._snapshot()
 
 
 @router.post(

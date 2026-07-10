@@ -348,19 +348,59 @@ export const knowledgeApi = {
     mirror_url?: string;
   }) =>
     request<{
-      success: boolean;
-      stage?: string;
-      error?: string;
-      output?: string;
-      base_url?: string;
-      pid?: number;
-      log_path?: string;
-      message?: string;
+      task_id: string;
+      status: string;
+      message: string;
     }>("/config/documents/parser/deploy-local-mineru", {
       method: "POST",
       body: JSON.stringify(params || { use_mirror: true }),
-      timeout: 20 * 60 * 1000,
     }),
+
+  precheckLocalMineru: (params?: {
+    port?: number;
+  }) =>
+    request<{
+      can_deploy: boolean;
+      checks: {
+        python: { version: string; path: string; ok: boolean };
+        disk: { free_gb: number; ok: boolean; error?: string };
+        network: { pypi: boolean; mirror?: boolean; ok: boolean; note?: string };
+        port: { port: number; available: boolean; ok: boolean };
+        venv: { exists: boolean; path: string; ok: boolean };
+        installed: { installed: boolean; version?: string; ok: boolean };
+        gpu: {
+          available: boolean;
+          count?: number;
+          gpus?: { name: string; vram_mb: number; vram_gb: number }[];
+          best_name?: string;
+          best_vram_gb?: number;
+          ok: boolean;
+          note?: string;
+          error?: string;
+        };
+        memory: { total_gb?: number; ok: boolean; note?: string; error?: string };
+      };
+      warnings: string[];
+      blockers: string[];
+    }>("/config/documents/parser/deploy-local-mineru/precheck", {
+      method: "POST",
+      body: JSON.stringify(params || {}),
+    }),
+
+  getDeployTaskStatus: (taskId: string) =>
+    request<{
+      task_id: string;
+      status: string;
+      stage: string;
+      progress: number;
+      message: string;
+      error: string;
+      result: Record<string, unknown> | null;
+      updated_at: string;
+    }>(`/config/documents/parser/deploy-local-mineru/status/${taskId}`),
+
+  getDeployProgressSSEUrl: (taskId: string) =>
+    `/config/documents/parser/deploy-local-mineru/progress/${taskId}`,
 
   getLocalMineruStatus: () =>
     request<{
