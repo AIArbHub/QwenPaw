@@ -94,19 +94,49 @@ class ParserRouter:
     ) -> str:
         ext = f".{self.detect_type(file_path)}"
 
-        # ── Tier 1: MinerU (if available) ──────────────────────────────
+        # ── cloud_ocr: force cloud MinerU only ─────────────────────────
+        if parse_mode == "cloud_ocr":
+            if self._mineru.available and not self._mineru.is_local and ext in _MINERU_EXTENSIONS:
+                result = await self._mineru.parse(file_path)
+                if result and not result.startswith("[MinerU:"):
+                    return result
+                # Cloud MinerU failed — no fallback in cloud_ocr mode
+                return result or f"[Cannot parse: {file_path.name} — cloud OCR failed]"
+
+            # For non-OCR file types, use native extraction
+            if ext not in _MINERU_EXTENSIONS:
+                return await self._native_pipeline(file_path)
+
+            # Cloud MinerU not available
+            return f"[Cannot parse: {file_path.name} — cloud OCR engine not configured. Switch to auto or local_only mode.]"
+
+        # ── local_only: local engines only (no cloud MinerU) ──────────
+        if parse_mode == "local_only":
+            # PDF: text-layer detection → Tesseract OCR fallback
+            if ext in _PDF_EXTENSION:
+                return await self._pdf_pipeline(file_path, allow_cloud_mineru=False)
+
+            # Images: Tesseract OCR only
+            if ext in _SCAN_EXTENSIONS:
+                return await self._image_pipeline(file_path, allow_cloud_mineru=False)
+
+            # Office/text: native extraction
+            return await self._native_pipeline(file_path)
+
+        # ── auto: current behavior (3-tier: MinerU → Tesseract → native) ─
+        # Tier 1: MinerU (if available, cloud or local)
         if self._mineru.available and ext in _MINERU_EXTENSIONS:
             return await self._mineru_first_pipeline(file_path)
 
-        # ── PDF: check text layer, then OCR if needed ──────────────────
+        # PDF: check text layer, then OCR if needed
         if ext in _PDF_EXTENSION:
             return await self._pdf_pipeline(file_path)
 
-        # ── Images: OCR if available, else fail gracefully ─────────────
+        # Images: OCR if available, else fail gracefully
         if ext in _SCAN_EXTENSIONS:
             return await self._image_pipeline(file_path)
 
-        # ── Office/text: native extraction only ────────────────────────
+        # Office/text: native extraction only
         return await self._native_pipeline(file_path)
 
     async def _mineru_first_pipeline(self, file_path: Path) -> str:
@@ -128,7 +158,7 @@ class ParserRouter:
 
         return await self._native_pipeline(file_path)
 
-    async def _pdf_pipeline(self, file_path: Path) -> str:
+    async def _pdf_pipeline(self, file_path: Path, allow_cloud_mineru: bool = True) -> str:
         """PDF parsing: text-layer detection → native extraction → OCR fallback."""
         has_text = await self._check_pdf_text_layer(file_path)
         if has_text:
@@ -140,6 +170,12 @@ class ParserRouter:
             # fall through to OCR (the "text" may be garbage/garbled)
 
         # No text layer or extraction failed → try OCR
+        # Tier 1: Local MinerU (if available and allowed)
+        if allow_cloud_mineru and self._mineru.available and self._mineru.is_local:
+            result = await self._mineru.parse(file_path)
+            if result and not result.startswith("[MinerU:"):
+                return result
+
         # Tier 2: Tesseract OCR for scanned PDFs
         if self._tesseract.available:
             logger.info("PDF has no text layer (or extraction failed), trying Tesseract OCR: %s", file_path.name)
@@ -150,8 +186,14 @@ class ParserRouter:
         # Last resort: native pipeline (will likely fail for scanned PDFs)
         return await self._native_pipeline(file_path)
 
-    async def _image_pipeline(self, file_path: Path) -> str:
+    async def _image_pipeline(self, file_path: Path, allow_cloud_mineru: bool = True) -> str:
         """Image parsing: OCR only (no text layer possible)."""
+        # Tier 1: Local MinerU (if available and allowed)
+        if allow_cloud_mineru and self._mineru.available and self._mineru.is_local:
+            result = await self._mineru.parse(file_path)
+            if result and len(result.strip()) >= 10:
+                return result
+
         # Tier 2: Tesseract OCR
         if self._tesseract.available:
             result = await self._tesseract.parse(file_path)

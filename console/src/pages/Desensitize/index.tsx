@@ -90,6 +90,7 @@ interface RuleItem {
 }
 
 type DesensitizeMode = "local" | "local_ai" | "ai";
+type ParseMode = "auto" | "cloud_ocr" | "local_only";
 
 const SAMPLE_TEXT = `申请人：张三，身份证号110101199001011234，手机号13800138000，邮箱zhangsan@example.com
 被申请人：李四，身份证号440305198512065678，电话13900139000，地址：深圳市福田区福华路1号大中华国际交易广场18楼1801室
@@ -136,6 +137,7 @@ function DesensitizePage() {
   const [desensSubTab, setDesensSubTab] = useState("workspace");
   const [parseSubTab, setParseSubTab] = useState("parse");
   const [selectedMode, setSelectedMode] = useState<DesensitizeMode>("local_ai");
+  const [selectedParseMode, setSelectedParseMode] = useState<ParseMode>("auto");
   const [inputText, setInputText] = useState("");
   const [inputName, setInputName] = useState("");
   const [running, setRunning] = useState(false);
@@ -454,7 +456,7 @@ function DesensitizePage() {
     setParseEngine("");
     setParseError("");
     try {
-      const res = await knowledgeApi.parseFile(file);
+      const res = await knowledgeApi.parseFile(file, selectedParseMode);
       if (!res.text || !res.text.trim()) {
         setParseResult("");
         setParseError("解析返回空内容，可能是扫描版PDF或图片格式。系统已自动尝试所有 OCR 引擎，仍无法识别文字。请在「引擎设置」中检查引擎状态。");
@@ -538,6 +540,7 @@ function DesensitizePage() {
       id: Date.now().toString(),
       name: inputName || "untitled",
       mode: selectedMode,
+      parseMode: selectedParseMode,
       replacements: res.replacements,
       createdAt: new Date().toLocaleString(),
       status: "done",
@@ -565,13 +568,13 @@ function DesensitizePage() {
     });
   };
 
-  const parseSingleFile = async (file: File): Promise<string> => {
+  const parseSingleFile = async (file: File, parseMode?: string): Promise<string> => {
     const textExts = [".txt", ".md", ".csv", ".json", ".log"];
     const ext = "." + (file.name.split(".").pop() || "").toLowerCase();
     if (textExts.includes(ext)) {
       return await file.text();
     }
-    const res = await knowledgeApi.parseFile(file);
+    const res = await knowledgeApi.parseFile(file, parseMode || selectedParseMode);
     return res.text;
   };
 
@@ -590,7 +593,7 @@ function DesensitizePage() {
       updatedFiles[idx] = { ...updatedFiles[idx], status: "parsing", error: undefined };
       setSelectedFiles([...updatedFiles]);
       try {
-        const text = await parseSingleFile(updatedFiles[idx].file!);
+        const text = await parseSingleFile(updatedFiles[idx].file!, selectedParseMode);
         updatedFiles[idx] = { ...updatedFiles[idx], status: "done", parsedText: text };
         results.push(text);
       } catch (err: any) {
@@ -699,6 +702,84 @@ function DesensitizePage() {
     },
   };
 
+  const PARSE_MODE_CONFIGS: Record<ParseMode, {
+    icon: React.ReactNode;
+    titleKey: string;
+    descKey: string;
+    tagKey: string;
+    tagColor: string;
+    accentColor: string;
+    accentBg: string;
+    accentBorder: string;
+  }> = {
+    auto: {
+      icon: <RocketOutlined />,
+      titleKey: "parseModeAutoTitle",
+      descKey: "parseModeAutoDesc",
+      tagKey: "parseModeAutoTag",
+      tagColor: "blue",
+      accentColor: "#1677ff",
+      accentBg: "#e6f4ff",
+      accentBorder: "#91caff",
+    },
+    cloud_ocr: {
+      icon: <CloudServerOutlined />,
+      titleKey: "parseModeCloudTitle",
+      descKey: "parseModeCloudDesc",
+      tagKey: "parseModeCloudTag",
+      tagColor: "orange",
+      accentColor: "#fa8c16",
+      accentBg: "#fff7e6",
+      accentBorder: "#ffd591",
+    },
+    local_only: {
+      icon: <DesktopOutlined />,
+      titleKey: "parseModeLocalTitle",
+      descKey: "parseModeLocalDesc",
+      tagKey: "parseModeLocalTag",
+      tagColor: "green",
+      accentColor: "#52c41a",
+      accentBg: "#f6ffed",
+      accentBorder: "#b7eb8f",
+    },
+  };
+
+  // 计算组合流程的安全等级提示
+  const pipelineSecurityNote = useMemo(() => {
+    const parseIsCloud = selectedParseMode === "cloud_ocr";
+    const desensIsAi = selectedMode === "ai";
+    const desensIsHybrid = selectedMode === "local_ai";
+
+    if (parseIsCloud && (desensIsAi || desensIsHybrid)) {
+      return {
+        level: "warning" as const,
+        text: t("pipelineWarnCloudAi", "⚠️ 文档解析将使用云端OCR，脱敏处理涉及AI调用。敏感原文将经过云端服务，请确认符合您的安全要求。"),
+      };
+    }
+    if (parseIsCloud) {
+      return {
+        level: "info" as const,
+        text: t("pipelineInfoCloud", "ℹ️ 文档解析使用云端OCR，解析后的文本在本地脱敏处理。原始文件将上传至云端服务。"),
+      };
+    }
+    if (desensIsAi) {
+      return {
+        level: "info" as const,
+        text: t("pipelineInfoAi", "ℹ️ 文档在本地解析，脱敏处理由AI完成。完整文本将发送给AI服务。"),
+      };
+    }
+    if (desensIsHybrid) {
+      return {
+        level: "success" as const,
+        text: t("pipelineSuccessHybrid", "✅ 文档在本地解析，规则先处理大部分敏感信息后仅脱敏文本发送给AI，安全性较高。"),
+      };
+    }
+    return {
+      level: "success" as const,
+      text: t("pipelineSuccessLocal", "✅ 全流程在本地完成，数据不出本机，安全性最高。"),
+    };
+  }, [selectedParseMode, selectedMode, t]);
+
   const ruleColumns = [
     {
       title: t("ruleColStatus", "状态"),
@@ -760,6 +841,21 @@ function DesensitizePage() {
         };
         const m = map[mode];
         return m ? <Tag color={m.color}>{m.label}</Tag> : mode;
+      },
+    },
+    {
+      title: t("taskColParseMode", "解析方式"),
+      dataIndex: "parseMode",
+      width: 100,
+      render: (parseMode: string) => {
+        if (!parseMode) return <Tag color="default">auto</Tag>;
+        const map: Record<string, { label: string; color: string }> = {
+          auto: { label: t("parseModeAutoTitle", "自动"), color: "blue" },
+          cloud_ocr: { label: t("parseModeCloudTitle", "云端OCR"), color: "orange" },
+          local_only: { label: t("parseModeLocalTitle", "纯本地"), color: "green" },
+        };
+        const m = map[parseMode] || { label: parseMode, color: "default" };
+        return <Tag color={m.color}>{m.label}</Tag>;
       },
     },
     {
@@ -874,11 +970,74 @@ function DesensitizePage() {
                   />
                 )}
 
-                {/* ===== 处理方式（卡片式三选一） ===== */}
+                {/* ===== 处理流程：解析模式 + 脱敏模式 ===== */}
                 <div className={styles.modeSection}>
+                  {/* Step 1: 解析模式 */}
                   <div className={styles.sectionHeader}>
+                    <FileSearchOutlined />
+                    <span className={styles.sectionTitle}>{t("parseModeTitle", "解析模式")}</span>
+                    <span style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)", marginLeft: 4 }}>
+                      {t("parseModeSubtitle", "选择文档解析的方式")}
+                    </span>
+                  </div>
+                  <div className={styles.parseModeRow}>
+                    {(Object.keys(PARSE_MODE_CONFIGS) as ParseMode[]).map((mode) => {
+                      const config = PARSE_MODE_CONFIGS[mode];
+                      const isActive = selectedParseMode === mode;
+                      return (
+                        <div
+                          key={mode}
+                          className={`${styles.parseModeCard} ${isActive ? styles.parseModeCardActive : ""}`}
+                          onClick={() => setSelectedParseMode(mode)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => e.key === "Enter" && setSelectedParseMode(mode)}
+                          style={isActive ? {
+                            borderColor: config.accentColor,
+                            background: config.accentBg,
+                          } : undefined}
+                        >
+                          <div className={styles.parseModeCardLeft}>
+                            <div
+                              className={styles.parseModeIcon}
+                              style={isActive ? {
+                                color: config.accentColor,
+                                background: config.accentBg,
+                                borderColor: config.accentBorder,
+                              } : undefined}
+                            >
+                              {config.icon}
+                            </div>
+                            <div className={styles.parseModeCardInfo}>
+                              <div className={styles.parseModeCardTitle}>
+                                {t(config.titleKey)}
+                                {isActive && (
+                                  <CheckCircleOutlined
+                                    style={{ color: config.accentColor, marginLeft: 6, fontSize: 14 }}
+                                  />
+                                )}
+                              </div>
+                              <div className={styles.parseModeCardDesc}>{t(config.descKey)}</div>
+                            </div>
+                          </div>
+                          <Tag color={config.tagColor} className={styles.parseModeCardTag}>{t(config.tagKey)}</Tag>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* 流程连接箭头 */}
+                  <div className={styles.pipelineArrow}>
+                    <ArrowRightOutlined style={{ fontSize: 16, color: "var(--ant-color-text-quaternary)" }} />
+                  </div>
+
+                  {/* Step 2: 脱敏模式 */}
+                  <div className={styles.sectionHeader} style={{ marginTop: 4 }}>
                     <RocketOutlined />
-                    <span className={styles.sectionTitle}>{t("chooseModeTitle", "处理方式")}</span>
+                    <span className={styles.sectionTitle}>{t("chooseModeTitle", "脱敏模式")}</span>
+                    <span style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)", marginLeft: 4 }}>
+                      {t("desensModeSubtitle", "选择敏感信息处理方式")}
+                    </span>
                   </div>
                   <div className={styles.modeCardRow}>
                     {(Object.keys(MODE_CONFIGS) as DesensitizeMode[]).map((mode) => {
@@ -934,6 +1093,19 @@ function DesensitizePage() {
                       );
                     })}
                   </div>
+
+                  {/* 组合流程安全提示 */}
+                  <Alert
+                    type={pipelineSecurityNote.level}
+                    showIcon
+                    icon={
+                      pipelineSecurityNote.level === "success" ? <SafetyCertificateOutlined /> :
+                      pipelineSecurityNote.level === "warning" ? <WarningOutlined /> :
+                      <QuestionCircleOutlined />
+                    }
+                    message={pipelineSecurityNote.text}
+                    style={{ marginTop: 10, borderRadius: 8, fontSize: 12 }}
+                  />
                 </div>
 
                 <Divider style={{ margin: "12px 0" }} />
@@ -964,6 +1136,14 @@ function DesensitizePage() {
                         </Tag>
                       </Tooltip>
                     )}
+                    <Tooltip title={t("parseModeCurrentTip", "当前解析模式，可在上方切换")}>
+                      <Tag
+                        color={PARSE_MODE_CONFIGS[selectedParseMode].tagColor}
+                        style={{ marginLeft: 4, cursor: "default" }}
+                      >
+                        {PARSE_MODE_CONFIGS[selectedParseMode].icon} {t(PARSE_MODE_CONFIGS[selectedParseMode].titleKey)}
+                      </Tag>
+                    </Tooltip>
                     <div className={styles.inputActions}>
                       <Tooltip title={t("importFromKb", "从知识库导入文档")}>
                         <Button size="small" icon={<DatabaseOutlined />} onClick={handleImportFromKnowledge}>
