@@ -12,7 +12,6 @@ import {
   RocketOutlined,
   SettingOutlined,
   HistoryOutlined,
-  UploadOutlined,
   ArrowRightOutlined,
   QuestionCircleOutlined,
   DatabaseOutlined,
@@ -31,6 +30,10 @@ import {
   DesktopOutlined,
   CloudServerOutlined,
   ApiOutlined,
+  ScanOutlined,
+  LoadingOutlined,
+  FileSyncOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -64,6 +67,8 @@ import { knowledgeApi } from "@/api/modules/knowledge";
 import { getApiUrl } from "@/api/config";
 import FolderPicker from "@/components/FolderPicker";
 import { ResizableTextArea } from "@/components/ResizableTextArea";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import styles from "./index.module.less";
 
 const { Text, Paragraph } = Typography;
@@ -138,7 +143,17 @@ function DesensitizePage() {
   const [copied, setCopied] = useState(false);
 
   // 文件/文件夹输入相关
-  const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
+  type DesensFile = {
+    name: string;
+    size?: number;
+    file?: File;
+    path?: string;
+    status: "pending" | "parsing" | "done" | "error";
+    parsedText?: string;
+    error?: string;
+  };
+  const [selectedFiles, setSelectedFiles] = useState<DesensFile[]>([]);
+  const [batchParsing, setBatchParsing] = useState(false);
   const [showTextInput, setShowTextInput] = useState(false);
   // 输出设置
   const [outputMode, setOutputMode] = useState<"original" | "default" | "custom">("default");
@@ -148,12 +163,17 @@ function DesensitizePage() {
   const [folderPickerTarget, setFolderPickerTarget] = useState<"input" | "output">("input");
 
   // 文档解析工作区
-  const [parseFile, setParseFile] = useState<File | null>(null);
+  const [parseFiles, setParseFiles] = useState<any[]>([]);
   const [parseLoading, setParseLoading] = useState(false);
   const [parseResult, setParseResult] = useState<string | null>(null);
   const [parseFormat, setParseFormat] = useState<"markdown" | "html" | "json" | "text">("markdown");
   const [parseEngine, setParseEngine] = useState<string>("");
   const [parseError, setParseError] = useState<string>("");
+  const [parseOutputMode, setParseOutputMode] = useState<"original" | "default" | "custom">("default");
+  const [parseOutputPath, setParseOutputPath] = useState("");
+  const [parseFolderPickerOpen, setParseFolderPickerOpen] = useState(false);
+  const [parseFolderPickerTarget, setParseFolderPickerTarget] = useState<"input" | "output">("input");
+  const [parseScanFolder, setParseScanFolder] = useState("");
 
   const [rulesDrawerOpen, setRulesDrawerOpen] = useState(false);
   const [allRules, setAllRules] = useState<RuleItem[]>([]);
@@ -174,9 +194,13 @@ function DesensitizePage() {
     mineru_backend: string;
     mineru_effort: string;
     mineru_configured: boolean;
+    tesseract_langs: string;
+    tesseract_available: boolean;
+    tesseract_version: string;
   } | null>(null);
   const [, setParserSaving] = useState(false);
   const [ocrStatusLoading, setOcrStatusLoading] = useState(false);
+  const [ocrStatus, setOcrStatus] = useState<{ cloud_token_valid?: boolean | null; cloud_token_error?: string } | null>(null);
   const [localMineruStatus, setLocalMineruStatus] = useState<{ reachable: boolean; error?: string } | null>(null);
   const [deploying, setDeploying] = useState(false);
   const [, setDeployResult] = useState<{
@@ -219,8 +243,28 @@ function DesensitizePage() {
     setOcrStatusLoading(true);
     try {
       const res = await knowledgeApi.getOcrStatus();
-      setParserConfig((prev) => prev ? { ...prev, mineru_configured: res.mineru_configured, mineru_mode: res.mineru_mode, mineru_base_url: res.mineru_base_url } : prev);
+      setParserConfig((prev) => prev ? {
+        ...prev,
+        mineru_configured: res.mineru_configured,
+        mineru_mode: res.mineru_mode,
+        mineru_base_url: res.mineru_base_url,
+        tesseract_available: res.tesseract?.available ?? prev.tesseract_available,
+        tesseract_version: res.tesseract?.version ?? prev.tesseract_version,
+      } : prev);
+      setOcrStatus(res as any);
       setLocalMineruStatus(res.local_mineru || null);
+      // Provide explicit feedback based on mode
+      if (res.mineru_mode === "cloud") {
+        if (res.cloud_token_valid === true) {
+          message.success("Token 验证通过，云端 OCR 可用");
+        } else if (res.cloud_token_valid === false) {
+          message.error(`Token 认证失败：${res.cloud_token_error || "请检查 Token"}`);
+        }
+      } else if (res.local_mineru?.reachable) {
+        message.success("连接成功：本地 MinerU 服务运行中");
+      } else {
+        message.warning(`连接失败：${res.local_mineru?.error || "本地服务未响应"}`);
+      }
     } catch {
       message.error(t("ocrStatusError", "检查失败"));
     } finally {
@@ -409,45 +453,64 @@ function DesensitizePage() {
     setParseResult(null);
     setParseEngine("");
     setParseError("");
-    setParseFile(file);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/knowledge/ocr-try", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      if (data.error && !data.text) {
-        setParseError(data.error);
+      const res = await knowledgeApi.parseFile(file);
+      if (!res.text || !res.text.trim()) {
         setParseResult("");
+        setParseError("解析返回空内容，可能是扫描版PDF或图片格式。系统已自动尝试所有 OCR 引擎，仍无法识别文字。请在「引擎设置」中检查引擎状态。");
       } else {
-        setParseResult(data.text || "");
-        setParseEngine(data.engine || "");
-        if (data.error) {
-          setParseError(data.error);
-        }
+        setParseResult(res.text);
+        setParseEngine(res.engine || "");
       }
     } catch (err: any) {
-      setParseError(err.message || "文档解析失败");
+      const detail = err?.response?.data?.detail || err?.message || "";
+      setParseError(detail || "文档解析失败，请检查引擎设置或网络连接");
       setParseResult("");
     } finally {
       setParseLoading(false);
     }
   };
 
+  const handleParseBatch = async () => {
+    if (parseFiles.length === 0) return;
+    if (parseFiles.length === 1 && parseFiles[0].file) {
+      await handleParseDocument(parseFiles[0].file);
+    } else {
+      message.info("批量解析功能开发中，当前仅支持单文件解析");
+      if (parseFiles[0].file) {
+        await handleParseDocument(parseFiles[0].file);
+      }
+    }
+  };
+
   const handleDesensitize = async () => {
-    if (!inputText.trim()) {
-      message.warning(t("inputEmpty", "请先输入需要处理的文本"));
+    // Gather text from inputText and parsed files
+    let combinedText = inputText.trim();
+
+    if (selectedFiles.length > 0) {
+      // Auto-parse any pending files, get all parsed texts
+      const parsedTexts = await handleBatchParse();
+      if (parsedTexts.length > 0) {
+        const fileText = parsedTexts.join("\n\n---\n\n");
+        combinedText = combinedText ? combinedText + "\n\n---\n\n" + fileText : fileText;
+      }
+    }
+
+    if (!combinedText) {
+      message.warning(t("inputEmpty", "请先选择文件或输入需要处理的文本"));
       return;
     }
+
     setRunning(true);
     setResult(null);
     try {
       const enabledRules = allRules.filter((r) => r.enabled).map(({ enabled, ...rest }) => rest);
+      const name = selectedFiles.length > 0
+        ? selectedFiles.map(f => f.name).join(", ")
+        : (inputName || "untitled");
       const res = await knowledgeApi.desensitizeText({
-        text: inputText,
-        name: inputName || "untitled",
+        text: combinedText,
+        name,
         mode: selectedMode,
         rules: enabledRules.length > 0 ? enabledRules : undefined,
       });
@@ -502,52 +565,46 @@ function DesensitizePage() {
     });
   };
 
-  const handleFileUpload = async (file: File) => {
+  const parseSingleFile = async (file: File): Promise<string> => {
     const textExts = [".txt", ".md", ".csv", ".json", ".log"];
     const ext = "." + (file.name.split(".").pop() || "").toLowerCase();
-
     if (textExts.includes(ext)) {
-      const text = await file.text();
-      setInputText(text);
-      setInputName(file.name);
-      message.success(t("fileLoaded", "文件「{{name}}」已加载（{{count}} 字）", { name: file.name, count: text.length }));
-    } else {
-      try {
-        message.loading(t("processing", "正在解析文件..."), 0);
-        const res = await knowledgeApi.parseFile(file);
-        message.destroy();
-        setInputText(res.text);
-        setInputName(res.filename);
-        message.success(t("fileLoaded", "文件「{{name}}」已加载（{{count}} 字）", { name: res.filename, count: res.chars }));
-      } catch (err: any) {
-        message.destroy();
-        console.error("File parse error:", err);
-
-        const detail = err?.response?.data?.detail || err?.message || "";
-        if (detail.includes("扫描版") || detail.includes("OCR") || detail.includes("422")) {
-          Modal.warning({
-            title: t("pdfParseFailTitle", "无法提取文本"),
-            content: (
-              <div>
-                <p>{t("pdfParseFailDesc", "该文件可能是扫描版PDF或图片格式，本地工具无法识别文字。")}</p>
-                <p style={{ marginTop: 8, fontSize: 13 }}>
-                  <strong>{t("solutionLabel", "解决方案：")}</strong>
-                </p>
-                <ul style={{ paddingLeft: 20, fontSize: 13, marginTop: 4 }}>
-                  <li>{t("sol1", "在「引擎设置」页面配置 API 密钥或部署本地引擎，启用文档识别功能")}</li>
-                  <li>{t("sol2", "使用带有可选文字层的PDF（非扫描件）")}</li>
-                  <li>{t("sol3", "手动复制粘贴文本内容到输入框")}</li>
-                </ul>
-              </div>
-            ),
-            okText: t("gotIt", "我知道了"),
-          });
-        } else {
-          message.error(t("runError", "处理失败，请稍后重试"));
-        }
-      }
+      return await file.text();
     }
-    return false;
+    const res = await knowledgeApi.parseFile(file);
+    return res.text;
+  };
+
+  const handleBatchParse = async (): Promise<string[]> => {
+    const pendingIdxs = selectedFiles
+      .map((f, i) => f.status === "pending" && f.file ? i : -1)
+      .filter(i => i >= 0);
+    if (pendingIdxs.length === 0) {
+      return selectedFiles.filter(f => f.status === "done" && f.parsedText).map(f => f.parsedText!);
+    }
+
+    setBatchParsing(true);
+    const results: string[] = [];
+    const updatedFiles = [...selectedFiles];
+    for (const idx of pendingIdxs) {
+      updatedFiles[idx] = { ...updatedFiles[idx], status: "parsing", error: undefined };
+      setSelectedFiles([...updatedFiles]);
+      try {
+        const text = await parseSingleFile(updatedFiles[idx].file!);
+        updatedFiles[idx] = { ...updatedFiles[idx], status: "done", parsedText: text };
+        results.push(text);
+      } catch (err: any) {
+        const detail = err?.response?.data?.detail || err?.message || "解析失败";
+        updatedFiles[idx] = { ...updatedFiles[idx], status: "error", error: detail };
+      }
+      setSelectedFiles([...updatedFiles]);
+    }
+    setBatchParsing(false);
+    // Also include previously-done files
+    const allTexts = updatedFiles
+      .filter(f => f.status === "done" && f.parsedText)
+      .map(f => f.parsedText!);
+    return allTexts;
   };
 
   const handleUseSample = () => {
@@ -886,6 +943,27 @@ function DesensitizePage() {
                   <div className={styles.sectionHeader}>
                     <FolderOpenOutlined />
                     <span className={styles.sectionTitle}>{t("inputTitle", "选择文件")}</span>
+                    {parserConfig?.mineru_configured && (
+                      <Tooltip title={
+                        parserConfig?.mineru_mode === "cloud"
+                          ? "当前使用 MinerU 云端 API 解析文件，消耗 API 额度"
+                          : "当前使用本地 MinerU 服务解析文件，完全离线"
+                      }>
+                        <Tag
+                          color={parserConfig?.mineru_mode === "cloud" ? "blue" : "green"}
+                          style={{ marginLeft: 8, cursor: "default" }}
+                        >
+                          {parserConfig?.mineru_mode === "cloud" ? "☁️ 云端解析" : "🖥️ 本地解析"}
+                        </Tag>
+                      </Tooltip>
+                    )}
+                    {!parserConfig?.mineru_configured && (
+                      <Tooltip title="MinerU 未配置，非文本文件将无法解析。点击右上角「引擎设置」进行配置">
+                        <Tag color="default" style={{ marginLeft: 8, cursor: "pointer" }} onClick={openEngineSettings}>
+                          ⚠️ 解析引擎未配置
+                        </Tag>
+                      </Tooltip>
+                    )}
                     <div className={styles.inputActions}>
                       <Tooltip title={t("importFromKb", "从知识库导入文档")}>
                         <Button size="small" icon={<DatabaseOutlined />} onClick={handleImportFromKnowledge}>
@@ -915,19 +993,14 @@ function DesensitizePage() {
                           showUploadList={false}
                           multiple
                           beforeUpload={(file, fileList) => {
-                            // 处理多文件
-                            if (fileList.length > 1) {
-                              setSelectedFiles(fileList.map(f => ({ name: f.name, size: f.size, file: f })));
-                            } else {
-                              handleFileUpload(file);
-                            }
+                            setSelectedFiles(prev => [...prev, ...fileList.map(f => ({ name: f.name, size: f.size, file: f, status: "pending" as const }))]);
                             return false;
                           }}
                         >
                           <div className={styles.fileDropCard}>
-                            <UploadOutlined style={{ fontSize: 32, color: "var(--ant-color-primary)" }} />
+                            <FileTextOutlined style={{ fontSize: 32, color: "var(--ant-color-primary)" }} />
                             <div style={{ fontWeight: 600, fontSize: 14, marginTop: 8 }}>选择文件</div>
-                            <div style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)" }}>PDF / Word / Excel / TXT 等</div>
+                            <div style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)" }}>支持多选 · PDF / Word / Excel / TXT 等</div>
                           </div>
                         </Upload>
                         <div
@@ -953,43 +1026,88 @@ function DesensitizePage() {
                     <div>
                       <div style={{ marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <span style={{ fontSize: 13, color: "var(--ant-color-text-secondary)" }}>
-                          已选 {selectedFiles.length} 个文件：
+                          已选 {selectedFiles.length} 个文件
+                          {selectedFiles.some(f => f.status === "done") && (
+                            <span style={{ marginLeft: 8, color: "var(--ant-color-success)" }}>
+                              （{selectedFiles.filter(f => f.status === "done").length} 个已解析）
+                            </span>
+                          )}
+                          {selectedFiles.some(f => f.status === "error") && (
+                            <span style={{ marginLeft: 8, color: "var(--ant-color-error)" }}>
+                              （{selectedFiles.filter(f => f.status === "error").length} 个失败）
+                            </span>
+                          )}
                         </span>
-                        <Button size="small" type="link" danger onClick={() => { setSelectedFiles([]); setScannedFiles([]); }}>
-                          清空
-                        </Button>
+                        <Space size="small">
+                          {selectedFiles.some(f => f.status === "pending") && (
+                            <Button
+                              size="small"
+                              type="primary"
+                              icon={<FileSyncOutlined />}
+                              loading={batchParsing}
+                              onClick={handleBatchParse}
+                            >
+                              {batchParsing ? "解析中..." : `解析文件 (${selectedFiles.filter(f => f.status === "pending").length})`}
+                            </Button>
+                          )}
+                          <Button size="small" type="link" danger onClick={() => { setSelectedFiles([]); setScannedFiles([]); }}>
+                            清空
+                          </Button>
+                        </Space>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                         {selectedFiles.map((f, idx) => (
                           <div key={idx} style={{
                             display: "flex", alignItems: "center", gap: 8,
                             padding: "6px 10px", borderRadius: 6,
-                            background: "var(--ant-color-fill-quaternary)",
+                            background: f.status === "error" ? "var(--ant-color-error-bg)" : "var(--ant-color-fill-quaternary)",
+                            border: f.status === "error" ? "1px solid var(--ant-color-error-border)" : "none",
                           }}>
-                            <FileTextOutlined style={{ color: "var(--ant-color-primary)" }} />
-                            <span style={{ flex: 1, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={f.path || f.name}>
+                            {f.status === "parsing" && <LoadingOutlined style={{ color: "var(--ant-color-primary)" }} />}
+                            {f.status === "done" && <CheckCircleOutlined style={{ color: "var(--ant-color-success)" }} />}
+                            {f.status === "error" && <CloseCircleOutlined style={{ color: "var(--ant-color-error)" }} />}
+                            {f.status === "pending" && <FileTextOutlined style={{ color: "var(--ant-color-text-tertiary)" }} />}
+                            <span style={{
+                              flex: 1, fontSize: 13,
+                              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                            }} title={f.path || f.name}>
                               {f.name}
                             </span>
-                            {f.size != null && (
+                            {f.status === "done" && f.parsedText && (
+                              <span style={{ fontSize: 11, color: "var(--ant-color-text-tertiary)", flexShrink: 0 }}>
+                                {f.parsedText.length.toLocaleString()} 字
+                              </span>
+                            )}
+                            {f.size != null && f.status === "pending" && (
                               <span style={{ fontSize: 11, color: "var(--ant-color-text-tertiary)", flexShrink: 0 }}>
                                 {f.size >= 1048576
                                   ? `${(f.size / 1048576).toFixed(1)}MB`
                                   : `${(f.size / 1024).toFixed(0)}KB`}
                               </span>
                             )}
-                            <Button
-                              size="small" type="text" danger
-                              icon={<DeleteOutlined />}
-                              onClick={() => setSelectedFiles(selectedFiles.filter((_, i) => i !== idx))}
-                            />
+                            {f.status === "error" && (
+                              <Tooltip title={f.error || "解析失败"}>
+                                <span style={{ fontSize: 11, color: "var(--ant-color-error)", flexShrink: 0, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  {f.error || "解析失败"}
+                                </span>
+                              </Tooltip>
+                            )}
+                            {!batchParsing && (
+                              <Button
+                                size="small" type="text" danger
+                                icon={<DeleteOutlined />}
+                                onClick={() => setSelectedFiles(selectedFiles.filter((_, i) => i !== idx))}
+                              />
+                            )}
                           </div>
                         ))}
                       </div>
                       <Upload
                         accept={ACCEPTED_FILE_TYPES}
                         showUploadList={false}
-                        beforeUpload={(file) => {
-                          setSelectedFiles([...selectedFiles, { name: file.name, size: file.size, file }]);
+                        multiple
+                        beforeUpload={(file, fileList) => {
+                          setSelectedFiles(prev => [...prev, ...fileList.map(f => ({ name: f.name, size: f.size, file: f, status: "pending" as const }))]);
                           return false;
                         }}
                       >
@@ -1023,38 +1141,38 @@ function DesensitizePage() {
                       <ExportOutlined />
                       输出设置
                     </div>
-                    <Radio.Group
-                      value={outputMode}
-                      onChange={(e) => setOutputMode(e.target.value)}
-                      style={{ display: "flex", flexDirection: "column", gap: 6 }}
-                    >
-                      <Radio value="original">输出到原文件夹（与源文件同目录，自动加 _脱敏 后缀）</Radio>
-                      <Radio value="default">输出到默认文件夹（桌面/脱敏结果）</Radio>
-                      <Radio value="custom">
-                        自定义文件夹
+                    <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <Checkbox
+                          checked={keepOriginal}
+                          onChange={(e) => setKeepOriginal(e.target.checked)}
+                          style={{ fontSize: 12 }}
+                        >
+                          保留原文件
+                        </Checkbox>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
+                        <Radio.Group value={outputMode} onChange={(e) => setOutputMode(e.target.value)} size="small">
+                          <Radio value="original">原目录</Radio>
+                          <Radio value="default">默认目录</Radio>
+                          <Radio value="custom">自定义</Radio>
+                        </Radio.Group>
                         {outputMode === "custom" && (
-                          <Space style={{ marginLeft: 8 }}>
+                          <Space>
                             <Input
                               size="small"
                               placeholder="选择输出文件夹..."
                               value={outputPath}
                               onChange={(e) => setOutputPath(e.target.value)}
-                              style={{ width: 240 }}
+                              style={{ width: 200 }}
                             />
                             <Button size="small" icon={<FolderOpenOutlined />} onClick={() => { setFolderPickerTarget("output"); setFolderPickerOpen(true); }}>
                               浏览
                             </Button>
                           </Space>
                         )}
-                      </Radio>
-                    </Radio.Group>
-                    <Checkbox
-                      checked={keepOriginal}
-                      onChange={(e) => setKeepOriginal(e.target.checked)}
-                      style={{ marginTop: 8, fontSize: 12 }}
-                    >
-                      保留原始文件（不覆盖源文件）
-                    </Checkbox>
+                      </div>
+                    </div>
                   </div>
 
                   <div className={styles.actionBar}>
@@ -1073,7 +1191,7 @@ function DesensitizePage() {
                         disabled={!inputText.trim() && selectedFiles.length === 0}
                         className={styles.runBtn}
                       >
-                        {running ? t("processing", "正在处理...") : t("runBtn", "开始脱敏")}
+                        {running ? t("processing", "正在处理...") : selectedFiles.length > 0 ? `开始脱敏 (${selectedFiles.length} 个文件)` : t("runBtn", "开始脱敏")}
                       </Button>
                     </Space>
                     {inputText.length > 0 && (
@@ -1115,7 +1233,9 @@ function DesensitizePage() {
                       </Space>
                     </div>
 
-                    <pre className={styles.resultText}>{result.desensitized_text}</pre>
+                    <div className={styles.resultText}>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{result.desensitized_text}</ReactMarkdown>
+                    </div>
 
                     {Object.keys(result.backfill_map).length > 0 && (
                       <details className={styles.mappingDetails}>
@@ -1148,63 +1268,18 @@ function DesensitizePage() {
 
                 <div className={styles.quickActions}>
                   <Divider />
-                  <div className={styles.quickActionsGrid}>
-                    <div className={styles.quickActionCard} onClick={() => setRulesDrawerOpen(true)}>
-                      <SettingOutlined className={styles.quickActionIcon} />
-                      <div>
-                        <div className={styles.quickActionTitle}>{t("quickRuleSettings", "规则设置")}</div>
-                        <div className={styles.quickActionDesc}>{t("quickRuleDesc", "{{count}} 条规则已启用", { count: allRules.filter((r) => r.enabled).length })}</div>
-                      </div>
-                    </div>
-
-                    <div className={styles.quickActionCard} onClick={() => setActiveTab("tasks")}>
-                      <HistoryOutlined className={styles.quickActionIcon} />
-                      <div>
-                        <div className={styles.quickActionTitle}>{t("quickTaskHistory", "任务历史")}</div>
-                        <div className={styles.quickActionDesc}>{t("quickTaskDesc", "共 {{count}} 条记录", { count: taskList.length })}</div>
-                      </div>
-                    </div>
-
-                    <div className={styles.quickActionCard}>
-                      <FolderOpenOutlined className={styles.quickActionIcon} />
-                      <div style={{ flex: 1 }}>
-                        <div className={styles.quickActionTitle}>{t("quickFolderScan", "文件夹扫描")}</div>
-                        <div className={styles.quickActionDesc}>
-                          <FolderPicker
-                            value={scanFolder}
-                            onChange={(v) => setScanFolder(v)}
-                            placeholder={t("selectFolderPlaceholder", "选择要扫描的文件夹")}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.helpSection}>
-                  <Divider dashed />
-                  <div className={styles.helpGrid}>
-                    <div className={styles.helpItem}>
-                      <SafetyCertificateOutlined className={styles.helpIcon} />
-                      <div>
-                        <strong>{t("helpSecureTitle", "数据安全吗？")}</strong>
-                        <p>{t("helpSecureDesc", "标准模式完全在本地运行，不联网不外传数据。智能增强和深度分析模式涉及AI调用——若使用本地部署的模型（如Ollama、vLLM），数据不出内网；若使用第三方云服务，请查阅服务商隐私政策，关注传输加密和数据训练条款。")}</p>
-                      </div>
-                    </div>
-                    <div className={styles.helpItem}>
-                      <SettingOutlined className={styles.helpIcon} />
-                      <div>
-                        <strong>{t("helpRuleTitle", "能自定义规则吗？")}</strong>
-                        <p>{t("helpRuleDesc", "可以。点击上方「规则设置」，可启用/禁用内置规则，也可添加自定义正则表达式规则。系统预置了18类常见敏感信息识别规则，覆盖仲裁文书中的典型场景。")}</p>
-                      </div>
-                    </div>
-                    <div className={styles.helpItem}>
-                      <SwapOutlined className={styles.helpIcon} />
-                      <div>
-                        <strong>{t("helpRestoreTitle", "能还原原文吗？")}</strong>
-                        <p>{t("helpRestoreDesc", "可以。每次脱敏生成加密对照表，授权人员可在系统中查看并还原原始内容。导出时也可选择是否携带对照表。")}</p>
-                      </div>
-                    </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <Button size="small" icon={<SettingOutlined />} onClick={() => setRulesDrawerOpen(true)}>
+                      {t("quickRuleSettings", "规则设置")} ({allRules.filter((r) => r.enabled).length})
+                    </Button>
+                    <Button size="small" icon={<HistoryOutlined />} onClick={() => setActiveTab("tasks")}>
+                      {t("quickTaskHistory", "任务历史")} ({taskList.length})
+                    </Button>
+                    <Tooltip title={t("helpSecureTitle", "数据安全吗？")}>
+                      <Button size="small" icon={<SafetyCertificateOutlined />} type="text">
+                        本地处理，数据不出本机
+                      </Button>
+                    </Tooltip>
                   </div>
                 </div>
 
@@ -1407,92 +1482,284 @@ function DesensitizePage() {
                       label: <span><FileSearchOutlined /> 解析工作区</span>,
                       children: (
                         <div className={styles.parseWorkspace}>
-                          <div className={`${styles.parseUploadArea} ${parseFile ? styles.hasFile : ""}`}>
-                            {parseFile ? (
-                              <div style={{ textAlign: "center" }}>
-                                <FileTextOutlined style={{ fontSize: 36, color: "var(--ant-color-success)" }} />
-                                <div style={{ fontWeight: 600, fontSize: 14, marginTop: 8 }}>{parseFile.name}</div>
-                                <div style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)", marginTop: 4 }}>
-                                  {(parseFile.size / 1024).toFixed(0)} KB
-                                </div>
-                                <Space style={{ marginTop: 12 }}>
-                                  <Button type="primary" icon={<FileSearchOutlined />} loading={parseLoading} onClick={() => handleParseDocument(parseFile)}>
-                                    {parseLoading ? "解析中..." : "开始解析"}
-                                  </Button>
-                                  <Button onClick={() => { setParseFile(null); setParseResult(null); setParseError(""); }}>
-                                    重新选择
-                                  </Button>
-                                </Space>
-                              </div>
-                            ) : (
-                              <Upload
-                                accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
-                                showUploadList={false}
-                                beforeUpload={(file) => { setParseFile(file); return false; }}
-                              >
-                                <div style={{ textAlign: "center" }}>
-                                  <UploadOutlined style={{ fontSize: 36, color: "var(--ant-color-primary)" }} />
-                                  <div style={{ fontWeight: 600, fontSize: 14, marginTop: 8 }}>上传文档</div>
-                                  <div style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)", marginTop: 4 }}>
-                                    PDF / 图片 / Word / Excel / PPT
+                          {!parseResult && parseFiles.length === 0 && (
+                            <Alert
+                              type="info"
+                              showIcon
+                              icon={<FileSearchOutlined />}
+                              className={styles.topTip}
+                              message={
+                                <span>
+                                  <strong>{t("whatIsParse", "什么是文档解析？")}</strong>
+                                  {" — "}
+                                  {t("whatIsParseDesc", "将 PDF、图片、Word 等文档智能识别为结构化文本，支持表格、公式、图片描述等复杂版面。")}
+                                </span>
+                              }
+                            />
+                          )}
+
+                          <div className={styles.inputSection}>
+                            <div className={styles.sectionHeader}>
+                              <FolderOpenOutlined />
+                              <span className={styles.sectionTitle}>{t("parseSelectTitle", "选择文档")}</span>
+                            </div>
+
+                            {parseFiles.length === 0 ? (
+                              <div className={styles.fileDropZone}>
+                                <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+                                  <Upload
+                                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
+                                    showUploadList={false}
+                                    multiple
+                                    beforeUpload={(file, fileList) => {
+                                      if (fileList.length > 1) {
+                                        setParseFiles(fileList.map(f => ({ name: f.name, size: f.size, file: f })));
+                                      } else {
+                                        setParseFiles([{ name: file.name, size: file.size, file }]);
+                                      }
+                                      return false;
+                                    }}
+                                  >
+                                    <div className={styles.fileDropCard}>
+                                      <FileTextOutlined style={{ fontSize: 32, color: "var(--ant-color-primary)" }} />
+                                      <div style={{ fontWeight: 600, fontSize: 14, marginTop: 8 }}>选择文件</div>
+                                      <div style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)" }}>PDF / 图片 / Word / Excel / PPT</div>
+                                    </div>
+                                  </Upload>
+                                  <div
+                                    className={styles.fileDropCard}
+                                    onClick={() => { setParseFolderPickerTarget("input"); setParseFolderPickerOpen(true); }}
+                                    style={{ cursor: "pointer" }}
+                                  >
+                                    <FolderOpenOutlined style={{ fontSize: 32, color: "#faad14" }} />
+                                    <div style={{ fontWeight: 600, fontSize: 14, marginTop: 8 }}>选择文件夹</div>
+                                    <div style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)" }}>批量处理文件夹内文档</div>
                                   </div>
                                 </div>
-                              </Upload>
+                              </div>
+                            ) : (
+                              <div>
+                                <div style={{ marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <span style={{ fontSize: 13, color: "var(--ant-color-text-secondary)" }}>
+                                    已选 {parseFiles.length} 个文件：
+                                  </span>
+                                  <Button size="small" type="link" danger onClick={() => { setParseFiles([]); setParseResult(null); setParseError(""); }}>
+                                    清空
+                                  </Button>
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                  {parseFiles.map((f, idx) => (
+                                    <div key={idx} style={{
+                                      display: "flex", alignItems: "center", gap: 8,
+                                      padding: "6px 10px", borderRadius: 6,
+                                      background: "var(--ant-color-fill-quaternary)",
+                                    }}>
+                                      <FileTextOutlined style={{ color: "var(--ant-color-primary)" }} />
+                                      <span style={{ flex: 1, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={f.path || f.name}>
+                                        {f.name}
+                                      </span>
+                                      {f.size != null && (
+                                        <span style={{ fontSize: 11, color: "var(--ant-color-text-tertiary)", flexShrink: 0 }}>
+                                          {f.size >= 1048576
+                                            ? `${(f.size / 1048576).toFixed(1)}MB`
+                                            : `${(f.size / 1024).toFixed(0)}KB`}
+                                        </span>
+                                      )}
+                                      <Button
+                                        size="small" type="text" danger
+                                        icon={<DeleteOutlined />}
+                                        onClick={() => setParseFiles(parseFiles.filter((_, i) => i !== idx))}
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                                <Upload
+                                  accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
+                                  showUploadList={false}
+                                  beforeUpload={(file) => {
+                                    setParseFiles([...parseFiles, { name: file.name, size: file.size, file }]);
+                                    return false;
+                                  }}
+                                >
+                                  <Button size="small" type="dashed" icon={<PlusOutlined />} style={{ marginTop: 8 }}>
+                                    继续添加文件
+                                  </Button>
+                                </Upload>
+                              </div>
                             )}
+
+                            <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--ant-color-fill-quaternary)", borderRadius: 8 }}>
+                              <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                                <ExportOutlined />
+                                输出设置
+                              </div>
+                              <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                  <span style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>输出格式：</span>
+                                  <Radio.Group value={parseFormat} onChange={(e) => setParseFormat(e.target.value)} size="small">
+                                    <Radio.Button value="markdown"><FileMarkdownOutlined /> MD</Radio.Button>
+                                    <Radio.Button value="html"><CodeOutlined /> HTML</Radio.Button>
+                                    <Radio.Button value="json"><ApiOutlined /> JSON</Radio.Button>
+                                    <Radio.Button value="text"><FileTextOutlined /> TXT</Radio.Button>
+                                  </Radio.Group>
+                                </div>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
+                                  <Radio.Group value={parseOutputMode} onChange={(e) => setParseOutputMode(e.target.value)} size="small">
+                                    <Radio value="original">原目录</Radio>
+                                    <Radio value="default">默认目录</Radio>
+                                    <Radio value="custom">自定义</Radio>
+                                  </Radio.Group>
+                                  {parseOutputMode === "custom" && (
+                                    <Space>
+                                      <Input
+                                        size="small"
+                                        placeholder="选择输出文件夹..."
+                                        value={parseOutputPath}
+                                        onChange={(e) => setParseOutputPath(e.target.value)}
+                                        style={{ width: 200 }}
+                                      />
+                                      <Button size="small" icon={<FolderOpenOutlined />} onClick={() => { setParseFolderPickerTarget("output"); setParseFolderPickerOpen(true); }}>
+                                        浏览
+                                      </Button>
+                                    </Space>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className={styles.actionBar}>
+                              <Space>
+                                {(parseResult || parseFiles.length > 0) && (
+                                  <Button icon={<ReloadOutlined />} onClick={() => { setParseResult(null); setParseFiles([]); setParseError(""); }}>
+                                    清空
+                                  </Button>
+                                )}
+                                <Button
+                                  type="primary"
+                                  size="large"
+                                  icon={<FileSearchOutlined />}
+                                  onClick={handleParseBatch}
+                                  loading={parseLoading}
+                                  disabled={parseFiles.length === 0}
+                                  className={styles.runBtn}
+                                >
+                                  {parseLoading ? "解析中..." : parseFiles.length > 1 ? `批量解析 (${parseFiles.length} 个文件)` : "开始解析"}
+                                </Button>
+                              </Space>
+                              {parseFiles.length > 0 && (
+                                <span className={styles.charCount}>
+                                  {parseFiles.length} 个文件
+                                </span>
+                              )}
+                            </div>
                           </div>
 
                           {parseResult !== null && (
-                            <>
-                              <div className={styles.parseFormatBar}>
-                                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ant-color-text-secondary)" }}>输出格式：</span>
-                                <Radio.Group value={parseFormat} onChange={(e) => setParseFormat(e.target.value)} size="small">
-                                  <Radio.Button value="markdown"><FileMarkdownOutlined /> Markdown</Radio.Button>
-                                  <Radio.Button value="html"><CodeOutlined /> HTML</Radio.Button>
-                                  <Radio.Button value="json"><ApiOutlined /> JSON</Radio.Button>
-                                  <Radio.Button value="text"><FileTextOutlined /> 纯文本</Radio.Button>
-                                </Radio.Group>
-                                <div style={{ marginLeft: "auto" }}>
-                                  <Space>
-                                    <Button size="small" icon={<CopyOutlined />} onClick={() => { navigator.clipboard.writeText(parseResult || ""); message.success("已复制"); }}>
-                                      复制
-                                    </Button>
-                                    <Button size="small" icon={<DownloadOutlined />} onClick={() => {
-                                      const ext = parseFormat === "markdown" ? "md" : parseFormat === "html" ? "html" : parseFormat === "json" ? "json" : "txt";
-                                      const blob = new Blob([parseResult || ""], { type: "text/plain;charset=utf-8" });
-                                      const url = URL.createObjectURL(blob);
-                                      const a = document.createElement("a");
-                                      a.href = url;
-                                      a.download = `${parseFile?.name?.replace(/\.[^.]+$/, "") || "parsed"}.${ext}`;
-                                      a.click();
-                                      URL.revokeObjectURL(url);
-                                    }}>
-                                      下载
-                                    </Button>
-                                  </Space>
+                            <div className={styles.resultSection}>
+                              <Divider />
+                              <div className={styles.resultHeader}>
+                                <div className={styles.resultTitleRow}>
+                                  <FileSearchOutlined className={styles.resultIcon} />
+                                  <span className={styles.resultTitle}>解析结果</span>
+                                  {parseEngine && <Tag color="blue" style={{ fontSize: 11 }}>引擎: {parseEngine}</Tag>}
                                 </div>
+                                <Space>
+                                  <Button size="small" icon={<CopyOutlined />} onClick={() => { navigator.clipboard.writeText(parseResult || ""); message.success("已复制"); }}>
+                                    复制
+                                  </Button>
+                                  <Button size="small" icon={<DownloadOutlined />} onClick={() => {
+                                    const ext = parseFormat === "markdown" ? "md" : parseFormat === "html" ? "html" : parseFormat === "json" ? "json" : "txt";
+                                    const blob = new Blob([parseResult || ""], { type: "text/plain;charset=utf-8" });
+                                    const url = URL.createObjectURL(blob);
+                                    const a = document.createElement("a");
+                                    a.href = url;
+                                    a.download = `${parseFiles[0]?.name?.replace(/\.[^.]+$/, "") || "parsed"}.${ext}`;
+                                    a.click();
+                                    URL.revokeObjectURL(url);
+                                  }}>
+                                    下载
+                                  </Button>
+                                </Space>
                               </div>
 
                               <div className={styles.parseResultArea}>
                                 <div className={styles.parseResultHeader}>
                                   <span>
                                     <CheckCircleOutlined style={{ color: "var(--ant-color-success)", marginRight: 6 }} />
-                                    解析结果
-                                    {parseEngine && <Tag color="blue" style={{ marginLeft: 8, fontSize: 11 }}>引擎: {parseEngine}</Tag>}
-                                  </span>
-                                  <span style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)" }}>
                                     {(parseResult || "").length.toLocaleString()} 字符
                                   </span>
                                 </div>
                                 <div className={styles.parseResultBody}>
-                                  {parseResult || <Text type="secondary">无内容</Text>}
+                                  {parseResult ? (
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{parseResult}</ReactMarkdown>
+                                  ) : (
+                                    <Text type="secondary">无内容</Text>
+                                  )}
                                 </div>
                               </div>
-                            </>
+                            </div>
                           )}
 
                           {parseError && (
                             <Alert type="warning" showIcon message="解析提示" description={parseError} style={{ marginTop: 16 }} />
                           )}
+
+                          <Modal
+                            title={parseFolderPickerTarget === "input" ? "选择文件夹" : "选择输出文件夹"}
+                            open={parseFolderPickerOpen}
+                            onCancel={() => setParseFolderPickerOpen(false)}
+                            onOk={async () => {
+                              if (parseFolderPickerTarget === "output") {
+                                if (parseScanFolder) {
+                                  setParseOutputPath(parseScanFolder);
+                                  setParseOutputMode("custom");
+                                }
+                                setParseFolderPickerOpen(false);
+                              } else {
+                                if (!parseScanFolder) {
+                                  setParseFolderPickerOpen(false);
+                                  return;
+                                }
+                                setParseFolderPickerOpen(false);
+                                try {
+                                  const res = await knowledgeApi.scanFolder(parseScanFolder);
+                                  if (res.files && res.files.length > 0) {
+                                    setParseFiles(
+                                      res.files.map((f: any) => ({
+                                        name: f.name,
+                                        size: f.size,
+                                        path: f.path,
+                                        type: f.type,
+                                        file: null,
+                                      })),
+                                    );
+                                    message.success(`扫描完成，共找到 ${res.file_count} 个支持的文件`);
+                                  } else {
+                                    message.warning("该文件夹中未找到支持的文件");
+                                  }
+                                } catch (err: any) {
+                                  message.error(err?.message || "扫描文件夹失败");
+                                }
+                              }
+                            }}
+                            okText="确认"
+                            cancelText="取消"
+                          >
+                            <FolderPicker
+                              value={parseScanFolder}
+                              onChange={setParseScanFolder}
+                              placeholder="点击选择本地文件夹..."
+                            />
+                            <Alert
+                              type="info"
+                              showIcon
+                              style={{ marginTop: 12 }}
+                              message={parseFolderPickerTarget === "input"
+                                ? "选择文件夹后，系统将扫描其中的支持文件（PDF、Word、图片等），批量进行文档解析"
+                                : "解析结果文件将保存到您选择的文件夹中"
+                              }
+                            />
+                          </Modal>
                         </div>
                       ),
                     },
@@ -1501,197 +1768,346 @@ function DesensitizePage() {
                       label: <span><SettingOutlined /> 引擎设置</span>,
                       children: (
                         <div className={styles.engineSettingsCompact}>
-                          <div className={styles.engineModeSwitch}>
-                            <div
-                              className={`${styles.engineModeCard} ${parserConfig?.mineru_mode === "cloud" ? styles.active : ""}`}
-                              onClick={() => handleSaveParserConfig({ mineru_mode: "cloud" })}
-                            >
-                              <div className={styles.engineModeIcon}><CloudServerOutlined style={{ color: "#1677ff" }} /></div>
-                              <div className={styles.engineModeTitle}>云端模式</div>
-                              <div className={styles.engineModeDesc}>通过 API 调用，无需本地安装</div>
-                              {parserConfig?.mineru_configured && parserConfig?.mineru_mode === "cloud" && (
-                                <Tag color="green" style={{ marginTop: 6 }}>已配置</Tag>
-                              )}
-                            </div>
-                            <div
-                              className={`${styles.engineModeCard} ${parserConfig?.mineru_mode !== "cloud" ? styles.active : ""}`}
-                              onClick={() => handleSaveParserConfig({ mineru_mode: "local" })}
-                            >
-                              <div className={styles.engineModeIcon}><DesktopOutlined style={{ color: "#52c41a" }} /></div>
-                              <div className={styles.engineModeTitle}>本地模式</div>
-                              <div className={styles.engineModeDesc}>数据不出本机，适合保密文件</div>
-                              {localMineruStatus?.reachable && (
-                                <Tag color="success" style={{ marginTop: 6 }}>在线</Tag>
-                              )}
-                            </div>
-                          </div>
-
-                          {parserConfig?.mineru_mode === "cloud" ? (
-                            <Card size="small" title={<span><CloudOutlined /> 云端 API 配置</span>}>
-                              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                                <div>
-                                  <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>API 密钥</label>
-                                  <Input.Password
-                                    placeholder="输入 MinerU API Key"
-                                    value={parserConfig?.mineru_api_key || ""}
-                                    onChange={(e) => handleSaveParserConfig({ mineru_api_key: e.target.value, mineru_mode: "cloud" })}
-                                  />
-                                </div>
-                                <div>
-                                  <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>API 地址</label>
-                                  <Input
-                                    placeholder="https://mineru.net/api/v4"
-                                    value={parserConfig?.mineru_base_url || ""}
-                                    onChange={(e) => handleSaveParserConfig({ mineru_base_url: e.target.value })}
-                                  />
-                                </div>
-                                <Collapse ghost size="small" items={[{
-                                  key: "help",
-                                  label: <span style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>如何获取密钥？</span>,
-                                  children: (
-                                    <div style={{ fontSize: 12, lineHeight: 1.8 }}>
-                                      <ol style={{ paddingLeft: 16, margin: 0 }}>
-                                        <li>访问 <a href="https://mineru.net" target="_blank" rel="noopener noreferrer">mineru.net</a> 注册账号</li>
-                                        <li>登录后进入「API 密钥」页面</li>
-                                        <li>点击「创建新密钥」，复制生成的 Key</li>
-                                        <li>将 Key 粘贴到上方输入框即可自动保存</li>
-                                      </ol>
-                                      <div style={{ marginTop: 8, padding: "6px 8px", background: "var(--ant-color-fill-quaternary)", borderRadius: 4 }}>
-                                        <Text type="secondary" style={{ fontSize: 11 }}>MinerU 提供免费额度，日常使用通常足够。如文档涉及保密要求，建议使用本地部署模式。</Text>
-                                      </div>
-                                    </div>
-                                  ),
-                                }]} />
+                          {/* 3-Tier Architecture Overview */}
+                          <Card size="small" style={{ marginBottom: 12, background: "var(--ant-color-fill-quaternary)" }}>
+                            <div style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", lineHeight: 1.8 }}>
+                              <Text strong style={{ fontSize: 13 }}>文档解析引擎优先级</Text>
+                              <div style={{ marginTop: 6, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                                <Tag color={parserConfig?.mineru_configured ? "green" : "default"} style={{ margin: 0 }}>
+                                  1. MinerU {parserConfig?.mineru_configured ? "✓" : "(未配置)"}
+                                </Tag>
+                                <span style={{ color: "var(--ant-color-text-tertiary)" }}>→</span>
+                                <Tag color={parserConfig?.tesseract_available ? "blue" : "default"} style={{ margin: 0 }}>
+                                  2. Tesseract {parserConfig?.tesseract_available ? "✓" : "(未安装)"}
+                                </Tag>
+                                <span style={{ color: "var(--ant-color-text-tertiary)" }}>→</span>
+                                <Tag color="default" style={{ margin: 0 }}>
+                                  3. 原生提取 (PDF/Word/TXT)
+                                </Tag>
                               </div>
-                            </Card>
-                          ) : (
-                            <Card size="small" title={<span><DesktopOutlined /> 本地引擎管理</span>}>
-                              {localMineruStatus?.reachable ? (
-                                <div>
-                                  <Alert type="success" showIcon message="本地服务运行中" description="所有文档在本机处理，不会上传到任何外部服务器。" style={{ marginBottom: 12 }} />
-                                  <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
-                                    <div style={{ flex: 1 }}>
-                                      <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>识别方式</label>
-                                      <Select value={parserConfig?.mineru_backend || "pipeline"} size="small" style={{ width: "100%" }} onChange={(v) => handleSaveParserConfig({ mineru_backend: v })} options={[
-                                        { value: "pipeline", label: "Pipeline（通用，无需显卡）" },
-                                        { value: "hybrid", label: "Hybrid（高精度，需显卡）" },
-                                      ]} />
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                      <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>识别精度</label>
-                                      <Select value={parserConfig?.mineru_effort || "medium"} size="small" style={{ width: "100%" }} onChange={(v) => handleSaveParserConfig({ mineru_effort: v })} options={[
-                                        { value: "medium", label: "Medium（快速）" },
-                                        { value: "high", label: "High（最佳）" },
-                                      ]} />
-                                    </div>
+                              <div style={{ marginTop: 4, fontSize: 11, color: "var(--ant-color-text-tertiary)" }}>
+                                系统自动按优先级尝试，无需手动切换。高精度引擎不可用时自动降级到下一级。
+                              </div>
+                            </div>
+                          </Card>
+
+                          {/* Tier 1: MinerU Engine Card */}
+                          <Card
+                            size="small"
+                            style={{ marginBottom: 12 }}
+                            title={
+                              <span>
+                                <DatabaseOutlined style={{ marginRight: 6 }} />
+                                MinerU 引擎（高精度 OCR）
+                              </span>
+                            }
+                            extra={
+                              <Space size={4}>
+                                {parserConfig?.mineru_configured ? (
+                                  <Tag color="green" style={{ margin: 0 }}>
+                                    {parserConfig?.mineru_mode === "cloud" ? "云端已配置" : "本地已配置"}
+                                  </Tag>
+                                ) : (
+                                  <Tag color="default" style={{ margin: 0 }}>未配置</Tag>
+                                )}
+                              </Space>
+                            }
+                          >
+                            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                              <Text type="secondary" style={{ fontSize: 12 }}>
+                                高精度文档解析引擎，支持复杂版面识别。可选择云端 API 或本地部署两种方式。
+                              </Text>
+
+                              {/* Mode switch inside MinerU card */}
+                              <div style={{ display: "flex", gap: 12 }}>
+                                <div
+                                  style={{
+                                    flex: 1,
+                                    padding: "10px 12px",
+                                    borderRadius: 8,
+                                    border: `2px solid ${parserConfig?.mineru_mode === "cloud" ? "#1677ff" : "var(--ant-color-border)"}`,
+                                    background: parserConfig?.mineru_mode === "cloud" ? "#f0f5ff" : "var(--ant-color-bg-container)",
+                                    cursor: "pointer",
+                                    transition: "all 0.2s",
+                                  }}
+                                  onClick={() => handleSaveParserConfig({ mineru_mode: "cloud" })}
+                                >
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                                    <CloudServerOutlined style={{ color: "#1677ff" }} />
+                                    <Text strong style={{ fontSize: 13 }}>云端 API</Text>
                                   </div>
-                                  <Space>
-                                    <Button size="small" icon={<ReloadOutlined />} onClick={refreshOcrStatus} loading={ocrStatusLoading}>检测连接</Button>
-                                    <Button size="small" danger onClick={handleStopMineru}>停止服务</Button>
-                                  </Space>
+                                  <div style={{ fontSize: 11, color: "var(--ant-color-text-tertiary)" }}>
+                                    无需安装，通过 API 调用
+                                  </div>
                                 </div>
-                              ) : (
-                                <div>
-                                  <Alert type="info" showIcon message="一键部署本地文档引擎" description="点击按钮即可自动完成安装，无需任何技术操作。部署后所有文档在本机处理，不联网也能使用。" style={{ marginBottom: 12 }} />
-
-                                  <Collapse ghost size="small" style={{ marginBottom: 12 }} items={[{
-                                    key: "hw",
-                                    label: <span style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}><DatabaseOutlined style={{ marginRight: 4 }} />硬件要求</span>,
-                                    children: (
-                                      <div style={{ fontSize: 12 }}>
-                                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                                          <thead><tr style={{ borderBottom: "1px solid var(--ant-color-border)" }}>
-                                            <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>组件</th>
-                                            <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>最低</th>
-                                            <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>推荐</th>
-                                          </tr></thead>
-                                          <tbody>
-                                            <tr><td style={{ padding: "4px 8px" }}>GPU</td><td style={{ padding: "4px 8px" }}><Tag color="orange" style={{ margin: 0, fontSize: 11 }}>8GB 显存</Tag></td><td style={{ padding: "4px 8px" }}><Tag color="green" style={{ margin: 0, fontSize: 11 }}>16GB+</Tag></td></tr>
-                                            <tr><td style={{ padding: "4px 8px" }}>CPU</td><td style={{ padding: "4px 8px" }}>4 核</td><td style={{ padding: "4px 8px" }}>8 核+</td></tr>
-                                            <tr><td style={{ padding: "4px 8px" }}>内存</td><td style={{ padding: "4px 8px" }}>8 GB</td><td style={{ padding: "4px 8px" }}>16 GB+</td></tr>
-                                            <tr><td style={{ padding: "4px 8px" }}>磁盘</td><td style={{ padding: "4px 8px" }}>20 GB</td><td style={{ padding: "4px 8px" }}>50 GB+ (SSD)</td></tr>
-                                            <tr><td style={{ padding: "4px 8px" }}>Python</td><td style={{ padding: "4px 8px" }} colSpan={2}>3.10 ~ 3.12</td></tr>
-                                          </tbody>
-                                        </table>
-                                      </div>
-                                    ),
-                                  }]} />
-
-                                  <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
-                                    <div style={{ flex: 1 }}>
-                                      <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>识别方式</label>
-                                      <Select value={parserConfig?.mineru_backend || "pipeline"} size="small" style={{ width: "100%" }} onChange={(v) => handleSaveParserConfig({ mineru_backend: v })} options={[
-                                        { value: "pipeline", label: "Pipeline（通用）" },
-                                        { value: "hybrid", label: "Hybrid（高精度）" },
-                                      ]} />
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                      <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>识别精度</label>
-                                      <Select value={parserConfig?.mineru_effort || "medium"} size="small" style={{ width: "100%" }} onChange={(v) => handleSaveParserConfig({ mineru_effort: v })} options={[
-                                        { value: "medium", label: "Medium（快速）" },
-                                        { value: "high", label: "High（最佳）" },
-                                      ]} />
-                                    </div>
+                                <div
+                                  style={{
+                                    flex: 1,
+                                    padding: "10px 12px",
+                                    borderRadius: 8,
+                                    border: `2px solid ${parserConfig?.mineru_mode !== "cloud" ? "#52c41a" : "var(--ant-color-border)"}`,
+                                    background: parserConfig?.mineru_mode !== "cloud" ? "#f6ffed" : "var(--ant-color-bg-container)",
+                                    cursor: "pointer",
+                                    transition: "all 0.2s",
+                                  }}
+                                  onClick={() => handleSaveParserConfig({ mineru_mode: "local" })}
+                                >
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                                    <DesktopOutlined style={{ color: "#52c41a" }} />
+                                    <Text strong style={{ fontSize: 13 }}>本地部署</Text>
                                   </div>
-
-                                  <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                                    <Button icon={<WarningOutlined />} loading={prechecking} onClick={handlePrecheckMineru} style={{ flex: 1 }}>{prechecking ? "检测中..." : "环境检测"}</Button>
-                                    <Button type="primary" size="large" icon={<DownloadOutlined />} loading={deploying} onClick={handleDeployMineru} style={{ flex: 2 }}>{deploying ? "正在部署..." : "一键部署本地文档引擎"}</Button>
+                                  <div style={{ fontSize: 11, color: "var(--ant-color-text-tertiary)" }}>
+                                    数据不出本机，适合保密文件
                                   </div>
+                                </div>
+                              </div>
 
-                                  {precheckResult && (
-                                    <div style={{ padding: 12, background: precheckResult.can_deploy ? "#f6ffed" : "#fff2f0", borderRadius: 8, marginBottom: 12, fontSize: 12 }}>
-                                      <div style={{ fontWeight: "bold", marginBottom: 6, color: precheckResult.can_deploy ? "#52c41a" : "#ff4d4f" }}>
-                                        {precheckResult.can_deploy ? "✅ 环境检查通过" : "❌ 环境检查未通过"}
-                                      </div>
-                                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
-                                        {Object.entries(precheckResult.checks).map(([key, val]: [string, any]) => (
-                                          <div key={key} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                                            <span style={{ color: val.ok ? "#52c41a" : "#ff4d4f" }}>{val.ok ? "✓" : "✗"}</span>
-                                            <span>{key === "python" && `Python ${val.version || ""}`}{key === "gpu" && (val.available ? `${val.best_name || "GPU"} ${val.best_vram_gb ? `(${val.best_vram_gb}GB)` : ""}` : val.note || "无 GPU")}{key === "memory" && (val.total_gb ? `内存 ${val.total_gb}GB` : val.note || "未知")}{key === "disk" && `磁盘 ${val.free_gb ? `${val.free_gb}GB` : ""}`}{key === "network" && `网络 ${val.pypi ? "(PyPI)" : val.mirror ? "(镜像)" : ""}`}{key === "port" && `端口 ${val.port || 8000}`}{key === "venv" && `${val.exists ? "已有环境" : "待创建"}`}{key === "installed" && `${val.installed ? `已安装${val.version ? ` v${val.version}` : ""}` : "待安装"}`}</span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                      {precheckResult.warnings.length > 0 && <div style={{ marginTop: 6, color: "#faad14" }}>⚠ {precheckResult.warnings.join("; ")}</div>}
-                                      {precheckResult.blockers.length > 0 && <div style={{ marginTop: 6, color: "#ff4d4f" }}>🚫 {precheckResult.blockers.join("; ")}</div>}
-                                    </div>
-                                  )}
-
-                                  <Text type="secondary" style={{ fontSize: 12, display: "block", marginTop: 8, marginBottom: 8 }}>
-                                    {deploying ? "正在部署，请勿关闭页面..." : "部署约需 5~15 分钟，取决于网络速度"}
-                                  </Text>
-
-                                  {deployProgress && (
-                                    <div style={{ marginTop: 8 }}>
-                                      <Progress
-                                        percent={deployProgress.progress}
-                                        status={deployProgress.progress >= 100 ? "success" : "active"}
-                                        size="small"
+                              {/* MinerU Cloud Config */}
+                              {parserConfig?.mineru_mode === "cloud" && (
+                                <div style={{ borderTop: "1px solid var(--ant-color-border-secondary)", paddingTop: 12 }}>
+                                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                    <div>
+                                      <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>API Token</label>
+                                      <Input.Password
+                                        placeholder="输入 mineru.net API 管理页面创建的 Token"
+                                        value={parserConfig?.mineru_api_key || ""}
+                                        onChange={(e) => setParserConfig(prev => prev ? { ...prev, mineru_api_key: e.target.value, mineru_mode: "cloud" } : prev)}
+                                        onBlur={(e) => e.target.value && handleSaveParserConfig({ mineru_api_key: e.target.value, mineru_mode: "cloud" }).then(() => refreshOcrStatus())}
+                                        onPressEnter={(e) => { handleSaveParserConfig({ mineru_api_key: (e.target as HTMLInputElement).value, mineru_mode: "cloud" }).then(() => refreshOcrStatus()); }}
+                                        status={ocrStatus?.cloud_token_valid === false ? "error" : undefined}
                                       />
-                                      <div style={{ fontSize: 11, color: "var(--ant-color-text-tertiary)", marginTop: 4 }}>
-                                        {deployProgress.message}
-                                      </div>
+                                      {ocrStatus?.cloud_token_valid === false && (
+                                        <div style={{ marginTop: 4, fontSize: 12, color: "var(--ant-color-error)" }}>
+                                          Token 认证失败：{ocrStatus.cloud_token_error || "请确认在 mineru.net/apiManage 创建的是 API Token，而非 Access Key"}
+                                        </div>
+                                      )}
+                                      {ocrStatus?.cloud_token_valid === true && (
+                                        <div style={{ marginTop: 4, fontSize: 12, color: "var(--ant-color-success)" }}>
+                                          Token 验证通过，云端 OCR 可用
+                                        </div>
+                                      )}
                                     </div>
-                                  )}
-
-                                  <Collapse ghost size="small" style={{ marginTop: 8 }} items={[{
-                                    key: "manual",
-                                    label: <span style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>手动安装命令</span>,
-                                    children: (
-                                      <div style={{ fontSize: 12 }}>
-                                        <Paragraph code style={{ fontSize: 11, margin: 0 }}>
-                                          pip install mineru[all]
-                                        </Paragraph>
-                                        <Paragraph code style={{ fontSize: 11, margin: "4px 0 0" }}>
-                                          mineru-api -p 8000
-                                        </Paragraph>
-                                      </div>
-                                    ),
-                                  }]} />
+                                    <div>
+                                      <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>API 地址</label>
+                                      <Input
+                                        placeholder="https://mineru.net/api/v4"
+                                        value={parserConfig?.mineru_base_url || ""}
+                                        onChange={(e) => handleSaveParserConfig({ mineru_base_url: e.target.value })}
+                                      />
+                                    </div>
+                                    <Collapse ghost size="small" items={[{
+                                      key: "help",
+                                      label: <span style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>如何获取 API Token？</span>,
+                                      children: (
+                                        <div style={{ fontSize: 12, lineHeight: 1.8 }}>
+                                          <ol style={{ paddingLeft: 16, margin: 0 }}>
+                                            <li>访问 <a href="https://mineru.net/apiManage" target="_blank" rel="noopener noreferrer">mineru.net/apiManage</a> 登录账号</li>
+                                            <li>进入「API 管理」页面，点击「创建 Token」</li>
+                                            <li>复制生成的 Token（注意：不是 Access Key ID / Secret Access Key，那些是 OpenXLab SDK 专用）</li>
+                                            <li>将 Token 粘贴到上方输入框，按回车或点击页面其他位置即可保存</li>
+                                          </ol>
+                                          <div style={{ marginTop: 8, padding: "6px 8px", background: "var(--ant-color-fill-quaternary)", borderRadius: 4 }}>
+                                            <Text type="secondary" style={{ fontSize: 11 }}>MinerU 提供免费额度（每天 1000 页优先级解析），日常使用通常足够。如文档涉及保密要求，建议使用本地部署模式。</Text>
+                                          </div>
+                                        </div>
+                                      ),
+                                    }]} />
+                                  </div>
                                 </div>
                               )}
-                            </Card>
-                          )}
+
+                              {/* MinerU Local Config */}
+                              {parserConfig?.mineru_mode !== "cloud" && (
+                                <div style={{ borderTop: "1px solid var(--ant-color-border-secondary)", paddingTop: 12 }}>
+                                  {localMineruStatus?.reachable ? (
+                                    <div>
+                                      <Alert type="success" showIcon message="本地 MinerU 服务运行中" description="所有文档在本机处理，不会上传到任何外部服务器。" style={{ marginBottom: 12 }} />
+                                      <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+                                        <div style={{ flex: 1 }}>
+                                          <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>识别方式</label>
+                                          <Select value={parserConfig?.mineru_backend || "pipeline"} size="small" style={{ width: "100%" }} onChange={(v) => handleSaveParserConfig({ mineru_backend: v })} options={[
+                                            { value: "pipeline", label: "Pipeline（通用，无需显卡）" },
+                                            { value: "hybrid", label: "Hybrid（高精度，需显卡）" },
+                                          ]} />
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                          <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>识别精度</label>
+                                          <Select value={parserConfig?.mineru_effort || "medium"} size="small" style={{ width: "100%" }} onChange={(v) => handleSaveParserConfig({ mineru_effort: v })} options={[
+                                            { value: "medium", label: "Medium（快速）" },
+                                            { value: "high", label: "High（最佳）" },
+                                          ]} />
+                                        </div>
+                                      </div>
+                                      <Space>
+                                        <Button size="small" icon={<ReloadOutlined />} onClick={refreshOcrStatus} loading={ocrStatusLoading}>检测连接</Button>
+                                        <Button size="small" danger onClick={handleStopMineru}>停止服务</Button>
+                                      </Space>
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      <Alert type="info" showIcon message="一键部署本地 MinerU" description="点击按钮即可自动完成安装，无需任何技术操作。部署后所有文档在本机处理，不联网也能使用。" style={{ marginBottom: 12 }} />
+
+                                      <Collapse ghost size="small" style={{ marginBottom: 12 }} items={[{
+                                        key: "hw",
+                                        label: <span style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}><DatabaseOutlined style={{ marginRight: 4 }} />硬件要求</span>,
+                                        children: (
+                                          <div style={{ fontSize: 12 }}>
+                                            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                                              <thead><tr style={{ borderBottom: "1px solid var(--ant-color-border)" }}>
+                                                <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>组件</th>
+                                                <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>最低</th>
+                                                <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>推荐</th>
+                                              </tr></thead>
+                                              <tbody>
+                                                <tr><td style={{ padding: "4px 8px" }}>GPU</td><td style={{ padding: "4px 8px" }}><Tag color="orange" style={{ margin: 0, fontSize: 11 }}>8GB 显存</Tag></td><td style={{ padding: "4px 8px" }}><Tag color="green" style={{ margin: 0, fontSize: 11 }}>16GB+</Tag></td></tr>
+                                                <tr><td style={{ padding: "4px 8px" }}>CPU</td><td style={{ padding: "4px 8px" }}>4 核</td><td style={{ padding: "4px 8px" }}>8 核+</td></tr>
+                                                <tr><td style={{ padding: "4px 8px" }}>内存</td><td style={{ padding: "4px 8px" }}>8 GB</td><td style={{ padding: "4px 8px" }}>16 GB+</td></tr>
+                                                <tr><td style={{ padding: "4px 8px" }}>磁盘</td><td style={{ padding: "4px 8px" }}>20 GB</td><td style={{ padding: "4px 8px" }}>50 GB+ (SSD)</td></tr>
+                                                <tr><td style={{ padding: "4px 8px" }}>Python</td><td style={{ padding: "4px 8px" }} colSpan={2}>3.10 ~ 3.12</td></tr>
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                        ),
+                                      }]} />
+
+                                      <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+                                        <div style={{ flex: 1 }}>
+                                          <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>识别方式</label>
+                                          <Select value={parserConfig?.mineru_backend || "pipeline"} size="small" style={{ width: "100%" }} onChange={(v) => handleSaveParserConfig({ mineru_backend: v })} options={[
+                                            { value: "pipeline", label: "Pipeline（通用）" },
+                                            { value: "hybrid", label: "Hybrid（高精度）" },
+                                          ]} />
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                          <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>识别精度</label>
+                                          <Select value={parserConfig?.mineru_effort || "medium"} size="small" style={{ width: "100%" }} onChange={(v) => handleSaveParserConfig({ mineru_effort: v })} options={[
+                                            { value: "medium", label: "Medium（快速）" },
+                                            { value: "high", label: "High（最佳）" },
+                                          ]} />
+                                        </div>
+                                      </div>
+
+                                      <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                                        <Button icon={<WarningOutlined />} loading={prechecking} onClick={handlePrecheckMineru} style={{ flex: 1 }}>{prechecking ? "检测中..." : "环境检测"}</Button>
+                                        <Button type="primary" size="large" icon={<DownloadOutlined />} loading={deploying} onClick={handleDeployMineru} style={{ flex: 2 }}>{deploying ? "正在部署..." : "一键部署本地 MinerU"}</Button>
+                                      </div>
+
+                                      {precheckResult && (
+                                        <div style={{ padding: 12, background: precheckResult.can_deploy ? "#f6ffed" : "#fff2f0", borderRadius: 8, marginBottom: 12, fontSize: 12 }}>
+                                          <div style={{ fontWeight: "bold", marginBottom: 6, color: precheckResult.can_deploy ? "#52c41a" : "#ff4d4f" }}>
+                                            {precheckResult.can_deploy ? "✅ 环境检查通过" : "❌ 环境检查未通过"}
+                                          </div>
+                                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+                                            {Object.entries(precheckResult.checks).map(([key, val]: [string, any]) => (
+                                              <div key={key} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                                <span style={{ color: val.ok ? "#52c41a" : "#ff4d4f" }}>{val.ok ? "✓" : "✗"}</span>
+                                                <span>{key === "python" && `Python ${val.version || ""}`}{key === "gpu" && (val.available ? `${val.best_name || "GPU"} ${val.best_vram_gb ? `(${val.best_vram_gb}GB)` : ""}` : val.note || "无 GPU")}{key === "memory" && (val.total_gb ? `内存 ${val.total_gb}GB` : val.note || "未知")}{key === "disk" && `磁盘 ${val.free_gb ? `${val.free_gb}GB` : ""}`}{key === "network" && `网络 ${val.pypi ? "(PyPI)" : val.mirror ? "(镜像)" : ""}`}{key === "port" && `端口 ${val.port || 8000}`}{key === "venv" && `${val.exists ? "已有环境" : "待创建"}`}{key === "installed" && `${val.installed ? `已安装${val.version ? ` v${val.version}` : ""}` : "待安装"}`}</span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                          {precheckResult.warnings.length > 0 && <div style={{ marginTop: 6, color: "#faad14" }}>⚠ {precheckResult.warnings.join("; ")}</div>}
+                                          {precheckResult.blockers.length > 0 && <div style={{ marginTop: 6, color: "#ff4d4f" }}>🚫 {precheckResult.blockers.join("; ")}</div>}
+                                        </div>
+                                      )}
+
+                                      <Text type="secondary" style={{ fontSize: 12, display: "block", marginTop: 8, marginBottom: 8 }}>
+                                        {deploying ? "正在部署，请勿关闭页面..." : "部署约需 5~15 分钟，取决于网络速度"}
+                                      </Text>
+
+                                      {deployProgress && (
+                                        <div style={{ marginTop: 8 }}>
+                                          <Progress
+                                            percent={deployProgress.progress}
+                                            status={deployProgress.progress >= 100 ? "success" : "active"}
+                                            size="small"
+                                          />
+                                          <div style={{ fontSize: 11, color: "var(--ant-color-text-tertiary)", marginTop: 4 }}>
+                                            {deployProgress.message}
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      <Collapse ghost size="small" style={{ marginTop: 8 }} items={[{
+                                        key: "manual",
+                                        label: <span style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>手动安装命令</span>,
+                                        children: (
+                                          <div style={{ fontSize: 12 }}>
+                                            <Paragraph code style={{ fontSize: 11, margin: 0 }}>
+                                              pip install mineru[all]
+                                            </Paragraph>
+                                            <Paragraph code style={{ fontSize: 11, margin: "4px 0 0" }}>
+                                              mineru-api -p 8000
+                                            </Paragraph>
+                                          </div>
+                                        ),
+                                      }]} />
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </Card>
+
+                          {/* Tier 2: Tesseract OCR Engine Card */}
+                          <Card
+                            size="small"
+                            style={{ marginBottom: 12 }}
+                            title={<span><ScanOutlined style={{ marginRight: 6 }} />Tesseract OCR 引擎（轻量级本地）</span>}
+                            extra={
+                              parserConfig?.tesseract_available ? (
+                                <Tag color="success" style={{ margin: 0 }}>
+                                  {parserConfig?.tesseract_version ? `v${parserConfig.tesseract_version}` : "可用"}
+                                </Tag>
+                              ) : (
+                                <Tag color="default" style={{ margin: 0 }}>未安装</Tag>
+                              )
+                            }
+                          >
+                            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                              <Text type="secondary" style={{ fontSize: 12 }}>
+                                轻量级本地 OCR 引擎，已内置在桌面版中。无需额外安装，即可识别扫描版 PDF 和图片中的文字。当 MinerU 不可用时自动接管 OCR 任务。
+                              </Text>
+                              <div>
+                                <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>识别语言</label>
+                                <Select
+                                  value={parserConfig?.tesseract_langs || "chi_sim+eng"}
+                                  size="small"
+                                  style={{ width: "100%" }}
+                                  onChange={(v) => handleSaveParserConfig({ tesseract_langs: v })}
+                                  options={[
+                                    { value: "chi_sim+eng", label: "中文 + 英文（推荐）" },
+                                    { value: "chi_sim", label: "仅中文" },
+                                    { value: "eng", label: "仅英文" },
+                                    { value: "chi_sim+chi_tra+eng", label: "简繁中文 + 英文" },
+                                    { value: "chi_sim+eng+jpn", label: "中文 + 英文 + 日文" },
+                                  ]}
+                                />
+                              </div>
+                              {parserConfig?.tesseract_available ? (
+                                <Alert
+                                  type="success"
+                                  showIcon
+                                  style={{ marginBottom: 0 }}
+                                  message={
+                                    <span style={{ fontSize: 12 }}>
+                                      Tesseract 已就绪{parserConfig?.tesseract_version ? ` (${parserConfig.tesseract_version})` : ""}，作为 MinerU 的自动后备引擎
+                                    </span>
+                                  }
+                                />
+                              ) : (
+                                <Alert
+                                  type="info"
+                                  showIcon
+                                  style={{ marginBottom: 0 }}
+                                  message={
+                                    <span style={{ fontSize: 12 }}>
+                                      桌面安装版已内置 Tesseract，当前开发环境需手动安装。安装后可自动识别扫描版文档。
+                                    </span>
+                                  }
+                                />
+                              )}
+                            </div>
+                          </Card>
                         </div>
                       ),
                     },
@@ -1752,8 +2168,8 @@ function DesensitizePage() {
         ]}
       >
         {viewingTask?.result?.text && (
-          <div style={{ whiteSpace: "pre-wrap", fontSize: 13, lineHeight: 1.8, maxHeight: 400, overflow: "auto" }}>
-            {viewingTask.result.text}
+          <div style={{ fontSize: 13, lineHeight: 1.8, maxHeight: 400, overflow: "auto" }}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{viewingTask.result.text}</ReactMarkdown>
           </div>
         )}
       </Modal>

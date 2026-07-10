@@ -227,11 +227,15 @@ export const knowledgeApi = {
     if (parseMode) {
       formData.append("parse_mode", parseMode);
     }
+    // Large files may need extended timeout for upload + OCR processing
+    const fileSizeMB = file.size / (1024 * 1024);
+    const timeoutMs = Math.max(30000, 120000 + Math.floor(fileSizeMB) * 5000);
     return request<{ text: string; filename: string; chars: number }>(
       "/knowledge/parse-file",
       {
         method: "POST",
         body: formData,
+        timeout: timeoutMs,
       },
     );
   },
@@ -310,6 +314,9 @@ export const knowledgeApi = {
       mineru_backend: string;
       mineru_effort: string;
       mineru_configured: boolean;
+      tesseract_langs: string;
+      tesseract_available: boolean;
+      tesseract_version: string;
     }>("/config/documents/parser"),
 
   getOcrStatus: () =>
@@ -318,7 +325,17 @@ export const knowledgeApi = {
       mineru_mode: string;
       mineru_base_url: string;
       local_mineru: { reachable: boolean; error?: string; status_code?: number };
+      tesseract: {
+        available: boolean;
+        version?: string;
+        tesseract_cmd?: string;
+        poppler_path?: string;
+        langs?: string;
+        error?: string;
+      };
       default_mode: string;
+      cloud_token_valid?: boolean | null;
+      cloud_token_error?: string;
     }>("/config/documents/parser/ocr-status"),
 
   updateParserConfig: (params: {
@@ -328,6 +345,7 @@ export const knowledgeApi = {
     mineru_mode?: string;
     mineru_backend?: string;
     mineru_effort?: string;
+    tesseract_langs?: string;
   }) =>
     request<{
       default_mode: string;
@@ -337,6 +355,9 @@ export const knowledgeApi = {
       mineru_backend: string;
       mineru_effort: string;
       mineru_configured: boolean;
+      tesseract_langs: string;
+      tesseract_available: boolean;
+      tesseract_version: string;
     }>("/config/documents/parser", {
       method: "PUT",
       body: JSON.stringify(params),

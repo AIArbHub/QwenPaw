@@ -442,7 +442,7 @@ export default function Header() {
             <Badge
               dot={hasInboxUnread}
               color="rgba(75, 63, 227, 1)"
-              offset={[-2, 4]}
+              offset={[-4, 6]}
             >
               <Button
                 type="text"

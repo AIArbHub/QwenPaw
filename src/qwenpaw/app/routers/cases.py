@@ -38,16 +38,19 @@ def _get_parser() -> ParserRouter:
             mineru_url = (getattr(parser_cfg, "mineru_base_url", "https://mineru.net/api/v4") or "https://mineru.net/api/v4") if parser_cfg else "https://mineru.net/api/v4"
             mineru_backend = (getattr(parser_cfg, "mineru_backend", "pipeline") or "pipeline") if parser_cfg else "pipeline"
             mineru_effort = (getattr(parser_cfg, "mineru_effort", "medium") or "medium") if parser_cfg else "medium"
+            tesseract_langs = (getattr(parser_cfg, "tesseract_langs", "chi_sim+eng") or "chi_sim+eng") if parser_cfg else "chi_sim+eng"
         except Exception:
             mineru_key = ""
             mineru_url = "https://mineru.net/api/v4"
             mineru_backend = "pipeline"
             mineru_effort = "medium"
+            tesseract_langs = "chi_sim+eng"
         _parser_router = ParserRouter(
             mineru_api_key=mineru_key,
             mineru_base_url=mineru_url,
             mineru_backend=mineru_backend,
             mineru_effort=mineru_effort,
+            tesseract_langs=tesseract_langs,
         )
     return _parser_router
 

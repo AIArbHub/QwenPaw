@@ -608,11 +608,18 @@ jobs:
       - name: Clean dist directory
         run: rm -rf dist && mkdir -p dist
 
+      - name: Install OCR bundling tools (macOS)
+        # dylibbundler is required by stage_ocr_binaries.py to make the
+        # bundled Tesseract/Poppler binaries self-contained (rewrites
+        # dylib install paths so they don't depend on Homebrew at runtime).
+        run: brew install dylibbundler
+
       - name: Build Tauri macOS package
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
           # Authenticate the python-build-standalone release lookup in
           # stage_python_runtime.py to avoid anonymous API rate limits.
+          # Also used by stage_ocr_binaries.py for GitHub API calls.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}

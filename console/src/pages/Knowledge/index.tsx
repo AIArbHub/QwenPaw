@@ -1103,13 +1103,13 @@ export default function KnowledgePage() {
           >
             <Select
               options={[
-                { label: t("knowledge.parseAuto", "自动"), value: "auto" },
+                { label: t("knowledge.parseAuto", "自动（推荐）"), value: "auto" },
                 {
-                  label: t("knowledge.parseCloudOcr", "云端OCR"),
+                  label: t("knowledge.parseCloudOcr", "MinerU 高精度 OCR"),
                   value: "cloud_ocr",
                 },
                 {
-                  label: t("knowledge.parseLocalOnly", "仅本地"),
+                  label: t("knowledge.parseLocalOnly", "仅本地（Tesseract + 原生提取）"),
                   value: "local_only",
                 },
               ]}

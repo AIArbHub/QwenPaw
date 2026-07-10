@@ -843,6 +843,10 @@ class ParserConfig(BaseModel):
         default="medium",
         description="MinerU parse effort: medium (fast, 35-220% speedup) or high (best accuracy, supports image analysis)",
     )
+    tesseract_langs: str = Field(
+        default="chi_sim+eng",
+        description="Tesseract OCR language codes (e.g. chi_sim+eng for Chinese+English)",
+    )
 
 
 class OutputConfig(BaseModel):

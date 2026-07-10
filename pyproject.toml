@@ -68,7 +68,18 @@ dependencies = [
     # Pure-Python wrapper around a prebuilt Rust binary; PyPI distributes
     # wheels for all three OSes.
     "ast-grep-cli>=0.20",
-    "html2text>=2024.2.26",
+# ── Document parsing (Tier 3: native text extraction) ─────────────
+# PyMuPDF: PDF text-layer detection + extraction (zero native deps)
+"pymupdf>=1.24.0",
+# MarkItDown: Office docs (docx/xlsx/pptx) + PDF with text layer → Markdown
+"markitdown[all]>=0.1.0",
+# ── Document parsing (Tier 2: lightweight local OCR) ──────────────
+# pytesseract: Python wrapper for Tesseract OCR engine (engine binary
+# is bundled or system-installed separately)
+"pytesseract>=0.3.10",
+# pdf2image: rasterize PDF pages for OCR (requires Poppler binary)
+"pdf2image>=1.17.0",
+"html2text>=2024.2.26",
 ]
 
 [project.urls]

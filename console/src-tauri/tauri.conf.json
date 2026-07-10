@@ -43,7 +43,8 @@
     "resources": [
       "binaries/ai-arb-backend",
       "binaries/python-runtime",
-      "binaries/node-runtime"
+      "binaries/node-runtime",
+      "binaries/ocr-tools"
     ],
     "windows": {
       "webviewInstallMode": {

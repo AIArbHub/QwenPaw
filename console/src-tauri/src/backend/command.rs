@@ -83,6 +83,15 @@ pub(super) fn create(app: &tauri::AppHandle) -> Result<Command, String> {
     } else {
         log::warn!("[backend] bundled node runtime not found");
     }
+    if let Some(ocr_tools) = packaged_ocr_tools(app) {
+        log::info!("[backend] bundled OCR tools: {}", ocr_tools.display());
+        command = command.env(
+            "QWENPAW_DESKTOP_OCR_TOOLS",
+            ocr_tools.to_string_lossy().to_string(),
+        );
+    } else {
+        log::warn!("[backend] bundled OCR tools not found; Tesseract/Poppler will use system PATH");
+    }
     Ok(command)
 }
 
@@ -117,6 +126,27 @@ fn packaged_node_runtime(app: &tauri::AppHandle) -> Option<PathBuf> {
         root.join("bin").join("node")
     };
     node.is_file().then_some(root)
+}
+
+#[cfg(not(debug_assertions))]
+fn packaged_ocr_tools(app: &tauri::AppHandle) -> Option<PathBuf> {
+    let root = app
+        .path()
+        .resource_dir()
+        .ok()?
+        .join("binaries")
+        .join("ocr-tools");
+    // Verify tesseract binary exists inside
+    let tess = if cfg!(windows) {
+        root.join("tesseract").join("tesseract.exe")
+    } else {
+        root.join("tesseract").join("tesseract")
+    };
+    if tess.is_file() {
+        Some(root)
+    } else {
+        None
+    }
 }
 
 #[cfg(not(debug_assertions))]

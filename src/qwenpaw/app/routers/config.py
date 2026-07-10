@@ -1258,14 +1258,31 @@ async def put_allow_no_auth_hosts(
 async def get_documents_parser() -> dict:
     config = load_config()
     parser_cfg = config.documents.parser
+    # mineru_configured: has API key (cloud) OR local mode (localhost URL)
+    _mineru_configured = bool(parser_cfg.mineru_api_key) or (
+        "localhost" in parser_cfg.mineru_base_url or "127.0.0.1" in parser_cfg.mineru_base_url
+    )
+    # Check Tesseract availability
+    tesseract_available = False
+    tesseract_version = ""
+    try:
+        from ...parsers.tesseract_parser import TesseractParser
+        tp = TesseractParser(langs=parser_cfg.tesseract_langs)
+        tesseract_available = tp.available
+        tesseract_version = tp.get_diagnostics().get("version", "")
+    except Exception:
+        pass
     return {
         "default_mode": parser_cfg.default_mode,
-        "mineru_api_key": parser_cfg.mineru_api_key[:8] + "..." if len(parser_cfg.mineru_api_key) > 8 else parser_cfg.mineru_api_key,
+        "mineru_api_key": parser_cfg.mineru_api_key,
         "mineru_base_url": parser_cfg.mineru_base_url,
         "mineru_mode": parser_cfg.mineru_mode,
         "mineru_backend": parser_cfg.mineru_backend,
         "mineru_effort": parser_cfg.mineru_effort,
-        "mineru_configured": bool(parser_cfg.mineru_api_key),
+        "mineru_configured": _mineru_configured,
+        "tesseract_langs": parser_cfg.tesseract_langs,
+        "tesseract_available": tesseract_available,
+        "tesseract_version": tesseract_version,
     }
 
 
@@ -1278,6 +1295,11 @@ async def get_ocr_status() -> dict:
     config = load_config()
     parser_cfg = config.documents.parser
 
+    # mineru_configured: has API key (cloud) OR local mode (localhost URL)
+    _mineru_configured = bool(parser_cfg.mineru_api_key) or (
+        "localhost" in parser_cfg.mineru_base_url or "127.0.0.1" in parser_cfg.mineru_base_url
+    )
+
     local_status: dict = {"reachable": False}
     if parser_cfg.mineru_mode == "local" or parser_cfg.mineru_base_url != "https://mineru.net/api/v4":
         from ...parsers.mineru_parser import MinerUParser
@@ -1285,11 +1307,55 @@ async def get_ocr_status() -> dict:
             parser_cfg.mineru_base_url or "http://localhost:8000/api/v4"
         )
 
+    # Check Tesseract availability
+    tesseract_status: dict = {"available": False}
+    try:
+        from ...parsers.tesseract_parser import TesseractParser
+        tp = TesseractParser(langs=parser_cfg.tesseract_langs)
+        tesseract_status = tp.get_diagnostics()
+    except Exception as e:
+        tesseract_status = {"available": False, "error": str(e)}
+
+    # Verify cloud MinerU token validity (quick check)
+    cloud_token_valid: bool | None = None
+    cloud_token_error: str = ""
+    if parser_cfg.mineru_mode == "cloud" and parser_cfg.mineru_api_key:
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=10) as c:
+                resp = await c.post(
+                    parser_cfg.mineru_base_url.rstrip("/") + "/file-urls/batch",
+                    headers={
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {parser_cfg.mineru_api_key}",
+                    },
+                    json={"files": [{"name": "test.pdf", "data_id": "t"}], "model_version": "vlm"},
+                )
+                if resp.status_code == 401:
+                    cloud_token_valid = False
+                    cloud_token_error = "Token 认证失败，请检查是否为 API 管理页面创建的 Token"
+                elif resp.status_code == 200:
+                    data = resp.json()
+                    if data.get("code") == 0:
+                        cloud_token_valid = True
+                    else:
+                        cloud_token_valid = False
+                        cloud_token_error = data.get("msg", "未知错误")
+                else:
+                    cloud_token_valid = False
+                    cloud_token_error = f"HTTP {resp.status_code}"
+        except Exception as e:
+            cloud_token_valid = False
+            cloud_token_error = str(e)
+
     return {
-        "mineru_configured": bool(parser_cfg.mineru_api_key),
+        "mineru_configured": _mineru_configured,
         "mineru_mode": parser_cfg.mineru_mode,
         "mineru_base_url": parser_cfg.mineru_base_url,
         "local_mineru": local_status,
+        "tesseract": tesseract_status,
+        "cloud_token_valid": cloud_token_valid,
+        "cloud_token_error": cloud_token_error,
         "default_mode": parser_cfg.default_mode,
     }
 
@@ -1322,7 +1388,14 @@ async def put_documents_parser(
             parser_cfg.mineru_api_key = str(new_key)
 
     if "mineru_base_url" in body:
-        parser_cfg.mineru_base_url = str(body["mineru_base_url"])
+        url_val = str(body["mineru_base_url"]).strip().rstrip("/")
+        # Auto-fix: user may paste a full endpoint URL instead of base URL
+        # e.g. https://mineru.net/api/v4/extract/task -> https://mineru.net/api/v4
+        for suffix in ["/extract/task", "/file-urls/batch", "/extract-results/batch", "/tasks"]:
+            if url_val.endswith(suffix):
+                url_val = url_val[: -len(suffix)]
+                break
+        parser_cfg.mineru_base_url = url_val
 
     if "mineru_mode" in body:
         mode_val = str(body["mineru_mode"])
@@ -1346,22 +1419,40 @@ async def put_documents_parser(
             raise HTTPException(status_code=400, detail=f"Invalid mineru_effort: {effort_val}")
         parser_cfg.mineru_effort = effort_val
 
+    if "tesseract_langs" in body:
+        langs_val = str(body["tesseract_langs"]).strip()
+        if langs_val:
+            parser_cfg.tesseract_langs = langs_val
+
     save_config(config)
 
+    # Invalidate cached parser routers so new config takes effect
     try:
         from . import knowledge as _kmod
         _kmod._parser_router = None
     except Exception:
         pass
+    try:
+        from . import cases as _cmod
+        _cmod._parser_router = None
+    except Exception:
+        pass
+
+    _mineru_configured = bool(parser_cfg.mineru_api_key) or (
+        "localhost" in parser_cfg.mineru_base_url or "127.0.0.1" in parser_cfg.mineru_base_url
+    )
 
     return {
         "default_mode": parser_cfg.default_mode,
-        "mineru_api_key": parser_cfg.mineru_api_key[:8] + "..." if len(parser_cfg.mineru_api_key) > 8 else parser_cfg.mineru_api_key,
+        "mineru_api_key": parser_cfg.mineru_api_key,
         "mineru_base_url": parser_cfg.mineru_base_url,
         "mineru_mode": parser_cfg.mineru_mode,
         "mineru_backend": parser_cfg.mineru_backend,
         "mineru_effort": parser_cfg.mineru_effort,
-        "mineru_configured": bool(parser_cfg.mineru_api_key),
+        "mineru_configured": _mineru_configured,
+        "tesseract_langs": parser_cfg.tesseract_langs,
+        "tesseract_available": True,  # will be re-checked on next GET
+        "tesseract_version": "",
     }
 
 

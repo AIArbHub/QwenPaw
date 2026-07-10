@@ -143,6 +143,16 @@ echo "== Staging bundled Node runtime =="
     --dest "${BINARIES_DIR}/node-runtime"
 echo ""
 
+# Stage Tesseract OCR + Poppler binaries for local OCR support
+echo "== Staging bundled OCR tools (Tesseract + Poppler) =="
+if ! "$PYTHON_BIN" "${REPO_ROOT}/scripts/pack-tauri/stage_ocr_binaries.py" \
+    --dest "${BINARIES_DIR}/ocr-tools"; then
+    echo "WARNING: OCR tools staging failed, continuing without bundled OCR"
+else
+    echo "OCR tools staged successfully"
+fi
+echo ""
+
 echo "========================================="
 echo "PyInstaller Build Complete!"
 echo "========================================="

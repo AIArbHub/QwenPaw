@@ -40,6 +40,85 @@ _KNOWLEDGE_BASE_DIR = WORKING_DIR / "knowledge_base"
 _parser_router: ParserRouter | None = None
 
 
+async def _try_start_local_mineru() -> bool:
+    """Try to start the local MinerU service if it's installed but not running.
+
+    Returns True if MinerU is now running (was already running or just started).
+    """
+    import os
+    import sys
+    import asyncio
+    import subprocess
+
+    # Check if MinerU is already running
+    try:
+        import httpx
+        r = httpx.get("http://localhost:8000/api/v4/tasks", timeout=3)
+        if r.status_code in (200, 404, 422):
+            return True
+    except Exception:
+        pass
+
+    # Find MinerU venv
+    base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    venv_dir = os.path.join(base, ".mineru-venv")
+    if not os.path.isdir(venv_dir):
+        return False
+
+    # Find the API command
+    if sys.platform == "win32":
+        api_script = os.path.join(venv_dir, "Scripts", "mineru-api.exe")
+        if not os.path.isfile(api_script):
+            api_script = os.path.join(venv_dir, "Scripts", "magic-pdf.exe")
+            if os.path.isfile(api_script):
+                cmd = [api_script, "api", "--host", "0.0.0.0", "--port", "8000"]
+            else:
+                return False
+        else:
+            cmd = [api_script, "--host", "0.0.0.0", "--port", "8000"]
+    else:
+        api_script = os.path.join(venv_dir, "bin", "mineru-api")
+        if not os.path.isfile(api_script):
+            api_script = os.path.join(venv_dir, "bin", "magic-pdf")
+            if os.path.isfile(api_script):
+                cmd = [api_script, "api", "--host", "0.0.0.0", "--port", "8000"]
+            else:
+                return False
+        else:
+            cmd = [api_script, "--host", "0.0.0.0", "--port", "8000"]
+
+    # Start the process
+    log_dir = os.path.join(base, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    log_path = os.path.join(log_dir, "mineru-api.log")
+
+    try:
+        with open(log_path, "a") as log_f:
+            subprocess.Popen(
+                cmd,
+                stdout=log_f,
+                stderr=log_f,
+                stdin=subprocess.DEVNULL,
+                cwd=venv_dir,
+                env=os.environ.copy(),
+                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
+            )
+    except Exception:
+        return False
+
+    # Wait for the service to be ready (up to 30 seconds)
+    for _ in range(30):
+        await asyncio.sleep(1)
+        try:
+            r = httpx.get("http://localhost:8000/api/v4/tasks", timeout=3)
+            if r.status_code in (200, 404, 422):
+                return True
+        except Exception:
+            pass
+
+    return False
+
+
 def _get_parser() -> ParserRouter:
     global _parser_router
     if _parser_router is None:
@@ -53,16 +132,19 @@ def _get_parser() -> ParserRouter:
             mineru_url = (getattr(parser_cfg, "mineru_base_url", "https://mineru.net/api/v4") or "https://mineru.net/api/v4") if parser_cfg else "https://mineru.net/api/v4"
             mineru_backend = (getattr(parser_cfg, "mineru_backend", "pipeline") or "pipeline") if parser_cfg else "pipeline"
             mineru_effort = (getattr(parser_cfg, "mineru_effort", "medium") or "medium") if parser_cfg else "medium"
+            tesseract_langs = (getattr(parser_cfg, "tesseract_langs", "chi_sim+eng") or "chi_sim+eng") if parser_cfg else "chi_sim+eng"
         except Exception:
             mineru_key = ""
             mineru_url = "https://mineru.net/api/v4"
             mineru_backend = "pipeline"
             mineru_effort = "medium"
+            tesseract_langs = "chi_sim+eng"
         _parser_router = ParserRouter(
             mineru_api_key=mineru_key,
             mineru_base_url=mineru_url,
             mineru_backend=mineru_backend,
             mineru_effort=mineru_effort,
+            tesseract_langs=tesseract_langs,
         )
     return _parser_router
 
@@ -166,6 +248,31 @@ async def _run_parse_pipeline(doc_id: str, doc: KnowledgeDoc) -> None:
     try:
         parser = _get_parser()
         markdown_text = await parser.parse(file_path, parse_mode=doc.parse_mode)
+
+        # If parse returned empty/garbage, try auto-starting MinerU and retry
+        if (not markdown_text or not markdown_text.strip()
+                or markdown_text.startswith("[Cannot parse:")) and parser.mineru.is_local:
+            logger.info("Parse pipeline: empty result, auto-starting local MinerU for doc %s", doc_id)
+            started = await _try_start_local_mineru()
+            if started:
+                global _parser_router
+                _parser_router = None
+                parser = _get_parser()
+                markdown_text = await parser.parse(file_path, parse_mode=doc.parse_mode)
+
+        # Check if we still got no usable text
+        if not markdown_text or not markdown_text.strip() or markdown_text.startswith("[Cannot parse:"):
+            meta = _load_meta()
+            doc = KnowledgeDoc.model_validate(meta[doc_id])
+            doc.status = "failed"
+            if markdown_text and "API密钥认证失败" in markdown_text:
+                doc.summary = "解析失败：MinerU API 密钥无效或已过期，请访问 mineru.net 重新获取密钥，然后在引擎设置中更新。"
+            else:
+                doc.summary = "解析失败：无法提取文本，可能是扫描版PDF。请在引擎设置中检查 OCR 引擎状态。"
+            meta[doc_id] = doc.model_dump()
+            _save_meta(meta)
+            logger.warning("Parse pipeline: no text extracted for doc %s", doc_id)
+            return
 
         parsed_path = _KNOWLEDGE_BASE_DIR / "_parsed" / f"{doc_id}.md"
         parsed_path.parent.mkdir(parents=True, exist_ok=True)
@@ -652,13 +759,52 @@ async def parse_file_for_desensitize(
         parser = _get_parser()
         text = await parser.parse(tmp_path, parse_mode=parse_mode)
 
-        if text.startswith("[Cannot parse:"):
+        # If parse returned empty/garbage, try auto-starting MinerU and retry
+        if (not text or not text.strip() or text.startswith("[Cannot parse:")) and parser.mineru.is_local:
+            import logging as _logging
+            _logger = _logging.getLogger(__name__)
+            _logger.info("Parse failed, attempting to auto-start local MinerU service...")
+            started = await _try_start_local_mineru()
+            if started:
+                _logger.info("MinerU service started, retrying parse...")
+                # Invalidate cached router so it picks up the running MinerU
+                global _parser_router
+                _parser_router = None
+                parser = _get_parser()
+                text = await parser.parse(tmp_path, parse_mode=parse_mode)
+
+        if not text or not text.strip() or text.startswith("[Cannot parse:") or text.startswith("[Cannot OCR:"):
+            # Build a helpful error message based on engine availability
+            diag = parser.get_diagnostics()
+
+            # Check for specific error patterns in the returned text
+            if text and "API密钥认证失败" in text:
+                raise HTTPException(
+                    status_code=422,
+                    detail="MinerU API 密钥认证失败，该密钥无效或已过期。请访问 mineru.net 重新获取有效的 API 密钥，然后在「引擎设置 > MinerU 引擎」中更新密钥。",
+                )
+
+            engine_status = []
+            if diag.get("mineru", {}).get("available"):
+                if diag["mineru"].get("is_local"):
+                    engine_status.append("MinerU 本地服务未运行")
+                else:
+                    engine_status.append("MinerU 云端已配置但解析失败")
+            else:
+                engine_status.append("MinerU 未配置")
+            if diag.get("tesseract", {}).get("available"):
+                engine_status.append("Tesseract 已就绪但解析失败")
+            else:
+                engine_status.append("Tesseract 未安装")
+
             raise HTTPException(
                 status_code=422,
                 detail=(
-                    "无法提取文本，该文件可能是扫描版PDF或图片格式。"
-                    "请尝试以下方式：1) 配置MinerU API密钥以启用云端OCR；"
-                    "2) 上传带有可选文字层的PDF；3) 使用parse_mode=cloud_ocr参数。"
+                    f"无法提取文本，该文件可能是扫描版PDF或图片格式。"
+                    f"引擎状态：{'; '.join(engine_status)}。"
+                    f"请尝试：1) 启动本地 MinerU 服务；"
+                    f"2) 在「引擎设置」中配置 MinerU 云端 API；"
+                    f"3) 上传带有可选文字层的PDF。"
                 ),
             )
 
@@ -979,19 +1125,40 @@ async def ocr_try(file: UploadFile = File(...), engine: str = "auto"):
     try:
         parser = _get_parser()
 
-        if not parser.mineru.available:
-            diagnostics["mineru"] = "not configured (no API key)"
-        else:
+        # Report all available OCR engines
+        if parser.mineru.available:
             mode = "local" if parser.mineru.is_local else "cloud"
             diagnostics["mineru"] = f"available ({mode} mode)"
+        else:
+            diagnostics["mineru"] = "not configured (no API key)"
+
+        tess_diag = parser.tesseract.get_diagnostics()
+        diagnostics["tesseract"] = tess_diag
 
         text = await parser.parse(tmp_path)
 
-        if not text or text.startswith("[Cannot parse:") or text.startswith("[MinerU:"):
+        # If parse failed, try auto-starting MinerU and retry
+        if (not text or text.startswith("[Cannot parse:") or text.startswith("[MinerU:")) and parser.mineru.is_local:
+            logger.info("OCR try failed, attempting to auto-start local MinerU...")
+            started = await _try_start_local_mineru()
+            if started:
+                global _parser_router
+                _parser_router = None
+                parser = _get_parser()
+                text = await parser.parse(tmp_path)
+
+        if not text or text.startswith("[Cannot parse:") or text.startswith("[MinerU:") or text.startswith("[Cannot OCR:"):
             used_engine = "none"
         else:
-            used_engine = "local_mineru" if parser.mineru.is_local else "cloud_mineru"
+            # Determine which engine actually produced the text
+            if parser.mineru.available:
+                used_engine = "local_mineru" if parser.mineru.is_local else "cloud_mineru"
+            elif parser.tesseract.available:
+                used_engine = "tesseract"
+            else:
+                used_engine = "native"
 
+        diagnostics["ocr_engine"] = parser.ocr_engine_name
         return {"text": text or "", "engine": used_engine, "diagnostics": diagnostics}
     except Exception as e:
         logger.error("OCR try failed: %s", e)

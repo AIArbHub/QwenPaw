@@ -210,6 +210,17 @@ Write-Host "== Staging bundled Node runtime ==" -ForegroundColor Yellow
 Assert-LastExit "Failed to stage bundled Node runtime"
 Write-Host ""
 
+# Stage Tesseract OCR + Poppler binaries for local OCR support
+Write-Host "== Staging bundled OCR tools (Tesseract + Poppler) ==" -ForegroundColor Yellow
+& $PYTHON_BIN (Join-Path $REPO_ROOT "scripts\pack-tauri\stage_ocr_binaries.py") `
+    --dest (Join-Path $BINARIES_DIR "ocr-tools")
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "WARNING: OCR tools staging failed, continuing without bundled OCR" -ForegroundColor Yellow
+} else {
+    Write-Host "OCR tools staged successfully" -ForegroundColor Green
+}
+Write-Host ""
+
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host "PyInstaller Build Complete!" -ForegroundColor Green
 Write-Host "=========================================" -ForegroundColor Cyan
