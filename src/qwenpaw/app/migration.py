@@ -22,6 +22,7 @@ from ..config.config import (
     save_agent_config,
 )
 from ..constant import (
+    BUILTIN_ARBITRATION_AGENTS,
     BUILTIN_QA_AGENT_ID,
     LEGACY_QA_AGENT_ID,
     WORKING_DIR,
@@ -886,3 +887,164 @@ def _do_ensure_qa_agent() -> None:
         "Created builtin QA agent with workspace: %s",
         qa_workspace,
     )
+
+
+# ─── Builtin arbitration agents ──────────────────────────────────────────────
+
+_PERSONA_MD_FILES = ("PROFILE.md", "SOUL.md", "AGENTS.md")
+
+
+def _copy_builtin_persona_files(agent_id: str, workspace_dir: Path) -> None:
+    """Copy bundled persona MD files from qwenpaw.builtins.<agent_id>.
+
+    Only copies PROFILE.md, SOUL.md, AGENTS.md — other workspace files
+    (MEMORY.md, HEARTBEAT.md, etc.) are handled by _initialize_agent_workspace.
+    Existing files are NOT overwritten (only_if_missing behaviour).
+    """
+    import importlib.resources
+    import importlib.resources.abc
+
+    pkg_name = f"qwenpaw.builtins.{agent_id}"
+    try:
+        pkg_res = importlib.resources.files(pkg_name)
+    except ModuleNotFoundError:
+        logger.warning(
+            "Builtin persona package %s not found, skipping persona copy",
+            pkg_name,
+        )
+        return
+
+    for filename in _PERSONA_MD_FILES:
+        dest = workspace_dir / filename
+        if dest.exists():
+            continue
+        try:
+            item = pkg_res.joinpath(filename)
+            if item.is_file():
+                with item.open("rb") as src_f, dest.open("wb") as dst_f:
+                    dst_f.write(src_f.read())
+                logger.debug("Copied %s for builtin agent %s", filename, agent_id)
+        except Exception:
+            logger.warning(
+                "Failed to copy %s for builtin agent %s",
+                filename,
+                agent_id,
+                exc_info=True,
+            )
+
+
+def ensure_builtin_arbitration_agents() -> None:
+    """Ensure all builtin arbitration agents exist.
+
+    Creates the four pre-installed arbitration agents (arbitrator, claimant,
+    respondent, casemanager) on first startup. Each agent gets:
+    - A workspace directory under ``workspaces/<agent_id>/``
+    - Standard workspace structure (sessions/, memory/, skills/)
+    - Custom persona MD files (PROFILE.md, SOUL.md, AGENTS.md) from the
+      ``qwenpaw.builtins.<agent_id>`` package
+    - A default agent.json configuration
+
+    If an agent already exists in config, it is skipped entirely.
+    Users may freely edit or delete these agents after creation.
+    """
+    try:
+        _do_ensure_builtin_arbitration_agents()
+    except Exception as e:
+        logger.error(
+            f"Failed to ensure builtin arbitration agents: {e}. "
+            "Some agents may not be available.",
+            exc_info=True,
+        )
+
+
+def _do_ensure_builtin_arbitration_agents() -> None:
+    """Internal implementation of builtin arbitration agent initialization."""
+    from .routers.agents import _initialize_agent_workspace
+
+    config = load_config()
+    created_any = False
+
+    for agent_id, agent_name, agent_description in BUILTIN_ARBITRATION_AGENTS:
+        # Skip if already registered
+        if agent_id in config.agents.profiles:
+            continue
+
+        workspace_dir = Path(
+            f"{WORKING_DIR}/workspaces/{agent_id}",
+        ).expanduser()
+
+        # If workspace dir already exists (e.g. from a previous install),
+        # just register it without overwriting anything.
+        if workspace_dir.exists() and any(workspace_dir.iterdir()):
+            config.agents.profiles[agent_id] = AgentProfileRef(
+                id=agent_id,
+                workspace_dir=str(workspace_dir),
+            )
+            _ensure_workspace_json_files(workspace_dir, f"builtin {agent_id}")
+            created_any = True
+            logger.info(
+                "Registered existing builtin agent %s @ %s",
+                agent_id,
+                workspace_dir,
+            )
+            continue
+
+        workspace_dir.mkdir(parents=True, exist_ok=True)
+
+        # Check if another agent owns this workspace path
+        other_id = _other_agent_owns_workspace(
+            config.agents.profiles,
+            workspace_dir,
+            agent_id,
+        )
+        if other_id is not None:
+            logger.warning(
+                "Skipping builtin agent %r: workspace %s is already "
+                "used by agent %r.",
+                agent_id,
+                workspace_dir,
+                other_id,
+            )
+            continue
+
+        logger.info("Creating builtin arbitration agent: %s", agent_id)
+
+        # 1. Copy custom persona MD files FIRST (before _initialize_agent_workspace)
+        #    so that _apply_workspace_md_templates (only_if_missing=True) preserves them.
+        _copy_builtin_persona_files(agent_id, workspace_dir)
+
+        # 2. Initialize standard workspace structure
+        template_result = build_agent_template(
+            DEFAULT_AGENT_TEMPLATE,
+            name=agent_name,
+            agent_id=agent_id,
+            workspace_dir=workspace_dir,
+            fallback_language=config.agents.language or "zh",
+            description=agent_description,
+        )
+
+        _initialize_agent_workspace(
+            workspace_dir,
+            skill_names=list(template_result.initial_skill_names),
+            md_template_id=template_result.md_template_id,
+        )
+
+        # 3. Override name and description in agent config
+        template_result.agent_config.name = agent_name
+        template_result.agent_config.description = agent_description
+
+        # 4. Register in config
+        config.agents.profiles[agent_id] = AgentProfileRef(
+            id=agent_id,
+            workspace_dir=str(workspace_dir),
+        )
+        save_agent_config(agent_id, template_result.agent_config)
+        created_any = True
+        logger.info(
+            "Created builtin arbitration agent %s @ %s",
+            agent_id,
+            workspace_dir,
+        )
+
+    if created_any:
+        save_config(config)

@@ -143,7 +143,7 @@ export const useAgentsData = () => {
       }
     } catch (error) {
       console.error("Failed to fetch files", error);
-      message.error("Failed to load file list");
+      message.error(t("workspace.loadFileListError"));
     }
   };
 
@@ -153,7 +153,7 @@ export const useAgentsData = () => {
       setDailyMemories(memoryList);
     } catch (error) {
       console.error("Failed to fetch daily memories", error);
-      message.error("Failed to load memory list");
+      message.error(t("memory.loadError"));
     }
   };
 
@@ -175,7 +175,7 @@ export const useAgentsData = () => {
       setOriginalContent(data.content);
     } catch (error) {
       console.error("Failed to load file", error);
-      message.error("Failed to load file");
+      message.error(t("workspace.loadFileError"));
     } finally {
       setLoading(false);
     }
@@ -198,7 +198,7 @@ export const useAgentsData = () => {
       setOriginalContent(data.content);
     } catch (error) {
       console.error("Failed to load daily memory", error);
-      message.error("Failed to load daily memory");
+      message.error(t("memory.loadContentError"));
     } finally {
       setLoading(false);
     }
@@ -214,7 +214,7 @@ export const useAgentsData = () => {
         await api.saveFile(selectedFile.filename, fileContent);
       }
       setOriginalContent(fileContent);
-      message.success("Saved successfully");
+      message.success(t("memory.saveSuccess"));
       if (selectedFile.memory_path) {
         fetchDailyMemories();
       } else {
@@ -222,7 +222,7 @@ export const useAgentsData = () => {
       }
     } catch (error) {
       console.error("Failed to save file", error);
-      message.error("Failed to save");
+      message.error(t("memory.saveError"));
     } finally {
       setLoading(false);
     }
@@ -268,7 +268,7 @@ export const useAgentsData = () => {
       setEnabledFiles(newOrder);
     } catch (error) {
       console.error("Failed to reorder files", error);
-      message.error("Failed to update file order");
+      message.error(t("workspace.reorderError"));
     }
   };
 

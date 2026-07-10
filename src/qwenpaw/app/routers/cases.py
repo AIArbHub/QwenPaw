@@ -31,12 +31,24 @@ def _get_parser() -> ParserRouter:
         try:
             from ...config import load_config
             config = load_config()
-            mineru_key = getattr(config, "mineru_api_key", "") or ""
-            mineru_url = getattr(config, "mineru_base_url", "https://mineru.net/api/v4") or "https://mineru.net/api/v4"
+            parser_cfg = getattr(config, "documents", None)
+            if parser_cfg is not None:
+                parser_cfg = getattr(parser_cfg, "parser", None)
+            mineru_key = (getattr(parser_cfg, "mineru_api_key", "") or "") if parser_cfg else ""
+            mineru_url = (getattr(parser_cfg, "mineru_base_url", "https://mineru.net/api/v4") or "https://mineru.net/api/v4") if parser_cfg else "https://mineru.net/api/v4"
+            mineru_backend = (getattr(parser_cfg, "mineru_backend", "pipeline") or "pipeline") if parser_cfg else "pipeline"
+            mineru_effort = (getattr(parser_cfg, "mineru_effort", "medium") or "medium") if parser_cfg else "medium"
         except Exception:
             mineru_key = ""
             mineru_url = "https://mineru.net/api/v4"
-        _parser_router = ParserRouter(mineru_api_key=mineru_key, mineru_base_url=mineru_url)
+            mineru_backend = "pipeline"
+            mineru_effort = "medium"
+        _parser_router = ParserRouter(
+            mineru_api_key=mineru_key,
+            mineru_base_url=mineru_url,
+            mineru_backend=mineru_backend,
+            mineru_effort=mineru_effort,
+        )
     return _parser_router
 
 

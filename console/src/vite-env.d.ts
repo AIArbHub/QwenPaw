@@ -1,5 +1,12 @@
 /// <reference types="vite/client" />
 
+declare module "@ant-design/icons" {
+  export interface AntdIconProps {
+    onPointerEnterCapture?: React.PointerEventHandler<any>;
+    onPointerLeaveCapture?: React.PointerEventHandler<any>;
+  }
+}
+
 declare module "dayjs" {
   interface Dayjs {
     fromNow(withoutSuffix?: boolean): string;

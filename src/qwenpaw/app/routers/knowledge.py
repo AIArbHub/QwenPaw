@@ -51,12 +51,19 @@ def _get_parser() -> ParserRouter:
                 parser_cfg = getattr(parser_cfg, "parser", None)
             mineru_key = (getattr(parser_cfg, "mineru_api_key", "") or "") if parser_cfg else ""
             mineru_url = (getattr(parser_cfg, "mineru_base_url", "https://mineru.net/api/v4") or "https://mineru.net/api/v4") if parser_cfg else "https://mineru.net/api/v4"
-            local_ocr = getattr(parser_cfg, "local_ocr_enabled", True) if parser_cfg else True
+            mineru_backend = (getattr(parser_cfg, "mineru_backend", "pipeline") or "pipeline") if parser_cfg else "pipeline"
+            mineru_effort = (getattr(parser_cfg, "mineru_effort", "medium") or "medium") if parser_cfg else "medium"
         except Exception:
             mineru_key = ""
             mineru_url = "https://mineru.net/api/v4"
-            local_ocr = True
-        _parser_router = ParserRouter(mineru_api_key=mineru_key, mineru_base_url=mineru_url, local_ocr_enabled=local_ocr)
+            mineru_backend = "pipeline"
+            mineru_effort = "medium"
+        _parser_router = ParserRouter(
+            mineru_api_key=mineru_key,
+            mineru_base_url=mineru_url,
+            mineru_backend=mineru_backend,
+            mineru_effort=mineru_effort,
+        )
     return _parser_router
 
 
@@ -972,32 +979,18 @@ async def ocr_try(file: UploadFile = File(...), engine: str = "auto"):
     try:
         parser = _get_parser()
 
-        # Collect diagnostics about local OCR availability
-        if parser._local_ocr is None:
-            diagnostics["local_ocr"] = "disabled in config (local_ocr_enabled=False)"
-        elif not parser._local_ocr.available:
-            diagnostics["local_ocr"] = "paddleocr module not importable at runtime"
+        if not parser.mineru.available:
+            diagnostics["mineru"] = "not configured (no API key)"
         else:
-            diagnostics["local_ocr"] = "available"
+            mode = "local" if parser.mineru.is_local else "cloud"
+            diagnostics["mineru"] = f"available ({mode} mode)"
 
-        if not parser._mineru.available:
-            diagnostics["cloud_ocr"] = "MinerU not configured (no API key)"
-        else:
-            diagnostics["cloud_ocr"] = "available"
+        text = await parser.parse(tmp_path)
 
-        if engine == "cloud_ocr":
-            text = await parser.parse(tmp_path, parse_mode="cloud_ocr")
-            used_engine = "cloud_ocr"
-        elif engine == "local_only":
-            text = await parser.parse(tmp_path, parse_mode="local_only")
-            used_engine = "local_only"
+        if not text or text.startswith("[Cannot parse:") or text.startswith("[MinerU:"):
+            used_engine = "none"
         else:
-            text = await parser.parse(tmp_path, parse_mode="cloud_ocr")
-            if not text or text.startswith("[Cannot parse:") or text.startswith("[MinerU:") or text.startswith("[Image file:"):
-                text = await parser.parse(tmp_path, parse_mode="local_only")
-                used_engine = "local_only"
-            else:
-                used_engine = "cloud_ocr"
+            used_engine = "local_mineru" if parser.mineru.is_local else "cloud_mineru"
 
         return {"text": text or "", "engine": used_engine, "diagnostics": diagnostics}
     except Exception as e:

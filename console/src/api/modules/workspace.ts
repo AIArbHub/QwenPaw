@@ -3,7 +3,17 @@ import { getApiUrl } from "../config";
 import { buildAuthHeaders } from "../authHeaders";
 import { useCodeFileCacheStore } from "../../stores/codeFileCacheStore";
 import { downloadFileFromUrl } from "../../utils/downloadFileFromUrl";
-import type { MdFileInfo, MdFileContent, DailyMemoryFile } from "../types";
+import type {
+  MdFileInfo,
+  MdFileContent,
+  DailyMemoryFile,
+  MemoryStats,
+  MemoryStatus,
+  MemorySearchResult,
+  TestEmbeddingResult,
+  ReindexResult,
+  MemoryVersionInfo,
+} from "../types";
 
 function getSelectedAgentId(): string {
   try {
@@ -41,25 +51,33 @@ function encodePath(path: string): string {
 }
 
 export const workspaceApi = {
-  listFiles: () =>
-    request<MdFileInfo[]>("/workspace/files").then((files) =>
+  listFiles: (agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<MdFileInfo[]>(`/workspace/files${query}`).then((files) =>
       files.map((file) => ({
         ...file,
         updated_at: new Date(file.modified_time).getTime(),
       })),
-    ),
+    );
+  },
 
-  loadFile: (fileName: string) =>
-    request<MdFileContent>(`/workspace/files/${encodeURIComponent(fileName)}`),
+  loadFile: (fileName: string, agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<MdFileContent>(
+      `/workspace/files/${encodeURIComponent(fileName)}${query}`,
+    );
+  },
 
-  saveFile: (fileName: string, content: string) =>
-    request<Record<string, unknown>>(
-      `/workspace/files/${encodeURIComponent(fileName)}`,
+  saveFile: (fileName: string, content: string, agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<Record<string, unknown>>(
+      `/workspace/files/${encodeURIComponent(fileName)}${query}`,
       {
         method: "PUT",
         body: JSON.stringify({ content }),
       },
-    ),
+    );
+  },
 
   // Workspace package download
   downloadWorkspace: () =>
@@ -96,8 +114,9 @@ export const workspaceApi = {
     return await response.json();
   },
 
-  listDailyMemory: () =>
-    request<MdFileInfo[]>("/workspace/memory").then((files) =>
+  listDailyMemory: (agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<MdFileInfo[]>(`/workspace/memory${query}`).then((files) =>
       files.map((file) => {
         const basename = file.filename.split("/").pop() || file.filename;
         const date = basename.replace(".md", "");
@@ -107,19 +126,71 @@ export const workspaceApi = {
           updated_at: new Date(file.modified_time).getTime(),
         } as DailyMemoryFile;
       }),
-    ),
+    );
+  },
 
-  loadDailyMemory: (memoryPath: string) =>
-    request<MdFileContent>(`/workspace/memory/${encodePath(memoryPath)}`),
+  loadDailyMemory: (memoryPath: string, agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<MdFileContent>(`/workspace/memory/${encodePath(memoryPath)}${query}`);
+  },
 
-  saveDailyMemory: (memoryPath: string, content: string) =>
-    request<Record<string, unknown>>(
-      `/workspace/memory/${encodePath(memoryPath)}`,
+  saveDailyMemory: (memoryPath: string, content: string, agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<Record<string, unknown>>(
+      `/workspace/memory/${encodePath(memoryPath)}${query}`,
       {
         method: "PUT",
         body: JSON.stringify({ content }),
       },
-    ),
+    );
+  },
+
+  deleteDailyMemory: (memoryPath: string, agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<Record<string, unknown>>(
+      `/workspace/memory/${encodePath(memoryPath)}${query}`,
+      {
+        method: "DELETE",
+      },
+    );
+  },
+
+  searchMemory: (query: string, limit = 5, minScore = 0, agentId?: string) => {
+    const q = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<MemorySearchResult>(`/workspace/memory/search${q}`, {
+      method: "POST",
+      body: JSON.stringify({ query, limit, min_score: minScore }),
+    });
+  },
+
+  getMemoryStats: (agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<MemoryStats>(`/workspace/memory/stats${query}`);
+  },
+
+  getMemoryStatus: (agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<MemoryStatus>(`/workspace/memory/status${query}`);
+  },
+
+  testEmbedding: (config: {
+    backend: string;
+    api_key: string;
+    base_url: string;
+    model_name: string;
+    dimensions: number;
+  }) =>
+    request<TestEmbeddingResult>("/workspace/memory/test-embedding", {
+      method: "POST",
+      body: JSON.stringify(config),
+    }),
+
+  reindexMemory: (agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<ReindexResult>(`/workspace/memory/reindex${query}`, {
+      method: "POST",
+    });
+  },
 
   // System prompt files management
   getSystemPromptFiles: () =>
@@ -215,4 +286,31 @@ export const workspaceApi = {
         .map(encodeURIComponent)
         .join("/")}`,
     ),
+
+  // ---- Memory version control ----
+
+  listMemoryVersions: (memoryPath: string, agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    const encoded = encodePath(memoryPath);
+    return request<MemoryVersionInfo[]>(
+      `/workspace/memory/${encoded}/versions${query}`,
+    );
+  },
+
+  readMemoryVersion: (memoryPath: string, versionId: string, agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    const encoded = encodePath(memoryPath);
+    return request<MdFileContent>(
+      `/workspace/memory/${encoded}/versions/${encodeURIComponent(versionId)}${query}`,
+    );
+  },
+
+  restoreMemoryVersion: (memoryPath: string, versionId: string, agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    const encoded = encodePath(memoryPath);
+    return request<MdFileContent>(
+      `/workspace/memory/${encoded}/versions/${encodeURIComponent(versionId)}/restore${query}`,
+      { method: "POST" },
+    );
+  },
 };

@@ -1247,34 +1247,6 @@ async def put_allow_no_auth_hosts(
 # ── Document Parser / OCR Configuration ─────────────────────────────────
 
 
-def _check_paddleocr_status() -> dict:
-    import importlib
-    try:
-        mod = importlib.import_module("paddleocr")
-        version = getattr(mod, "__version__", "unknown")
-
-        # 轻量级运行时验证：只检查 PaddleOCR 和 PaddlePaddle 是否都能导入
-        # 不创建实例（创建实例会触发模型下载，太重）
-        runtime_ok = False
-        runtime_error = None
-        try:
-            from paddleocr import PaddleOCR
-            import paddle
-            _paddle_ver = getattr(paddle, "__version__", "unknown")
-            runtime_ok = True
-        except Exception as e:
-            runtime_error = f"{type(e).__name__}: {e}"
-
-        result = {"installed": True, "version": version, "runtime_ok": runtime_ok}
-        if runtime_error:
-            result["runtime_error"] = runtime_error
-        return result
-    except ImportError:
-        return {"installed": False, "version": None}
-    except Exception as e:
-        return {"installed": False, "version": None, "error": str(e)}
-
-
 @router.get(
     "/documents/parser",
     summary="Get document parser configuration",
@@ -1287,187 +1259,34 @@ async def get_documents_parser() -> dict:
         "default_mode": parser_cfg.default_mode,
         "mineru_api_key": parser_cfg.mineru_api_key[:8] + "..." if len(parser_cfg.mineru_api_key) > 8 else parser_cfg.mineru_api_key,
         "mineru_base_url": parser_cfg.mineru_base_url,
-        "local_ocr_enabled": parser_cfg.local_ocr_enabled,
-        "local_ocr_lang": parser_cfg.local_ocr_lang,
+        "mineru_mode": parser_cfg.mineru_mode,
+        "mineru_backend": parser_cfg.mineru_backend,
+        "mineru_effort": parser_cfg.mineru_effort,
         "mineru_configured": bool(parser_cfg.mineru_api_key),
-        "paddleocr_installed": _check_paddleocr_status(),
     }
-
-
-# ── PaddleOCR 一键安装 ─────────────────────────────────────────────────
-
-import logging as _logging
-_logger = _logging.getLogger(__name__)
-
-# 国内镜像源
-MIRROR_TSINGHUA = "https://pypi.tuna.tsinghua.edu.cn/simple"
-MIRROR_ALIYUN = "https://mirrors.aliyun.com/pypi/simple/"
-
-
-@router.post(
-    "/documents/parser/install-paddleocr",
-    summary="One-click install PaddleOCR",
-    description="Install paddleocr and paddlepaddle via pip. Use mirror for users in China.",
-)
-async def install_paddleocr(body: dict = Body(default={})):
-    """一键安装 PaddleOCR，支持国内镜像源加速，兼容 Windows / macOS / Linux。"""
-    import subprocess
-    import sys
-    import platform
-    import asyncio
-    import traceback
-    from urllib.parse import urlparse
-
-    use_mirror = body.get("use_mirror", True)
-    mirror_url = body.get("mirror_url", MIRROR_TSINGHUA)
-
-    is_windows = platform.system() == "Windows"
-    is_macos = platform.system() == "Darwin"
-    is_arm_mac = is_macos and platform.machine() == "arm64"
-
-    # PaddleOCR 3.x + PaddlePaddle 3.x 在 Windows 上存在 oneDNN 兼容性 bug
-    # (NotImplementedError: ConvertPirAttribute2RuntimeAttribute not support)
-    # Windows 上使用 2.x 版本，macOS/Linux 使用 3.x 版本
-    if is_windows:
-        packages = ["paddleocr==2.9.1", "paddlepaddle==2.6.2"]
-    else:
-        # macOS / Linux: 使用最新版 PaddleOCR 3.x
-        # Apple Silicon 需要从 PaddlePaddle 官方源安装 paddlepaddle
-        packages = ["paddleocr", "paddlepaddle"]
-
-    cmd = [sys.executable, "-m", "pip", "install"] + packages
-
-    if use_mirror:
-        cmd += ["-i", mirror_url]
-        try:
-            host = urlparse(mirror_url).hostname
-            if host:
-                cmd += ["--trusted-host", host]
-        except Exception:
-            cmd += ["--trusted-host", "pypi.tuna.tsinghua.edu.cn"]
-
-    # 安装完成后，确保 pyyaml 不被降级（paddleocr 依赖 pyyaml>=6 但 reme-ai 需要 >=6.0.3）
-    cmd_post = [sys.executable, "-m", "pip", "install", "pyyaml>=6.0.3"]
-    if use_mirror:
-        cmd_post += ["-i", mirror_url]
-        try:
-            host = urlparse(mirror_url).hostname
-            if host:
-                cmd_post += ["--trusted-host", host]
-        except Exception:
-            cmd_post += ["--trusted-host", "pypi.tuna.tsinghua.edu.cn"]
-
-    try:
-        _logger.info("Installing PaddleOCR (platform=%s, arm_mac=%s): %s", platform.system(), is_arm_mac, " ".join(cmd))
-
-        def _run_pip():
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=600,
-            )
-            return result
-
-        def _run_pip_fix():
-            result = subprocess.run(
-                cmd_post,
-                capture_output=True,
-                text=True,
-                timeout=120,
-            )
-            return result
-
-        loop = asyncio.get_running_loop()
-        proc_result = await loop.run_in_executor(None, _run_pip)
-
-        output = (proc_result.stdout or "") + (proc_result.stderr or "")
-        output_lines = output.strip().splitlines()
-        output = "\n".join(output_lines[-80:])
-
-        # 安装成功后，修复 pyyaml 降级问题
-        if proc_result.returncode == 0:
-            try:
-                fix_result = await loop.run_in_executor(None, _run_pip_fix)
-                fix_output = (fix_result.stdout or "") + (fix_result.stderr or "")
-                fix_lines = fix_output.strip().splitlines()
-                if fix_lines:
-                    output += "\n--- 修复 PyYAML 版本 ---\n" + "\n".join(fix_lines[-10:])
-            except Exception as e:
-                output += f"\n[PyYAML fix skipped: {e}]"
-
-        if proc_result.returncode == 0:
-            try:
-                import importlib
-                _pmod = importlib.import_module("qwenpaw.parsers.paddleocr_parser")
-                _pmod._PADDLEOCR_AVAILABLE = True
-            except Exception:
-                pass
-            try:
-                from . import knowledge as _kmod
-                _kmod._parser_router = None
-            except Exception:
-                pass
-            status = _check_paddleocr_status()
-            return {
-                "success": True,
-                "output": output,
-                "paddleocr_installed": status,
-                "message": "PaddleOCR 安装成功",
-                "platform": platform.system(),
-                "is_arm_mac": is_arm_mac,
-            }
-        else:
-            tip = ""
-            if is_arm_mac and "arm64" in output.lower() or "aarch64" in output.lower() or "not find" in output.lower():
-                tip = "Apple Silicon (M系列芯片) 可能需要 Rosetta 环境运行 Python，或使用 conda 安装。"
-            return {
-                "success": False,
-                "output": output or f"pip exit code: {proc_result.returncode}",
-                "paddleocr_installed": _check_paddleocr_status(),
-                "message": f"安装失败（exit code {proc_result.returncode}），请查看日志或手动安装。{tip}",
-                "platform": platform.system(),
-                "is_arm_mac": is_arm_mac,
-            }
-    except subprocess.TimeoutExpired:
-        return {
-            "success": False,
-            "output": "安装超时（10分钟），请尝试手动安装",
-            "paddleocr_installed": _check_paddleocr_status(),
-            "message": "安装超时，请尝试手动安装",
-        }
-    except FileNotFoundError:
-        pip_path = sys.executable
-        return {
-            "success": False,
-            "output": f"找不到 Python/pip，当前路径：{pip_path}",
-            "paddleocr_installed": _check_paddleocr_status(),
-            "message": f"找不到 Python/pip（{pip_path}），请确认环境配置",
-        }
-    except Exception as e:
-        tb = traceback.format_exc()
-        _logger.error("PaddleOCR install error: %s\n%s", e, tb)
-        return {
-            "success": False,
-            "output": f"{e}\n{tb}" if str(e) else tb,
-            "paddleocr_installed": _check_paddleocr_status(),
-            "message": f"安装出错：{e or type(e).__name__}",
-        }
 
 
 @router.get(
     "/documents/parser/ocr-status",
-    summary="Check OCR engine installation status",
-    description="Check whether PaddleOCR and other OCR engines are installed and available",
+    summary="Check OCR engine status",
+    description="Check MinerU configuration and local deployment availability",
 )
 async def get_ocr_status() -> dict:
     config = load_config()
     parser_cfg = config.documents.parser
-    result = _check_paddleocr_status()
+
+    local_status: dict = {"reachable": False}
+    if parser_cfg.mineru_mode == "local" or parser_cfg.mineru_base_url != "https://mineru.net/api/v4":
+        from ...parsers.mineru_parser import MinerUParser
+        local_status = await MinerUParser.check_local_deployment(
+            parser_cfg.mineru_base_url or "http://localhost:8000/api/v4"
+        )
+
     return {
-        "paddleocr": result,
         "mineru_configured": bool(parser_cfg.mineru_api_key),
-        "local_ocr_enabled": parser_cfg.local_ocr_enabled,
+        "mineru_mode": parser_cfg.mineru_mode,
+        "mineru_base_url": parser_cfg.mineru_base_url,
+        "local_mineru": local_status,
         "default_mode": parser_cfg.default_mode,
     }
 
@@ -1475,7 +1294,7 @@ async def get_ocr_status() -> dict:
 @router.put(
     "/documents/parser",
     summary="Update document parser configuration",
-    description="Update parser settings including MinerU API key and local OCR",
+    description="Update parser settings including MinerU configuration",
 )
 async def put_documents_parser(
     body: dict = Body(
@@ -1502,11 +1321,27 @@ async def put_documents_parser(
     if "mineru_base_url" in body:
         parser_cfg.mineru_base_url = str(body["mineru_base_url"])
 
-    if "local_ocr_enabled" in body:
-        parser_cfg.local_ocr_enabled = bool(body["local_ocr_enabled"])
+    if "mineru_mode" in body:
+        mode_val = str(body["mineru_mode"])
+        if mode_val not in ("cloud", "local"):
+            raise HTTPException(status_code=400, detail=f"Invalid mineru_mode: {mode_val}")
+        parser_cfg.mineru_mode = mode_val
+        if mode_val == "local" and parser_cfg.mineru_base_url == "https://mineru.net/api/v4":
+            parser_cfg.mineru_base_url = "http://localhost:8000/api/v4"
+        elif mode_val == "cloud" and parser_cfg.mineru_base_url == "http://localhost:8000/api/v4":
+            parser_cfg.mineru_base_url = "https://mineru.net/api/v4"
 
-    if "local_ocr_lang" in body:
-        parser_cfg.local_ocr_lang = str(body["local_ocr_lang"])
+    if "mineru_backend" in body:
+        backend_val = str(body["mineru_backend"])
+        if backend_val not in ("pipeline", "hybrid", "vlm"):
+            raise HTTPException(status_code=400, detail=f"Invalid mineru_backend: {backend_val}")
+        parser_cfg.mineru_backend = backend_val
+
+    if "mineru_effort" in body:
+        effort_val = str(body["mineru_effort"])
+        if effort_val not in ("medium", "high"):
+            raise HTTPException(status_code=400, detail=f"Invalid mineru_effort: {effort_val}")
+        parser_cfg.mineru_effort = effort_val
 
     save_config(config)
 
@@ -1520,8 +1355,373 @@ async def put_documents_parser(
         "default_mode": parser_cfg.default_mode,
         "mineru_api_key": parser_cfg.mineru_api_key[:8] + "..." if len(parser_cfg.mineru_api_key) > 8 else parser_cfg.mineru_api_key,
         "mineru_base_url": parser_cfg.mineru_base_url,
-        "local_ocr_enabled": parser_cfg.local_ocr_enabled,
-        "local_ocr_lang": parser_cfg.local_ocr_lang,
+        "mineru_mode": parser_cfg.mineru_mode,
+        "mineru_backend": parser_cfg.mineru_backend,
+        "mineru_effort": parser_cfg.mineru_effort,
         "mineru_configured": bool(parser_cfg.mineru_api_key),
-        "paddleocr_installed": _check_paddleocr_status(),
     }
+
+
+# ── MinerU 本地一键部署 ────────────────────────────────────────────────
+
+import logging as _logging
+_logger = _logging.getLogger(__name__)
+
+_MINERU_PORT = 8000
+
+
+def _get_mineru_venv_dir() -> str:
+    import os
+    base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    return os.path.join(base, ".mineru-venv")
+
+
+def _get_mineru_python() -> str | None:
+    import os
+    import sys
+    venv_dir = _get_mineru_venv_dir()
+    if sys.platform == "win32":
+        python_path = os.path.join(venv_dir, "Scripts", "python.exe")
+    else:
+        python_path = os.path.join(venv_dir, "bin", "python")
+    return python_path if os.path.isfile(python_path) else None
+
+
+def _get_mineru_api_cmd() -> list[str] | None:
+    import os
+    import sys
+    venv_dir = _get_mineru_venv_dir()
+    if sys.platform == "win32":
+        api_script = os.path.join(venv_dir, "Scripts", "mineru-api.exe")
+    else:
+        api_script = os.path.join(venv_dir, "bin", "mineru-api")
+    if os.path.isfile(api_script):
+        return [api_script, "--host", "0.0.0.0"]
+    if sys.platform == "win32":
+        api_script = os.path.join(venv_dir, "Scripts", "magic-pdf.exe")
+    else:
+        api_script = os.path.join(venv_dir, "bin", "magic-pdf")
+    if os.path.isfile(api_script):
+        return [api_script, "api", "--host", "0.0.0.0"]
+    return None
+
+
+def _is_mineru_installed() -> dict:
+    python_path = _get_mineru_python()
+    if not python_path:
+        return {"installed": False}
+    import subprocess
+    try:
+        r = subprocess.run(
+            [python_path, "-c", "import mineru; print(mineru.__version__)"],
+            capture_output=True, text=True, timeout=15,
+        )
+        if r.returncode == 0:
+            return {"installed": True, "version": r.stdout.strip(), "python": python_path}
+        r = subprocess.run(
+            [python_path, "-c", "import magic_pdf; print(magic_pdf.__version__)"],
+            capture_output=True, text=True, timeout=15,
+        )
+        if r.returncode == 0:
+            return {"installed": True, "version": r.stdout.strip(), "python": python_path, "legacy": True}
+        return {"installed": False, "python": python_path}
+    except Exception:
+        return {"installed": False, "python": python_path}
+
+
+def _is_mineru_running(port: int = _MINERU_PORT) -> bool:
+    import httpx
+    try:
+        r = httpx.get(f"http://localhost:{port}/api/v4/tasks", timeout=3)
+        return True
+    except Exception:
+        pass
+    try:
+        r = httpx.get(f"http://localhost:{port}/api/v4/file-urls/batch", timeout=3)
+        return True
+    except Exception:
+        return False
+
+
+@router.get(
+    "/documents/parser/local-mineru-status",
+    summary="Check local MinerU installation and service status",
+)
+async def get_local_mineru_status():
+    install_info = _is_mineru_installed()
+    running = _is_mineru_running()
+    return {
+        "installed": install_info.get("installed", False),
+        "version": install_info.get("version"),
+        "python_path": install_info.get("python"),
+        "running": running,
+        "venv_dir": _get_mineru_venv_dir(),
+    }
+
+
+@router.post(
+    "/documents/parser/deploy-local-mineru",
+    summary="One-click deploy local MinerU",
+    description="Create isolated venv, install magic-pdf[full], start API server. No Docker needed.",
+)
+async def deploy_local_mineru(body: dict = Body(default={})):
+    import subprocess
+    import sys
+    import asyncio
+    import os
+    import traceback
+
+    port = body.get("port", _MINERU_PORT)
+    mirror_url = body.get("mirror_url", "https://pypi.tuna.tsinghua.edu.cn/simple")
+    use_mirror = body.get("use_mirror", True)
+    venv_dir = _get_mineru_venv_dir()
+
+    # ── Step 1: Create venv if not exists ────────────────────────────
+    if not _get_mineru_python():
+        _logger.info("Creating MinerU virtual environment at %s", venv_dir)
+        try:
+            def _create_venv():
+                if os.path.isdir(venv_dir):
+                    _logger.info("Removing incomplete venv at %s", venv_dir)
+                    import shutil
+                    shutil.rmtree(venv_dir, ignore_errors=True)
+
+                result = subprocess.run(
+                    [sys.executable, "-m", "venv", venv_dir],
+                    capture_output=True, text=True, timeout=60,
+                )
+                if result.returncode != 0:
+                    _logger.warning("venv creation failed, trying --without-pip: %s", result.stderr)
+                    if os.path.isdir(venv_dir):
+                        import shutil
+                        shutil.rmtree(venv_dir, ignore_errors=True)
+                    result = subprocess.run(
+                        [sys.executable, "-m", "venv", "--without-pip", venv_dir],
+                        capture_output=True, text=True, timeout=60,
+                    )
+                return result
+
+            venv_result = await asyncio.get_running_loop().run_in_executor(None, _create_venv)
+            if venv_result.returncode != 0:
+                return {
+                    "success": False, "stage": "venv",
+                    "error": f"创建虚拟环境失败: {(venv_result.stderr or '')[:300]}",
+                }
+        except Exception as e:
+            return {
+                "success": False, "stage": "venv",
+                "error": f"创建虚拟环境异常: {e}",
+            }
+
+    mineru_python = _get_mineru_python()
+    if not mineru_python:
+        return {"success": False, "stage": "venv", "error": "虚拟环境创建后未找到 Python"}
+
+    # ── Step 2: Install mineru[all] ──────────────────────────────
+    install_info = _is_mineru_installed()
+    if not install_info.get("installed"):
+        _logger.info("Installing mineru[all] into MinerU venv...")
+        try:
+            def _pip_install():
+                ensurepip_result = subprocess.run(
+                    [mineru_python, "-m", "ensurepip", "--upgrade"],
+                    capture_output=True, text=True, timeout=60,
+                )
+                if ensurepip_result.returncode != 0:
+                    _logger.warning("ensurepip failed: %s", ensurepip_result.stderr)
+
+                cmd = [mineru_python, "-m", "pip", "install", "--upgrade", "pip"]
+                subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+
+                try:
+                    subprocess.run(
+                        [mineru_python, "-m", "pip", "install", "uv"],
+                        capture_output=True, text=True, timeout=60,
+                    )
+                    cmd = [mineru_python, "-m", "uv", "pip", "install", "-U", "mineru[all]"]
+                except Exception:
+                    cmd = [mineru_python, "-m", "pip", "install", "mineru[all]"]
+
+                if use_mirror:
+                    cmd += ["-i", mirror_url, "--trusted-host", "pypi.tuna.tsinghua.edu.cn"]
+                return subprocess.run(cmd, capture_output=True, text=True, timeout=900)
+
+            install_result = await asyncio.get_running_loop().run_in_executor(None, _pip_install)
+            output = (install_result.stdout or "") + (install_result.stderr or "")
+            output_tail = "\n".join(output.strip().splitlines()[-20:])
+
+            if install_result.returncode != 0:
+                return {
+                    "success": False, "stage": "install",
+                    "error": f"pip install 失败 (exit {install_result.returncode})",
+                    "output": output_tail,
+                }
+        except subprocess.TimeoutExpired:
+            return {
+                "success": False, "stage": "install",
+                "error": "pip install 超时（15分钟），网络可能较慢，请重试",
+            }
+        except Exception as e:
+            return {
+                "success": False, "stage": "install",
+                "error": f"安装异常: {e}",
+            }
+
+    # ── Step 3: Start API server ─────────────────────────────────────
+    if _is_mineru_running(port):
+        base_url = f"http://localhost:{port}/api/v4"
+        config = load_config()
+        config.documents.parser.mineru_mode = "local"
+        config.documents.parser.mineru_base_url = base_url
+        if not config.documents.parser.mineru_api_key:
+            config.documents.parser.mineru_api_key = "local"
+        save_config(config)
+        try:
+            from . import knowledge as _kmod
+            _kmod._parser_router = None
+        except Exception:
+            pass
+        return {
+            "success": True, "stage": "already_running", "base_url": base_url,
+            "message": "MinerU 本地服务已在运行，已自动配置",
+        }
+
+    api_cmd = _get_mineru_api_cmd()
+    if not api_cmd:
+        api_cmd = [mineru_python, "-m", "mineru.cli", "api", "--host", "0.0.0.0"]
+
+    api_cmd += ["--port", str(port)]
+
+    try:
+        log_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
+            "logs",
+        )
+        os.makedirs(log_dir, exist_ok=True)
+        log_path = os.path.join(log_dir, "mineru-api.log")
+        pid_path = os.path.join(log_dir, "mineru-api.pid")
+
+        env = os.environ.copy()
+        if use_mirror:
+            env["MINERU_MODEL_SOURCE"] = "modelscope"
+
+        with open(log_path, "w") as log_f:
+            popen_kwargs = {
+                "stdout": log_f,
+                "stderr": log_f,
+                "stdin": subprocess.DEVNULL,
+                "cwd": venv_dir,
+                "env": env,
+            }
+            if sys.platform == "win32":
+                popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+            else:
+                popen_kwargs["start_new_session"] = True
+
+            proc = subprocess.Popen(api_cmd, **popen_kwargs)
+
+        with open(pid_path, "w") as pid_f:
+            pid_f.write(str(proc.pid))
+
+        _logger.info("Started MinerU API server (PID=%d, port=%d, venv=%s)", proc.pid, port, venv_dir)
+
+        # Wait for API to be ready
+        from ...parsers.mineru_parser import MinerUParser
+        base_url = f"http://localhost:{port}/api/v4"
+        for _attempt in range(36):
+            await asyncio.sleep(5)
+            # Check if process is still alive
+            if proc.poll() is not None:
+                with open(log_path) as f:
+                    log_content = f.read()[-1000:]
+                return {
+                    "success": False, "stage": "start",
+                    "error": f"MinerU 进程意外退出 (exit code {proc.returncode})",
+                    "output": log_content,
+                    "log_path": log_path,
+                }
+            status = await MinerUParser.check_local_deployment(base_url)
+            if status.get("reachable"):
+                config = load_config()
+                config.documents.parser.mineru_mode = "local"
+                config.documents.parser.mineru_base_url = base_url
+                if not config.documents.parser.mineru_api_key:
+                    config.documents.parser.mineru_api_key = "local"
+                save_config(config)
+                try:
+                    from . import knowledge as _kmod
+                    _kmod._parser_router = None
+                except Exception:
+                    pass
+                return {
+                    "success": True, "stage": "started", "base_url": base_url,
+                    "pid": proc.pid,
+                    "message": "MinerU 本地部署成功！已自动配置，所有数据在本地处理",
+                }
+
+        return {
+            "success": False, "stage": "health_check",
+            "error": "服务已启动但 API 未就绪（等待超时 3 分钟），请稍后手动检测连接",
+            "base_url": base_url, "pid": proc.pid, "log_path": log_path,
+        }
+    except Exception as e:
+        return {
+            "success": False, "stage": "start",
+            "error": f"启动 MinerU API 失败: {e}",
+            "output": traceback.format_exc()[:500],
+        }
+
+
+@router.post(
+    "/documents/parser/stop-local-mineru",
+    summary="Stop local MinerU service",
+    description="Stop the MinerU API process and switch to cloud mode",
+)
+async def stop_local_mineru():
+    import os
+    import sys
+    import subprocess
+
+    results = []
+
+    pid_file = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
+        "logs", "mineru-api.pid",
+    )
+    if os.path.exists(pid_file):
+        try:
+            with open(pid_file) as f:
+                pid = int(f.read().strip())
+            if sys.platform == "win32":
+                subprocess.run(
+                    ["taskkill", "/F", "/T", "/PID", str(pid)],
+                    capture_output=True, text=True, timeout=10,
+                )
+            else:
+                import signal
+                try:
+                    os.kill(pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+            results.append(f"stopped PID {pid}")
+        except Exception as e:
+            results.append(f"error: {e}")
+        finally:
+            try:
+                os.remove(pid_file)
+            except Exception:
+                pass
+
+    config = load_config()
+    if config.documents.parser.mineru_mode == "local":
+        config.documents.parser.mineru_mode = "cloud"
+        config.documents.parser.mineru_base_url = "https://mineru.net/api/v4"
+        save_config(config)
+        try:
+            from . import knowledge as _kmod
+            _kmod._parser_router = None
+        except Exception:
+            pass
+        results.append("config: switched to cloud mode")
+
+    return {"success": True, "details": results}

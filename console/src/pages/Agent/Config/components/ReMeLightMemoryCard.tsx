@@ -8,13 +8,17 @@ import {
   Collapse,
   Alert,
   Select,
+  Badge,
   Button,
 } from "@agentscope-ai/design";
+import { Space } from "antd";
 import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
 import { agentsApi } from "@/api";
 import { useAppMessage } from "@/hooks/useAppMessage";
 import { useAgentStore } from "@/stores/agentStore";
 import { SliderWithValue } from "./SliderWithValue";
+import api from "@/api";
 import styles from "../index.module.less";
 
 // Keep in sync with src/qwenpaw/agents/memory/reme_config.py
@@ -64,9 +68,18 @@ export function isValidDreamCronShape(value?: string) {
 
 export function ReMeLightMemoryCard() {
   const { t } = useTranslation();
+  const { t } = useTranslation();
   const { message, modal } = useAppMessage();
   const { selectedAgent } = useAgentStore();
   const [reindexing, setReindexing] = useState(false);
+
+  const [memoryStatus, setMemoryStatus] = useState<{
+    initialized: boolean;
+    started: boolean;
+    backend: string;
+    error: string | null;
+  } | null>(null);
+  const [testing, setTesting] = useState(false);
 
   const rebuildMemoryIndex = () => {
     modal.confirm({
@@ -108,6 +121,16 @@ export function ReMeLightMemoryCard() {
     "embedding_model_config",
     "model_name",
   ]);
+  const baseUrl = Form.useWatch([
+    "reme_light_memory_config",
+    "embedding_model_config",
+    "base_url",
+  ]);
+  const dimensions = Form.useWatch([
+    "reme_light_memory_config",
+    "embedding_model_config",
+    "dimensions",
+  ]);
   const dreamCronEnabled =
     Form.useWatch(["reme_light_memory_config", "dream_cron_enabled"]) ?? true;
   const normalizedBackend = String(backend);
@@ -120,11 +143,128 @@ export function ReMeLightMemoryCard() {
     apiKey,
   );
 
+  // Fetch memory status on mount
+  useEffect(() => {
+    let cancelled = false;
+    const fetchStatus = async () => {
+      try {
+        const status = await api.getMemoryStatus();
+        if (!cancelled) {
+          setMemoryStatus(status);
+        }
+      } catch {
+        if (!cancelled) {
+          setMemoryStatus(null);
+        }
+      }
+    };
+    fetchStatus();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleTestEmbedding = async () => {
+    if (!embeddingEnabled) {
+      message.warning(t("agentConfig.embeddingTestDisabled"));
+      return;
+    }
+    setTesting(true);
+    try {
+      const result = await api.testEmbedding({
+        backend: normalizedBackend,
+        api_key: apiKey || "",
+        base_url: baseUrl || "",
+        model_name: modelName || "",
+        dimensions: dimensions || 1024,
+      });
+      if (result.success) {
+        message.success(
+          t("agentConfig.embeddingTestSuccess", {
+            latency: result.latency_ms,
+            dims: result.dimensions,
+          }),
+        );
+      } else {
+        message.error(
+          t("agentConfig.embeddingTestFailed", {
+            error: result.error || "Unknown error",
+          }),
+        );
+      }
+    } catch (err: any) {
+      message.error(
+        t("agentConfig.embeddingTestFailed", {
+          error: err?.message || "Network error",
+        }),
+      );
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  // Build status badge
+  const statusBadge = (() => {
+    if (!memoryStatus) {
+      return (
+        <Badge
+          status="default"
+          text={t("agentConfig.memoryStatusUnknown")}
+        />
+      );
+    }
+    if (memoryStatus.error && !memoryStatus.initialized) {
+      return (
+        <Badge
+          status="error"
+          text={t("agentConfig.memoryStatusError")}
+        />
+      );
+    }
+    if (memoryStatus.started) {
+      return (
+        <Badge
+          status="success"
+          text={t("agentConfig.memoryStatusRunning")}
+        />
+      );
+    }
+    if (memoryStatus.initialized) {
+      return (
+        <Badge
+          status="processing"
+          text={t("agentConfig.memoryStatusInitialized")}
+        />
+      );
+    }
+    return (
+      <Badge
+        status="warning"
+        text={t("agentConfig.memoryStatusNotInitialized")}
+      />
+    );
+  })();
+
   return (
     <Card
       className={styles.formCard}
-      title={t("agentConfig.remeLightMemoryTitle")}
+      title={
+        <Space>
+          {t("agentConfig.remeLightMemoryTitle")}
+          {statusBadge}
+        </Space>
+      }
     >
+      {memoryStatus?.error && !memoryStatus.initialized && (
+        <Alert
+          type="error"
+          showIcon
+          message={t("agentConfig.memoryInitError")}
+          description={memoryStatus.error}
+          style={{ marginBottom: 16 }}
+        />
+      )}
+
       <Form.Item
         label={t("agentConfig.summarizeWhenCompact")}
         name={["reme_light_memory_config", "summarize_when_compact"]}
@@ -307,20 +447,7 @@ export function ReMeLightMemoryCard() {
                 <Alert
                   type="info"
                   showIcon
-                  message={
-                    <span>
-                      推荐：硅基流动提供 BAAI/bge-m3 等免费 Embedding 模型，
-                      注册即送全平台通用代金券 16 元（须填写邀请码 KvmTp5P8）。
-                      <a
-                        href="https://cloud.siliconflow.cn/i/KvmTp5P8"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ marginLeft: 4 }}
-                      >
-                        点击立即领取 →
-                      </a>
-                    </span>
-                  }
+                  message={t("agentConfig.embeddingRecommendHint")}
                   style={{ marginBottom: 16 }}
                 />
 
@@ -412,6 +539,19 @@ export function ReMeLightMemoryCard() {
                     <Switch disabled={!embeddingEnabled} />
                   </Form.Item>
                 )}
+
+                <Form.Item
+                  label={t("agentConfig.embeddingUseDimensions")}
+                  name={[
+                    "reme_light_memory_config",
+                    "embedding_model_config",
+                    "use_dimensions",
+                  ]}
+                  valuePropName="checked"
+                  tooltip={t("agentConfig.embeddingUseDimensionsTooltip")}
+                >
+                  <Switch disabled={!embeddingEnabled} />
+                </Form.Item>
 
                 <Form.Item
                   label={t("agentConfig.embeddingDimensions")}
@@ -521,6 +661,17 @@ export function ReMeLightMemoryCard() {
                     step={1}
                     disabled={!embeddingEnabled}
                   />
+                </Form.Item>
+
+                <Form.Item label=" ">
+                  <Button
+                    type="default"
+                    loading={testing}
+                    disabled={!embeddingEnabled}
+                    onClick={handleTestEmbedding}
+                  >
+                    {t("agentConfig.embeddingTestButton")}
+                  </Button>
                 </Form.Item>
               </>
             ),

@@ -1,0 +1,505 @@
+.memoryPage {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+
+  /* Make PageHeader sticky so controls remain accessible when scrolling */
+  > :first-child {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-shrink: 0;
+    background: #f5f5f5;
+  }
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  padding: 0 16px 16px;
+}
+
+/* ---- Stats Row ---- */
+.statsRow {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.statCard {
+  flex: 1;
+  min-width: 120px;
+  border-radius: 6px;
+  border: 1px solid var(--ant-color-border-secondary);
+  background: var(--ant-color-bg-container);
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.statLabel {
+  font-size: 11px;
+  color: var(--ant-color-text-tertiary);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.statValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ant-color-text);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* ---- Search Section ---- */
+.searchSection {
+  margin-bottom: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.searchBox {
+  flex: 1;
+}
+
+.searchResults {
+  margin-bottom: 8px;
+  padding: 12px 16px;
+  background: var(--ant-color-fill-quaternary);
+  border-radius: 8px;
+  border: 1px solid var(--ant-color-border-secondary);
+  max-height: 200px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 13px;
+  line-height: 1.7;
+  flex-shrink: 0;
+}
+
+/* ---- Main Layout ---- */
+.mainLayout {
+  display: flex;
+  gap: 12px;
+  flex: 1 1 0;
+  min-height: 400px;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+/* ---- Tree Panel (Left) ---- */
+.treePanel {
+  width: 340px;
+  min-width: 260px;
+  max-width: 420px;
+  height: 100%;
+  flex-shrink: 0;
+  border: 1px solid var(--ant-color-border);
+  border-radius: 8px;
+  background: var(--ant-color-bg-container);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.treeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--ant-color-border-secondary);
+  flex-shrink: 0;
+}
+
+.treeHeaderTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ant-color-text-secondary);
+}
+
+.treeBody {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 6px 8px;
+  min-height: 0;
+}
+
+/* ---- Tree Node Styles ---- */
+.groupNodeTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--ant-color-text);
+}
+
+.groupNodeIcon {
+  color: var(--ant-color-primary);
+  font-size: 14px;
+}
+
+.groupNodeCount {
+  color: var(--ant-color-text-tertiary);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.dateNodeTitle {
+  font-size: 12px;
+  color: var(--ant-color-text-secondary);
+  font-weight: 500;
+}
+
+/* ---- File Node (Leaf) ---- */
+.fileNode {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-right: 4px;
+  overflow: hidden;
+
+  &:hover .deleteBtn {
+    opacity: 1;
+  }
+}
+
+.fileInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+}
+
+.fileIcon {
+  color: var(--ant-color-text-tertiary);
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+/* Tooltip wrapper from antd wraps in a span — make it flex-constrainable */
+.fileInfo :global(.ant-tooltip-open),
+.fileInfo > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+
+.fileName {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  display: block;
+  max-width: 100%;
+}
+
+.fileSize {
+  font-size: 11px;
+  color: var(--ant-color-text-quaternary);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.deleteBtn {
+  opacity: 0;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+/* ---- Editor Panel (Right) ---- */
+.editorPanel {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid var(--ant-color-border);
+  border-radius: 8px;
+  background: var(--ant-color-bg-container);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--ant-color-border-secondary);
+  flex-shrink: 0;
+  gap: 12px;
+}
+
+.editorFileTag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+}
+
+.editorFileName {
+  font-size: 13px;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  color: var(--ant-color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editorActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.editorTextarea {
+  flex: 1;
+  width: calc(100% - 32px);
+  border: none;
+  outline: none;
+  resize: none;
+  margin: 12px 16px;
+  padding: 16px 20px;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  background: var(--ant-color-fill-quaternary);
+  border: 1px solid var(--ant-color-border);
+  border-radius: 6px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+  color: var(--ant-color-text);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    border-color: var(--ant-color-primary);
+    box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+  }
+}
+
+/* ---- Markdown Preview ---- */
+.previewBody {
+  flex: 1;
+  overflow-y: auto;
+  margin: 12px 16px;
+  padding: 16px 24px;
+  background: var(--ant-color-fill-quaternary);
+  border: 1px solid var(--ant-color-border);
+  border-radius: 6px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--ant-color-text);
+
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 1.2em;
+    margin-bottom: 0.6em;
+    font-weight: 600;
+  }
+
+  h1 { font-size: 1.6em; border-bottom: 1px solid var(--ant-color-border-secondary); padding-bottom: 0.3em; }
+  h2 { font-size: 1.4em; border-bottom: 1px solid var(--ant-color-border-secondary); padding-bottom: 0.3em; }
+  h3 { font-size: 1.2em; }
+  h4 { font-size: 1.1em; }
+
+  p { margin: 0.8em 0; }
+
+  ul, ol {
+    padding-left: 1.8em;
+    margin: 0.6em 0;
+  }
+
+  li { margin: 0.3em 0; }
+
+  code {
+    background: var(--ant-color-fill-quaternary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+    font-size: 0.9em;
+  }
+
+  pre {
+    background: var(--ant-color-fill-quaternary);
+    padding: 12px 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 0.8em 0;
+
+    code {
+      background: none;
+      padding: 0;
+    }
+  }
+
+  blockquote {
+    border-left: 3px solid var(--ant-color-border);
+    padding-left: 12px;
+    margin: 0.8em 0;
+    color: var(--ant-color-text-secondary);
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.8em 0;
+
+    th, td {
+      border: 1px solid var(--ant-color-border);
+      padding: 6px 12px;
+      text-align: left;
+    }
+
+    th {
+      background: var(--ant-color-fill-quaternary);
+      font-weight: 600;
+    }
+  }
+
+  a {
+    color: var(--ant-color-primary);
+    text-decoration: none;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--ant-color-border-secondary);
+    margin: 1.2em 0;
+  }
+}
+
+/* ---- Version History Items ---- */
+.versionItem {
+  margin-bottom: 8px;
+}
+
+.versionItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.versionTime {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ant-color-text);
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+}
+
+.versionSize {
+  font-size: 12px;
+  color: var(--ant-color-text-tertiary);
+}
+
+.versionPreview {
+  background: var(--ant-color-fill-quaternary);
+  border: 1px solid var(--ant-color-border-secondary);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin: 8px 0;
+  max-height: 200px;
+  overflow: auto;
+  font-size: 12px;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+}
+
+.versionActions {
+  display: flex;
+  gap: 4px;
+}
+
+/* ---- Misc ---- */
+.loadingCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  width: 100%;
+}
+
+.emptyEditor {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  min-height: 0;
+  gap: 8px;
+}
+
+.emptyEditorIcon {
+  font-size: 48px;
+  color: var(--ant-color-text-quaternary);
+}
+
+.emptyEditorText {
+  font-size: 14px;
+  color: var(--ant-color-text-tertiary);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 480px) {
+  .statsRow {
+    flex-wrap: wrap;
+  }
+
+  .statCard {
+    flex: 1 1 45%;
+  }
+
+  .mainLayout {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .treePanel {
+    width: 100%;
+    max-width: none;
+    max-height: 280px;
+  }
+
+  .editorPanel {
+    min-height: 400px;
+  }
+
+  .deleteBtn {
+    opacity: 1;
+  }
+}
+
+/* ---- Dark mode ---- */
+:global(.dark-mode) {
+  .memoryPage > :first-child {
+    background: #1a1a1a;
+  }
+}

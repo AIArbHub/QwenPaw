@@ -75,7 +75,7 @@
     "tribunal": "仲裁實訓",
     "moot": "仲裁實訓",
     "arbitration": "仲裁業務",
-    "desensitize": "隱私脫敏",
+    "desensitize": "文檔智能",
     "knowledge": "知識庫",
     "cases": "案件卷宗",
     "wiki": "Wiki 知識編譯"
@@ -332,7 +332,9 @@
     "avatarUploadSuccess": "頭像上傳成功",
     "avatarUploadFailed": "頭像上傳失敗",
     "avatarDeleteSuccess": "頭像已刪除",
-    "avatarDeleteFailed": "頭像刪除失敗"
+    "avatarDeleteFailed": "頭像刪除失敗",
+    "listView": "列表視圖",
+    "gridView": "卡片視圖"
   },
   "acp": {
     "title": "ACP",

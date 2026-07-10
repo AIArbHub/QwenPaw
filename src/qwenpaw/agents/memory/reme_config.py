@@ -665,6 +665,10 @@ def _apply_embedding_config(
         components.pop("as_embedding", None)
         return
 
+    parameters: dict[str, Any] = {}
+    if embedding_config.use_dimensions:
+        parameters["dimensions"] = embedding_config.dimensions
+
     _embedding_component: dict[str, Any] = {
         "backend": embedding_config.backend,
         "model": embedding_config.model_name,
@@ -672,9 +676,10 @@ def _apply_embedding_config(
             "api_key": embedding_config.api_key,
             "base_url": embedding_config.base_url,
         },
-            "parameters": parameters,
-        }
-    if embedding_config.use_dimensions and "dimensions" in parameters:
+    "parameters": parameters,
+}
+if embedding_config.use_dimensions and "dimensions" in parameters:
+    _embedding_component["dimensions"] = parameters["dimensions"]
         _embedding_component["dimensions"] = parameters["dimensions"]
     components["as_embedding"]["default"].update(_embedding_component)
 

@@ -51,7 +51,7 @@ import {
   SparkUserGroupLine,
   SparkWifiLine,
 } from "@agentscope-ai/icons";
-import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase } from "lucide-react";
+import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain } from "lucide-react";
 import i18next from "i18next";
 import { menuRegistry } from "../../plugins/registry/store";
 import type { MenuItem } from "../../plugins/registry/types";
@@ -112,7 +112,7 @@ export const BUILTIN_MENU: MenuItem[] = [
     id: "core.desensitize",
     location: "primary.arbitration",
     parentId: "core.tools-group",
-    label: navLabel("nav.desensitize", "脱敏"),
+    label: navLabel("nav.desensitize", "文档智能"),
     icon: FileText,
     route: "core.desensitize",
     order: 30,
@@ -161,6 +161,15 @@ export const BUILTIN_MENU: MenuItem[] = [
     icon: SparkAgentLine,
     route: "core.agents",
     order: 20,
+  },
+  {
+    id: "core.memory",
+    location: "primary.agentScoped",
+    parentId: "core.settings-group",
+    label: navLabel("nav.memory", "记忆中心"),
+    icon: Brain,
+    route: "core.memory",
+    order: 25,
   },
 
   // ── Advanced settings (agent tab, bottom section via primary.settings) ──

@@ -1,14 +1,18 @@
 import { useState, useRef, useCallback } from "react";
 import { Card, Button, Form } from "antd";
 import { useAppMessage } from "../../../hooks/useAppMessage";
-import { PlusOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  AppstoreOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { agentsApi } from "../../../api/modules/agents";
 import { invalidateSkillCache, skillApi } from "../../../api/modules/skill";
 import type { AgentSummary, CopyAgentRequest } from "../../../api/types/agents";
 import { useAgentStore } from "../../../stores/agentStore";
 import { useAgents } from "./useAgents";
-import { AgentTable, AgentModal, CopyAgentModal } from "./components";
+AgentTable, AgentCard, AgentModal, CopyAgentModal
 import { PageHeader } from "@/components/PageHeader";
 import { reorderAgents } from "./reorder";
 import styles from "./index.module.less";
@@ -35,6 +39,9 @@ export default function AgentsPage() {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const installedSkillsRef = useRef<string[]>([]);
   const { message } = useAppMessage();
+
+  // View mode: card or list
+  const [viewMode, setViewMode] = useState<"card" | "list">("card");
 
   const handleCreate = () => {
     setEditingAgent(null);
@@ -239,6 +246,26 @@ export default function AgentsPage() {
         current={t("agent.agents")}
         extra={
           <div className={styles.headerRight}>
+            <div className={styles.viewToggle}>
+              <button
+                className={`${styles.viewToggleBtn} ${
+                  viewMode === "list" ? styles.viewToggleBtnActive : ""
+                }`}
+                onClick={() => setViewMode("list")}
+                title={t("agent.listView")}
+              >
+                <UnorderedListOutlined />
+              </button>
+              <button
+                className={`${styles.viewToggleBtn} ${
+                  viewMode === "card" ? styles.viewToggleBtnActive : ""
+                }`}
+                onClick={() => setViewMode("card")}
+                title={t("agent.gridView")}
+              >
+                <AppstoreOutlined />
+              </button>
+            </div>
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -250,19 +277,33 @@ export default function AgentsPage() {
         }
       />
 
-      <Card className={styles.tableCard}>
-        <AgentTable
-          agents={agents}
-          loading={loading || reordering}
-          reordering={reordering}
-          onEdit={handleEdit}
-          onCopy={handleOpenCopy}
-          onDelete={handleDelete}
-          onToggle={handleToggle}
-          onPin={handlePin}
-          onReorder={handleReorder}
-        />
-      </Card>
+{viewMode === "card" ? (
+        <div className={styles.agentsGrid}>
+          {agents.map((agent) => (
+            <AgentCard
+              key={agent.id}
+              agent={agent}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onToggle={handleToggle}
+            />
+          ))}
+        </div>
+      ) : (
+        <Card className={styles.tableCard}>
+          <AgentTable
+            agents={agents}
+            loading={loading || reordering}
+            reordering={reordering}
+            onEdit={handleEdit}
+            onCopy={handleOpenCopy}
+            onDelete={handleDelete}
+            onToggle={handleToggle}
+            onPin={handlePin}
+            onReorder={handleReorder}
+          />
+        </Card>
+      )}
 
       <AgentModal
         open={modalVisible}

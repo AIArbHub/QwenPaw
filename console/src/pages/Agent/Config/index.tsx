@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { Button, Form, Tabs } from "@agentscope-ai/design";
+import { Button, Form, Tabs, Alert } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { useAgentConfig } from "./useAgentConfig.tsx";
@@ -192,6 +192,25 @@ function AgentConfigPage() {
         children: (
           <div className={styles.tabContent}>
             <MemoryComponent />
+          </div>
+        ),
+      });
+    } else if (memoryBackend === "none") {
+      baseTabs.push({
+        key: "memoryDisabled",
+        label: (
+          <span className={styles.tabLabel}>
+            {t("agentConfig.memoryDisabledTitle")}
+          </span>
+        ),
+        children: (
+          <div className={styles.tabContent}>
+            <Alert
+              type="info"
+              showIcon
+              message={t("agentConfig.memoryDisabledMessage")}
+              description={t("agentConfig.memoryDisabledDescription")}
+            />
           </div>
         ),
       });

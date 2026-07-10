@@ -825,19 +825,23 @@ class ParserConfig(BaseModel):
     )
     mineru_api_key: str = Field(
         default="",
-        description="MinerU cloud API key for OCR",
+        description="MinerU API key (used for both cloud and local deployment)",
     )
     mineru_base_url: str = Field(
         default="https://mineru.net/api/v4",
-        description="MinerU API base URL",
+        description="MinerU API base URL (cloud: https://mineru.net/api/v4, local: http://localhost:8000/api/v4)",
     )
-    local_ocr_enabled: bool = Field(
-        default=True,
-        description="Enable PaddleOCR for local OCR (no data leaves the machine)",
+    mineru_mode: str = Field(
+        default="cloud",
+        description="MinerU mode: cloud (use MinerU cloud) or local (use self-hosted MinerU)",
     )
-    local_ocr_lang: str = Field(
-        default="ch",
-        description="PaddleOCR language: ch / en / etc.",
+    mineru_backend: str = Field(
+        default="pipeline",
+        description="MinerU parse backend: pipeline (CPU/GPU, no hallucination) or hybrid (high accuracy, needs GPU)",
+    )
+    mineru_effort: str = Field(
+        default="medium",
+        description="MinerU parse effort: medium (fast, 35-220% speedup) or high (best accuracy, supports image analysis)",
     )
 
 
@@ -3072,8 +3076,9 @@ def migrate_legacy_config_to_multi_agent() -> bool:
     print(f"  Default agent workspace: {default_workspace}")
     print(f"  Default agent config: {agent_config_path}")
 
-    # Create builtin arbitrator agent (first time only)
-    _ensure_builtin_arbitrator(config)
+    # Builtin arbitration agents (arbitrator, claimant, respondent, casemanager)
+    # are now created by ensure_builtin_arbitration_agents() in _app.py startup,
+    # which properly initializes workspace structure and persona files.
 
     return True
 

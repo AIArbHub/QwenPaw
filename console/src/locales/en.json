@@ -12,6 +12,7 @@
     "refresh": "Refresh",
     "retry": "Retry",
     "search": "Search",
+    "collapse": "Collapse",
     "enable": "Enable",
     "disable": "Disable",
     "enabled": "Enabled",
@@ -123,10 +124,11 @@
     "tribunal": "Arbitration Moot",
     "moot": "Arbitration Moot",
     "arbitration": "Arbitration",
-    "desensitize": "Desensitize",
+    "desensitize": "Doc Intelligence",
     "knowledge": "Knowledge",
     "cases": "Case Files",
-    "wiki": "Wiki"
+    "wiki": "Wiki",
+    "memory": "Memory"
   },
   "sidebar": {
     "tab": {
@@ -527,7 +529,10 @@
     "saveFailed": "Save failed",
     "saving": "Saving...",
     "saved": "Saved",
-    "unsaved": "Unsaved"
+    "unsaved": "Unsaved",
+    "loadFileListError": "Failed to load file list",
+    "loadFileError": "Failed to load file",
+    "reorderError": "Failed to update file order"
   },
   "agent": {
     "parent": "Settings",
@@ -646,7 +651,9 @@
     "avatarUploadSuccess": "Avatar uploaded successfully",
     "avatarUploadFailed": "Avatar upload failed",
     "avatarDeleteSuccess": "Avatar deleted",
-    "avatarDeleteFailed": "Avatar delete failed"
+    "avatarDeleteFailed": "Avatar delete failed",
+    "listView": "List View",
+    "gridView": "Card View"
   },
   "skills": {
     "title": "Skills",
@@ -2329,6 +2336,20 @@
     "embeddingMaxBatchSizeTooltip": "Maximum number of items in a single batch embedding request",
     "embeddingMaxBatchSizeRequired": "Max batch size is required",
     "embeddingRestartWarning": "Embedding model config does not support hot reload. Save and restart the service for changes to take effect.",
+    "embeddingRecommendHint": "Tip: You can use free embedding models like BAAI/bge-m3 (available via SiliconFlow, DashScope, etc.)",
+    "embeddingTestButton": "Test Connection",
+    "embeddingTestDisabled": "Please complete the embedding model configuration first",
+    "embeddingTestSuccess": "Connection successful! Latency: {{latency}}ms, Dimensions: {{dims}}",
+    "embeddingTestFailed": "Connection failed: {{error}}",
+    "memoryStatusUnknown": "Unknown",
+    "memoryStatusRunning": "Running",
+    "memoryStatusInitialized": "Initialized",
+    "memoryStatusNotInitialized": "Not initialized",
+    "memoryStatusError": "Error",
+    "memoryInitError": "Memory system initialization failed",
+    "memoryDisabledTitle": "Memory Disabled",
+    "memoryDisabledMessage": "Long-term memory is disabled",
+    "memoryDisabledDescription": "The memory backend is set to none. The agent will not save or retrieve conversation memory. To enable, change the memory backend to remelight or adbpg in Basic Settings.",
     "toolExecutionLevelTitle": "Tool Execution Security",
     "toolExecutionLevel": {
       "title": "Tool Execution Security",

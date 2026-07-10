@@ -1,4 +1,2 @@
 allowBuilds:
   esbuild: true
-minimumReleaseAgeExclude:
-  - '@agentscope-ai/chat@1.1.72-beta.1783494781362'

@@ -60,6 +60,7 @@ const KnowledgePage = lazyImportWithRetry("../../pages/Knowledge");
 const CasesPage = lazyImportWithRetry("../../pages/Cases");
 const WikiPage = lazyImportWithRetry("../../pages/Wiki");
 const DesensitizePage = lazyImportWithRetry("../../pages/Desensitize");
+const MemoryPage = lazyImportWithRetry("../../pages/Memory");
 
 // Design mode merged pages
 const DesignSkillsPage = lazyImportWithRetry("../../pages/Design/Skills");
@@ -111,6 +112,11 @@ export const BUILTIN_ROUTES: Route[] = [
     id: "core.desensitize",
     path: "/desensitize",
     component: DesensitizePage,
+  },
+  {
+    id: "core.memory",
+    path: "/memory",
+    component: MemoryPage,
   },
   { id: "core.cron-jobs", path: "/cron-jobs", component: CronJobsPage },
   { id: "core.heartbeat", path: "/heartbeat", component: HeartbeatPage },

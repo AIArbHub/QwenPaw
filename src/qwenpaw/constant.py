@@ -300,6 +300,41 @@ BUILTIN_QA_AGENT_SKILL_NAMES: tuple[str, ...] = (
 # every startup, so users can re-enable this id if they want.
 LEGACY_QA_AGENT_ID = "CoPaw_QA_Agent_0.1beta1"
 
+# ─── Builtin arbitration agents ──────────────────────────────────────────────
+# These agents are auto-created on first startup and appear pre-installed
+# for the user. Each has a bundled persona directory under
+# ``qwenpaw.builtins.<agent_id>`` containing PROFILE.md, SOUL.md, AGENTS.md.
+BUILTIN_ARBITRATOR_AGENT_ID = "arbitrator"
+BUILTIN_ARBITRATOR_AGENT_NAME = "仲裁员"
+BUILTIN_ARBITRATOR_AGENT_DESCRIPTION = (
+    "AI Arb，资深商事仲裁员智能体。核心使命是作为人类仲裁员、律师及当事人的"
+    "**专业辅助伙伴**，提供基于中国法与英美法比较研究的深度分析、文书辅助、"
+    "策略建议与实务解答。"
+)
+
+BUILTIN_CLAIMANT_AGENT_ID = "claimant"
+BUILTIN_CLAIMANT_AGENT_NAME = "申请人"
+BUILTIN_CLAIMANT_AGENT_DESCRIPTION = "仲裁申请人智能体，从申请人立场出发提供法律分析和策略建议。"
+
+BUILTIN_RESPONDENT_AGENT_ID = "respondent"
+BUILTIN_RESPONDENT_AGENT_NAME = "被申请人"
+BUILTIN_RESPONDENT_AGENT_DESCRIPTION = "仲裁被申请人智能体，从被申请人立场出发提供法律分析和防御策略。"
+
+BUILTIN_CASEMANAGER_AGENT_ID = "casemanager"
+BUILTIN_CASEMANAGER_AGENT_NAME = "仲裁秘书"
+BUILTIN_CASEMANAGER_AGENT_DESCRIPTION = (
+    "商事仲裁机构的仲裁秘书，精通仲裁程序管理、仲裁规则、仲裁法、实体法。"
+)
+
+# Ordered list of all builtin arbitration agent specs for initialization.
+BUILTIN_ARBITRATION_AGENTS: list[tuple[str, str, str]] = [
+    # (agent_id, name, description)
+    (BUILTIN_ARBITRATOR_AGENT_ID, BUILTIN_ARBITRATOR_AGENT_NAME, BUILTIN_ARBITRATOR_AGENT_DESCRIPTION),
+    (BUILTIN_CLAIMANT_AGENT_ID, BUILTIN_CLAIMANT_AGENT_NAME, BUILTIN_CLAIMANT_AGENT_DESCRIPTION),
+    (BUILTIN_RESPONDENT_AGENT_ID, BUILTIN_RESPONDENT_AGENT_NAME, BUILTIN_RESPONDENT_AGENT_DESCRIPTION),
+    (BUILTIN_CASEMANAGER_AGENT_ID, BUILTIN_CASEMANAGER_AGENT_NAME, BUILTIN_CASEMANAGER_AGENT_DESCRIPTION),
+]
+
 TOKEN_USAGE_FILE = EnvVarLoader.get_str(
     "QWENPAW_TOKEN_USAGE_FILE",
     "token_usage.json",

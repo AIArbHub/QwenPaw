@@ -90,6 +90,7 @@ include-package-data = true
     "console/**",
     "agents/md_files/**",
     "agents/skills/**",
+    "builtins/**",
     "tokenizer/**",
     "security/tool_guard/rules/**",
     "security/skill_scanner/rules/**",

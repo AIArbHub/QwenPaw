@@ -306,17 +306,18 @@ export const knowledgeApi = {
       default_mode: string;
       mineru_api_key: string;
       mineru_base_url: string;
-      local_ocr_enabled: boolean;
-      local_ocr_lang: string;
+      mineru_mode: string;
+      mineru_backend: string;
+      mineru_effort: string;
       mineru_configured: boolean;
-      paddleocr_installed: { installed: boolean; version: string | null; error?: string; runtime_ok?: boolean; runtime_error?: string };
     }>("/config/documents/parser"),
 
   getOcrStatus: () =>
     request<{
-      paddleocr: { installed: boolean; version: string | null; error?: string; runtime_ok?: boolean; runtime_error?: string };
       mineru_configured: boolean;
-      local_ocr_enabled: boolean;
+      mineru_mode: string;
+      mineru_base_url: string;
+      local_mineru: { reachable: boolean; error?: string; status_code?: number };
       default_mode: string;
     }>("/config/documents/parser/ocr-status"),
 
@@ -324,32 +325,57 @@ export const knowledgeApi = {
     default_mode?: string;
     mineru_api_key?: string;
     mineru_base_url?: string;
-    local_ocr_enabled?: boolean;
-    local_ocr_lang?: string;
+    mineru_mode?: string;
+    mineru_backend?: string;
+    mineru_effort?: string;
   }) =>
     request<{
       default_mode: string;
       mineru_api_key: string;
       mineru_base_url: string;
-      local_ocr_enabled: boolean;
-      local_ocr_lang: string;
+      mineru_mode: string;
+      mineru_backend: string;
+      mineru_effort: string;
       mineru_configured: boolean;
-      paddleocr_installed: { installed: boolean; version: string | null; error?: string; runtime_ok?: boolean; runtime_error?: string };
     }>("/config/documents/parser", {
       method: "PUT",
       body: JSON.stringify(params),
     }),
 
-  installPaddleOCR: (params: { use_mirror?: boolean; mirror_url?: string }) =>
+  deployLocalMineru: (params?: {
+    port?: number;
+    use_mirror?: boolean;
+    mirror_url?: string;
+  }) =>
     request<{
       success: boolean;
-      output: string;
-      paddleocr_installed: { installed: boolean; version: string | null; error?: string; runtime_ok?: boolean; runtime_error?: string };
-      message: string;
-      platform?: string;
-      is_arm_mac?: boolean;
-    }>("/config/documents/parser/install-paddleocr", {
+      stage?: string;
+      error?: string;
+      output?: string;
+      base_url?: string;
+      pid?: number;
+      log_path?: string;
+      message?: string;
+    }>("/config/documents/parser/deploy-local-mineru", {
       method: "POST",
-      body: JSON.stringify(params),
+      body: JSON.stringify(params || { use_mirror: true }),
+      timeout: 20 * 60 * 1000,
+    }),
+
+  getLocalMineruStatus: () =>
+    request<{
+      installed: boolean;
+      version?: string;
+      python_path?: string;
+      running: boolean;
+      venv_dir: string;
+    }>("/config/documents/parser/local-mineru-status"),
+
+  stopLocalMineru: () =>
+    request<{
+      success: boolean;
+      details: string[];
+    }>("/config/documents/parser/stop-local-mineru", {
+      method: "POST",
     }),
 };

@@ -18,7 +18,7 @@ import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import APIRouter, Body, HTTPException, UploadFile, File, Request
+from fastapi import APIRouter, Body, HTTPException, UploadFile, File, Request, Query
 from fastapi.responses import ORJSONResponse, Response, StreamingResponse
 from watchfiles import awatch, Change
 from pydantic import BaseModel, Field
@@ -99,10 +99,11 @@ def _zip_directory(root: Path) -> io.BytesIO:
 )
 async def list_working_files(
     request: Request,
+    agent_id: str | None = Query(default=None),
 ) -> list[MdFileInfo]:
     """List working directory markdown files."""
     try:
-        workspace = await get_agent_for_request(request)
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
         workspace_manager = AgentMdManager(
             str(workspace.workspace_dir),
             agent_id=workspace.agent_id,
@@ -125,10 +126,11 @@ async def list_working_files(
 async def read_working_file(
     md_name: str,
     request: Request,
+    agent_id: str | None = Query(default=None),
 ) -> MdFileContent:
     """Read a working directory markdown file."""
     try:
-        workspace = await get_agent_for_request(request)
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
         workspace_manager = AgentMdManager(
             str(workspace.workspace_dir),
             agent_id=workspace.agent_id,
@@ -151,10 +153,11 @@ async def write_working_file(
     md_name: str,
     body: MdFileContent,
     request: Request,
+    agent_id: str | None = Query(default=None),
 ) -> dict:
     """Write a working directory markdown file."""
     try:
-        workspace = await get_agent_for_request(request)
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
         workspace_manager = AgentMdManager(
             str(workspace.workspace_dir),
             agent_id=workspace.agent_id,
@@ -513,10 +516,11 @@ async def watch_workspace_files(request: Request) -> StreamingResponse:
 )
 async def list_memory_files(
     request: Request,
+    agent_id: str | None = Query(default=None, description="Override active agent"),
 ) -> list[MdFileInfo]:
     """List memory directory markdown files."""
     try:
-        workspace = await get_agent_for_request(request)
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
         workspace_manager = AgentMdManager(
             str(workspace.workspace_dir),
             agent_id=workspace.agent_id,
@@ -524,6 +528,161 @@ async def list_memory_files(
         raw_files = await asyncio.to_thread(workspace_manager.list_memory_mds)
         files = [MdFileInfo.model_validate(file) for file in raw_files]
         return files
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get(
+    "/memory/stats",
+    summary="Get memory statistics",
+    description="Return file count, total size, and latest modification time",
+)
+async def get_memory_stats(
+    request: Request,
+    agent_id: str | None = Query(default=None, description="Override active agent"),
+) -> dict:
+    """Return aggregate statistics for memory files."""
+    try:
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
+        workspace_manager = AgentMdManager(
+            str(workspace.workspace_dir),
+            agent_id=workspace.agent_id,
+        )
+        stats = await asyncio.to_thread(workspace_manager.get_memory_stats)
+        return stats
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get(
+    "/memory/status",
+    summary="Get memory system status",
+    description="Return whether the memory system is initialized and running",
+)
+async def get_memory_status(
+    request: Request,
+    agent_id: str | None = Query(default=None, description="Override active agent"),
+) -> dict:
+    """Return memory system status."""
+    try:
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
+        memory_manager = workspace.memory_manager
+
+        if memory_manager is None:
+            return {
+                "initialized": False,
+                "backend": "none",
+                "error": "No memory manager configured",
+            }
+
+        # Check if ReMeLightMemoryManager and its _reme attribute
+        reme_app = getattr(memory_manager, "_reme", None)
+        is_started = getattr(reme_app, "is_started", False) if reme_app else False
+
+        backend_type = getattr(memory_manager, "__class__", None)
+        backend_name = (
+            backend_type.__name__ if backend_type else "unknown"
+        )
+
+        return {
+            "initialized": reme_app is not None,
+            "started": is_started,
+            "backend": backend_name,
+            "error": None if reme_app is not None else "Memory manager not initialized (import may have failed)",
+        }
+    except Exception as exc:
+        return {
+            "initialized": False,
+            "started": False,
+            "backend": "unknown",
+            "error": str(exc),
+        }
+
+
+# ---------------------------------------------------------------------------
+# Memory file version control (must be before {md_path:path} routes)
+# ---------------------------------------------------------------------------
+
+class MemoryVersionInfo(BaseModel):
+    """Memory file version metadata."""
+    version_id: str = Field(..., description="Version timestamp ID")
+    filename: str = Field(..., description="Versioned filename")
+    size: int = Field(..., description="Size in bytes")
+    created_time: str = Field(..., description="Created time")
+    modified_time: str = Field(..., description="Modified time")
+
+
+@router.get(
+    "/memory/{md_path:path}/versions",
+    response_model=list[MemoryVersionInfo],
+    summary="List memory file versions",
+)
+async def list_memory_versions(
+    md_path: str,
+    request: Request,
+    agent_id: str | None = Query(default=None),
+) -> list[MemoryVersionInfo]:
+    """List all saved versions for a memory file."""
+    try:
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
+        workspace_manager = AgentMdManager(
+            str(workspace.workspace_dir),
+            agent_id=workspace.agent_id,
+        )
+        versions = workspace_manager.list_memory_versions(md_path)
+        return [MemoryVersionInfo.model_validate(v) for v in versions]
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get(
+    "/memory/{md_path:path}/versions/{version_id}",
+    response_model=MdFileContent,
+    summary="Read a memory file version",
+)
+async def read_memory_version(
+    md_path: str,
+    version_id: str,
+    request: Request,
+    agent_id: str | None = Query(default=None),
+) -> MdFileContent:
+    """Read a specific versioned backup of a memory file."""
+    try:
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
+        workspace_manager = AgentMdManager(
+            str(workspace.workspace_dir),
+            agent_id=workspace.agent_id,
+        )
+        content = workspace_manager.read_memory_version(md_path, version_id)
+        return MdFileContent(content=content)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.post(
+    "/memory/{md_path:path}/versions/{version_id}/restore",
+    response_model=MdFileContent,
+    summary="Restore a memory file version",
+)
+async def restore_memory_version(
+    md_path: str,
+    version_id: str,
+    request: Request,
+    agent_id: str | None = Query(default=None),
+) -> MdFileContent:
+    """Restore a memory file from a versioned backup."""
+    try:
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
+        workspace_manager = AgentMdManager(
+            str(workspace.workspace_dir),
+            agent_id=workspace.agent_id,
+        )
+        content = workspace_manager.restore_memory_version(md_path, version_id)
+        return MdFileContent(content=content)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
@@ -537,10 +696,11 @@ async def list_memory_files(
 async def read_memory_file(
     md_path: str,
     request: Request,
+    agent_id: str | None = Query(default=None, description="Override active agent"),
 ) -> MdFileContent:
     """Read a memory directory markdown file."""
     try:
-        workspace = await get_agent_for_request(request)
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
         workspace_manager = AgentMdManager(
             str(workspace.workspace_dir),
             agent_id=workspace.agent_id,
@@ -566,10 +726,11 @@ async def write_memory_file(
     md_path: str,
     body: MdFileContent,
     request: Request,
+    agent_id: str | None = Query(default=None, description="Override active agent"),
 ) -> dict:
     """Write a memory directory markdown file."""
     try:
-        workspace = await get_agent_for_request(request)
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
         workspace_manager = AgentMdManager(
             str(workspace.workspace_dir),
             agent_id=workspace.agent_id,
@@ -582,6 +743,235 @@ async def write_memory_file(
         return {"written": True}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.delete(
+    "/memory/{md_path:path}",
+    summary="Delete a memory file",
+    description="Delete a memory markdown file (uses active agent)",
+)
+async def delete_memory_file(
+    md_path: str,
+    request: Request,
+    agent_id: str | None = Query(default=None, description="Override active agent"),
+) -> dict:
+    """Delete a memory directory markdown file."""
+    try:
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
+        workspace_manager = AgentMdManager(
+            str(workspace.workspace_dir),
+            agent_id=workspace.agent_id,
+        )
+        deleted = await asyncio.to_thread(
+            workspace_manager.delete_memory_md,
+            md_path,
+        )
+        if not deleted:
+            raise HTTPException(status_code=404, detail=f"File not found: {md_path}")
+        return {"deleted": True}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+class MemorySearchRequest(BaseModel):
+    """Request body for memory search."""
+
+    query: str = Field(..., description="Search query")
+    limit: int = Field(default=5, ge=1, description="Max results")
+    min_score: float = Field(default=0.0, ge=0.0, le=1.0, description="Min score")
+
+
+@router.post(
+    "/memory/search",
+    summary="Search memory files",
+    description="Semantic search across memory files (uses active agent's memory manager)",
+)
+async def search_memory(
+    body: MemorySearchRequest,
+    request: Request,
+    agent_id: str | None = Query(default=None, description="Override active agent"),
+) -> dict:
+    """Search memory content via the agent's memory manager."""
+    try:
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
+        memory_manager = workspace.memory_manager
+        if memory_manager is None:
+            return {
+                "success": False,
+                "answer": "",
+                "error": "Memory manager not available",
+            }
+
+        # Try ReMeLightMemoryManager which has memory_search tool
+        search_fn = getattr(memory_manager, "memory_search", None)
+        if search_fn is None:
+            return {
+                "success": False,
+                "answer": "",
+                "error": "Memory search not supported by current backend",
+            }
+
+        result = await search_fn(
+            query=body.query,
+            max_results=body.limit,
+            min_score=body.min_score,
+        )
+
+        # Extract text from ToolChunk
+        answer = ""
+        if hasattr(result, "content"):
+            for block in result.content:
+                if hasattr(block, "text"):
+                    answer += block.text
+        elif isinstance(result, str):
+            answer = result
+
+        return {
+            "success": True,
+            "answer": answer,
+            "query": body.query,
+        }
+    except Exception as exc:
+        return {
+            "success": False,
+            "answer": "",
+            "error": str(exc),
+        }
+
+
+class TestEmbeddingRequest(BaseModel):
+    """Request body for testing embedding connection."""
+
+    backend: str = Field(default="openai")
+    api_key: str = Field(default="")
+    base_url: str = Field(default="")
+    model_name: str = Field(default="")
+    dimensions: int = Field(default=1024)
+
+
+@router.post(
+    "/memory/test-embedding",
+    summary="Test embedding connection",
+    description="Verify that the embedding model configuration works",
+)
+async def test_embedding(
+    body: TestEmbeddingRequest,
+    request: Request,
+) -> dict:
+    """Test embedding connection by generating a simple embedding."""
+    import time
+
+    try:
+        # Build a minimal embedding request based on backend type
+        if body.backend == "ollama":
+            import httpx
+
+            url = f"{body.base_url or 'http://localhost:11434'}/api/embeddings"
+            start = time.time()
+            async with httpx.AsyncClient(timeout=15) as client:
+                resp = await client.post(
+                    url,
+                    json={
+                        "model": body.model_name,
+                        "prompt": "test",
+                    },
+                )
+            latency_ms = int((time.time() - start) * 1000)
+            if resp.status_code != 200:
+                return {
+                    "success": False,
+                    "latency_ms": latency_ms,
+                    "error": f"HTTP {resp.status_code}: {resp.text[:200]}",
+                }
+            data = resp.json()
+            embedding = data.get("embedding", [])
+            return {
+                "success": True,
+                "latency_ms": latency_ms,
+                "dimensions": len(embedding),
+                "error": None,
+            }
+        else:
+            # OpenAI-compatible (openai, dashscope, dashscope_multimodal, gemini)
+            import httpx
+
+            base = body.base_url or "https://api.openai.com/v1"
+            url = f"{base.rstrip('/')}/embeddings"
+            headers = {"Authorization": f"Bearer {body.api_key}"}
+            start = time.time()
+            async with httpx.AsyncClient(timeout=15) as client:
+                resp = await client.post(
+                    url,
+                    headers=headers,
+                    json={
+                        "model": body.model_name,
+                        "input": "test",
+                    },
+                )
+            latency_ms = int((time.time() - start) * 1000)
+            if resp.status_code != 200:
+                return {
+                    "success": False,
+                    "latency_ms": latency_ms,
+                    "error": f"HTTP {resp.status_code}: {resp.text[:200]}",
+                }
+            data = resp.json()
+            embedding = data.get("data", [{}])[0].get("embedding", [])
+            return {
+                "success": True,
+                "latency_ms": latency_ms,
+                "dimensions": len(embedding),
+                "error": None,
+            }
+    except Exception as exc:
+        return {
+            "success": False,
+            "latency_ms": 0,
+            "error": str(exc),
+        }
+
+
+@router.post(
+    "/memory/reindex",
+    summary="Rebuild memory search index",
+    description="Trigger a full rebuild of the memory search index",
+)
+async def reindex_memory(
+    request: Request,
+    agent_id: str | None = Query(default=None, description="Override active agent"),
+) -> dict:
+    """Trigger memory index rebuild via ReMe reindex job."""
+    try:
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
+        memory_manager = workspace.memory_manager
+        if memory_manager is None:
+            return {
+                "success": False,
+                "error": "Memory manager not available",
+            }
+
+        # Try to run reindex job on ReMeLightMemoryManager
+        run_job = getattr(memory_manager, "_run_reme_job", None)
+        if run_job is None:
+            return {
+                "success": False,
+                "error": "Reindex not supported by current backend",
+            }
+
+        response = await run_job("reindex")
+        answer = str(getattr(response, "answer", "") or "") if response else ""
+        return {
+            "success": response is not None,
+            "answer": answer,
+            "error": None if response else "Reindex returned no response",
+        }
+    except Exception as exc:
+        return {
+            "success": False,
+            "error": str(exc),
+        }
 
 
 @router.get(

@@ -26,6 +26,8 @@ import {
   WarningOutlined,
   EyeOutlined,
   FileSearchOutlined,
+  FileTextOutlined,
+  ReadOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -154,10 +156,10 @@ export default function DesensitizeWorkbench() {
     default_mode: string;
     mineru_api_key: string;
     mineru_base_url: string;
-    local_ocr_enabled: boolean;
-    local_ocr_lang: string;
+    mineru_mode: string;
+    mineru_backend: string;
+    mineru_effort: string;
     mineru_configured: boolean;
-    paddleocr_installed: { installed: boolean; version: string | null; error?: string; runtime_ok?: boolean; runtime_error?: string };
   } | null>(null);
   const [parserSaving, setParserSaving] = useState(false);
   const [ocrStatusLoading, setOcrStatusLoading] = useState(false);
@@ -166,10 +168,16 @@ export default function DesensitizeWorkbench() {
   const [ocrTryEngine, setOcrTryEngine] = useState<string>("");
   const [ocrTryError, setOcrTryError] = useState<string>("");
   const [ocrTryDiagnostics, setOcrTryDiagnostics] = useState<Record<string, string> | null>(null);
-  const [ocrEngine, setOcrEngine] = useState<"auto" | "cloud_ocr" | "local_only">("auto");
-  const [paddleInstalling, setPaddleInstalling] = useState(false);
-  const [paddleInstallLog, setPaddleInstallLog] = useState<string | null>(null);
-  const [paddleInstallResult, setPaddleInstallResult] = useState<{ success: boolean; message: string; platform?: string; is_arm_mac?: boolean } | null>(null);
+  const [localMineruStatus, setLocalMineruStatus] = useState<{ reachable: boolean; error?: string } | null>(null);
+  const [deploying, setDeploying] = useState(false);
+  const [deployResult, setDeployResult] = useState<{
+    success: boolean;
+    method?: string;
+    stage?: string;
+    error?: string;
+    output?: string;
+    message?: string;
+  } | null>(null);
   const isCNUser = useMemo(() => {
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
@@ -178,18 +186,6 @@ export default function DesensitizeWorkbench() {
       return false;
     }
   }, []);
-  const isMac = useMemo(() => navigator.platform?.toUpperCase().includes("MAC") || /Mac|iPod|iPhone|iPad/.test(navigator.userAgent), []);
-  const pipCmd = useMemo(() => {
-    if (isMac) {
-      return isCNUser
-        ? "pip install paddleocr paddlepaddle -i https://pypi.tuna.tsinghua.edu.cn/simple"
-        : "pip install paddleocr paddlepaddle";
-    }
-    // Windows: 使用 2.x 版本避免 oneDNN 兼容性问题
-    return isCNUser
-      ? 'pip install "paddleocr==2.9.1" "paddlepaddle==2.6.2" -i https://pypi.tuna.tsinghua.edu.cn/simple'
-      : 'pip install "paddleocr==2.9.1" "paddlepaddle==2.6.2"';
-  }, [isCNUser, isMac]);
 
   useEffect(() => {
     knowledgeApi.getParserConfig().then(setParserConfig).catch(() => {});
@@ -199,36 +195,12 @@ export default function DesensitizeWorkbench() {
     setOcrStatusLoading(true);
     try {
       const res = await knowledgeApi.getOcrStatus();
-      setParserConfig((prev) => prev ? { ...prev, paddleocr_installed: res.paddleocr, mineru_configured: res.mineru_configured, local_ocr_enabled: res.local_ocr_enabled } : prev);
+      setParserConfig((prev) => prev ? { ...prev, mineru_configured: res.mineru_configured, mineru_mode: res.mineru_mode, mineru_base_url: res.mineru_base_url } : prev);
+      setLocalMineruStatus(res.local_mineru || null);
     } catch {
       message.error(t("ocrStatusError", "检查失败"));
     } finally {
       setOcrStatusLoading(false);
-    }
-  };
-
-  const handleInstallPaddleOCR = async () => {
-    setPaddleInstalling(true);
-    setPaddleInstallLog(null);
-    setPaddleInstallResult(null);
-    try {
-      const res = await knowledgeApi.installPaddleOCR({
-        use_mirror: isCNUser,
-        mirror_url: isCNUser ? "https://pypi.tuna.tsinghua.edu.cn/simple" : undefined,
-      });
-      setPaddleInstallLog(res.output);
-      setPaddleInstallResult({ success: res.success, message: res.message, platform: res.platform, is_arm_mac: res.is_arm_mac });
-      if (res.success) {
-        message.success("PaddleOCR 安装成功！");
-        setParserConfig((prev) => prev ? { ...prev, paddleocr_installed: res.paddleocr_installed } : prev);
-      } else {
-        message.error(res.message);
-      }
-    } catch (err: any) {
-      setPaddleInstallResult({ success: false, message: `安装请求失败：${err.message || err}` });
-      message.error("安装请求失败");
-    } finally {
-      setPaddleInstalling(false);
     }
   };
 
@@ -242,7 +214,7 @@ export default function DesensitizeWorkbench() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch(`/api/knowledge/ocr-try?engine=${ocrEngine}`, {
+      const res = await fetch("/api/knowledge/ocr-try", {
         method: "POST",
         body: formData,
       });
@@ -256,7 +228,7 @@ export default function DesensitizeWorkbench() {
         setOcrTryDiagnostics(data.diagnostics);
       }
     } catch {
-      message.error(t("ocrTryError", "OCR 识别失败，请检查 OCR 配置"));
+      message.error(t("ocrTryError", "文档识别失败，请检查文档引擎配置"));
       setOcrTryResult("");
     } finally {
       setOcrTryLoading(false);
@@ -268,11 +240,53 @@ export default function DesensitizeWorkbench() {
     try {
       const res = await knowledgeApi.updateParserConfig(updates);
       setParserConfig(res);
-      message.success(t("parserConfigSaved", "OCR配置已保存"));
+      message.success(t("parserConfigSaved", "文档引擎配置已保存"));
     } catch {
       message.error(t("parserConfigError", "保存失败"));
     } finally {
       setParserSaving(false);
+    }
+  };
+
+  const handleDeployMineru = async () => {
+    setDeploying(true);
+    setDeployResult(null);
+    try {
+      const res = await knowledgeApi.deployLocalMineru({
+        use_mirror: isCNUser,
+        mirror_url: isCNUser ? "https://pypi.tuna.tsinghua.edu.cn/simple" : undefined,
+      });
+      setDeployResult(res);
+      if (res.success) {
+        message.success(res.message || "本地文档引擎部署成功！");
+        await refreshOcrStatus();
+        const cfg = await knowledgeApi.getParserConfig();
+        setParserConfig(cfg);
+      } else {
+        message.error(res.error || "部署失败");
+      }
+    } catch (err: any) {
+      const isAbort = err.name === "AbortError" || (err.message || "").includes("abort");
+      const errorMsg = isAbort
+        ? "请求超时，部署可能仍在后台进行中，请稍后检查服务状态"
+        : `请求失败: ${err.message || err}`;
+      setDeployResult({ success: false, error: errorMsg });
+      message.error(isAbort ? "请求超时，请稍后检查状态" : "部署请求失败");
+    } finally {
+      setDeploying(false);
+    }
+  };
+
+  const handleStopMineru = async () => {
+    try {
+      await knowledgeApi.stopLocalMineru();
+      message.success("本地文档引擎已停止");
+      await refreshOcrStatus();
+      const cfg = await knowledgeApi.getParserConfig();
+      setParserConfig(cfg);
+      setLocalMineruStatus(null);
+    } catch {
+      message.error("停止失败");
     }
   };
 
@@ -419,7 +433,7 @@ export default function DesensitizeWorkbench() {
                   <strong>{t("solutionLabel", "解决方案：")}</strong>
                 </p>
                 <ul style={{ paddingLeft: 20, fontSize: 13, marginTop: 4 }}>
-                  <li>{t("sol1", "配置MinerU API密钥以启用云端OCR功能")}</li>
+                  <li>{t("sol1", "在「引擎设置」页面配置 API 密钥或部署本地引擎，启用文档识别功能")}</li>
                   <li>{t("sol2", "使用带有可选文字层的PDF（非扫描件）")}</li>
                   <li>{t("sol3", "手动复制粘贴文本内容到输入框")}</li>
                 </ul>
@@ -660,7 +674,7 @@ export default function DesensitizeWorkbench() {
 
   return (
     <div className={styles.pageContainer}>
-      <PageHeader current={t("pageTitle", "脱敏")} />
+      <PageHeader current={t("pageTitle", "文档智能")} />
 
       <Tabs
         activeKey={activeTab}
@@ -670,7 +684,7 @@ export default function DesensitizeWorkbench() {
           {
             key: "workspace",
             label: (
-              <span><EditOutlined /> {t("tabWorkspace", "工作台")}</span>
+              <span><EditOutlined /> {t("tabWorkspace", "材料脱敏")}</span>
             ),
             children: (
               <div className={styles.workspaceContent}>
@@ -1153,7 +1167,7 @@ export default function DesensitizeWorkbench() {
             label: (
               <span>
                 <HistoryOutlined />
-                {t("tabTasks", "任务列表")}
+                {t("tabTasks", "脱敏记录")}
                 {taskList.length > 0 && <Badge count={taskList.length} style={{ marginLeft: 6 }} />}
               </span>
             ),
@@ -1194,7 +1208,7 @@ export default function DesensitizeWorkbench() {
           {
             key: "settings",
             label: (
-              <span><SettingOutlined /> {t("tabSettings", "规则设置")}</span>
+              <span><SettingOutlined /> {t("tabSettings", "脱敏规则")}</span>
             ),
             children: (
               <div className={styles.tabContent}>
@@ -1262,7 +1276,7 @@ export default function DesensitizeWorkbench() {
           {
             key: "ocr",
             label: (
-              <span><EyeOutlined /> {t("tabOcr", "OCR 工具")}</span>
+              <span><ReadOutlined /> {t("tabOcr", "引擎设置")}</span>
             ),
             children: (
               <div className={styles.tabContent}>
@@ -1270,8 +1284,8 @@ export default function DesensitizeWorkbench() {
                   <div className={styles.ocrLeftCol}>
                     <div className={styles.ocrSection}>
                       <div className={styles.sectionHeader} style={{ marginBottom: 12 }}>
-                        <EyeOutlined />
-                        <span className={styles.sectionTitle}>{t("ocrConfigTitle", "OCR 配置")}</span>
+                        <ReadOutlined />
+                        <span className={styles.sectionTitle}>{t("ocrConfigTitle", "文档智能引擎")}</span>
                       </div>
 
                       <Alert
@@ -1279,7 +1293,7 @@ export default function DesensitizeWorkbench() {
                         showIcon
                         message={t(
                           "ocrConfigInfo",
-                          "扫描版PDF和图片需要OCR才能提取文字。支持云端OCR（MinerU）和本地OCR（PaddleOCR）两种方式。",
+                          "文档智能引擎负责将 PDF、图片、Office 文档等转换为可处理的文本，是脱敏、知识库、卷宗系统的文档处理基座。当前使用 MinerU 引擎，支持云端调用和本地部署两种方式。",
                         )}
                         style={{ marginBottom: 12 }}
                       />
@@ -1288,8 +1302,8 @@ export default function DesensitizeWorkbench() {
                         <div className={styles.ocrConfigCard}>
                           <div className={styles.ocrCardHeader}>
                             <CloudOutlined style={{ color: "#1677ff" }} />
-                            <span className={styles.ocrCardTitle}>{t("cloudOcrTitle", "云端 OCR（MinerU）")}</span>
-                            {parserConfig?.mineru_configured ? (
+                            <span className={styles.ocrCardTitle}>{t("cloudOcrTitle", "云端模式")}</span>
+                            {parserConfig?.mineru_configured && parserConfig?.mineru_mode === "cloud" ? (
                               <Tag color="green">{t("configured", "已配置")}</Tag>
                             ) : (
                               <Tag color="default">{t("notConfigured", "未配置")}</Tag>
@@ -1297,29 +1311,37 @@ export default function DesensitizeWorkbench() {
                           </div>
                           <div className={styles.ocrCardBody}>
                             <div className={styles.ocrField}>
-                              <label>{t("mineruApiKey", "API 密钥")}</label>
+                              <label>{t("mineruApiKey", "API 密钥")}
+                                <Tooltip title="API 密钥是访问 MinerU 云端服务的授权凭证，类似于密码。在 mineru.net 注册后即可获取，免费额度通常足够日常使用。">
+                                  <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
+                                </Tooltip>
+                              </label>
                               <Input.Password
-                                placeholder={t("mineruApiKeyPlaceholder", "输入 MinerU API Key")}
+                                placeholder={t("mineruApiKeyPlaceholder", "粘贴从 mineru.net 获取的密钥")}
                                 defaultValue=""
                                 onBlur={(e) => {
                                   const v = e.target.value.trim();
-                                  if (v) handleSaveParserConfig({ mineru_api_key: v });
+                                  if (v) handleSaveParserConfig({ mineru_api_key: v, mineru_mode: "cloud" });
                                 }}
                               />
                             </div>
                             <div className={styles.ocrField}>
-                              <label>{t("mineruBaseUrl", "API 地址")}</label>
+                              <label>{t("mineruBaseUrl", "API 地址")}
+                                <Tooltip title="MinerU 云端服务的接口地址，一般无需修改。如使用私有部署的 MinerU 服务，可更改为对应地址。">
+                                  <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
+                                </Tooltip>
+                              </label>
                               <Input
                                 placeholder="https://mineru.net/api/v4"
-                                defaultValue={parserConfig?.mineru_base_url || "https://mineru.net/api/v4"}
+                                defaultValue={parserConfig?.mineru_mode === "cloud" ? (parserConfig?.mineru_base_url || "https://mineru.net/api/v4") : "https://mineru.net/api/v4"}
                                 onBlur={(e) => {
                                   const v = e.target.value.trim();
-                                  if (v) handleSaveParserConfig({ mineru_base_url: v });
+                                  if (v) handleSaveParserConfig({ mineru_base_url: v, mineru_mode: "cloud" });
                                 }}
                               />
                             </div>
                             <Text type="secondary" style={{ fontSize: 12 }}>
-                              {t("cloudOcrNote", "数据将发送至MinerU云端处理，请阅读其隐私政策。")}
+                              {t("cloudOcrNote", "文档将上传至 MinerU 云端处理，请确保不涉及保密要求。")}
                             </Text>
 
                             <Collapse
@@ -1327,20 +1349,19 @@ export default function DesensitizeWorkbench() {
                               ghost
                               style={{ marginTop: 8 }}
                               items={[{
-                                key: "mineru-guide",
-                                label: <Text type="secondary" style={{ fontSize: 12 }}>MinerU 配置指引</Text>,
+                                key: "mineru-cloud-guide",
+                                label: <Text type="secondary" style={{ fontSize: 12 }}>如何获取 API 密钥？</Text>,
                                 children: (
                                   <div style={{ fontSize: 12, lineHeight: 1.8 }}>
-                                    <p style={{ fontWeight: 500, marginBottom: 4 }}>如何获取 API Key：</p>
                                     <ol style={{ paddingLeft: 16, margin: 0 }}>
                                       <li>访问 <a href="https://mineru.net" target="_blank" rel="noopener noreferrer">mineru.net</a> 注册账号</li>
                                       <li>登录后进入「API 密钥」页面</li>
                                       <li>点击「创建新密钥」，复制生成的 Key</li>
-                                      <li>将 Key 粘贴到上方「API 密钥」输入框，点击外部自动保存</li>
+                                      <li>将 Key 粘贴到上方「API 密钥」输入框，点击页面其他位置即可自动保存</li>
                                     </ol>
                                     <div style={{ marginTop: 8, padding: "6px 8px", background: "var(--ant-color-fill-quaternary)", borderRadius: 4 }}>
                                       <Text type="secondary" style={{ fontSize: 11 }}>
-                                        💡 提示：MinerU 提供免费额度，超出后按量计费。识别精度高，适合对质量要求较高的场景。如需完全离线使用，请选择本地 PaddleOCR。
+                                        💡 MinerU 提供免费额度，日常使用通常足够。如文档涉及保密要求，建议使用本地部署模式。
                                       </Text>
                                     </div>
                                   </div>
@@ -1353,236 +1374,220 @@ export default function DesensitizeWorkbench() {
                         <div className={styles.ocrConfigCard}>
                           <div className={styles.ocrCardHeader}>
                             <SafetyCertificateOutlined style={{ color: "#52c41a" }} />
-                            <span className={styles.ocrCardTitle}>{t("localOcrTitle", "本地 OCR（PaddleOCR）")}</span>
+                            <span className={styles.ocrCardTitle}>{t("localOcrTitle", "本地模式")}</span>
                             <Tag color="green">{t("dataLocal", "数据不出本机")}</Tag>
-                            {parserConfig?.paddleocr_installed?.installed && (
-                              <Tag color="success" style={{ marginLeft: 0, fontSize: 11 }}>
-                                v{parserConfig.paddleocr_installed.version || "?"}
-                              </Tag>
+                            {localMineruStatus?.reachable && (
+                              <Tag color="success" style={{ marginLeft: 0, fontSize: 11 }}>在线</Tag>
                             )}
                           </div>
                           <div className={styles.ocrCardBody}>
-                            <div className={styles.ocrInlineControls}>
-                              <Space size={8}>
-                                <Switch
-                                  checked={parserConfig?.local_ocr_enabled ?? true}
-                                  loading={parserSaving}
-                                  disabled={!parserConfig?.paddleocr_installed?.installed}
-                                  onChange={(v) => handleSaveParserConfig({ local_ocr_enabled: v })}
+                            {localMineruStatus?.reachable ? (
+                              <div>
+                                <Alert
+                                  type="success"
+                                  showIcon
+                                  message="本地服务运行中"
+                                  description="所有文档在本机处理，不会上传到任何外部服务器，适合处理保密文件。"
+                                  style={{ marginBottom: 12 }}
                                 />
-                                <span style={{ fontSize: 13, fontWeight: 500 }}>
-                                  {t("localOcrEnabled", "启用")}
-                                </span>
-                              </Space>
-                              <Space size={8}>
-                                <span style={{ fontSize: 13 }}>{t("localOcrLang", "语言")}</span>
-                                <Select
-                                  value={parserConfig?.local_ocr_lang || "ch"}
-                                  style={{ width: 140 }}
-                                  size="small"
-                                  disabled={!parserConfig?.paddleocr_installed?.installed}
-                                  onChange={(v) => handleSaveParserConfig({ local_ocr_lang: v })}
-                                  options={[
-                                    { value: "ch", label: "中文" },
-                                    { value: "en", label: "English" },
-                                    { value: "ch_en", label: "中文+English" },
-                                    { value: "japan", label: "日本語" },
-                                    { value: "korean", label: "한국어" },
-                                  ]}
-                                />
-                              </Space>
-                              {!parserConfig?.paddleocr_installed?.installed && (
-                                <Tooltip title="请先安装 PaddleOCR，见下方安装引导">
-                                  <Tag color="warning" icon={<WarningOutlined />} style={{ cursor: "help" }}>
-                                    未安装
-                                  </Tag>
-                                </Tooltip>
-                              )}
-                              <Button
-                                size="small"
-                                type="text"
-                                icon={<ReloadOutlined />}
-                                onClick={refreshOcrStatus}
-                                loading={ocrStatusLoading}
-                                style={{ marginLeft: "auto", fontSize: 12 }}
-                              >
-                                检测
-                              </Button>
-                            </div>
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                              {parserConfig?.paddleocr_installed?.installed
-                                ? t("localOcrNoteOk", "PaddleOCR 已就绪，所有数据在本地处理，不会上传。")
-                                : t("localOcrNote", "需要安装 paddleocr 和 paddlepaddle 包。所有数据在本地处理，不会上传。")
-                              }
-                            </Text>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className={styles.ocrSection}>
-                      <div className={styles.sectionHeader} style={{ marginBottom: 12 }}>
-                        <QuestionCircleOutlined />
-                        <span className={styles.sectionTitle}>{t("paddleocrInstallTitle", "PaddleOCR 安装")}</span>
-                      </div>
-
-                      {parserConfig?.paddleocr_installed?.installed ? (
-                        <Alert
-                          type="success"
-                          showIcon
-                          message={t("paddleocrInstalled", "PaddleOCR 已安装")}
-                          description={t("paddleocrInstalledDesc", "当前版本：{{version}}，本地 OCR 功能可正常使用。", { version: parserConfig.paddleocr_installed.version || "未知" })}
-                          action={
-                            <Button size="small" icon={<ReloadOutlined />} onClick={refreshOcrStatus} loading={ocrStatusLoading}>
-                              重新检测
-                            </Button>
-                          }
-                        />
-                      ) : (
-                        <div>
-                          <Alert
-                            type="warning"
-                            showIcon
-                            message="PaddleOCR 尚未安装"
-                            description={
-                              <span>
-                                点击下方按钮一键安装，无需手动操作终端。
-                                {isCNUser && <Tag color="blue" style={{ marginLeft: 4 }}>国内镜像已启用</Tag>}
-                              </span>
-                            }
-                            style={{ marginBottom: 12 }}
-                          />
-
-                          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
-                            <Button
-                              type="primary"
-                              size="large"
-                              icon={<DownloadOutlined />}
-                              loading={paddleInstalling}
-                              onClick={handleInstallPaddleOCR}
-                            >
-                              {paddleInstalling ? "正在安装..." : "一键安装 PaddleOCR"}
-                            </Button>
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                              {isCNUser
-                                ? "使用清华镜像源加速下载"
-                                : "使用 PyPI 官方源"
-                              }
-                              {" · 约 200MB · 预计 2-5 分钟"}
-                              {isMac && <Tag color="blue" style={{ marginLeft: 4, fontSize: 11 }}>macOS</Tag>}
-                            </Text>
-                          </div>
-
-                          {/* 安装进度/日志 */}
-                          {paddleInstalling && (
-                            <div style={{
-                              padding: 12,
-                              background: "#0d1117",
-                              borderRadius: 8,
-                              color: "#58a6ff",
-                              fontSize: 12,
-                              fontFamily: "monospace",
-                              maxHeight: 200,
-                              overflow: "auto",
-                              marginBottom: 12,
-                            }}>
-                              <div style={{ color: "#7ee787" }}>▶ 正在安装 paddleocr paddlepaddle...</div>
-                              <div style={{ color: "#8b949e", marginTop: 4 }}>请耐心等待，安装期间请勿关闭页面</div>
-                              <Spin size="small" style={{ marginTop: 8, color: "#58a6ff" }} />
-                            </div>
-                          )}
-
-                          {paddleInstallLog && !paddleInstalling && (
-                            <div style={{
-                              padding: 12,
-                              background: "#0d1117",
-                              borderRadius: 8,
-                              color: paddleInstallResult?.success ? "#7ee787" : "#f85149",
-                              fontSize: 12,
-                              fontFamily: "monospace",
-                              maxHeight: 300,
-                              overflow: "auto",
-                              marginBottom: 12,
-                              whiteSpace: "pre-wrap",
-                              wordBreak: "break-all",
-                            }}>
-                              <div style={{ fontWeight: "bold", marginBottom: 4 }}>
-                                {paddleInstallResult?.success ? "✅ 安装成功" : "❌ 安装失败"}
-                              </div>
-                              {paddleInstallLog}
-                            </div>
-                          )}
-
-                          {paddleInstallResult && !paddleInstallResult.success && (
-                            <Alert
-                              type="error"
-                              showIcon
-                              message="安装失败"
-                              description={
-                                <div>
-                                  <p style={{ marginBottom: 4 }}>{paddleInstallResult.message}</p>
-                                  {paddleInstallResult.is_arm_mac && (
-                                    <Alert
-                                      type="info"
-                                      showIcon
-                                      message="Apple Silicon 提示"
-                                      description="M系列芯片 Mac 上 PaddlePaddle 可能需要 Rosetta 环境运行 Python，建议使用 conda 安装：conda install paddlepaddle"
-                                      style={{ marginBottom: 8, fontSize: 12 }}
+                                <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+                                  <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>
+                                      识别方式
+                                      <Tooltip title="Pipeline：传统流水线方式，CPU 即可运行，结果稳定可靠；Hybrid：结合大模型的混合方式，精度更高但需要 GPU 显卡。">
+                                        <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
+                                      </Tooltip>
+                                    </label>
+                                    <Select
+                                      value={parserConfig?.mineru_backend || "pipeline"}
+                                      size="small"
+                                      style={{ width: "100%" }}
+                                      onChange={(v) => handleSaveParserConfig({ mineru_backend: v })}
+                                      options={[
+                                        { value: "pipeline", label: "Pipeline（通用，无需显卡）" },
+                                        { value: "hybrid", label: "Hybrid（高精度，需显卡）" },
+                                      ]}
                                     />
-                                  )}
-                                  <p style={{ marginBottom: 4, fontSize: 12 }}>
-                                    可以尝试手动安装：打开终端（{isMac ? "Mac: 启动台 → 其他 → 终端" : "Windows: Win+R → cmd"}），执行以下命令：
-                                  </p>
-                                  <div className={styles.codeBlock}>
-                                    <code>{pipCmd}</code>
-                                    <Tooltip title="复制">
-                                      <CopyOutlined
-                                        className={styles.copyBtn}
-                                        onClick={() => {
-                                          navigator.clipboard.writeText(pipCmd);
-                                          message.success("已复制");
-                                        }}
-                                      />
-                                    </Tooltip>
+                                  </div>
+                                  <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>
+                                      识别精度
+                                      <Tooltip title="Medium：速度较快，适合日常文档；High：精度最佳，适合复杂排版或手写内容，但耗时更长。">
+                                        <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
+                                      </Tooltip>
+                                    </label>
+                                    <Select
+                                      value={parserConfig?.mineru_effort || "medium"}
+                                      size="small"
+                                      style={{ width: "100%" }}
+                                      onChange={(v) => handleSaveParserConfig({ mineru_effort: v })}
+                                      options={[
+                                        { value: "medium", label: "Medium（快速）" },
+                                        { value: "high", label: "High（最佳）" },
+                                      ]}
+                                    />
                                   </div>
                                 </div>
-                              }
-                              style={{ marginBottom: 12 }}
-                            />
-                          )}
-
-                          <Collapse
-                            size="small"
-                            ghost
-                            items={[{
-                              key: "manual",
-                              label: <Text type="secondary" style={{ fontSize: 12 }}>手动安装步骤（高级用户）</Text>,
-                              children: (
-                                <div style={{ fontSize: 12 }}>
-                                  <p>1. 打开终端（{isMac ? "Mac: 启动台 → 其他 → 终端，或 Spotlight 搜索 Terminal" : "Windows: Win+R → 输入 cmd → 回车"}）</p>
-                                  <div className={styles.codeBlock} style={{ marginBottom: 8 }}>
-                                    <code>{pipCmd}</code>
-                                    <CopyOutlined className={styles.copyBtn} onClick={() => {
-                                      navigator.clipboard.writeText(pipCmd);
-                                      message.success("已复制");
-                                    }} />
-                                  </div>
-                                  {!isMac && (
-                                    <p>2. 如有 NVIDIA 显卡，可安装 GPU 版本加速：将 paddlepaddle==2.6.2 替换为 paddlepaddle-gpu==2.6.2</p>
-                                  )}
-                                  {isMac && (
-                                    <p>2. Apple Silicon (M系列) Mac 如安装失败，可尝试使用 conda：conda install paddlepaddle</p>
-                                  )}
-                                  <p>{isMac ? "3" : "3"}. 安装后点击下方按钮验证：</p>
-                                  <Button size="small" icon={<CheckCircleOutlined />} loading={ocrStatusLoading} onClick={refreshOcrStatus}>
-                                    检查安装状态
+                                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                                  <Button
+                                    size="small"
+                                    type="text"
+                                    icon={<ReloadOutlined />}
+                                    onClick={refreshOcrStatus}
+                                    loading={ocrStatusLoading}
+                                    style={{ fontSize: 12 }}
+                                  >
+                                    检测连接
+                                  </Button>
+                                  <Button
+                                    size="small"
+                                    danger
+                                    type="text"
+                                    onClick={handleStopMineru}
+                                    style={{ fontSize: 12 }}
+                                  >
+                                    停止服务
                                   </Button>
                                 </div>
-                              ),
-                            }]}
-                          />
+                              </div>
+                            ) : (
+                              <div>
+                                <Alert
+                                  type="info"
+                                  showIcon
+                                  message="一键部署本地文档引擎"
+                                  description="点击按钮即可自动完成安装，无需任何技术操作。部署后所有文档在本机处理，不联网也能使用。"
+                                  style={{ marginBottom: 12 }}
+                                />
+
+                                <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+                                  <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>
+                                      识别方式
+                                      <Tooltip title="Pipeline：传统流水线方式，CPU 即可运行，结果稳定可靠；Hybrid：结合大模型的混合方式，精度更高但需要 GPU 显卡。">
+                                        <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
+                                      </Tooltip>
+                                    </label>
+                                    <Select
+                                      value={parserConfig?.mineru_backend || "pipeline"}
+                                      size="small"
+                                      style={{ width: "100%" }}
+                                      onChange={(v) => handleSaveParserConfig({ mineru_backend: v })}
+                                      options={[
+                                        { value: "pipeline", label: "Pipeline（通用，无需显卡）" },
+                                        { value: "hybrid", label: "Hybrid（高精度，需显卡）" },
+                                      ]}
+                                    />
+                                  </div>
+                                  <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>
+                                      识别精度
+                                      <Tooltip title="Medium：速度较快，适合日常文档；High：精度最佳，适合复杂排版或手写内容，但耗时更长。">
+                                        <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
+                                      </Tooltip>
+                                    </label>
+                                    <Select
+                                      value={parserConfig?.mineru_effort || "medium"}
+                                      size="small"
+                                      style={{ width: "100%" }}
+                                      onChange={(v) => handleSaveParserConfig({ mineru_effort: v })}
+                                      options={[
+                                        { value: "medium", label: "Medium（快速）" },
+                                        { value: "high", label: "High（最佳）" },
+                                      ]}
+                                    />
+                                  </div>
+                                </div>
+
+                                <Button
+                                  type="primary"
+                                  size="large"
+                                  icon={<DownloadOutlined />}
+                                  loading={deploying}
+                                  onClick={handleDeployMineru}
+                                  block
+                                >
+                                  {deploying ? "正在部署..." : "一键部署本地文档引擎"}
+                                </Button>
+
+                                <Text type="secondary" style={{ fontSize: 12, display: "block", marginTop: 8, marginBottom: 8 }}>
+                                  {deploying
+                                    ? "⏳ 正在安装，首次约需 5-15 分钟，请耐心等待..."
+                                    : "部署后文档全程在本机处理，无需联网，适合处理保密文件。"
+                                  }
+                                </Text>
+
+                                {deploying && (
+                                  <div style={{
+                                    padding: 12,
+                                    background: "#0d1117",
+                                    borderRadius: 8,
+                                    color: "#58a6ff",
+                                    fontSize: 12,
+                                    fontFamily: "monospace",
+                                    marginBottom: 12,
+                                  }}>
+                                    <div style={{ color: "#7ee787" }}>▶ 正在部署本地文档引擎...</div>
+                                    <div style={{ color: "#8b949e", marginTop: 4 }}>安装步骤：准备环境 → 安装程序 → 启动服务</div>
+                                    <div style={{ color: "#8b949e" }}>请耐心等待，部署期间请勿关闭此页面</div>
+                                    <Spin size="small" style={{ marginTop: 8 }} />
+                                  </div>
+                                )}
+
+                                {deployResult && !deploying && (
+                                  <div style={{
+                                    padding: 12,
+                                    background: deployResult.success ? "#f6ffed" : "#fff2f0",
+                                    borderRadius: 8,
+                                    marginBottom: 12,
+                                    fontSize: 12,
+                                  }}>
+                                    <div style={{ fontWeight: "bold", marginBottom: 4, color: deployResult.success ? "#52c41a" : "#ff4d4f" }}>
+                                      {deployResult.success ? "✅ 部署成功" : "❌ 部署失败"}
+                                    </div>
+                                    {deployResult.message && <div style={{ marginBottom: 4 }}>{deployResult.message}</div>}
+                                    {deployResult.error && <div style={{ color: "#ff4d4f" }}>{deployResult.error}</div>}
+                                    {deployResult.output && (
+                                      <pre style={{
+                                        background: "#0d1117", color: "#8b949e", padding: 8,
+                                        borderRadius: 4, fontSize: 11, maxHeight: 150,
+                                        overflow: "auto", marginTop: 4, whiteSpace: "pre-wrap",
+                                      }}>
+                                        {deployResult.output}
+                                      </pre>
+                                    )}
+                                  </div>
+                                )}
+
+                                <Collapse
+                                  size="small"
+                                  ghost
+                                  items={[{
+                                    key: "mineru-local-guide",
+                                    label: <Text type="secondary" style={{ fontSize: 12 }}>高级用户：手动部署命令</Text>,
+                                    children: (
+                                      <div style={{ fontSize: 12, lineHeight: 1.8 }}>
+                                        <div className={styles.codeBlock} style={{ marginBottom: 8 }}>
+                                          <code>{`python -m venv .mineru-venv\n.mineru-venv\\Scripts\\activate  # Windows\nsource .mineru-venv/bin/activate  # macOS/Linux\npip install uv\nuv pip install -U "mineru[all]"\nmineru-api --host 0.0.0.0 --port 8000`}</code>
+                                          <CopyOutlined className={styles.copyBtn} onClick={() => {
+                                            navigator.clipboard.writeText("python -m venv .mineru-venv && .mineru-venv/Scripts/activate && pip install uv && uv pip install -U 'mineru[all]' && mineru-api --host 0.0.0.0 --port 8000");
+                                            message.success("已复制");
+                                          }} />
+                                        </div>
+                                        <div style={{ padding: "6px 8px", background: "var(--ant-color-fill-quaternary)", borderRadius: 4 }}>
+                                          <Text type="secondary" style={{ fontSize: 11 }}>
+                                            💡 Pipeline 方式无需显卡即可运行；Hybrid 方式需 GPU 显卡（8GB+ 显存）。国内用户可设置环境变量 MINERU_MODEL_SOURCE=modelscope 加速模型下载。
+                                          </Text>
+                                        </div>
+                                      </div>
+                                    ),
+                                  }]}
+                                />
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
 
@@ -1590,64 +1595,60 @@ export default function DesensitizeWorkbench() {
                     <div className={styles.ocrSection}>
                       <div className={styles.sectionHeader} style={{ marginBottom: 12 }}>
                         <FileSearchOutlined />
-                        <span className={styles.sectionTitle}>{t("ocrToolTitle", "OCR 文字识别")}</span>
+                        <span className={styles.sectionTitle}>{t("ocrToolTitle", "文档识别试用")}</span>
                       </div>
 
                       <Alert
                         type="info"
                         showIcon
-                        message={t("ocrToolInfo", "上传图片或扫描版 PDF，提取文字内容。可选择本地或云端引擎。")}
+                        message={t("ocrToolInfo", "上传 PDF、图片或 Office 文档，试用文档智能引擎提取文字内容。")}
                         style={{ marginBottom: 12 }}
                       />
 
                       <div style={{ marginBottom: 12 }}>
                         <Text type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
-                          {t("ocrEngineLabel", "识别引擎")}
+                          {t("ocrEngineLabel", "使用模式")}
+                          <Tooltip title="云端模式：文档上传至 MinerU 云端处理，需联网和 API 密钥；本地模式：文档在本机处理，需先部署本地引擎，无需联网。">
+                            <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
+                          </Tooltip>
                         </Text>
                         <Select
-                          value={ocrEngine}
-                          onChange={setOcrEngine}
+                          value={parserConfig?.mineru_mode || "cloud"}
+                          onChange={(v) => handleSaveParserConfig({ mineru_mode: v })}
                           style={{ width: "100%" }}
                           options={[
-                            { value: "auto", label: t("ocrEngineAuto", "自动（优先云端，失败回退本地）") },
-                            { value: "cloud_ocr", label: "☁️ MinerU 云端 OCR" },
-                            { value: "local_only", label: "🛡️ PaddleOCR 本地 OCR" },
+                            { value: "cloud", label: "☁️ 云端模式" },
+                            { value: "local", label: "🛡️ 本地模式" },
                           ]}
                         />
                         <div style={{ marginTop: 4, fontSize: 11, color: "var(--ant-color-text-tertiary)" }}>
-                          {ocrEngine === "auto" && "先尝试 MinerU 云端 OCR，失败后自动回退到本地 PaddleOCR"}
-                          {ocrEngine === "cloud_ocr" && "数据将上传至 MinerU 云端处理，需要配置 API Key"}
-                          {ocrEngine === "local_only" && "数据完全在本地处理，需要安装 PaddleOCR"}
+                          {parserConfig?.mineru_mode === "local"
+                            ? "文档在本机处理，无需联网，需先完成本地部署"
+                            : "文档上传至云端处理，需联网并配置 API 密钥"
+                          }
                         </div>
                       </div>
 
-                      {/* 引擎状态指示器 */}
                       <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
                         <Tag
-                          color={parserConfig?.paddleocr_installed?.installed ? (parserConfig.paddleocr_installed.runtime_ok ? "success" : "warning") : "default"}
-                          icon={<SafetyCertificateOutlined />}
-                          style={{ fontSize: 11 }}
-                        >
-                          PaddleOCR {parserConfig?.paddleocr_installed?.installed ? `v${parserConfig.paddleocr_installed.version}` : "未安装"}
-                          {parserConfig?.paddleocr_installed?.installed && !parserConfig.paddleocr_installed.runtime_ok && " (运行异常)"}
-                        </Tag>
-                        <Tag
                           color={parserConfig?.mineru_configured ? "success" : "default"}
-                          icon={<CloudOutlined />}
+                          icon={parserConfig?.mineru_mode === "local" ? <SafetyCertificateOutlined /> : <CloudOutlined />}
                           style={{ fontSize: 11 }}
                         >
-                          MinerU {parserConfig?.mineru_configured ? "已配置" : "未配置"}
+                          {parserConfig?.mineru_configured
+                            ? (parserConfig?.mineru_mode === "local" ? "本地已配置" : "云端已配置")
+                            : "未配置"
+                          }
                         </Tag>
+                        {parserConfig?.mineru_mode === "local" && localMineruStatus && (
+                          <Tag
+                            color={localMineruStatus.reachable ? "success" : "error"}
+                            style={{ fontSize: 11 }}
+                          >
+                            {localMineruStatus.reachable ? "本地服务在线" : "本地服务离线"}
+                          </Tag>
+                        )}
                       </div>
-
-                      {parserConfig?.paddleocr_installed?.runtime_error && (
-                        <Alert
-                          type="warning"
-                          showIcon
-                          style={{ marginBottom: 12, fontSize: 12 }}
-                          message={`PaddleOCR 运行时错误: ${parserConfig.paddleocr_installed.runtime_error}`}
-                        />
-                      )}
 
                       <Upload
                         accept=".pdf,.jpg,.jpeg,.png,.tiff,.tif,.bmp,.webp"
@@ -1664,7 +1665,7 @@ export default function DesensitizeWorkbench() {
                         >
                           {ocrTryLoading
                             ? t("ocrTryProcessing", "正在识别...")
-                            : t("ocrTryUpload", "上传图片/PDF 进行 OCR")}
+                            : t("ocrTryUpload", "上传文档进行识别")}
                         </Button>
                       </Upload>
 
@@ -1675,10 +1676,10 @@ export default function DesensitizeWorkbench() {
                             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                               {ocrTryEngine && (
                                 <Tag
-                                  color={ocrTryEngine === "cloud_ocr" ? "blue" : ocrTryEngine === "local_only" ? "green" : "default"}
-                                  icon={ocrTryEngine === "cloud_ocr" ? <CloudOutlined /> : ocrTryEngine === "local_only" ? <SafetyCertificateOutlined /> : undefined}
+                                  color={ocrTryEngine === "cloud_mineru" ? "blue" : ocrTryEngine === "local_mineru" ? "green" : "default"}
+                                  icon={ocrTryEngine === "cloud_mineru" ? <CloudOutlined /> : ocrTryEngine === "local_mineru" ? <SafetyCertificateOutlined /> : undefined}
                                 >
-                                  {ocrTryEngine === "cloud_ocr" ? "MinerU 云端" : ocrTryEngine === "local_only" ? "PaddleOCR 本地" : "自动"}
+                                  {ocrTryEngine === "cloud_mineru" ? "云端识别" : ocrTryEngine === "local_mineru" ? "本地识别" : "未识别"}
                                 </Tag>
                               )}
                               <Button
@@ -1703,8 +1704,7 @@ export default function DesensitizeWorkbench() {
                               style={{ margin: "8px 12px" }}
                               message={
                                 <div style={{ fontSize: 12 }}>
-                                  <div>本地 OCR: {ocrTryDiagnostics.local_ocr}</div>
-                                  <div>云端 OCR: {ocrTryDiagnostics.cloud_ocr}</div>
+                                  <div>文档引擎: {ocrTryDiagnostics.mineru}</div>
                                 </div>
                               }
                             />

@@ -43,6 +43,8 @@ class AgentMdManager:
         self.memory_dir.mkdir(parents=True, exist_ok=True)
         self.digest_dir: Path = self.working_dir / digest_dir_name
         self.digest_dir.mkdir(parents=True, exist_ok=True)
+        self.versions_dir: Path = self.memory_dir / ".versions"
+        self.versions_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
     # Path safety helpers
@@ -222,6 +224,9 @@ class AgentMdManager:
             for file_path in root_dir.rglob("*.md"):
                 if not file_path.is_file():
                     continue
+                # Skip versioned backups in .versions/
+                if ".versions" in file_path.parts:
+                    continue
                 stat = file_path.stat()
                 filename = (
                     f"{prefix}{file_path.relative_to(root_dir).as_posix()}"
@@ -245,7 +250,119 @@ class AgentMdManager:
         return read_text_file_with_encoding_fallback(file_path).strip()
 
     def write_memory_md(self, md_name: str, content: str):
-        """Write markdown content to a file in the memory directory."""
+        """Write markdown content to a file in the memory directory.
+
+        If the file already exists, a versioned backup is created in
+        ``.versions/`` before overwriting.
+        """
         file_path = self._memory_path_for_read_write(md_name)
+        # Create versioned backup if file already exists
+        if file_path.exists():
+            self._create_version_backup(md_name, file_path)
         file_path.parent.mkdir(parents=True, exist_ok=True)
         file_path.write_text(content, encoding="utf-8")
+
+    def _create_version_backup(self, md_name: str, file_path: Path) -> None:
+        """Copy the current file to ``.versions/`` with a timestamp suffix."""
+        try:
+            content = read_text_file_with_encoding_fallback(file_path)
+        except Exception:
+            return  # Can't read, skip backup
+        # Sanitize the name for use as a filename component
+        safe_name = md_name.replace("/", "__").replace("\\", "__")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        version_file = self.versions_dir / f"{safe_name}.{timestamp}.md"
+        version_file.write_text(content, encoding="utf-8")
+        # Keep at most 50 versions per file
+        pattern = f"{safe_name}.*.md"
+        existing = sorted(self.versions_dir.glob(pattern))
+        if len(existing) > 50:
+            for old in existing[:-50]:
+                old.unlink(missing_ok=True)
+
+    def list_memory_versions(self, md_name: str) -> list[dict]:
+        """List all saved versions for a memory file.
+
+        Returns versions sorted by modification time descending (newest first).
+        """
+        safe_name = md_name.replace("/", "__").replace("\\", "__")
+        pattern = f"{safe_name}.*.md"
+        versions = []
+        for vp in sorted(self.versions_dir.glob(pattern), reverse=True):
+            if not vp.is_file():
+                continue
+            stat = vp.stat()
+            # Extract timestamp from filename: name.YYYYMMDD_HHMMSS.md
+            stem = vp.stem  # e.g. "daily__2026-07-06.20260709_143000"
+            parts = stem.rsplit(".", 1)
+            version_ts = parts[1] if len(parts) > 1 else ""
+            versions.append({
+                "version_id": version_ts,
+                "filename": vp.name,
+                "size": stat.st_size,
+                "created_time": datetime.fromtimestamp(
+                    stat.st_ctime, tz=timezone.utc,
+                ).isoformat(),
+                "modified_time": datetime.fromtimestamp(
+                    stat.st_mtime, tz=timezone.utc,
+                ).isoformat(),
+            })
+        return versions
+
+    def read_memory_version(self, md_name: str, version_id: str) -> str:
+        """Read a specific versioned backup of a memory file."""
+        safe_name = md_name.replace("/", "__").replace("\\", "__")
+        version_file = self.versions_dir / f"{safe_name}.{version_id}.md"
+        self._assert_within_dir(version_file, self.versions_dir)
+        if not version_file.exists():
+            raise FileNotFoundError(
+                f"Version not found: {md_name}@{version_id}",
+            )
+        return read_text_file_with_encoding_fallback(version_file).strip()
+
+    def restore_memory_version(self, md_name: str, version_id: str) -> str:
+        """Restore a memory file from a versioned backup.
+
+        Returns the restored content.
+        """
+        content = self.read_memory_version(md_name, version_id)
+        self.write_memory_md(md_name, content)
+        return content
+
+    def delete_memory_md(self, md_name: str) -> bool:
+        """Delete a markdown file from the memory directory.
+
+        Returns:
+            bool: True if deleted, False if file did not exist.
+        """
+        file_path = self._memory_path_for_read_write(md_name)
+        if not file_path.exists():
+            return False
+        file_path.unlink()
+        return True
+
+    def get_memory_stats(self) -> dict:
+        """Return aggregate statistics for memory files.
+
+        Returns:
+            dict with keys: file_count, total_size, latest_modified
+        """
+        files = self.list_memory_mds()
+        total_size = sum(f.get("size", 0) for f in files)
+        latest = max(
+            (f.get("modified_time", "") for f in files),
+            default="",
+        )
+        daily_count = sum(
+            1 for f in files if not f["filename"].startswith("digest/")
+        )
+        digest_count = sum(
+            1 for f in files if f["filename"].startswith("digest/")
+        )
+        return {
+            "file_count": len(files),
+            "daily_count": daily_count,
+            "digest_count": digest_count,
+            "total_size": total_size,
+            "latest_modified": latest,
+        }
