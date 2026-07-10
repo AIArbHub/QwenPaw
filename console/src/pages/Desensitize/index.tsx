@@ -9,7 +9,6 @@ import {
   CheckCircleOutlined,
   SwapOutlined,
   EyeInvisibleOutlined,
-  LockOutlined,
   RocketOutlined,
   SettingOutlined,
   HistoryOutlined,
@@ -27,7 +26,11 @@ import {
   EyeOutlined,
   FileSearchOutlined,
   FileTextOutlined,
-  ReadOutlined,
+  FileMarkdownOutlined,
+  CodeOutlined,
+  DesktopOutlined,
+  CloudServerOutlined,
+  ApiOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -54,6 +57,7 @@ import {
   Checkbox,
   Collapse,
   Card,
+  Progress,
 } from "antd";
 import { PageHeader } from "@/components/PageHeader";
 import { knowledgeApi } from "@/api/modules/knowledge";
@@ -62,8 +66,7 @@ import FolderPicker from "@/components/FolderPicker";
 import { ResizableTextArea } from "@/components/ResizableTextArea";
 import styles from "./index.module.less";
 
-const { TextArea } = Input;
-const { Text } = Typography;
+const { Text, Paragraph } = Typography;
 
 interface DesensitizeResult {
   original_text: string;
@@ -116,7 +119,7 @@ const RULE_LABELS: Record<string, { labelKey: string; color: string; category: s
 
 const ACCEPTED_FILE_TYPES = ".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.md,.csv,.json,.log,.rtf,.html,.htm";
 
-export default function DesensitizeWorkbench() {
+function DesensitizePage() {
   const { t: _t } = useTranslation();
   const t = (key: string, fallbackOrOptions?: string | Record<string, unknown>, options?: Record<string, unknown>) => {
     if (typeof fallbackOrOptions === "string") {
@@ -124,7 +127,9 @@ export default function DesensitizeWorkbench() {
     }
     return _t(`desensitize.${key}`, fallbackOrOptions);
   };
-  const [activeTab, setActiveTab] = useState("workspace");
+  const [activeTab, setActiveTab] = useState("desensitize");
+  const [desensSubTab, setDesensSubTab] = useState("workspace");
+  const [parseSubTab, setParseSubTab] = useState("parse");
   const [selectedMode, setSelectedMode] = useState<DesensitizeMode>("local_ai");
   const [inputText, setInputText] = useState("");
   const [inputName, setInputName] = useState("");
@@ -142,13 +147,21 @@ export default function DesensitizeWorkbench() {
   const [folderPickerOpen, setFolderPickerOpen] = useState(false);
   const [folderPickerTarget, setFolderPickerTarget] = useState<"input" | "output">("input");
 
+  // 文档解析工作区
+  const [parseFile, setParseFile] = useState<File | null>(null);
+  const [parseLoading, setParseLoading] = useState(false);
+  const [parseResult, setParseResult] = useState<string | null>(null);
+  const [parseFormat, setParseFormat] = useState<"markdown" | "html" | "json" | "text">("markdown");
+  const [parseEngine, setParseEngine] = useState<string>("");
+  const [parseError, setParseError] = useState<string>("");
+
   const [rulesDrawerOpen, setRulesDrawerOpen] = useState(false);
   const [allRules, setAllRules] = useState<RuleItem[]>([]);
   const [rulesLoading, setRulesLoading] = useState(false);
 
   const [scanFolder, setScanFolder] = useState("");
   const [scanning, setScanning] = useState(false);
-  const [scannedFiles, setScannedFiles] = useState<any[]>([]);
+  const [, setScannedFiles] = useState<any[]>([]);
 
   const [taskList, setTaskList] = useState<any[]>([]);
   const [viewingTask, setViewingTask] = useState<any | null>(null);
@@ -162,16 +175,11 @@ export default function DesensitizeWorkbench() {
     mineru_effort: string;
     mineru_configured: boolean;
   } | null>(null);
-  const [parserSaving, setParserSaving] = useState(false);
+  const [, setParserSaving] = useState(false);
   const [ocrStatusLoading, setOcrStatusLoading] = useState(false);
-  const [ocrTryLoading, setOcrTryLoading] = useState(false);
-  const [ocrTryResult, setOcrTryResult] = useState<string | null>(null);
-  const [ocrTryEngine, setOcrTryEngine] = useState<string>("");
-  const [ocrTryError, setOcrTryError] = useState<string>("");
-  const [ocrTryDiagnostics, setOcrTryDiagnostics] = useState<Record<string, string> | null>(null);
   const [localMineruStatus, setLocalMineruStatus] = useState<{ reachable: boolean; error?: string } | null>(null);
   const [deploying, setDeploying] = useState(false);
-  const [deployResult, setDeployResult] = useState<{
+  const [, setDeployResult] = useState<{
     success: boolean;
     method?: string;
     stage?: string;
@@ -217,37 +225,6 @@ export default function DesensitizeWorkbench() {
       message.error(t("ocrStatusError", "检查失败"));
     } finally {
       setOcrStatusLoading(false);
-    }
-  };
-
-  const handleOcrTry = async (options: any) => {
-    const file = options.file as File;
-    setOcrTryLoading(true);
-    setOcrTryResult(null);
-    setOcrTryEngine("");
-    setOcrTryError("");
-    setOcrTryDiagnostics(null);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/knowledge/ocr-try", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      setOcrTryResult(data.text || "");
-      setOcrTryEngine(data.engine || "");
-      if (data.error) {
-        setOcrTryError(data.error);
-      }
-      if (data.diagnostics) {
-        setOcrTryDiagnostics(data.diagnostics);
-      }
-    } catch {
-      message.error(t("ocrTryError", "文档识别失败，请检查文档引擎配置"));
-      setOcrTryResult("");
-    } finally {
-      setOcrTryLoading(false);
     }
   };
 
@@ -424,6 +401,38 @@ export default function DesensitizeWorkbench() {
       console.error("Failed to load rules:", e);
     } finally {
       setRulesLoading(false);
+    }
+  };
+
+  const handleParseDocument = async (file: File) => {
+    setParseLoading(true);
+    setParseResult(null);
+    setParseEngine("");
+    setParseError("");
+    setParseFile(file);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/knowledge/ocr-try", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.error && !data.text) {
+        setParseError(data.error);
+        setParseResult("");
+      } else {
+        setParseResult(data.text || "");
+        setParseEngine(data.engine || "");
+        if (data.error) {
+          setParseError(data.error);
+        }
+      }
+    } catch (err: any) {
+      setParseError(err.message || "文档解析失败");
+      setParseResult("");
+    } finally {
+      setParseLoading(false);
     }
   };
 
@@ -774,12 +783,24 @@ export default function DesensitizeWorkbench() {
         className={styles.mainTabs}
         items={[
           {
-            key: "workspace",
+            key: "desensitize",
             label: (
-              <span><EditOutlined /> {t("tabWorkspace", "材料脱敏")}</span>
+              <span><SafetyCertificateOutlined /> {t("tabWorkspace", "材料脱敏")}</span>
             ),
             children: (
-              <div className={styles.workspaceContent}>
+              <div className={styles.subTabContainer}>
+                <Tabs
+                  activeKey={desensSubTab}
+                  onChange={setDesensSubTab}
+                  type="card"
+                  size="small"
+                  className={styles.subTabs}
+                  items={[
+                    {
+                      key: "workspace",
+                      label: <span><EditOutlined /> 工作区</span>,
+                      children: (
+                        <div className={styles.workspaceContent}>
                 {!inputText && !result && selectedFiles.length === 0 && (
                   <Alert
                     type="info"
@@ -1153,7 +1174,6 @@ export default function DesensitizeWorkbench() {
                             value={scanFolder}
                             onChange={(v) => setScanFolder(v)}
                             placeholder={t("selectFolderPlaceholder", "选择要扫描的文件夹")}
-                            style={{ maxWidth: 280 }}
                           />
                         </div>
                       </div>
@@ -1254,54 +1274,52 @@ export default function DesensitizeWorkbench() {
               </div>
             ),
           },
-          {
-            key: "tasks",
-            label: (
-              <span>
-                <HistoryOutlined />
-                {t("tabTasks", "脱敏记录")}
-                {taskList.length > 0 && <Badge count={taskList.length} style={{ marginLeft: 6 }} />}
-              </span>
-            ),
-            children: (
-              <div className={styles.tabContent}>
-                <div className={styles.tasksHeader}>
-                  <Space>
-                    <Button
-                      icon={<ExportOutlined />}
-                      disabled={taskList.length === 0}
-                    >
-                      {t("exportTasksBtn", "批量导出")}
-                    </Button>
-                    <Popconfirm
-                      title={t("clearTasksConfirm", "确定清空所有历史记录吗？")}
-                      onConfirm={() => { setTaskList([]); localStorage.removeItem("desensitize_task_history"); message.success(t("tasksCleared", "已清空")); }}
-                    >
-                      <Button icon={<DeleteOutlined />} disabled={taskList.length === 0} danger>
-                        {t("clearTasksBtn", "清空记录")}
-                      </Button>
-                    </Popconfirm>
-                  </Space>
-                </div>
-                {taskList.length === 0 ? (
-                  <Empty description={t("noTasks", "暂无脱敏任务记录")} />
-                ) : (
-                  <Table
-                    dataSource={taskList}
-                    columns={taskColumns}
-                    rowKey="id"
-                    pagination={{ pageSize: 10 }}
-                    size="middle"
-                  />
-                )}
-              </div>
-            ),
-          },
-          {
-            key: "settings",
-            label: (
-              <span><SettingOutlined /> {t("tabSettings", "脱敏规则")}</span>
-            ),
+                    {
+                      key: "tasks",
+                      label: (
+                        <span>
+                          <HistoryOutlined />
+                          {t("tabTasks", "脱敏记录")}
+                          {taskList.length > 0 && <Badge count={taskList.length} style={{ marginLeft: 6 }} />}
+                        </span>
+                      ),
+                      children: (
+                        <div className={styles.tabContent}>
+                          <div className={styles.tasksHeader}>
+                            <Space>
+                              <Button
+                                icon={<ExportOutlined />}
+                                disabled={taskList.length === 0}
+                              >
+                                {t("exportTasksBtn", "批量导出")}
+                              </Button>
+                              <Popconfirm
+                                title={t("clearTasksConfirm", "确定清空所有历史记录吗？")}
+                                onConfirm={() => { setTaskList([]); localStorage.removeItem("desensitize_task_history"); message.success(t("tasksCleared", "已清空")); }}
+                              >
+                                <Button icon={<DeleteOutlined />} disabled={taskList.length === 0} danger>
+                                  {t("clearTasksBtn", "清空记录")}
+                                </Button>
+                              </Popconfirm>
+                            </Space>
+                          </div>
+                          {taskList.length === 0 ? (
+                            <Empty description={t("noTasks", "暂无脱敏任务记录")} />
+                          ) : (
+                            <Table
+                              dataSource={taskList}
+                              columns={taskColumns}
+                              rowKey="id"
+                              pagination={{ pageSize: 10 }}
+                              size="middle"
+                            />
+                          )}
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "settings",
+                      label: <span><SettingOutlined /> {t("tabSettings", "脱敏规则")}</span>,
             children: (
               <div className={styles.tabContent}>
                 <div className={styles.settingsHeader}>
@@ -1363,601 +1381,322 @@ export default function DesensitizeWorkbench() {
                   </>
                 )}
               </div>
+                      ),
+                    },
+                  ]}
+                />
+              </div>
             ),
           },
           {
-            key: "ocr",
+            key: "parse",
             label: (
-              <span><ReadOutlined /> {t("tabOcr", "引擎设置")}</span>
+              <span><FileSearchOutlined /> {t("tabParse", "文档解析")}</span>
             ),
             children: (
-              <div className={styles.tabContent}>
-                <div className={styles.ocrPageLayout}>
-                  <div className={styles.ocrLeftCol}>
-                    <div className={styles.ocrSection}>
-                      <div className={styles.sectionHeader} style={{ marginBottom: 12 }}>
-                        <ReadOutlined />
-                        <span className={styles.sectionTitle}>{t("ocrConfigTitle", "文档智能引擎")}</span>
-                      </div>
-
-                      <Alert
-                        type="info"
-                        showIcon
-                        message={t(
-                          "ocrConfigInfo",
-                          "文档智能引擎负责将 PDF、图片、Office 文档等转换为可处理的文本，是脱敏、知识库、卷宗系统的文档处理基座。当前使用 MinerU 引擎，支持云端调用和本地部署两种方式。",
-                        )}
-                        style={{ marginBottom: 12 }}
-                      />
-
-                      <div className={styles.ocrConfigGrid}>
-                        <div className={styles.ocrConfigCard}>
-                          <div className={styles.ocrCardHeader}>
-                            <CloudOutlined style={{ color: "#1677ff" }} />
-                            <span className={styles.ocrCardTitle}>{t("cloudOcrTitle", "云端模式")}</span>
-                            {parserConfig?.mineru_configured && parserConfig?.mineru_mode === "cloud" ? (
-                              <Tag color="green">{t("configured", "已配置")}</Tag>
-                            ) : (
-                              <Tag color="default">{t("notConfigured", "未配置")}</Tag>
-                            )}
-                          </div>
-                          <div className={styles.ocrCardBody}>
-                            <div className={styles.ocrField}>
-                              <label>{t("mineruApiKey", "API 密钥")}
-                                <Tooltip title="API 密钥是访问 MinerU 云端服务的授权凭证，类似于密码。在 mineru.net 注册后即可获取，免费额度通常足够日常使用。">
-                                  <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
-                                </Tooltip>
-                              </label>
-                              <Input.Password
-                                placeholder={t("mineruApiKeyPlaceholder", "粘贴从 mineru.net 获取的密钥")}
-                                defaultValue=""
-                                onBlur={(e) => {
-                                  const v = e.target.value.trim();
-                                  if (v) handleSaveParserConfig({ mineru_api_key: v, mineru_mode: "cloud" });
-                                }}
-                              />
-                            </div>
-                            <div className={styles.ocrField}>
-                              <label>{t("mineruBaseUrl", "API 地址")}
-                                <Tooltip title="MinerU 云端服务的接口地址，一般无需修改。如使用私有部署的 MinerU 服务，可更改为对应地址。">
-                                  <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
-                                </Tooltip>
-                              </label>
-                              <Input
-                                placeholder="https://mineru.net/api/v4"
-                                defaultValue={parserConfig?.mineru_mode === "cloud" ? (parserConfig?.mineru_base_url || "https://mineru.net/api/v4") : "https://mineru.net/api/v4"}
-                                onBlur={(e) => {
-                                  const v = e.target.value.trim();
-                                  if (v) handleSaveParserConfig({ mineru_base_url: v, mineru_mode: "cloud" });
-                                }}
-                              />
-                            </div>
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                              {t("cloudOcrNote", "文档将上传至 MinerU 云端处理，请确保不涉及保密要求。")}
-                            </Text>
-
-                            <Collapse
-                              size="small"
-                              ghost
-                              style={{ marginTop: 8 }}
-                              items={[{
-                                key: "mineru-cloud-guide",
-                                label: <Text type="secondary" style={{ fontSize: 12 }}>如何获取 API 密钥？</Text>,
-                                children: (
-                                  <div style={{ fontSize: 12, lineHeight: 1.8 }}>
-                                    <ol style={{ paddingLeft: 16, margin: 0 }}>
-                                      <li>访问 <a href="https://mineru.net" target="_blank" rel="noopener noreferrer">mineru.net</a> 注册账号</li>
-                                      <li>登录后进入「API 密钥」页面</li>
-                                      <li>点击「创建新密钥」，复制生成的 Key</li>
-                                      <li>将 Key 粘贴到上方「API 密钥」输入框，点击页面其他位置即可自动保存</li>
-                                    </ol>
-                                    <div style={{ marginTop: 8, padding: "6px 8px", background: "var(--ant-color-fill-quaternary)", borderRadius: 4 }}>
-                                      <Text type="secondary" style={{ fontSize: 11 }}>
-                                        💡 MinerU 提供免费额度，日常使用通常足够。如文档涉及保密要求，建议使用本地部署模式。
-                                      </Text>
-                                    </div>
-                                  </div>
-                                ),
-                              }]}
-                            />
-                          </div>
-                        </div>
-
-                        <div className={styles.ocrConfigCard}>
-                          <div className={styles.ocrCardHeader}>
-                            <SafetyCertificateOutlined style={{ color: "#52c41a" }} />
-                            <span className={styles.ocrCardTitle}>{t("localOcrTitle", "本地模式")}</span>
-                            <Tag color="green">{t("dataLocal", "数据不出本机")}</Tag>
-                            {localMineruStatus?.reachable && (
-                              <Tag color="success" style={{ marginLeft: 0, fontSize: 11 }}>在线</Tag>
-                            )}
-                          </div>
-                          <div className={styles.ocrCardBody}>
-                            {localMineruStatus?.reachable ? (
-                              <div>
-                                <Alert
-                                  type="success"
-                                  showIcon
-                                  message="本地服务运行中"
-                                  description="所有文档在本机处理，不会上传到任何外部服务器，适合处理保密文件。"
-                                  style={{ marginBottom: 12 }}
-                                />
-                                <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
-                                  <div style={{ flex: 1 }}>
-                                    <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>
-                                      识别方式
-                                      <Tooltip title="Pipeline：传统流水线方式，CPU 即可运行，结果稳定可靠；Hybrid：结合大模型的混合方式，精度更高但需要 GPU 显卡。">
-                                        <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
-                                      </Tooltip>
-                                    </label>
-                                    <Select
-                                      value={parserConfig?.mineru_backend || "pipeline"}
-                                      size="small"
-                                      style={{ width: "100%" }}
-                                      onChange={(v) => handleSaveParserConfig({ mineru_backend: v })}
-                                      options={[
-                                        { value: "pipeline", label: "Pipeline（通用，无需显卡）" },
-                                        { value: "hybrid", label: "Hybrid（高精度，需显卡）" },
-                                      ]}
-                                    />
-                                  </div>
-                                  <div style={{ flex: 1 }}>
-                                    <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>
-                                      识别精度
-                                      <Tooltip title="Medium：速度较快，适合日常文档；High：精度最佳，适合复杂排版或手写内容，但耗时更长。">
-                                        <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
-                                      </Tooltip>
-                                    </label>
-                                    <Select
-                                      value={parserConfig?.mineru_effort || "medium"}
-                                      size="small"
-                                      style={{ width: "100%" }}
-                                      onChange={(v) => handleSaveParserConfig({ mineru_effort: v })}
-                                      options={[
-                                        { value: "medium", label: "Medium（快速）" },
-                                        { value: "high", label: "High（最佳）" },
-                                      ]}
-                                    />
-                                  </div>
+              <div className={styles.subTabContainer}>
+                <Tabs
+                  activeKey={parseSubTab}
+                  onChange={setParseSubTab}
+                  type="card"
+                  size="small"
+                  className={styles.subTabs}
+                  items={[
+                    {
+                      key: "parse",
+                      label: <span><FileSearchOutlined /> 解析工作区</span>,
+                      children: (
+                        <div className={styles.parseWorkspace}>
+                          <div className={`${styles.parseUploadArea} ${parseFile ? styles.hasFile : ""}`}>
+                            {parseFile ? (
+                              <div style={{ textAlign: "center" }}>
+                                <FileTextOutlined style={{ fontSize: 36, color: "var(--ant-color-success)" }} />
+                                <div style={{ fontWeight: 600, fontSize: 14, marginTop: 8 }}>{parseFile.name}</div>
+                                <div style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)", marginTop: 4 }}>
+                                  {(parseFile.size / 1024).toFixed(0)} KB
                                 </div>
-                                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                                  <Button
-                                    size="small"
-                                    type="text"
-                                    icon={<ReloadOutlined />}
-                                    onClick={refreshOcrStatus}
-                                    loading={ocrStatusLoading}
-                                    style={{ fontSize: 12 }}
-                                  >
-                                    检测连接
+                                <Space style={{ marginTop: 12 }}>
+                                  <Button type="primary" icon={<FileSearchOutlined />} loading={parseLoading} onClick={() => handleParseDocument(parseFile)}>
+                                    {parseLoading ? "解析中..." : "开始解析"}
                                   </Button>
-                                  <Button
-                                    size="small"
-                                    danger
-                                    type="text"
-                                    onClick={handleStopMineru}
-                                    style={{ fontSize: 12 }}
-                                  >
-                                    停止服务
+                                  <Button onClick={() => { setParseFile(null); setParseResult(null); setParseError(""); }}>
+                                    重新选择
                                   </Button>
-                                </div>
+                                </Space>
                               </div>
                             ) : (
-                              <div>
-                                <Alert
-                                  type="info"
-                                  showIcon
-                                  message="一键部署本地文档引擎"
-                                  description="点击按钮即可自动完成安装，无需任何技术操作。部署后所有文档在本机处理，不联网也能使用。"
-                                  style={{ marginBottom: 12 }}
-                                />
+                              <Upload
+                                accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
+                                showUploadList={false}
+                                beforeUpload={(file) => { setParseFile(file); return false; }}
+                              >
+                                <div style={{ textAlign: "center" }}>
+                                  <UploadOutlined style={{ fontSize: 36, color: "var(--ant-color-primary)" }} />
+                                  <div style={{ fontWeight: 600, fontSize: 14, marginTop: 8 }}>上传文档</div>
+                                  <div style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)", marginTop: 4 }}>
+                                    PDF / 图片 / Word / Excel / PPT
+                                  </div>
+                                </div>
+                              </Upload>
+                            )}
+                          </div>
 
-                                <Collapse
-                                  ghost
-                                  size="small"
-                                  style={{ marginBottom: 12 }}
-                                  items={[
-                                    {
-                                      key: "hw",
-                                      label: (
-                                        <span style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>
-                                          <DatabaseOutlined style={{ marginRight: 4 }} />
-                                          硬件要求
-                                        </span>
-                                      ),
-                                      children: (
-                                        <div style={{ fontSize: 12 }}>
-                                          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                                            <thead>
-                                              <tr style={{ borderBottom: "1px solid var(--ant-color-border)" }}>
-                                                <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>组件</th>
-                                                <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>最低配置</th>
-                                                <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>推荐配置</th>
-                                              </tr>
-                                            </thead>
-                                            <tbody>
-                                              <tr style={{ borderBottom: "1px solid var(--ant-color-border-secondary)" }}>
-                                                <td style={{ padding: "4px 8px" }}>GPU</td>
-                                                <td style={{ padding: "4px 8px" }}>
-                                                  <Tag color="orange" style={{ margin: 0, fontSize: 11 }}>8GB 显存</Tag>
-                                                  <div style={{ color: "var(--ant-color-text-tertiary)", marginTop: 2 }}>3060Ti / 4060 等</div>
-                                                </td>
-                                                <td style={{ padding: "4px 8px" }}>
-                                                  <Tag color="green" style={{ margin: 0, fontSize: 11 }}>16GB+ 显存</Tag>
-                                                  <div style={{ color: "var(--ant-color-text-tertiary)", marginTop: 2 }}>3090 / 4090 / A100</div>
-                                                </td>
-                                              </tr>
-                                              <tr style={{ borderBottom: "1px solid var(--ant-color-border-secondary)" }}>
-                                                <td style={{ padding: "4px 8px" }}>CPU</td>
-                                                <td style={{ padding: "4px 8px" }}>4 核</td>
-                                                <td style={{ padding: "4px 8px" }}>8 核及以上</td>
-                                              </tr>
-                                              <tr style={{ borderBottom: "1px solid var(--ant-color-border-secondary)" }}>
-                                                <td style={{ padding: "4px 8px" }}>内存</td>
-                                                <td style={{ padding: "4px 8px" }}>8 GB</td>
-                                                <td style={{ padding: "4px 8px" }}>16 GB 及以上</td>
-                                              </tr>
-                                              <tr style={{ borderBottom: "1px solid var(--ant-color-border-secondary)" }}>
-                                                <td style={{ padding: "4px 8px" }}>磁盘</td>
-                                                <td style={{ padding: "4px 8px" }}>20 GB 可用</td>
-                                                <td style={{ padding: "4px 8px" }}>50 GB+ (SSD)</td>
-                                              </tr>
-                                              <tr>
-                                                <td style={{ padding: "4px 8px" }}>Python</td>
-                                                <td style={{ padding: "4px 8px" }} colSpan={2}>3.10 ~ 3.12</td>
-                                              </tr>
-                                            </tbody>
-                                          </table>
-                                          <div style={{ marginTop: 8, padding: "6px 8px", background: "var(--ant-color-info-bg)", borderRadius: 4, color: "var(--ant-color-text-secondary)" }}>
-                                            <strong>Pipeline 模式</strong>（通用）：无需 GPU，仅 CPU 即可运行，适合日常文档<br />
-                                            <strong>Hybrid 模式</strong>（高精度）：需要 NVIDIA GPU（8GB+ 显存），精度更高
-                                          </div>
-                                        </div>
-                                      ),
-                                    },
-                                  ]}
-                                />
+                          {parseResult !== null && (
+                            <>
+                              <div className={styles.parseFormatBar}>
+                                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ant-color-text-secondary)" }}>输出格式：</span>
+                                <Radio.Group value={parseFormat} onChange={(e) => setParseFormat(e.target.value)} size="small">
+                                  <Radio.Button value="markdown"><FileMarkdownOutlined /> Markdown</Radio.Button>
+                                  <Radio.Button value="html"><CodeOutlined /> HTML</Radio.Button>
+                                  <Radio.Button value="json"><ApiOutlined /> JSON</Radio.Button>
+                                  <Radio.Button value="text"><FileTextOutlined /> 纯文本</Radio.Button>
+                                </Radio.Group>
+                                <div style={{ marginLeft: "auto" }}>
+                                  <Space>
+                                    <Button size="small" icon={<CopyOutlined />} onClick={() => { navigator.clipboard.writeText(parseResult || ""); message.success("已复制"); }}>
+                                      复制
+                                    </Button>
+                                    <Button size="small" icon={<DownloadOutlined />} onClick={() => {
+                                      const ext = parseFormat === "markdown" ? "md" : parseFormat === "html" ? "html" : parseFormat === "json" ? "json" : "txt";
+                                      const blob = new Blob([parseResult || ""], { type: "text/plain;charset=utf-8" });
+                                      const url = URL.createObjectURL(blob);
+                                      const a = document.createElement("a");
+                                      a.href = url;
+                                      a.download = `${parseFile?.name?.replace(/\.[^.]+$/, "") || "parsed"}.${ext}`;
+                                      a.click();
+                                      URL.revokeObjectURL(url);
+                                    }}>
+                                      下载
+                                    </Button>
+                                  </Space>
+                                </div>
+                              </div>
 
-                                <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
-                                  <div style={{ flex: 1 }}>
-                                    <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>
-                                      识别方式
-                                      <Tooltip title="Pipeline：传统流水线方式，CPU 即可运行，结果稳定可靠；Hybrid：结合大模型的混合方式，精度更高但需要 GPU 显卡。">
-                                        <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
-                                      </Tooltip>
-                                    </label>
-                                    <Select
-                                      value={parserConfig?.mineru_backend || "pipeline"}
-                                      size="small"
-                                      style={{ width: "100%" }}
-                                      onChange={(v) => handleSaveParserConfig({ mineru_backend: v })}
-                                      options={[
+                              <div className={styles.parseResultArea}>
+                                <div className={styles.parseResultHeader}>
+                                  <span>
+                                    <CheckCircleOutlined style={{ color: "var(--ant-color-success)", marginRight: 6 }} />
+                                    解析结果
+                                    {parseEngine && <Tag color="blue" style={{ marginLeft: 8, fontSize: 11 }}>引擎: {parseEngine}</Tag>}
+                                  </span>
+                                  <span style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)" }}>
+                                    {(parseResult || "").length.toLocaleString()} 字符
+                                  </span>
+                                </div>
+                                <div className={styles.parseResultBody}>
+                                  {parseResult || <Text type="secondary">无内容</Text>}
+                                </div>
+                              </div>
+                            </>
+                          )}
+
+                          {parseError && (
+                            <Alert type="warning" showIcon message="解析提示" description={parseError} style={{ marginTop: 16 }} />
+                          )}
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "engine",
+                      label: <span><SettingOutlined /> 引擎设置</span>,
+                      children: (
+                        <div className={styles.engineSettingsCompact}>
+                          <div className={styles.engineModeSwitch}>
+                            <div
+                              className={`${styles.engineModeCard} ${parserConfig?.mineru_mode === "cloud" ? styles.active : ""}`}
+                              onClick={() => handleSaveParserConfig({ mineru_mode: "cloud" })}
+                            >
+                              <div className={styles.engineModeIcon}><CloudServerOutlined style={{ color: "#1677ff" }} /></div>
+                              <div className={styles.engineModeTitle}>云端模式</div>
+                              <div className={styles.engineModeDesc}>通过 API 调用，无需本地安装</div>
+                              {parserConfig?.mineru_configured && parserConfig?.mineru_mode === "cloud" && (
+                                <Tag color="green" style={{ marginTop: 6 }}>已配置</Tag>
+                              )}
+                            </div>
+                            <div
+                              className={`${styles.engineModeCard} ${parserConfig?.mineru_mode !== "cloud" ? styles.active : ""}`}
+                              onClick={() => handleSaveParserConfig({ mineru_mode: "local" })}
+                            >
+                              <div className={styles.engineModeIcon}><DesktopOutlined style={{ color: "#52c41a" }} /></div>
+                              <div className={styles.engineModeTitle}>本地模式</div>
+                              <div className={styles.engineModeDesc}>数据不出本机，适合保密文件</div>
+                              {localMineruStatus?.reachable && (
+                                <Tag color="success" style={{ marginTop: 6 }}>在线</Tag>
+                              )}
+                            </div>
+                          </div>
+
+                          {parserConfig?.mineru_mode === "cloud" ? (
+                            <Card size="small" title={<span><CloudOutlined /> 云端 API 配置</span>}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                                <div>
+                                  <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>API 密钥</label>
+                                  <Input.Password
+                                    placeholder="输入 MinerU API Key"
+                                    value={parserConfig?.mineru_api_key || ""}
+                                    onChange={(e) => handleSaveParserConfig({ mineru_api_key: e.target.value, mineru_mode: "cloud" })}
+                                  />
+                                </div>
+                                <div>
+                                  <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>API 地址</label>
+                                  <Input
+                                    placeholder="https://mineru.net/api/v4"
+                                    value={parserConfig?.mineru_base_url || ""}
+                                    onChange={(e) => handleSaveParserConfig({ mineru_base_url: e.target.value })}
+                                  />
+                                </div>
+                                <Collapse ghost size="small" items={[{
+                                  key: "help",
+                                  label: <span style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>如何获取密钥？</span>,
+                                  children: (
+                                    <div style={{ fontSize: 12, lineHeight: 1.8 }}>
+                                      <ol style={{ paddingLeft: 16, margin: 0 }}>
+                                        <li>访问 <a href="https://mineru.net" target="_blank" rel="noopener noreferrer">mineru.net</a> 注册账号</li>
+                                        <li>登录后进入「API 密钥」页面</li>
+                                        <li>点击「创建新密钥」，复制生成的 Key</li>
+                                        <li>将 Key 粘贴到上方输入框即可自动保存</li>
+                                      </ol>
+                                      <div style={{ marginTop: 8, padding: "6px 8px", background: "var(--ant-color-fill-quaternary)", borderRadius: 4 }}>
+                                        <Text type="secondary" style={{ fontSize: 11 }}>MinerU 提供免费额度，日常使用通常足够。如文档涉及保密要求，建议使用本地部署模式。</Text>
+                                      </div>
+                                    </div>
+                                  ),
+                                }]} />
+                              </div>
+                            </Card>
+                          ) : (
+                            <Card size="small" title={<span><DesktopOutlined /> 本地引擎管理</span>}>
+                              {localMineruStatus?.reachable ? (
+                                <div>
+                                  <Alert type="success" showIcon message="本地服务运行中" description="所有文档在本机处理，不会上传到任何外部服务器。" style={{ marginBottom: 12 }} />
+                                  <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+                                    <div style={{ flex: 1 }}>
+                                      <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>识别方式</label>
+                                      <Select value={parserConfig?.mineru_backend || "pipeline"} size="small" style={{ width: "100%" }} onChange={(v) => handleSaveParserConfig({ mineru_backend: v })} options={[
                                         { value: "pipeline", label: "Pipeline（通用，无需显卡）" },
                                         { value: "hybrid", label: "Hybrid（高精度，需显卡）" },
-                                      ]}
-                                    />
-                                  </div>
-                                  <div style={{ flex: 1 }}>
-                                    <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>
-                                      识别精度
-                                      <Tooltip title="Medium：速度较快，适合日常文档；High：精度最佳，适合复杂排版或手写内容，但耗时更长。">
-                                        <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
-                                      </Tooltip>
-                                    </label>
-                                    <Select
-                                      value={parserConfig?.mineru_effort || "medium"}
-                                      size="small"
-                                      style={{ width: "100%" }}
-                                      onChange={(v) => handleSaveParserConfig({ mineru_effort: v })}
-                                      options={[
+                                      ]} />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                      <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>识别精度</label>
+                                      <Select value={parserConfig?.mineru_effort || "medium"} size="small" style={{ width: "100%" }} onChange={(v) => handleSaveParserConfig({ mineru_effort: v })} options={[
                                         { value: "medium", label: "Medium（快速）" },
                                         { value: "high", label: "High（最佳）" },
-                                      ]}
-                                    />
+                                      ]} />
+                                    </div>
                                   </div>
+                                  <Space>
+                                    <Button size="small" icon={<ReloadOutlined />} onClick={refreshOcrStatus} loading={ocrStatusLoading}>检测连接</Button>
+                                    <Button size="small" danger onClick={handleStopMineru}>停止服务</Button>
+                                  </Space>
                                 </div>
+                              ) : (
+                                <div>
+                                  <Alert type="info" showIcon message="一键部署本地文档引擎" description="点击按钮即可自动完成安装，无需任何技术操作。部署后所有文档在本机处理，不联网也能使用。" style={{ marginBottom: 12 }} />
 
-                                <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                                  <Button
-                                    icon={<WarningOutlined />}
-                                    loading={prechecking}
-                                    onClick={handlePrecheckMineru}
-                                    style={{ flex: 1 }}
-                                  >
-                                    {prechecking ? "检测中..." : "环境检测"}
-                                  </Button>
-                                  <Button
-                                    type="primary"
-                                    size="large"
-                                    icon={<DownloadOutlined />}
-                                    loading={deploying}
-                                    onClick={handleDeployMineru}
-                                    style={{ flex: 2 }}
-                                  >
-                                    {deploying ? "正在部署..." : "一键部署本地文档引擎"}
-                                  </Button>
-                                </div>
-
-                                {precheckResult && (
-                                  <div style={{
-                                    padding: 12,
-                                    background: precheckResult.can_deploy ? "#f6ffed" : "#fff2f0",
-                                    borderRadius: 8,
-                                    marginBottom: 12,
-                                    fontSize: 12,
-                                  }}>
-                                    <div style={{ fontWeight: "bold", marginBottom: 6, color: precheckResult.can_deploy ? "#52c41a" : "#ff4d4f" }}>
-                                      {precheckResult.can_deploy ? "✅ 环境检查通过" : "❌ 环境检查未通过"}
-                                    </div>
-                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
-                                      {Object.entries(precheckResult.checks).map(([key, val]: [string, any]) => (
-                                        <div key={key} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                                          <span style={{ color: val.ok ? "#52c41a" : "#ff4d4f" }}>
-                                            {val.ok ? "✓" : "✗"}
-                                          </span>
-                                          <span>
-                                            {key === "python" && `Python ${val.version || ""}`}
-                                            {key === "gpu" && (val.available
-                                              ? `${val.best_name || "GPU"} ${val.best_vram_gb ? `(${val.best_vram_gb}GB)` : ""}`
-                                              : val.note || "无 GPU")}
-                                            {key === "memory" && (val.total_gb
-                                              ? `内存 ${val.total_gb}GB`
-                                              : val.note || "未知")}
-                                            {key === "disk" && `磁盘 ${val.free_gb ? `${val.free_gb}GB` : ""}`}
-                                            {key === "network" && `网络 ${val.pypi ? "(PyPI)" : val.mirror ? "(镜像)" : ""}`}
-                                            {key === "port" && `端口 ${val.port || 8000}`}
-                                            {key === "venv" && `${val.exists ? "已有环境" : "待创建"}`}
-                                            {key === "installed" && `${val.installed ? `已安装${val.version ? ` v${val.version}` : ""}` : "待安装"}`}
-                                          </span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                    {precheckResult.warnings.length > 0 && (
-                                      <div style={{ marginTop: 6, color: "#faad14" }}>
-                                        ⚠ {precheckResult.warnings.join("; ")}
-                                      </div>
-                                    )}
-                                    {precheckResult.blockers.length > 0 && (
-                                      <div style={{ marginTop: 6, color: "#ff4d4f" }}>
-                                        🚫 {precheckResult.blockers.join("; ")}
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-
-                                <Text type="secondary" style={{ fontSize: 12, display: "block", marginTop: 8, marginBottom: 8 }}>
-                                  {deploying
-                                    ? "⏳ 正在安装，首次约需 5-15 分钟，请耐心等待..."
-                                    : "部署后文档全程在本机处理，无需联网，适合处理保密文件。"
-                                  }
-                                </Text>
-
-                                {deploying && deployProgress && (
-                                  <div style={{
-                                    padding: 12,
-                                    background: "#0d1117",
-                                    borderRadius: 8,
-                                    color: "#58a6ff",
-                                    fontSize: 12,
-                                    fontFamily: "monospace",
-                                    marginBottom: 12,
-                                  }}>
-                                    <div style={{ color: "#7ee787" }}>▶ {deployProgress.message || "正在部署本地文档引擎..."}</div>
-                                    <div style={{ marginTop: 8, background: "#21262d", borderRadius: 4, height: 8, overflow: "hidden" }}>
-                                      <div style={{
-                                        height: "100%",
-                                        background: "#58a6ff",
-                                        borderRadius: 4,
-                                        transition: "width 0.5s ease",
-                                        width: `${deployProgress.progress}%`,
-                                      }} />
-                                    </div>
-                                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, color: "#8b949e" }}>
-                                      <span>{deployProgress.stage === "venv" ? "准备环境" : deployProgress.stage === "install" ? "安装程序" : deployProgress.stage === "start" ? "启动服务" : deployProgress.stage}</span>
-                                      <span>{deployProgress.progress}%</span>
-                                    </div>
-                                    <Spin size="small" style={{ marginTop: 8 }} />
-                                  </div>
-                                )}
-
-                                {deploying && !deployProgress && (
-                                  <div style={{
-                                    padding: 12,
-                                    background: "#0d1117",
-                                    borderRadius: 8,
-                                    color: "#58a6ff",
-                                    fontSize: 12,
-                                    fontFamily: "monospace",
-                                    marginBottom: 12,
-                                  }}>
-                                    <div style={{ color: "#7ee787" }}>▶ 正在创建部署任务...</div>
-                                    <Spin size="small" style={{ marginTop: 8 }} />
-                                  </div>
-                                )}
-
-                                {deployResult && !deploying && (
-                                  <div style={{
-                                    padding: 12,
-                                    background: deployResult.success ? "#f6ffed" : "#fff2f0",
-                                    borderRadius: 8,
-                                    marginBottom: 12,
-                                    fontSize: 12,
-                                  }}>
-                                    <div style={{ fontWeight: "bold", marginBottom: 4, color: deployResult.success ? "#52c41a" : "#ff4d4f" }}>
-                                      {deployResult.success ? "✅ 部署成功" : "❌ 部署失败"}
-                                    </div>
-                                    {deployResult.message && <div style={{ marginBottom: 4 }}>{deployResult.message}</div>}
-                                    {deployResult.error && <div style={{ color: "#ff4d4f" }}>{deployResult.error}</div>}
-                                    {deployResult.output && (
-                                      <pre style={{
-                                        background: "#0d1117", color: "#8b949e", padding: 8,
-                                        borderRadius: 4, fontSize: 11, maxHeight: 150,
-                                        overflow: "auto", marginTop: 4, whiteSpace: "pre-wrap",
-                                      }}>
-                                        {deployResult.output}
-                                      </pre>
-                                    )}
-                                  </div>
-                                )}
-
-                                <Collapse
-                                  size="small"
-                                  ghost
-                                  items={[{
-                                    key: "mineru-local-guide",
-                                    label: <Text type="secondary" style={{ fontSize: 12 }}>高级用户：手动部署命令</Text>,
+                                  <Collapse ghost size="small" style={{ marginBottom: 12 }} items={[{
+                                    key: "hw",
+                                    label: <span style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}><DatabaseOutlined style={{ marginRight: 4 }} />硬件要求</span>,
                                     children: (
-                                      <div style={{ fontSize: 12, lineHeight: 1.8 }}>
-                                        <div className={styles.codeBlock} style={{ marginBottom: 8 }}>
-                                          <code>{`python -m venv .mineru-venv\n.mineru-venv\\Scripts\\activate  # Windows\nsource .mineru-venv/bin/activate  # macOS/Linux\npip install uv\nuv pip install -U "mineru[all]"\nmineru-api --host 0.0.0.0 --port 8000`}</code>
-                                          <CopyOutlined className={styles.copyBtn} onClick={() => {
-                                            navigator.clipboard.writeText("python -m venv .mineru-venv && .mineru-venv/Scripts/activate && pip install uv && uv pip install -U 'mineru[all]' && mineru-api --host 0.0.0.0 --port 8000");
-                                            message.success("已复制");
-                                          }} />
-                                        </div>
-                                        <div style={{ padding: "6px 8px", background: "var(--ant-color-fill-quaternary)", borderRadius: 4 }}>
-                                          <Text type="secondary" style={{ fontSize: 11 }}>
-                                            💡 Pipeline 方式无需显卡即可运行；Hybrid 方式需 GPU 显卡（8GB+ 显存）。国内用户可设置环境变量 MINERU_MODEL_SOURCE=modelscope 加速模型下载。
-                                          </Text>
-                                        </div>
+                                      <div style={{ fontSize: 12 }}>
+                                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                                          <thead><tr style={{ borderBottom: "1px solid var(--ant-color-border)" }}>
+                                            <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>组件</th>
+                                            <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>最低</th>
+                                            <th style={{ textAlign: "left", padding: "4px 8px", color: "var(--ant-color-text-secondary)", fontWeight: 500 }}>推荐</th>
+                                          </tr></thead>
+                                          <tbody>
+                                            <tr><td style={{ padding: "4px 8px" }}>GPU</td><td style={{ padding: "4px 8px" }}><Tag color="orange" style={{ margin: 0, fontSize: 11 }}>8GB 显存</Tag></td><td style={{ padding: "4px 8px" }}><Tag color="green" style={{ margin: 0, fontSize: 11 }}>16GB+</Tag></td></tr>
+                                            <tr><td style={{ padding: "4px 8px" }}>CPU</td><td style={{ padding: "4px 8px" }}>4 核</td><td style={{ padding: "4px 8px" }}>8 核+</td></tr>
+                                            <tr><td style={{ padding: "4px 8px" }}>内存</td><td style={{ padding: "4px 8px" }}>8 GB</td><td style={{ padding: "4px 8px" }}>16 GB+</td></tr>
+                                            <tr><td style={{ padding: "4px 8px" }}>磁盘</td><td style={{ padding: "4px 8px" }}>20 GB</td><td style={{ padding: "4px 8px" }}>50 GB+ (SSD)</td></tr>
+                                            <tr><td style={{ padding: "4px 8px" }}>Python</td><td style={{ padding: "4px 8px" }} colSpan={2}>3.10 ~ 3.12</td></tr>
+                                          </tbody>
+                                        </table>
                                       </div>
                                     ),
-                                  }]}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                                  }]} />
 
-                  <div className={styles.ocrRightCol}>
-                    <div className={styles.ocrSection}>
-                      <div className={styles.sectionHeader} style={{ marginBottom: 12 }}>
-                        <FileSearchOutlined />
-                        <span className={styles.sectionTitle}>{t("ocrToolTitle", "文档识别试用")}</span>
-                      </div>
+                                  <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+                                    <div style={{ flex: 1 }}>
+                                      <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>识别方式</label>
+                                      <Select value={parserConfig?.mineru_backend || "pipeline"} size="small" style={{ width: "100%" }} onChange={(v) => handleSaveParserConfig({ mineru_backend: v })} options={[
+                                        { value: "pipeline", label: "Pipeline（通用）" },
+                                        { value: "hybrid", label: "Hybrid（高精度）" },
+                                      ]} />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                      <label style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 4, display: "block" }}>识别精度</label>
+                                      <Select value={parserConfig?.mineru_effort || "medium"} size="small" style={{ width: "100%" }} onChange={(v) => handleSaveParserConfig({ mineru_effort: v })} options={[
+                                        { value: "medium", label: "Medium（快速）" },
+                                        { value: "high", label: "High（最佳）" },
+                                      ]} />
+                                    </div>
+                                  </div>
 
-                      <Alert
-                        type="info"
-                        showIcon
-                        message={t("ocrToolInfo", "上传 PDF、图片或 Office 文档，试用文档智能引擎提取文字内容。")}
-                        style={{ marginBottom: 12 }}
-                      />
+                                  <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                                    <Button icon={<WarningOutlined />} loading={prechecking} onClick={handlePrecheckMineru} style={{ flex: 1 }}>{prechecking ? "检测中..." : "环境检测"}</Button>
+                                    <Button type="primary" size="large" icon={<DownloadOutlined />} loading={deploying} onClick={handleDeployMineru} style={{ flex: 2 }}>{deploying ? "正在部署..." : "一键部署本地文档引擎"}</Button>
+                                  </div>
 
-                      <div style={{ marginBottom: 12 }}>
-                        <Text type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
-                          {t("ocrEngineLabel", "使用模式")}
-                          <Tooltip title="云端模式：文档上传至 MinerU 云端处理，需联网和 API 密钥；本地模式：文档在本机处理，需先部署本地引擎，无需联网。">
-                            <QuestionCircleOutlined style={{ marginLeft: 4, fontSize: 12, color: "var(--ant-color-text-quaternary)" }} />
-                          </Tooltip>
-                        </Text>
-                        <Select
-                          value={parserConfig?.mineru_mode || "cloud"}
-                          onChange={(v) => handleSaveParserConfig({ mineru_mode: v })}
-                          style={{ width: "100%" }}
-                          options={[
-                            { value: "cloud", label: "☁️ 云端模式" },
-                            { value: "local", label: "🛡️ 本地模式" },
-                          ]}
-                        />
-                        <div style={{ marginTop: 4, fontSize: 11, color: "var(--ant-color-text-tertiary)" }}>
-                          {parserConfig?.mineru_mode === "local"
-                            ? "文档在本机处理，无需联网，需先完成本地部署"
-                            : "文档上传至云端处理，需联网并配置 API 密钥"
-                          }
-                        </div>
-                      </div>
+                                  {precheckResult && (
+                                    <div style={{ padding: 12, background: precheckResult.can_deploy ? "#f6ffed" : "#fff2f0", borderRadius: 8, marginBottom: 12, fontSize: 12 }}>
+                                      <div style={{ fontWeight: "bold", marginBottom: 6, color: precheckResult.can_deploy ? "#52c41a" : "#ff4d4f" }}>
+                                        {precheckResult.can_deploy ? "✅ 环境检查通过" : "❌ 环境检查未通过"}
+                                      </div>
+                                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+                                        {Object.entries(precheckResult.checks).map(([key, val]: [string, any]) => (
+                                          <div key={key} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                            <span style={{ color: val.ok ? "#52c41a" : "#ff4d4f" }}>{val.ok ? "✓" : "✗"}</span>
+                                            <span>{key === "python" && `Python ${val.version || ""}`}{key === "gpu" && (val.available ? `${val.best_name || "GPU"} ${val.best_vram_gb ? `(${val.best_vram_gb}GB)` : ""}` : val.note || "无 GPU")}{key === "memory" && (val.total_gb ? `内存 ${val.total_gb}GB` : val.note || "未知")}{key === "disk" && `磁盘 ${val.free_gb ? `${val.free_gb}GB` : ""}`}{key === "network" && `网络 ${val.pypi ? "(PyPI)" : val.mirror ? "(镜像)" : ""}`}{key === "port" && `端口 ${val.port || 8000}`}{key === "venv" && `${val.exists ? "已有环境" : "待创建"}`}{key === "installed" && `${val.installed ? `已安装${val.version ? ` v${val.version}` : ""}` : "待安装"}`}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                      {precheckResult.warnings.length > 0 && <div style={{ marginTop: 6, color: "#faad14" }}>⚠ {precheckResult.warnings.join("; ")}</div>}
+                                      {precheckResult.blockers.length > 0 && <div style={{ marginTop: 6, color: "#ff4d4f" }}>🚫 {precheckResult.blockers.join("; ")}</div>}
+                                    </div>
+                                  )}
 
-                      <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-                        <Tag
-                          color={parserConfig?.mineru_configured ? "success" : "default"}
-                          icon={parserConfig?.mineru_mode === "local" ? <SafetyCertificateOutlined /> : <CloudOutlined />}
-                          style={{ fontSize: 11 }}
-                        >
-                          {parserConfig?.mineru_configured
-                            ? (parserConfig?.mineru_mode === "local" ? "本地已配置" : "云端已配置")
-                            : "未配置"
-                          }
-                        </Tag>
-                        {parserConfig?.mineru_mode === "local" && localMineruStatus && (
-                          <Tag
-                            color={localMineruStatus.reachable ? "success" : "error"}
-                            style={{ fontSize: 11 }}
-                          >
-                            {localMineruStatus.reachable ? "本地服务在线" : "本地服务离线"}
-                          </Tag>
-                        )}
-                      </div>
+                                  <Text type="secondary" style={{ fontSize: 12, display: "block", marginTop: 8, marginBottom: 8 }}>
+                                    {deploying ? "正在部署，请勿关闭页面..." : "部署约需 5~15 分钟，取决于网络速度"}
+                                  </Text>
 
-                      <Upload
-                        accept=".pdf,.jpg,.jpeg,.png,.tiff,.tif,.bmp,.webp"
-                        showUploadList={false}
-                        customRequest={handleOcrTry}
-                        disabled={ocrTryLoading}
-                      >
-                        <Button
-                          icon={<UploadOutlined />}
-                          loading={ocrTryLoading}
-                          type="primary"
-                          block
-                          size="large"
-                        >
-                          {ocrTryLoading
-                            ? t("ocrTryProcessing", "正在识别...")
-                            : t("ocrTryUpload", "上传文档进行识别")}
-                        </Button>
-                      </Upload>
+                                  {deployProgress && (
+                                    <div style={{ marginTop: 8 }}>
+                                      <Progress
+                                        percent={deployProgress.progress}
+                                        status={deployProgress.progress >= 100 ? "success" : "active"}
+                                        size="small"
+                                      />
+                                      <div style={{ fontSize: 11, color: "var(--ant-color-text-tertiary)", marginTop: 4 }}>
+                                        {deployProgress.message}
+                                      </div>
+                                    </div>
+                                  )}
 
-                      {ocrTryResult !== null && (
-                        <div className={styles.ocrTryResult}>
-                          <div className={styles.ocrTryResultHeader}>
-                            <span>{t("ocrTryResult", "识别结果")}</span>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              {ocrTryEngine && (
-                                <Tag
-                                  color={ocrTryEngine === "cloud_mineru" ? "blue" : ocrTryEngine === "local_mineru" ? "green" : "default"}
-                                  icon={ocrTryEngine === "cloud_mineru" ? <CloudOutlined /> : ocrTryEngine === "local_mineru" ? <SafetyCertificateOutlined /> : undefined}
-                                >
-                                  {ocrTryEngine === "cloud_mineru" ? "云端识别" : ocrTryEngine === "local_mineru" ? "本地识别" : "未识别"}
-                                </Tag>
-                              )}
-                              <Button
-                                size="small"
-                                type="link"
-                                icon={<CopyOutlined />}
-                                onClick={() => {
-                                  navigator.clipboard.writeText(ocrTryResult);
-                                  message.success(t("copied", "已复制"));
-                                }}
-                              >
-                                {t("copy", "复制")}
-                              </Button>
-                            </div>
-                          </div>
-                          {ocrTryError && (
-                            <Alert type="warning" message={ocrTryError} style={{ margin: "8px 12px" }} />
-                          )}
-                          {ocrTryDiagnostics && (
-                            <Alert
-                              type="info"
-                              style={{ margin: "8px 12px" }}
-                              message={
-                                <div style={{ fontSize: 12 }}>
-                                  <div>文档引擎: {ocrTryDiagnostics.mineru}</div>
+                                  <Collapse ghost size="small" style={{ marginTop: 8 }} items={[{
+                                    key: "manual",
+                                    label: <span style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>手动安装命令</span>,
+                                    children: (
+                                      <div style={{ fontSize: 12 }}>
+                                        <Paragraph code style={{ fontSize: 11, margin: 0 }}>
+                                          pip install mineru[all]
+                                        </Paragraph>
+                                        <Paragraph code style={{ fontSize: 11, margin: "4px 0 0" }}>
+                                          mineru-api -p 8000
+                                        </Paragraph>
+                                      </div>
+                                    ),
+                                  }]} />
                                 </div>
-                              }
-                            />
+                              )}
+                            </Card>
                           )}
-                          <div className={styles.ocrTryResultContent}>
-                            {ocrTryResult || <Text type="secondary">{t("ocrTryNoResult", "未能识别到文字内容")}</Text>}
-                          </div>
                         </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                      ),
+                    },
+                  ]}
+                />
               </div>
             ),
           },
@@ -1991,7 +1730,6 @@ export default function DesensitizeWorkbench() {
         })}
       </Drawer>
 
-      {/* 任务详情查看弹窗 */}
       <Modal
         title={viewingTask ? `脱敏结果 - ${viewingTask.name}` : ""}
         open={!!viewingTask}
@@ -2003,87 +1741,24 @@ export default function DesensitizeWorkbench() {
             type="primary"
             icon={<CopyOutlined />}
             onClick={() => {
-              if (viewingTask?.result?.desensitized_text) {
-                navigator.clipboard.writeText(viewingTask.result.desensitized_text);
-                message.success("已复制到剪贴板");
+              if (viewingTask?.result?.text) {
+                navigator.clipboard.writeText(viewingTask.result.text);
+                message.success("已复制");
               }
             }}
           >
             复制结果
           </Button>,
-          <Button
-            key="export"
-            icon={<DownloadOutlined />}
-            onClick={() => {
-              if (viewingTask?.result?.desensitized_text) {
-                const blob = new Blob([viewingTask.result.desensitized_text], { type: "text/plain;charset=utf-8" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `${viewingTask.name}_脱敏结果.txt`;
-                a.click();
-                URL.revokeObjectURL(url);
-                message.success("已导出");
-              }
-            }}
-          >
-            导出 TXT
-          </Button>,
         ]}
-        width={800}
-        styles={{ body: { maxHeight: "70vh", overflow: "auto" } }}
       >
-        {viewingTask?.result && (
-          <Tabs
-            size="small"
-            items={[
-              {
-                key: "result",
-                label: "脱敏结果",
-                children: (
-                  <div>
-                    <div style={{ marginBottom: 8, display: "flex", gap: 8, alignItems: "center" }}>
-                      <Tag color="green">{viewingTask.mode}</Tag>
-                      <Tag>{viewingTask.replacements} 处替换</Tag>
-                      <span style={{ fontSize: 12, color: "var(--ant-color-text-tertiary)" }}>{viewingTask.createdAt}</span>
-                    </div>
-                    <Input.TextArea
-                      value={viewingTask.result.desensitized_text}
-                      readOnly
-                      autoSize={{ minRows: 10, maxRows: 25 }}
-                      style={{ background: "var(--ant-color-fill-quaternary)" }}
-                    />
-                  </div>
-                ),
-              },
-              {
-                key: "map",
-                label: "替换对照表",
-                children: (
-                  <Table
-                    dataSource={
-                      viewingTask.result.backfill_map
-                        ? Object.entries(viewingTask.result.backfill_map).map(([placeholder, original], idx) => ({
-                            key: idx,
-                            placeholder,
-                            original: original as string,
-                          }))
-                        : []
-                    }
-                    columns={[
-                      { title: "脱敏占位符", dataIndex: "placeholder", key: "placeholder" },
-                      { title: "原始内容", dataIndex: "original", key: "original" },
-                    ]}
-                    pagination={false}
-                    size="small"
-                    scroll={{ y: 400 }}
-                  />
-                ),
-              },
-            ]}
-          />
+        {viewingTask?.result?.text && (
+          <div style={{ whiteSpace: "pre-wrap", fontSize: 13, lineHeight: 1.8, maxHeight: 400, overflow: "auto" }}>
+            {viewingTask.result.text}
+          </div>
         )}
       </Modal>
     </div>
   );
-}
+};
+
+export default DesensitizePage;

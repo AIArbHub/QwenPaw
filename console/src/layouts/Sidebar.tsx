@@ -35,6 +35,7 @@ import {
   SparkSaveLine,
   SparkUserGroupLine,
 } from "@agentscope-ai/icons";
+import { Clock, Activity } from "lucide-react";
 import SidebarSessionList from "./SidebarSessionList";
 import SidebarSettingsPanel from "./SidebarSettingsPanel";
 import { clearAuthToken } from "../api/config";
@@ -83,7 +84,7 @@ const INBOX_BADGE_POLLING_MS = 6000;
 
 /** Menu item IDs that remain visible in simple sidebar mode (no groups). */
 const SIMPLE_MODE_WHITELIST = new Set([
-  "core.knowledge",
+  "core.skills",
   "core.models",
   "core.agents",
 ]);
@@ -192,6 +193,20 @@ const DESIGN_MODE_NAV_ITEMS: {
     labelKey: "nav.ops",
     labelDefault: "Ops",
     icon: SparkSaveLine,
+  },
+  {
+    key: "core.cron-jobs",
+    route: "core.cron-jobs",
+    labelKey: "nav.cronJobs",
+    labelDefault: "Cron Jobs",
+    icon: Clock,
+  },
+  {
+    key: "core.heartbeat",
+    route: "core.heartbeat",
+    labelKey: "nav.heartbeat",
+    labelDefault: "Heartbeat",
+    icon: Activity,
   },
 ];
 

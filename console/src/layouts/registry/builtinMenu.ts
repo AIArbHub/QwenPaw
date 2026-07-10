@@ -7,14 +7,15 @@
  * Sidebar treats core + plugin items uniformly.
  *
  * ── Design principles (2026-07) ────────────────────────────────────────────
- *  Task-oriented instead of feature-oriented:
- *  - 仲裁工作台 / 本地资料 / 模拟仲裁 / 文书工具 → primary.arbitration tab
- *  - 模型管理 / 智能体管理 → primary.agentScoped (agent tab top)
- *  - 高级设置 (15 技术项) → primary.settings (agent tab bottom, collapsed)
+ *  User-centric (C端) layering with 4 groups across 3 locations:
+ *  - 仲裁业务 (6 domain items) → primary.arbitration — always fully visible
+ *  - 智能体工作区 (6 items)    → primary.agentScoped  — workspace-level config
+ *  - 系统设置 (6 items)        → primary.settings grp1 — global system config
+ *  - 运维与调试 (9 items)      → primary.settings grp2 — ops/debug, collapsible
  *
  * ── Naming convention ──────────────────────────────────────────────────────
- *  Group ids: `core.<name>-group` (e.g. core.workspace-group)
- *  Item ids:  `core.<key>`        (e.g. core.workbench)
+ *  Group ids: `core.<name>-group` (e.g. core.tools-group)
+ *  Item ids:  `core.<key>`        (e.g. core.knowledge)
  *  Plugin items use their own prefix (e.g. cloudpaw.a2a) — no clash possible.
  *
  * ── Sticky chat button carve-out ───────────────────────────────────────────
@@ -23,9 +24,8 @@
  *  Sidebar.tsx. We don't model it as menu data because it has zero antd-Menu
  *  semantics in common with the rest of the sidebar entries.
  *
- * ── Removed from nav (routes preserved) ────────────────────────────────────
- *  core.inbox, core.cron-jobs, core.heartbeat, core.skill-pool, core.market,
- *  core.voice-transcription, core.agent-stats
+ * ── Removed from sidebar nav (routes preserved) ────────────────────────────
+ *  core.inbox — accessed via header icon button with unread badge
  *
  * ── Order convention ───────────────────────────────────────────────────────
  *  Within each group, items use order = 10/20/30/… in their natural sequence
@@ -40,6 +40,7 @@ import {
   SparkLocalFileLine,
   SparkMagicWandLine,
   SparkMcpMcpLine,
+  SparkMicLine,
   SparkModifyLine,
   SparkMyApplicationLine,
   SparkOtherLine,
@@ -51,7 +52,7 @@ import {
   SparkUserGroupLine,
   SparkWifiLine,
 } from "@agentscope-ai/icons";
-import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain } from "lucide-react";
+import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain, Clock, Activity, Layers } from "lucide-react";
 import i18next from "i18next";
 import { menuRegistry } from "../../plugins/registry/store";
 import type { MenuItem } from "../../plugins/registry/types";
@@ -61,7 +62,7 @@ const navLabel = (key: string, defaultValue?: string) => (): string =>
   i18next.t(key, defaultValue ?? key);
 
 export const BUILTIN_MENU: MenuItem[] = [
-  // ── Arbitration tools (arbitration tab) ─────────────────────────────────
+  // ── 仲裁业务 (primary.arbitration) ──────────────────────────────────────
   {
     id: "core.inbox",
     location: "primary.agentScoped",
@@ -83,7 +84,7 @@ export const BUILTIN_MENU: MenuItem[] = [
   {
     id: "core.tools-group",
     location: "primary.arbitration",
-    label: navLabel("nav.arbitration", "仲裁工具"),
+    label: navLabel("nav.arbitration", "仲裁业务"),
     isGroup: true,
     order: 10,
   },
@@ -135,55 +136,28 @@ export const BUILTIN_MENU: MenuItem[] = [
     route: "core.cases",
     order: 50,
   },
-
-  // ── Settings (agent tab, top section) ───────────────────────────────────
-  {
-    id: "core.settings-group",
-    location: "primary.agentScoped",
-    label: navLabel("nav.settings", "设置"),
-    isGroup: true,
-    order: 10,
-  },
-  {
-    id: "core.models",
-    location: "primary.agentScoped",
-    parentId: "core.settings-group",
-    label: navLabel("nav.models", "模型管理"),
-    icon: SparkModePlazaLine,
-    route: "core.models",
-    order: 10,
-  },
-  {
-    id: "core.agents",
-    location: "primary.agentScoped",
-    parentId: "core.settings-group",
-    label: navLabel("nav.agents", "智能体管理"),
-    icon: SparkAgentLine,
-    route: "core.agents",
-    order: 20,
-  },
   {
     id: "core.memory",
-    location: "primary.agentScoped",
-    parentId: "core.settings-group",
+    location: "primary.arbitration",
+    parentId: "core.tools-group",
     label: navLabel("nav.memory", "记忆中心"),
     icon: Brain,
     route: "core.memory",
-    order: 25,
+    order: 60,
   },
 
-  // ── Advanced settings (agent tab, bottom section via primary.settings) ──
+  // ── 智能体工作区 (primary.agentScoped) ─────────────────────────────────
   {
-    id: "core.advanced-group",
-    location: "primary.settings",
-    label: navLabel("nav.advanced", "高级设置"),
+    id: "core.agent-workspace-group",
+    location: "primary.agentScoped",
+    label: navLabel("nav.agentWorkspace", "智能体工作区"),
     isGroup: true,
     order: 10,
   },
   {
     id: "core.workspace",
-    location: "primary.settings",
-    parentId: "core.advanced-group",
+    location: "primary.agentScoped",
+    parentId: "core.agent-workspace-group",
     label: navLabel("nav.workspace", "工作区文件"),
     icon: SparkLocalFileLine,
     route: "core.workspace",
@@ -191,8 +165,8 @@ export const BUILTIN_MENU: MenuItem[] = [
   },
   {
     id: "core.skills",
-    location: "primary.settings",
-    parentId: "core.advanced-group",
+    location: "primary.agentScoped",
+    parentId: "core.agent-workspace-group",
     label: navLabel("nav.skills", "技能"),
     icon: SparkMagicWandLine,
     route: "core.skills",
@@ -200,17 +174,17 @@ export const BUILTIN_MENU: MenuItem[] = [
   },
   {
     id: "core.tools",
-    location: "primary.settings",
-    parentId: "core.advanced-group",
-    label: navLabel("nav.toolsCaps", "工具"),
+    location: "primary.agentScoped",
+    parentId: "core.agent-workspace-group",
+    label: navLabel("nav.tools", "工具"),
     icon: SparkToolLine,
     route: "core.tools",
     order: 30,
   },
   {
     id: "core.mcp",
-    location: "primary.settings",
-    parentId: "core.advanced-group",
+    location: "primary.agentScoped",
+    parentId: "core.agent-workspace-group",
     label: navLabel("nav.mcp", "MCP"),
     icon: SparkMcpMcpLine,
     route: "core.mcp",
@@ -218,8 +192,8 @@ export const BUILTIN_MENU: MenuItem[] = [
   },
   {
     id: "core.acp",
-    location: "primary.settings",
-    parentId: "core.advanced-group",
+    location: "primary.agentScoped",
+    parentId: "core.agent-workspace-group",
     label: navLabel("nav.acp", "ACP"),
     icon: SparkScanLine,
     route: "core.acp",
@@ -227,39 +201,66 @@ export const BUILTIN_MENU: MenuItem[] = [
   },
   {
     id: "core.agent-config",
-    location: "primary.settings",
-    parentId: "core.advanced-group",
+    location: "primary.agentScoped",
+    parentId: "core.agent-workspace-group",
     label: navLabel("nav.agentConfig", "Agent配置"),
     icon: SparkModifyLine,
     route: "core.agent-config",
     order: 60,
   },
+
+  // ── 系统设置 (primary.settings, group 1) ───────────────────────────────
+  {
+    id: "core.system-settings-group",
+    location: "primary.settings",
+    label: navLabel("nav.systemSettings", "系统设置"),
+    isGroup: true,
+    order: 10,
+  },
+  {
+    id: "core.models",
+    location: "primary.settings",
+    parentId: "core.system-settings-group",
+    label: navLabel("nav.models", "模型管理"),
+    icon: SparkModePlazaLine,
+    route: "core.models",
+    order: 10,
+  },
+  {
+    id: "core.agents",
+    location: "primary.settings",
+    parentId: "core.system-settings-group",
+    label: navLabel("nav.agents", "智能体管理"),
+    icon: SparkAgentLine,
+    route: "core.agents",
+    order: 20,
+  },
   {
     id: "core.channels",
     location: "primary.settings",
-    parentId: "core.advanced-group",
+    parentId: "core.system-settings-group",
     label: navLabel("nav.channels", "渠道"),
     icon: SparkWifiLine,
     route: "core.channels",
-    order: 70,
+    order: 30,
   },
   {
     id: "core.sessions",
     location: "primary.settings",
-    parentId: "core.advanced-group",
+    parentId: "core.system-settings-group",
     label: navLabel("nav.sessions", "会话"),
     icon: SparkUserGroupLine,
     route: "core.sessions",
-    order: 80,
+    order: 40,
   },
   {
     id: "core.token-usage",
     location: "primary.settings",
-    parentId: "core.advanced-group",
+    parentId: "core.system-settings-group",
     label: navLabel("nav.tokenUsage", "Token 用量"),
-    icon: SparkAgentLine,
-    route: "core.agents",
-    order: 90,
+    icon: SparkDataLine,
+    route: "core.token-usage",
+    order: 50,
   },
   {
     id: "core.security",
@@ -296,15 +297,106 @@ export const BUILTIN_MENU: MenuItem[] = [
     icon: Package,
     route: "core.plugin-manager",
     order: 130,
+
   },
   {
     id: "core.environments",
     location: "primary.settings",
-    parentId: "core.advanced-group",
+    parentId: "core.system-settings-group",
     label: navLabel("nav.environments", "环境变量"),
     icon: SparkInternetLine,
     route: "core.environments",
-    order: 140,
+    order: 60,
+  },
+
+  // ── 运维与调试 (primary.settings, group 2) ─────────────────────────────
+  {
+    id: "core.ops-debug-group",
+    location: "primary.settings",
+    label: navLabel("nav.opsDebug", "运维与调试"),
+    isGroup: true,
+    order: 20,
+  },
+  {
+    id: "core.security",
+    location: "primary.settings",
+    parentId: "core.ops-debug-group",
+    label: navLabel("nav.security", "安全"),
+    icon: SparkBrowseLine,
+    route: "core.security",
+    order: 10,
+  },
+  {
+    id: "core.backups",
+    location: "primary.settings",
+    parentId: "core.ops-debug-group",
+    label: navLabel("nav.backups", "备份"),
+    icon: SparkSaveLine,
+    route: "core.backups",
+    order: 20,
+  },
+  {
+    id: "core.debug",
+    location: "primary.settings",
+    parentId: "core.ops-debug-group",
+    label: navLabel("nav.debug", "调试"),
+    icon: SparkDebugLine,
+    route: "core.debug",
+    order: 30,
+  },
+  {
+    id: "core.plugin-manager",
+    location: "primary.settings",
+    parentId: "core.ops-debug-group",
+    label: navLabel("nav.pluginManager", "插件"),
+    icon: Package,
+    route: "core.plugin-manager",
+    order: 40,
+  },
+  {
+    id: "core.cron-jobs",
+    location: "primary.settings",
+    parentId: "core.ops-debug-group",
+    label: navLabel("nav.cronJobs", "定时任务"),
+    icon: Clock,
+    route: "core.cron-jobs",
+    order: 50,
+  },
+  {
+    id: "core.heartbeat",
+    location: "primary.settings",
+    parentId: "core.ops-debug-group",
+    label: navLabel("nav.heartbeat", "心跳"),
+    icon: Activity,
+    route: "core.heartbeat",
+    order: 60,
+  },
+  {
+    id: "core.voice-transcription",
+    location: "primary.settings",
+    parentId: "core.ops-debug-group",
+    label: navLabel("nav.voiceTranscription", "语音转写"),
+    icon: SparkMicLine,
+    route: "core.voice-transcription",
+    order: 70,
+  },
+  {
+    id: "core.agent-stats",
+    location: "primary.settings",
+    parentId: "core.ops-debug-group",
+    label: navLabel("nav.agentStats", "智能体统计"),
+    icon: SparkDataLine,
+    route: "core.agent-stats",
+    order: 80,
+  },
+  {
+    id: "core.skill-pool",
+    location: "primary.settings",
+    parentId: "core.ops-debug-group",
+    label: navLabel("nav.skillPool", "技能池"),
+    icon: Layers,
+    route: "core.skill-pool",
+    order: 90,
   },
 ];
 

@@ -78,7 +78,16 @@
     "desensitize": "文檔智能",
     "knowledge": "知識庫",
     "cases": "案件卷宗",
-    "wiki": "Wiki 知識編譯"
+    "wiki": "Wiki 知識編譯",
+    "memory": "記憶中心",
+    "systemSettings": "系統設置",
+    "opsDebug": "運維與調試",
+    "agentWorkspace": "智能體工作區",
+    "cronJobs": "定時任務",
+    "heartbeat": "心跳",
+    "skillPool": "技能池",
+    "agentStats": "智能體統計",
+    "voiceTranscription": "語音轉寫"
   },
   "sidebar": {
     "tab": {

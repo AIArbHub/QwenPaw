@@ -765,3 +765,153 @@
     grid-template-columns: 1fr;
   }
 }
+
+.subTabContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.subTabs {
+  padding: 0 24px;
+
+  :global(.ant-tabs-nav) {
+    margin-bottom: 0;
+  }
+
+  :global(.ant-tabs-content-holder) {
+    overflow: auto;
+  }
+}
+
+.parseWorkspace {
+  padding: 20px 28px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.parseUploadArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 20px;
+  border: 2px dashed var(--ant-color-border);
+  border-radius: 12px;
+  background: var(--ant-color-fill-quaternary);
+  margin-bottom: 20px;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--ant-color-primary);
+    background: var(--ant-color-primary-bg);
+  }
+
+  &.hasFile {
+    border-style: solid;
+    border-color: var(--ant-color-success);
+    background: #f6ffed;
+  }
+}
+
+.parseFormatBar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: var(--ant-color-fill-quaternary);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.parseResultArea {
+  border: 1px solid var(--ant-color-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.parseResultHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--ant-color-fill-quaternary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.parseResultBody {
+  padding: 16px;
+  max-height: 500px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ant-color-text);
+  background: var(--ant-color-bg-container);
+}
+
+.engineStatusBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px;
+  background: linear-gradient(135deg, #f0f5ff, #e6f7ff);
+  border-bottom: 1px solid var(--ant-color-border-secondary);
+
+  :global(.anticon) {
+    font-size: 14px;
+  }
+
+  span {
+    font-size: 12px;
+    color: var(--ant-color-text-secondary);
+  }
+}
+
+.engineSettingsCompact {
+  padding: 20px 28px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.engineModeSwitch {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.engineModeCard {
+  flex: 1;
+  padding: 16px;
+  border: 2px solid var(--ant-color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--ant-color-primary-border-hover);
+  }
+
+  &.active {
+    border-color: var(--ant-color-primary);
+    background: var(--ant-color-primary-bg);
+  }
+
+  .engineModeIcon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .engineModeTitle {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .engineModeDesc {
+    font-size: 11px;
+    color: var(--ant-color-text-tertiary);
+    margin-top: 4px;
+  }
+}

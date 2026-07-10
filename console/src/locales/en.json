@@ -128,7 +128,15 @@
     "knowledge": "Knowledge",
     "cases": "Case Files",
     "wiki": "Wiki",
-    "memory": "Memory"
+    "memory": "Memory",
+    "systemSettings": "System Settings",
+    "opsDebug": "Ops & Debug",
+    "agentWorkspace": "Agent Workspace",
+    "cronJobs": "Cron Jobs",
+    "heartbeat": "Heartbeat",
+    "skillPool": "Skill Pool",
+    "agentStats": "Agent Stats",
+    "voiceTranscription": "Voice Transcription"
   },
   "sidebar": {
     "tab": {

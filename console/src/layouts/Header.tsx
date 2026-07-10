@@ -32,12 +32,14 @@ import {
 } from "./constants";
 import { useTheme } from "../contexts/ThemeContext";
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
 import { Slot } from "../plugins/registry/Slot";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useDesktopUpdate } from "../contexts/DesktopUpdateContext";
 import { isDesktopApp } from "../tauri/backendRuntime";
+import { SparkEmailLine } from "@agentscope-ai/icons";
 import {
   CopyOutlined,
   CheckOutlined,
@@ -83,13 +85,42 @@ function UpdateCodeBlock({ code }: { code: string }) {
 export default function Header() {
   const { t, i18n } = useTranslation();
   const { isDark } = useTheme();
+  const navigate = useNavigate();
   const desktop = useDesktopUpdate();
   const onDesktop = isDesktopApp();
   const [version, setVersion] = useState<string>("");
   const [latestVersion, setLatestVersion] = useState<string>("");
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [updateMarkdown, setUpdateMarkdown] = useState<string>("");
+  const [hasInboxUnread, setHasInboxUnread] = useState(false);
   const logoClicksRef = useRef<number[]>([]);
+
+  // ── Inbox unread badge polling ──────────────────────────────────────────
+  useEffect(() => {
+    const INBOX_POLLING_MS = 6000;
+    const loadUnreadState = async () => {
+      try {
+        const [inboxRes, pushRes] = await Promise.all([
+          api.getInboxEvents({
+            unread_only: true,
+            limit: 1,
+          }),
+          api.getPushMessages(),
+        ]);
+        const hasUnreadEvents = (inboxRes?.events?.length || 0) > 0;
+        const hasPendingApprovals =
+          (pushRes?.pending_approvals?.length || 0) > 0;
+        setHasInboxUnread(hasUnreadEvents || hasPendingApprovals);
+      } catch {
+        // Keep previous state when polling fails.
+      }
+    };
+    void loadUnreadState();
+    const timer = window.setInterval(() => {
+      void loadUnreadState();
+    }, INBOX_POLLING_MS);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     api
@@ -407,6 +438,19 @@ export default function Header() {
           <CodingModeToggle />
           <div className={styles.headerDivider} />
           <LanguageSwitcher />
+          <Tooltip title={t("nav.inbox", "收件箱")}>
+            <Badge
+              dot={hasInboxUnread}
+              color="rgba(75, 63, 227, 1)"
+              offset={[-2, 4]}
+            >
+              <Button
+                type="text"
+                icon={<SparkEmailLine size={18} />}
+                onClick={() => navigate("/inbox")}
+              />
+            </Badge>
+          </Tooltip>
           <ThemeToggleButton />
         </Space>
       </AntHeader>

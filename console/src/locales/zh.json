@@ -128,7 +128,15 @@
     "knowledge": "知识库",
     "cases": "案件卷宗",
     "wiki": "Wiki 知识编译",
-    "memory": "记忆中心"
+    "memory": "记忆中心",
+    "systemSettings": "系统设置",
+    "opsDebug": "运维与调试",
+    "agentWorkspace": "智能体工作区",
+    "cronJobs": "定时任务",
+    "heartbeat": "心跳",
+    "skillPool": "技能池",
+    "agentStats": "智能体统计",
+    "voiceTranscription": "语音转写"
   },
   "sidebar": {
     "tab": {
