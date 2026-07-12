@@ -12,7 +12,7 @@ import { invalidateSkillCache, skillApi } from "../../../api/modules/skill";
 import type { AgentSummary, CopyAgentRequest } from "../../../api/types/agents";
 import { useAgentStore } from "../../../stores/agentStore";
 import { useAgents } from "./useAgents";
-AgentTable, AgentCard, AgentModal, CopyAgentModal
+import { AgentTable, AgentCard, AgentModal, CopyAgentModal, AgentDetailDrawer } from "./components";
 import { PageHeader } from "@/components/PageHeader";
 import { reorderAgents } from "./reorder";
 import styles from "./index.module.less";
@@ -34,6 +34,10 @@ export default function AgentsPage() {
   const [copyModalVisible, setCopyModalVisible] = useState(false);
   const [copyingAgent, setCopyingAgent] = useState<AgentSummary | null>(null);
   const [copying, setCopying] = useState(false);
+  const [drawerAgent, setDrawerAgent] = useState<AgentSummary | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerTab, setDrawerTab] = useState("basic");
+
   const [reordering, setReordering] = useState(false);
   const [form] = Form.useForm();
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
@@ -56,23 +60,16 @@ export default function AgentsPage() {
     setModalVisible(true);
   };
 
-  const handleEdit = async (agent: AgentSummary) => {
-    try {
-      setSelectedSkills([]);
-      installedSkillsRef.current = [];
-      invalidateSkillCache({ agentId: agent.id });
-      const config = await agentsApi.getAgent(agent.id);
-      setEditingAgent(agent);
-      form.setFieldsValue({
-        ...config,
-        active_model_provider: config.active_model?.provider_id || undefined,
-        active_model_model: config.active_model?.model || undefined,
-      });
-      setModalVisible(true);
-    } catch (error) {
-      console.error("Failed to load agent config:", error);
-      message.error(t("agent.loadConfigFailed"));
-    }
+  const handleEdit = (agent: AgentSummary) => {
+    setDrawerAgent(agent);
+    setDrawerTab("basic");
+    setDrawerOpen(true);
+  };
+
+  const handleConfigurePersona = (agent: AgentSummary) => {
+    setDrawerAgent(agent);
+    setDrawerTab("persona");
+    setDrawerOpen(true);
   };
 
   const handleDelete = async (agentId: string) => {
@@ -286,6 +283,7 @@ export default function AgentsPage() {
               onEdit={handleEdit}
               onDelete={handleDelete}
               onToggle={handleToggle}
+              onConfigurePersona={handleConfigurePersona}
             />
           ))}
         </div>
@@ -316,6 +314,13 @@ export default function AgentsPage() {
         onCancel={() => setModalVisible(false)}
       />
 
+      <AgentDetailDrawer
+        open={drawerOpen}
+        agent={drawerAgent}
+        initialTab={drawerTab}
+        onClose={() => setDrawerOpen(false)}
+        onUpdated={loadAgents}
+      />
       <CopyAgentModal
         open={copyModalVisible}
         sourceAgent={copyingAgent}
@@ -325,6 +330,8 @@ export default function AgentsPage() {
           setCopyModalVisible(false);
           setCopyingAgent(null);
         }}
+      />
+
       />
     </div>
   );

@@ -8,6 +8,19 @@ from pathlib import Path
 from ..utils.file_handling import read_text_file_with_encoding_fallback
 from ...config.config import load_agent_config
 
+# Filenames that are core agent configuration and should be excluded
+# from the generic working-file listing.
+CORE_CONFIG_FILENAMES: frozenset[str] = frozenset(
+    {
+        "SOUL.md",
+        "PROFILE.md",
+        "AGENTS.md",
+        "MEMORY.md",
+        "HEARTBEAT.md",
+        "BOOTSTRAP.md",
+    },
+)
+
 
 class AgentMdManager:
     """Manager for reading and writing markdown files in working and memory
@@ -110,6 +123,7 @@ class AgentMdManager:
         """List all markdown files with metadata in the working dir.
 
         Returns files sorted by modification time descending (newest first).
+        Core configuration files (SOUL.md, PROFILE.md, etc.) are excluded.
 
         Returns:
             list[dict]: A list of dictionaries, each containing:
@@ -124,7 +138,40 @@ class AgentMdManager:
 
         result = []
         for f in md_files:
-            if f.is_file():
+            if f.is_file() and f.name not in CORE_CONFIG_FILENAMES:
+                stat = f.stat()
+                result.append(
+                    {
+                        "filename": f.name,
+                        "size": stat.st_size,
+                        "path": str(f),
+                        "created_time": datetime.fromtimestamp(
+                            stat.st_ctime,
+                            tz=timezone.utc,
+                        ).isoformat(),
+                        "modified_time": datetime.fromtimestamp(
+                            stat.st_mtime,
+                            tz=timezone.utc,
+                        ).isoformat(),
+                    },
+                )
+        return result
+
+    def list_core_config_mds(self) -> list[dict]:
+        """List core configuration markdown files with metadata.
+
+        Returns files sorted by modification time descending (newest first).
+
+        Returns:
+            list[dict]: Same structure as ``list_working_mds`` but only
+                containing core configuration files.
+        """
+        md_files = list(self.working_dir.glob("*.md"))
+        md_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+
+        result = []
+        for f in md_files:
+            if f.is_file() and f.name in CORE_CONFIG_FILENAMES:
                 stat = f.stat()
                 result.append(
                     {

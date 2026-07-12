@@ -13,6 +13,8 @@ import type {
   TestEmbeddingResult,
   ReindexResult,
   MemoryVersionInfo,
+  WorkDirConfig,
+  WorkFileInfo,
 } from "../types";
 
 function getSelectedAgentId(): string {
@@ -193,14 +195,18 @@ export const workspaceApi = {
   },
 
   // System prompt files management
-  getSystemPromptFiles: () =>
-    request<string[]>("/workspace/system-prompt-files"),
+  getSystemPromptFiles: (agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<string[]>(`/workspace/system-prompt-files${query}`);
+  },
 
-  setSystemPromptFiles: (files: string[]) =>
-    request<string[]>("/workspace/system-prompt-files", {
+  setSystemPromptFiles: (files: string[], agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<string[]>(`/workspace/system-prompt-files${query}`, {
       method: "PUT",
       body: JSON.stringify(files),
-    }),
+    });
+  },
 
   // Coding Mode – full file tree (all file types)
   listCodeFiles: () =>
@@ -311,6 +317,58 @@ export const workspaceApi = {
     return request<MdFileContent>(
       `/workspace/memory/${encoded}/versions/${encodeURIComponent(versionId)}/restore${query}`,
       { method: "POST" },
+    );
+  },
+
+  // ---- Work directory (conversation-produced documents) ----
+
+  getWorkDirConfig: (agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<WorkDirConfig>(`/workspace/work-dir${query}`);
+  },
+
+  updateWorkDirConfig: (
+    config: Partial<WorkDirConfig>,
+    agentId?: string,
+  ) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<WorkDirConfig>(`/workspace/work-dir${query}`, {
+      method: "PUT",
+      body: JSON.stringify(config),
+    });
+  },
+
+  listWorkFiles: (agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<WorkFileInfo[]>(`/workspace/work-files${query}`);
+  },
+
+  loadWorkFile: (filePath: string, agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<{ path: string; content: string }>(
+      `/workspace/work-files/${encodePath(filePath)}${query}`,
+    );
+  },
+
+  saveWorkFile: (filePath: string, content: string, agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<{ path: string; size: number }>(
+      `/workspace/work-files/${encodePath(filePath)}${query}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ content }),
+      },
+    );
+  },
+
+  listCoreConfigFiles: (agentId?: string) => {
+    const query = agentId ? `?agent_id=${encodeURIComponent(agentId)}` : "";
+    return request<MdFileInfo[]>(`/workspace/core-config-files${query}`).then(
+      (files) =>
+        files.map((file) => ({
+          ...file,
+          updated_at: new Date(file.modified_time).getTime(),
+        })),
     );
   },
 };

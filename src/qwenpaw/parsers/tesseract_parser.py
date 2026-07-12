@@ -137,12 +137,18 @@ class TesseractParser:
 
         # 3. Bundled binary relative to package root (dev mode)
         pkg_root = Path(__file__).resolve().parent.parent.parent
+        repo_root = pkg_root.parent
         for candidate in [
             pkg_root / "bin" / "tesseract" / "tesseract.exe",
             pkg_root / "bin" / "tesseract" / "tesseract",
+            repo_root / "console" / "src-tauri" / "binaries" / "ocr-tools" / "tesseract" / "tesseract.exe",
+            repo_root / "console" / "src-tauri" / "binaries" / "ocr-tools" / "tesseract" / "tesseract",
             Path(os.environ.get("APPDATA", "")) / "qwenpaw" / "bin" / "tesseract" / "tesseract.exe",
         ]:
             if candidate.is_file():
+                tessdata = candidate.parent / "tessdata"
+                if tessdata.is_dir():
+                    os.environ["TESSDATA_PREFIX"] = str(candidate.parent)
                 return str(candidate)
 
         # 4. Environment variable
@@ -190,9 +196,11 @@ class TesseractParser:
 
         # 3. Bundled directory relative to package root
         pkg_root = Path(__file__).resolve().parent.parent.parent
+        repo_root = pkg_root.parent
         for candidate in [
             pkg_root / "bin" / "poppler" / "bin",
             pkg_root / "bin" / "poppler" / "Library" / "bin",
+            repo_root / "console" / "src-tauri" / "binaries" / "ocr-tools" / "poppler" / "bin",
             Path(os.environ.get("APPDATA", "")) / "qwenpaw" / "bin" / "poppler" / "bin",
         ]:
             if candidate.is_dir():

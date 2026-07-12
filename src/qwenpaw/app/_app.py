@@ -490,6 +490,29 @@ async def lifespan(  # pylint: disable=too-many-statements,too-many-branches
                 )
 
             startup_elapsed = time.time() - startup_start_time
+
+            # ---- Built-in Pet Desktop ----
+            try:
+                from .pet_desktop import pet_startup
+
+                await pet_startup()
+            except Exception:
+                logger.warning(
+                    "Pet Desktop startup skipped",
+                    exc_info=True,
+                )
+
+            # ---- Built-in Text Selection Tool ----
+            try:
+                from .text_selection import ts_startup
+
+                await ts_startup()
+            except Exception:
+                logger.warning(
+                    "Text Selection startup skipped",
+                    exc_info=True,
+                )
+
             logger.info(
                 "Background startup completed in "
                 f"{startup_elapsed:.3f} seconds",
@@ -505,6 +528,14 @@ async def lifespan(  # pylint: disable=too-many-statements,too-many-branches
 
     _bg_task = asyncio.create_task(_background_startup())
 
+    # Start cloud backup scheduled sync loop
+    try:
+        from ..cloud.sync import start_scheduled_sync
+
+        start_scheduled_sync()
+    except Exception:
+        logger.warning("Failed to start cloud backup scheduled sync", exc_info=True)
+
     try:
         yield
     finally:
@@ -513,6 +544,14 @@ async def lifespan(  # pylint: disable=too-many-statements,too-many-branches
             _bg_task.cancel()
             with suppress(asyncio.CancelledError):
                 await _bg_task
+
+        # Stop cloud backup scheduled sync loop
+        try:
+            from ..cloud.sync import stop_scheduled_sync
+
+            await stop_scheduled_sync()
+        except Exception:
+            logger.warning("Failed to stop cloud backup scheduled sync", exc_info=True)
 
         # ==================== Execute Shutdown Hooks ====================
         plugin_registry = getattr(app.state, "plugin_registry", None)
@@ -544,6 +583,28 @@ async def lifespan(  # pylint: disable=too-many-statements,too-many-branches
                         f"from plugin '{hook.plugin_id}': {e}",
                         exc_info=True,
                     )
+
+        # ---- Built-in Text Selection shutdown ----
+        try:
+            from .text_selection import ts_shutdown
+
+            await ts_shutdown()
+        except Exception:
+            logger.warning(
+                "Text Selection shutdown failed",
+                exc_info=True,
+            )
+
+        # ---- Built-in Pet Desktop shutdown ----
+        try:
+            from .pet_desktop import pet_shutdown
+
+            await pet_shutdown()
+        except Exception:
+            logger.warning(
+                "Pet Desktop shutdown failed",
+                exc_info=True,
+            )
 
         local_model_mgr = getattr(app.state, "local_model_manager", None)
         if local_model_mgr is not None:

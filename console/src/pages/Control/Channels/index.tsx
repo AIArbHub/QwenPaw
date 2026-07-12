@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import api from "../../../api";
 import {
   ChannelCard,
+  ChannelAvailableItem,
   ChannelDrawer,
   AccessControlDrawer,
   PendingApprovalsDrawer,
@@ -53,28 +54,33 @@ function ChannelsPage() {
     fetchPendingCount();
   }, [fetchPendingCount]);
 
-  // Sort cards: enabled first, then disabled (preserve orderedKeys order within each group)
-  const cards = useMemo(() => {
-    const enabledCards: { key: ChannelKey; config: Record<string, unknown> }[] =
-      [];
-    const disabledCards: {
-      key: ChannelKey;
-      config: Record<string, unknown>;
-    }[] = [];
-
+  // Split enabled/disabled so they are available in the JSX scope
+  const enabledCards = useMemo(() => {
+    const result: { key: ChannelKey; config: Record<string, unknown> }[] = [];
     orderedKeys.forEach((key) => {
       const config = channels[key] || { enabled: false, bot_prefix: "" };
       const builtin = isBuiltin(key);
       if (filter === "builtin" && !builtin) return;
       if (filter === "custom" && builtin) return;
       if (config.enabled) {
-        enabledCards.push({ key, config });
-      } else {
-        disabledCards.push({ key, config });
+        result.push({ key, config });
       }
     });
+    return result;
+  }, [channels, orderedKeys, filter, isBuiltin]);
 
-    return [...enabledCards, ...disabledCards];
+  const disabledCards = useMemo(() => {
+    const result: { key: ChannelKey; config: Record<string, unknown> }[] = [];
+    orderedKeys.forEach((key) => {
+      const config = channels[key] || { enabled: false, bot_prefix: "" };
+      const builtin = isBuiltin(key);
+      if (filter === "builtin" && !builtin) return;
+      if (filter === "custom" && builtin) return;
+      if (!config.enabled) {
+        result.push({ key, config });
+      }
+    });
+    return result;
   }, [channels, orderedKeys, filter, isBuiltin]);
 
   const handleCardClick = useCallback(

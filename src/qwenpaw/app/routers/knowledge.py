@@ -1032,6 +1032,38 @@ async def update_desensitize_rules(body: DesensitizeRulesRequest):
     return {"status": "ok", "rules": body.rules}
 
 
+@router.get("/desensitize/active-model")
+async def get_desensitize_active_model():
+    """Get the currently active AI model info for desensitization features."""
+    try:
+        from ...providers.provider_manager import ProviderManager
+        manager = ProviderManager.get_instance()
+        model_config = manager.get_active_model()
+        if not model_config or not model_config.provider_id or not model_config.model:
+            return {
+                "status": "ok",
+                "has_model": False,
+                "provider_id": "",
+                "model": "",
+                "hint": "No AI model configured",
+            }
+        return {
+            "status": "ok",
+            "has_model": True,
+            "provider_id": model_config.provider_id,
+            "model": model_config.model,
+            "display_name": f"{model_config.provider_id} / {model_config.model}",
+        }
+    except Exception:
+        return {
+            "status": "ok",
+            "has_model": False,
+            "provider_id": "",
+            "model": "",
+            "hint": "Failed to load model config",
+        }
+
+
 @router.post("/desensitize-rules/reset")
 async def reset_desensitize_rules():
     if _CUSTOM_RULES_FILE.is_file():
@@ -1046,6 +1078,141 @@ async def reset_desensitize_rules():
         for r in DEFAULT_RULES
     ]
     return {"status": "ok", "rules": rules}
+
+
+class AIRulesGenerateRequest(BaseModel):
+    description: str = Field(..., description="Natural language description of the desensitization rules needed")
+
+
+@router.post("/desensitize-rules/generate-ai")
+async def generate_ai_rules(body: AIRulesGenerateRequest):
+    """Generate desensitization rules from natural language description using AI."""
+    # Check if model is configured first
+    try:
+        from ...providers.provider_manager import ProviderManager
+        model_config = ProviderManager.get_instance().get_active_model()
+        if not model_config or not model_config.provider_id or not model_config.model:
+            raise HTTPException(
+                status_code=428,
+                detail="No AI model configured. Please go to Settings → Models to select a model first.",
+            )
+    except HTTPException:
+        raise
+    except Exception:
+        pass
+
+    try:
+        from ...knowledge.desensitize_llm import get_llm_call_fn
+    except ImportError:
+        raise HTTPException(
+            status_code=500,
+            detail="AI module not available. Please check your installation.",
+        )
+
+    try:
+        llm_call = get_llm_call_fn()
+    except Exception as e:
+        logger.exception("Failed to initialize LLM call function")
+        raise HTTPException(
+            status_code=428,
+            detail=f"AI model not available: {str(e)}. Please go to Settings → Models to configure a model.",
+        )
+
+    prompt = _build_rule_generation_prompt(body.description)
+    try:
+        result = await llm_call(prompt)
+    except Exception as e:
+        logger.exception("AI rule generation failed")
+        error_msg = str(e)
+        if "No active model" in error_msg or "provider" in error_msg.lower():
+            raise HTTPException(
+                status_code=428,
+                detail="No AI model configured. Please go to Settings → Models to select a model first.",
+            )
+        raise HTTPException(status_code=500, detail=f"AI generation failed: {error_msg}")
+
+    # Parse the AI output into rule objects
+    parsed_rules = _parse_generated_rules(result)
+    if not parsed_rules:
+        raise HTTPException(status_code=422, detail="AI did not generate valid rules. Please try a more specific description.")
+
+    return {"status": "ok", "rules": parsed_rules, "raw_output": result}
+
+
+def _build_rule_generation_prompt(description: str) -> str:
+    """Build the prompt for AI rule generation."""
+    return f"""你是一个正则表达式专家，擅长识别中文文本中的敏感信息类型。请根据用户的需求描述，生成对应的脱敏规则。
+
+每个规则需要包含以下字段：
+- name: 英文规则名称（snake_case）
+- pattern: 用于匹配的正则表达式
+- placeholder: 替换占位符，使用 {{seq:03d}} 表示序号（如 ID_{{seq:03d}}、PHONE_{{seq:03d}}）
+- group: 捕获组编号，0 表示整个匹配（通常为 0）
+
+请以 JSON 数组格式返回，不要包含任何其他文字说明。每个规则必须是一个完整的 JSON 对象。
+
+以下是一些参考规则示例：
+```json
+[
+  {{"name": "id_card", "pattern": "[1-9]\\\\d{{5}}(?:19|20)\\\\d{{2}}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])\\\\d{{3}}[\\dXx]", "placeholder": "ID_{{seq:03d}}", "group": 0}},
+  {{"name": "phone", "pattern": "(?<!\\d)1[3-9]\\d{{9}}(?!\\d)", "placeholder": "PHONE_{{seq:03d}}", "group": 0}},
+  {{"name": "email", "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{{2,}}", "placeholder": "EMAIL_{{seq:03d}}", "group": 0}},
+  {{"name": "bank_card", "pattern": "(?<!\\d)[1-9]\\d{{14,18}}(?!\\d)", "placeholder": "BANK_{{seq:03d}}", "group": 0}}
+]
+```
+
+现在，用户的需求描述是：
+
+{description}
+
+请生成对应的脱敏规则，直接返回 JSON 数组（不要包含 markdown 代码块标记）。"""
+
+
+def _parse_generated_rules(raw_output: str) -> list[dict]:
+    """Parse AI-generated text into a list of rule dicts."""
+    import re as _re
+
+    # Strip markdown code fences if present
+    cleaned = raw_output.strip()
+    if cleaned.startswith("```"):
+        cleaned = _re.sub(r"^```(?:json)?\s*", "", cleaned)
+        cleaned = _re.sub(r"\s*```$", "", cleaned)
+
+    try:
+        parsed = json.loads(cleaned)
+        if isinstance(parsed, list):
+            # Validate each rule has required fields
+            valid_rules = []
+            for item in parsed:
+                if isinstance(item, dict) and all(k in item for k in ("name", "pattern", "placeholder")):
+                    valid_rules.append({
+                        "name": str(item["name"]),
+                        "pattern": str(item["pattern"]),
+                        "placeholder": str(item["placeholder"]),
+                        "group": int(item.get("group", 0)),
+                    })
+            return valid_rules
+    except json.JSONDecodeError:
+        # Try to extract JSON array from text
+        match = _re.search(r"\[[\s\S]*\]", raw_output)
+        if match:
+            try:
+                parsed = json.loads(match.group())
+                if isinstance(parsed, list):
+                    return [
+                        {
+                            "name": str(item["name"]),
+                            "pattern": str(item["pattern"]),
+                            "placeholder": str(item["placeholder"]),
+                            "group": int(item.get("group", 0)),
+                        }
+                        for item in parsed
+                        if isinstance(item, dict) and all(k in item for k in ("name", "pattern", "placeholder"))
+                    ]
+            except json.JSONDecodeError:
+                pass
+
+    return []
 
 
 class KnowledgeExportRequest(BaseModel):

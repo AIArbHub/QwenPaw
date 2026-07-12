@@ -3,9 +3,13 @@ export interface BackupScope {
   include_global_config: boolean;
   include_secrets: boolean;
   include_skill_pool: boolean;
+  include_jobs: boolean;
+  include_chats: boolean;
+  include_plugins: boolean;
+  include_browser_data: boolean;
 }
 
-export type BackupTrustMode = "legacy" | "foreign";
+export type BackupTrustMode = "legacy" | "foreign" | "portable";
 
 export interface BackupMeta {
   id: string;
@@ -30,6 +34,8 @@ export interface CreateBackupRequest {
   description?: string;
   scope: BackupScope;
   agents: string[];
+  portable?: boolean;
+  browser_data?: Record<string, unknown> | null;
 }
 
 export interface RestoreBackupRequest {
@@ -38,6 +44,10 @@ export interface RestoreBackupRequest {
   include_global_config: boolean;
   include_secrets: boolean;
   include_skill_pool: boolean;
+  include_jobs: boolean;
+  include_chats: boolean;
+  include_plugins: boolean;
+  include_browser_data: boolean;
   default_workspace_dir?: string | null;
   mode?: "full" | "custom";
   preserve_local_protected_config?: boolean | null;
@@ -51,18 +61,18 @@ export interface RestoreBackupResponse {
 
 /**
  * Determine if a backup is a full backup.
- * A full backup must have all of:
- * - include_agents is true
- * - include_global_config is true
- * - include_skill_pool is true
- * - include_secrets is true
+ * A full backup must have all major data categories enabled.
  */
 export function isFullBackup(scope: BackupScope): boolean {
   return (
     scope.include_agents === true &&
     scope.include_global_config === true &&
     scope.include_skill_pool === true &&
-    scope.include_secrets === true
+    scope.include_secrets === true &&
+    scope.include_jobs === true &&
+    scope.include_chats === true &&
+    scope.include_plugins === true &&
+    scope.include_browser_data === true
   );
 }
 
@@ -94,4 +104,20 @@ export interface BackupValidationDetail {
   code: string;
   message: string;
   locked_paths?: string[];
+}
+
+export interface BrowserDataPayload {
+  docforgeTasks: unknown[];
+  docforgeParseTasks: unknown[];
+  messageQueues: Record<string, unknown[]>;
+  preferences: BrowserPreferencesPayload;
+}
+
+export interface BrowserPreferencesPayload {
+  theme: string | null;
+  language: string | null;
+  sidebarMode: string | null;
+  lastUsedAgent: string | null;
+  codingTabs: unknown | null;
+  closeWindowAction: string | null;
 }

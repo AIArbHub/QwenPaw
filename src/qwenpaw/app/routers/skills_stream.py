@@ -125,6 +125,66 @@ class AIOptimizeSkillRequest(BaseModel):
     )
 
 
+class AIGenerateSkillRequest(BaseModel):
+    description: str = Field(..., description="Natural language description of the desired skill")
+    language: str = Field(
+        default="zh",
+        description="Language for generation (en, zh)",
+    )
+
+
+# System prompts for skill generation from natural language
+GENERATE_SYSTEM_PROMPTS = {
+    "en": """You are a skill creation assistant. Create a complete skill based on the user's description.
+
+## Output Format
+Output the skill content DIRECTLY. Do NOT use code block markers. Do NOT add any explanations.
+
+## Skill Structure
+---
+name: {english_name_with_underscores}
+description: {clear one-sentence description in English, max 80 chars}
+---
+
+## {section_title}
+{detailed implementation content in Markdown}
+
+## Rules
+- name MUST be lowercase English with underscores (e.g., weather_query)
+- description MUST be concise, one sentence
+- Body should include purpose, usage instructions, and examples
+- Use proper Markdown formatting (## headers, - lists, etc.)
+- Total content: 300-800 characters
+
+Create a skill for:""",
+    "zh": """你是技能创建助手。根据用户的描述直接生成完整的技能内容。
+
+## 输出格式
+直接输出技能内容，禁止使用代码块标记。禁止添加任何解释说明。
+
+## 技能结构
+---
+name: {英文名_下划线分隔}
+description: {一句中文描述，不超过80字}
+---
+
+## 功能说明
+{详细的功能实现内容，Markdown格式}
+
+## 使用方式
+{使用方法、参数说明、示例}
+
+## 规则
+- name 必须是英文小写下划线命名
+- description 必须简洁，一句话
+- 内容结构清晰，分节说明
+- 使用Markdown格式
+- 总长度300-800字
+
+请为以下需求创建技能:""",
+}
+
+
 router = APIRouter(tags=["skills"])
 
 
@@ -243,6 +303,97 @@ async def ai_optimize_skill_stream(request: AIOptimizeSkillRequest):
             logger.exception("AI skill optimization failed: %s", e)
             error_msg = json.dumps(
                 {"error": f"Failed to optimize skill: {str(e)}"},
+                ensure_ascii=False,
+            )
+            yield f"data: {error_msg}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@router.post("/skills/ai/generate/stream")
+async def ai_generate_skill_stream(request: AIGenerateSkillRequest):
+    """Use AI to generate a complete skill from a natural language description.
+
+    Args:
+        request: Contains natural language description and language preference
+
+    Returns:
+        StreamingResponse with generated skill content (text deltas)
+    """
+
+    async def generate():
+        try:
+            model = get_model()
+            if not model:
+                error_msg = json.dumps(
+                    {
+                        "error": (
+                            "No AI model configured. "
+                            "Please configure in Settings."
+                        ),
+                    },
+                )
+                yield f"data: {error_msg}\n\n"
+                return
+
+            system_prompt = GENERATE_SYSTEM_PROMPTS.get(
+                request.language,
+                GENERATE_SYSTEM_PROMPTS["en"],
+            )
+
+            from agentscope.message import Msg, TextBlock
+
+            messages = [
+                Msg(
+                    name="system",
+                    role="system",
+                    content=[TextBlock(type="text", text=system_prompt)],
+                ),
+                Msg(
+                    name="user",
+                    role="user",
+                    content=[TextBlock(type="text", text=request.description)],
+                ),
+            ]
+
+            response = await model(messages)
+            accumulated = ""
+
+            if hasattr(response, "__aiter__"):
+                async for chunk in response:
+                    text = _extract_text_from_chunk(chunk)
+
+                    if text and len(text) > len(accumulated):
+                        delta = text[len(accumulated) :]
+                        accumulated = text
+                        data = json.dumps(
+                            {"text": delta},
+                            ensure_ascii=False,
+                        )
+                        yield f"data: {data}\n\n"
+            else:
+                text = _extract_text_from_response(response)
+                if text:
+                    data = json.dumps(
+                        {"text": text},
+                        ensure_ascii=False,
+                    )
+                    yield f"data: {data}\n\n"
+
+            yield f"data: {json.dumps({'done': True})}\n\n"
+
+        except Exception as e:
+            logger.exception("AI skill generation failed: %s", e)
+            error_msg = json.dumps(
+                {"error": f"Failed to generate skill: {str(e)}"},
                 ensure_ascii=False,
             )
             yield f"data: {error_msg}\n\n"

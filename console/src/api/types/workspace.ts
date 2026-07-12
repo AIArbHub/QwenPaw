@@ -14,6 +14,11 @@ export interface MarkdownFile extends MdFileInfo {
   updated_at: number;
   enabled?: boolean;
   memory_path?: string;
+  /** When true, this file lives in the work directory and must be
+   * read/written via the /work-files API instead of /files. */
+  is_work_file?: boolean;
+  /** Relative path within the work directory (used for work files). */
+  work_file_path?: string;
 }
 
 export interface DailyMemoryFile extends MdFileInfo {
@@ -62,4 +67,21 @@ export interface MemoryVersionInfo {
   size: number;
   created_time: string;
   modified_time: string;
+}
+
+// ---- Work directory types ----
+
+export interface WorkDirConfig {
+  enabled: boolean;
+  base_dir: string | null;
+  session_isolation: boolean;
+  subfolder_pattern: string;
+  resolved_preview: string | null;
+}
+
+export interface WorkFileInfo {
+  filename: string;
+  path: string;
+  size: number;
+  modified_time?: string;
 }

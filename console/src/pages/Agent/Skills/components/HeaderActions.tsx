@@ -30,6 +30,7 @@ interface HeaderActionsProps {
   onUploadClick: () => void;
   onImportHub: () => void;
   onCreate: () => void;
+  onAiCreate?: () => void;
   onBrowseMarket: () => void;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -53,6 +54,7 @@ export function HeaderActions({
   onUploadClick,
   onImportHub,
   onCreate,
+  onAiCreate,
   onBrowseMarket,
   onFileChange,
 }: HeaderActionsProps) {
@@ -148,6 +150,7 @@ export function HeaderActions({
             </Button>
             <AddSkillDropdown
               onCreate={onCreate}
+              onAiCreate={onAiCreate}
               onFromPool={onOpenDownloadPool}
               onUploadZip={onUploadClick}
               onFromUrl={onImportHub}

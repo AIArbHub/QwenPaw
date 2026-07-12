@@ -72,6 +72,12 @@ export const wikiApi = {
   readPage: (pagePath: string) =>
     request<WikiPageContentResponse>(`/wiki/pages/${encodeURIComponent(pagePath)}`),
 
+  writePage: (pagePath: string, content: string) =>
+    request<WikiPageContentResponse>(`/wiki/pages/${encodeURIComponent(pagePath)}`, {
+      method: "PUT",
+      body: JSON.stringify({ content }),
+    }),
+
   lint: (fix: boolean = false) =>
     request<LintResult>("/wiki/lint", {
       method: "POST",

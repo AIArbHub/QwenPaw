@@ -74,6 +74,7 @@ export function useSkillsPage() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
+  const [aiCreateModalOpen, setAiCreateModalOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState<SkillSpec | null>(null);
   const [form] = Form.useForm<SkillDrawerFormValues>();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -213,6 +214,35 @@ export function useSkillsPage() {
     form.resetFields();
     form.setFieldsValue({ enabled: false, channels: ["all"], tags: [] });
     setDrawerOpen(true);
+  };
+
+  const handleAiCreate = () => {
+    setAiCreateModalOpen(true);
+  };
+
+  const handleAiGenerated = (content: string) => {
+    setEditingSkill(null);
+    // Parse name from frontmatter if present, otherwise use placeholder
+    let name = "";
+    let description = "";
+    const fmMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
+    if (fmMatch) {
+      const fm = fmMatch[1];
+      const nameMatch = fm.match(/^name:\s*(.+)$/m);
+      const descMatch = fm.match(/^description:\s*(.+)$/m);
+      if (nameMatch) name = nameMatch[1].trim();
+      if (descMatch) description = descMatch[1].trim();
+    }
+    form.resetFields();
+    form.setFieldsValue({
+      name: name || "",
+      content,
+      enabled: true,
+      channels: ["all"],
+      tags: [],
+    });
+    setDrawerOpen(true);
+    setAiCreateModalOpen(false);
   };
 
   const closeImportModal = () => {
@@ -692,6 +722,8 @@ export function useSkillsPage() {
     drawerOpen,
     importModalOpen,
     setImportModalOpen,
+    aiCreateModalOpen,
+    setAiCreateModalOpen,
     editingSkill,
     form,
     fileInputRef,
@@ -708,6 +740,8 @@ export function useSkillsPage() {
     searchTags,
     setSearchTags,
     handleCreate,
+    handleAiCreate,
+    handleAiGenerated,
     handleEdit,
     handleToggleEnabled,
     handleDelete,

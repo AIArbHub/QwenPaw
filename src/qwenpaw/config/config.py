@@ -1812,6 +1812,50 @@ class CodingModeConfig(BaseModel):
     )
 
 
+class WorkDirConfig(BaseModel):
+    """Configuration for agent work document directory.
+
+    Separates conversation-produced documents from core configuration
+    files (SOUL.md, PROFILE.md, etc.) that live in workspace_dir.
+    """
+
+    model_config = ConfigDict(extra="ignore")
+
+    enabled: bool = Field(
+        default=False,
+        description=(
+            "Enable separate work directory for conversation-produced "
+            "documents. When disabled, all files go to workspace_dir "
+            "(backward compatible)."
+        ),
+    )
+    base_dir: Optional[str] = Field(
+        default=None,
+        description=(
+            "Base directory for work documents. "
+            "When None, defaults to workspace_dir/'work'. "
+            "User can set a custom path like '~/Documents/Arbitration/'."
+        ),
+    )
+    session_isolation: bool = Field(
+        default=True,
+        description=(
+            "If True, create a subfolder per session so each "
+            "conversation's documents are isolated. "
+            "If False, all sessions share the same work directory."
+        ),
+    )
+    subfolder_pattern: str = Field(
+        default="{agent_name}_{date}",
+        description=(
+            "Subfolder naming pattern under base_dir. "
+            "Supported placeholders: {agent_name}, {date}, {agent_id}, "
+            "{session_id}. When the target folder already has content, "
+            "a subfolder is created using this pattern."
+        ),
+    )
+
+
 class AgentProfileConfig(BaseModel):
     """Complete Agent Profile configuration (stored in workspace/agent.json).
 
@@ -1900,6 +1944,10 @@ class AgentProfileConfig(BaseModel):
     coding_mode: CodingModeConfig = Field(
         default_factory=CodingModeConfig,
         description="Coding Mode configuration for this agent",
+    )
+    work_dir: WorkDirConfig = Field(
+        default_factory=WorkDirConfig,
+        description="Work document directory configuration (separates conversation output from core config)",
     )
     documents: DocumentConfig = Field(
         default_factory=DocumentConfig,

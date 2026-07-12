@@ -583,6 +583,69 @@ export const skillApi = {
     }
   },
 
+  streamGenerateSkill: async function (
+    description: string,
+    onChunk: (text: string) => void,
+    signal: AbortSignal,
+    language: string = "zh",
+  ): Promise<void> {
+    const apiUrl = getStreamApiUrl();
+
+    const response = await fetch(`${apiUrl}/skills/ai/generate/stream`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ description, language }),
+      signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error("No reader available");
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+
+        for (let i = 0; i < lines.length - 1; i++) {
+          const line = lines[i].trim();
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.text) {
+                onChunk(parsed.text);
+              } else if (parsed.error) {
+                throw new Error(parsed.error);
+              } else if (parsed.done) {
+                return;
+              }
+            } catch {
+              // Ignore malformed chunks.
+            }
+          }
+        }
+
+        buffer = lines[lines.length - 1];
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  },
+
   uploadSkill: (
     file: File,
     options?: {

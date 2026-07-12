@@ -18,6 +18,7 @@ export { PoolTransferModal } from "./PoolTransferModal";
 export { SkillFilterDropdown, TAG_PREFIX } from "./SkillFilterDropdown";
 export { HeaderActions } from "./HeaderActions";
 export { AddSkillDropdown } from "./AddSkillDropdown";
+export { AiCreateSkillModal } from "./AiCreateSkillModal";
 export { SkillsToolbar } from "./SkillsToolbar";
 export { SkillListItem } from "./SkillListItem";
 

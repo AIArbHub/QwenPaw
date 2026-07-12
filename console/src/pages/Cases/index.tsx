@@ -12,6 +12,11 @@ import {
   ExportOutlined,
   LinkOutlined,
   ThunderboltOutlined,
+  ClockCircleOutlined,
+  TeamOutlined,
+  RobotOutlined,
+  FileDoneOutlined,
+  BarChartOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -35,13 +40,23 @@ import {
   Typography,
   Checkbox,
   Alert,
+  Statistic,
+  Row,
+  Col,
+  Timeline,
 } from "antd";
 import { PageHeader } from "@/components/PageHeader";
 import FolderPicker from "@/components/FolderPicker";
 import { casesApi } from "@/api/modules/cases";
+import { knowledgeApi } from "@/api/modules/knowledge";
 import { wikiApi } from "@/api/modules/wiki";
 import type { CaseRef, CaseDetailResponse, CaseFile } from "@/api/modules/cases";
 import type { WikiPage } from "@/api/modules/wiki";
+import EntityRegistry from "../Documents/components/EntityRegistry";
+import MaterialSelector, {
+  type SelectedMaterial,
+} from "../Documents/components/MaterialSelector";
+import PipelineStatus from "../Documents/components/PipelineStatus";
 import styles from "./index.module.less";
 
 function formatFileSize(bytes: number): string {
@@ -85,6 +100,9 @@ export default function CasesPage() {
   const [wikiRefs, setWikiRefs] = useState<WikiPage[]>([]);
   const [wikiRefsLoading, setWikiRefsLoading] = useState(false);
   const [ingestingCase, setIngestingCase] = useState(false);
+  const [caseAiPreference, setCaseAiPreference] = useState<"original" | "desensitized" | "ask">("desensitized");
+  const [materialSelectorOpen, setMaterialSelectorOpen] = useState(false);
+  const [caseTab, setCaseTab] = useState("overview");
 
   const fetchCases = useCallback(async () => {
     setLoading(true);
@@ -227,7 +245,7 @@ export default function CasesPage() {
       const result = await wikiApi.ingest({ case_ids: [selectedCase.case_id] });
       if (result.ingested.length > 0) {
         message.success(
-          t("cases.ingestSuccess", "编译完成，新增 {{count}} 个Wiki页面", {
+          t("cases.ingestSuccess", "编译完成，新增 {{count}} 个知识页面", {
             count: result.ingested.length,
           }),
         );
@@ -344,7 +362,7 @@ export default function CasesPage() {
   return (
     <div className={styles.pageContainer}>
       <PageHeader
-        current="案件档案"
+        current="案件中心"
         subRow={<span style={{ color: "var(--ant-color-text-secondary)", fontSize: 13 }}>管理仲裁案件文件，AI智能分析与检索</span>}
         extra={
           <Button type="primary" icon={<PlusOutlined />} onClick={() => setAddModalOpen(true)}>
@@ -354,24 +372,53 @@ export default function CasesPage() {
       />
 
       {cases.length > 0 && (
-        <div style={{ display: "flex", gap: 16, margin: "0 24px 16px" }}>
-          <Card size="small" style={{ flex: 1, textAlign: "center" }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: "#1890ff" }}>{cases.length}</div>
-            <div style={{ fontSize: 12, color: "#8c8c8c" }}>案件总数</div>
-          </Card>
-          <Card size="small" style={{ flex: 1, textAlign: "center" }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: "#52c41a" }}>
-              {cases.reduce((sum, c) => sum + c.file_count, 0)}
-            </div>
-            <div style={{ fontSize: 12, color: "#8c8c8c" }}>文件总数</div>
-          </Card>
-          <Card size="small" style={{ flex: 1, textAlign: "center" }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: "#722ed1" }}>
-              {cases.filter(c => c.index_status === "completed").length}
-            </div>
-            <div style={{ fontSize: 12, color: "#8c8c8c" }}>已索引</div>
-          </Card>
-        </div>
+        <Row gutter={16} style={{ margin: "0 24px 16px" }}>
+          <Col flex={1}>
+            <Card size="small">
+              <Statistic
+                title={t("documents.dashboard.caseCount", "案件总数")}
+                value={cases.length}
+                prefix={<FolderOutlined style={{ color: "#1890ff" }} />}
+              />
+            </Card>
+          </Col>
+          <Col flex={1}>
+            <Card size="small">
+              <Statistic
+                title={t("documents.dashboard.fileCount", "文件总数")}
+                value={cases.reduce((sum, c) => sum + c.file_count, 0)}
+                prefix={<FileTextOutlined style={{ color: "#52c41a" }} />}
+              />
+            </Card>
+          </Col>
+          <Col flex={1}>
+            <Card size="small">
+              <Statistic
+                title={t("documents.dashboard.indexed", "已索引")}
+                value={cases.filter(c => c.index_status === "completed").length}
+                prefix={<BarChartOutlined style={{ color: "#722ed1" }} />}
+              />
+            </Card>
+          </Col>
+          <Col flex={1}>
+            <Card size="small">
+              <Statistic
+                title={t("documents.dashboard.desensProgress", "脱敏进度")}
+                value={
+                  cases.length > 0
+                    ? Math.round(
+                        (cases.filter(c => c.index_status === "completed").length /
+                          cases.length) *
+                          100,
+                      )
+                    : 0
+                }
+                suffix="%"
+                prefix={<SafetyOutlined style={{ color: "#faad14" }} />}
+              />
+            </Card>
+          </Col>
+        </Row>
       )}
 
       {cases.length === 0 && !loading ? (
@@ -446,52 +493,265 @@ export default function CasesPage() {
       >
         {caseDetail && (
           <>
-            <Descriptions column={1} bordered size="small">
-              <Descriptions.Item label={t("cases.caseName", "案件名称")}>
-                {caseDetail.case.case_name}
-              </Descriptions.Item>
-              <Descriptions.Item label={t("cases.sourcePath", "源路径")}>
-                {caseDetail.case.source_path}
-              </Descriptions.Item>
-              <Descriptions.Item label={t("cases.scanMode", "扫描模式")}>
-                {caseDetail.case.scan_mode}
-              </Descriptions.Item>
-              <Descriptions.Item label={t("cases.fileCount", "文件数量")}>
-                {caseDetail.case.file_count}
-              </Descriptions.Item>
-              <Descriptions.Item label={t("cases.totalSize", "总大小")}>
-                {formatFileSize(caseDetail.case.total_size)}
-              </Descriptions.Item>
-              <Descriptions.Item label={t("cases.indexStatus", "索引状态")}>
-                <Badge {...statusToBadge(caseDetail.case.index_status)} />
-              </Descriptions.Item>
-              <Descriptions.Item label={t("cases.lastScanned", "最后扫描")}>
-                {caseDetail.case.last_scanned
-                  ? new Date(caseDetail.case.last_scanned).toLocaleString()
-                  : "-"}
-              </Descriptions.Item>
-            </Descriptions>
-            <div className={styles.fileList}>
-              <h4>{t("cases.fileList", "文件列表")}</h4>
-              <Table
-                dataSource={caseDetail.files}
-                columns={fileColumns}
-                rowKey="file_path"
-                size="small"
-                pagination={false}
-                scroll={{ y: 400 }}
-              />
-            </div>
-            <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-              <Button icon={<ReloadOutlined />} onClick={() => handleRescan(selectedCase!.case_id)}>
-                重新扫描
+            {/* Quick actions bar */}
+            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+              <Button
+                icon={<SafetyOutlined />}
+                onClick={() => setMaterialSelectorOpen(true)}
+              >
+                {t("documents.dashboard.batchDesensitize", "批量脱敏")}
               </Button>
-              <Button type="primary" icon={<ThunderboltOutlined />} onClick={() => {
-                handleIngestCaseFile();
-              }} loading={ingestingCase}>
-                AI智能整理
+              <Button
+                type="primary"
+                icon={<RobotOutlined />}
+                onClick={() => {
+                  window.open("/chat", "_blank");
+                }}
+              >
+                {t("documents.dashboard.aiChat", "AI对话")}
+              </Button>
+              <Button
+                icon={<FileDoneOutlined />}
+                onClick={() => {
+                  window.open("/moot", "_blank");
+                }}
+              >
+                {t("documents.dashboard.generateDoc", "生成文书")}
               </Button>
             </div>
+
+            <Tabs
+              activeKey={caseTab}
+              onChange={setCaseTab}
+              items={[
+                {
+                  key: "overview",
+                  label: (
+                    <span>
+                      <BarChartOutlined /> 概览
+                    </span>
+                  ),
+                  children: (
+                    <>
+                      <Row gutter={12} style={{ marginBottom: 16 }}>
+                        <Col span={6}>
+                          <Card size="small">
+                            <Statistic
+                              title={t("documents.dashboard.materials", "材料数")}
+                              value={caseDetail.case.file_count}
+                              prefix={<FileTextOutlined />}
+                            />
+                          </Card>
+                        </Col>
+                        <Col span={6}>
+                          <Card size="small">
+                            <Statistic
+                              title={t("documents.dashboard.desensProgress", "脱敏进度")}
+                              value={
+                                caseDetail.files.filter(
+                                  (f) => f.status === "ready",
+                                ).length
+                              }
+                              suffix={`/ ${caseDetail.case.file_count}`}
+                              prefix={<SafetyOutlined />}
+                            />
+                          </Card>
+                        </Col>
+                        <Col span={6}>
+                          <Card size="small">
+                            <Statistic
+                              title={t("documents.dashboard.aiConversations", "AI对话数")}
+                              value={0}
+                              prefix={<RobotOutlined />}
+                            />
+                          </Card>
+                        </Col>
+                        <Col span={6}>
+                          <Card size="small">
+                            <Statistic
+                              title={t("documents.dashboard.drafts", "文书草稿数")}
+                              value={0}
+                              prefix={<FileDoneOutlined />}
+                            />
+                          </Card>
+                        </Col>
+                      </Row>
+
+                      <Descriptions column={1} bordered size="small">
+                        <Descriptions.Item label={t("cases.caseName", "案件名称")}>
+                          {caseDetail.case.case_name}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={t("cases.sourcePath", "源路径")}>
+                          {caseDetail.case.source_path}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={t("cases.scanMode", "扫描模式")}>
+                          <Tag>{caseDetail.case.scan_mode}</Tag>
+                        </Descriptions.Item>
+                        <Descriptions.Item label={t("cases.totalSize", "总大小")}>
+                          {formatFileSize(caseDetail.case.total_size)}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={t("cases.indexStatus", "索引状态")}>
+                          <Badge {...statusToBadge(caseDetail.case.index_status)} />
+                        </Descriptions.Item>
+                        <Descriptions.Item label={t("cases.lastScanned", "最后扫描")}>
+                          {caseDetail.case.last_scanned
+                            ? new Date(caseDetail.case.last_scanned).toLocaleString()
+                            : "-"}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="AI使用偏好">
+                          <Space>
+                            <SafetyOutlined style={{ color: "var(--ant-color-primary)" }} />
+                            <Select
+                              size="small"
+                              value={caseAiPreference}
+                              onChange={async (v) => {
+                                setCaseAiPreference(v);
+                                try {
+                                  await knowledgeApi.setAIUsePreference({
+                                    scope: "case",
+                                    scope_id: selectedCase?.case_id,
+                                    preference: v,
+                                  });
+                                  message.success(
+                                    v === "desensitized"
+                                      ? "AI默认使用脱敏版材料"
+                                      : v === "original"
+                                        ? "AI默认使用原版材料"
+                                        : "AI使用前将询问您选择",
+                                  );
+                                } catch {
+                                  message.error("设置失败");
+                                }
+                              }}
+                              style={{ width: 140 }}
+                              options={[
+                                { value: "desensitized", label: "🟢 脱敏版优先" },
+                                { value: "original", label: "🔴 原版优先" },
+                                { value: "ask", label: "❓ 每次询问" },
+                              ]}
+                            />
+                          </Space>
+                        </Descriptions.Item>
+                      </Descriptions>
+
+                      {/* Pipeline status summary */}
+                      <div style={{ marginTop: 16 }}>
+                        <PipelineStatus
+                          status={caseDetail.case.index_status}
+                          desensitized={caseDetail.files.some((f) => f.status === "ready")}
+                        />
+                      </div>
+
+                      <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+                        <Button
+                          icon={<ReloadOutlined />}
+                          onClick={() => handleRescan(selectedCase!.case_id)}
+                        >
+                          重新扫描
+                        </Button>
+                        <Button
+                          type="primary"
+                          icon={<ThunderboltOutlined />}
+                          onClick={() => handleIngestCaseFile()}
+                          loading={ingestingCase}
+                        >
+                          AI智能整理
+                        </Button>
+                      </div>
+                    </>
+                  ),
+                },
+                {
+                  key: "files",
+                  label: (
+                    <span>
+                      <FileTextOutlined /> {t("cases.fileList", "文件列表")}
+                    </span>
+                  ),
+                  children: (
+                    <Table
+                      dataSource={caseDetail.files}
+                      columns={fileColumns}
+                      rowKey="file_path"
+                      size="small"
+                      pagination={false}
+                      scroll={{ y: 400 }}
+                    />
+                  ),
+                },
+                {
+                  key: "entities",
+                  label: (
+                    <span>
+                      <TeamOutlined /> {t("documents.entityRegistry.title", "实体注册表")}
+                    </span>
+                  ),
+                  children: (
+                    <EntityRegistry caseId={selectedCase?.case_id} />
+                  ),
+                },
+                {
+                  key: "timeline",
+                  label: (
+                    <span>
+                      <ClockCircleOutlined /> {t("documents.dashboard.timeline", "时间线")}
+                    </span>
+                  ),
+                  children: (
+                    <Timeline
+                      items={[
+                        {
+                          color: "green",
+                          children: (
+                            <div>
+                              <div style={{ fontWeight: 500 }}>案件创建</div>
+                              <div style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>
+                                {caseDetail.case.last_scanned
+                                  ? new Date(caseDetail.case.last_scanned).toLocaleString()
+                                  : "—"}
+                              </div>
+                            </div>
+                          ),
+                        },
+                        {
+                          color: caseDetail.case.index_status === "completed" ? "green" : "blue",
+                          children: (
+                            <div>
+                              <div style={{ fontWeight: 500 }}>文件扫描完成</div>
+                              <div style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>
+                                {caseDetail.case.file_count} 个文件 · {formatFileSize(caseDetail.case.total_size)}
+                              </div>
+                            </div>
+                          ),
+                        },
+                        {
+                          color: caseDetail.files.some((f) => f.status === "ready") ? "green" : "gray",
+                          children: (
+                            <div>
+                              <div style={{ fontWeight: 500 }}>脱敏处理</div>
+                              <div style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>
+                                {caseDetail.files.filter((f) => f.status === "ready").length} / {caseDetail.case.file_count} 已就绪
+                              </div>
+                            </div>
+                          ),
+                        },
+                        {
+                          color: "gray",
+                          children: (
+                            <div>
+                              <div style={{ fontWeight: 500 }}>{t("documents.dashboard.nextStep", "下一步")}</div>
+                              <div style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>
+                                AI分析、文书草拟、模拟仲裁
+                              </div>
+                            </div>
+                          ),
+                        },
+                      ]}
+                    />
+                  ),
+                },
+              ]}
+            />
           </>
         )}
       </Drawer>
@@ -686,7 +946,7 @@ export default function CasesPage() {
                 key: "wiki",
                 label: (
                   <span>
-                    <LinkOutlined /> {t("cases.tabWiki", "Wiki引用")}
+                    <LinkOutlined /> {t("cases.tabWiki", "知识页面")}
                   </span>
                 ),
                 children: wikiRefsLoading ? (
@@ -698,10 +958,10 @@ export default function CasesPage() {
                     <div style={{ marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <span style={{ color: "var(--ant-color-text-secondary)", fontSize: 13 }}>
                         {wikiRefs.length > 0
-                          ? t("cases.wikiRefCount", "已编译 {{count}} 个Wiki页面", { count: wikiRefs.length })
-                          : t("cases.noWikiRefsYet", "该文件尚未编译为Wiki页面")}
+? t("cases.wikiRefCount", "已编译 {{count}} 个知识页面", { count: wikiRefs.length })
+                    : t("cases.noWikiRefsYet", "该文件尚未编译为知识页面")}
                       </span>
-                      <Tooltip title={t("cases.ingestCaseTip", "将此案件文件编译为结构化Wiki页面")}>
+                      <Tooltip title={t("cases.ingestCaseTip", "将此案件文件编译为结构化知识页面")}>
                         <Button
                           type="primary"
                           size="small"
@@ -709,7 +969,7 @@ export default function CasesPage() {
                           onClick={handleIngestCaseFile}
                           loading={ingestingCase}
                         >
-                          {t("cases.ingestCase", "编译为Wiki")}
+                          {t("cases.ingestCase", "编译为知识页面")}
                         </Button>
                       </Tooltip>
                     </div>
@@ -739,7 +999,7 @@ export default function CasesPage() {
                     ) : (
                       <Empty
                         image={Empty.PRESENTED_IMAGE_SIMPLE}
-                        description={t("cases.noWikiRefsHint", "点击「编译为Wiki」将案件文件转化为结构化知识页面")}
+                        description={t("cases.noWikiRefsHint", "点击「编译为知识页面」将案件文件转化为结构化知识")}
                       />
                     )}
                   </div>
@@ -787,6 +1047,18 @@ export default function CasesPage() {
           )}
         </Space>
       </Modal>
+
+      {/* Material Selector for batch operations */}
+      <MaterialSelector
+        open={materialSelectorOpen}
+        onClose={() => setMaterialSelectorOpen(false)}
+        onConfirm={(selected: SelectedMaterial[]) => {
+          message.info(
+            `已选 ${selected.length} 份材料，批量脱敏功能即将上线`,
+          );
+        }}
+        defaultCaseId={selectedCase?.case_id}
+      />
     </div>
   );
 }

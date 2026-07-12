@@ -198,6 +198,7 @@ def _compress_to_tmp(
             progress_callback,
             stop_event,
             valid_agents=valid_agents,
+            browser_data=req.browser_data,
         )
 
         if stop_event.is_set():
@@ -212,6 +213,21 @@ def _compress_to_tmp(
         logger.info(
             "Backup creation cancelled by client (backup_id=%s)",
             meta.id,
+        )
+        return
+
+    if req.portable:
+        # Portable backup: skip local signing so the archive can be imported
+        # anywhere without trust configuration.
+        tmp.replace(dest)
+        meta.accepted_via_trust = None
+        meta.signature = None
+        put(
+            {
+                "type": "done",
+                "meta": meta.model_dump(mode="json"),
+                "percent": 100,
+            },
         )
         return
 

@@ -349,24 +349,39 @@ export function MarketPanel({
     onSuccess: handleInstalled,
   });
 
-  const onInstall = useCallback(
+  const installToWorkspace = useCallback(
     (item: MarketResult) => {
-      install.enqueue([item], installTarget);
+      install.enqueue([item], "workspace");
     },
-    [install, installTarget],
+    [install],
+  );
+
+  const installToPool = useCallback(
+    (item: MarketResult) => {
+      install.enqueue([item], "pool");
+    },
+    [install],
   );
 
   // Stable callbacks for DetailDrawer
   const detailItemRef = useRef(detailItem);
   detailItemRef.current = detailItem;
 
-  const handleDetailInstall = useCallback(() => {
+  const handleDetailInstallToWorkspace = useCallback(() => {
     const current = detailItemRef.current;
     if (current) {
-      onInstall(current);
+      installToWorkspace(current);
       setDetailItem(null);
     }
-  }, [onInstall]);
+  }, [installToWorkspace]);
+
+  const handleDetailInstallToPool = useCallback(() => {
+    const current = detailItemRef.current;
+    if (current) {
+      installToPool(current);
+      setDetailItem(null);
+    }
+  }, [installToPool]);
 
   const handleDetailClose = useCallback(() => {
     setDetailItem(null);
@@ -519,7 +534,8 @@ export function MarketPanel({
                 <ResultCard
                   key={getCardKey(item)}
                   item={item}
-                  onInstall={() => onInstall(item)}
+                  onInstallToWorkspace={() => installToWorkspace(item)}
+                  onInstallToPool={() => installToPool(item)}
                   onOpenDetail={() => setDetailItem(item)}
                 />
               ))}
@@ -555,7 +571,8 @@ export function MarketPanel({
 
       <DetailDrawer
         item={detailItem}
-        onInstall={handleDetailInstall}
+        onInstallToWorkspace={handleDetailInstallToWorkspace}
+        onInstallToPool={handleDetailInstallToPool}
         onClose={handleDetailClose}
       />
     </div>

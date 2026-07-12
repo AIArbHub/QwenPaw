@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from ._utils.meta import generate_backup_id
 from ..exceptions import BackupConflictError, BackupValidationError
 
-BackupTrustMode = Literal["legacy", "foreign"]
+BackupTrustMode = Literal["legacy", "foreign", "portable"]
 
 
 class BackupScope(BaseModel):
@@ -29,6 +29,22 @@ class BackupScope(BaseModel):
     include_skill_pool: bool = Field(
         default=True,
         description="Include skill pool directory",
+    )
+    include_jobs: bool = Field(
+        default=True,
+        description="Include scheduled jobs (jobs.json)",
+    )
+    include_chats: bool = Field(
+        default=True,
+        description="Include chat metadata (chats.json)",
+    )
+    include_plugins: bool = Field(
+        default=True,
+        description="Include installed plugin list (plugins.json)",
+    )
+    include_browser_data: bool = Field(
+        default=True,
+        description="Include browser-side user data (records, preferences)",
     )
 
 
@@ -78,6 +94,16 @@ class CreateBackupRequest(BaseModel):
         description="Agent IDs to include when scope.include_agents is True. "
         "Must be the explicit list (even for 'all agents').",
     )
+    portable: bool = Field(
+        default=False,
+        description="If True, create a portable (unsigned) backup that "
+        "can be imported on any machine without trust configuration.",
+    )
+    browser_data: dict | None = Field(
+        default=None,
+        description="Browser-side user data collected by the frontend. "
+        "Stored as browser_data.json in the backup archive.",
+    )
 
 
 class RestoreBackupRequest(BaseModel):
@@ -94,6 +120,10 @@ class RestoreBackupRequest(BaseModel):
     include_global_config: bool = Field(default=True)
     include_secrets: bool = Field(default=False)
     include_skill_pool: bool = Field(default=True)
+    include_jobs: bool = Field(default=True)
+    include_chats: bool = Field(default=True)
+    include_plugins: bool = Field(default=True)
+    include_browser_data: bool = Field(default=True)
     default_workspace_dir: Optional[str] = Field(
         default=None,
         description=(

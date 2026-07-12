@@ -16,6 +16,10 @@ export interface ScopeFormValue {
   globalConfig: boolean;
   includeSkillPool: boolean;
   includeSecrets: boolean;
+  includeJobs: boolean;
+  includeChats: boolean;
+  includePlugins: boolean;
+  includeBrowserData: boolean;
 }
 
 interface Props {
@@ -109,6 +113,34 @@ export default function BackupScopeForm({ value, onChange, agents }: Props) {
               {t("backup.scopeSecretsHint")}
             </div>
           </div>
+
+          <Checkbox
+            checked={value.includeJobs}
+            onChange={(e) => set({ includeJobs: e.target.checked })}
+          >
+            {t("backup.scopeJobs")}
+          </Checkbox>
+
+          <Checkbox
+            checked={value.includeChats}
+            onChange={(e) => set({ includeChats: e.target.checked })}
+          >
+            {t("backup.scopeChats")}
+          </Checkbox>
+
+          <Checkbox
+            checked={value.includePlugins}
+            onChange={(e) => set({ includePlugins: e.target.checked })}
+          >
+            {t("backup.scopePlugins")}
+          </Checkbox>
+
+          <Checkbox
+            checked={value.includeBrowserData}
+            onChange={(e) => set({ includeBrowserData: e.target.checked })}
+          >
+            {t("backup.scopeBrowserData")}
+          </Checkbox>
         </div>
       )}
     </div>

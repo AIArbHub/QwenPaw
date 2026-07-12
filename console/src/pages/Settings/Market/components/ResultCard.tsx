@@ -8,7 +8,8 @@ import styles from "./ResultCard.module.less";
 
 interface ResultCardProps {
   item: MarketResult;
-  onInstall: () => void;
+  onInstallToWorkspace: () => void;
+  onInstallToPool: () => void;
   onOpenDetail: () => void;
 }
 
@@ -31,7 +32,8 @@ const CURSOR_STYLE = { cursor: "pointer" } as const;
 
 export const ResultCard = memo(function ResultCard({
   item,
-  onInstall,
+  onInstallToWorkspace,
+  onInstallToPool,
   onOpenDetail,
 }: ResultCardProps) {
   const { t } = useTranslation();
@@ -111,12 +113,18 @@ export const ResultCard = memo(function ResultCard({
           onKeyDown={stopPropagation}
         >
           <Button
+            size="small"
+            onClick={(e) => { e.stopPropagation(); onInstallToPool(); }}
+          >
+            {t("market.installToPool")}
+          </Button>
+          <Button
             type="primary"
             size="small"
-            onClick={onInstall}
+            onClick={(e) => { e.stopPropagation(); onInstallToWorkspace(); }}
             className={styles.installButton}
           >
-            {t("common.save")}
+            {t("market.installToWorkspace")}
           </Button>
         </div>
       )}

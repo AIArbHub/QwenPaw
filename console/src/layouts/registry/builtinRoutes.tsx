@@ -16,7 +16,7 @@ import { Suspense } from "react";
 import { Navigate } from "react-router-dom";
 import { Spin } from "antd";
 import { useTranslation } from "react-i18next";
-import { lazyImportWithRetry } from "../../utils/lazyWithRetry";
+import { lazyImportWithRetry, lazyWithRetry } from "../../utils/lazyWithRetry";
 import { useCodingMode } from "../../stores/codingModeStore";
 import { routeRegistry } from "../../plugins/registry/store";
 import type { Route } from "../../plugins/registry/types";
@@ -34,6 +34,14 @@ const HeartbeatPage = lazyImportWithRetry("../../pages/Control/Heartbeat");
 const AgentConfigPage = lazyImportWithRetry("../../pages/Agent/Config");
 const SkillsPage = lazyImportWithRetry("../../pages/Agent/Skills");
 const SkillPoolPage = lazyImportWithRetry("../../pages/Settings/SkillPool");
+const PetPage = lazyWithRetry(
+  () => import("../../pages/Settings/Pet"),
+  "../../pages/Settings/Pet",
+);
+const TextSelectionPage = lazyWithRetry(
+  () => import("../../pages/Settings/TextSelection"),
+  "../../pages/Settings/TextSelection",
+);
 const ToolsPage = lazyImportWithRetry("../../pages/Agent/Tools");
 const WorkspacePage = lazyImportWithRetry("../../pages/Agent/Workspace");
 const MCPPage = lazyImportWithRetry("../../pages/Agent/MCP");
@@ -51,6 +59,10 @@ const VoiceTranscriptionPage = lazyImportWithRetry(
 const AgentsPage = lazyImportWithRetry("../../pages/Settings/Agents");
 const DebugPage = lazyImportWithRetry("../../pages/Settings/Debug");
 const BackupsPage = lazyImportWithRetry("../../pages/Settings/Backups");
+const CloudBackupsPage = lazyWithRetry(
+  () => import("../../pages/Settings/CloudBackups"),
+  "../../pages/Settings/CloudBackups",
+);
 const PluginManagerPage = lazyImportWithRetry(
   "../../pages/Settings/PluginManager",
 );
@@ -58,8 +70,7 @@ const AppCenterPage = lazyImportWithRetry("../../pages/AppCenter");
 const MootPage = lazyImportWithRetry("../../pages/Moot");
 const KnowledgePage = lazyImportWithRetry("../../pages/Knowledge");
 const CasesPage = lazyImportWithRetry("../../pages/Cases");
-const WikiPage = lazyImportWithRetry("../../pages/Wiki");
-const DesensitizePage = lazyImportWithRetry("../../pages/Desensitize");
+const DocumentsPage = lazyImportWithRetry("../../pages/Documents");
 const MemoryPage = lazyImportWithRetry("../../pages/Memory");
 
 // Design mode merged pages
@@ -105,13 +116,24 @@ export const BUILTIN_ROUTES: Route[] = [
   { id: "core.inbox", path: "/inbox", component: InboxPage },
   { id: "core.moot", path: "/moot", component: MootPage },
   { id: "core.moot-tribunal", path: "/tribunal", component: MootPage },
+  { id: "core.documents", path: "/documents", component: DocumentsPage },
   { id: "core.knowledge", path: "/knowledge", component: KnowledgePage },
   { id: "core.cases", path: "/cases", component: CasesPage },
-  { id: "core.wiki", path: "/wiki", component: WikiPage },
+  // Legacy redirects: /wiki → /knowledge, /desensitize & /docforge → /documents
   {
-    id: "core.desensitize",
+    id: "core.wiki-redirect",
+    path: "/wiki",
+    component: () => <Navigate to="/knowledge" replace />,
+  },
+  {
+    id: "core.docforge-redirect",
+    path: "/docforge",
+    component: () => <Navigate to="/documents" replace />,
+  },
+  {
+    id: "core.desensitize-redirect",
     path: "/desensitize",
-    component: DesensitizePage,
+    component: () => <Navigate to="/documents" replace />,
   },
   {
     id: "core.memory",
@@ -122,6 +144,12 @@ export const BUILTIN_ROUTES: Route[] = [
   { id: "core.heartbeat", path: "/heartbeat", component: HeartbeatPage },
   { id: "core.skills", path: "/skills", component: SkillsPage },
   { id: "core.skill-pool", path: "/skill-pool", component: SkillPoolPage },
+  { id: "core.pet", path: "/pet", component: PetPage },
+  {
+    id: "core.text-selection",
+    path: "/text-selection",
+    component: TextSelectionPage,
+  },
   { id: "core.tools", path: "/tools", component: ToolsPage },
   { id: "core.mcp", path: "/mcp", component: MCPPage },
   { id: "core.acp", path: "/acp", component: ACPPage },
@@ -149,6 +177,11 @@ export const BUILTIN_ROUTES: Route[] = [
   },
   { id: "core.debug", path: "/debug", component: DebugPage },
   { id: "core.backups", path: "/backups", component: BackupsPage },
+  {
+    id: "core.cloud-backups",
+    path: "/cloud-backups",
+    component: CloudBackupsPage,
+  },
   {
     id: "core.plugin-manager",
     path: "/plugin-manager",

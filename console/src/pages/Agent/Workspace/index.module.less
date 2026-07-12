@@ -11,6 +11,65 @@
   }
 }
 
+/* ─── Mode Switcher ───────────────────────────────────────────── */
+
+.modeSwitcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 6px;
+  padding: 2px;
+
+  :global(.dark-mode) & {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.modeBtn {
+  border: none;
+  background: transparent;
+  padding: 4px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: rgba(20, 20, 19, 0.55);
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  &:hover {
+    color: rgba(20, 20, 19, 0.88);
+  }
+
+  &.modeBtnActive {
+    background: #fff;
+    color: rgba(20, 20, 19, 0.88);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  :global(.dark-mode) & {
+    color: rgba(255, 255, 255, 0.45);
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.88);
+    }
+
+    &.modeBtnActive {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+/* ─── Visual Editor Container ────────────────────────────────── */
+
+.visualEditorContainer {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
 .pageHeader {
   display: flex;
   justify-content: space-between;

@@ -6,6 +6,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   FolderOpenOutlined,
+  HeartOutlined,
 } from "@ant-design/icons";
 import { EyeOff, Eye } from "lucide-react";
 import type { AgentSummary } from "../../../../api/types/agents";
@@ -19,6 +20,7 @@ interface AgentCardProps {
   onEdit: (agent: AgentSummary) => void;
   onDelete: (agentId: string) => void;
   onToggle: (agentId: string, currentEnabled: boolean) => void;
+  onConfigurePersona?: (agent: AgentSummary) => void;
 }
 
 export const AgentCard = memo(function AgentCard({
@@ -26,6 +28,7 @@ export const AgentCard = memo(function AgentCard({
   onEdit,
   onDelete,
   onToggle,
+  onConfigurePersona,
 }: AgentCardProps) {
   const { t } = useTranslation();
   const { isDark } = useTheme();
@@ -94,11 +97,29 @@ export const AgentCard = memo(function AgentCard({
       {/* ID */}
       <div className={styles.cardId}>ID: {agent.id}</div>
 
-      {/* Description */}
+      {/* Description as style hint */}
       {agent.description && (
         <Tooltip title={agent.description} placement="topLeft">
           <p className={styles.cardDesc}>{agent.description}</p>
         </Tooltip>
+      )}
+
+      {/* Persona quick-action */}
+      {onConfigurePersona && (
+        <div
+          className={styles.cardPersonaRow}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Button
+            size="small"
+            type="text"
+            icon={<HeartOutlined />}
+            onClick={() => onConfigurePersona(agent)}
+            className={styles.cardPersonaBtn}
+          >
+            {t("persona.soulTitle")}
+          </Button>
+        </div>
       )}
 
       {/* Meta info */}
@@ -143,11 +164,8 @@ export const AgentCard = memo(function AgentCard({
             size="small"
             icon={<EditOutlined />}
             onClick={() => onEdit(agent)}
-            disabled={isDefault}
-            style={isDefault ? disabledStyle : iconStyle}
-            title={
-              isDefault ? t("agent.defaultNotEditable") : undefined
-            }
+            style={iconStyle}
+            title={t("agent.edit")}
           />
           <Popconfirm
             title={

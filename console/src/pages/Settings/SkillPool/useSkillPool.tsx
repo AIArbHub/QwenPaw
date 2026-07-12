@@ -99,6 +99,7 @@ export function useSkillPool() {
   // channels/tags/config); the card has a separate immediate quick-toggle.
   const [autoUpdateEnabled, setAutoUpdateEnabled] = useState(false);
   const [autoUpdateTargets, setAutoUpdateTargets] = useState<string[]>([]);
+  const [aiCreateModalOpen, setAiCreateModalOpen] = useState(false);
   const zipInputRef = useRef<HTMLInputElement>(null);
   const [importBuiltinModalOpen, setImportBuiltinModalOpen] = useState(false);
   const [builtinSources, setBuiltinSources] = useState<BuiltinImportSpec[]>([]);
@@ -273,6 +274,32 @@ export function useSkillPool() {
       content: "",
       tags: [],
     });
+  };
+
+  const handleAiCreate = () => {
+    setAiCreateModalOpen(true);
+  };
+
+  const handleAiGenerated = (content: string) => {
+    let name = "";
+    const fmMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
+    if (fmMatch) {
+      const fm = fmMatch[1];
+      const nameMatch = fm.match(/^name:\s*(.+)$/m);
+      if (nameMatch) name = nameMatch[1].trim();
+    }
+    setMode("create");
+    setDrawerContent(content);
+    setConfigText("{}");
+    setAutoUpdateEnabled(false);
+    setAutoUpdateTargets([]);
+    form.resetFields();
+    form.setFieldsValue({
+      name: name || "",
+      content,
+      tags: [],
+    });
+    setAiCreateModalOpen(false);
   };
 
   const openBroadcast = (skill?: PoolSkillSpec) => {
@@ -1133,6 +1160,10 @@ export function useSkillPool() {
     handleRefresh,
     closeModal,
     openCreate,
+    handleAiCreate,
+    handleAiGenerated,
+    aiCreateModalOpen,
+    setAiCreateModalOpen,
     openBroadcast,
     openImportBuiltin,
     closeImportBuiltin,

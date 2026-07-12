@@ -17,6 +17,7 @@ from .utils import (
 )
 from ...config.context import (
     get_current_workspace_dir,
+    get_current_work_dir,
     get_current_recent_max_bytes,
 )
 from ...constant import WORKING_DIR
@@ -51,7 +52,12 @@ def _path_to_file_url(path: str) -> str:
 
 def _resolve_file_path(file_path: str) -> str:
     """Resolve file path: use absolute path as-is,
-    resolve relative path from current workspace or WORKING_DIR.
+    resolve relative path from current work_dir or workspace or WORKING_DIR.
+
+    Priority for relative paths:
+    1. current_work_dir (conversation-produced documents)
+    2. current_workspace_dir (core config files)
+    3. WORKING_DIR (global fallback)
 
     Args:
         file_path: The input file path (absolute or relative).
@@ -63,7 +69,11 @@ def _resolve_file_path(file_path: str) -> str:
     if path.is_absolute():
         return str(path)
     else:
-        # Use current workspace_dir from context, fallback to WORKING_DIR
+        # Prefer work_dir (where conversation documents go),
+        # then workspace_dir, then global WORKING_DIR
+        work_dir = get_current_work_dir()
+        if work_dir is not None:
+            return str(work_dir / file_path)
         workspace_dir = get_current_workspace_dir() or WORKING_DIR
         return str(workspace_dir / file_path)
 

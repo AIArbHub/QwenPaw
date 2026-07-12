@@ -1,0 +1,58 @@
+.page {
+  max-width: 900px;
+}
+
+.centerState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 0;
+}
+
+.pageHeader {
+  margin-bottom: 20px;
+}
+
+.card {
+  margin-bottom: 20px;
+}
+
+.configGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.cloudEntryActions {
+  display: flex;
+  gap: 8px;
+}
+
+.syncStatus {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: var(--color-fill-tertiary);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.notConfigured {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text-tertiary);
+}
+
+.notConfigured p {
+  margin-bottom: 16px;
+}
+
+.notConfiguredIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.4;
+}

@@ -48,6 +48,15 @@ def resolve_signature_action(
             return "sign_trusted"
         raise signature_error(meta)
 
+    # Unsigned backup
+    if trust_mode == "portable":
+        logger.info(
+            "%s portable unsigned backup: %s",
+            operation,
+            backup_id,
+        )
+        return "none"
+
     if trust_mode != "legacy":
         raise signature_error(meta)
 

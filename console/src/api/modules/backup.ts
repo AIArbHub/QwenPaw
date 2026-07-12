@@ -15,6 +15,7 @@ import type {
   RestoreBackupRequest,
   RestoreBackupResponse,
   DeleteBackupsResponse,
+  BrowserDataPayload,
 } from "../types/backup";
 
 export const backupApi = {
@@ -136,4 +137,14 @@ export const backupApi = {
     }
     return res.json();
   },
+
+  getBackupBrowserData: (backupId: string) =>
+    request<{ data: BrowserDataPayload | null }>(
+      `/backups/${backupId}/browser-data`,
+    ),
+
+  getCurrentBrowserData: () =>
+    request<{ data: BrowserDataPayload | null }>(
+      "/backups/current/browser-data",
+    ),
 };

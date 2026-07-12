@@ -578,3 +578,56 @@
     padding: 12px !important;
   }
 }
+
+/* ── System message variant ────────────────────────────────────────────────── */
+
+.messageBubbleSystem {
+  background: var(--ant-color-bg-spotlight) !important;
+  border-color: var(--ant-color-border) !important;
+  color: var(--ant-color-text-secondary) !important;
+  font-style: italic;
+}
+
+/* ── Input area refinements ────────────────────────────────────────────────── */
+
+.inputArea {
+  position: relative;
+}
+
+/* ── Participant role tags ─────────────────────────────────────────────────── */
+
+.participantRoleTag {
+  font-size: 10px;
+  line-height: 16px;
+  padding: 0 4px;
+  border-radius: 4px;
+  margin: 0;
+}
+
+/* ── Scrollbar styling ─────────────────────────────────────────────────────── */
+
+.messageList {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--ant-color-border);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+.sidebar {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--ant-color-border);
+    border-radius: 3px;
+  }
+}

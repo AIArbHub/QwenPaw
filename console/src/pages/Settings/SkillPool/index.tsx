@@ -14,6 +14,7 @@ import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { ImportHubModal } from "../../Agent/Skills/components/ImportHubModal";
+import { AiCreateSkillModal } from "../../Agent/Skills/components/AiCreateSkillModal";
 import { SkillFilterDropdown } from "../../Agent/Skills/components/SkillFilterDropdown";
 import { AddSkillDropdown } from "../../Agent/Skills/components/AddSkillDropdown";
 import { MarketPanel } from "../Market/MarketPanel";
@@ -181,6 +182,7 @@ function SkillPoolPage() {
                   </Button>
                   <AddSkillDropdown
                     onCreate={pool.openCreate}
+                    onAiCreate={pool.handleAiCreate}
                     onUploadZip={() => pool.zipInputRef.current?.click()}
                     onFromUrl={() => pool.setImportModalOpen(true)}
                     onBrowseMarket={openMarket}
@@ -310,6 +312,12 @@ function SkillPoolPage() {
         onCancel={pool.closeImportModal}
         onConfirm={pool.handleConfirmImport}
         hint={t("skillPool.externalHubHint")}
+      />
+
+      <AiCreateSkillModal
+        open={pool.aiCreateModalOpen}
+        onClose={() => pool.setAiCreateModalOpen(false)}
+        onGenerated={pool.handleAiGenerated}
       />
 
       <BroadcastModal

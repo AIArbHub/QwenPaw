@@ -19,6 +19,10 @@ export interface KnowledgeDoc {
   parse_mode: string;
   desensitized: boolean;
   checksum: string;
+  version_type?: "original" | "desensitized";
+  original_doc_id?: string;
+  desensitized_doc_id?: string;
+  codename_map_id?: string;
 }
 
 export interface KnowledgeEnums {
@@ -230,7 +234,7 @@ export const knowledgeApi = {
     // Large files may need extended timeout for upload + OCR processing
     const fileSizeMB = file.size / (1024 * 1024);
     const timeoutMs = Math.max(30000, 120000 + Math.floor(fileSizeMB) * 5000);
-    return request<{ text: string; filename: string; chars: number }>(
+    return request<{ text: string; filename: string; chars: number; engine?: string }>(
       "/knowledge/parse-file",
       {
         method: "POST",
@@ -281,6 +285,26 @@ export const knowledgeApi = {
     }>("/knowledge/desensitize-rules/reset", {
       method: "POST",
     }),
+
+  generateAIRules: (description: string) =>
+    request<{
+      status: string;
+      rules: { name: string; pattern: string; placeholder: string; group: number }[];
+      raw_output: string;
+    }>("/knowledge/desensitize-rules/generate-ai", {
+      method: "POST",
+      body: JSON.stringify({ description }),
+    }),
+
+  getDesensitizeActiveModel: () =>
+    request<{
+      status: string;
+      has_model: boolean;
+      provider_id: string;
+      model: string;
+      display_name: string;
+      hint?: string;
+    }>("/knowledge/desensitize/active-model"),
 
   exportDocs: (
     params: {
@@ -439,4 +463,94 @@ export const knowledgeApi = {
     }>("/config/documents/parser/stop-local-mineru", {
       method: "POST",
     }),
+
+  getCodenameMap: (mapId?: string) =>
+    request<{
+      map_id: string;
+      entries: CodenameEntry[];
+      strategy: "global" | "doc_level";
+      created_at: string;
+      updated_at: string;
+    }>(`/knowledge/codename-map${mapId ? `/${mapId}` : ""}`),
+
+  createCodenameMap: (params: {
+    strategy: "global" | "doc_level";
+    entries?: CodenameEntry[];
+    doc_ids?: string[];
+  }) =>
+    request<{
+      map_id: string;
+      entries: CodenameEntry[];
+      strategy: string;
+    }>("/knowledge/codename-map", {
+      method: "POST",
+      body: JSON.stringify(params),
+    }),
+
+  updateCodenameMap: (
+    mapId: string,
+    params: {
+      entries?: CodenameEntry[];
+      strategy?: "global" | "doc_level";
+    },
+  ) =>
+    request<{
+      map_id: string;
+      entries: CodenameEntry[];
+      strategy: string;
+    }>(`/knowledge/codename-map/${mapId}`, {
+      method: "PUT",
+      body: JSON.stringify(params),
+    }),
+
+  deleteCodenameMap: (mapId: string) =>
+    request<{ status: string }>(`/knowledge/codename-map/${mapId}`, {
+      method: "DELETE",
+    }),
+
+  mergeCodenameEntries: (params: {
+    map_id: string;
+    source_entries: { original: string; codename: string; context?: string }[];
+    merge_strategy?: "prefer_existing" | "prefer_new" | "manual";
+  }) =>
+    request<{
+      map_id: string;
+      merged_entries: CodenameEntry[];
+      conflicts: { original: string; existing_codename: string; new_codename: string; context: string }[];
+    }>("/knowledge/codename-map/merge", {
+      method: "POST",
+      body: JSON.stringify(params),
+    }),
+
+  setAIUsePreference: (params: {
+    scope: "global" | "case" | "doc";
+    scope_id?: string;
+    preference: "original" | "desensitized" | "ask";
+  }) =>
+    request<{ status: string; preference: string }>("/knowledge/ai-use-preference", {
+      method: "PUT",
+      body: JSON.stringify(params),
+    }),
+
+  getAIUsePreference: (params?: {
+    scope?: "global" | "case" | "doc";
+    scope_id?: string;
+  }) =>
+    request<{
+      scope: string;
+      scope_id?: string;
+      preference: "original" | "desensitized" | "ask";
+    }>("/knowledge/ai-use-preference", {
+      method: "POST",
+      body: JSON.stringify(params || { scope: "global" }),
+    }),
 };
+
+export interface CodenameEntry {
+  original: string;
+  codename: string;
+  entity_type: string;
+  context: string;
+  doc_ids: string[];
+  aliases: string[];
+}

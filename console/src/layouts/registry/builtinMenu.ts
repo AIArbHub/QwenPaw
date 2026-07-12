@@ -8,7 +8,7 @@
  *
  * ── Design principles (2026-07) ────────────────────────────────────────────
  *  User-centric (C端) layering with 4 groups across 3 locations:
- *  - 仲裁业务 (6 domain items) → primary.arbitration — always fully visible
+ *  - 仲裁业务 (5 domain items) → primary.arbitration — always fully visible
  *  - 智能体工作区 (6 items)    → primary.agentScoped  — workspace-level config
  *  - 系统设置 (6 items)        → primary.settings grp1 — global system config
  *  - 运维与调试 (9 items)      → primary.settings grp2 — ops/debug, collapsible
@@ -52,7 +52,7 @@ import {
   SparkUserGroupLine,
   SparkWifiLine,
 } from "@agentscope-ai/icons";
-import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain, Clock, Activity, Layers } from "lucide-react";
+import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain, Clock, Activity, Layers, PawPrint, ScanText, Cloud } from "lucide-react";
 import i18next from "i18next";
 import { menuRegistry } from "../../plugins/registry/store";
 import type { MenuItem } from "../../plugins/registry/types";
@@ -92,13 +92,31 @@ export const BUILTIN_MENU: MenuItem[] = [
     order: 10,
   },
   {
+    id: "core.cases",
+    location: "primary.arbitration",
+    parentId: "core.tools-group",
+    label: navLabel("nav.cases", "案件中心"),
+    icon: Briefcase,
+    route: "core.cases",
+    order: 10,
+  },
+  {
+    id: "core.documents",
+    location: "primary.arbitration",
+    parentId: "core.tools-group",
+    label: navLabel("nav.documents", "文档中心"),
+    icon: FolderOpen,
+    route: "core.documents",
+    order: 20,
+  },
+  {
     id: "core.knowledge",
     location: "primary.arbitration",
     parentId: "core.tools-group",
-    label: navLabel("nav.knowledge", "本地资料"),
-    icon: FolderOpen,
+    label: navLabel("nav.knowledge", "知识库"),
+    icon: BookOpen,
     route: "core.knowledge",
-    order: 10,
+    order: 30,
   },
   {
     id: "core.moot",
@@ -107,34 +125,7 @@ export const BUILTIN_MENU: MenuItem[] = [
     label: navLabel("nav.moot", "模拟仲裁"),
     icon: Users,
     route: "core.moot",
-    order: 20,
-  },
-  {
-    id: "core.desensitize",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.desensitize", "文档智能"),
-    icon: FileText,
-    route: "core.desensitize",
-    order: 30,
-  },
-  {
-    id: "core.wiki",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.wiki", "Wiki"),
-    icon: BookOpen,
-    route: "core.wiki",
     order: 40,
-  },
-  {
-    id: "core.cases",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.cases", "案件卷宗"),
-    icon: Briefcase,
-    route: "core.cases",
-    order: 50,
   },
   {
     id: "core.memory",
@@ -143,7 +134,7 @@ export const BUILTIN_MENU: MenuItem[] = [
     label: navLabel("nav.memory", "记忆中心"),
     icon: Brain,
     route: "core.memory",
-    order: 60,
+    order: 50,
   },
 
   // ── 智能体工作区 (primary.agentScoped) ─────────────────────────────────
@@ -336,6 +327,15 @@ export const BUILTIN_MENU: MenuItem[] = [
     order: 20,
   },
   {
+    id: "core.cloud-backups",
+    location: "primary.settings",
+    parentId: "core.ops-debug-group",
+    label: navLabel("nav.cloudBackups", "云备份"),
+    icon: Cloud,
+    route: "core.cloud-backups",
+    order: 21,
+  },
+  {
     id: "core.debug",
     location: "primary.settings",
     parentId: "core.ops-debug-group",
@@ -397,6 +397,24 @@ export const BUILTIN_MENU: MenuItem[] = [
     icon: Layers,
     route: "core.skill-pool",
     order: 90,
+  },
+  {
+    id: "core.pet",
+    location: "primary.settings",
+    parentId: "core.ops-debug-group",
+    label: navLabel("nav.pet", "桌面宠物"),
+    icon: PawPrint,
+    route: "core.pet",
+    order: 100,
+  },
+  {
+    id: "core.text-selection",
+    location: "primary.settings",
+    parentId: "core.ops-debug-group",
+    label: navLabel("nav.textSelection", "全局划词"),
+    icon: ScanText,
+    route: "core.text-selection",
+    order: 110,
   },
 ];
 

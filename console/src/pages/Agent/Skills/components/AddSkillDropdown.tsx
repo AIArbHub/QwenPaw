@@ -2,6 +2,7 @@ import { Button, Dropdown } from "@agentscope-ai/design";
 import type { MenuProps } from "antd";
 import {
   AppstoreOutlined,
+  BulbOutlined,
   DownloadOutlined,
   ImportOutlined,
   PlusOutlined,
@@ -11,6 +12,7 @@ import { useTranslation } from "react-i18next";
 
 interface AddSkillDropdownProps {
   onCreate: () => void;
+  onAiCreate: () => void;
   /** Skills page only — omitted on the pool page (it IS the pool). */
   onFromPool?: () => void;
   onUploadZip: () => void;
@@ -25,6 +27,7 @@ interface AddSkillDropdownProps {
  */
 export function AddSkillDropdown({
   onCreate,
+  onAiCreate,
   onFromPool,
   onUploadZip,
   onFromUrl,
@@ -40,6 +43,17 @@ export function AddSkillDropdown({
       icon: <PlusOutlined />,
       onClick: onCreate,
     },
+    ...(onAiCreate
+      ? [
+          {
+            key: "ai-create",
+            label: t("skills.aiCreateSkill"),
+            icon: <BulbOutlined />,
+            onClick: onAiCreate,
+          },
+        ]
+      : []),
+    { type: "divider" },
     ...(onFromPool
       ? [
           {

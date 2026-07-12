@@ -8,6 +8,7 @@ import {
   SkillDrawer,
   PoolTransferModal,
   ImportHubModal,
+  AiCreateSkillModal,
   HeaderActions,
   SkillsToolbar,
   SkillListItem,
@@ -36,6 +37,8 @@ function SkillsPage() {
     drawerOpen,
     importModalOpen,
     setImportModalOpen,
+    aiCreateModalOpen,
+    setAiCreateModalOpen,
     editingSkill,
     form,
     fileInputRef,
@@ -52,6 +55,8 @@ function SkillsPage() {
     searchTags,
     setSearchTags,
     handleCreate,
+    handleAiCreate,
+    handleAiGenerated,
     handleEdit,
     handleToggleEnabled,
     handleDelete,
@@ -186,6 +191,7 @@ function SkillsPage() {
             onUploadClick={handleUploadClick}
             onImportHub={() => setImportModalOpen(true)}
             onCreate={handleCreate}
+            onAiCreate={handleAiCreate}
             onBrowseMarket={openMarket}
             onFileChange={handleFileChange}
           />
@@ -199,6 +205,12 @@ function SkillsPage() {
         onConfirm={handleConfirmImport}
         cancelImport={cancelImport}
         hint={t("skillPool.externalHubHint")}
+      />
+
+      <AiCreateSkillModal
+        open={aiCreateModalOpen}
+        onClose={() => setAiCreateModalOpen(false)}
+        onGenerated={handleAiGenerated}
       />
 
       {!loading && skills.length > 0 && (

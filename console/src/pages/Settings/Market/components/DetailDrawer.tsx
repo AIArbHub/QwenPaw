@@ -7,7 +7,8 @@ import styles from "./DetailDrawer.module.less";
 
 interface DetailDrawerProps {
   item: MarketResult | null;
-  onInstall: () => void;
+  onInstallToWorkspace: () => void;
+  onInstallToPool: () => void;
   onClose: () => void;
 }
 
@@ -32,7 +33,8 @@ function formatStatValue(key: string, value: string | number): string {
 
 export const DetailDrawer = memo(function DetailDrawer({
   item,
-  onInstall,
+  onInstallToWorkspace,
+  onInstallToPool,
   onClose,
 }: DetailDrawerProps) {
   const { t } = useTranslation();
@@ -78,8 +80,11 @@ export const DetailDrawer = memo(function DetailDrawer({
       footer={
         item ? (
           <div className={styles.drawerFooter}>
-            <Button type="primary" onClick={onInstall}>
-              {t("common.save")}
+            <Button onClick={onInstallToPool}>
+              {t("market.installToPool")}
+            </Button>
+            <Button type="primary" onClick={onInstallToWorkspace}>
+              {t("market.installToWorkspace")}
             </Button>
           </div>
         ) : null

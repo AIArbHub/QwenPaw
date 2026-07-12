@@ -40,6 +40,34 @@ def set_current_workspace_dir(workspace_dir: Path | None) -> None:
     current_workspace_dir.set(workspace_dir)
 
 
+# Context variable to store the current agent's work directory
+# (where conversation-produced documents are written).
+# When None, tools fall back to current_workspace_dir.
+current_work_dir: ContextVar[Path | None] = ContextVar(
+    "current_work_dir",
+    default=None,
+)
+
+
+def get_current_work_dir() -> Path | None:
+    """Get the current agent's work directory from context.
+
+    Returns:
+        Path to the work document directory, or None if not set
+        (caller should fall back to workspace_dir).
+    """
+    return current_work_dir.get()
+
+
+def set_current_work_dir(work_dir: Path | None) -> None:
+    """Set the current agent's work directory in context.
+
+    Args:
+        work_dir: Path to the work document directory.
+    """
+    current_work_dir.set(work_dir)
+
+
 # Context variable to store the recent_max_bytes limit
 current_recent_max_bytes: ContextVar[int | None] = ContextVar(
     "current_recent_max_bytes",

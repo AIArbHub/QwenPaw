@@ -20,13 +20,14 @@ export default function WorkspacePage() {
   const agentWorkspaceDir = agents.find((a) => a.id === selectedAgent)?.workspace_dir;
   const {
     files,
+    workFiles,
+    workDirEnabled,
     selectedFile,
     dailyMemories,
     expandedMemory,
     fileContent,
     workspacePath,
     hasChanges,
-    enabledFiles,
     setFileContent,
     fetchFiles,
     handleFileClick,
@@ -34,8 +35,6 @@ export default function WorkspacePage() {
     toggleExpandedMemory,
     handleSave,
     handleReset,
-    handleToggleFileEnabled,
-    handleReorderFiles,
   } = useAgentsData();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -211,7 +210,7 @@ export default function WorkspacePage() {
                 title=""
               />
               <Tooltip
-                title={`${t("workspace.coreFilesDesc")} (${
+                title={`${t("workspace.workFilesDesc")} (${
                   useUploadLimitStore.getState().uploadMaxSizeMb !== null
                     ? t("workspace.uploadTooltipWithLimit", {
                         limit: useUploadLimitStore.getState().uploadMaxSizeMb,
@@ -251,18 +250,15 @@ export default function WorkspacePage() {
         }
       >
         <FileListPanel
-          files={files}
+          files={workDirEnabled ? workFiles : files}
           selectedFile={selectedFile}
           dailyMemories={dailyMemories}
           expandedMemory={expandedMemory}
           workspacePath={workspacePath}
-          enabledFiles={enabledFiles}
           onRefresh={fetchFiles}
           onFileClick={handleFileClickMobile}
           onDailyMemoryClick={handleDailyMemoryClickMobile}
           onMemoryExpand={toggleExpandedMemory}
-          onToggleEnabled={handleToggleFileEnabled}
-          onReorder={handleReorderFiles}
         />
 
         <FileEditor

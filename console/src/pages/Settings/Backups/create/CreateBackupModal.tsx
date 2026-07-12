@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import type { AgentSummary } from "@/api/types/agents";
 import { useBackupRunner } from "../shared/useBackupRunner";
 import { buildScope, defaultCreateScope } from "../shared/scope";
+import { collectBrowserData } from "../shared/browserDataCollector";
 import BackupProgress from "./BackupProgress";
 import BackupScopeForm from "./BackupScopeForm";
 import type { ScopeFormValue } from "./BackupScopeForm";
@@ -48,7 +49,7 @@ export default function CreateBackupModal({
   };
 
   /** Validates the name then hands off to useBackupRunner to start the stream. */
-  const handleOk = () => {
+  const handleOk = async () => {
     const trimmed = name.trim();
     if (!trimmed) return;
     const { scope: backupScope, agents } = buildScope(
@@ -57,12 +58,20 @@ export default function CreateBackupModal({
       scope.globalConfig,
       scope.includeSkillPool,
       scope.includeSecrets,
+      scope.includeJobs,
+      scope.includeChats,
+      scope.includePlugins,
+      scope.includeBrowserData,
     );
+    const browserData = backupScope.include_browser_data
+      ? await collectBrowserData()
+      : null;
     runner.start({
       name: trimmed,
       description: description.trim() || undefined,
       scope: backupScope,
       agents,
+      browser_data: browserData,
     });
   };
 

@@ -188,6 +188,10 @@ export default function RestoreBackupModal({
       include_global_config: isFull ? true : globalConfig,
       include_secrets: isFull ? true : includeSecrets,
       include_skill_pool: isFull ? true : includeSkillPool,
+      include_jobs: isFull ? true : (backup.scope?.include_jobs ?? true),
+      include_chats: isFull ? true : (backup.scope?.include_chats ?? true),
+      include_plugins: isFull ? true : (backup.scope?.include_plugins ?? true),
+      include_browser_data: isFull ? true : (backup.scope?.include_browser_data ?? true),
       default_workspace_dir: defaultWorkspaceDir.trim() || null,
       // Backend overlays local security/MCP config after the selected restore
       // mode has built its config payload.

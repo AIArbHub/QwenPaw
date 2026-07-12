@@ -245,6 +245,25 @@ async def import_backup_route(
 
 
 @router.get(
+    "/current/browser-data",
+    summary="Get current working-dir browser data",
+)
+async def get_current_browser_data_route():
+    """Return the current browser_data.json from the working directory."""
+    browser_data_path = BACKUP_DIR.parent / "browser_data.json"
+    if not browser_data_path.is_file():
+        return JSONResponse(content={"data": None})
+    try:
+        data = json.loads(browser_data_path.read_text(encoding="utf-8"))
+        return JSONResponse(content={"data": data})
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to read browser data: {exc}",
+        ) from exc
+
+
+@router.get(
     "/{backup_id}",
     response_model=BackupDetail,
     summary="Backup detail",
@@ -320,3 +339,30 @@ async def export_backup_route(backup_id: str):
         media_type="application/zip",
         filename=filename,
     )
+
+
+@router.get("/{backup_id}/browser-data", summary="Get browser data from backup")
+async def get_backup_browser_data_route(backup_id: str):
+    """Extract and return browser_data.json from a backup archive."""
+    import zipfile
+
+    from ...backup._utils.constants import (
+        PREFIX_BROWSER_DATA,
+        find_zip_path,
+    )
+
+    zp = find_zip_path(backup_id)
+    if zp is None:
+        raise HTTPException(status_code=404, detail="Backup not found")
+
+    try:
+        with zipfile.ZipFile(zp, "r") as zf:
+            if PREFIX_BROWSER_DATA not in zf.namelist():
+                return JSONResponse(content={"data": None})
+            data = json.loads(zf.read(PREFIX_BROWSER_DATA))
+            return JSONResponse(content={"data": data})
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to read browser data: {exc}",
+        ) from exc

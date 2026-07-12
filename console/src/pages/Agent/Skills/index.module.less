@@ -667,6 +667,18 @@
   gap: 8px;
 }
 
+.aiCreateCursor {
+  display: inline-block;
+  width: 2px;
+  background: var(--ant-color-primary);
+  animation: aiCreateBlink 0.8s infinite;
+}
+
+@keyframes aiCreateBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 .modalCancelButton {
   min-width: 80px;
 }

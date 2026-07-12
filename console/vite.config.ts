@@ -14,6 +14,33 @@ const cssStubPlugin = {
   },
 };
 
+// Suppress known third-party React DOM warnings in dev mode.
+// @ant-design/icons uses kebab-case SVG attrs (fill-rule) that trigger React warnings.
+// @agentscope-ai/design ActionButton/IconButton forwardRef render functions
+// accept only (props) without ref, which triggers a React warning.
+// NOTE: We cannot use import.meta.env inside transformIndexHtml because Vite
+// does not transform inline scripts. Instead, we check mode at build time.
+function suppressThirdPartyWarningsPlugin(mode: string) {
+  return {
+    name: "suppress-third-party-warnings",
+    transformIndexHtml(html: string) {
+      if (mode !== "development") return html;
+      return html.replace(
+        "</head>",
+        `<script>
+          const origWarn = console.warn;
+          console.warn = function (...args) {
+            const msg = args[0];
+            if (typeof msg === 'string' && msg.includes('Invalid DOM property')) return;
+            if (typeof msg === 'string' && msg.includes('forwardRef render functions accept exactly two parameters')) return;
+            origWarn.apply(console, args);
+          };
+        </script></head>`,
+      );
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   // Empty = same-origin; frontend and backend served together, no hardcoded host.
@@ -26,7 +53,7 @@ export default defineConfig(({ mode }) => {
       TOKEN: JSON.stringify(env.TOKEN || ""),
       MOBILE: false,
     },
-    plugins: [react(), cssStubPlugin],
+    plugins: [react(), cssStubPlugin, suppressThirdPartyWarningsPlugin(mode)],
     css: {
       modules: {
         localsConvention: "camelCase",
@@ -115,7 +142,37 @@ export default defineConfig(({ mode }) => {
       },
     },
     optimizeDeps: {
-      include: ["diff"],
+      include: [
+        "diff",
+        // react-syntax-highlighter prism language modules — the
+        // CodeHighlighter from @ant-design/x uses dynamic imports
+        // (`import('.../prism/${lang}')`) which Vite can't pre-bundle
+        // automatically.  Listing the common languages here ensures
+        // they are resolved at runtime.
+        "react-syntax-highlighter/dist/esm/languages/prism/bash",
+        "react-syntax-highlighter/dist/esm/languages/prism/markdown",
+        "react-syntax-highlighter/dist/esm/languages/prism/json",
+        "react-syntax-highlighter/dist/esm/languages/prism/python",
+        "react-syntax-highlighter/dist/esm/languages/prism/javascript",
+        "react-syntax-highlighter/dist/esm/languages/prism/typescript",
+        "react-syntax-highlighter/dist/esm/languages/prism/jsx",
+        "react-syntax-highlighter/dist/esm/languages/prism/tsx",
+        "react-syntax-highlighter/dist/esm/languages/prism/yaml",
+        "react-syntax-highlighter/dist/esm/languages/prism/css",
+        "react-syntax-highlighter/dist/esm/languages/prism/sql",
+        "react-syntax-highlighter/dist/esm/languages/prism/go",
+        "react-syntax-highlighter/dist/esm/languages/prism/rust",
+        "react-syntax-highlighter/dist/esm/languages/prism/java",
+        "react-syntax-highlighter/dist/esm/languages/prism/c",
+        "react-syntax-highlighter/dist/esm/languages/prism/cpp",
+        "react-syntax-highlighter/dist/esm/languages/prism/shell-session",
+        "react-syntax-highlighter/dist/esm/languages/prism/markup",
+        "react-syntax-highlighter/dist/esm/languages/prism/diff",
+        "react-syntax-highlighter/dist/esm/languages/prism/docker",
+        "react-syntax-highlighter/dist/esm/languages/prism/nginx",
+        "react-syntax-highlighter/dist/esm/languages/prism/powershell",
+        "react-syntax-highlighter/dist/esm/languages/prism/latex",
+      ],
     },
     build: {
       // Output to QwenPaw's console directory,

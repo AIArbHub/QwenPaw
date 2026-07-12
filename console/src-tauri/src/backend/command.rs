@@ -13,16 +13,30 @@ use tauri_plugin_shell::{process::Command, ShellExt};
 pub(super) fn create(app: &tauri::AppHandle) -> Result<Command, String> {
     let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     let source_path = repo_root.join("src");
+
+    // In dev mode, check for bundled OCR tools under src-tauri/binaries/ocr-tools/
+    let ocr_tools = dev_ocr_tools(&repo_root);
+    if let Some(ref path) = ocr_tools {
+        log::info!("[backend] dev: bundled OCR tools: {}", path.display());
+    } else {
+        log::warn!("[backend] dev: bundled OCR tools not found; Tesseract/Poppler will use system PATH");
+    }
+
     let command = if command_exists("uv") {
         log::info!(
             "[backend] dev command: uv run python -m qwenpaw.tauri.entry cwd={}",
             repo_root.display(),
         );
-        app.shell()
+        let mut cmd = app
+            .shell()
             .command("uv")
             .args(["run", "python", "-m", "qwenpaw.tauri.entry"])
             .current_dir(repo_root)
-            .env("PYTHONPATH", source_path.display().to_string())
+            .env("PYTHONPATH", source_path.display().to_string());
+        if let Some(path) = ocr_tools {
+            cmd = cmd.env("QWENPAW_DESKTOP_OCR_TOOLS", path.display().to_string());
+        }
+        cmd
     } else {
         let (python, prefix_args) = python_command(&repo_root);
         let mut args = prefix_args;
@@ -33,13 +47,37 @@ pub(super) fn create(app: &tauri::AppHandle) -> Result<Command, String> {
             args.join(" "),
             repo_root.display(),
         );
-        app.shell()
+        let mut cmd = app
+            .shell()
             .command(python)
             .args(args)
             .current_dir(repo_root)
-            .env("PYTHONPATH", source_path.display().to_string())
+            .env("PYTHONPATH", source_path.display().to_string());
+        if let Some(path) = ocr_tools {
+            cmd = cmd.env("QWENPAW_DESKTOP_OCR_TOOLS", path.display().to_string());
+        }
+        cmd
     };
     Ok(command)
+}
+
+#[cfg(debug_assertions)]
+fn dev_ocr_tools(repo_root: &Path) -> Option<PathBuf> {
+    let root = repo_root
+        .join("console")
+        .join("src-tauri")
+        .join("binaries")
+        .join("ocr-tools");
+    let tess = if cfg!(windows) {
+        root.join("tesseract").join("tesseract.exe")
+    } else {
+        root.join("tesseract").join("tesseract")
+    };
+    if tess.is_file() {
+        Some(root)
+    } else {
+        None
+    }
 }
 
 /// Builds the command used to start the packaged Python backend sidecar.

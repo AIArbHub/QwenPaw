@@ -9,7 +9,51 @@ from typing import Any, Callable, Coroutine
 logger = logging.getLogger(__name__)
 
 
+def _safe_get(obj: Any, key: str, default: Any = None) -> Any:
+    """Safely get an attribute or dict key.
+
+    ChatResponse inherits from DictMixin which maps __getattr__ to
+    dict.__getitem__, so hasattr() raises KeyError instead of
+    AttributeError for missing keys.  This helper avoids that trap.
+    """
+    if isinstance(obj, dict):
+        return obj.get(key, default)
+    try:
+        return getattr(obj, key, default)
+    except (KeyError, AttributeError):
+        return default
+
+
+def _extract_blocks_text(content: Any) -> str:
+    """Extract text from a sequence of content blocks (TextBlock etc.)."""
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, dict):
+        if content.get("type") == "text":
+            return content.get("text", "")
+        return ""
+    parts: list[str] = []
+    for block in content:
+        if isinstance(block, str):
+            parts.append(block)
+        elif isinstance(block, dict):
+            if block.get("type") == "text":
+                parts.append(block.get("text", ""))
+        else:
+            block_type = _safe_get(block, "type")
+            if block_type == "text":
+                parts.append(_safe_get(block, "text", ""))
+    return "".join(parts)
+
+
 async def _extract_model_text(response: Any) -> str:
+    """Extract text from a model response.
+
+    Handles both streaming (async generator) and non-streaming
+    (single ChatResponse) responses.
+    """
     if hasattr(response, "__aiter__"):
         accumulated = ""
         async for chunk in response:
@@ -21,17 +65,34 @@ async def _extract_model_text(response: Any) -> str:
 
 
 def _extract_chunk_text(chunk: Any) -> str:
+    """Extract text from a single response chunk."""
     if isinstance(chunk, str):
         return chunk
-    if hasattr(chunk, "text") and chunk.text:
-        return chunk.text
-    choices = getattr(chunk, "choices", None)
+
+    # ChatResponse (agentscope) — has a 'content' field that is a
+    # list of TextBlock / ToolCallBlock / ThinkingBlock etc.
+    # ChatResponse inherits from DictMixin(dict), so attribute access
+    # goes through dict.__getitem__ which raises KeyError (not
+    # AttributeError) for missing keys — we must avoid hasattr().
+    content = _safe_get(chunk, "content")
+    if content is not None:
+        return _extract_blocks_text(content)
+
+    # Legacy OpenAI-style response with .choices[0].message.content
+    choices = _safe_get(chunk, "choices")
     if choices:
-        delta = getattr(choices[0], "delta", None) or getattr(choices[0], "message", None)
+        first = choices[0]
+        delta = _safe_get(first, "delta") or _safe_get(first, "message")
         if delta:
-            content = getattr(delta, "content", None)
-            if content:
-                return content
+            inner = _safe_get(delta, "content")
+            if inner:
+                return _extract_blocks_text(inner)
+
+    # Fallback: try .text attribute (some simple response objects)
+    text = _safe_get(chunk, "text")
+    if text:
+        return text
+
     return ""
 
 

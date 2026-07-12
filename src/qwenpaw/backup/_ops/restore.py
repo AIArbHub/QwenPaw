@@ -12,9 +12,13 @@ from pathlib import Path
 
 from .._utils.constants import (
     PREFIX_CONFIG,
+    PREFIX_JOBS,
+    PREFIX_CHATS,
+    PREFIX_PLUGINS,
     PREFIX_SECRETS,
     PREFIX_SKILL_POOL,
     PREFIX_WORKSPACES,
+    PREFIX_BROWSER_DATA,
     find_zip_path,
 )
 from .._utils.meta import read_meta_from_zip
@@ -31,7 +35,7 @@ from .._utils.signing import resolve_signature_action, sign_trusted_backup
 from ..models import BackupMeta, BackupValidationError, RestoreBackupRequest
 from ...config.config import AgentProfileRef
 from ...config.utils import load_config, save_config
-from ...constant import CONFIG_FILE, SECRET_DIR, WORKING_DIR
+from ...constant import CONFIG_FILE, JOBS_FILE, CHATS_FILE, SECRET_DIR, WORKING_DIR
 from ...security.secret_store import reload_master_key_from_disk
 from .restore_helpers import (
     collect_workspace_agents_from_zip,
@@ -573,7 +577,54 @@ def _restore_sync_locked(
         new_aids,
         backup_id,
     )
+
+    # Restore auxiliary data files (simple file-level operations)
+    _restore_extra_files(zf, req)
+
     return meta
+
+
+def _restore_extra_files(
+    zf: zipfile.ZipFile,
+    req: RestoreBackupRequest,
+) -> None:
+    """Restore auxiliary data files (jobs, chats, plugins, browser data).
+
+    These are simple file overwrites; they do not require the complex staging
+    and atomic-swap mechanism used for directories.
+    """
+    if req.include_jobs and PREFIX_JOBS in zf.namelist():
+        _restore_single_file(zf, PREFIX_JOBS, WORKING_DIR / JOBS_FILE)
+    if req.include_chats and PREFIX_CHATS in zf.namelist():
+        _restore_single_file(zf, PREFIX_CHATS, WORKING_DIR / CHATS_FILE)
+    if req.include_plugins and PREFIX_PLUGINS in zf.namelist():
+        _restore_single_file(zf, PREFIX_PLUGINS, WORKING_DIR / "plugins.json")
+    if req.include_browser_data and PREFIX_BROWSER_DATA in zf.namelist():
+        _restore_single_file(
+            zf,
+            PREFIX_BROWSER_DATA,
+            WORKING_DIR / "browser_data.json",
+        )
+
+
+def _restore_single_file(
+    zf: zipfile.ZipFile,
+    zip_entry: str,
+    dest: Path,
+) -> None:
+    """Extract a single file from *zf* to *dest*."""
+    try:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        with zf.open(zip_entry) as src, open(dest, "wb") as out:
+            shutil.copyfileobj(src, out)
+        logger.info("Restored %s to %s", zip_entry, dest)
+    except Exception as exc:
+        logger.warning(
+            "Failed to restore %s to %s: %s",
+            zip_entry,
+            dest,
+            exc,
+        )
 
 
 def _merge_profiles_into(

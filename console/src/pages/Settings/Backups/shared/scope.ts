@@ -15,6 +15,10 @@ export function defaultCreateScope(agentIds: string[]): {
   globalConfig: boolean;
   includeSkillPool: boolean;
   includeSecrets: boolean;
+  includeJobs: boolean;
+  includeChats: boolean;
+  includePlugins: boolean;
+  includeBrowserData: boolean;
 } {
   return {
     backupMode: "full",
@@ -22,6 +26,10 @@ export function defaultCreateScope(agentIds: string[]): {
     globalConfig: true,
     includeSkillPool: true,
     includeSecrets: false,
+    includeJobs: true,
+    includeChats: true,
+    includePlugins: true,
+    includeBrowserData: true,
   };
 }
 
@@ -51,6 +59,10 @@ export function buildPreRestoreScope(allAgentIds: string[]): {
       include_global_config: true,
       include_secrets: false,
       include_skill_pool: true,
+      include_jobs: true,
+      include_chats: true,
+      include_plugins: true,
+      include_browser_data: true,
     },
     agents: allAgentIds,
   };
@@ -70,6 +82,10 @@ export function buildScope(
   globalConfig: boolean,
   includeSkillPool: boolean,
   includeSecrets: boolean,
+  includeJobs: boolean,
+  includeChats: boolean,
+  includePlugins: boolean,
+  includeBrowserData: boolean,
 ): { scope: BackupScope; agents: string[] } {
   const includeAgents = backupMode === "full" || selectedAgents.length > 0;
   return {
@@ -78,6 +94,10 @@ export function buildScope(
       include_global_config: backupMode === "full" ? true : globalConfig,
       include_secrets: backupMode === "full" ? true : includeSecrets,
       include_skill_pool: backupMode === "full" ? true : includeSkillPool,
+      include_jobs: backupMode === "full" ? true : includeJobs,
+      include_chats: backupMode === "full" ? true : includeChats,
+      include_plugins: backupMode === "full" ? true : includePlugins,
+      include_browser_data: backupMode === "full" ? true : includeBrowserData,
     },
     agents: includeAgents ? selectedAgents : [],
   };

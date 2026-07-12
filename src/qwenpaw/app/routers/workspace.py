@@ -118,6 +118,32 @@ async def list_working_files(
 
 
 @router.get(
+    "/core-config-files",
+    response_model=list[MdFileInfo],
+    summary="List core configuration files",
+    description="List agent core configuration markdown files (SOUL.md, PROFILE.md, etc.)",
+)
+async def list_core_config_files(
+    request: Request,
+    agent_id: str | None = Query(default=None),
+) -> list[MdFileInfo]:
+    """List core configuration markdown files in the workspace directory."""
+    try:
+        workspace = await get_agent_for_request(request, agent_id=agent_id)
+        workspace_manager = AgentMdManager(
+            str(workspace.workspace_dir),
+            agent_id=workspace.agent_id,
+        )
+        files = [
+            MdFileInfo.model_validate(file)
+            for file in workspace_manager.list_core_config_mds()
+        ]
+        return files
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get(
     "/files/{md_name}",
     response_model=MdFileContent,
     summary="Read a working file",
@@ -1559,3 +1585,225 @@ async def get_available_commands(request: Request):
                 },
             )
     return ORJSONResponse({"commands": commands})
+
+
+# ---------------------------------------------------------------------------
+# Work Directory – conversation-produced document management
+# ---------------------------------------------------------------------------
+
+
+class WorkDirConfigResponse(BaseModel):
+    """Work directory configuration response."""
+
+    enabled: bool
+    base_dir: str | None = None
+    session_isolation: bool
+    subfolder_pattern: str
+    resolved_preview: str | None = None
+
+
+class WorkDirConfigUpdate(BaseModel):
+    """Work directory configuration update body."""
+
+    enabled: bool | None = None
+    base_dir: str | None = None
+    session_isolation: bool | None = None
+    subfolder_pattern: str | None = None
+
+
+@router.get(
+    "/work-dir",
+    response_model=WorkDirConfigResponse,
+    summary="Get work directory configuration",
+)
+async def get_work_dir_config(
+    request: Request,
+    agent_id: str | None = Query(default=None),
+) -> WorkDirConfigResponse:
+    """Get the work directory configuration for the active agent."""
+    workspace = await get_agent_for_request(request, agent_id=agent_id)
+    cfg = load_agent_config(workspace.agent_id)
+    wd = cfg.work_dir
+
+    # Build a preview of the resolved path
+    preview = None
+    if wd.enabled:
+        base = (
+            Path(wd.base_dir).expanduser()
+            if wd.base_dir
+            else workspace.workspace_dir / "work"
+        )
+        preview = str(base)
+
+    return WorkDirConfigResponse(
+        enabled=wd.enabled,
+        base_dir=wd.base_dir,
+        session_isolation=wd.session_isolation,
+        subfolder_pattern=wd.subfolder_pattern,
+        resolved_preview=preview,
+    )
+
+
+@router.put(
+    "/work-dir",
+    response_model=WorkDirConfigResponse,
+    summary="Update work directory configuration",
+)
+async def update_work_dir_config(
+    body: WorkDirConfigUpdate,
+    request: Request,
+    agent_id: str | None = Query(default=None),
+) -> WorkDirConfigResponse:
+    """Update the work directory configuration for the active agent."""
+    workspace = await get_agent_for_request(request, agent_id=agent_id)
+    cfg = load_agent_config(workspace.agent_id)
+
+    if body.enabled is not None:
+        cfg.work_dir.enabled = body.enabled
+    if body.base_dir is not None:
+        # Empty string means "clear / use default"
+        cfg.work_dir.base_dir = body.base_dir if body.base_dir.strip() else None
+    if body.session_isolation is not None:
+        cfg.work_dir.session_isolation = body.session_isolation
+    if body.subfolder_pattern is not None:
+        cfg.work_dir.subfolder_pattern = body.subfolder_pattern
+
+    save_agent_config(cfg.id, cfg)
+
+    preview = None
+    if cfg.work_dir.enabled:
+        base = (
+            Path(cfg.work_dir.base_dir).expanduser()
+            if cfg.work_dir.base_dir
+            else workspace.workspace_dir / "work"
+        )
+        preview = str(base)
+
+    return WorkDirConfigResponse(
+        enabled=cfg.work_dir.enabled,
+        base_dir=cfg.work_dir.base_dir,
+        session_isolation=cfg.work_dir.session_isolation,
+        subfolder_pattern=cfg.work_dir.subfolder_pattern,
+        resolved_preview=preview,
+    )
+
+
+@router.get(
+    "/work-files",
+    summary="List work documents (conversation-produced files)",
+)
+async def list_work_files(
+    request: Request,
+    agent_id: str | None = Query(default=None),
+) -> list[dict]:
+    """List files in the work directory.
+
+    Returns all non-hidden files in the work directory. When work_dir
+    is disabled, returns an empty list (files are in workspace_dir and
+    accessible via the /files endpoint).
+    """
+    workspace = await get_agent_for_request(request, agent_id=agent_id)
+    cfg = load_agent_config(workspace.agent_id)
+
+    if not cfg.work_dir.enabled:
+        return []
+
+    # Determine the work directory base
+    if cfg.work_dir.base_dir:
+        base = Path(cfg.work_dir.base_dir).expanduser().resolve()
+    else:
+        base = workspace.workspace_dir / "work"
+
+    if not base.exists():
+        return []
+
+    return await asyncio.get_event_loop().run_in_executor(
+        None,
+        _list_all_files,
+        base,
+    )
+
+
+async def _resolve_work_base(
+    request: Request,
+    agent_id: str | None,
+) -> Path:
+    """Resolve the work directory base for the current agent.
+
+    Raises HTTPException(400) if work_dir is disabled.
+    """
+    workspace = await get_agent_for_request(request, agent_id=agent_id)
+    cfg = load_agent_config(workspace.agent_id)
+    if not cfg.work_dir.enabled:
+        raise HTTPException(
+            status_code=400,
+            detail="Work directory is not enabled for this agent",
+        )
+    if cfg.work_dir.base_dir:
+        return Path(cfg.work_dir.base_dir).expanduser().resolve()
+    return (workspace.workspace_dir / "work").resolve()
+
+
+@router.get(
+    "/work-files/{file_path:path}",
+    summary="Read a work document file",
+)
+async def read_work_file(
+    file_path: str,
+    request: Request,
+    agent_id: str | None = Query(default=None),
+) -> dict:
+    """Read the content of a work document file.
+
+    The file is resolved relative to the agent's work directory base.
+    """
+    base = await _resolve_work_base(request, agent_id)
+    target = safe_join(base, file_path)
+
+    if not target.exists() or not target.is_file():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    def _read() -> str:
+        return target.read_text(encoding="utf-8", errors="replace")
+
+    try:
+        content = await asyncio.to_thread(_read)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    return ORJSONResponse({"path": file_path, "content": content})
+
+
+@router.put(
+    "/work-files/{file_path:path}",
+    summary="Write a work document file",
+)
+async def write_work_file(
+    file_path: str,
+    request: Request,
+    body: dict = Body(...),
+    agent_id: str | None = Query(default=None),
+) -> dict:
+    """Write content to a work document file.
+
+    Request body::
+
+        {"content": "<new file content>"}
+    """
+    base = await _resolve_work_base(request, agent_id)
+    target = safe_join(base, file_path)
+    content = body.get("content", "")
+    if not isinstance(content, str):
+        raise HTTPException(status_code=422, detail="content must be a string")
+
+    # Ensure parent directory exists
+    target.parent.mkdir(parents=True, exist_ok=True)
+
+    def _write() -> int:
+        target.write_text(content, encoding="utf-8")
+        return target.stat().st_size
+
+    try:
+        size = await asyncio.to_thread(_write)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    return ORJSONResponse({"path": file_path, "size": size})

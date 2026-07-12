@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Helpers for creating backups: agents, global config, secrets, skill pool."""
+"""Helpers for creating backups: agents, global config, secrets, skill pool,
+jobs, chats, plugins, browser data."""
 from __future__ import annotations
 
+import json
 import logging
 import zipfile
 from pathlib import Path
@@ -9,11 +11,22 @@ from typing import Any
 
 from .._utils.constants import (
     PREFIX_CONFIG,
+    PREFIX_JOBS,
+    PREFIX_CHATS,
+    PREFIX_PLUGINS,
     PREFIX_SECRETS,
     PREFIX_SKILL_POOL,
     PREFIX_WORKSPACES,
+    PREFIX_BROWSER_DATA,
 )
-from ...constant import CONFIG_FILE, SECRET_DIR, WORKING_DIR
+from ...constant import (
+    CHATS_FILE,
+    CONFIG_FILE,
+    JOBS_FILE,
+    PLUGINS_DIR,
+    SECRET_DIR,
+    WORKING_DIR,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -156,12 +169,81 @@ def add_skill_pool(zf: zipfile.ZipFile, stop_event=None) -> bool:
     return True
 
 
+def add_jobs_file(zf: zipfile.ZipFile) -> None:
+    """Add the jobs.json file to the zip if it exists."""
+    src = WORKING_DIR / JOBS_FILE
+    if src.is_file():
+        zf.write(src, PREFIX_JOBS)
+        logger.info("Jobs file added to backup: %s", src)
+    else:
+        logger.debug("Jobs file not found, skipping: %s", src)
+
+
+def add_chats_file(zf: zipfile.ZipFile) -> None:
+    """Add the chats.json file to the zip if it exists."""
+    src = WORKING_DIR / CHATS_FILE
+    if src.is_file():
+        zf.write(src, PREFIX_CHATS)
+        logger.info("Chats file added to backup: %s", src)
+    else:
+        logger.debug("Chats file not found, skipping: %s", src)
+
+
+def add_plugins_list(zf: zipfile.ZipFile) -> None:
+    """Add a lightweight plugin manifest (names + versions, no binaries)."""
+    if not PLUGINS_DIR.is_dir():
+        logger.debug("Plugins directory not found, skipping")
+        return
+    plugin_data: list[dict[str, str]] = []
+    for entry in sorted(PLUGINS_DIR.iterdir()):
+        if entry.is_dir():
+            manifest = entry / "plugin.json"
+            if manifest.is_file():
+                try:
+                    info = json.loads(manifest.read_text(encoding="utf-8"))
+                    plugin_data.append({
+                        "name": info.get("name", entry.name),
+                        "version": info.get("version", ""),
+                        "dir": entry.name,
+                    })
+                except Exception:
+                    plugin_data.append({
+                        "name": entry.name,
+                        "version": "",
+                        "dir": entry.name,
+                    })
+    if plugin_data:
+        zf.writestr(PREFIX_PLUGINS, json.dumps(
+            plugin_data, ensure_ascii=False, indent=2,
+        ))
+        logger.info("Plugin list backed up: %d plugin(s)", len(plugin_data))
+    else:
+        logger.debug("No plugins found, skipping")
+
+
+def add_browser_data(zf: zipfile.ZipFile, browser_data: dict | None = None) -> None:
+    """Add browser-side user data to the backup zip.
+
+    *browser_data* should be a dict collected from the frontend containing
+    user records (desensitize tasks, preferences, etc.).  If ``None``,
+    the entry is skipped.
+    """
+    if browser_data is None:
+        logger.debug("No browser data provided, skipping")
+        return
+    zf.writestr(PREFIX_BROWSER_DATA, json.dumps(
+        browser_data, ensure_ascii=False,
+    ))
+    logger.info("Browser data added to backup")
+
+
 def add_files_to_zip(
     zf: zipfile.ZipFile,
     meta,
     progress_callback=None,
     stop_event=None,
     valid_agents=None,
+    browser_data: dict | None = None,
 ) -> list[str]:
     """Add files to zip based on backup scope.
 
@@ -172,6 +254,7 @@ def add_files_to_zip(
         stop_event: Optional threading.Event to support cancellation
         valid_agents: Pre-computed ``(aid, ref)`` pairs to back up.
                       Empty list when meta.scope.include_agents is False.
+        browser_data: Optional dict of browser-side user data to include.
 
     Returns:
         List of agent IDs that were backed up, or empty list if cancelled
@@ -195,5 +278,13 @@ def add_files_to_zip(
     if meta.scope.include_skill_pool:
         if not add_skill_pool(zf, stop_event):
             return []
+    if meta.scope.include_jobs:
+        add_jobs_file(zf)
+    if meta.scope.include_chats:
+        add_chats_file(zf)
+    if meta.scope.include_plugins:
+        add_plugins_list(zf)
+    if meta.scope.include_browser_data:
+        add_browser_data(zf, browser_data)
 
     return [aid for aid, _ in valid_agents]
