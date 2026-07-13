@@ -34,6 +34,7 @@ from .git import router as git_router
 from .coding_project import router as coding_project_router
 from .access_control import router as access_control_router
 from .moot import router as moot_router
+from .moot_award import router as moot_award_router
 from .knowledge import router as knowledge_router
 from .cases import router as cases_router
 from .wiki import router as wiki_router
@@ -41,6 +42,7 @@ from .pet import router as pet_router
 from .text_selection import router as text_selection_router
 from .provider_oauth import router as provider_oauth_router
 from .pawapps import router as pawapps_router
+from .utils import router as utils_router
 
 router = APIRouter()
 
@@ -74,6 +76,7 @@ router.include_router(cloud_backup_router)
 router.include_router(git_router)
 router.include_router(coding_project_router)
 router.include_router(access_control_router)
+router.include_router(moot_award_router)
 router.include_router(moot_router)
 router.include_router(knowledge_router)
 router.include_router(cases_router)
@@ -82,6 +85,7 @@ router.include_router(pet_router)
 router.include_router(text_selection_router)
 router.include_router(provider_oauth_router)
 router.include_router(pawapps_router)
+router.include_router(utils_router)
 
 
 def create_agent_scoped_router() -> APIRouter:

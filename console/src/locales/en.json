@@ -131,6 +131,9 @@
     "knowledge": "Knowledge",
     "cases": "Case Center",
     "memory": "Memory",
+    "desk": "Arbitration Desk",
+    "knowledgeDesk": "Knowledge Desk",
+    "engineSettings": "Doc Engine Settings",
     "systemSettings": "System Settings",
     "opsDebug": "Ops & Debug",
     "agentWorkspace": "Agent Workspace",
@@ -3856,6 +3859,7 @@
     "statusError": "Memory system error",
     "agentFilter": "Agent",
     "agentFilterTooltip": "Select agent to view memories for",
+    "allAgents": "All Agents",
     "currentAgent": "Current Agent",
     "fileCount": "{{count}} files",
     "noAgentSelected": "No agent selected",
@@ -4094,7 +4098,9 @@
       "quickActions": "Quick Actions",
       "batchDesensitize": "Batch Desensitize",
       "aiChat": "AI Chat",
-      "generateDoc": "Generate Document"
+      "generateDoc": "Generate Document",
+      "mootArbitration": "Moot Arbitration",
+      "award": "Award"
     }
 
   }

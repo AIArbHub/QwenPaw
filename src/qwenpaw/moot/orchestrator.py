@@ -10,13 +10,16 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import random
 import time
 import uuid
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
 from .models import (
     CASE_STAGE_LABELS,
+    TRIAL_STYLE_TEMPLATES,
     CaseEvent,
+    CaseLink,
     CaseStage,
     CollaborationMode,
     EventType,
@@ -26,6 +29,8 @@ from .models import (
     MootMessage,
     Participant,
     RoleCategory,
+    Side,
+    TrialStyle,
 )
 from .store import MootStore
 
@@ -134,6 +139,8 @@ async def create_case(
     case_name: str = "仲裁模拟案",
     case_description: str = "",
     rules: Optional[List[str]] = None,
+    trial_style: TrialStyle = TrialStyle.CIVIL_STYLE,
+    global_collaboration_mode: CollaborationMode = CollaborationMode.FULL_AI,
 ) -> MootCase:
     case_id = f"moot_{_gen_id()}"
     now = time.time()
@@ -142,6 +149,8 @@ async def create_case(
         case_name=case_name,
         case_description=case_description,
         rules=rules or [],
+        trial_style=trial_style,
+        global_collaboration_mode=global_collaboration_mode,
         created_at=now,
         updated_at=now,
     )
@@ -189,7 +198,8 @@ async def add_participant(
     display_name: str,
     role: RoleCategory,
     role_detail: str = "",
-    collaboration_mode: CollaborationMode = CollaborationMode.AI_LEAD,
+    side: Side = Side.NEUTRAL,
+    collaboration_mode: CollaborationMode = CollaborationMode.FULL_AI,
 ) -> Participant:
     store = _get_store()
     case = await asyncio.to_thread(store.get_case, case_id)
@@ -203,6 +213,7 @@ async def add_participant(
         display_name=display_name,
         role=role,
         role_detail=role_detail,
+        side=side,
         collaboration_mode=collaboration_mode,
         joined_at=now,
     )
@@ -267,6 +278,7 @@ async def update_participant(
     participant_id: str,
     collaboration_mode: Optional[CollaborationMode] = None,
     role_detail: Optional[str] = None,
+    side: Optional[Side] = None,
     active: Optional[bool] = None,
 ) -> Participant:
     store = _get_store()
@@ -289,6 +301,7 @@ async def update_participant(
         participant_id,
         collaboration_mode=collaboration_mode,
         role_detail=role_detail,
+        side=side,
         active=active,
     )
     await asyncio.to_thread(store.update_case, case_id, updated_at=now)
@@ -352,6 +365,174 @@ async def advance_stage(
     await _emit_event(event, case_id)
 
     return await asyncio.to_thread(store.get_case, case_id)
+
+
+# ── Trial advancement (auto-speak + stage progression) ─────────────────────
+
+
+def _matches_speaker_role(participant: Participant, speaker_key: str) -> bool:
+    """Match a template speaker_order key to a participant.
+
+    Keys: arbitrator, secretary, claimant, respondent,
+          claimant_counsel, respondent_counsel
+    """
+    role = participant.role
+    side = participant.side
+
+    if speaker_key == "arbitrator":
+        return role == RoleCategory.ARBITRATOR
+    if speaker_key == "secretary":
+        return role == RoleCategory.SECRETARY
+    if speaker_key == "claimant":
+        return role == RoleCategory.PARTY and side == Side.CLAIMANT
+    if speaker_key == "respondent":
+        return role == RoleCategory.PARTY and side == Side.RESPONDENT
+    if speaker_key == "claimant_counsel":
+        return role == RoleCategory.COUNSEL and side == Side.CLAIMANT
+    if speaker_key == "respondent_counsel":
+        return role == RoleCategory.COUNSEL and side == Side.RESPONDENT
+    return False
+
+
+async def advance_trial(case_id: str) -> Dict[str, Any]:
+    """Advance the trial: trigger AI speakers for current/next stage, then auto-advance.
+
+    Logic:
+    1. Find the current stage in the trial style template's stage list.
+    2. If current stage is not in the template (e.g. draft), move to the first template stage.
+    3. For each speaker in the stage's speaker_order, if the participant is AI-driven
+       (full_ai or ai_lead), call auto_speak with a delay.
+    4. After all AI speakers have spoken, return the new state.
+    Does NOT auto-advance to the next stage — the user clicks "advance" again.
+    """
+    store = _get_store()
+    case = await asyncio.to_thread(store.get_case, case_id)
+    if not case:
+        raise ValueError(f"Case {case_id} not found")
+    if case.status == "closed":
+        raise ValueError("Case is closed")
+
+    trial_style = case.trial_style
+    template = TRIAL_STYLE_TEMPLATES.get(trial_style.value)
+    if not template:
+        raise ValueError(f"Unknown trial style: {trial_style}")
+
+    stages = template["stages"]
+
+    # Find current stage index
+    current_stage_val = case.current_stage.value
+    stage_idx = None
+    for i, s in enumerate(stages):
+        if s["id"] == current_stage_val:
+            stage_idx = i
+            break
+
+    # If current stage not in template (e.g. draft), advance to first stage
+    if stage_idx is None:
+        target_stage = CaseStage(stages[0]["id"])
+        case = await advance_stage(case_id, target_stage, "开始庭审")
+        stage_idx = 0
+    else:
+        # If at the last trial stage, move to closed
+        if stage_idx >= len(stages) - 1:
+            case = await advance_stage(case_id, CaseStage.CLOSED, "庭审结束，案件结案")
+            return {
+                "case_id": case_id,
+                "current_stage": case.current_stage.value,
+                "current_stage_label": CASE_STAGE_LABELS.get(case.current_stage, case.current_stage.value),
+                "messages_sent": 0,
+                "advanced_to_next": False,
+                "message": "庭审已结束，案件已结案",
+            }
+
+    # Get the speaker order for the current stage
+    stage_def = stages[stage_idx]
+    speaker_order = stage_def.get("speaker_order", [])
+
+    # Trigger AI speakers
+    messages_sent = 0
+    for speaker_key in speaker_order:
+        # Find matching participant
+        candidates = [
+            p for p in case.participants
+            if p.active and _matches_speaker_role(p, speaker_key)
+        ]
+        if not candidates:
+            continue
+
+        participant = candidates[0]
+
+        # Skip human-driven participants
+        if participant.collaboration_mode in (CollaborationMode.HUMAN_LEAD, CollaborationMode.FULL_HUMAN):
+            continue
+
+        # Delay between speakers for realistic pacing
+        await asyncio.sleep(random.uniform(1.5, 2.5))
+
+        # Trigger auto-speak
+        try:
+            msg = await auto_speak(
+                case_id,
+                participant.participant_id,
+                "请根据当前阶段和你的角色发言",
+            )
+            if msg:
+                messages_sent += 1
+                # Reload case to get updated messages for context
+                case = await asyncio.to_thread(store.get_case, case_id)
+        except Exception as e:
+            logger.warning("auto_speak failed during advance_trial for %s: %s", participant.participant_id, e)
+
+    return {
+        "case_id": case_id,
+        "current_stage": case.current_stage.value,
+        "current_stage_label": CASE_STAGE_LABELS.get(case.current_stage, case.current_stage.value),
+        "messages_sent": messages_sent,
+        "advanced_to_next": True,
+    }
+
+
+async def advance_to_next_stage(case_id: str) -> Dict[str, Any]:
+    """Advance to the next trial stage without triggering AI speakers.
+
+    Used when the user manually wants to skip the current stage.
+    """
+    store = _get_store()
+    case = await asyncio.to_thread(store.get_case, case_id)
+    if not case:
+        raise ValueError(f"Case {case_id} not found")
+    if case.status == "closed":
+        raise ValueError("Case is closed")
+
+    template = TRIAL_STYLE_TEMPLATES.get(case.trial_style.value)
+    if not template:
+        raise ValueError(f"Unknown trial style: {case.trial_style}")
+
+    stages = template["stages"]
+    current_stage_val = case.current_stage.value
+
+    stage_idx = None
+    for i, s in enumerate(stages):
+        if s["id"] == current_stage_val:
+            stage_idx = i
+            break
+
+    if stage_idx is None:
+        # Not in template, start from first stage
+        target_stage = CaseStage(stages[0]["id"])
+    elif stage_idx >= len(stages) - 1:
+        # At last stage, close case
+        target_stage = CaseStage.CLOSED
+    else:
+        target_stage = CaseStage(stages[stage_idx + 1]["id"])
+
+    case = await advance_stage(case_id, target_stage)
+
+    return {
+        "case_id": case_id,
+        "current_stage": case.current_stage.value,
+        "current_stage_label": CASE_STAGE_LABELS.get(case.current_stage, case.current_stage.value),
+    }
 
 
 # ── Event management ───────────────────────────────────────────────────────
@@ -491,16 +672,58 @@ async def auto_speak(
             f"- {e.description}" for e in case.events[-5:]
         )
 
+        # Build style-aware prompt
+        style_name = "大陆法系风格" if case.trial_style == TrialStyle.CIVIL_STYLE else "普通法系风格"
+        template = TRIAL_STYLE_TEMPLATES.get(case.trial_style.value, {})
+        style_guidance = template.get("ai_prompt_guidance", "")
+
+        # Get the current stage name from the template
+        stage_name = CASE_STAGE_LABELS.get(case.current_stage, case.current_stage.value)
+        stage_template = None
+        for s in template.get("stages", []):
+            if s["id"] == case.current_stage.value:
+                stage_name = s.get("name", stage_name)
+                stage_template = s
+                break
+
+        # ── Inject case context: evidence docs and knowledge pages ──
+        case_links = await asyncio.to_thread(store.get_case_links, case_id)
+        evidence_texts = []
+        knowledge_texts = []
+        for link in case_links:
+            if link.link_type == "evidence" and link.doc_id:
+                try:
+                    doc_text = await asyncio.to_thread(_load_desensitized_doc, link.doc_id)
+                    if doc_text:
+                        side_label = link.side or "未知方"
+                        evidence_texts.append(f"[{side_label}证据] {doc_text[:800]}")
+                except Exception:
+                    pass
+            elif link.link_type == "reference" and link.wiki_page_path:
+                try:
+                    wiki_content = await asyncio.to_thread(_load_wiki_page, link.wiki_page_path)
+                    if wiki_content:
+                        knowledge_texts.append(wiki_content[:800])
+                except Exception:
+                    pass
+
+        evidence_section = "\n".join(evidence_texts) if evidence_texts else "无"
+        knowledge_section = "\n".join(knowledge_texts) if knowledge_texts else "无"
+
         full_prompt = (
-            f"你正在参与仲裁实训，你的角色是「{participant.display_name}」"
-            f"（{participant.role_detail or participant.role.value}）。\n"
-            f"当前案件阶段：{CASE_STAGE_LABELS.get(case.current_stage, case.current_stage.value)}\n"
+            f"你正在参与模拟仲裁庭审，你的角色是「{participant.display_name}」"
+            f"（{participant.role_detail or participant.role.value}）\n"
+            f"当前庭审阶段：{stage_name}\n"
+            f"庭审风格：{style_name}\n"
             f"案件：{case.case_name}\n"
             f"案件描述：{case.case_description or '无'}\n"
-            f"适用规则：{', '.join(case.rules) if case.rules else '未指定'}\n\n"
+            f"适用仲裁规则：{', '.join(case.rules) if case.rules else '未指定'}\n\n"
             f"近期案件事件：\n{events_summary or '无'}\n\n"
-            f"以下是近期对话：\n{context_str}\n\n"
-            f"请根据你的角色、人设和当前案件阶段发言：{prompt}"
+            f"以下是近期庭审记录：\n{context_str}\n\n"
+            f"案件证据材料：\n{evidence_section}\n\n"
+            f"相关知识：\n{knowledge_section}\n\n"
+            f"风格指导：{style_guidance}\n\n"
+            f"请根据你的角色、当前阶段和庭审风格发言（300字以内）：{prompt}"
         )
 
         result = await _chat_with_agent(
@@ -559,6 +782,8 @@ async def update_case_fields(
     case_description: Optional[str] = None,
     controller_participant_id: Any = _UNSET,
     current_speaker: Any = _UNSET,
+    trial_style: Any = _UNSET,
+    global_collaboration_mode: Any = _UNSET,
 ) -> MootCase:
     store = _get_store()
     case = await asyncio.to_thread(store.get_case, case_id)
@@ -575,6 +800,10 @@ async def update_case_fields(
         kwargs["controller_participant_id"] = controller_participant_id
     if current_speaker is not _UNSET:
         kwargs["current_speaker"] = current_speaker
+    if trial_style is not _UNSET and trial_style is not None:
+        kwargs["trial_style"] = trial_style
+    if global_collaboration_mode is not _UNSET and global_collaboration_mode is not None:
+        kwargs["global_collaboration_mode"] = global_collaboration_mode
     await asyncio.to_thread(store.update_case, case_id, **kwargs)
     return await asyncio.to_thread(store.get_case, case_id)
 
@@ -907,3 +1136,254 @@ async def get_file_versions(case_id: str, file_id: str) -> List[MootCaseFile]:
     if not case_file or case_file.case_id != case_id:
         raise ValueError(f"File {file_id} not found in case {case_id}")
     return await asyncio.to_thread(store.get_file_versions, file_id)
+
+
+# ── Case Link operations ────────────────────────────────────────────────────
+
+
+async def add_case_link(
+    case_id: str,
+    doc_id: str = "",
+    wiki_page_path: str = "",
+    link_type: str = "evidence",
+    side: str = "",
+    ai_analysis: str = "",
+) -> CaseLink:
+    """Add a link between a case and a document/knowledge page."""
+    store = _get_store()
+    link = CaseLink(
+        case_id=case_id,
+        doc_id=doc_id,
+        wiki_page_path=wiki_page_path,
+        link_type=link_type,
+        side=side,
+        ai_analysis=ai_analysis,
+    )
+    await asyncio.to_thread(store.add_case_link, link)
+    return link
+
+
+async def get_case_links(case_id: str) -> List[CaseLink]:
+    """Get all links for a case."""
+    store = _get_store()
+    return await asyncio.to_thread(store.get_case_links, case_id)
+
+
+async def delete_case_link(link_id: str) -> bool:
+    """Delete a case link."""
+    store = _get_store()
+    return await asyncio.to_thread(store.delete_case_link, link_id)
+
+
+# ── Helper: load desensitized doc and wiki page for context injection ──────
+
+
+def _load_desensitized_doc(doc_id: str) -> str:
+    """Load desensitized text for a knowledge document."""
+    try:
+        from pathlib import Path
+        from ..constant import WORKING_DIR
+        ds_path = WORKING_DIR / "knowledge_base" / "_desensitized" / f"{doc_id}.md"
+        if ds_path.is_file():
+            return ds_path.read_text(encoding="utf-8", errors="replace")
+        parsed_path = WORKING_DIR / "knowledge_base" / "_parsed" / f"{doc_id}.md"
+        if parsed_path.is_file():
+            return parsed_path.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+    return ""
+
+
+def _load_wiki_page(page_path: str) -> str:
+    """Load wiki page content."""
+    try:
+        from ..constant import WORKING_DIR
+        full_path = WORKING_DIR / "knowledge_base" / "_wiki" / page_path
+        if full_path.is_file():
+            return full_path.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+    return ""
+
+
+# ── Copilot: context-aware AI assistant ─────────────────────────────────────
+
+
+async def copilot_chat(
+    case_id: str,
+    message: str,
+    context_tab: str = "overview",
+    selected_doc_id: Optional[str] = None,
+) -> str:
+    """AI Copilot conversation with case context awareness."""
+    store = _get_store()
+    case = await asyncio.to_thread(store.get_case, case_id)
+    if not case:
+        raise ValueError(f"Case {case_id} not found")
+
+    # Build context
+    context_parts = [
+        f"案件名称：{case.case_name}",
+        f"案件阶段：{CASE_STAGE_LABELS.get(case.current_stage, case.current_stage.value)}",
+        f"案件描述：{case.case_description or '无'}",
+        f"适用规则：{', '.join(case.rules) if case.rules else '未指定'}",
+        f"当前视角：{context_tab}",
+    ]
+
+    # Add case links context
+    case_links = await asyncio.to_thread(store.get_case_links, case_id)
+    if case_links:
+        evidence_list = [l for l in case_links if l.link_type == "evidence"]
+        reference_list = [l for l in case_links if l.link_type == "reference"]
+        if evidence_list:
+            context_parts.append(f"关联证据：{len(evidence_list)} 份")
+            for l in evidence_list[:5]:
+                analysis = l.ai_analysis[:100] if l.ai_analysis else "未分析"
+                context_parts.append(f"  - [{l.side or '未知'}] {analysis}")
+        if reference_list:
+            context_parts.append(f"关联知识：{len(reference_list)} 条")
+
+    # Add selected document context
+    if selected_doc_id:
+        doc_text = await asyncio.to_thread(_load_desensitized_doc, selected_doc_id)
+        if doc_text:
+            context_parts.append(f"当前选中文档内容（前2000字）：\n{doc_text[:2000]}")
+
+    # Add recent case messages for trial context
+    if context_tab == "trial" and case.messages:
+        recent = case.messages[-5:]
+        msg_summary = "\n".join(
+            f"[{m.display_name}]: {m.content[:200]}" for m in recent
+        )
+        context_parts.append(f"近期庭审记录：\n{msg_summary}")
+
+    # Search ReMe memory
+    try:
+        from ..agents.memory.reme_light_memory_manager import get_reme_manager
+        reme = get_reme_manager()
+        if reme:
+            memories = await asyncio.to_thread(
+                reme.search, f"案件 {case.case_name} {message}", top_k=3
+            )
+            if memories:
+                mem_texts = [m.get("content", "")[:200] for m in memories if m.get("content")]
+                if mem_texts:
+                    context_parts.append(f"相关记忆：\n" + "\n".join(f"- {t}" for t in mem_texts))
+    except Exception:
+        pass
+
+    context_str = "\n".join(context_parts)
+
+    # Save user message
+    await asyncio.to_thread(store.add_copilot_message, case_id, "user", message)
+
+    # Call AI
+    try:
+        from ..agents.tools.agent_management import chat_with_agent as _chat
+
+        # Try to use arbitrator agent, fallback to default
+        arbitrator_agent_id = "arbitrator"
+        try:
+            from ..agents.tools.agent_management import agent_exists
+            exists = await asyncio.to_thread(agent_exists, arbitrator_agent_id, None)
+            if not exists:
+                arbitrator_agent_id = ""
+        except Exception:
+            arbitrator_agent_id = ""
+
+        full_prompt = (
+            f"你是仲裁工作台的 AI 助手（AI Arb），帮助仲裁人处理案件。\n\n"
+            f"当前案件上下文：\n{context_str}\n\n"
+            f"用户问题：{message}\n\n"
+            f"请基于案件上下文回答问题，提供专业、简洁的建议。"
+        )
+
+        if arbitrator_agent_id:
+            result = await _chat(
+                to_agent=arbitrator_agent_id,
+                text=full_prompt,
+                timeout=120,
+            )
+            content = ""
+            if hasattr(result, "content"):
+                for block in result.content:
+                    if hasattr(block, "text"):
+                        content += block.text
+            if not content:
+                content = "(未生成回复)"
+        else:
+            content = "AI 仲裁员尚未配置，请在系统设置中创建 arbitrator 智能体。"
+    except Exception as e:
+        logger.exception("Copilot chat failed")
+        content = f"AI 助手暂时不可用：{e}"
+
+    # Save assistant message
+    await asyncio.to_thread(store.add_copilot_message, case_id, "assistant", content)
+
+    return content
+
+
+async def get_copilot_history(case_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+    """Get copilot conversation history."""
+    store = _get_store()
+    return await asyncio.to_thread(store.get_copilot_messages, case_id, limit)
+
+
+# ── AI Document Analysis ────────────────────────────────────────────────────
+
+
+async def analyze_document(doc_id: str, case_id: str = "") -> Dict[str, Any]:
+    """AI analysis of a document, extracting key legal information."""
+    doc_text = await asyncio.to_thread(_load_desensitized_doc, doc_id)
+    if not doc_text:
+        raise ValueError(f"Document {doc_id} not found or empty")
+
+    try:
+        from ..agents.tools.agent_management import chat_with_agent as _chat
+
+        prompt = f"""请分析以下法律文档，提取关键信息：
+
+{doc_text[:3000]}
+
+输出 JSON 格式：
+{{
+    "doc_type": "合同/判决书/答辩状/证据/其他",
+    "key_points": ["要点1", "要点2"],
+    "dispute_points": ["争议点1", "争议点2"],
+    "evidence_chain": ["关联文档1", "关联文档2"],
+    "legal_basis": ["法条1", "法条2"],
+    "summary": "一句话摘要"
+}}
+只输出 JSON，不要其他内容。"""
+
+        result = await _chat(
+            to_agent="arbitrator",
+            text=prompt,
+            timeout=120,
+        )
+        content = ""
+        if hasattr(result, "content"):
+            for block in result.content:
+                if hasattr(block, "text"):
+                    content += block.text
+
+        import json as _json
+        try:
+            analysis = _json.loads(content.strip().strip("```json").strip("```").strip())
+        except Exception:
+            analysis = {"summary": content[:500] if content else "分析失败", "doc_type": "未知"}
+
+        # If case_id provided, create a case link with analysis
+        if case_id:
+            analysis_str = _json.dumps(analysis, ensure_ascii=False)
+            await add_case_link(
+                case_id=case_id,
+                doc_id=doc_id,
+                link_type="evidence",
+                ai_analysis=analysis_str,
+            )
+
+        return analysis
+    except Exception as e:
+        logger.exception("Document analysis failed")
+        return {"summary": f"分析失败：{e}", "doc_type": "未知"}

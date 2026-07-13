@@ -101,7 +101,7 @@ export default function FolderPicker({
         okText={t("folderPicker.select", "选择此文件夹")}
         okButtonProps={{ disabled: !data?.current }}
         width={520}
-        destroyOnClose
+        destroyOnHidden
       >
         <div className={styles.pickerContent}>
           <div className={styles.browseShortcuts}>

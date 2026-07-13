@@ -154,8 +154,20 @@ export async function request<T = unknown>(
     } catch (err) {
       lastError = err as Error;
 
-      // If caller aborted, don't retry
+      // If caller aborted, don't retry — rethrow as a silent AbortError
+      // so callers can distinguish intentional cancellation from real failures.
       if (callerSignal?.aborted) {
+        const abortErr = lastError instanceof DOMException
+          ? lastError
+          : new DOMException("The operation was aborted", "AbortError");
+        abortErr.name = "AbortError";
+        (abortErr as Error & { _silent?: boolean })._silent = true;
+        throw abortErr;
+      }
+
+      // Network-level abort (timeout) — also tag as silent for UI layers
+      if (lastError instanceof DOMException && lastError.name === "AbortError") {
+        (lastError as Error & { _silent?: boolean })._silent = true;
         throw lastError;
       }
 

@@ -516,7 +516,15 @@ export default function CasesPage() {
                   window.open("/moot", "_blank");
                 }}
               >
-                {t("documents.dashboard.generateDoc", "生成文书")}
+                {t("documents.dashboard.mootArbitration", "模拟仲裁")}
+              </Button>
+              <Button
+                icon={<SafetyOutlined />}
+                onClick={() => {
+                  window.open("/award", "_blank");
+                }}
+              >
+                {t("documents.dashboard.award", "裁决书")}
               </Button>
             </div>
 

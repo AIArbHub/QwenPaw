@@ -26,3 +26,23 @@ class WikiIndex(BaseModel):
     pages: list[WikiPage] = Field(default_factory=list, description="All wiki pages")
     last_ingest: str = Field(default="", description="ISO 8601 timestamp of last ingest")
     last_lint: str = Field(default="", description="ISO 8601 timestamp of last lint")
+
+
+class WikiLink(BaseModel):
+    """Wiki 页面间的双向链接"""
+    source_path: str = Field(default="", description="Source wiki page path")
+    target_path: str = Field(default="", description="Target wiki page path")
+    link_text: str = Field(default="", description="Link display text")
+    link_type: str = Field(default="reference", description="reference / contrast / subtopic")
+
+
+class KnowledgeGraph(BaseModel):
+    """知识图谱"""
+    nodes: list[dict] = Field(
+        default_factory=list,
+        description="Graph nodes: {id, label, type, page_path}",
+    )
+    edges: list[dict] = Field(
+        default_factory=list,
+        description="Graph edges: {source, target, type, weight}",
+    )

@@ -68,10 +68,14 @@ const PluginManagerPage = lazyImportWithRetry(
 );
 const AppCenterPage = lazyImportWithRetry("../../pages/AppCenter");
 const MootPage = lazyImportWithRetry("../../pages/Moot");
+const AwardPage = lazyImportWithRetry("../../pages/Award");
 const KnowledgePage = lazyImportWithRetry("../../pages/Knowledge");
 const CasesPage = lazyImportWithRetry("../../pages/Cases");
 const DocumentsPage = lazyImportWithRetry("../../pages/Documents");
 const MemoryPage = lazyImportWithRetry("../../pages/Memory");
+const ArbitrationDeskPage = lazyImportWithRetry("../../pages/ArbitrationDesk");
+const KnowledgeDeskPage = lazyImportWithRetry("../../pages/KnowledgeDesk");
+const EngineSettingsPage = lazyImportWithRetry("../../pages/EngineSettings");
 
 // Design mode merged pages
 const DesignSkillsPage = lazyImportWithRetry("../../pages/Design/Skills");
@@ -114,10 +118,16 @@ export const BUILTIN_ROUTES: Route[] = [
   { id: "core.channels", path: "/channels", component: ChannelsPage },
   { id: "core.sessions", path: "/sessions", component: SessionsPage },
   { id: "core.inbox", path: "/inbox", component: InboxPage },
+  // ── New desk routes (primary) ──
+  { id: "core.desk", path: "/desk", component: ArbitrationDeskPage },
+  { id: "core.desk-case", path: "/desk/:caseId", component: ArbitrationDeskPage },
+  { id: "core.knowledge-desk", path: "/knowledge", component: KnowledgeDeskPage },
+  { id: "core.engine-settings", path: "/engine", component: EngineSettingsPage },
+  // ── Legacy routes (kept for backward compat, old pages still accessible) ──
   { id: "core.moot", path: "/moot", component: MootPage },
   { id: "core.moot-tribunal", path: "/tribunal", component: MootPage },
+  { id: "core.award", path: "/award", component: AwardPage },
   { id: "core.documents", path: "/documents", component: DocumentsPage },
-  { id: "core.knowledge", path: "/knowledge", component: KnowledgePage },
   { id: "core.cases", path: "/cases", component: CasesPage },
   // Legacy redirects: /wiki → /knowledge, /desensitize & /docforge → /documents
   {
@@ -133,12 +143,18 @@ export const BUILTIN_ROUTES: Route[] = [
   {
     id: "core.desensitize-redirect",
     path: "/desensitize",
-    component: () => <Navigate to="/documents" replace />,
+    component: () => <Navigate to="/engine" replace />,
   },
   {
     id: "core.memory",
     path: "/memory",
     component: MemoryPage,
+  },
+  // Redirect old desk paths to new desk pages
+  {
+    id: "core.moot-desk-redirect",
+    path: "/moot-desk",
+    component: () => <Navigate to="/desk" replace />,
   },
   { id: "core.cron-jobs", path: "/cron-jobs", component: CronJobsPage },
   { id: "core.heartbeat", path: "/heartbeat", component: HeartbeatPage },

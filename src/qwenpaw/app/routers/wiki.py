@@ -7,7 +7,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from ...wiki.engine import ingest, query, read_page, lint, future
+from ...wiki.engine import ingest, query, read_page, lint, future, build_link_graph, build_knowledge_graph, semantic_search, auto_compile
 from ...wiki.models import WikiPage
 
 logger = logging.getLogger(__name__)
@@ -82,4 +82,37 @@ async def wiki_future(body: FutureRequest = None):
         doc_ids=body.doc_ids or None,
         page_paths=body.page_paths or None,
     )
+    return result
+
+
+# ── Bidirectional links & knowledge graph ────────────────────────────────────
+
+
+@router.get("/links")
+async def wiki_links():
+    """Get bidirectional link graph."""
+    return await build_link_graph()
+
+
+@router.get("/graph")
+async def wiki_graph():
+    """Get knowledge graph for visualization."""
+    graph = await build_knowledge_graph()
+    return graph.model_dump()
+
+
+@router.get("/search")
+async def wiki_search(q: str = "", case_id: str = ""):
+    """Semantic search across wiki, documents, and memories."""
+    if not q:
+        return {"results": [], "total": 0}
+    results = await semantic_search(q, case_id)
+    return {"results": results, "total": len(results)}
+
+
+@router.post("/auto-compile")
+async def wiki_auto_compile(body: IngestRequest = None):
+    """Auto-compile wiki pages and build bidirectional links."""
+    body = body or IngestRequest()
+    result = await auto_compile(doc_ids=body.doc_ids or None)
     return result

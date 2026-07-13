@@ -218,7 +218,7 @@ const ProviderChips = memo(function ProviderChips({
         onOk={handleConfigSave}
         onCancel={() => setConfiguringProvider(null)}
         confirmLoading={configSaving}
-        destroyOnClose
+        destroyOnHidden
       >
         <div className={styles.configModalContent}>
           <p className={styles.configModalDesc}>

@@ -35,8 +35,7 @@ import {
   FolderViewOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { open } from "@tauri-apps/plugin-dialog";
-import { isTauri } from "@tauri-apps/api/core";
+import { browseFolder } from "@/utils/browseFolder";
 import type { AgentSummary } from "@/api/types/agents";
 import type { ProviderInfo } from "@/api/types/provider";
 import { getAgentDisplayName } from "@/utils/agentDisplayName";
@@ -447,12 +446,12 @@ export function AgentDetailDrawer({
 
   const handleWorkDirBaseDirSelect = async () => {
     if (!agent) return;
-    const selected = await open({ directory: true, multiple: false });
-    if (selected && typeof selected === "string") {
+    const result = await browseFolder(workDirConfig?.base_dir || undefined);
+    if (result.path) {
       setWorkDirSaving(true);
       try {
         const updated = await workspaceApi.updateWorkDirConfig(
-          { base_dir: selected },
+          { base_dir: result.path },
           agent.id,
         );
         setWorkDirConfig(updated);
@@ -619,19 +618,17 @@ export function AgentDetailDrawer({
           >
             <Space.Compact style={{ width: "100%" }}>
               <Input placeholder="~/.aiarb/workspaces/my-agent" style={{ flex: 1 }} />
-              {isTauri() && (
-                <Button
-                  icon={<FolderOpenOutlined />}
-                  onClick={async () => {
-                    const selected = await open({ directory: true, multiple: false });
-                    if (selected && typeof selected === "string") {
-                      form.setFieldsValue({ workspace_dir: selected });
-                    }
-                  }}
-                >
-                  {t("agent.browseFolder")}
-                </Button>
-              )}
+              <Button
+                icon={<FolderOpenOutlined />}
+                onClick={async () => {
+                  const result = await browseFolder();
+                  if (result.path) {
+                    form.setFieldsValue({ workspace_dir: result.path });
+                  }
+                }}
+              >
+                {t("agent.browseFolder")}
+              </Button>
             </Space.Compact>
           </Form.Item>
           <Form.Item name="migrate_workspace" valuePropName="checked">
@@ -686,15 +683,13 @@ export function AgentDetailDrawer({
                       readOnly
                       style={{ flex: 1 }}
                     />
-                    {isTauri() && (
-                      <Button
-                        icon={<FolderOpenOutlined />}
-                        onClick={handleWorkDirBaseDirSelect}
-                        loading={workDirSaving}
-                      >
-                        {t("agent.browseFolder")}
-                      </Button>
-                    )}
+                    <Button
+                      icon={<FolderOpenOutlined />}
+                      onClick={handleWorkDirBaseDirSelect}
+                      loading={workDirSaving}
+                    >
+                      {t("agent.browseFolder")}
+                    </Button>
                   </Space.Compact>
                 </Form.Item>
                 <Form.Item
@@ -898,7 +893,7 @@ export function AgentDetailDrawer({
       open={open}
       onClose={onClose}
       width={720}
-      destroyOnClose
+      destroyOnHidden
       extra={
         <Space>
           <Button onClick={onClose}>{t("common.cancel")}</Button>

@@ -14,33 +14,6 @@ const cssStubPlugin = {
   },
 };
 
-// Suppress known third-party React DOM warnings in dev mode.
-// @ant-design/icons uses kebab-case SVG attrs (fill-rule) that trigger React warnings.
-// @agentscope-ai/design ActionButton/IconButton forwardRef render functions
-// accept only (props) without ref, which triggers a React warning.
-// NOTE: We cannot use import.meta.env inside transformIndexHtml because Vite
-// does not transform inline scripts. Instead, we check mode at build time.
-function suppressThirdPartyWarningsPlugin(mode: string) {
-  return {
-    name: "suppress-third-party-warnings",
-    transformIndexHtml(html: string) {
-      if (mode !== "development") return html;
-      return html.replace(
-        "</head>",
-        `<script>
-          const origWarn = console.warn;
-          console.warn = function (...args) {
-            const msg = args[0];
-            if (typeof msg === 'string' && msg.includes('Invalid DOM property')) return;
-            if (typeof msg === 'string' && msg.includes('forwardRef render functions accept exactly two parameters')) return;
-            origWarn.apply(console, args);
-          };
-        </script></head>`,
-      );
-    },
-  };
-}
-
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   // Empty = same-origin; frontend and backend served together, no hardcoded host.
@@ -53,7 +26,7 @@ export default defineConfig(({ mode }) => {
       TOKEN: JSON.stringify(env.TOKEN || ""),
       MOBILE: false,
     },
-    plugins: [react(), cssStubPlugin, suppressThirdPartyWarningsPlugin(mode)],
+    plugins: [react(), cssStubPlugin],
     css: {
       modules: {
         localsConvention: "camelCase",

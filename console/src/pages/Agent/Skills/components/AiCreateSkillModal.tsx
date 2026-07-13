@@ -102,7 +102,7 @@ export function AiCreateSkillModal({
           {t("skills.useGenerated", "使用此内容")}
         </Button>,
       ]}
-      destroyOnClose
+      destroyOnHidden
     >
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 13, color: "var(--ant-color-text-secondary)", marginBottom: 8 }}>

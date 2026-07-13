@@ -10,7 +10,7 @@ from typing import Any
 
 from ..config import load_config
 from ..constant import WORKING_DIR
-from .models import WikiPage, WikiIndex
+from .models import WikiPage, WikiIndex, WikiLink, KnowledgeGraph
 
 logger = logging.getLogger(__name__)
 
@@ -448,3 +448,191 @@ def _parse_qa_response(response: str) -> list[dict[str, Any]]:
 
     logger.warning("Failed to parse Future QA response as JSON")
     return []
+
+
+# ── Bidirectional links & knowledge graph ────────────────────────────────────
+
+
+_WIKI_LINK_PATTERN = re.compile(r"\[\[([^\]]+)\]\]")
+_WIKI_LINK_TEXT_PATTERN = re.compile(r"\[\[([^\]|]+)\|([^\]]+)\]\]")
+
+
+def extract_wiki_links(content: str, source_path: str) -> list[WikiLink]:
+    """Extract [[target]] and [[target|text]] style links from wiki content."""
+    links: list[WikiLink] = []
+
+    # Match [[target|text]] pattern
+    for m in _WIKI_LINK_TEXT_PATTERN.finditer(content):
+        target = m.group(1).strip()
+        text = m.group(2).strip()
+        links.append(WikiLink(
+            source_path=source_path,
+            target_path=target,
+            link_text=text,
+            link_type="reference",
+        ))
+
+    # Match [[target]] pattern (without text override)
+    for m in _WIKI_LINK_PATTERN.finditer(content):
+        raw = m.group(1).strip()
+        if "|" in raw:
+            continue  # Already captured above
+        links.append(WikiLink(
+            source_path=source_path,
+            target_path=raw,
+            link_text=raw,
+            link_type="reference",
+        ))
+
+    return links
+
+
+async def build_link_graph() -> dict[str, Any]:
+    """Build bidirectional link graph from all wiki pages."""
+    idx = _load_index()
+    base = _wiki_base_dir()
+
+    all_links: list[WikiLink] = []
+    for page in idx.pages:
+        page_file = base / page.path
+        if not page_file.is_file():
+            continue
+        content = page_file.read_text(encoding="utf-8", errors="replace")
+        page_links = extract_wiki_links(content, page.path)
+        all_links.extend(page_links)
+
+    # Build adjacency
+    forward: dict[str, list[str]] = {}
+    backward: dict[str, list[str]] = {}
+    for link in all_links:
+        forward.setdefault(link.source_path, []).append(link.target_path)
+        backward.setdefault(link.target_path, []).append(link.source_path)
+
+    return {
+        "links": [l.model_dump() for l in all_links],
+        "forward": forward,
+        "backward": backward,
+        "total_links": len(all_links),
+    }
+
+
+async def build_knowledge_graph() -> KnowledgeGraph:
+    """Build a knowledge graph for visualization."""
+    idx = _load_index()
+    base = _wiki_base_dir()
+
+    nodes: list[dict] = []
+    edges: list[dict] = []
+    node_paths: set[str] = set()
+
+    # Add nodes from wiki pages
+    for page in idx.pages:
+        nodes.append({
+            "id": page.path,
+            "label": page.name or Path(page.path).stem,
+            "type": page.page_type,
+            "page_path": page.path,
+        })
+        node_paths.add(page.path)
+
+    # Extract links and build edges
+    for page in idx.pages:
+        page_file = base / page.path
+        if not page_file.is_file():
+            continue
+        content = page_file.read_text(encoding="utf-8", errors="replace")
+        page_links = extract_wiki_links(content, page.path)
+        for link in page_links:
+            # Resolve target path
+            target = link.target_path
+            if target not in node_paths:
+                # Try to find a matching page
+                for p in idx.pages:
+                    if p.path.endswith(target) or p.name == target:
+                        target = p.path
+                        break
+
+            edges.append({
+                "source": page.path,
+                "target": target,
+                "type": link.link_type,
+                "weight": 1,
+            })
+
+    return KnowledgeGraph(nodes=nodes, edges=edges)
+
+
+async def semantic_search(query: str, case_id: str = "") -> list[dict[str, Any]]:
+    """Search wiki pages, document summaries, and AI memories."""
+    results: list[dict[str, Any]] = []
+
+    # 1. Search wiki pages
+    wiki_results = await query(keyword=query)
+    for p in wiki_results:
+        results.append({
+            "type": "wiki_page",
+            "path": p.path,
+            "name": p.name,
+            "page_type": p.page_type,
+            "source": "wiki",
+            "score": 1.0,
+        })
+
+    # 2. Search document metadata
+    meta = _load_doc_meta()
+    query_lower = query.lower()
+    for doc_id, doc_data in meta.items():
+        doc_name = doc_data.get("name", "")
+        doc_tags = doc_data.get("tags", [])
+        doc_category = doc_data.get("category", "")
+        searchable = f"{doc_name} {doc_category} {' '.join(doc_tags)}".lower()
+        if query_lower in searchable:
+            results.append({
+                "type": "document",
+                "doc_id": doc_id,
+                "name": doc_name,
+                "category": doc_category,
+                "source": "knowledge",
+                "score": 0.8,
+            })
+
+    # 3. Search ReMe memory
+    try:
+        from ..agents.memory.reme_light_memory_manager import get_reme_manager
+        reme = get_reme_manager()
+        if reme:
+            memories = await _sync_to_async(reme.search, query, top_k=5)
+            for m in memories:
+                results.append({
+                    "type": "memory",
+                    "content": m.get("content", "")[:300],
+                    "metadata": m.get("metadata", {}),
+                    "source": "reme",
+                    "score": 0.6,
+                })
+    except Exception:
+        pass
+
+    # Sort by score
+    results.sort(key=lambda x: x.get("score", 0), reverse=True)
+    return results
+
+
+async def _sync_to_async(fn, *args, **kwargs):
+    """Run a sync function in async context."""
+    import asyncio
+    return await asyncio.to_thread(fn, *args, **kwargs)
+
+
+async def auto_compile(doc_ids: list[str] | None = None) -> dict[str, Any]:
+    """Auto-compile wiki pages and build bidirectional links."""
+    # Run ingest first
+    ingest_result = await ingest(doc_ids=doc_ids, force=True)
+
+    # Build link graph
+    link_graph = await build_link_graph()
+
+    return {
+        "ingest": ingest_result,
+        "links": link_graph,
+    }

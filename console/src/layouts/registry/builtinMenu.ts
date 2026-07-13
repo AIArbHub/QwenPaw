@@ -52,7 +52,7 @@ import {
   SparkUserGroupLine,
   SparkWifiLine,
 } from "@agentscope-ai/icons";
-import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain, Clock, Activity, Layers, PawPrint, ScanText, Cloud } from "lucide-react";
+import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain, Clock, Activity, Layers, PawPrint, ScanText, Cloud, ScrollText, Scale, Settings } from "lucide-react";
 import i18next from "i18next";
 import { menuRegistry } from "../../plugins/registry/store";
 import type { MenuItem } from "../../plugins/registry/types";
@@ -92,49 +92,31 @@ export const BUILTIN_MENU: MenuItem[] = [
     order: 10,
   },
   {
-    id: "core.cases",
+    id: "core.desk",
     location: "primary.arbitration",
     parentId: "core.tools-group",
-    label: navLabel("nav.cases", "案件中心"),
-    icon: Briefcase,
-    route: "core.cases",
+    label: navLabel("nav.desk", "仲裁工作台"),
+    icon: Scale,
+    route: "core.desk",
     order: 10,
-  },
-  {
-    id: "core.documents",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.documents", "文档中心"),
-    icon: FolderOpen,
-    route: "core.documents",
-    order: 20,
   },
   {
     id: "core.knowledge",
     location: "primary.arbitration",
     parentId: "core.tools-group",
-    label: navLabel("nav.knowledge", "知识库"),
+    label: navLabel("nav.knowledgeDesk", "知识工作台"),
     icon: BookOpen,
-    route: "core.knowledge",
+    route: "core.knowledge-desk",
+    order: 20,
+  },
+  {
+    id: "core.engine-settings",
+    location: "primary.arbitration",
+    parentId: "core.tools-group",
+    label: navLabel("nav.engineSettings", "文档引擎设置"),
+    icon: Settings,
+    route: "core.engine-settings",
     order: 30,
-  },
-  {
-    id: "core.moot",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.moot", "模拟仲裁"),
-    icon: Users,
-    route: "core.moot",
-    order: 40,
-  },
-  {
-    id: "core.memory",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.memory", "记忆中心"),
-    icon: Brain,
-    route: "core.memory",
-    order: 50,
   },
 
   // ── 智能体工作区 (primary.agentScoped) ─────────────────────────────────

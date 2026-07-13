@@ -26,19 +26,31 @@ from ...moot.models import (
     RemoveParticipantRequest,
     RoleCategory,
     SCORING_DIMENSIONS,
+    Side,
     SpeakRequest,
     StageTransitionRequest,
+    TRIAL_STYLE_TEMPLATES,
+    TrialStyle,
     UpdateFileVisibilityRequest,
     UpdateParticipantRequest,
     CASE_STAGE_LABELS,
     ROLE_CATEGORY_LABELS,
     COLLABORATION_MODE_LABELS,
+    SIDE_LABELS,
+    TRIAL_STYLE_LABELS,
+    AddCaseLinkRequest,
+    CopilotRequest,
 )
 from ...moot import orchestrator
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/moot", tags=["moot"])
+
+
+@router.get("/trial-styles", summary="List trial style templates")
+async def list_trial_styles() -> List[dict]:
+    return list(TRIAL_STYLE_TEMPLATES.values())
 
 
 @router.get("/templates", summary="List case templates")
@@ -78,6 +90,8 @@ async def create_case(req: CreateCaseRequest, request: Request) -> dict:
         case_name=req.case_name,
         case_description=req.case_description,
         rules=req.rules,
+        trial_style=req.trial_style,
+        global_collaboration_mode=req.global_collaboration_mode,
     )
     return {
         "case_id": case.case_id,
@@ -85,6 +99,8 @@ async def create_case(req: CreateCaseRequest, request: Request) -> dict:
         "status": case.status,
         "current_stage": case.current_stage.value,
         "rules": case.rules,
+        "trial_style": case.trial_style.value,
+        "global_collaboration_mode": case.global_collaboration_mode.value,
     }
 
 
@@ -100,6 +116,8 @@ async def list_cases() -> List[dict]:
             "current_stage": c.current_stage.value,
             "current_stage_label": CASE_STAGE_LABELS.get(c.current_stage, c.current_stage.value),
             "rules": c.rules,
+            "trial_style": c.trial_style.value,
+            "global_collaboration_mode": c.global_collaboration_mode.value,
             "participants": [
                 {
                     "participant_id": p.participant_id,
@@ -107,6 +125,7 @@ async def list_cases() -> List[dict]:
                     "display_name": p.display_name,
                     "role": p.role.value,
                     "role_detail": p.role_detail,
+                    "side": p.side.value,
                     "collaboration_mode": p.collaboration_mode.value,
                     "active": p.active,
                 }
@@ -133,6 +152,8 @@ async def get_case(case_id: str) -> dict:
         "current_stage": case.current_stage.value,
         "current_stage_label": CASE_STAGE_LABELS.get(case.current_stage, case.current_stage.value),
         "rules": case.rules,
+        "trial_style": case.trial_style.value,
+        "global_collaboration_mode": case.global_collaboration_mode.value,
         "controller_participant_id": case.controller_participant_id,
         "participants": [
             {
@@ -141,6 +162,7 @@ async def get_case(case_id: str) -> dict:
                 "display_name": p.display_name,
                 "role": p.role.value,
                 "role_detail": p.role_detail,
+                "side": p.side.value,
                 "collaboration_mode": p.collaboration_mode.value,
                 "joined_at": p.joined_at,
                 "active": p.active,
@@ -203,6 +225,7 @@ async def add_participant(case_id: str, req: AddParticipantRequest, request: Req
             display_name=req.display_name,
             role=req.role,
             role_detail=req.role_detail,
+            side=req.side,
             collaboration_mode=req.collaboration_mode,
         )
         return {
@@ -211,6 +234,7 @@ async def add_participant(case_id: str, req: AddParticipantRequest, request: Req
             "display_name": participant.display_name,
             "role": participant.role.value,
             "role_detail": participant.role_detail,
+            "side": participant.side.value,
             "collaboration_mode": participant.collaboration_mode.value,
         }
     except ValueError as e:
@@ -225,12 +249,14 @@ async def update_participant(case_id: str, participant_id: str, req: UpdateParti
             participant_id=participant_id,
             collaboration_mode=req.collaboration_mode,
             role_detail=req.role_detail,
+            side=req.side,
             active=req.active,
         )
         return {
             "participant_id": participant.participant_id,
             "collaboration_mode": participant.collaboration_mode.value,
             "role_detail": participant.role_detail,
+            "side": participant.side.value,
             "active": participant.active,
         }
     except ValueError as e:
@@ -256,6 +282,24 @@ async def advance_stage(case_id: str, req: StageTransitionRequest) -> dict:
             "current_stage": case.current_stage.value,
             "current_stage_label": CASE_STAGE_LABELS.get(case.current_stage, case.current_stage.value),
         }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.post("/{case_id}/advance-trial", summary="Advance trial: trigger AI speakers for current stage")
+async def advance_trial(case_id: str) -> dict:
+    try:
+        result = await orchestrator.advance_trial(case_id)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.post("/{case_id}/advance-to-next-stage", summary="Skip to next trial stage without AI speakers")
+async def advance_to_next_stage(case_id: str) -> dict:
+    try:
+        result = await orchestrator.advance_to_next_stage(case_id)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
@@ -741,13 +785,90 @@ async def delete_file(
         raise HTTPException(status_code=400, detail=str(e)) from e
 
 
-@router.get("/{case_id}/files/{file_id}/versions", summary="Get file version history")
-async def get_file_versions(
-    case_id: str,
-    file_id: str,
-) -> List[dict]:
+# ── Case Links (案件-文档/知识关联) ─────────────────────────────────────────
+
+
+@router.get("/{case_id}/links", summary="Get case-document/knowledge links")
+async def get_case_links(case_id: str) -> List[dict]:
+    links = await orchestrator.get_case_links(case_id)
+    return [
+        {
+            "link_id": l.link_id,
+            "case_id": l.case_id,
+            "doc_id": l.doc_id,
+            "wiki_page_path": l.wiki_page_path,
+            "link_type": l.link_type,
+            "side": l.side,
+            "ai_analysis": l.ai_analysis,
+            "created_at": l.created_at,
+        }
+        for l in links
+    ]
+
+
+@router.post("/{case_id}/links", summary="Add a case-document/knowledge link")
+async def add_case_link(case_id: str, req: AddCaseLinkRequest) -> dict:
     try:
-        versions = await orchestrator.get_file_versions(case_id, file_id)
-        return [_case_file_to_dict(v) for v in versions]
+        link = await orchestrator.add_case_link(
+            case_id=case_id,
+            doc_id=req.doc_id or "",
+            wiki_page_path=req.wiki_page_path or "",
+            link_type=req.link_type,
+            side=req.side,
+            ai_analysis=req.ai_analysis,
+        )
+        return {
+            "link_id": link.link_id,
+            "case_id": link.case_id,
+            "doc_id": link.doc_id,
+            "wiki_page_path": link.wiki_page_path,
+            "link_type": link.link_type,
+            "side": link.side,
+            "ai_analysis": link.ai_analysis,
+            "created_at": link.created_at,
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.delete("/{case_id}/links/{link_id}", summary="Delete a case link")
+async def remove_case_link(case_id: str, link_id: str) -> dict:
+    try:
+        result = await orchestrator.delete_case_link(link_id)
+        return {"success": result}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+# ── Copilot (AI 助手) ───────────────────────────────────────────────────────
+
+
+@router.post("/{case_id}/copilot", summary="Send a message to the AI Copilot")
+async def copilot_chat(case_id: str, req: CopilotRequest) -> dict:
+    try:
+        response = await orchestrator.copilot_chat(
+            case_id=case_id,
+            message=req.message,
+            context_tab=req.context_tab,
+            selected_doc_id=req.selected_doc_id,
+        )
+        return {"response": response}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.get("/{case_id}/copilot/history", summary="Get Copilot conversation history")
+async def get_copilot_history(case_id: str) -> List[dict]:
+    return await orchestrator.get_copilot_history(case_id)
+
+
+# ── AI Document Analysis ────────────────────────────────────────────────────
+
+
+@router.post("/analyze-doc", summary="AI analysis of a document")
+async def analyze_document(doc_id: str, case_id: str = "") -> dict:
+    try:
+        result = await orchestrator.analyze_document(doc_id, case_id)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e

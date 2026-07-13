@@ -3,7 +3,6 @@ import {
   useEffect,
   useCallback,
   useMemo,
-  useRef,
 } from "react";
 import {
   Input,
@@ -22,7 +21,6 @@ import {
   Spin,
   Tree,
   Popconfirm,
-  Segmented,
   Timeline,
 } from "antd";
 import {
@@ -35,14 +33,12 @@ import {
   InboxOutlined,
   CalendarOutlined,
   RobotOutlined,
-  EditOutlined,
-  EyeOutlined,
   HistoryOutlined,
   HomeOutlined,
 } from "@ant-design/icons";
-import ReactMarkdown from "react-markdown";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/PageHeader";
+import { MarkdownCopy } from "@/components/MarkdownCopy/MarkdownCopy";
 import api from "@/api";
 import { agentsApi } from "@/api/modules/agents";
 import type {
@@ -106,6 +102,8 @@ function shortName(filename: string): string {
   return name;
 }
 
+const ALL_AGENTS = "__all__" as const;
+
 function getCurrentAgentId(): string | undefined {
   try {
     const agentStorage =
@@ -151,9 +149,6 @@ export default function MemoryPage() {
   const [hasChanges, setHasChanges] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Editor mode: edit or preview
-  const [editorMode, setEditorMode] = useState<"edit" | "preview">("edit");
-
   // Search
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
@@ -189,25 +184,82 @@ export default function MemoryPage() {
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [fileList, workingList, statsData, statusData] = await Promise.all([
-        api.listDailyMemory(selectedAgentId),
-        api.listFiles(selectedAgentId).catch(() => [] as MdFileInfo[]),
-        api.getMemoryStats(selectedAgentId).catch(() => null),
-        api.getMemoryStatus(selectedAgentId).catch(() => null),
-      ]);
-      setFiles(fileList);
-      // Only show MEMORY.md in overview, filter out other system files
-      setWorkingFiles(
-        workingList.filter((f) => f.filename.toUpperCase() === "MEMORY.MD"),
-      );
-      setStats(statsData);
-      setStatus(statusData);
+      if (selectedAgentId === ALL_AGENTS && agents.length > 0) {
+        // Cross-agent: fetch from all agents
+        const allFiles: DailyMemoryFile[] = [];
+        const allWorking: MdFileInfo[] = [];
+        let totalCount = 0;
+        let totalSize = 0;
+        let latestMod: string | null = null;
+
+        const results = await Promise.allSettled(
+          agents.map((a) =>
+            Promise.all([
+              api.listDailyMemory(a.id).catch(() => [] as DailyMemoryFile[]),
+              api.listFiles(a.id).catch(() => [] as MdFileInfo[]),
+              api.getMemoryStats(a.id).catch(() => null),
+            ]).then(([fm, wf, st]) => {
+              // Tag files with agent info
+              const taggedFiles: DailyMemoryFile[] = fm.map((f) => ({
+                ...f,
+                _agentId: a.id,
+                _agentName: a.name || a.id,
+              } as DailyMemoryFile & { _agentId: string; _agentName: string }));
+              const taggedWork: MdFileInfo[] = wf.map((f) => ({
+                ...f,
+                _agentId: a.id,
+                _agentName: a.name || a.id,
+              } as MdFileInfo & { _agentId: string; _agentName: string }));
+              if (st) {
+                totalCount += st.file_count;
+                totalSize += st.total_size;
+                if (!latestMod || (st.latest_modified && st.latest_modified > latestMod)) {
+                  latestMod = st.latest_modified;
+                }
+              }
+              return { files: taggedFiles, working: taggedWork };
+            })
+          ),
+        );
+
+        for (const r of results) {
+          if (r.status === "fulfilled") {
+            allFiles.push(...r.value.files);
+            allWorking.push(...r.value.working);
+          }
+        }
+
+        setFiles(allFiles);
+        setWorkingFiles(
+          allWorking.filter((f) => f.filename.toUpperCase() === "MEMORY.MD"),
+        );
+        setStats({
+          file_count: totalCount,
+          total_size: totalSize,
+          latest_modified: latestMod || "",
+        } as MemoryStats);
+        setStatus({ initialized: true, started: true, error: null });
+      } else {
+        const agentId = selectedAgentId === ALL_AGENTS ? undefined : selectedAgentId;
+        const [fileList, workingList, statsData, statusData] = await Promise.all([
+          api.listDailyMemory(agentId),
+          api.listFiles(agentId).catch(() => [] as MdFileInfo[]),
+          api.getMemoryStats(agentId).catch(() => null),
+          api.getMemoryStatus(agentId).catch(() => null),
+        ]);
+        setFiles(fileList);
+        setWorkingFiles(
+          workingList.filter((f) => f.filename.toUpperCase() === "MEMORY.MD"),
+        );
+        setStats(statsData);
+        setStatus(statusData);
+      }
     } catch (err: any) {
       message.error(err?.message || t("memory.loadError"));
     } finally {
       setLoading(false);
     }
-  }, [t, selectedAgentId]);
+  }, [t, selectedAgentId, agents]);
 
   useEffect(() => {
     fetchAll();
@@ -361,6 +413,17 @@ export default function MemoryPage() {
     }
   }, [treeData]);
 
+  /** Resolve effective agent ID: if cross-agent mode, find from file metadata. */
+  const getEffectiveAgentId = useCallback(
+    (filename: string, fileType: "memory" | "working") => {
+      if (selectedAgentId !== ALL_AGENTS) return selectedAgentId;
+      const list = fileType === "working" ? workingFiles : files;
+      const found = list.find((f) => f.filename === filename);
+      return (found as any)?._agentId || undefined;
+    },
+    [selectedAgentId, files, workingFiles],
+  );
+
   // Load file content
   const handleSelectFile = useCallback(
     async (filename: string, fileType: "memory" | "working") => {
@@ -368,11 +431,11 @@ export default function MemoryPage() {
       setSelectedFileType(fileType);
       setContentLoading(true);
       setHasChanges(false);
-      setEditorMode("edit");
       try {
+        const agentId = getEffectiveAgentId(filename, fileType);
         const result = fileType === "working"
-          ? await api.loadFile(filename, selectedAgentId)
-          : await api.loadDailyMemory(filename, selectedAgentId);
+          ? await api.loadFile(filename, agentId)
+          : await api.loadDailyMemory(filename, agentId);
         setFileContent(result.content);
       } catch (err: any) {
         message.error(err?.message || t("memory.loadContentError"));
@@ -381,7 +444,7 @@ export default function MemoryPage() {
         setContentLoading(false);
       }
     },
-    [t, selectedAgentId],
+    [t, getEffectiveAgentId],
   );
 
   // Save file
@@ -389,10 +452,11 @@ export default function MemoryPage() {
     if (!selectedFile) return;
     setSaving(true);
     try {
+      const agentId = getEffectiveAgentId(selectedFile, selectedFileType);
       if (selectedFileType === "working") {
-        await api.saveFile(selectedFile, fileContent, selectedAgentId);
+        await api.saveFile(selectedFile, fileContent, agentId);
       } else {
-        await api.saveDailyMemory(selectedFile, fileContent, selectedAgentId);
+        await api.saveDailyMemory(selectedFile, fileContent, agentId);
       }
       message.success(t("memory.saveSuccess"));
       setHasChanges(false);
@@ -406,7 +470,8 @@ export default function MemoryPage() {
   // Delete file
   const handleDelete = async (filename: string) => {
     try {
-      await api.deleteDailyMemory(filename, selectedAgentId);
+      const agentId = getEffectiveAgentId(filename, "memory");
+      await api.deleteDailyMemory(filename, agentId);
       message.success(t("memory.deleteSuccess"));
       if (selectedFile === filename) {
         setSelectedFile(null);
@@ -425,11 +490,36 @@ export default function MemoryPage() {
     setSearching(true);
     setSearchResults(null);
     try {
-      const result = await api.searchMemory(q, 10, 0, selectedAgentId);
-      if (result.success && result.answer) {
-        setSearchResults(result.answer);
+      if (selectedAgentId === ALL_AGENTS && agents.length > 0) {
+        // Cross-agent search: query each agent and merge results
+        const results = await Promise.allSettled(
+          agents.map((a) =>
+            api.searchMemory(q, 5, 0, a.id).catch(() => ({
+              success: false,
+              answer: `[${a.name || a.id}] ${t("memory.searchError")}`,
+            })),
+          ),
+        );
+        const parts: string[] = [];
+        for (let i = 0; i < results.length; i++) {
+          const r = results[i];
+          if (r.status === "fulfilled" && r.value.success && r.value.answer) {
+            parts.push(`### ${agents[i].name || agents[i].id}\n\n${r.value.answer}`);
+          }
+        }
+        if (parts.length === 0) {
+          setSearchResults(t("memory.searchNoResults"));
+        } else {
+          setSearchResults(parts.join("\n\n---\n\n"));
+        }
       } else {
-        setSearchResults(result.error || t("memory.searchNoResults"));
+        const agentId = selectedAgentId === ALL_AGENTS ? undefined : selectedAgentId;
+        const result = await api.searchMemory(q, 10, 0, agentId);
+        if (result.success && result.answer) {
+          setSearchResults(result.answer);
+        } else {
+          setSearchResults(result.error || t("memory.searchNoResults"));
+        }
       }
     } catch (err: any) {
       setSearchResults(err?.message || t("memory.searchError"));
@@ -442,11 +532,20 @@ export default function MemoryPage() {
   const handleReindex = async () => {
     setReindexing(true);
     try {
-      const result = await api.reindexMemory(selectedAgentId);
-      if (result.success) {
+      if (selectedAgentId === ALL_AGENTS && agents.length > 0) {
+        // Reindex all agents
+        const results = await Promise.allSettled(
+          agents.map((a) => api.reindexMemory(a.id).catch(() => ({ success: false, error: "Failed" }))),
+        );
         message.success(t("memory.reindexSuccess"));
       } else {
-        message.error(result.error || t("memory.reindexError"));
+        const agentId = selectedAgentId === ALL_AGENTS ? undefined : selectedAgentId;
+        const result = await api.reindexMemory(agentId);
+        if (result.success) {
+          message.success(t("memory.reindexSuccess"));
+        } else {
+          message.error(result.error || t("memory.reindexError"));
+        }
       }
     } catch (err: any) {
       message.error(err?.message || t("memory.reindexError"));
@@ -463,7 +562,8 @@ export default function MemoryPage() {
     setViewingVersion(null);
     setVersionContent(null);
     try {
-      const result = await api.listMemoryVersions(selectedFile, selectedAgentId);
+      const agentId = getEffectiveAgentId(selectedFile, selectedFileType);
+      const result = await api.listMemoryVersions(selectedFile, agentId);
       setVersions(result);
     } catch (err: any) {
       message.error(err?.message || t("memory.versionLoadError"));
@@ -481,7 +581,8 @@ export default function MemoryPage() {
     }
     setViewingVersion(versionId);
     try {
-      const result = await api.readMemoryVersion(selectedFile, versionId, selectedAgentId);
+      const agentId = getEffectiveAgentId(selectedFile, selectedFileType);
+      const result = await api.readMemoryVersion(selectedFile, versionId, agentId);
       setVersionContent(result.content);
     } catch (err: any) {
       message.error(err?.message || t("memory.versionLoadError"));
@@ -491,7 +592,8 @@ export default function MemoryPage() {
   const handleRestoreVersion = async (versionId: string) => {
     if (!selectedFile) return;
     try {
-      const result = await api.restoreMemoryVersion(selectedFile, versionId, selectedAgentId);
+      const agentId = getEffectiveAgentId(selectedFile, selectedFileType);
+      const result = await api.restoreMemoryVersion(selectedFile, versionId, agentId);
       setFileContent(result.content);
       setHasChanges(false);
       message.success(t("memory.restoreSuccess"));
@@ -527,13 +629,15 @@ export default function MemoryPage() {
   }, [stats, t]);
 
   const agentOptions = useMemo(() => {
-    return agents.map((a) => ({ label: a.name || a.id, value: a.id }));
-  }, [agents]);
+    const opts = agents.map((a) => ({ label: a.name || a.id, value: a.id }));
+    return [{ label: t("memory.allAgents"), value: ALL_AGENTS }, ...opts];
+  }, [agents, t]);
 
   const selectedAgentName = useMemo(() => {
+    if (selectedAgentId === ALL_AGENTS) return t("memory.allAgents");
     const agent = agents.find((a) => a.id === selectedAgentId);
     return agent?.name || agent?.id || selectedAgentId || "";
-  }, [agents, selectedAgentId]);
+  }, [agents, selectedAgentId, t]);
 
   const dailyCount = useMemo(
     () => files.filter((f) => !f.filename.startsWith("digest/")).length,
@@ -707,6 +811,8 @@ export default function MemoryPage() {
                       const fileInfo = isWorking
                         ? workingFiles.find((f) => f.filename === node.filename)
                         : files.find((f) => f.filename === node.filename);
+                      const agentLabel = (fileInfo as any)?._agentName as string | undefined;
+                      const isCrossAgent = selectedAgentId === ALL_AGENTS;
                       return (
                         <div className={styles.fileNode}>
                           <div className={styles.fileInfo}>
@@ -714,6 +820,14 @@ export default function MemoryPage() {
                             <Tooltip title={node.filename} placement="topLeft">
                               <span className={styles.fileName}>{shortName(node.filename)}</span>
                             </Tooltip>
+                            {isCrossAgent && agentLabel && (
+                              <Tag
+                                color="blue"
+                                style={{ margin: 0, fontSize: 10, lineHeight: "18px", padding: "0 4px" }}
+                              >
+                                {agentLabel}
+                              </Tag>
+                            )}
                             {fileInfo && (
                               <span className={styles.fileSize}>{formatSize(fileInfo.size)}</span>
                             )}
@@ -760,6 +874,11 @@ export default function MemoryPage() {
                     <Tooltip title={selectedFile}>
                       <span className={styles.editorFileName}>{shortName(selectedFile)}</span>
                     </Tooltip>
+                    {selectedAgentId === ALL_AGENTS && (
+                      <Tag color="blue" style={{ margin: 0 }}>
+                        {(files.find((f) => f.filename === selectedFile) as any)?._agentName || ""}
+                      </Tag>
+                    )}
                     {hasChanges && (
                       <Tag color="orange" style={{ margin: 0 }}>{t("memory.unsavedChanges")}</Tag>
                     )}
@@ -777,15 +896,6 @@ export default function MemoryPage() {
                         />
                       </Tooltip>
                     )}
-                    <Segmented
-                      size="small"
-                      value={editorMode}
-                      onChange={(val) => setEditorMode(val as "edit" | "preview")}
-                      options={[
-                        { label: t("memory.editMode"), value: "edit", icon: <EditOutlined /> },
-                        { label: t("memory.previewMode"), value: "preview", icon: <EyeOutlined /> },
-                      ]}
-                    />
                     <Button
                       type="primary"
                       size="small"
@@ -799,20 +909,21 @@ export default function MemoryPage() {
                 </div>
                 {contentLoading ? (
                   <div className={styles.loadingCenter}><Spin /></div>
-                ) : editorMode === "preview" ? (
-                  <div className={styles.previewBody}>
-                    <ReactMarkdown>{fileContent}</ReactMarkdown>
-                  </div>
                 ) : (
-                  <textarea
-                    className={styles.editorTextarea}
-                    value={fileContent}
-                    onChange={(e) => {
-                      setFileContent(e.target.value);
-                      setHasChanges(true);
-                    }}
-                    spellCheck={false}
-                  />
+                  <div className={styles.editorBody}>
+                    <MarkdownCopy
+                      content={fileContent}
+                      editable={true}
+                      onContentChange={(val) => {
+                        setFileContent(val);
+                        setHasChanges(true);
+                      }}
+                      showControls={true}
+                      textareaProps={{
+                        placeholder: "",
+                      }}
+                    />
+                  </div>
                 )}
               </>
             )}

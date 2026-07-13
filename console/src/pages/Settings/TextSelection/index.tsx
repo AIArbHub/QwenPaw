@@ -518,7 +518,7 @@ export default function TextSelectionPage() {
         onOk={handleSaveTool}
         onCancel={() => setToolModalOpen(false)}
         confirmLoading={toolSaving}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form
           form={toolForm}

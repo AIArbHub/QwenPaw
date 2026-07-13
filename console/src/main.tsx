@@ -58,7 +58,13 @@ if (typeof window !== "undefined") {
     if (
       msg.includes(":first-child") ||
       msg.includes("pseudo class") ||
-      msg.includes("[getThemeColors]")
+      msg.includes("[getThemeColors]") ||
+      (msg.includes("AbortError") && msg.includes("signal is aborted")) ||
+      // React dev builds emit these as console.error, not console.warn
+      msg.includes("forwardRef render functions accept exactly two parameters") ||
+      msg.includes("overlayClassName") ||
+      msg.includes("Each child in a list should have a unique") ||
+      msg.includes("flushSync was called from inside a lifecycle")
     ) {
       return;
     }

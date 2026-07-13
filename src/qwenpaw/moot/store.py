@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional
 
 from .models import (
     CaseEvent,
+    CaseLink,
     CaseStage,
     CollaborationMode,
     EventType,
@@ -30,6 +31,8 @@ from .models import (
     MootMessage,
     Participant,
     RoleCategory,
+    Side,
+    TrialStyle,
 )
 
 logger = logging.getLogger(__name__)
@@ -122,6 +125,32 @@ CREATE TABLE IF NOT EXISTS moot_case_files (
 CREATE INDEX IF NOT EXISTS idx_case_files_case ON moot_case_files(case_id);
 CREATE INDEX IF NOT EXISTS idx_case_files_owner ON moot_case_files(owner_participant_id);
 CREATE INDEX IF NOT EXISTS idx_case_files_blob ON moot_case_files(blob_id);
+
+CREATE TABLE IF NOT EXISTS moot_case_links (
+    link_id     TEXT PRIMARY KEY,
+    case_id     TEXT NOT NULL,
+    doc_id      TEXT DEFAULT '',
+    wiki_page_path TEXT DEFAULT '',
+    link_type   TEXT DEFAULT 'evidence',
+    side        TEXT DEFAULT '',
+    ai_analysis TEXT DEFAULT '',
+    created_at  REAL NOT NULL,
+    FOREIGN KEY (case_id) REFERENCES moot_cases(case_id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_case_links_case ON moot_case_links(case_id);
+CREATE INDEX IF NOT EXISTS idx_case_links_doc ON moot_case_links(doc_id);
+
+CREATE TABLE IF NOT EXISTS moot_copilot_messages (
+    id          TEXT PRIMARY KEY,
+    case_id     TEXT NOT NULL,
+    role        TEXT NOT NULL,
+    content     TEXT NOT NULL,
+    timestamp   REAL NOT NULL,
+    FOREIGN KEY (case_id) REFERENCES moot_cases(case_id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_copilot_case ON moot_copilot_messages(case_id, timestamp);
 """
 
 
@@ -152,7 +181,34 @@ class MootStore:
         self._conn.execute("PRAGMA foreign_keys=ON")
         self._conn.executescript(_SCHEMA)
         self._conn.commit()
+        self._migrate()
         self._lock = threading.Lock()
+
+    def _migrate(self) -> None:
+        """Add new columns for trial style, global collaboration mode, and participant side."""
+        case_cols = {
+            row["name"]
+            for row in self._conn.execute("PRAGMA table_info(moot_cases)")
+        }
+        if "trial_style" not in case_cols:
+            self._conn.execute(
+                "ALTER TABLE moot_cases ADD COLUMN trial_style TEXT DEFAULT 'civil_style'"
+            )
+        if "global_collaboration_mode" not in case_cols:
+            self._conn.execute(
+                "ALTER TABLE moot_cases ADD COLUMN global_collaboration_mode TEXT DEFAULT 'full_ai'"
+            )
+
+        part_cols = {
+            row["name"]
+            for row in self._conn.execute("PRAGMA table_info(moot_participants)")
+        }
+        if "side" not in part_cols:
+            self._conn.execute(
+                "ALTER TABLE moot_participants ADD COLUMN side TEXT DEFAULT 'neutral'"
+            )
+
+        self._conn.commit()
 
     def close(self) -> None:
         with self._lock:
@@ -166,7 +222,7 @@ class MootStore:
     def create_case(self, case: MootCase) -> None:
         with self._lock:
             self._conn.execute(
-                "INSERT INTO moot_cases (case_id, case_name, case_description, status, current_stage, rules, controller_participant_id, current_speaker, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO moot_cases (case_id, case_name, case_description, status, current_stage, rules, controller_participant_id, current_speaker, trial_style, global_collaboration_mode, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     case.case_id,
                     case.case_name,
@@ -176,6 +232,8 @@ class MootStore:
                     json.dumps(case.rules, ensure_ascii=False),
                     case.controller_participant_id,
                     case.current_speaker,
+                    case.trial_style.value if hasattr(case.trial_style, 'value') else str(case.trial_style),
+                    case.global_collaboration_mode.value if hasattr(case.global_collaboration_mode, 'value') else str(case.global_collaboration_mode),
                     case.created_at,
                     case.updated_at,
                 ),
@@ -211,6 +269,8 @@ class MootStore:
         rules: Optional[List[str]] = None,
         controller_participant_id: Any = _UNSET,
         current_speaker: Any = _UNSET,
+        trial_style: Any = _UNSET,
+        global_collaboration_mode: Any = _UNSET,
         updated_at: Optional[float] = None,
     ) -> None:
         parts: List[str] = []
@@ -236,6 +296,12 @@ class MootStore:
         if current_speaker is not MootStore._UNSET:
             parts.append("current_speaker = ?")
             values.append(current_speaker)
+        if trial_style is not MootStore._UNSET and trial_style is not None:
+            parts.append("trial_style = ?")
+            values.append(trial_style.value if hasattr(trial_style, 'value') else str(trial_style))
+        if global_collaboration_mode is not MootStore._UNSET and global_collaboration_mode is not None:
+            parts.append("global_collaboration_mode = ?")
+            values.append(global_collaboration_mode.value if hasattr(global_collaboration_mode, 'value') else str(global_collaboration_mode))
         if updated_at is not None:
             parts.append("updated_at = ?")
             values.append(updated_at)
@@ -262,7 +328,7 @@ class MootStore:
     def add_participant(self, participant: Participant, case_id: str) -> None:
         with self._lock:
             self._conn.execute(
-                "INSERT INTO moot_participants (participant_id, case_id, agent_id, display_name, role, role_detail, collaboration_mode, joined_at, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO moot_participants (participant_id, case_id, agent_id, display_name, role, role_detail, collaboration_mode, side, joined_at, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     participant.participant_id,
                     case_id,
@@ -271,6 +337,7 @@ class MootStore:
                     participant.role.value,
                     participant.role_detail,
                     participant.collaboration_mode.value,
+                    participant.side.value if hasattr(participant.side, 'value') else str(participant.side),
                     participant.joined_at,
                     1 if participant.active else 0,
                 ),
@@ -283,6 +350,7 @@ class MootStore:
         *,
         collaboration_mode: Optional[CollaborationMode] = None,
         role_detail: Optional[str] = None,
+        side: Optional[Side] = None,
         active: Optional[bool] = None,
     ) -> None:
         parts: List[str] = []
@@ -293,6 +361,9 @@ class MootStore:
         if role_detail is not None:
             parts.append("role_detail = ?")
             values.append(role_detail)
+        if side is not None:
+            parts.append("side = ?")
+            values.append(side.value)
         if active is not None:
             parts.append("active = ?")
             values.append(1 if active else 0)
@@ -368,6 +439,20 @@ class MootStore:
         participants = self._get_participants(case_id)
         messages = self._get_messages_internal(case_id)
         events = self._get_events_internal(case_id)
+
+        # Handle trial_style (may be missing for legacy rows before migration)
+        try:
+            ts_val = row["trial_style"]
+            trial_style = TrialStyle(ts_val) if ts_val else TrialStyle.CIVIL_STYLE
+        except (KeyError, ValueError):
+            trial_style = TrialStyle.CIVIL_STYLE
+
+        try:
+            gcm_val = row["global_collaboration_mode"]
+            global_collab = CollaborationMode(gcm_val) if gcm_val else CollaborationMode.FULL_AI
+        except (KeyError, ValueError):
+            global_collab = CollaborationMode.FULL_AI
+
         return MootCase(
             case_id=case_id,
             case_name=row["case_name"],
@@ -375,6 +460,8 @@ class MootStore:
             status=row["status"],
             current_stage=CaseStage(row["current_stage"]),
             rules=json.loads(row["rules"]),
+            trial_style=trial_style,
+            global_collaboration_mode=global_collab,
             controller_participant_id=row["controller_participant_id"],
             participants=participants,
             events=events,
@@ -407,12 +494,20 @@ class MootStore:
 
     @staticmethod
     def _row_to_participant(row: sqlite3.Row) -> Participant:
+        # Handle side column (may be missing for legacy rows before migration)
+        try:
+            side_val = row["side"]
+            side = Side(side_val) if side_val else Side.NEUTRAL
+        except (KeyError, ValueError):
+            side = Side.NEUTRAL
+
         return Participant(
             participant_id=row["participant_id"],
             agent_id=row["agent_id"],
             display_name=row["display_name"],
             role=RoleCategory(row["role"]),
             role_detail=row["role_detail"],
+            side=side,
             collaboration_mode=CollaborationMode(row["collaboration_mode"]),
             joined_at=row["joined_at"],
             active=bool(row["active"]),
@@ -695,3 +790,84 @@ class MootStore:
             uploaded_at=row["uploaded_at"],
             updated_at=row["updated_at"],
         )
+
+    # ── Case Link CRUD ─────────────────────────────────────────────────────
+
+    def add_case_link(self, link: CaseLink) -> None:
+        with self._lock:
+            self._conn.execute(
+                "INSERT INTO moot_case_links (link_id, case_id, doc_id, wiki_page_path, link_type, side, ai_analysis, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    link.link_id,
+                    link.case_id,
+                    link.doc_id,
+                    link.wiki_page_path,
+                    link.link_type,
+                    link.side,
+                    link.ai_analysis,
+                    link.created_at,
+                ),
+            )
+            self._conn.commit()
+
+    def get_case_links(self, case_id: str) -> List[CaseLink]:
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT * FROM moot_case_links WHERE case_id = ? ORDER BY created_at",
+                (case_id,),
+            ).fetchall()
+            return [
+                CaseLink(
+                    link_id=r["link_id"],
+                    case_id=r["case_id"],
+                    doc_id=r["doc_id"],
+                    wiki_page_path=r["wiki_page_path"],
+                    link_type=r["link_type"],
+                    side=r["side"],
+                    ai_analysis=r["ai_analysis"],
+                    created_at=r["created_at"],
+                )
+                for r in rows
+            ]
+
+    def delete_case_link(self, link_id: str) -> bool:
+        with self._lock:
+            cur = self._conn.execute(
+                "DELETE FROM moot_case_links WHERE link_id = ?",
+                (link_id,),
+            )
+            self._conn.commit()
+            return cur.rowcount > 0
+
+    def update_case_link_analysis(self, link_id: str, ai_analysis: str) -> None:
+        with self._lock:
+            self._conn.execute(
+                "UPDATE moot_case_links SET ai_analysis = ? WHERE link_id = ?",
+                (ai_analysis, link_id),
+            )
+            self._conn.commit()
+
+    # ── Copilot Message CRUD ───────────────────────────────────────────────
+
+    def add_copilot_message(self, case_id: str, role: str, content: str) -> str:
+        msg_id = uuid.uuid4().hex[:12]
+        ts = time.time()
+        with self._lock:
+            self._conn.execute(
+                "INSERT INTO moot_copilot_messages (id, case_id, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+                (msg_id, case_id, role, content, ts),
+            )
+            self._conn.commit()
+        return msg_id
+
+    def get_copilot_messages(self, case_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT * FROM moot_copilot_messages WHERE case_id = ? ORDER BY timestamp DESC LIMIT ?",
+                (case_id, limit),
+            ).fetchall()
+            rows = list(reversed(rows))
+            return [
+                {"id": r["id"], "role": r["role"], "content": r["content"], "timestamp": r["timestamp"]}
+                for r in rows
+            ]
