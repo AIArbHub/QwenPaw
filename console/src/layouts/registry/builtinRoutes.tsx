@@ -34,6 +34,8 @@ const HeartbeatPage = lazyImportWithRetry("../../pages/Control/Heartbeat");
 const AgentConfigPage = lazyImportWithRetry("../../pages/Agent/Config");
 const SkillsPage = lazyImportWithRetry("../../pages/Agent/Skills");
 const SkillPoolPage = lazyImportWithRetry("../../pages/Settings/SkillPool");
+// Unified skills page (tabs: skills / skill-pool / market) — reused across all sidebar modes
+const UnifiedSkillsPage = lazyImportWithRetry("../../pages/Design/Skills");
 const PetPage = lazyWithRetry(
   () => import("../../pages/Settings/Pet"),
   "../../pages/Settings/Pet",
@@ -158,8 +160,14 @@ export const BUILTIN_ROUTES: Route[] = [
   },
   { id: "core.cron-jobs", path: "/cron-jobs", component: CronJobsPage },
   { id: "core.heartbeat", path: "/heartbeat", component: HeartbeatPage },
-  { id: "core.skills", path: "/skills", component: SkillsPage },
-  { id: "core.skill-pool", path: "/skill-pool", component: SkillPoolPage },
+  // ── Skills: unified tabbed page (技能 / 技能池 / 技能市场) for all sidebar modes ──
+  { id: "core.skills", path: "/skills", component: UnifiedSkillsPage },
+  // Keep old route as redirect to /skills?tab=pool for backward compat
+  {
+    id: "core.skill-pool",
+    path: "/skill-pool",
+    component: () => <Navigate to="/skills?tab=pool" replace />,
+  },
   { id: "core.pet", path: "/pet", component: PetPage },
   {
     id: "core.text-selection",

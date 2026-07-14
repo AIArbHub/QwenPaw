@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   PlusOutlined,
@@ -17,6 +17,11 @@ import {
   RobotOutlined,
   FileDoneOutlined,
   BarChartOutlined,
+  TagOutlined,
+  ScanOutlined,
+  SendOutlined,
+  EditOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -44,13 +49,32 @@ import {
   Row,
   Col,
   Timeline,
+  Switch,
+  Divider,
+  InputNumber,
+  Avatar,
 } from "antd";
 import { PageHeader } from "@/components/PageHeader";
 import FolderPicker from "@/components/FolderPicker";
 import { casesApi } from "@/api/modules/cases";
 import { knowledgeApi } from "@/api/modules/knowledge";
 import { wikiApi } from "@/api/modules/wiki";
-import type { CaseRef, CaseDetailResponse, CaseFile } from "@/api/modules/cases";
+import type {
+  CaseRef,
+  CaseDetailResponse,
+  CaseFile,
+  CaseStructuredInfo,
+  CaseParty,
+  FileTag,
+  MaterialZone,
+  UpdateFileTagParams,
+  AIOrganizeResult,
+  CaseAIChatMessage,
+} from "@/api/modules/cases";
+import {
+  MATERIAL_ZONE_LABELS,
+  MATERIAL_ZONE_COLORS,
+} from "@/api/modules/cases";
 import type { WikiPage } from "@/api/modules/wiki";
 import EntityRegistry from "../Documents/components/EntityRegistry";
 import MaterialSelector, {
@@ -58,6 +82,9 @@ import MaterialSelector, {
 } from "../Documents/components/MaterialSelector";
 import PipelineStatus from "../Documents/components/PipelineStatus";
 import styles from "./index.module.less";
+
+const { TextArea } = Input;
+const { Text, Paragraph } = Typography;
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -74,6 +101,27 @@ function statusToBadge(status: string): { color: string; text: string } {
   };
   return map[status] || { color: "default", text: status };
 }
+
+const ZONE_OPTIONS: { value: MaterialZone; label: string; color: string }[] = (
+  Object.keys(MATERIAL_ZONE_LABELS) as MaterialZone[]
+).map((z) => ({
+  value: z,
+  label: MATERIAL_ZONE_LABELS[z],
+  color: MATERIAL_ZONE_COLORS[z],
+}));
+
+const FILE_CATEGORIES = [
+  "仲裁申请书",
+  "答辩书",
+  "反请求申请书",
+  "证据材料",
+  "代理词",
+  "庭审笔录",
+  "裁决书",
+  "鉴定报告",
+  "程序文件",
+  "其他",
+];
 
 export default function CasesPage() {
   const { t } = useTranslation();
@@ -104,6 +152,40 @@ export default function CasesPage() {
   const [materialSelectorOpen, setMaterialSelectorOpen] = useState(false);
   const [caseTab, setCaseTab] = useState("overview");
 
+  // ── Material zone filter ──
+  const [zoneFilter, setZoneFilter] = useState<MaterialZone | "all">("all");
+
+  // ── File tag editor ──
+  const [tagEditModalOpen, setTagEditModalOpen] = useState(false);
+  const [tagEditingFile, setTagEditingFile] = useState<CaseFile | null>(null);
+  const [tagForm] = Form.useForm();
+
+  // ── Structured info editing ──
+  const [structuredInfoModalOpen, setStructuredInfoModalOpen] = useState(false);
+  const [structuredForm] = Form.useForm();
+  const [structuredSaving, setStructuredSaving] = useState(false);
+
+  // ── AI Organize ──
+  const [organizeModalOpen, setOrganizeModalOpen] = useState(false);
+  const [organizing, setOrganizing] = useState(false);
+  const [organizeResult, setOrganizeResult] = useState<AIOrganizeResult | null>(null);
+  const [organizeDryRun, setOrganizeDryRun] = useState(true);
+
+  // ── AI Chat ──
+  const [aiMessages, setAiMessages] = useState<CaseAIChatMessage[]>([]);
+  const [aiInput, setAiInput] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiGenerateDoc, setAiGenerateDoc] = useState(false);
+  const aiMessagesRef = useRef<HTMLDivElement>(null);
+
+  // ── Scan folder ──
+  const [scanModalOpen, setScanModalOpen] = useState(false);
+  const [scanPath, setScanPath] = useState("");
+  const [scanLoading, setScanLoading] = useState(false);
+  const [scanResults, setScanResults] = useState<
+    { folder_path: string; suggested_name: string; file_count: number; selected: boolean }[]
+  >([]);
+
   const fetchCases = useCallback(async () => {
     setLoading(true);
     try {
@@ -119,6 +201,13 @@ export default function CasesPage() {
   useEffect(() => {
     fetchCases();
   }, [fetchCases]);
+
+  // Auto scroll AI chat
+  useEffect(() => {
+    if (aiMessagesRef.current) {
+      aiMessagesRef.current.scrollTop = aiMessagesRef.current.scrollHeight;
+    }
+  }, [aiMessages]);
 
   const handleAddCase = async () => {
     try {
@@ -156,6 +245,9 @@ export default function CasesPage() {
   const handleViewCase = async (caseRef: CaseRef) => {
     setSelectedCase(caseRef);
     setDetailDrawerOpen(true);
+    setCaseTab("overview");
+    setZoneFilter("all");
+    setAiMessages([]);
     try {
       const detail = await casesApi.getCase(caseRef.case_id);
       setCaseDetail(detail);
@@ -311,6 +403,195 @@ export default function CasesPage() {
     }
   };
 
+  // ── File Tag Management ──
+  const handleOpenTagEditor = (file: CaseFile) => {
+    setTagEditingFile(file);
+    tagForm.setFieldsValue({
+      zone: file.zone || "shared",
+      category: file.category || "",
+      custom_tags: file.custom_tags || [],
+      description: "",
+    });
+    setTagEditModalOpen(true);
+  };
+
+  const handleSaveFileTag = async () => {
+    if (!selectedCase || !tagEditingFile) return;
+    try {
+      const values = await tagForm.validateFields();
+      await casesApi.updateFileTag(selectedCase.case_id, tagEditingFile.file_path, {
+        zone: values.zone,
+        category: values.category,
+        custom_tags: values.custom_tags || [],
+        description: values.description,
+      });
+      message.success("文件标签已更新");
+      setTagEditModalOpen(false);
+      // Refresh case detail
+      const detail = await casesApi.getCase(selectedCase.case_id);
+      setCaseDetail(detail);
+    } catch (err) {
+      message.error("标签更新失败");
+    }
+  };
+
+  // ── Structured Info ──
+  const handleOpenStructuredInfo = () => {
+    if (!caseDetail) return;
+    const info = caseDetail.case.structured_info || {
+      parties: [],
+    };
+    structuredForm.setFieldsValue({
+      case_number: info.case_number || "",
+      arbitration_institution: info.arbitration_institution || "",
+      dispute_type: info.dispute_type || "",
+      claim_amount: info.claim_amount,
+      arbitration_procedure: info.arbitration_procedure || "普通程序",
+      arbitration_rules: info.arbitration_rules || "",
+      filing_date: info.filing_date || "",
+      hearing_date: info.hearing_date || "",
+      case_summary: info.case_summary || "",
+      parties: info.parties?.length > 0 ? info.parties : [],
+    });
+    setStructuredInfoModalOpen(true);
+  };
+
+  const handleSaveStructuredInfo = async () => {
+    if (!selectedCase) return;
+    setStructuredSaving(true);
+    try {
+      const values = await structuredForm.validateFields();
+      await casesApi.updateStructuredInfo(selectedCase.case_id, values);
+      message.success("案件结构化信息已保存");
+      setStructuredInfoModalOpen(false);
+      const detail = await casesApi.getCase(selectedCase.case_id);
+      setCaseDetail(detail);
+      setSelectedCase(detail.case);
+    } catch (err) {
+      message.error("保存失败");
+    } finally {
+      setStructuredSaving(false);
+    }
+  };
+
+  // ── AI Organize ──
+  const handleAIOrganize = async () => {
+    if (!selectedCase) return;
+    setOrganizing(true);
+    setOrganizeResult(null);
+    try {
+      const result = await casesApi.aiOrganize(selectedCase.case_id, {
+        dry_run: organizeDryRun,
+      });
+      setOrganizeResult(result);
+      if (!organizeDryRun) {
+        message.success("AI整理完成，已备份原文件");
+        const detail = await casesApi.getCase(selectedCase.case_id);
+        setCaseDetail(detail);
+      }
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      message.error(e.message || "AI整理失败");
+    } finally {
+      setOrganizing(false);
+    }
+  };
+
+  // ── AI Chat ──
+  const handleAISend = async () => {
+    if (!selectedCase || !aiInput.trim()) return;
+    const userMsg: CaseAIChatMessage = {
+      role: "user",
+      content: aiInput.trim(),
+      timestamp: Date.now() / 1000,
+    };
+    const newMessages = [...aiMessages, userMsg];
+    setAiMessages(newMessages);
+    setAiInput("");
+    setAiLoading(true);
+    try {
+      const resp = await casesApi.caseAIChat(selectedCase.case_id, newMessages, {
+        generate_doc: aiGenerateDoc,
+        doc_format: "docx",
+      });
+      const assistantMsg: CaseAIChatMessage = {
+        role: "assistant",
+        content: resp.response,
+        timestamp: Date.now() / 1000,
+        documents: resp.documents_generated,
+      };
+      setAiMessages([...newMessages, assistantMsg]);
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      message.error(e.message || "AI对话失败");
+      setAiMessages([
+        ...newMessages,
+        { role: "assistant", content: "抱歉，处理请求时出错，请稍后重试。", timestamp: Date.now() / 1000 },
+      ]);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // ── Scan Folder ──
+  const handleScanFolder = async () => {
+    if (!scanPath.trim()) return;
+    setScanLoading(true);
+    setScanResults([]);
+    try {
+      const resp = await casesApi.scanFolder(scanPath.trim(), {
+        auto_create_cases: false,
+      });
+      setScanResults(
+        (resp.suggested_cases || []).map((c) => ({
+          folder_path: c.folder_path,
+          suggested_name: c.suggested_name,
+          file_count: c.file_count,
+          selected: true,
+        })),
+      );
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      message.error(e.message || "扫描文件夹失败");
+    } finally {
+      setScanLoading(false);
+    }
+  };
+
+  const handleBatchCreateFromScan = async () => {
+    const selected = scanResults.filter((r) => r.selected);
+    if (selected.length === 0) {
+      message.warning("请至少选择一个案件文件夹");
+      return;
+    }
+    setScanLoading(true);
+    let success = 0;
+    for (const item of selected) {
+      try {
+        await casesApi.addCase({
+          case_name: item.suggested_name,
+          source_path: item.folder_path,
+          scan_mode: "auto",
+        });
+        success++;
+      } catch {
+        // continue
+      }
+    }
+    message.success(`成功创建 ${success} 个案件`);
+    setScanModalOpen(false);
+    setScanPath("");
+    setScanResults([]);
+    fetchCases();
+  };
+
+  // ── Filtered files by zone ──
+  const filteredFiles = useCallback(() => {
+    if (!caseDetail) return [];
+    if (zoneFilter === "all") return caseDetail.files;
+    return caseDetail.files.filter((f) => (f.zone || "shared") === zoneFilter);
+  }, [caseDetail, zoneFilter]);
+
   const fileColumns = [
     {
       title: t("cases.fileName", "文件名"),
@@ -319,42 +600,72 @@ export default function CasesPage() {
       ellipsis: true,
     },
     {
+      title: "分区",
+      key: "zone",
+      width: 100,
+      render: (_: unknown, record: CaseFile) => {
+        const zone = record.zone || "shared";
+        return (
+          <Tag color={MATERIAL_ZONE_COLORS[zone]} style={{ fontSize: 11 }}>
+            {MATERIAL_ZONE_LABELS[zone]}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "分类",
+      dataIndex: "category",
+      key: "category",
+      width: 100,
+      render: (v: string) => v ? <Tag style={{ fontSize: 11 }}>{v}</Tag> : <Text type="secondary" style={{ fontSize: 11 }}>未分类</Text>,
+    },
+    {
       title: t("cases.fileType", "类型"),
       dataIndex: "file_type",
       key: "file_type",
-      width: 80,
+      width: 60,
       render: (v: string) => v.toUpperCase(),
     },
     {
       title: t("cases.fileSize", "大小"),
       dataIndex: "size",
       key: "size",
-      width: 100,
+      width: 80,
       render: (v: number) => formatFileSize(v),
     },
     {
       title: t("cases.fileStatus", "状态"),
       dataIndex: "status",
       key: "status",
-      width: 80,
+      width: 70,
       render: (v: string) => {
         const badge = statusToBadge(v);
         return <Badge color={badge.color} text={badge.text} />;
       },
     },
     {
-      title: t("cases.fileActions", "操作"),
+      title: "操作",
       key: "actions",
-      width: 80,
+      width: 100,
       render: (_: unknown, record: CaseFile) => (
-        <Tooltip title={t("cases.viewFile", "查看文件")}>
-          <Button
-            type="link"
-            size="small"
-            icon={<EyeOutlined />}
-            onClick={() => handleViewFile(record)}
-          />
-        </Tooltip>
+        <Space size={0}>
+          <Tooltip title={t("cases.viewFile", "查看文件")}>
+            <Button
+              type="link"
+              size="small"
+              icon={<EyeOutlined />}
+              onClick={() => handleViewFile(record)}
+            />
+          </Tooltip>
+          <Tooltip title="编辑标签">
+            <Button
+              type="link"
+              size="small"
+              icon={<TagOutlined />}
+              onClick={() => handleOpenTagEditor(record)}
+            />
+          </Tooltip>
+        </Space>
       ),
     },
   ];
@@ -363,11 +674,22 @@ export default function CasesPage() {
     <div className={styles.pageContainer}>
       <PageHeader
         current="案件中心"
-        subRow={<span style={{ color: "var(--ant-color-text-secondary)", fontSize: 13 }}>管理仲裁案件文件，AI智能分析与检索</span>}
+        subRow={
+          <Space>
+            <span style={{ color: "var(--ant-color-text-secondary)", fontSize: 13 }}>
+              管理仲裁案件文件，支持材料分区权限控制与AI智能分析
+            </span>
+          </Space>
+        }
         extra={
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setAddModalOpen(true)}>
-            新建案件
-          </Button>
+          <Space>
+            <Button icon={<ScanOutlined />} onClick={() => setScanModalOpen(true)}>
+              扫描本地文件夹
+            </Button>
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setAddModalOpen(true)}>
+              新建案件
+            </Button>
+          </Space>
         }
       />
 
@@ -422,7 +744,7 @@ export default function CasesPage() {
       )}
 
       {cases.length === 0 && !loading ? (
-        <Empty description="暂无案件档案，点击「新建案件」开始管理" />
+        <Empty description="暂无案件档案，点击「新建案件」或「扫描本地文件夹」开始管理" />
       ) : (
         <div style={{ padding: "0 24px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 12 }}>
           {cases.map(c => (
@@ -436,10 +758,20 @@ export default function CasesPage() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>
                     {c.case_name}
+                    {c.structured_info?.case_number && (
+                      <Text type="secondary" style={{ fontSize: 11, marginLeft: 6 }}>
+                        ({c.structured_info.case_number})
+                      </Text>
+                    )}
                     {c.enabled && <Badge status="processing" style={{ marginLeft: 6 }} />}
                   </div>
                   <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 4 }}>
                     {c.tags?.map(t => <Tag key={t} style={{ fontSize: 11 }}>{t}</Tag>)}
+                    {c.structured_info?.dispute_type && (
+                      <Tag color="purple" style={{ fontSize: 11 }}>
+                        {c.structured_info.dispute_type}
+                      </Tag>
+                    )}
                     <Tag color={c.index_status === "completed" ? "green" : c.index_status === "processing" ? "blue" : "default"} style={{ fontSize: 11 }}>
                       {c.index_status === "completed" ? "已索引" : c.index_status === "processing" ? "索引中" : "待索引"}
                     </Tag>
@@ -470,6 +802,7 @@ export default function CasesPage() {
         </div>
       )}
 
+      {/* ── Case Detail Drawer ── */}
       <Drawer
         title={selectedCase?.case_name || t("cases.caseDetail", "案件详情")}
         open={detailDrawerOpen}
@@ -477,38 +810,55 @@ export default function CasesPage() {
           setDetailDrawerOpen(false);
           setSelectedCase(null);
           setCaseDetail(null);
+          setAiMessages([]);
         }}
-        width={640}
+        width={720}
         extra={
           selectedCase && (
-            <Button
-              icon={<ExportOutlined />}
-              size="small"
-              onClick={handleOpenExport}
-            >
-              {t("cases.export", "导出")}
-            </Button>
+            <Space>
+              <Button
+                icon={<EditOutlined />}
+                size="small"
+                onClick={handleOpenStructuredInfo}
+              >
+                结构化信息
+              </Button>
+              <Button
+                icon={<ExportOutlined />}
+                size="small"
+                onClick={handleOpenExport}
+              >
+                {t("cases.export", "导出")}
+              </Button>
+            </Space>
           )
         }
       >
         {caseDetail && (
           <>
             {/* Quick actions bar */}
-            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+              <Button
+                icon={<RobotOutlined />}
+                type="primary"
+                onClick={() => setCaseTab("ai")}
+              >
+                AI对话（全能视角）
+              </Button>
+              <Button
+                icon={<ThunderboltOutlined />}
+                onClick={() => {
+                  setOrganizeModalOpen(true);
+                  setOrganizeResult(null);
+                }}
+              >
+                AI整理文件
+              </Button>
               <Button
                 icon={<SafetyOutlined />}
                 onClick={() => setMaterialSelectorOpen(true)}
               >
                 {t("documents.dashboard.batchDesensitize", "批量脱敏")}
-              </Button>
-              <Button
-                type="primary"
-                icon={<RobotOutlined />}
-                onClick={() => {
-                  window.open("/chat", "_blank");
-                }}
-              >
-                {t("documents.dashboard.aiChat", "AI对话")}
               </Button>
               <Button
                 icon={<FileDoneOutlined />}
@@ -517,14 +867,6 @@ export default function CasesPage() {
                 }}
               >
                 {t("documents.dashboard.mootArbitration", "模拟仲裁")}
-              </Button>
-              <Button
-                icon={<SafetyOutlined />}
-                onClick={() => {
-                  window.open("/award", "_blank");
-                }}
-              >
-                {t("documents.dashboard.award", "裁决书")}
               </Button>
             </div>
 
@@ -554,12 +896,8 @@ export default function CasesPage() {
                         <Col span={6}>
                           <Card size="small">
                             <Statistic
-                              title={t("documents.dashboard.desensProgress", "脱敏进度")}
-                              value={
-                                caseDetail.files.filter(
-                                  (f) => f.status === "ready",
-                                ).length
-                              }
+                              title="脱敏就绪"
+                              value={caseDetail.files.filter((f) => f.status === "ready").length}
                               suffix={`/ ${caseDetail.case.file_count}`}
                               prefix={<SafetyOutlined />}
                             />
@@ -568,9 +906,10 @@ export default function CasesPage() {
                         <Col span={6}>
                           <Card size="small">
                             <Statistic
-                              title={t("documents.dashboard.aiConversations", "AI对话数")}
-                              value={0}
-                              prefix={<RobotOutlined />}
+                              title="分区数"
+                              value={new Set(caseDetail.files.map((f) => f.zone || "shared")).size}
+                              suffix="/ 5"
+                              prefix={<TagOutlined />}
                             />
                           </Card>
                         </Col>
@@ -584,6 +923,85 @@ export default function CasesPage() {
                           </Card>
                         </Col>
                       </Row>
+
+                      {/* Structured info display */}
+                      {caseDetail.case.structured_info && (
+                        <Card size="small" style={{ marginBottom: 12 }} title={
+                          <Space>
+                            <FileTextOutlined />
+                            <span>案件结构化信息</span>
+                            <Button type="link" size="small" icon={<EditOutlined />} onClick={handleOpenStructuredInfo}>
+                              编辑
+                            </Button>
+                          </Space>
+                        }>
+                          <Descriptions column={2} size="small">
+                            {caseDetail.case.structured_info.case_number && (
+                              <Descriptions.Item label="案号">
+                                {caseDetail.case.structured_info.case_number}
+                              </Descriptions.Item>
+                            )}
+                            {caseDetail.case.structured_info.arbitration_institution && (
+                              <Descriptions.Item label="仲裁机构">
+                                {caseDetail.case.structured_info.arbitration_institution}
+                              </Descriptions.Item>
+                            )}
+                            {caseDetail.case.structured_info.dispute_type && (
+                              <Descriptions.Item label="争议类型">
+                                {caseDetail.case.structured_info.dispute_type}
+                              </Descriptions.Item>
+                            )}
+                            {caseDetail.case.structured_info.claim_amount != null && (
+                              <Descriptions.Item label="争议金额">
+                                ¥ {caseDetail.case.structured_info.claim_amount.toLocaleString()}
+                              </Descriptions.Item>
+                            )}
+                            {caseDetail.case.structured_info.arbitration_procedure && (
+                              <Descriptions.Item label="仲裁程序">
+                                {caseDetail.case.structured_info.arbitration_procedure}
+                              </Descriptions.Item>
+                            )}
+                            {caseDetail.case.structured_info.arbitration_rules && (
+                              <Descriptions.Item label="适用规则">
+                                {caseDetail.case.structured_info.arbitration_rules}
+                              </Descriptions.Item>
+                            )}
+                            {caseDetail.case.structured_info.filing_date && (
+                              <Descriptions.Item label="立案日期">
+                                {caseDetail.case.structured_info.filing_date}
+                              </Descriptions.Item>
+                            )}
+                            {caseDetail.case.structured_info.hearing_date && (
+                              <Descriptions.Item label="开庭日期">
+                                {caseDetail.case.structured_info.hearing_date}
+                              </Descriptions.Item>
+                            )}
+                          </Descriptions>
+                          {caseDetail.case.structured_info.parties?.length > 0 && (
+                            <div style={{ marginTop: 8 }}>
+                              <Text type="secondary" style={{ fontSize: 12 }}>当事人：</Text>
+                              {caseDetail.case.structured_info.parties.map((p) => (
+                                <Tag
+                                  key={p.party_id}
+                                  color={p.party_type === "claimant" ? "blue" : "red"}
+                                  style={{ margin: 2, fontSize: 11 }}
+                                >
+                                  {p.party_type === "claimant" ? "申请人" : "被申请人"}：{p.name}
+                                  {p.counsel && ` (代理人：${p.counsel})`}
+                                </Tag>
+                              ))}
+                            </div>
+                          )}
+                          {caseDetail.case.structured_info.case_summary && (
+                            <div style={{ marginTop: 8 }}>
+                              <Text type="secondary" style={{ fontSize: 12 }}>案情摘要：</Text>
+                              <Paragraph style={{ fontSize: 12, margin: "4px 0 0" }}>
+                                {caseDetail.case.structured_info.case_summary}
+                              </Paragraph>
+                            </div>
+                          )}
+                        </Card>
+                      )}
 
                       <Descriptions column={1} bordered size="small">
                         <Descriptions.Item label={t("cases.caseName", "案件名称")}>
@@ -677,14 +1095,133 @@ export default function CasesPage() {
                     </span>
                   ),
                   children: (
-                    <Table
-                      dataSource={caseDetail.files}
-                      columns={fileColumns}
-                      rowKey="file_path"
-                      size="small"
-                      pagination={false}
-                      scroll={{ y: 400 }}
-                    />
+                    <div>
+                      {/* Zone filter */}
+                      <div className={styles.zoneFilter}>
+                        <div
+                          className={`${styles.zoneTag} ${zoneFilter === "all" ? styles.zoneTagActive : ""}`}
+                          style={zoneFilter === "all" ? { background: "var(--ant-color-primary)" } : {}}
+                          onClick={() => setZoneFilter("all")}
+                        >
+                          全部 ({caseDetail?.files.length || 0})
+                        </div>
+                        {ZONE_OPTIONS.map((opt) => {
+                          const count = caseDetail?.files.filter((f) => (f.zone || "shared") === opt.value).length || 0;
+                          return (
+                            <div
+                              key={opt.value}
+                              className={`${styles.zoneTag} ${zoneFilter === opt.value ? styles.zoneTagActive : ""}`}
+                              style={zoneFilter === opt.value ? { background: opt.color, borderColor: opt.color } : {}}
+                              onClick={() => setZoneFilter(opt.value)}
+                            >
+                              {opt.label} ({count})
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <Table
+                        dataSource={filteredFiles()}
+                        columns={fileColumns}
+                        rowKey="file_path"
+                        size="small"
+                        pagination={false}
+                        scroll={{ y: 360 }}
+                      />
+                    </div>
+                  ),
+                },
+                {
+                  key: "ai",
+                  label: (
+                    <span>
+                      <RobotOutlined /> AI对话（全能视角）
+                    </span>
+                  ),
+                  children: (
+                    <div className={styles.aiChatPanel}>
+                      <Alert
+                        type="info"
+                        showIcon
+                        message="全能视角AI助手"
+                        description="此AI助手以全能视角运行，可查看案件全部材料，用于问答和文书写作任务。生成的文档默认为 docx 格式。"
+                        style={{ marginBottom: 12 }}
+                      />
+                      <div className={styles.aiChatMessages} ref={aiMessagesRef}>
+                        {aiMessages.length === 0 ? (
+                          <div className={styles.aiChatEmpty}>
+                            <RobotOutlined style={{ fontSize: 40 }} />
+                            <span>向AI助手提问，或要求生成法律文书</span>
+                            <span style={{ fontSize: 11 }}>
+                              例如：「总结本案的关键争议点」「起草仲裁申请书」
+                            </span>
+                          </div>
+                        ) : (
+                          aiMessages.map((msg, i) => (
+                            <div
+                              key={i}
+                              className={`${styles.aiChatMessage} ${
+                                msg.role === "user"
+                                  ? styles.aiChatMessageUser
+                                  : styles.aiChatMessageAssistant
+                              }`}
+                            >
+                              {msg.content}
+                              {msg.documents && msg.documents.length > 0 && (
+                                <div style={{ marginTop: 8 }}>
+                                  {msg.documents.map((doc, j) => (
+                                    <div key={j} className={styles.aiChatDocResult}>
+                                      <div className={styles.aiChatDocHeader}>
+                                        <Text strong style={{ fontSize: 12 }}>
+                                          <FileDoneOutlined /> {doc.name}
+                                        </Text>
+                                        <Tag style={{ fontSize: 10 }}>{doc.format}</Tag>
+                                      </div>
+                                      <pre className={styles.preContent} style={{ maxHeight: 200, fontSize: 11 }}>
+                                        {doc.content}
+                                      </pre>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))
+                        )}
+                        {aiLoading && (
+                          <div style={{ textAlign: "center", padding: 12 }}>
+                            <Spin tip="AI正在思考..." />
+                          </div>
+                        )}
+                      </div>
+                      <div className={styles.aiChatInput}>
+                        <Switch
+                          checkedChildren="文书"
+                          unCheckedChildren="问答"
+                          checked={aiGenerateDoc}
+                          onChange={setAiGenerateDoc}
+                          size="small"
+                        />
+                        <TextArea
+                          value={aiInput}
+                          onChange={(e) => setAiInput(e.target.value)}
+                          placeholder={aiGenerateDoc ? "描述要生成的文书，如：起草一份仲裁申请书..." : "向AI提问关于本案的任何问题..."}
+                          autoSize={{ minRows: 1, maxRows: 3 }}
+                          onPressEnter={(e) => {
+                            if (!e.shiftKey) {
+                              e.preventDefault();
+                              handleAISend();
+                            }
+                          }}
+                          style={{ flex: 1 }}
+                        />
+                        <Button
+                          type="primary"
+                          icon={<SendOutlined />}
+                          onClick={handleAISend}
+                          loading={aiLoading}
+                          disabled={!aiInput.trim()}
+                        />
+                      </div>
+                    </div>
                   ),
                 },
                 {
@@ -764,60 +1301,7 @@ export default function CasesPage() {
         )}
       </Drawer>
 
-      <Modal
-        title={t("cases.addCaseTitle", "添加案件卷宗")}
-        open={addModalOpen}
-        onCancel={() => {
-          setAddModalOpen(false);
-          addForm.resetFields();
-        }}
-        onOk={handleAddCase}
-      >
-        <Form form={addForm} layout="vertical" className={styles.addForm}>
-          <Form.Item
-            name="case_name"
-            label={t("cases.caseName", "案件名称")}
-          >
-            <Input
-              placeholder={t("cases.caseNamePlaceholder", "留空将使用文件夹名称")}
-            />
-          </Form.Item>
-          <Form.Item
-            name="source_path"
-            label={t("cases.sourcePath", "案件文件夹路径")}
-            rules={[
-              { required: true, message: t("cases.sourcePathRequired", "请选择文件夹路径") },
-            ]}
-          >
-            <FolderPicker
-              placeholder={t("cases.sourcePathPlaceholder", "点击选择案件文件夹...")}
-            />
-          </Form.Item>
-          <Form.Item
-            name="scan_mode"
-            label={t("cases.scanMode", "扫描模式")}
-            initialValue="auto"
-          >
-            <Select
-              options={[
-                { label: t("cases.scanAuto", "自动检测"), value: "auto" },
-                {
-                  label: t("cases.scanCloudOcr", "云端OCR优先"),
-                  value: "cloud_ocr",
-                },
-                {
-                  label: t("cases.scanLocalOnly", "仅本地解析"),
-                  value: "local_only",
-                },
-              ]}
-            />
-          </Form.Item>
-          <Form.Item name="tags" label={t("cases.tags", "标签")}>
-            <Select mode="tags" placeholder={t("cases.tagsPlaceholder", "输入标签")} />
-          </Form.Item>
-        </Form>
-      </Modal>
-
+      {/* ── File Detail Drawer ── */}
       <Drawer
         title={selectedFile?.file_name || t("cases.fileDetail", "文件详情")}
         open={fileDrawerOpen}
@@ -879,6 +1363,25 @@ export default function CasesPage() {
                     <Descriptions.Item label={t("cases.fileStatus", "状态")}>
                       <Badge {...statusToBadge(selectedFile.status)} />
                     </Descriptions.Item>
+                    {selectedFile.zone && (
+                      <Descriptions.Item label="材料分区">
+                        <Tag color={MATERIAL_ZONE_COLORS[selectedFile.zone]}>
+                          {MATERIAL_ZONE_LABELS[selectedFile.zone]}
+                        </Tag>
+                      </Descriptions.Item>
+                    )}
+                    {selectedFile.category && (
+                      <Descriptions.Item label="文件分类">
+                        <Tag>{selectedFile.category}</Tag>
+                      </Descriptions.Item>
+                    )}
+                    {selectedFile.custom_tags && selectedFile.custom_tags.length > 0 && (
+                      <Descriptions.Item label="自定义标签">
+                        {selectedFile.custom_tags.map((t) => (
+                          <Tag key={t} style={{ fontSize: 11 }}>{t}</Tag>
+                        ))}
+                      </Descriptions.Item>
+                    )}
                   </Descriptions>
                 ),
               },
@@ -966,8 +1469,8 @@ export default function CasesPage() {
                     <div style={{ marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <span style={{ color: "var(--ant-color-text-secondary)", fontSize: 13 }}>
                         {wikiRefs.length > 0
-? t("cases.wikiRefCount", "已编译 {{count}} 个知识页面", { count: wikiRefs.length })
-                    : t("cases.noWikiRefsYet", "该文件尚未编译为知识页面")}
+                          ? t("cases.wikiRefCount", "已编译 {{count}} 个知识页面", { count: wikiRefs.length })
+                          : t("cases.noWikiRefsYet", "该文件尚未编译为知识页面")}
                       </span>
                       <Tooltip title={t("cases.ingestCaseTip", "将此案件文件编译为结构化知识页面")}>
                         <Button
@@ -1018,6 +1521,62 @@ export default function CasesPage() {
         )}
       </Drawer>
 
+      {/* ── Add Case Modal ── */}
+      <Modal
+        title={t("cases.addCaseTitle", "添加案件卷宗")}
+        open={addModalOpen}
+        onCancel={() => {
+          setAddModalOpen(false);
+          addForm.resetFields();
+        }}
+        onOk={handleAddCase}
+      >
+        <Form form={addForm} layout="vertical" className={styles.addForm}>
+          <Form.Item
+            name="case_name"
+            label={t("cases.caseName", "案件名称")}
+          >
+            <Input
+              placeholder={t("cases.caseNamePlaceholder", "留空将使用文件夹名称")}
+            />
+          </Form.Item>
+          <Form.Item
+            name="source_path"
+            label={t("cases.sourcePath", "案件文件夹路径")}
+            rules={[
+              { required: true, message: t("cases.sourcePathRequired", "请选择文件夹路径") },
+            ]}
+          >
+            <FolderPicker
+              placeholder={t("cases.sourcePathPlaceholder", "点击选择案件文件夹...")}
+            />
+          </Form.Item>
+          <Form.Item
+            name="scan_mode"
+            label={t("cases.scanMode", "扫描模式")}
+            initialValue="auto"
+          >
+            <Select
+              options={[
+                { label: t("cases.scanAuto", "自动检测"), value: "auto" },
+                {
+                  label: t("cases.scanCloudOcr", "云端OCR优先"),
+                  value: "cloud_ocr",
+                },
+                {
+                  label: t("cases.scanLocalOnly", "仅本地解析"),
+                  value: "local_only",
+                },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item name="tags" label={t("cases.tags", "标签")}>
+            <Select mode="tags" placeholder={t("cases.tagsPlaceholder", "输入标签")} />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* ── Export Modal ── */}
       <Modal
         title={t("cases.exportTitle", "导出案件文件")}
         open={exportModalOpen}
@@ -1052,6 +1611,391 @@ export default function CasesPage() {
                 "还原导出将包含敏感信息，请确认您有权限查看原始数据",
               )}
             />
+          )}
+        </Space>
+      </Modal>
+
+      {/* ── File Tag Editor Modal ── */}
+      <Modal
+        title="编辑文件标签"
+        open={tagEditModalOpen}
+        onCancel={() => setTagEditModalOpen(false)}
+        onOk={handleSaveFileTag}
+        okText="保存"
+        cancelText="取消"
+        width={480}
+      >
+        {tagEditingFile && (
+          <Form form={tagForm} layout="vertical" className={styles.fileTagEditor}>
+            <div style={{ marginBottom: 12, padding: 8, background: "var(--ant-color-bg-layout)", borderRadius: 6 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>文件：</Text>
+              <Text style={{ fontSize: 12 }}>{tagEditingFile.file_name}</Text>
+            </div>
+            <Form.Item
+              name="zone"
+              label="材料分区"
+              tooltip="设置文件的材料访问权限分区，智能体调取时将根据分区划分权限"
+            >
+              <Select
+                options={ZONE_OPTIONS.map((o) => ({
+                  value: o.value,
+                  label: (
+                    <Space>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: o.color, display: "inline-block" }} />
+                      {o.label}
+                    </Space>
+                  ),
+                }))}
+              />
+            </Form.Item>
+            <Form.Item name="category" label="文件分类">
+              <Select
+                allowClear
+                placeholder="选择或输入分类"
+                mode="tags"
+                maxCount={1}
+                options={FILE_CATEGORIES.map((c) => ({ value: c, label: c }))}
+              />
+            </Form.Item>
+            <Form.Item name="custom_tags" label="自定义标签">
+              <Select
+                mode="tags"
+                placeholder="输入自定义标签，回车确认"
+              />
+            </Form.Item>
+            <Form.Item name="description" label="备注说明">
+              <TextArea rows={2} placeholder="对该文件的补充说明..." />
+            </Form.Item>
+          </Form>
+        )}
+      </Modal>
+
+      {/* ── Structured Info Modal ── */}
+      <Modal
+        title="案件结构化信息"
+        open={structuredInfoModalOpen}
+        onCancel={() => setStructuredInfoModalOpen(false)}
+        onOk={handleSaveStructuredInfo}
+        okText="保存"
+        cancelText="取消"
+        confirmLoading={structuredSaving}
+        width={680}
+      >
+        <Form form={structuredForm} layout="vertical" className={styles.structuredInfoForm}>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="case_number" label="案号">
+                <Input placeholder="如：(2024)京仲裁字第001号" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="arbitration_institution" label="仲裁机构">
+                <Input placeholder="如：北京仲裁委员会" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item name="dispute_type" label="争议类型">
+                <Select
+                  allowClear
+                  showSearch
+                  placeholder="选择争议类型"
+                  options={[
+                    "买卖合同纠纷",
+                    "建设工程纠纷",
+                    "借款合同纠纷",
+                    "租赁合同纠纷",
+                    "股权转让纠纷",
+                    "知识产权纠纷",
+                    "劳动争议",
+                    "其他",
+                  ].map((v) => ({ value: v, label: v }))}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="claim_amount" label="争议金额（元）">
+                <InputNumber
+                  style={{ width: "100%" }}
+                  placeholder="如：1000000"
+                  formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                  parser={(value) => value!.replace(/\$\s?|(,*)/g, "") as unknown as number}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="arbitration_procedure" label="仲裁程序" initialValue="普通程序">
+                <Select
+                  options={[
+                    "普通程序",
+                    "简易程序",
+                    "特别程序",
+                    "国际商事仲裁程序",
+                  ].map((v) => ({ value: v, label: v }))}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item name="arbitration_rules" label="适用仲裁规则">
+                <Input placeholder="如：北仲仲裁规则" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="filing_date" label="立案日期">
+                <Input placeholder="YYYY-MM-DD" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="hearing_date" label="开庭日期">
+                <Input placeholder="YYYY-MM-DD" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item name="case_summary" label="案情摘要">
+            <TextArea rows={3} placeholder="简要描述案件背景和争议焦点..." />
+          </Form.Item>
+
+          <Divider>当事人信息</Divider>
+          <Form.List name="parties">
+            {(fields, { add, remove }) => (
+              <>
+                {fields.map(({ key, name, ...restField }) => (
+                  <div key={key} className={styles.partyFormItem}>
+                    <Row gutter={8}>
+                      <Col span={6}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "party_type"]}
+                          rules={[{ required: true, message: "必填" }]}
+                          label="角色"
+                        >
+                          <Select
+                            options={[
+                              { value: "claimant", label: "申请人" },
+                              { value: "respondent", label: "被申请人" },
+                            ]}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "name"]}
+                          rules={[{ required: true, message: "必填" }]}
+                          label="名称"
+                        >
+                          <Input placeholder="当事人名称" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={6}>
+                        <Form.Item {...restField} name={[name, "legal_representative"]} label="法定代表人">
+                          <Input placeholder="可选" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={4} style={{ display: "flex", alignItems: "flex-end", paddingBottom: 24 }}>
+                        <Button type="text" danger icon={<DeleteOutlined />} onClick={() => remove(name)} />
+                      </Col>
+                    </Row>
+                    <Row gutter={8}>
+                      <Col span={8}>
+                        <Form.Item {...restField} name={[name, "contact"]} label="联系方式">
+                          <Input placeholder="可选" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item {...restField} name={[name, "address"]} label="地址">
+                          <Input placeholder="可选" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item {...restField} name={[name, "counsel"]} label="代理人">
+                          <Input placeholder="可选" />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </div>
+                ))}
+                <Button
+                  type="dashed"
+                  block
+                  icon={<PlusOutlined />}
+                  onClick={() => add({ party_type: "claimant" })}
+                >
+                  添加当事人
+                </Button>
+              </>
+            )}
+          </Form.List>
+        </Form>
+      </Modal>
+
+      {/* ── AI Organize Modal ── */}
+      <Modal
+        title="AI智能整理文件"
+        open={organizeModalOpen}
+        onCancel={() => setOrganizeModalOpen(false)}
+        footer={
+          <Space>
+            <Button onClick={() => setOrganizeModalOpen(false)}>关闭</Button>
+            <Button
+              type="primary"
+              icon={<ThunderboltOutlined />}
+              loading={organizing}
+              onClick={handleAIOrganize}
+              danger={!organizeDryRun}
+            >
+              {organizeDryRun ? "预览整理方案" : "执行整理（已备份）"}
+            </Button>
+          </Space>
+        }
+        width={620}
+      >
+        <Space direction="vertical" style={{ width: "100%" }} size="middle">
+          <Alert
+            type="info"
+            showIcon
+            message="AI将自动分析案件文件并分配材料分区"
+            description="AI会根据文件内容自动为每个文件分配合适的材料分区（共有/申请人独享/被申请人独享/仲裁员独享/仲裁秘书独享）和文件分类标签。"
+          />
+          <div>
+            <Checkbox
+              checked={organizeDryRun}
+              onChange={(e) => setOrganizeDryRun(e.target.checked)}
+            >
+              预览模式（不实际修改文件标签，仅查看建议）
+            </Checkbox>
+          </div>
+          {!organizeDryRun && (
+            <Alert
+              type="warning"
+              showIcon
+              message="执行整理前将自动备份"
+              description="系统会在执行整理前自动备份当前所有文件标签信息，可在需要时恢复。"
+            />
+          )}
+          {organizeResult && (
+            <div className={styles.organizeResult}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <CheckCircleOutlined style={{ color: "#52c41a" }} />
+                <Text strong>{organizeDryRun ? "预览完成" : "整理完成"}</Text>
+                {!organizeDryRun && (
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    备份路径：{organizeResult.backup_path}
+                  </Text>
+                )}
+              </div>
+              <Paragraph style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>
+                {organizeResult.summary}
+              </Paragraph>
+              <div style={{ maxHeight: 300, overflowY: "auto" }}>
+                {organizeResult.organized_files.map((f, i) => (
+                  <div key={i} className={styles.organizeResultItem}>
+                    <Tag
+                      color={MATERIAL_ZONE_COLORS[f.new_zone as MaterialZone]}
+                      style={{ fontSize: 10, flexShrink: 0 }}
+                    >
+                      {MATERIAL_ZONE_LABELS[f.new_zone as MaterialZone]}
+                    </Tag>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className={styles.organizeResultPath}>{f.file_path}</div>
+                      <div className={styles.organizeResultReason}>
+                        分类：{f.new_category} | {f.reason}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </Space>
+      </Modal>
+
+      {/* ── Scan Folder Modal ── */}
+      <Modal
+        title="扫描本地文件夹创建案件"
+        open={scanModalOpen}
+        onCancel={() => {
+          setScanModalOpen(false);
+          setScanPath("");
+          setScanResults([]);
+        }}
+        footer={
+          <Space>
+            <Button onClick={() => {
+              setScanModalOpen(false);
+              setScanPath("");
+              setScanResults([]);
+            }}>取消</Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleBatchCreateFromScan}
+              disabled={scanResults.filter((r) => r.selected).length === 0}
+              loading={scanLoading}
+            >
+              创建 {scanResults.filter((r) => r.selected).length} 个案件
+            </Button>
+          </Space>
+        }
+        width={620}
+      >
+        <Space direction="vertical" style={{ width: "100%" }} size="middle">
+          <Alert
+            type="info"
+            showIcon
+            message="扫描本地文件夹"
+            description="选择一个根文件夹，系统将扫描其子文件夹并智能识别可创建为案件的文件夹。不改变本地文件存储结构，仅创建案件引用。"
+          />
+          <Form.Item label="文件夹路径" required>
+            <Space.Compact style={{ width: "100%" }}>
+              <FolderPicker
+                value={scanPath}
+                onChange={(v: string) => setScanPath(v)}
+                placeholder="选择要扫描的根文件夹..."
+              />
+              <Button
+                type="primary"
+                icon={<ScanOutlined />}
+                onClick={handleScanFolder}
+                loading={scanLoading}
+                disabled={!scanPath.trim()}
+              >
+                扫描
+              </Button>
+            </Space.Compact>
+          </Form.Item>
+          {scanResults.length > 0 && (
+            <div className={styles.scanResult}>
+              <Text type="secondary" style={{ fontSize: 12, marginBottom: 8, display: "block" }}>
+                发现 {scanResults.length} 个可创建为案件的文件夹，点击勾选要创建的：
+              </Text>
+              {scanResults.map((item, i) => (
+                <div
+                  key={i}
+                  className={`${styles.scanResultItem} ${item.selected ? styles.scanResultItemSelected : ""}`}
+                  onClick={() => {
+                    setScanResults((prev) =>
+                      prev.map((r, j) =>
+                        j === i ? { ...r, selected: !r.selected } : r,
+                      ),
+                    );
+                  }}
+                >
+                  <Checkbox checked={item.selected} />
+                  <FolderOutlined style={{ color: "var(--ant-color-text-tertiary)" }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 500, fontSize: 13 }}>{item.suggested_name}</div>
+                    <div style={{ fontSize: 11, color: "var(--ant-color-text-quaternary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {item.folder_path}
+                    </div>
+                  </div>
+                  <Tag style={{ fontSize: 11 }}>{item.file_count} 文件</Tag>
+                </div>
+              ))}
+            </div>
           )}
         </Space>
       </Modal>

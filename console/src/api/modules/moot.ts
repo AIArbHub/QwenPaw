@@ -990,3 +990,52 @@ export const DEFAULT_REVIEW_RULES: Omit<ReviewRule, "rule_id" | "created_at" | "
     applicable_template_types: ["domestic", "international"],
   },
 ];
+
+// ── Strategy Analysis Types ────────────────────────────────────────────────
+
+export type ViewPerspective = "god" | "claimant" | "respondent" | "arbitrator" | "secretary";
+
+export const VIEW_PERSPECTIVE_LABELS: Record<ViewPerspective, string> = {
+  god: "上帝视角（全局观察）",
+  claimant: "申请人视角",
+  respondent: "被申请人视角",
+  arbitrator: "仲裁员视角",
+  secretary: "仲裁秘书视角",
+};
+
+export interface StrategyAnalysis {
+  perspective: ViewPerspective;
+  own_strategies: { name: string; description: string; risk_level: "low" | "medium" | "high"; expected_outcome: string }[];
+  opponent_predictions: { participant_id: string; display_name: string; predicted_strategy: string; confidence: number }[];
+  win_rate: { score: number; analysis: string; key_factors: string[] };
+  recommendations: string[];
+  risk_assessment: string;
+}
+
+export interface CaseImportParams {
+  source_case_id: string;
+  case_name?: string;
+  trial_style?: TrialStyle;
+  global_collaboration_mode?: CollaborationMode;
+}
+
+// ── Strategy & Import API extensions ───────────────────────────────────────
+
+export const strategyApi = {
+  analyzeStrategy: (caseId: string, perspective: ViewPerspective) =>
+    request<StrategyAnalysis>(`/moot/${encodeURIComponent(caseId)}/analyze-strategy`, {
+      method: "POST",
+      body: JSON.stringify({ perspective }),
+    }),
+
+  importFromCase: (caseId: string, params: CaseImportParams) =>
+    request<{ case_id: string; case_name: string; imported: boolean }>(
+      `/moot/${encodeURIComponent(caseId)}/import-from-case`,
+      { method: "POST", body: JSON.stringify(params) },
+    ),
+
+  listCasesForImport: () =>
+    request<{ cases: { case_id: string; case_name: string; source_path: string; file_count: number }[] }>(
+      "/moot/cases-for-import",
+    ),
+};

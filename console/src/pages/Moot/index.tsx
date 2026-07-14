@@ -26,6 +26,8 @@ import {
   Card,
   Radio,
   Steps,
+  Drawer,
+  Alert,
 } from "antd";
 import {
   PlusOutlined,
@@ -39,11 +41,12 @@ import {
   FastForwardOutlined,
   MenuOutlined,
   CloseOutlined,
-  SafetyCertificateOutlined,
+  ImportOutlined,
 } from "@ant-design/icons";
 import { PageHeader } from "@/components/PageHeader";
 import {
   mootApi,
+  strategyApi,
   CASE_STAGE_LABELS,
   ROLE_CATEGORY_LABELS,
   ROLE_COLORS,
@@ -52,6 +55,7 @@ import {
   COLLABORATION_MODE_LABELS,
   TRIAL_STYLE_LABELS,
   TRIAL_STAGE_FLOW,
+  VIEW_PERSPECTIVE_LABELS,
   type MootCaseData,
   type MootCaseListItem,
   type MootMessage,
@@ -63,9 +67,13 @@ import {
   type Side,
   type TrialStyleTemplate,
   type CaseTemplate,
+  type ViewPerspective,
+  type StrategyAnalysis,
 } from "@/api/modules/moot";
 import { agentsApi } from "@/api/modules/agents";
+import { casesApi } from "@/api/modules/cases";
 import type { AgentSummary } from "@/api/types/agents";
+import type { CaseRef } from "@/api/modules/cases";
 import styles from "./index.module.less";
 
 const { TextArea } = Input;
@@ -97,6 +105,17 @@ export default function MootPage() {
   // Trial styles & templates
   const [trialStyles, setTrialStyles] = useState<TrialStyleTemplate[]>([]);
   const [caseTemplates, setCaseTemplates] = useState<CaseTemplate[]>([]);
+
+  // View perspective & strategy analysis
+  const [viewPerspective, setViewPerspective] = useState<ViewPerspective>("god");
+  const [strategyAnalysis, setStrategyAnalysis] = useState<StrategyAnalysis | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [strategyVisible, setStrategyVisible] = useState(false);
+
+  // Case import
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [importableCases, setImportableCases] = useState<CaseRef[]>([]);
+  const [importLoading, setImportLoading] = useState(false);
 
   // ── Load cases ──
   const loadCases = useCallback(async () => {
@@ -406,6 +425,56 @@ export default function MootPage() {
     }
   };
 
+  // ── Strategy Analysis ──
+  const handleAnalyzeStrategy = async () => {
+    if (!currentCase) return;
+    setAnalyzing(true);
+    setStrategyVisible(true);
+    try {
+      const result = await strategyApi.analyzeStrategy(currentCase.case_id, viewPerspective);
+      setStrategyAnalysis(result);
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      antMessage.error(e.message || "策略分析失败，请确保案件有足够的对话内容");
+      setStrategyAnalysis(null);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  // ── Case Import ──
+  const handleOpenImport = async () => {
+    setImportModalOpen(true);
+    setImportLoading(true);
+    try {
+      const resp = await casesApi.listCases();
+      setImportableCases(resp.cases || []);
+    } catch {
+      antMessage.error("加载案件列表失败");
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
+  const handleImportCase = async (sourceCaseId: string, caseName: string) => {
+    setImportLoading(true);
+    try {
+      const result = await strategyApi.importFromCase("new", {
+        source_case_id: sourceCaseId,
+        case_name: caseName,
+      });
+      setImportModalOpen(false);
+      await loadCases();
+      await loadCase(result.case_id);
+      antMessage.success(`已从案件「${caseName}」导入信息，创建为新的模拟仲裁案`);
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      antMessage.error(e.message || "导入失败");
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
   // ── Derived ──
   const filteredCases = useMemo(
     () =>
@@ -435,16 +504,22 @@ export default function MootPage() {
           current="模拟仲裁庭审"
           subRow={
             <Space>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => setCreateModalOpen(true)}
-              >
-                新建仲裁案
-              </Button>
-              <Button icon={<ReloadOutlined />} onClick={loadCases}>
-                刷新
-              </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setCreateModalOpen(true)}
+          >
+            新建仲裁案
+          </Button>
+          <Button
+            icon={<ImportOutlined />}
+            onClick={handleOpenImport}
+          >
+            从案件导入
+          </Button>
+          <Button icon={<ReloadOutlined />} onClick={loadCases}>
+            刷新
+          </Button>
             </Space>
           }
         />
@@ -554,6 +629,23 @@ export default function MootPage() {
           {currentCase.status === "closed" && <Tag color="default">已结案</Tag>}
         </div>
         <div className={styles.detailHeaderRight}>
+          <Select
+            value={viewPerspective}
+            onChange={setViewPerspective}
+            style={{ minWidth: 180 }}
+            options={(Object.keys(VIEW_PERSPECTIVE_LABELS) as ViewPerspective[]).map(p => ({
+              value: p,
+              label: VIEW_PERSPECTIVE_LABELS[p],
+            }))}
+          />
+          <Button
+            icon={<ThunderboltOutlined />}
+            onClick={handleAnalyzeStrategy}
+            loading={analyzing}
+            disabled={currentCase.status === "closed"}
+          >
+            策略分析
+          </Button>
           <Button
             type="primary"
             icon={<ThunderboltOutlined />}
@@ -865,6 +957,164 @@ export default function MootPage() {
         loading={loading}
         agents={agents}
       />
+
+      {/* Strategy Analysis Drawer */}
+      <Drawer
+        title="策略分析"
+        open={strategyVisible}
+        onClose={() => setStrategyVisible(false)}
+        width={560}
+      >
+        {analyzing ? (
+          <div style={{ textAlign: "center", padding: 60 }}>
+            <Spin size="large" tip="AI 正在分析策略..." />
+          </div>
+        ) : strategyAnalysis ? (
+          <Space direction="vertical" style={{ width: "100%" }} size="middle">
+            <Alert
+              type="info"
+              showIcon
+              message={`当前视角: ${VIEW_PERSPECTIVE_LABELS[strategyAnalysis.perspective]}`}
+            />
+
+            {/* Win Rate */}
+            <Card title="胜率预测" size="small">
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <div style={{
+                  width: 80, height: 80, borderRadius: "50%",
+                  background: `conic-gradient(var(--ant-color-primary) ${strategyAnalysis.win_rate.score * 3.6}deg, var(--ant-color-fill-secondary) 0deg)`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
+                }}>
+                  <div style={{
+                    width: 60, height: 60, borderRadius: "50%",
+                    background: "var(--ant-color-bg-container)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 18, fontWeight: 700, color: "var(--ant-color-primary)",
+                  }}>
+                    {strategyAnalysis.win_rate.score}%
+                  </div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, marginBottom: 4 }}>{strategyAnalysis.win_rate.analysis}</div>
+                  {strategyAnalysis.win_rate.key_factors.length > 0 && (
+                    <div style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>
+                      <strong>关键因素:</strong>
+                      {strategyAnalysis.win_rate.key_factors.map((f, i) => (
+                        <Tag key={i} style={{ fontSize: 11, margin: 2 }}>{f}</Tag>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Card>
+
+            {/* Own Strategies */}
+            {strategyAnalysis.own_strategies.length > 0 && (
+              <Card title="己方可选策略" size="small">
+                {strategyAnalysis.own_strategies.map((s, i) => (
+                  <div key={i} style={{ padding: "8px 0", borderBottom: i < strategyAnalysis.own_strategies.length - 1 ? "1px solid var(--ant-color-border-secondary)" : "none" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <strong style={{ fontSize: 13 }}>{s.name}</strong>
+                      <Tag color={s.risk_level === "high" ? "red" : s.risk_level === "medium" ? "orange" : "green"} style={{ fontSize: 10 }}>
+                        {s.risk_level === "high" ? "高风险" : s.risk_level === "medium" ? "中风险" : "低风险"}
+                      </Tag>
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--ant-color-text-secondary)", marginBottom: 2 }}>{s.description}</div>
+                    <div style={{ fontSize: 11, color: "var(--ant-color-text-quaternary)" }}>预期结果: {s.expected_outcome}</div>
+                  </div>
+                ))}
+              </Card>
+            )}
+
+            {/* Opponent Predictions */}
+            {strategyAnalysis.opponent_predictions.length > 0 && (
+              <Card title="他方策略预测" size="small">
+                {strategyAnalysis.opponent_predictions.map((p, i) => (
+                  <div key={i} style={{ padding: "8px 0", borderBottom: i < strategyAnalysis.opponent_predictions.length - 1 ? "1px solid var(--ant-color-border-secondary)" : "none" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <strong style={{ fontSize: 13 }}>{p.display_name}</strong>
+                      <Tag color="blue" style={{ fontSize: 10 }}>置信度 {p.confidence}%</Tag>
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--ant-color-text-secondary)" }}>{p.predicted_strategy}</div>
+                  </div>
+                ))}
+              </Card>
+            )}
+
+            {/* Recommendations */}
+            {strategyAnalysis.recommendations.length > 0 && (
+              <Card title="AI 建议" size="small">
+                <ul style={{ margin: 0, paddingLeft: 20, fontSize: 12, lineHeight: 1.8 }}>
+                  {strategyAnalysis.recommendations.map((r, i) => (
+                    <li key={i}>{r}</li>
+                  ))}
+                </ul>
+              </Card>
+            )}
+
+            {/* Risk Assessment */}
+            {strategyAnalysis.risk_assessment && (
+              <Alert
+                type="warning"
+                showIcon
+                message="风险评估"
+                description={strategyAnalysis.risk_assessment}
+              />
+            )}
+          </Space>
+        ) : (
+          <Empty description="点击「策略分析」按钮开始 AI 分析" />
+        )}
+      </Drawer>
+
+      {/* Case Import Modal */}
+      <Modal
+        title="从案件管理导入"
+        open={importModalOpen}
+        onCancel={() => setImportModalOpen(false)}
+        footer={null}
+        width={560}
+      >
+        {importLoading ? (
+          <div style={{ textAlign: "center", padding: 40 }}>
+            <Spin tip="加载案件列表..." />
+          </div>
+        ) : importableCases.length === 0 ? (
+          <Empty description="暂无可导入的案件，请先在案件管理中创建案件" />
+        ) : (
+          <div>
+            <Alert
+              type="info"
+              showIcon
+              message="导入说明"
+              description="从案件管理导入案件基本信息和文件引用，创建为独立的模拟仲裁案。模拟仲裁数据与案件管理数据相互独立。"
+              style={{ marginBottom: 12 }}
+            />
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {importableCases.map(c => (
+                <Card
+                  key={c.case_id}
+                  size="small"
+                  hoverable
+                  onClick={() => handleImportCase(c.case_id, c.case_name)}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 20 }}>⚖️</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 500, fontSize: 13 }}>{c.case_name}</div>
+                      <div style={{ fontSize: 11, color: "var(--ant-color-text-quaternary)" }}>
+                        {c.source_path} · {c.file_count} 个文件
+                      </div>
+                    </div>
+                    <Button type="link" size="small">导入</Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

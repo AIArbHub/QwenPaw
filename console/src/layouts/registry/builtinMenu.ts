@@ -52,7 +52,7 @@ import {
   SparkUserGroupLine,
   SparkWifiLine,
 } from "@agentscope-ai/icons";
-import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain, Clock, Activity, Layers, PawPrint, ScanText, Cloud, ScrollText, Scale, Settings } from "lucide-react";
+import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain, Clock, Activity, Layers, PawPrint, ScanText, Cloud, ScrollText, Scale, Settings, Gavel, FolderKanban, Cpu } from "lucide-react";
 import i18next from "i18next";
 import { menuRegistry } from "../../plugins/registry/store";
 import type { MenuItem } from "../../plugins/registry/types";
@@ -114,9 +114,36 @@ export const BUILTIN_MENU: MenuItem[] = [
     location: "primary.arbitration",
     parentId: "core.tools-group",
     label: navLabel("nav.engineSettings", "文档引擎设置"),
-    icon: Settings,
+    icon: Cpu,
     route: "core.engine-settings",
     order: 30,
+  },
+  {
+    id: "core.moot",
+    location: "primary.arbitration",
+    parentId: "core.tools-group",
+    label: navLabel("nav.moot", "模拟仲裁"),
+    icon: Gavel,
+    route: "core.moot",
+    order: 40,
+  },
+  {
+    id: "core.cases",
+    location: "primary.arbitration",
+    parentId: "core.tools-group",
+    label: navLabel("nav.cases", "案件管理"),
+    icon: FolderKanban,
+    route: "core.cases",
+    order: 50,
+  },
+  {
+    id: "core.memory",
+    location: "primary.arbitration",
+    parentId: "core.tools-group",
+    label: navLabel("nav.memory", "记忆中心"),
+    icon: Brain,
+    route: "core.memory",
+    order: 60,
   },
 
   // ── 智能体工作区 (primary.agentScoped) ─────────────────────────────────
@@ -371,15 +398,7 @@ export const BUILTIN_MENU: MenuItem[] = [
     route: "core.agent-stats",
     order: 80,
   },
-  {
-    id: "core.skill-pool",
-    location: "primary.settings",
-    parentId: "core.ops-debug-group",
-    label: navLabel("nav.skillPool", "技能池"),
-    icon: Layers,
-    route: "core.skill-pool",
-    order: 90,
-  },
+  // core.skill-pool removed from menu — now a tab inside /skills (unified page)
   {
     id: "core.pet",
     location: "primary.settings",
