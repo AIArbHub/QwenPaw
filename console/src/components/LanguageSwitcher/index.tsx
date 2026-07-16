@@ -90,7 +90,7 @@ export default function LanguageSwitcher() {
       placement="bottomRight"
       rootClassName={styles.languageDropdown}
     >
-      <Button icon={currentIcon || undefined} className={styles.trigger}>
+      <Button type="text" icon={currentIcon || undefined} className={styles.trigger}>
         {!currentIcon && currentFlag && (
           <span className={styles.flagEmoji}>{currentFlag}</span>
         )}

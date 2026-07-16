@@ -438,11 +438,13 @@ export default function Header() {
           <CodingModeToggle />
           <div className={styles.headerDivider} />
           <LanguageSwitcher />
+          <ThemeToggleButton />
           <Tooltip title={t("nav.inbox", "收件箱")}>
             <Badge
               dot={hasInboxUnread}
               color="rgba(75, 63, 227, 1)"
-              offset={[-4, 6]}
+              offset={[-2, 10]}
+              className={styles.inboxBadge}
             >
               <Button
                 type="text"
@@ -451,7 +453,6 @@ export default function Header() {
               />
             </Badge>
           </Tooltip>
-          <ThemeToggleButton />
         </Space>
       </AntHeader>
 

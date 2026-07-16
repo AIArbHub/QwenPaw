@@ -35,6 +35,7 @@ import {
   RobotOutlined,
   HistoryOutlined,
   HomeOutlined,
+  CloudUploadOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/PageHeader";
@@ -890,6 +891,7 @@ export default function MemoryPage() {
                     {canShowVersions && (
                       <Tooltip title={t("memory.versionHistory")}>
                         <Button
+                          type="text"
                           size="small"
                           icon={<HistoryOutlined />}
                           onClick={handleOpenVersions}
@@ -899,6 +901,7 @@ export default function MemoryPage() {
                     <Button
                       type="primary"
                       size="small"
+                      icon={<CloudUploadOutlined />}
                       onClick={handleSave}
                       loading={saving}
                       disabled={!hasChanges}

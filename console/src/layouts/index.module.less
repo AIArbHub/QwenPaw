@@ -474,6 +474,25 @@
   border-top: 1px solid rgba(115, 115, 115, 0.18);
 }
 
+// Inbox badge: neutralize Badge wrapper's layout side-effects so the
+// inner Button aligns vertically with the neighbouring icon-only buttons.
+.inboxBadge {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  vertical-align: middle;
+
+  :global {
+    // Badge sets position:relative on its child — that's fine, but
+    // make sure the Button itself has the same dimensions as siblings.
+    .ant-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
 .versionBadge {
   font-size: 12px;
   color: rgba(115, 115, 115, 0.45);

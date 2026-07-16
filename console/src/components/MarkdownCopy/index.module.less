@@ -10,7 +10,7 @@
   align-items: center;
   font-size: 12px;
   font-weight: 600;
-  height: 20px;
+  min-height: 28px;
   color: var(--ant-color-text);
 }
 
@@ -18,12 +18,25 @@
   display: flex;
   align-items: center;
   gap: 8px;
+
+  // Ensure all direct children are strictly centered on the same baseline
+  & > * {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  // Ant Design Switch in small size has a different intrinsic height than small Button;
+  // force it to visually align with the surrounding buttons
+  :global(.ant-switch) {
+    margin: 0;
+    vertical-align: middle;
+  }
 }
 
 .previewToggle {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .previewLabel {
