@@ -231,7 +231,9 @@ export default function EngineSettings() {
   const loadStatus = useCallback(async () => {
     setLoading(true);
     try {
-      const resp = await fetch("/api/knowledge/desensitize/status").then(r => r.json()).catch(() => null);
+      const resp = await fetch("/api/knowledge/desensitize/status")
+        .then(r => r.ok ? r.json() : null)
+        .catch(() => null);
       if (resp) {
         setEngineStatus({
           mineru_available: resp.mineru_available ?? false,
@@ -265,7 +267,9 @@ export default function EngineSettings() {
   // Load mock processing history
   const loadHistory = useCallback(async () => {
     try {
-      const resp = await fetch("/api/knowledge/processing-history").then(r => r.json()).catch(() => null);
+      const resp = await fetch("/api/knowledge/processing-history")
+        .then(r => r.ok ? r.json() : null)
+        .catch(() => null);
       if (resp?.records) {
         setProcessingHistory(resp.records);
       } else {

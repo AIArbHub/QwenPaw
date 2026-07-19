@@ -339,3 +339,10 @@ def add_project_file_handler(log_path: Path) -> None:
         file_handler,
         level=logging.WARNING,
     )
+
+
+# Module-level logger instance for convenient imports like:
+#   from qwenpaw.utils.logging import logger
+# This is configured with the project namespace so it respects
+# setup_logger() level changes.
+logger = logging.getLogger(LOG_NAMESPACE)

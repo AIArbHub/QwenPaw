@@ -149,6 +149,8 @@ class _MCPClientMixin:
         same asyncio task, avoiding the cross-task cancel-scope error.
         Transport setup is delegated to ``_setup_transport``.
         """
+        _connect_retries = 0
+        _MAX_CONNECT_RETRIES = 3
         while not self._stop_event.is_set():
             try:
                 logger.debug(f"Connecting MCP client: {self.name}")
@@ -164,6 +166,7 @@ class _MCPClientMixin:
 
                     self.is_connected = True
                     self._ready_event.set()
+                    _connect_retries = 0  # reset on successful connect
                     logger.info(f"MCP client connected: {self.name}")
 
                     await self._wait_for_reload_or_stop()
@@ -200,14 +203,31 @@ class _MCPClientMixin:
                     self._stop_event.set()
                     self._ready_event.set()
                     return
+
+                _connect_retries += 1
                 logger.error(
-                    f"Error in MCP client lifecycle for {self.name}: {e}",
+                    f"Error in MCP client lifecycle for {self.name} "
+                    f"(attempt {_connect_retries}/{_MAX_CONNECT_RETRIES}): {e}",
                     exc_info=True,
                 )
                 self.session = None
                 self.is_connected = False
                 self._cached_tools = None
                 self._ready_event.clear()
+
+                # Stop retrying after too many consecutive failures during
+                # initial connect — prevents endless npx download loops
+                # and subprocess crash cycles that stall startup.
+                if _connect_retries >= _MAX_CONNECT_RETRIES:
+                    logger.error(
+                        f"MCP client '{self.name}' failed to connect after "
+                        f"{_MAX_CONNECT_RETRIES} attempts; giving up. "
+                        f"Last error: {e}",
+                    )
+                    self._stop_event.set()
+                    self._ready_event.set()
+                    return
+
                 await asyncio.sleep(1)
 
         logger.info(f"MCP client lifecycle task exited: {self.name}")
@@ -260,6 +280,17 @@ class _MCPClientMixin:
                     lifecycle_task.cancel()
                 await self._wait_for_lifecycle_exit(lifecycle_task)
             raise
+
+        # The lifecycle task may have set _ready_event because it exhausted
+        # retries and gave up (not because it connected successfully).
+        # Detect this and raise a clear error.
+        if self._lifecycle_task and self._lifecycle_task.done():
+            if not self.is_connected:
+                raise RuntimeError(
+                    f"MCP client '{self.name}' lifecycle task exited "
+                    f"without establishing a connection. "
+                    f"Check the logs for details.",
+                )
 
         if self._oauth_required:
             raise RuntimeError(

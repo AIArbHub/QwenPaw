@@ -64,14 +64,31 @@ class MCPDriverHandler(DriverHandler):
         credentials = await self._resolve_credentials()
 
         if transport == "stdio":
+            env = resolve_binding(
+                endpoint.get("env") or {},
+                credentials,
+            )
+            # Detect empty required credentials before spawning a subprocess
+            # that will immediately crash, wasting startup time.
+            raw_env = endpoint.get("env") or {}
+            empty_keys = [
+                key for key, spec in raw_env.items()
+                if isinstance(spec, dict)
+                and spec.get("source") == "credential"
+                and not env.get(key)
+            ]
+            if empty_keys:
+                raise RuntimeError(
+                    f"MCP driver '{self._card.name}' has empty credentials "
+                    f"for env keys: {empty_keys}. "
+                    f"Configure the API key in Settings before enabling "
+                    f"this driver.",
+                )
             self._client = StdIOStatefulClient(
                 name=self._card.name,
                 command=str(endpoint.get("command") or ""),
                 args=list(endpoint.get("args") or []),
-                env=resolve_binding(
-                    endpoint.get("env") or {},
-                    credentials,
-                ),
+                env=env,
                 cwd=endpoint.get("cwd") or None,
             )
         else:

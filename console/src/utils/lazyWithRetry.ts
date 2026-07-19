@@ -116,6 +116,10 @@ export function lazyImportWithRetry(
   const base = toGlobKey(path);
   const globKey = PAGE_MODULES[base]
     ? base
+    : PAGE_MODULES[`${base}.tsx`]
+    ? `${base}.tsx`
+    : PAGE_MODULES[`${base}.ts`]
+    ? `${base}.ts`
     : PAGE_MODULES[`${base}/index.tsx`]
     ? `${base}/index.tsx`
     : PAGE_MODULES[`${base}/index.ts`]

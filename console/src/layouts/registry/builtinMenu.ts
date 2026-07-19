@@ -52,7 +52,7 @@ import {
   SparkUserGroupLine,
   SparkWifiLine,
 } from "@agentscope-ai/icons";
-import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain, Clock, Activity, Layers, PawPrint, ScanText, Cloud, ScrollText, Scale, Settings, Gavel, FolderKanban, Cpu } from "lucide-react";
+import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain, Clock, Activity, Layers, PawPrint, ScanText, Cloud, ScrollText, Scale, Settings, Gavel, FolderKanban, Cpu, FileCode2 } from "lucide-react";
 import i18next from "i18next";
 import { menuRegistry } from "../../plugins/registry/store";
 import type { MenuItem } from "../../plugins/registry/types";
@@ -117,6 +117,24 @@ export const BUILTIN_MENU: MenuItem[] = [
     icon: Cpu,
     route: "core.engine-settings",
     order: 30,
+  },
+  {
+    id: "core.doc-sdk",
+    location: "primary.arbitration",
+    parentId: "core.tools-group",
+    label: navLabel("nav.docSdk", "文档处理SDK"),
+    icon: FileCode2,
+    route: "core.doc-sdk",
+    order: 31,
+  },
+  {
+    id: "core.doc-sdk-iframe",
+    location: "primary.arbitration",
+    parentId: "core.tools-group",
+    label: navLabel("nav.docSdkIframe", "文档处理(iframe)"),
+    icon: ScrollText,
+    route: "core.doc-sdk-iframe",
+    order: 32,
   },
   {
     id: "core.moot",

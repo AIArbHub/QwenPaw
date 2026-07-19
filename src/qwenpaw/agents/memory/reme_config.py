@@ -138,7 +138,7 @@ def _base_config() -> dict[str, Any]:
                     "and process RSS"
                 ),
                 "parameters": {"type": "object", "properties": {}},
-                "steps": [{"backend": "status_step"}],
+                "steps": [{"backend": "health_check_step"}],
             },
             "reindex": {
                 "backend": "base",

@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Arb 文档处理系统 - 设置</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Settings specific styles */
+        .settings-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        
+        .settings-header {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f4f8;
+        }
+        
+        .settings-title {
+            color: #1e293b;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .setting-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        
+        .setting-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
+        
+        .setting-title {
+            color: #1e293b;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 15px 0;
+        }
+        
+        .setting-label {
+            display: block;
+            color: #475569;
+            font-size: 14px;
+            margin: 12px 0 6px 0;
+            font-weight: 500;
+        }
+        
+        .setting-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .setting-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .setting-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .setting-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .setting-description {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+        
+        .setting-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #3b82f6;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        
+        .setting-group {
+            margin-bottom: 20px;
+        }
+        
+        .setting-group-title {
+            color: #1e293b;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f4f8;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+        
+        .tab-container {
+            display: flex;
+            border-bottom: 2px solid #f0f4f8;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #64748b;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+        
+        .tab:hover {
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .danger-zone {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .danger-zone .setting-title {
+            color: #991b1b;
+            margin-bottom: 10px;
+        }
+        
+        .api-key-display {
+            font-family: monospace;
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .api-key-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .status-active .status-dot {
+            background: #22c55e;
+        }
+        
+        .status-inactive .status-dot {
+            background: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>AI Arb 文档处理系统</h1>
+                </div>
+                <div class="header-right">
+                    <nav class="header-nav">
+                        <a href="/doc/ui/" class="nav-link">首页</a>
+                        <a href="/doc/ui/components" class="nav-link">组件管理</a>
+                        <a href="/doc/ui/redaction" class="nav-link">脱敏规则</a>
+                        <a href="/doc/ui/settings" class="nav-link active">系统设置</a>
+                        <a href="/doc/ui/history" class="nav-link">历史记录</a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <!-- Settings Container -->
+        <main class="main-content">
+            <div class="settings-container">
+                <!-- Tab Navigation -->
+                <div class="tab-container">
+                    <div class="tab active" data-tab="general">常规设置</div>
+                    <div class="tab" data-tab="api">API配置</div>
+                    <div class="tab" data-tab="processing">处理选项</div>
+                    <div class="tab" data-tab="privacy">隐私安全</div>
+                </div>
+
+                <!-- General Settings -->
+                <div class="tab-content active" id="general">
+                    <div class="settings-header">
+                        <h2 class="settings-title">常规设置</h2>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <h3 class="setting-title">系统偏好</h3>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="ui-language">界面语言</label>
+                                <select class="setting-select" id="ui-language">
+                                    <option value="zh-CN">简体中文</option>
+                                    <option value="en-US">English (US)</option>
+                                </select>
+                                <p class="setting-description">选择系统界面显示语言</p>
+                            </div>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="theme-mode">主题模式</label>
+                                <select class="setting-select" id="theme-mode">
+                                    <option value="light">浅色模式</option>
+                                    <option value="dark">深色模式</option>
+                                    <option value="auto">自动</option>
+                                </select>
+                                <p class="setting-description">设置界面颜色主题</p>
+                            </div>
+                            
+                            <div class="setting-toggle">
+                                <label class="setting-label">自动保存进度</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="auto-save" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-toggle">
+                                <label class="setting-label">详细日志</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="detailed-logging" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h3 class="setting-title">文件管理</h3>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="default-output-dir">默认输出目录</label>
+                                <input type="text" class="setting-input" id="default-output-dir" value="./output/documents">
+                                <p class="setting-description">设置文档处理结果的保存位置</p>
+                            </div>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="max-file-size">最大文件大小 (MB)</label>
+                                <input type="number" class="setting-input" id="max-file-size" value="50" min="1" max="500">
+                                <p class="setting-description">限制单个文件的最大处理大小</p>
+                            </div>
+                            
+                            <div class="setting-toggle">
+                                <label class="setting-label">创建备份副本</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="create-backup" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-toggle">
+                                <label class="setting-label">保留处理历史</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="keep-history" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Settings -->
+                <div class="tab-content" id="api">
+                    <div class="settings-header">
+                        <h2 class="settings-title">API配置</h2>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <h3 class="setting-title">MinerU 云API</h3>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="mineru-api-key">API密钥</label>
+                                <div>
+                                    <input type="password" class="setting-input" id="mineru-api-key" placeholder="请输入MinerU API密钥">
+                                    <div class="api-key-display" id="mineru-key-display">••••••••••••••••</div>
+                                    <div class="api-key-buttons">
+                                        <button class="btn btn-secondary btn-small" onclick="toggleApiKey('mineru')">显示/隐藏</button>
+                                        <button class="btn btn-primary btn-small" onclick="testApiKey('mineru')">测试连接</button>
+                                        <button class="btn btn-secondary btn-small" onclick="generateApiKey('mineru')">生成新密钥</button>
+                                    </div>
+                                </div>
+                                <p class="setting-description">用于访问MinerU云端解析服务的API密钥</p>
+                            </div>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="mineru-endpoint">API端点</label>
+                                <input type="url" class="setting-input" id="mineru-endpoint" value="https://api.mineru.com">
+                                <p class="setting-description">MinerU服务的API地址</p>
+                            </div>
+                            
+                            <div class="setting-group">
+                                <span class="status-indicator status-active">
+                                    <span class="status-dot"></span>
+                                    服务正常
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h3 class="setting-title">其他API服务</h3>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="baidu-ocr-api">百度OCR API</label>
+                                <input type="password" class="setting-input" id="baidu-ocr-api" placeholder="百度OCR API密钥">
+                                <div class="api-key-buttons">
+                                    <button class="btn btn-secondary btn-small" onclick="toggleApiKey('baidu')">显示/隐藏</button>
+                                    <button class="btn btn-primary btn-small" onclick="testApiKey('baidu')">测试连接</button>
+                                </div>
+                                <p class="setting-description">备用OCR识别服务</p>
+                            </div>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="wechat-api">微信小程序API</label>
+                                <input type="password" class="setting-input" id="wechat-api" placeholder="微信API密钥">
+                                <div class="api-key-buttons">
+                                    <button class="btn btn-secondary btn-small" onclick="toggleApiKey('wechat')">显示/隐藏</button>
+                                </div>
+                                <p class="setting-description">微信公众号通知服务</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Processing Options -->
+                <div class="tab-content" id="processing">
+                    <div class="settings-header">
+                        <h2 class="settings-title">处理选项</h2>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <h3 class="setting-title">文档解析</h3>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="parse-strategy">解析策略</label>
+                                <select class="setting-select" id="parse-strategy">
+                                    <option value="local-first">本地优先</option>
+                                    <option value="cloud-first">云端优先</option>
+                                    <option value="hybrid">混合模式</option>
+                                    <option value="adaptive">智能自适应</option>
+                                </select>
+                                <p class="setting-description">选择文档解析引擎的调度策略</p>
+                            </div>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="quality-profile">质量配置</label>
+                                <select class="setting-select" id="quality-profile">
+                                    <option value="high-speed">高速模式</option>
+                                    <option value="balanced" selected>平衡模式</option>
+                                    <option value="high-quality">高质量模式</option>
+                                    <option value="maximum-accuracy">最大精度</option>
+                                </select>
+                                <p class="setting-description">平衡处理速度和输出质量</p>
+                            </div>
+                            
+                            <div class="setting-toggle">
+                                <label class="setting-label">启用缓存优化</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="enable-cache" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-toggle">
+                                <label class="setting-label">智能重试机制</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="smart-retry" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h3 class="setting-title">图像识别</h3>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="ocr-engine">OCR引擎</label>
+                                <select class="setting-select" id="ocr-engine">
+                                    <option value="tesseract">Tesseract (开源)</option>
+                                    <option value="paddle-ocr">PaddleOCR (百度)</option>
+                                    <option value="easy-ocr">EasyOCR</option>
+                                    <option value="google-vision">Google Vision</option>
+                                </select>
+                                <p class="setting-description">选择OCR文字识别引擎</p>
+                            </div>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="ocr-language">OCR语言</label>
+                                <select class="setting-select" id="ocr-language">
+                                    <option value="chi_sim">简体中文</option>
+                                    <option value="chi_tra">繁体中文</option>
+                                    <option value="eng">English</option>
+                                    <option value="chi_sim+eng">中英混合</option>
+                                </select>
+                                <p class="setting-description">OCR识别的主要语言</p>
+                            </div>
+                            
+                            <div class="setting-toggle">
+                                <label class="setting-label">启用图像增强</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="image-enhancement" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-toggle">
+                                <label class="setting-label">识别表格结构</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="detect-tables" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy & Security -->
+                <div class="tab-content" id="privacy">
+                    <div class="settings-header">
+                        <h2 class="settings-title">隐私安全</h2>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <h3 class="setting-title">数据保护</h3>
+                            
+                            <div class="setting-toggle">
+                                <label class="setting-label">自动脱敏敏感信息</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="auto-redaction" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="redaction-level">脱敏等级</label>
+                                <select class="setting-select" id="redaction-level">
+                                    <option value="light">轻度脱敏</option>
+                                    <option value="standard" selected>标准脱敏</option>
+                                    <option value="strict">严格脱敏</option>
+                                    <option value="maximum">最大脱敏</option>
+                                </select>
+                                <p class="setting-description">控制敏感信息识别和替换的详细程度</p>
+                            </div>
+                            
+                            <div class="setting-toggle">
+                                <label class="setting-label">本地数据加密</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="local-encryption" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-toggle">
+                                <label class="setting-label">网络传输加密</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="network-encryption" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h3 class="setting-title">云端服务</h3>
+                            
+                            <div class="setting-toggle">
+                                <label class="setting-label">启用云端处理</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="cloud-processing" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-toggle">
+                                <label class="setting-label">数据自动清理</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="auto-purge-data" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-group">
+                                <label class="setting-label" for="data-retention">数据保留期</label>
+                                <select class="setting-select" id="data-retention">
+                                    <option value="1h">1小时</option>
+                                    <option value="1d">1天</option>
+                                    <option value="1w">1周</option>
+                                    <option value="1m" selected>1个月</option>
+                                    <option value="3m">3个月</option>
+                                    <option value="permanent">永久</option>
+                                </select>
+                                <p class="setting-description">临时数据处理后的清理周期</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="danger-zone">
+                        <h3 class="setting-title">危险操作</h3>
+                        <div class="setting-toggle">
+                            <label class="setting-label">显示调试信息</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="debug-mode">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <button class="btn btn-danger" onclick="resetAllSettings()">
+                            重置所有设置
+                        </button>
+                        <p class="setting-description">此操作将清除所有自定义设置并恢复默认值</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="loadSettings()">
+                        恢复默认
+                    </button>
+                    <button class="btn btn-primary" onclick="saveSettings()">
+                        保存设置
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript for Settings Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab functionality
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to current tab and content
+                    this.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+            
+            // Load settings on page load
+            loadSettings();
+        });
+        
+        // Settings management functions - 接入真实后端 API 实现本地持久化存储
+        async function loadSettings() {
+            console.log('Loading settings from backend...');
+            try {
+                const resp = await fetch('/doc/settings');
+                const data = await resp.json();
+                if (data.success && data.settings) {
+                    const s = data.settings;
+                    const ui = s.ui || {};
+                    const fm = s.file_management || {};
+                    const proc = s.processing || {};
+                    const priv = s.privacy || {};
+                    const apiKeys = s.api_keys || {};
+                    const mineru = apiKeys.mineru || {};
+
+                    // 常规设置
+                    document.getElementById('ui-language').value = ui.language || 'zh-CN';
+                    document.getElementById('theme-mode').value = ui.theme_mode || 'auto';
+                    document.getElementById('auto-save').checked = ui.auto_save !== false;
+                    document.getElementById('detailed-logging').checked = ui.detailed_logging !== false;
+                    document.getElementById('default-output-dir').value = fm.default_output_dir || './output/documents';
+                    document.getElementById('max-file-size').value = fm.max_file_size || 50;
+                    document.getElementById('create-backup').checked = fm.create_backup !== false;
+                    document.getElementById('keep-history').checked = fm.keep_history !== false;
+
+                    // API 设置
+                    document.getElementById('mineru-api-key').value = mineru.api_key || '';
+                    document.getElementById('mineru-endpoint').value = mineru.endpoint || 'https://api.mineru.com';
+
+                    // 处理选项
+                    document.getElementById('parse-strategy').value = proc.parse_strategy || 'local-first';
+                    document.getElementById('quality-profile').value = proc.quality_profile || 'balanced';
+                    document.getElementById('enable-cache').checked = proc.enable_cache !== false;
+                    document.getElementById('smart-retry').checked = proc.smart_retry !== false;
+                    document.getElementById('ocr-engine').value = proc.ocr_engine || 'tesseract';
+                    document.getElementById('ocr-language').value = proc.ocr_language || 'chi_sim+eng';
+                    document.getElementById('image-enhancement').checked = proc.image_enhancement !== false;
+                    document.getElementById('detect-tables').checked = proc.detect_tables !== false;
+
+                    // 隐私设置
+                    document.getElementById('auto-redaction').checked = priv.auto_redaction !== false;
+                    document.getElementById('redaction-level').value = priv.redaction_level || 'standard';
+                    document.getElementById('local-encryption').checked = priv.local_encryption !== false;
+                    document.getElementById('network-encryption').checked = priv.network_encryption !== false;
+                    document.getElementById('cloud-processing').checked = priv.cloud_processing !== false;
+                    document.getElementById('auto-purge-data').checked = priv.auto_purge_data !== false;
+                    document.getElementById('data-retention').value = priv.data_retention || '1m';
+
+                    showNotification('设置已从本地存储加载', 'info');
+                } else {
+                    showNotification('加载设置失败: ' + (data.error || '未知错误'), 'warning');
+                }
+            } catch (e) {
+                showNotification('加载设置失败: ' + e.message, 'error');
+            }
+        }
+        
+        async function saveSettings() {
+            console.log('Saving settings to backend...');
+            
+            // 构建设置对象
+            const settings = {
+                ui: {
+                    language: document.getElementById('ui-language').value,
+                    theme_mode: document.getElementById('theme-mode').value,
+                    auto_save: document.getElementById('auto-save').checked,
+                    detailed_logging: document.getElementById('detailed-logging').checked,
+                },
+                file_management: {
+                    default_output_dir: document.getElementById('default-output-dir').value,
+                    max_file_size: parseInt(document.getElementById('max-file-size').value) || 50,
+                    create_backup: document.getElementById('create-backup').checked,
+                    keep_history: document.getElementById('keep-history').checked,
+                },
+                api_keys: {
+                    mineru: {
+                        api_key: document.getElementById('mineru-api-key').value,
+                        endpoint: document.getElementById('mineru-endpoint').value,
+                    }
+                },
+                processing: {
+                    parse_strategy: document.getElementById('parse-strategy').value,
+                    quality_profile: document.getElementById('quality-profile').value,
+                    enable_cache: document.getElementById('enable-cache').checked,
+                    smart_retry: document.getElementById('smart-retry').checked,
+                    ocr_engine: document.getElementById('ocr-engine').value,
+                    ocr_language: document.getElementById('ocr-language').value,
+                    image_enhancement: document.getElementById('image-enhancement').checked,
+                    detect_tables: document.getElementById('detect-tables').checked,
+                },
+                privacy: {
+                    auto_redaction: document.getElementById('auto-redaction').checked,
+                    redaction_level: document.getElementById('redaction-level').value,
+                    local_encryption: document.getElementById('local-encryption').checked,
+                    network_encryption: document.getElementById('network-encryption').checked,
+                    cloud_processing: document.getElementById('cloud-processing').checked,
+                    auto_purge_data: document.getElementById('auto-purge-data').checked,
+                    data_retention: document.getElementById('data-retention').value,
+                }
+            };
+            
+            try {
+                // 持久化保存到后端本地文件
+                const resp = await fetch('/doc/settings', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(settings)
+                });
+                const result = await resp.json();
+                
+                if (result.success) {
+                    showNotification('设置已保存到本地存储', 'success');
+                } else {
+                    showNotification('保存失败: ' + (result.error || '未知错误'), 'error');
+                }
+            } catch (e) {
+                showNotification('保存失败: ' + e.message, 'error');
+            }
+        }
+        
+        async function resetAllSettings() {
+            if (confirm('确定要重置所有设置到默认值吗？此操作不可撤销。')) {
+                try {
+                    const resp = await fetch('/doc/config/reset', { method: 'POST' });
+                    const result = await resp.json();
+                    if (result.success) {
+                        await loadSettings();
+                        showNotification('设置已重置为默认值', 'warning');
+                    } else {
+                        showNotification('重置失败: ' + (result.error || ''), 'error');
+                    }
+                } catch (e) {
+                    showNotification('重置失败: ' + e.message, 'error');
+                }
+            }
+        }
+        
+        function toggleApiKey(type) {
+            const input = document.getElementById(`${type}-api-key`);
+            const display = document.getElementById(`${type}-key-display`);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                display.textContent = '•••••••••••••••• [显示中]';
+            } else {
+                input.type = 'password';
+                display.textContent = '••••••••••••••••';
+            }
+        }
+        
+        async function testApiKey(type) {
+            const apiKey = document.getElementById(`${type}-api-key`).value.trim();
+            if (!apiKey) {
+                showNotification('请先输入API密钥', 'warning');
+                return;
+            }
+            
+            // 映射 UI type 到后端 component_id
+            const componentMap = {
+                'mineru': 'advanced_mineru_cloud',
+                'baidu': 'cloud_baidu_ocr',
+                'tencent': 'cloud_tencent_ocr',
+                'aliyun': 'cloud_aliyun_ocr',
+                'wechat': 'cloud_ocr_general'
+            };
+            const componentId = componentMap[type] || type;
+            
+            showNotification(`正在测试 ${type} API连接...`, 'info');
+            try {
+                const resp = await fetch('/doc/components/test', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ component_id: componentId, api_key: apiKey })
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    showNotification(`${type} API连接测试成功`, 'success');
+                } else {
+                    showNotification(`${type} API连接测试失败: ${result.error || ''}`, 'error');
+                }
+            } catch (e) {
+                showNotification(`${type} API测试请求失败: ${e.message}`, 'error');
+            }
+        }
+        
+        function generateApiKey(type) {
+            // API密钥需从对应服务商获取，不能随机生成
+            const providerUrls = {
+                'mineru': 'https://mineru.com',
+                'baidu': 'https://cloud.baidu.com/product/ocr',
+                'tencent': 'https://cloud.tencent.com/product/ocr',
+                'aliyun': 'https://ai.aliyun.com/ocr',
+                'wechat': 'https://developers.weixin.qq.com'
+            };
+            const url = providerUrls[type] || '#';
+            window.open(url, '_blank');
+            showNotification(`请前往${type}官网获取API密钥`, 'info');
+        }
+        
+        function showNotification(message, type = 'info') {
+            // Simple notification system
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 6px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                background: ${type === 'success' ? '#22c55e' : type === 'warning' ? '#f59e0b' : type === 'error' ? '#ef4444' : '#3b82f6'};
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

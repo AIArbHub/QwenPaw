@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Arb 文档处理系统 - 脱敏规则编辑器</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #333; }
+        .app-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; }
+        .app-header h1 { font-size: 22px; font-weight: 600; }
+        .app-header .nav { display: flex; gap: 20px; }
+        .app-header .nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; padding: 8px 16px; border-radius: 6px; transition: all 0.3s; }
+        .app-header .nav a:hover, .app-header .nav a.active { background: rgba(255,255,255,0.2); color: white; }
+        .main-content { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+        .section-title { font-size: 20px; color: #2c3e50; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+        .card { background: white; border-radius: 12px; padding: 24px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .rule-item { background: white; border-radius: 8px; padding: 16px 20px; margin-bottom: 10px; border-left: 4px solid #3498db; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; }
+        .rule-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .rule-item.disabled { opacity: 0.5; border-left-color: #bdc3c7; }
+        .rule-info { flex: 1; }
+        .rule-info h3 { font-size: 16px; color: #2c3e50; margin-bottom: 4px; }
+        .rule-info .pattern { font-family: monospace; font-size: 13px; color: #7f8c8d; margin-bottom: 4px; word-break: break-all; }
+        .rule-info .meta { display: flex; gap: 10px; font-size: 12px; color: #95a5a6; }
+        .rule-info .tag { display: inline-block; padding: 2px 8px; background: #ecf0f1; border-radius: 10px; font-size: 11px; color: #7f8c8d; }
+        .rule-actions { display: flex; gap: 8px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.3s; font-weight: 500; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-primary:hover { background: #2980b9; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #229954; }
+        .btn-secondary { background: #ecf0f1; color: #7f8c8d; }
+        .btn-secondary:hover { background: #d5dbdb; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-sm { padding: 5px 12px; font-size: 12px; }
+        .toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ccc; border-radius: 24px; transition: 0.3s; }
+        .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        .toggle input:checked + .toggle-slider { background: #2ecc71; }
+        .toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 12px; padding: 30px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal h3 { margin-bottom: 20px; color: #2c3e50; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; color: #2c3e50; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #3498db; }
+        .form-group .hint { font-size: 12px; color: #95a5a6; margin-top: 4px; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        .test-section { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+        .test-section h4 { margin-bottom: 10px; color: #2c3e50; }
+        .test-result { margin-top: 10px; padding: 10px; background: white; border-radius: 6px; font-family: monospace; font-size: 13px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: white; border-radius: 8px; padding: 15px; text-align: center; }
+        .stat-card .number { font-size: 24px; font-weight: 700; color: #3498db; }
+        .stat-card .label { font-size: 12px; color: #7f8c8d; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>AI Arb 文档处理系统</h1>
+            <nav class="nav">
+                <a href="/doc/ui/components">组件管理</a>
+                <a href="/doc/ui/redaction" class="active">脱敏规则</a>
+                <a href="/doc/ui/settings">系统设置</a>
+                <a href="/doc/ui/history">历史记录</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div class="section-title">
+                <span>自定义脱敏规则编辑器</span>
+                <div>
+                    <button class="btn btn-secondary btn-sm" onclick="importPresets()">导入预设</button>
+                    <button class="btn btn-primary btn-sm" onclick="openCreateModal()">+ 新建规则</button>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card"><div class="number" id="stat-total">-</div><div class="label">总规则数</div></div>
+                <div class="stat-card"><div class="number" id="stat-enabled">-</div><div class="label">已启用</div></div>
+                <div class="stat-card"><div class="number" id="stat-disabled">-</div><div class="label">已禁用</div></div>
+                <div class="stat-card"><div class="number" id="stat-masks">-</div><div class="label">掩码策略</div></div>
+            </div>
+
+            <!-- 规则列表 -->
+            <div id="rules-list">
+                <div style="text-align:center; padding: 40px; color: #95a5a6;">加载中...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 创建/编辑规则弹窗 -->
+    <div class="modal-overlay" id="rule-modal">
+        <div class="modal">
+            <h3 id="modal-title">新建脱敏规则</h3>
+            
+            <input type="hidden" id="rule-id">
+            
+            <div class="form-group">
+                <label>规则名称</label>
+                <input type="text" id="rule-name" placeholder="例如：身份证号码">
+            </div>
+
+            <div class="form-group">
+                <label>正则表达式</label>
+                <textarea id="rule-pattern" rows="3" placeholder="\b\d{18}\b"></textarea>
+                <div class="hint">支持标准正则表达式语法</div>
+            </div>
+
+            <div class="form-group">
+                <label>替换文本</label>
+                <input type="text" id="rule-replacement" value="***REDACTED***" placeholder="脱敏后显示的文本">
+            </div>
+
+            <div class="form-group">
+                <label>脱敏策略</label>
+                <select id="rule-strategy">
+                    <option value="mask">掩码（替换为固定文本）</option>
+                    <option value="hash">哈希（生成MD5哈希值）</option>
+                    <option value="replace">替换</option>
+                    <option value="delete">删除</option>
+                    <option value="partial_mask">部分掩码（保留首尾）</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>描述</label>
+                <input type="text" id="rule-description" placeholder="规则说明">
+            </div>
+
+            <div class="form-group">
+                <label>标签（逗号分隔）</label>
+                <input type="text" id="rule-tags" placeholder="preset, custom">
+            </div>
+
+            <!-- 测试区域 -->
+            <div class="test-section">
+                <h4>规则测试</h4>
+                <div class="form-group">
+                    <label>测试文本</label>
+                    <textarea id="test-text" rows="3" placeholder="输入测试文本..."></textarea>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="testRule()">测试匹配</button>
+                <div class="test-result" id="test-result" style="display:none;"></div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveRule()">保存规则</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/doc/redaction';
+        
+        async function loadRules() {
+            try {
+                const resp = await fetch(`${API_BASE}/rules`);
+                const data = await resp.json();
+                renderRules(data.rules || []);
+                updateStats(data.statistics || {});
+            } catch (e) {
+                document.getElementById('rules-list').innerHTML = '<p style="color:#e74c3c; text-align:center;">加载失败</p>';
+            }
+        }
+
+        function renderRules(rules) {
+            const container = document.getElementById('rules-list');
+            if (!rules.length) {
+                container.innerHTML = '<div class="card" style="text-align:center; color:#95a5a6;">暂无规则，点击"新建规则"或"导入预设"开始</div>';
+                return;
+            }
+            container.innerHTML = rules.map(rule => `
+                <div class="rule-item ${rule.enabled ? '' : 'disabled'}">
+                    <div class="rule-info">
+                        <h3>${rule.name} ${rule.tags.map(t => `<span class="tag">${t}</span>`).join('')}</h3>
+                        <div class="pattern">${rule.pattern}</div>
+                        <div class="meta">
+                            <span>策略: ${rule.strategy}</span>
+                            <span>替换: ${rule.replacement}</span>
+                        </div>
+                    </div>
+                    <div class="rule-actions">
+                        <label class="toggle">
+                            <input type="checkbox" ${rule.enabled ? 'checked' : ''} onchange="toggleRule('${rule.rule_id}', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <button class="btn btn-secondary btn-sm" onclick="editRule('${rule.rule_id}')">编辑</button>
+                        <button class="btn btn-secondary btn-sm" onclick="testExistingRule('${rule.rule_id}')">测试</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteRule('${rule.rule_id}')">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(stats) {
+            document.getElementById('stat-total').textContent = stats.total_rules || 0;
+            document.getElementById('stat-enabled').textContent = stats.enabled_rules || 0;
+            document.getElementById('stat-disabled').textContent = stats.disabled_rules || 0;
+            document.getElementById('stat-masks').textContent = (stats.by_strategy || {}).mask || 0;
+        }
+
+        function openCreateModal() {
+            document.getElementById('modal-title').textContent = '新建脱敏规则';
+            document.getElementById('rule-id').value = '';
+            document.getElementById('rule-name').value = '';
+            document.getElementById('rule-pattern').value = '';
+            document.getElementById('rule-replacement').value = '***REDACTED***';
+            document.getElementById('rule-strategy').value = 'mask';
+            document.getElementById('rule-description').value = '';
+            document.getElementById('rule-tags').value = '';
+            document.getElementById('test-result').style.display = 'none';
+            document.getElementById('rule-modal').classList.add('active');
+        }
+
+        async function editRule(ruleId) {
+            try {
+                const resp = await fetch(`${API_BASE}/rules/${ruleId}`);
+                const rule = await resp.json();
+                
+                document.getElementById('modal-title').textContent = '编辑脱敏规则';
+                document.getElementById('rule-id').value = rule.rule_id;
+                document.getElementById('rule-name').value = rule.name;
+                document.getElementById('rule-pattern').value = rule.pattern;
+                document.getElementById('rule-replacement').value = rule.replacement;
+                document.getElementById('rule-strategy').value = rule.strategy;
+                document.getElementById('rule-description').value = rule.description || '';
+                document.getElementById('rule-tags').value = (rule.tags || []).join(', ');
+                document.getElementById('rule-modal').classList.add('active');
+            } catch (e) {
+                alert('加载规则失败');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('rule-modal').classList.remove('active');
+        }
+
+        async function saveRule() {
+            const ruleId = document.getElementById('rule-id').value;
+            const data = {
+                name: document.getElementById('rule-name').value,
+                pattern: document.getElementById('rule-pattern').value,
+                replacement: document.getElementById('rule-replacement').value,
+                strategy: document.getElementById('rule-strategy').value,
+                description: document.getElementById('rule-description').value,
+                tags: document.getElementById('rule-tags').value.split(',').map(t => t.trim()).filter(t => t)
+            };
+            
+            if (!data.name || !data.pattern) {
+                alert('请填写规则名称和正则表达式');
+                return;
+            }
+
+            try {
+                const url = ruleId ? `${API_BASE}/rules/${ruleId}` : `${API_BASE}/rules`;
+                const method = ruleId ? 'PUT' : 'POST';
+                const resp = await fetch(url, { method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+                const result = await resp.json();
+                if (result.success) {
+                    closeModal();
+                    loadRules();
+                    alert(ruleId ? '更新成功' : '创建成功');
+                } else {
+                    alert('保存失败: ' + (result.error || ''));
+                }
+            } catch (e) {
+                alert('请求失败: ' + e.message);
+            }
+        }
+
+        async function toggleRule(ruleId, enabled) {
+            try {
+                await fetch(`${API_BASE}/rules/${ruleId}/toggle`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ enabled })
+                });
+                loadRules();
+            } catch (e) {
+                alert('操作失败');
+            }
+        }
+
+        async function deleteRule(ruleId) {
+            if (!confirm('确认删除该规则？')) return;
+            try {
+                await fetch(`${API_BASE}/rules/${ruleId}`, { method: 'DELETE' });
+                loadRules();
+            } catch (e) {
+                alert('删除失败');
+            }
+        }
+
+        async function testRule() {
+            const pattern = document.getElementById('rule-pattern').value;
+            const replacement = document.getElementById('rule-replacement').value;
+            const strategy = document.getElementById('rule-strategy').value;
+            const testText = document.getElementById('test-text').value;
+            
+            if (!pattern || !testText) {
+                alert('请填写正则表达式和测试文本');
+                return;
+            }
+
+            try {
+                const resp = await fetch(`${API_BASE}/test`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ pattern, replacement, strategy, test_text: testText })
+                });
+                const result = await resp.json();
+                const resultDiv = document.getElementById('test-result');
+                resultDiv.style.display = 'block';
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `
+                        <div style="color:#27ae60; font-weight:600; margin-bottom:8px;">✓ 匹配到 ${result.match_count} 处</div>
+                        ${result.matched_items.map(m => `<div>原文: ${m.original} → 脱敏: ${m.redacted}</div>`).join('')}
+                        <hr style="margin:8px 0;">
+                        <div><strong>脱敏后:</strong> ${result.redacted_text}</div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div style="color:#e74c3c;">✗ ${result.error}</div>`;
+                }
+            } catch (e) {
+                alert('测试失败: ' + e.message);
+            }
+        }
+
+        async function testExistingRule(ruleId) {
+            try {
+                const resp = await fetch(`${API_BASE}/rules/${ruleId}`);
+                const rule = await resp.json();
+                
+                document.getElementById('modal-title').textContent = '测试规则';
+                document.getElementById('rule-id').value = rule.rule_id;
+                document.getElementById('rule-name').value = rule.name;
+                document.getElementById('rule-pattern').value = rule.pattern;
+                document.getElementById('rule-replacement').value = rule.replacement;
+                document.getElementById('rule-strategy').value = rule.strategy;
+                document.getElementById('rule-modal').classList.add('active');
+            } catch (e) {
+                alert('加载失败');
+            }
+        }
+
+        async function importPresets() {
+            if (!confirm('确认导入所有预设规则？')) return;
+            try {
+                const resp = await fetch(`${API_BASE}/import-presets`, { method: 'POST' });
+                const result = await resp.json();
+                alert(`导入了 ${result.imported || 0} 条预设规则`);
+                loadRules();
+            } catch (e) {
+                alert('导入失败');
+            }
+        }
+
+        loadRules();
+    </script>
+</body>
+</html>

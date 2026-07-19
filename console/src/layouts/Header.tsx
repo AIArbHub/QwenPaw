@@ -232,7 +232,7 @@ export default function Header() {
     }
 
     const faqLang = lang === "zh" ? "zh" : "en";
-    const url = `https://www.aiarb.cn/docs/faq.${faqLang}.md`;
+    const url = `/external/docs/faq.${faqLang}.md`;
     fetch(url, { cache: "no-cache" })
       .then((res) => (res.ok ? res.text() : Promise.reject()))
       .then((text) => {

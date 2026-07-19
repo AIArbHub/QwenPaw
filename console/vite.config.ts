@@ -51,6 +51,11 @@ export default defineConfig(({ mode }) => {
           target: "http://localhost:8088",
           changeOrigin: false,
         },
+        "/external/docs": {
+          target: "https://www.aiarb.cn",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/external\/docs/, "/docs"),
+        },
       },
     },
     test: {

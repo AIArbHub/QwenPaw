@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Body, HTTPException, UploadFile, File, Request, Query
-from fastapi.responses import ORJSONResponse, Response, StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from watchfiles import awatch, Change
 from pydantic import BaseModel, Field
 
@@ -410,7 +410,8 @@ async def read_code_file(file_path: str, request: Request):
         content = await asyncio.to_thread(_read)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
-    return ORJSONResponse(
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
         {"path": file_path, "content": content},
         headers={"ETag": etag},
     )
@@ -1584,7 +1585,7 @@ async def get_available_commands(request: Request):
                     "category": category,
                 },
             )
-    return ORJSONResponse({"commands": commands})
+    return {"commands": commands}
 
 
 # ---------------------------------------------------------------------------
@@ -1770,7 +1771,7 @@ async def read_work_file(
         content = await asyncio.to_thread(_read)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
-    return ORJSONResponse({"path": file_path, "content": content})
+    return {"path": file_path, "content": content}
 
 
 @router.put(
@@ -1806,4 +1807,4 @@ async def write_work_file(
         size = await asyncio.to_thread(_write)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
-    return ORJSONResponse({"path": file_path, "size": size})
+    return {"path": file_path, "size": size}

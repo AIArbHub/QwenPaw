@@ -44,6 +44,15 @@ from .provider_oauth import router as provider_oauth_router
 from .pawapps import router as pawapps_router
 from .utils import router as utils_router
 
+# 文档处理路由
+try:
+    from ...doc_processing.api import create_doc_processing_router
+    doc_processing_router = create_doc_processing_router()
+except Exception as e:
+    import logging
+    logging.getLogger("qwenpaw").warning(f"文档处理路由加载失败: {e}")
+    doc_processing_router = None
+
 router = APIRouter()
 
 router.include_router(agents_router)
@@ -86,6 +95,20 @@ router.include_router(text_selection_router)
 router.include_router(provider_oauth_router)
 router.include_router(pawapps_router)
 router.include_router(utils_router)
+
+# 文档处理路由
+if doc_processing_router:
+    router.include_router(doc_processing_router)
+
+# 前端资源路由
+try:
+    from ...doc_processing.frontend import create_frontend_router
+    frontend_router = create_frontend_router()
+    if frontend_router:
+        router.include_router(frontend_router)
+except Exception as e:
+    import logging
+    logging.getLogger("qwenpaw").warning(f"前端资源路由加载失败: {e}")
 
 
 def create_agent_scoped_router() -> APIRouter:

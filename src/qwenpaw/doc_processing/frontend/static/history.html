@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Arb 文档处理系统 - 历史记录</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* History specific styles */
+        .history-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f4f8;
+        }
+        
+        .history-title {
+            color: #1e293b;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .search-container {
+            margin-bottom: 25px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .filters-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+        
+        .filter-label {
+            color: #475569;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .history-table th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .history-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: #475569;
+        }
+        
+        .history-table tr:hover {
+            background: #f8fafc;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-running {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .file-name {
+            color: #1e293b;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        
+        .file-name:hover {
+            text-decoration: underline;
+            color: #3b82f6;
+        }
+        
+        .file-type {
+            font-size: 12px;
+            color: #64748b;
+            margin-left: 8px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .action-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+        
+        .action-download {
+            background: #f1f5f9;
+            color: #475569;
+        }
+        
+        .action-download:hover {
+            background: #e2e8f0;
+        }
+        
+        .action-view {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .action-view:hover {
+            background: #2563eb;
+        }
+        
+        .action-delete {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .action-delete:hover {
+            background: #dc2626;
+        }
+        
+        .date-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .date-input {
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 130px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+            gap: 12px;
+        }
+        
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .page-btn.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        
+        .page-btn:hover:not(.active) {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        
+        .results-info {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .export-controls {
+            display: flex;
+            gap: 10px;
+            margin-left: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        .progress-container {
+            background: #f0f4f8;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            transition: width 0.3s ease;
+        }
+        
+        .file-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .file-metadata {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #f1f5f9;
+            color: #475569;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 4px;
+        }
+        
+        .checkbox-cell {
+            width: 40px;
+        }
+        
+        .bulk-actions {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .bulk-action-btn {
+            padding: 6px 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .bulk-action-btn:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>AI Arb 文档处理系统</h1>
+                </div>
+                <div class="header-right">
+                    <nav class="header-nav">
+                        <a href="/doc/ui/" class="nav-link">首页</a>
+                        <a href="/doc/ui/components" class="nav-link">组件管理</a>
+                        <a href="/doc/ui/redaction" class="nav-link">脱敏规则</a>
+                        <a href="/doc/ui/settings" class="nav-link">系统设置</a>
+                        <a href="/doc/ui/history" class="nav-link active">历史记录</a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="history-container">
+                <div class="history-header">
+                    <h2 class="history-title">处理历史记录</h2>
+                    <div class="history-actions">
+                        <button class="btn btn-secondary" onclick="refreshHistory()">
+                            <span>↻</span> 刷新
+                        </button>
+                        <div class="export-controls">
+                            <button class="btn btn-secondary" onclick="exportHistory('csv')">导出CSV</button>
+                            <button class="btn btn-primary" onclick="exportHistory('pdf')">导出PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-docs">153</div>
+                        <div class="stat-label">总处理文档</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="success-rate">95.4%</div>
+                        <div class="stat-label">成功率</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="today-count">8</div>
+                        <div class="stat-label">今日处理</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avg-time">2.1s</div>
+                        <div class="stat-label">平均处理时间</div>
+                    </div>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="search-container">
+                    <input type="text" class="search-input" id="search-input" placeholder="搜索文件名、类型或处理结果...">
+                </div>
+
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label class="filter-label" for="filter-status">状态</label>
+                        <select class="filter-select" id="filter-status">
+                            <option value="">全部状态</option>
+                            <option value="success">成功</option>
+                            <option value="failed">失败</option>
+                            <option value="pending">处理中</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label" for="filter-type">文件类型</label>
+                        <select class="filter-select" id="filter-type">
+                            <option value="">全部类型</option>
+                            <option value="pdf">PDF</option>
+                            <option value="docx">Word文档</option>
+                            <option value="xlsx">Excel表格</option>
+                            <option value="pptx">PPT演示</option>
+                            <option value="image">图片</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label" for="filter-component">处理组件</label>
+                        <select class="filter-select" id="filter-component">
+                            <option value="">全部组件</option>
+                            <option value="basic-parser">基础解析器</option>
+                            <option value="mineru-ocr">MinerU OCR</option>
+                            <option value="tesseract-ocr">Tesseract OCR</option>
+                            <option value="redaction">脱敏处理</option>
+                            <option value="doc-fill">文档回填</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label" for="filter-date">日期范围</label>
+                        <div class="date-range">
+                            <input type="date" class="date-input" id="date-from">
+                            <span style="color: #64748b;">至</span>
+                            <input type="date" class="date-input" id="date-to">
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">动作</label>
+                        <button class="btn btn-primary" onclick="applyFilters()">应用筛选</button>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions -->
+                <div class="bulk-actions" id="bulk-actions" style="display: none;">
+                    <span id="selected-count">0</span> 个文档被选中
+                    <button class="bulk-action-btn" onclick="bulkDelete()">批量删除</button>
+                    <button class="bulk-action-btn" onclick="bulkDownload()">批量下载</button>
+                </div>
+
+                <!-- Results Info -->
+                <div class="results-info">
+                    显示 <span id="results-count">25</span> 个结果（共 <span id="total-results">153</span> 个）
+                </div>
+
+                <!-- History Table -->
+                <div style="overflow-x: auto;">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-cell">
+                                    <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
+                                </th>
+                                <th>文件信息</th>
+                                <th>处理类型</th>
+                                <th>状态</th>
+                                <th>处理时间</th>
+                                <th>耗时</th>
+                                <th>结果</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-rows">
+                            <!-- 数据由 JavaScript 动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State (when no results) -->
+                <div class="empty-state" id="empty-state" style="display: none;">
+                    <div class="empty-state-icon">📄</div>
+                    <h3 style="margin-bottom: 8px;">暂无处理记录</h3>
+                    <p>开始上传和处理文档以查看历史记录</p>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button class="page-btn" onclick="changePage(1)">«</button>
+                    <button class="page-btn" onclick="changePage(currentPage - 1)">‹</button>
+                    <button class="page-btn active" onclick="changePage(1)">1</button>
+                    <button class="page-btn" onclick="changePage(2)">2</button>
+                    <button class="page-btn" onclick="changePage(3)">3</button>
+                    <button class="page-btn" onclick="changePage(4)">4</button>
+                    <span style="color: #64748b; margin: 0 8px;">...</span>
+                    <button class="page-btn" onclick="changePage(15)">15</button>
+                    <button class="page-btn" onclick="changePage(currentPage + 1)">›</button>
+                    <button class="page-btn" onclick="changePage(15)">»</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript for History Functionality -->
+    <script>
+        let currentPage = 1;
+        let totalPages = 15;
+        let historyData = [];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHistoryData();
+            setupEventListeners();
+        });
+        
+        function setupEventListeners() {
+            // Search input
+            document.getElementById('search-input').addEventListener('input', debounce(function(e) {
+                filterHistory();
+            }, 300));
+            
+            // Filter changes
+            document.querySelectorAll('.filter-select, .date-input').forEach(element => {
+                element.addEventListener('change', function() {
+                    filterHistory();
+                });
+            });
+        }
+        
+        function loadHistoryData() {
+            // 调用后端 API 加载历史记录
+            console.log('Loading history data from backend...');
+            
+            fetchHistoryFromServer().then(data => {
+                historyData = data;
+                renderHistoryTable(data);
+                updateStatistics(data);
+            }).catch(error => {
+                console.error('Failed to load history:', error);
+                showNotification('加载历史记录失败', 'error');
+            });
+        }
+        
+        async function fetchHistoryFromServer() {
+            // 调用真实后端 API 获取历史记录
+            const response = await fetch('/doc/history?limit=50');
+            const data = await response.json();
+            
+            // 转换后端数据格式为前端显示格式
+            return (data.records || []).map(record => ({
+                id: record.task_id,
+                fileName: record.file_name || '未知文件',
+                fileType: record.file_type || 'UNKNOWN',
+                fileSize: record.file_size || '-',
+                processTypes: record.routing_info ? ['文档解析'] : ['文档解析'],
+                status: record.status === 'completed' ? 'success' : 
+                        record.status === 'failed' ? 'failed' : 'pending',
+                progress: record.progress || 0,
+                processTime: record.created_at || '',
+                duration: record.duration || '-',
+                result: record.error ? `错误: ${record.error}` : 
+                        record.result_available ? '处理完成' : '处理中',
+                tags: [],
+                error: record.error
+            }));
+        }
+        
+        function renderHistoryTable(data) {
+            const tableBody = document.getElementById('history-rows');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (!data || data.length === 0) {
+                tableBody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            tableBody.innerHTML = data.map(item => `
+                <tr>
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" value="${item.id}" onchange="updateBulkActions()">
+                    </td>
+                    <td>
+                        <div class="file-info">
+                            <span class="file-name" onclick="viewResult('${item.id}')">${item.fileName}</span>
+                            <span class="file-type">${item.fileType} • ${item.fileSize}</span>
+                        </div>
+                    </td>
+                    <td>
+                        ${item.processTypes.map(type => `<span class="tag">${type}</span>`).join('')}
+                    </td>
+                    <td>
+                        <span class="status-badge status-${item.status}">
+                            ${item.status === 'success' ? '100% 成功' : 
+                              item.status === 'pending' ? `处理中 ${item.progress}%` : 
+                              '失败'}
+                            ${item.status !== 'failed' ? `
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: ${item.progress}%; 
+                                         background: ${item.status === 'pending' ? 
+                                             'linear-gradient(90deg, #3b82f6, #10b981)' : 
+                                             '#22c55e'};"></div>
+                                </div>
+                            ` : `<div style="font-size: 11px; margin-top: 4px;">原因：${item.error || '未知错误'}</div>`}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="file-metadata">${item.processTime}</div>
+                    </td>
+                    <td>
+                        <div class="file-metadata">${item.duration}</div>
+                    </td>
+                    <td>
+                        <div class="file-metadata">${item.result}</div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn action-view" onclick="viewResult('${item.id}')">查看</button>
+                            <button class="action-btn action-download" 
+                                    onclick="downloadResult('${item.id}')" 
+                                    ${item.status !== 'success' ? 'disabled' : ''}>下载</button>
+                            <button class="action-btn action-delete" onclick="deleteRecord('${item.id}')">
+                                ${item.status === 'pending' ? '取消' : '删除'}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function updateStatistics(data) {
+            const total = data.length;
+            const success = data.filter(item => item.status === 'success').length;
+            const failed = data.filter(item => item.status === 'failed').length;
+            const pending = data.filter(item => item.status === 'pending').length;
+            
+            const successRate = total > 0 ? ((success / total) * 100).toFixed(1) : '0';
+            const avgTime = data.reduce((acc, item) => acc + parseFloat(item.duration), 0) / data.length;
+            
+            document.getElementById('total-docs').textContent = total;
+            document.getElementById('success-rate').textContent = successRate + '%';
+            document.getElementById('today-count').textContent = data.filter(item => {
+                const itemDate = new Date(item.processTime);
+                const today = new Date();
+                return itemDate.toDateString() === today.toDateString();
+            }).length;
+            document.getElementById('avg-time').textContent = avgTime.toFixed(1) + 's';
+        }
+        
+        function filterHistory() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('filter-status').value;
+            const typeFilter = document.getElementById('filter-type').value;
+            const componentFilter = document.getElementById('filter-component').value;
+            const dateFrom = document.getElementById('date-from').value;
+            const dateTo = document.getElementById('date-to').value;
+            
+            let filtered = [...historyData];
+            
+            // Apply search filter
+            if (searchTerm) {
+                filtered = filtered.filter(item => 
+                    item.fileName.toLowerCase().includes(searchTerm) ||
+                    item.fileType.toLowerCase().includes(searchTerm) ||
+                    item.result.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Apply status filter
+            if (statusFilter) {
+                filtered = filtered.filter(item => item.status === statusFilter);
+            }
+            
+            // Apply type filter
+            if (typeFilter) {
+                const typeMap = {
+                    'pdf': 'PDF',
+                    'docx': 'Word',
+                    'xlsx': 'Excel',
+                    'pptx': 'PPT',
+                    'image': '图片'
+                };
+                filtered = filtered.filter(item => item.fileType === typeMap[typeFilter]);
+            }
+            
+            // Apply date range filter
+            if (dateFrom || dateTo) {
+                filtered = filtered.filter(item => {
+                    const itemDate = new Date(item.processTime).toISOString().split('T')[0];
+                    if (dateFrom && itemDate < dateFrom) return false;
+                    if (dateTo && itemDate > dateTo) return false;
+                    return true;
+                });
+            }
+            
+            // Update results info
+            const resultsCount = filtered.length;
+            const totalResults = historyData.length;
+            document.getElementById('results-count').textContent = resultsCount;
+            document.getElementById('total-results').textContent = totalResults;
+            
+            renderHistoryTable(filtered);
+        }
+        
+        function applyFilters() {
+            filterHistory();
+        }
+        
+        function refreshHistory() {
+            showNotification('正在刷新历史记录...', 'info');
+            loadHistoryData().then(() => {
+                showNotification('历史记录已更新', 'success');
+            });
+        }
+        
+        async function changePage(page) {
+            currentPage = Math.max(1, Math.min(page, totalPages));
+            
+            // 从后端加载新页数据
+            await loadHistoryData();
+            
+            const pageButtons = document.querySelectorAll('.page-btn');
+            pageButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Find and activate the current page button
+            const currentBtn = document.querySelector(`.page-btn[onclick="changePage(${currentPage})"]`);
+            if (currentBtn) {
+                currentBtn.classList.add('active');
+            }
+            
+            showNotification(`已切换到第 ${currentPage} 页`, 'info');
+        }
+        
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('select-all');
+            const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+            
+            rowCheckboxes.forEach(checkbox => {
+                if (checkbox !== selectAll) {
+                    checkbox.checked = selectAll.checked;
+                }
+            });
+            
+            updateBulkActions();
+        }
+        
+        function updateBulkActions() {
+            const selected = document.querySelectorAll('.row-checkbox:checked').length;
+            const bulkActions = document.getElementById('bulk-actions');
+            
+            if (selected > 0) {
+                bulkActions.style.display = 'flex';
+                document.getElementById('selected-count').textContent = selected;
+            } else {
+                bulkActions.style.display = 'none';
+                document.getElementById('select-all').checked = false;
+            }
+        }
+        
+        async function bulkDelete() {
+            const selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
+            if (!confirm(`确定要删除选中的 ${selectedIds.length} 个文档记录吗？`)) return;
+            try {
+                let deleted = 0;
+                for (const id of selectedIds) {
+                    const resp = await fetch(`/doc/history/${id}`, { method: 'DELETE' });
+                    if (resp.ok) deleted++;
+                }
+                showNotification(`已删除 ${deleted} 个记录`, 'success');
+                await loadHistoryData();
+            } catch (e) {
+                showNotification('批量删除失败: ' + e.message, 'error');
+            }
+        }
+        
+        async function bulkDownload() {
+            const selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
+            if (selectedIds.length === 0) return;
+            showNotification(`正在下载 ${selectedIds.length} 个文档...`, 'info');
+            try {
+                for (const id of selectedIds) {
+                    window.open(`/doc/download/${id}/text`, '_blank');
+                }
+                showNotification('下载已启动', 'success');
+            } catch (e) {
+                showNotification('批量下载失败: ' + e.message, 'error');
+            }
+        }
+        
+        async function viewResult(recordId) {
+            if (!recordId) return;
+            showNotification('正在获取处理结果...', 'info');
+            try {
+                const resp = await fetch(`/doc/history/${recordId}/detail`);
+                if (resp.ok) {
+                    const detail = await resp.json();
+                    if (detail.result) {
+                        const text = detail.result.text || detail.result.markdown || '（无文本内容）';
+                        alert(`处理结果:\n\n${text.substring(0, 500)}${text.length > 500 ? '...' : ''}`);
+                    } else if (detail.error) {
+                        alert(`错误详情:\n${detail.error}`);
+                    } else {
+                        alert(`任务状态: ${detail.status}\n进度: ${detail.progress}%`);
+                    }
+                }
+            } catch (e) {
+                showNotification('获取详情失败: ' + e.message, 'error');
+            }
+        }
+
+        
+        function downloadResult(recordId) {
+            if (!recordId) return;
+            showNotification(`开始下载处理结果...`, 'info');
+            // 调用真实后端下载端点
+            window.open(`/doc/download/${recordId}/text`, '_blank');
+        }
+        
+        async function viewError(recordId) {
+            // 从后端获取错误详情
+            try {
+                const resp = await fetch(`/doc/history/${recordId}/detail`);
+                if (resp.ok) {
+                    const detail = await resp.json();
+                    alert(`错误详情:\n状态: ${detail.status}\n错误: ${detail.error || '未知错误'}`);
+                } else {
+                    showNotification('获取详情失败', 'error');
+                }
+            } catch (e) {
+                showNotification('获取详情失败: ' + e.message, 'error');
+            }
+        }
+        
+        async function deleteRecord(recordId) {
+            if (!confirm('确定要删除此记录吗？')) return;
+            try {
+                const resp = await fetch(`/doc/history/${recordId}`, { method: 'DELETE' });
+                const result = await resp.json();
+                if (result.success) {
+                    showNotification('记录已删除', 'success');
+                    historyData = historyData.filter(item => item.id !== recordId);
+                    filterHistory();
+                } else {
+                    showNotification('删除失败: ' + (result.detail || ''), 'error');
+                }
+            } catch (e) {
+                showNotification('删除失败: ' + e.message, 'error');
+            }
+        }
+        
+        async function exportHistory(format) {
+            showNotification(`正在导出历史记录为 ${format.toUpperCase()}...`, 'info');
+            try {
+                // 调用真实后端导出端点
+                const resp = await fetch('/doc/history/export', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ format: format })
+                });
+                if (resp.ok) {
+                    const blob = await resp.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    const disposition = resp.headers.get('Content-Disposition') || '';
+                    const filename = disposition.match(/filename=(.+)/)?.[1] || `history_${new Date().toISOString().split('T')[0]}.${format}`;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showNotification(`${format.toUpperCase()} 导出完成`, 'success');
+                } else {
+                    showNotification('导出失败', 'error');
+                }
+            } catch (e) {
+                showNotification('导出失败: ' + e.message, 'error');
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 6px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                background: ${type === 'success' ? '#22c55e' : 
+                           type === 'warning' ? '#f59e0b' : 
+                           type === 'error' ? '#ef4444' : '#3b82f6'};
+                transition: opacity 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Utility function for debouncing search input
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+</body>
+</html>

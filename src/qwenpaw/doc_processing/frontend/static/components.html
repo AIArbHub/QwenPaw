@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Arb 文档处理系统 - 组件管理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #333; }
+        .app-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; }
+        .app-header h1 { font-size: 22px; font-weight: 600; }
+        .app-header .nav { display: flex; gap: 20px; }
+        .app-header .nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; padding: 8px 16px; border-radius: 6px; transition: all 0.3s; }
+        .app-header .nav a:hover, .app-header .nav a.active { background: rgba(255,255,255,0.2); color: white; }
+        .main-content { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        .section-title { font-size: 20px; color: #2c3e50; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e0e0e0; }
+        .component-card { background: white; border-radius: 12px; padding: 24px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; }
+        .component-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
+        .component-info { flex: 1; }
+        .component-info h3 { font-size: 18px; color: #2c3e50; margin-bottom: 6px; }
+        .component-info .desc { color: #7f8c8d; font-size: 14px; margin-bottom: 8px; }
+        .component-info .meta { display: flex; gap: 15px; font-size: 12px; color: #95a5a6; }
+        .component-info .meta span { display: inline-flex; align-items: center; gap: 4px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .badge-installed { background: #e8f5e9; color: #2e7d32; }
+        .badge-not-installed { background: #fce4ec; color: #c62828; }
+        .badge-cloud { background: #e3f2fd; color: #1565c0; }
+        .badge-local { background: #f3e5f5; color: #6a1b9a; }
+        .component-actions { display: flex; gap: 8px; }
+        .btn { padding: 8px 20px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: all 0.3s; font-weight: 500; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-primary:hover { background: #2980b9; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #229954; }
+        .btn-secondary { background: #ecf0f1; color: #7f8c8d; }
+        .btn-secondary:hover { background: #d5dbdb; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .progress-bar { width: 100%; height: 6px; background: #ecf0f1; border-radius: 3px; margin-top: 8px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #3498db, #2ecc71); transition: width 0.3s; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 12px; padding: 30px; width: 90%; max-width: 450px; }
+        .modal h3 { margin-bottom: 20px; color: #2c3e50; }
+        .modal input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 15px; font-size: 14px; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+        .loading-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #ecf0f1; border-top-color: #3498db; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>AI Arb 文档处理系统</h1>
+            <nav class="nav">
+                <a href="/doc/ui/" class="">首页</a>
+                <a href="/doc/ui/components" class="active">组件管理</a>
+                <a href="/doc/ui/redaction" class="">脱敏规则</a>
+                <a href="/doc/ui/settings" class="">系统设置</a>
+                <a href="/doc/ui/history" class="">历史记录</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <h2 class="section-title">文档处理组件</h2>
+            <div id="components-list">
+                <div style="text-align:center; padding: 40px; color: #95a5a6;">
+                    <div class="loading-spinner" style="width:30px; height:30px; margin-bottom:15px;"></div>
+                    <p>正在加载组件列表...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- API Key Modal -->
+    <div class="modal-overlay" id="api-key-modal">
+        <div class="modal">
+            <h3 id="modal-title">配置云端组件</h3>
+            <p style="color:#7f8c8d; margin-bottom:15px; font-size:14px;">请输入API密钥以配置云端组件</p>
+            <input type="password" id="api-key-input" placeholder="API密钥">
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="submitApiKey()">确认配置</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentComponentId = null;
+
+        async function loadComponents() {
+            try {
+                const resp = await fetch('/doc/components');
+                const data = await resp.json();
+                renderComponents(data.components || []);
+            } catch (e) {
+                document.getElementById('components-list').innerHTML = '<p style="color:#e74c3c; text-align:center;">加载失败，请确保服务已启动</p>';
+            }
+        }
+
+        function renderComponents(components) {
+            const container = document.getElementById('components-list');
+            if (!components.length) {
+                container.innerHTML = '<p style="text-align:center; color:#95a5a6;">暂无可用组件</p>';
+                return;
+            }
+            container.innerHTML = components.map(comp => {
+                const isCloud = comp.component_type === 'cloud';
+                const installedBadge = comp.is_installed
+                    ? `<span class="badge badge-installed">已安装</span>`
+                    : `<span class="badge badge-not-installed">未安装</span>`;
+                const typeBadge = `<span class="badge badge-${isCloud ? 'cloud' : 'local'}">${isCloud ? '云端' : '本地'}</span>`;
+                
+                let actions = '';
+                if (isCloud) {
+                    if (comp.is_configured) {
+                        actions = `<button class="btn btn-danger" onclick="uninstallComponent('${comp.component_id}')">卸载</button>`;
+                    } else {
+                        actions = `<button class="btn btn-primary" onclick="openApiKeyModal('${comp.component_id}', '${comp.name}')">配置</button>`;
+                    }
+                } else {
+                    if (comp.is_installed) {
+                        actions = `<button class="btn btn-danger" onclick="uninstallComponent('${comp.component_id}')">卸载</button>`;
+                    } else {
+                        actions = `<button class="btn btn-success" onclick="installComponent('${comp.component_id}')">安装</button>`;
+                    }
+                }
+
+                return `
+                    <div class="component-card">
+                        <div class="component-info">
+                            <h3>${comp.name} ${installedBadge} ${typeBadge}</h3>
+                            <div class="desc">${comp.description}</div>
+                            <div class="meta">
+                                <span>📦 v${comp.version}</span>
+                                ${comp.install_size_mb ? `<span>💾 ${comp.install_size_mb}MB</span>` : ''}
+                                ${comp.base_url ? `<span>🌐 ${comp.base_url}</span>` : ''}
+                            </div>
+                            <div class="progress-bar" id="progress-${comp.component_id}" style="display:none;">
+                                <div class="progress-fill" style="width:0%;"></div>
+                            </div>
+                        </div>
+                        <div class="component-actions">
+                            ${actions}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openApiKeyModal(componentId, componentName) {
+            currentComponentId = componentId;
+            document.getElementById('modal-title').textContent = `配置 ${componentName}`;
+            document.getElementById('api-key-input').value = '';
+            document.getElementById('api-key-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('api-key-modal').classList.remove('active');
+            currentComponentId = null;
+        }
+
+        async function submitApiKey() {
+            const apiKey = document.getElementById('api-key-input').value.trim();
+            if (!apiKey) { alert('请输入API密钥'); return; }
+            
+            try {
+                const formData = new FormData();
+                formData.append('component_id', currentComponentId);
+                formData.append('api_key', apiKey);
+                const resp = await fetch('/doc/components/config', { method: 'POST', body: formData });
+                const data = await resp.json();
+                if (data.success) {
+                    alert('配置成功！');
+                    closeModal();
+                    loadComponents();
+                } else {
+                    alert('配置失败: ' + (data.error || '未知错误'));
+                }
+            } catch (e) {
+                alert('请求失败: ' + e.message);
+            }
+        }
+
+        async function installComponent(componentId) {
+            if (!confirm('确认安装该组件？')) return;
+            
+            const progressBar = document.getElementById(`progress-${componentId}`);
+            progressBar.style.display = 'block';
+            
+            try {
+                const formData = new FormData();
+                formData.append('component_id', componentId);
+                const resp = await fetch('/doc/components/install', { method: 'POST', body: formData });
+                const data = await resp.json();
+                if (data.success) {
+                    alert('安装成功！');
+                    loadComponents();
+                } else {
+                    alert('安装失败: ' + (data.error || '未知错误'));
+                }
+            } catch (e) {
+                alert('请求失败: ' + e.message);
+            } finally {
+                progressBar.style.display = 'none';
+            }
+        }
+
+        async function uninstallComponent(componentId) {
+            if (!confirm('确认卸载该组件？')) return;
+            try {
+                const resp = await fetch(`/doc/components/uninstall/${componentId}`, { method: 'DELETE' });
+                const data = await resp.json();
+                if (data.success) {
+                    alert('卸载成功！');
+                    loadComponents();
+                } else {
+                    alert('卸载失败: ' + (data.error || '未知错误'));
+                }
+            } catch (e) {
+                alert('请求失败: ' + e.message);
+            }
+        }
+
+        // 初始加载
+        loadComponents();
+    </script>
+</body>
+</html>

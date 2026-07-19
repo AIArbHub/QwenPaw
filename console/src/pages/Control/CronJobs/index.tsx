@@ -647,7 +647,7 @@ function CronJobsPage() {
                 key={job.id}
                 className={styles.mobileJobCard}
                 size="small"
-                bodyStyle={{ padding: 24 }}
+                styles={{ body: { padding: 24 } }}
               >
                 <div className={styles.mobileJobHeader}>
                   <span className={styles.mobileJobName}>{job.name}</span>
@@ -719,7 +719,7 @@ function CronJobsPage() {
             ))}
           </div>
         ) : (
-          <Card className={styles.tableCard} bodyStyle={{ padding: 0 }}>
+          <Card className={styles.tableCard} styles={{ body: { padding: 0 } }}>
             <Table
               columns={columns}
               dataSource={filteredListJobs}
@@ -734,7 +734,7 @@ function CronJobsPage() {
           </Card>
         )
       ) : (
-        <Card className={styles.calendarCard} bodyStyle={{ padding: 0 }}>
+        <Card className={styles.calendarCard} styles={{ body: { padding: 0 } }}>
           <div className={styles.calendarHeader}>
             <Button
               type="text"

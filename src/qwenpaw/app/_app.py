@@ -506,7 +506,7 @@ async def lifespan(  # pylint: disable=too-many-statements,too-many-branches
             try:
                 from .text_selection import ts_startup
 
-                await ts_startup()
+                ts_startup()  # sync function, not async
             except Exception:
                 logger.warning(
                     "Text Selection startup skipped",
@@ -588,7 +588,7 @@ async def lifespan(  # pylint: disable=too-many-statements,too-many-branches
         try:
             from .text_selection import ts_shutdown
 
-            await ts_shutdown()
+            ts_shutdown()  # sync function, not async
         except Exception:
             logger.warning(
                 "Text Selection shutdown failed",

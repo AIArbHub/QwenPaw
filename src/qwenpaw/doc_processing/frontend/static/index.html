@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Arb 文档处理系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Index specific styles */
+        .hero-section {
+            text-align: center;
+            padding: 60px 20px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .hero-section h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+        
+        .hero-section p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.85);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            border: 1px solid transparent;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            border-color: #3b82f6;
+        }
+        
+        .feature-card .icon-wrap {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+        
+        .icon-blue { background: #dbeafe; color: #2563eb; }
+        .icon-green { background: #dcfce7; color: #16a34a; }
+        .icon-purple { background: #f3e8ff; color: #9333ea; }
+        .icon-orange { background: #ffedd5; color: #ea580c; }
+        
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        
+        .feature-card p {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        
+        .feature-card .link-text {
+            font-size: 13px;
+            color: #3b82f6;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .quick-actions {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+        }
+        
+        .quick-actions h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+        
+        .upload-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+        
+        .upload-zone:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .upload-zone .upload-icon {
+            font-size: 48px;
+            color: #3b82f6;
+            margin-bottom: 12px;
+        }
+        
+        .upload-zone h4 {
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        
+        .upload-zone p {
+            font-size: 13px;
+            color: #64748b;
+        }
+        
+        .system-status {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .status-pill .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-pill.ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-pill.ok .dot {
+            background: #22c55e;
+        }
+        
+        .status-pill.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-pill.warning .dot {
+            background: #f59e0b;
+        }
+        
+        .recent-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .recent-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .recent-item:last-child {
+            border-bottom: none;
+        }
+        
+        .recent-item .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .recent-item .file-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .recent-item .file-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e293b;
+        }
+        
+        .recent-item .file-meta {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>AI Arb 文档处理系统</h1>
+                </div>
+                <div class="header-right">
+                    <nav class="header-nav">
+                        <a href="/doc/ui/" class="nav-link active">首页</a>
+                        <a href="/doc/ui/components" class="nav-link">组件管理</a>
+                        <a href="/doc/ui/redaction" class="nav-link">脱敏规则</a>
+                        <a href="/doc/ui/settings" class="nav-link">系统设置</a>
+                        <a href="/doc/ui/history" class="nav-link">历史记录</a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <h2>AI Arb 智能文档处理平台</h2>
+                <p>面向商业仲裁场景的本地优先、云端可选、按需组装的文档处理组件系统</p>
+            </div>
+
+            <!-- System Status -->
+            <div class="quick-actions" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <h3 style="margin: 0;">系统状态</h3>
+                <div class="system-status" id="system-status">
+                    <span class="status-pill ok"><span class="dot"></span> 本地引擎就绪</span>
+                    <span class="status-pill ok"><span class="dot"></span> 组件管理器已初始化</span>
+                    <span class="status-pill warning"><span class="dot"></span> 云端服务未配置</span>
+                </div>
+            </div>
+
+            <!-- Feature Cards -->
+            <div class="feature-grid">
+                <a href="/doc/ui/components" class="feature-card">
+                    <div class="icon-wrap icon-blue">📦</div>
+                    <h3>组件管理</h3>
+                    <p>安装、配置和管理文档处理组件，包括本地解析引擎、OCR 服务和云端 API 集成。</p>
+                    <span class="link-text">前往管理 →</span>
+                </a>
+                
+                <a href="/doc/ui/redaction" class="feature-card">
+                    <div class="icon-wrap icon-green">🔒</div>
+                    <h3>脱敏规则编辑器</h3>
+                    <p>自定义脱敏规则编辑，支持正则匹配、多种脱敏策略、预设模板和规则测试功能。</p>
+                    <span class="link-text">编辑规则 →</span>
+                </a>
+                
+                <a href="/doc/ui/settings" class="feature-card">
+                    <div class="icon-wrap icon-purple">⚙️</div>
+                    <h3>系统设置</h3>
+                    <p>配置 API 密钥、处理策略、隐私安全选项和云端服务参数。</p>
+                    <span class="link-text">配置系统 →</span>
+                </a>
+                
+                <a href="/doc/ui/history" class="feature-card">
+                    <div class="icon-wrap icon-orange">📋</div>
+                    <h3>历史记录</h3>
+                    <p>查看文档处理历史记录，包括解析结果、路由决策和处理状态。</p>
+                    <span class="link-text">查看记录 →</span>
+                </a>
+            </div>
+
+            <!-- Quick Upload -->
+            <div class="quick-actions">
+                <h3>快速文档处理</h3>
+                <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+                    <div class="upload-icon">📄</div>
+                    <h4>拖拽文件到此处或点击上传</h4>
+                    <p>支持 PDF、DOCX、TXT、JPG、PNG 等格式，单文件最大 50MB</p>
+                    <input type="file" id="file-input" style="display:none;" multiple accept=".pdf,.docx,.txt,.jpg,.png,.bmp,.gif" onchange="handleFileUpload(this.files)">
+                </div>
+            </div>
+
+            <!-- Recent Documents -->
+            <div class="quick-actions">
+                <h3>最近处理</h3>
+                <ul class="recent-list" id="recent-list">
+                    <li class="recent-item">
+                        <div class="file-info">
+                            <div class="file-icon">📄</div>
+                            <div>
+                                <div class="file-name">暂无最近处理记录</div>
+                                <div class="file-meta">上传文档后将在此显示处理历史</div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = '/doc';
+        
+        // 页面加载时获取系统状态
+        async function loadSystemStatus() {
+            try {
+                const resp = await fetch(`${API_BASE}/system/env-report`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    const statusContainer = document.getElementById('system-status');
+                    
+                    let html = '';
+                    if (data.installed_components > 0) {
+                        html += `<span class="status-pill ok"><span class="dot"></span> ${data.installed_components} 个组件已安装</span>`;
+                    } else {
+                        html += `<span class="status-pill warning"><span class="dot"></span> 无已安装组件</span>`;
+                    }
+                    
+                    if (data.hardware_tier) {
+                        html += `<span class="status-pill ok"><span class="dot"></span> 硬件等级: ${data.hardware_tier}</span>`;
+                    }
+                    
+                    html += `<span class="status-pill ok"><span class="dot"></span> 共 ${data.total_components} 个组件可用</span>`;
+                    
+                    statusContainer.innerHTML = html;
+                }
+            } catch (e) {
+                console.log('状态获取中...');
+            }
+        }
+        
+        // 文件上传处理 - 接入真实后端 API
+        async function handleFileUpload(files) {
+            if (!files || files.length === 0) return;
+            
+            showNotification('正在提交解析任务...', 'info');
+            
+            for (const file of files) {
+                const formData = new FormData();
+                formData.append('file_path', file.name);
+                formData.append('auto_ocr', 'false');
+                formData.append('enable_redaction', 'false');
+                formData.append('engine_strategy', 'local_only');
+                formData.append('output_format', 'text');
+                formData.append('advanced_features', 'false');
+                formData.append('auto_confirm_cloud', 'false');
+                
+                try {
+                    const resp = await fetch(`${API_BASE}/parse`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (resp.ok) {
+                        const result = await resp.json();
+                        if (result.task_id) {
+                            showNotification(`任务已创建: ${file.name}`, 'success');
+                            pollTaskStatus(result.task_id);
+                        }
+                    } else {
+                        const err = await resp.json();
+                        showNotification(`提交失败: ${err.detail || '未知错误'}`, 'warning');
+                    }
+                } catch (e) {
+                    showNotification('请求失败: ' + e.message, 'error');
+                }
+            }
+        }
+        
+        // 轮询任务状态
+        async function pollTaskStatus(taskId) {
+            const maxAttempts = 60;
+            let attempts = 0;
+            
+            const poll = async () => {
+                attempts++;
+                if (attempts > maxAttempts) {
+                    showNotification('任务超时，请在历史记录中查看', 'warning');
+                    return;
+                }
+                
+                try {
+                    const resp = await fetch(`${API_BASE}/status/${taskId}`);
+                    if (resp.ok) {
+                        const status = await resp.json();
+                        
+                        if (status.status === 'completed') {
+                            showNotification('文档解析完成！', 'success');
+                            return;
+                        } else if (status.status === 'failed') {
+                            showNotification('解析失败: ' + (status.error || '未知错误'), 'error');
+                            return;
+                        }
+                        
+                        setTimeout(poll, 2000);
+                    }
+                } catch (e) {
+                    setTimeout(poll, 2000);
+                }
+            };
+            
+            setTimeout(poll, 1000);
+        }
+        
+        // 通知提示
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSystemStatus();
+        });
+    </script>
+</body>
+</html>
