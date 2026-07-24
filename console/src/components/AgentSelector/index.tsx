@@ -503,9 +503,6 @@ export default function AgentSelector({
                   </div>
                 }
               >
-                  </div>
-                }
-              >
                 {renderAgentDetails(agent, false)}
               </Select.Option>
             ))}

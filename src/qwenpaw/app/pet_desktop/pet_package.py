@@ -13,7 +13,7 @@ from PIL import Image
 from . import runtime
 from .sprites import ATLAS_HEIGHT, ATLAS_WIDTH
 
-SNOWPAW_PET_ID = "snowpaw"
+ARBPET_PET_ID = "arbpet"
 
 
 def validate_pet_package(pet_dir: Path) -> tuple[dict[str, Any], Path]:
@@ -58,12 +58,12 @@ def bundled_default_pet_dir() -> Path:
     # plugin.py), so importlib.resources is overkill — resolving
     # relative to ``__file__`` is mypy-clean and works the same way.
     return (
-        Path(__file__).resolve().parent / "assets" / "default-pet" / "snowpaw"
+        Path(__file__).resolve().parent / "assets" / "default-pet" / "arbpet"
     )
 
 
 def install_default_pet() -> Path:
-    """Install the bundled snowpaw pet into ``<WORKING_DIR>/pets/snowpaw/``."""
+    """Install the bundled ArbPet pet into ``<WORKING_DIR>/pets/arbpet/``."""
     return install_pet(bundled_default_pet_dir(), replace=True)
 
 
@@ -83,10 +83,10 @@ def resolve_pet_dir(pet_dir: str | None = None) -> Path:
         validate_pet_package(first)
         return first
     except ValueError:
-        # Self-heal: an earlier run may have left snowpaw with a broken
+        # Self-heal: an earlier run may have left arbpet with a broken
         # or partial install. Wipe the folder and reinstall from the
         # bundled default. User-managed pets are left untouched.
-        if first.name == SNOWPAW_PET_ID:
+        if first.name == ARBPET_PET_ID:
             shutil.rmtree(first, ignore_errors=True)
             return install_default_pet()
         raise

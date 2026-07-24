@@ -200,7 +200,7 @@ def build_parser() -> argparse.ArgumentParser:
     g.add_argument("--pet-dir", help="Full path to a pet package directory")
     g.add_argument(
         "--pet-id",
-        help="Folder name under QwenPaw pets/ (e.g. snowpaw)",
+        help="Folder name under QwenPaw pets/ (e.g. arbpet)",
     )
     p.add_argument("--port", type=int, default=8765)
     p.set_defaults(func=command_switch)

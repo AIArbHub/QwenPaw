@@ -36,6 +36,7 @@ const STRATEGY_OPTIONS: { value: RedactionStrategy; labelKey: string }[] = [
   { value: "mask", labelKey: "docSdk.strategyMask" },
   { value: "hash", labelKey: "docSdk.strategyHash" },
   { value: "replace", labelKey: "docSdk.strategyReplace" },
+  { value: "simulate", labelKey: "docSdk.strategySimulate" },
   { value: "delete", labelKey: "docSdk.strategyDelete" },
   { value: "partial_mask", labelKey: "docSdk.strategyPartialMask" },
 ];
@@ -44,6 +45,7 @@ const strategyColorMap: Record<RedactionStrategy, string> = {
   mask: "blue",
   hash: "purple",
   replace: "green",
+  simulate: "cyan",
   delete: "red",
   partial_mask: "orange",
 };
@@ -69,7 +71,8 @@ export default function DocSDKRedaction() {
     setLoading(true);
     try {
       const data = await docProcessingApi.listRedactionRules();
-      setRules(data);
+      // API returns { rules: [...], statistics: {...} } — unwrap the array
+      setRules(Array.isArray(data) ? data : (data as any)?.rules ?? []);
     } catch (err) {
       message.error(t("docSdk.rulesFetchFailed"));
       console.error(err);

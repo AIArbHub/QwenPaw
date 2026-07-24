@@ -5,12 +5,21 @@ from __future__ import annotations
 
 import sys
 import time
+import json
+import threading
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
-from PySide6.QtCore import QPoint, QRect, Qt, QTimer
+from PySide6.QtCore import QPoint, QRect, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QFont, QFontMetrics, QPainter, QPixmap
-from PySide6.QtWidgets import QApplication, QMenu, QWidget
+from PySide6.QtWidgets import (
+    QApplication,
+    QLineEdit,
+    QMenu,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
 from . import runtime
 from .pet_package import validate_pet_package
@@ -126,6 +135,265 @@ def _ends_approval_wait(ev_name: str | None) -> bool:
     )
 
 
+# ---------------------------------------------------------------------------
+# Chat support: SSE client thread + chat input bubble
+# ---------------------------------------------------------------------------
+
+class _SSEWorker(threading.Thread):
+    """Background thread that reads an SSE stream and emits events via callback.
+
+    Uses urllib (not httpx) to keep the dependency surface small — the pet
+    desktop process may not have httpx installed.
+    """
+
+    def __init__(
+        self,
+        url: str,
+        payload: dict[str, Any],
+        token: str | None,
+        on_event: Callable[[dict], None],
+        on_done: Callable[[], None],
+    ):
+        super().__init__(daemon=True, name="pet-sse")
+        self._url = url
+        self._payload = payload
+        self._token = token
+        self._on_event = on_event
+        self._on_done = on_done
+        self._stop = threading.Event()
+
+    def stop(self) -> None:
+        self._stop.set()
+
+    def run(self) -> None:
+        import urllib.request
+        import urllib.error
+
+        try:
+            data = json.dumps(self._payload).encode("utf-8")
+            req = urllib.request.Request(
+                self._url,
+                data=data,
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "text/event-stream",
+                    **({"X-QwenPaw-Pet-Token": self._token} if self._token else {}),
+                },
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                for raw_line in resp:
+                    if self._stop.is_set():
+                        break
+                    line = raw_line.decode("utf-8", errors="replace").strip()
+                    if not line or not line.startswith("data:"):
+                        continue
+                    json_str = line[5:].strip()
+                    if not json_str:
+                        continue
+                    try:
+                        evt = json.loads(json_str)
+                        self._on_event(evt)
+                    except json.JSONDecodeError:
+                        continue
+        except Exception as exc:
+            self._on_event({"type": "error", "message": f"{type(exc).__name__}: {exc}"[:200]})
+        finally:
+            self._on_done()
+
+
+class ChatBubbleWidget(QWidget):
+    """A floating chat input + reply panel that appears above the pet.
+
+    Layout (top to bottom):
+      1. Reply display area (QTextEdit, read-only, grows with content)
+      2. Input field (QLineEdit — press Enter to send)
+    """
+
+    # Signals
+    reply_token = Signal(str)    # incremental reply text
+    reply_done = Signal(str)     # full reply text
+    state_change = Signal(str)   # "thinking" | "talking" | "idle" | "error"
+    tool_used = Signal(str)      # tool name
+
+    def __init__(self, pet_window: "PetWindow", parent=None):
+        super().__init__(parent)
+        self._pet_window = pet_window
+        self._sse_worker: _SSEWorker | None = None
+        self._full_reply_parts: list[str] = []
+
+        self.setWindowFlags(
+            Qt.FramelessWindowHint
+            | Qt.WindowStaysOnTopHint
+            | (Qt.Tool if sys.platform == "win32" else Qt.Window)
+        )
+        self.setAttribute(Qt.WA_TranslucentBackground, False)
+        self.setMinimumWidth(320)
+        self.setMaximumWidth(420)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setSpacing(4)
+
+        # Reply area
+        self.reply_area = QTextEdit()
+        self.reply_area.setReadOnly(True)
+        self.reply_area.setMaximumHeight(200)
+        self.reply_area.setPlaceholderText("Pet reply will appear here...")
+        self.reply_area.setStyleSheet("""
+            QTextEdit {
+                background: rgba(255, 255, 255, 240);
+                border: 1px solid #d0d5dd;
+                border-radius: 8px;
+                padding: 6px;
+                font-size: 13px;
+                color: #1a1d21;
+            }
+        """)
+        layout.addWidget(self.reply_area)
+
+        # Input field
+        self.input_field = QLineEdit()
+        self.input_field.setPlaceholderText("Type a message and press Enter...")
+        self.input_field.setStyleSheet("""
+            QLineEdit {
+                background: rgba(255, 255, 255, 255);
+                border: 1px solid #6366f1;
+                border-radius: 6px;
+                padding: 6px 10px;
+                font-size: 13px;
+                color: #1a1d21;
+            }
+            QLineEdit:focus {
+                border: 2px solid #6366f1;
+            }
+        """)
+        self.input_field.returnPressed.connect(self._send_message)
+        layout.addWidget(self.input_field)
+
+        # Connect signals
+        self.reply_token.connect(self._on_reply_token)
+        self.reply_done.connect(self._on_reply_done)
+        self.state_change.connect(self._on_state_change)
+        self.tool_used.connect(self._on_tool_used)
+
+    def _send_message(self) -> None:
+        """Send the typed message to the bound agent via SSE."""
+        msg = self.input_field.text().strip()
+        if not msg or self._sse_worker is not None:
+            return  # Don't send empty or while a request is in flight
+
+        pet_id = self._pet_window.manifest.get("id", "arbpet")
+        self._full_reply_parts = []
+        self.reply_area.clear()
+        self.input_field.clear()
+        self.state_change.emit("thinking")
+
+        # Determine the main app URL — default to localhost:26740
+        import os
+        base_url = os.environ.get("QWENPAW_API_BASE", "http://127.0.0.1:26740")
+        url = f"{base_url}/api/qwenpaw-pet/chat"
+
+        token = None
+        try:
+            token = runtime.read_token()
+        except Exception:
+            pass
+
+        payload = {"pet_id": pet_id, "message": msg}
+
+        self._sse_worker = _SSEWorker(
+            url=url,
+            payload=payload,
+            token=token,
+            on_event=self._on_sse_event,
+            on_done=self._on_sse_done,
+        )
+        self._sse_worker.start()
+
+    def _on_sse_event(self, evt: dict) -> None:
+        """Called from the SSE thread — emit Qt signals to marshal to UI thread."""
+        evt_type = evt.get("type", "")
+        if evt_type == "start":
+            self.state_change.emit(evt.get("state", "thinking"))
+        elif evt_type == "token":
+            self.reply_token.emit(evt.get("text", ""))
+        elif evt_type == "tool":
+            self.tool_used.emit(evt.get("name", ""))
+        elif evt_type == "done":
+            self.reply_done.emit(evt.get("text", ""))
+            self.state_change.emit("idle")
+        elif evt_type == "error":
+            self.state_change.emit("error")
+            self.reply_done.emit(f"⚠ {evt.get('message', 'Error')}")
+
+    def _on_sse_done(self) -> None:
+        """Called from the SSE thread when the stream ends."""
+        # Marshal to UI thread via a zero-length signal
+        self.state_change.emit("idle")
+
+    # --- UI-thread slots ---
+
+    def _on_reply_token(self, text: str) -> None:
+        self._full_reply_parts.append(text)
+        cursor = self.reply_area.textCursor()
+        cursor.movePosition(cursor.End)
+        cursor.insertText(text)
+        self.reply_area.setTextCursor(cursor)
+        # Auto-scroll to bottom
+        scrollbar = self.reply_area.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
+
+    def _on_reply_done(self, text: str) -> None:
+        if text and not self._full_reply_parts:
+            # Error case — show full text directly
+            self.reply_area.setPlainText(text)
+        self.input_field.setEnabled(True)
+
+    def _on_state_change(self, state: str) -> None:
+        # Map chat state to pet animation state
+        pet_state_map = {
+            "thinking": "running",
+            "talking": "waving",
+            "idle": "idle",
+            "error": "failed",
+        }
+        pet_state = pet_state_map.get(state, "idle")
+        self._pet_window.set_state(pet_state)
+
+        if state == "thinking":
+            self._pet_window.bubble_text = "Thinking..."
+        elif state == "talking":
+            self._pet_window.bubble_text = ""
+        elif state == "error":
+            self._pet_window.bubble_text = "Oops!"
+        self._pet_window.update()
+
+    def _on_tool_used(self, name: str) -> None:
+        self._pet_window.bubble_text = f"Using {name}"[:40]
+        self._pet_window.set_state("review")
+        self._pet_window.update()
+
+    def closeEvent(self, event) -> None:  # noqa: N802
+        if self._sse_worker is not None:
+            self._sse_worker.stop()
+            self._sse_worker = None
+        self._pet_window.set_state("idle")
+        self._pet_window.bubble_text = ""
+        self._pet_window.update()
+        super().closeEvent(event)
+
+    def position_above_pet(self, pet_pos: QPoint, pet_width: int) -> None:
+        """Position the chat bubble directly above the pet window."""
+        self.adjustSize()
+        chat_w = self.width()
+        x = pet_pos.x() + (pet_width - chat_w) // 2
+        y = pet_pos.y() - self.height() - 4
+        if y < 0:
+            y = pet_pos.y() + 200  # If no room above, place below
+        self.move(x, y)
+
+
 class PetWindow(QWidget):
     """Small draggable always-on-top pet window."""
 
@@ -160,15 +428,18 @@ class PetWindow(QWidget):
         self.drag_start: QPoint | None = None
         self._state_counter = 0
 
-        # Use Qt.Window, not Qt.Tool: on macOS, Tool maps to NSPanel and the
-        # system hides tool panels when the app loses activation (clicking
-        # another app makes the pet vanish).
-        # NoDropShadowWindowHint avoids a rectangular macOS drop-shadow "card"
-        # around the frameless window (often mistaken for a background box).
+        # Chat support
+        self._chat_bubble: ChatBubbleWidget | None = None
+
+        # On Windows, use Qt.Tool to prevent a taskbar entry (the system
+        # tray icon serves as the entry point instead). On macOS, Qt.Tool
+        # maps to NSPanel and the system hides tool panels when the app
+        # loses activation, so we keep Qt.Window there.
+        _base = Qt.Tool if sys.platform == "win32" else Qt.Window
         self.setWindowFlags(
             Qt.FramelessWindowHint
             | Qt.WindowStaysOnTopHint
-            | Qt.Window
+            | _base
             | Qt.NoDropShadowWindowHint,
         )
         self.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -484,11 +755,34 @@ class PetWindow(QWidget):
     def mouseReleaseEvent(self, event) -> None:  # noqa: N802
         self.drag_start = None
 
+    def mouseDoubleClickEvent(self, event) -> None:  # noqa: N802
+        """Double-click opens the chat panel."""
+        if event.button() == Qt.LeftButton:
+            self._toggle_chat()
+
+    def _toggle_chat(self) -> None:
+        """Open or close the chat bubble panel."""
+        if self._chat_bubble is not None:
+            self._chat_bubble.close()
+            self._chat_bubble = None
+            return
+
+        chat = ChatBubbleWidget(self)
+        chat.position_above_pet(self.pos(), self.pet_width)
+        chat.show()
+        chat.input_field.setFocus()
+        self._chat_bubble = chat
+        # Pet waves when chat opens
+        self.set_state("waving")
+        self.bubble_text = "Hi! Let's chat."
+        self.update()
+
     def _open_menu(self, pos: QPoint) -> None:
         menu = QMenu(self)
         title = self.manifest.get("displayName", "QwenPaw Pet")
         menu.addAction(title).setEnabled(False)
         menu.addSeparator()
+        menu.addAction("💬 Chat", self._toggle_chat)
         menu.addAction("Idle", lambda: self.set_state("idle"))
         menu.addAction("Wave", lambda: self.set_state("waving"))
         menu.addAction("Thinking", lambda: self.set_state("running"))

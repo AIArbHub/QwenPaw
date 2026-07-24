@@ -141,6 +141,11 @@ class AwardReviewer:
             
             # 6. 签署信息检查
             result.checks.append(await self._check_signatures(award_text))
+
+            # 7. AI 深度审查（如果 LLM 可用）
+            ai_check = await self._ai_deep_review(award_text, result.checks)
+            if ai_check is not None:
+                result.checks.append(ai_check)
             
             # 汇总结果
             result.summary = self._generate_summary(result.checks)
@@ -158,6 +163,102 @@ class AwardReviewer:
             result.suggestions.append("建议人工复核该裁决书")
         
         return result
+
+    async def _ai_deep_review(
+        self,
+        award_text: str,
+        existing_checks: List[ReviewCheck],
+    ) -> Optional[ReviewCheck]:
+        """
+        AI 深度审查裁决书
+        
+        使用 qwenpaw 智能体系统的 LLM 对裁决书进行深度法律分析，
+        包括：
+        - 法律适用准确性
+        - 裁判说理充分性
+        - 程序合规性
+        - 实体权利义务平衡性
+        
+        如果 LLM 未配置或调用失败，返回 None（不影响规则检查结果）。
+        """
+        try:
+            from agentscope.message import Msg, TextBlock
+            from ...agents.model_factory import create_model_and_formatter
+            from ...utils.model_response import consume_model_response
+
+            model, _ = create_model_and_formatter()
+
+            # 构建已有检查结果的摘要
+            check_summary = "\n".join([
+                f"- {c.check_name}: {c.status} - {c.message}"
+                for c in existing_checks
+            ])
+
+            prompt = (
+                "你是资深仲裁裁决书核阅专家。请对以下仲裁裁决书进行深度审查，"
+                "重点关注规则检查无法覆盖的方面：\n\n"
+                "1. 法律适用是否准确（引用的法条是否与案件事实匹配）\n"
+                "2. 裁判说理是否充分（仲裁庭意见是否有充分论证）\n"
+                "3. 程序是否合规（是否保障了当事人程序权利）\n"
+                "4. 实体权利义务是否平衡（裁决结果是否合理）\n"
+                "5. 是否存在遗漏或矛盾\n\n"
+                f"裁决书全文（前3000字）：\n{award_text[:3000]}\n\n"
+                f"规则检查结果：\n{check_summary}\n\n"
+                "请返回JSON格式：\n"
+                '{"status": "passed/warning/failed", "message": "总体评价", '
+                '"issues": ["问题1", "问题2"], "suggestions": ["建议1"]}'
+            )
+
+            messages = [
+                Msg(
+                    name="system",
+                    role="system",
+                    content=[TextBlock(type="text", text="你是仲裁裁决书核阅专家，只返回JSON。")],
+                ),
+                Msg(
+                    name="user",
+                    role="user",
+                    content=[TextBlock(type="text", text=prompt)],
+                ),
+            ]
+
+            response = await consume_model_response(model, messages)
+
+            import json
+            import re as _re
+            # 提取 JSON
+            try:
+                result = json.loads(response)
+            except (json.JSONDecodeError, TypeError):
+                json_match = _re.search(r'\{[\s\S]*\}', response)
+                if json_match:
+                    result = json.loads(json_match.group())
+                else:
+                    logger.debug(f"AI 深度审查返回非JSON: {response[:200]}")
+                    return None
+
+            issues = result.get("issues", [])
+            status = result.get("status", "passed")
+            message = result.get("message", "")
+
+            if issues:
+                message = f"{message}；问题: {'; '.join(issues[:3])}"
+
+            return ReviewCheck(
+                check_type=ReviewCheckType.LOGIC_CHECK,
+                check_name="AI 深度审查",
+                status=status,
+                message=message,
+                details={
+                    "method": "llm",
+                    "issues": issues,
+                    "suggestions": result.get("suggestions", []),
+                }
+            )
+
+        except Exception as e:
+            logger.debug(f"AI 深度审查不可用（回退到纯规则检查）: {e}")
+            return None
 
     async def _check_format(self, text: str) -> ReviewCheck:
         """格式规范检查"""

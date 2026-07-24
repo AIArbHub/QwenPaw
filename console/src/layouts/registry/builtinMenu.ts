@@ -52,7 +52,7 @@ import {
   SparkUserGroupLine,
   SparkWifiLine,
 } from "@agentscope-ai/icons";
-import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain, Clock, Activity, Layers, PawPrint, ScanText, Cloud, ScrollText, Scale, Settings, Gavel, FolderKanban, Cpu, FileCode2 } from "lucide-react";
+import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain, Clock, Activity, Layers, PawPrint, ScanText, Cloud, ScrollText, Scale, Settings, Gavel, FolderKanban, Cpu, FileCode2, Library, ClipboardCheck } from "lucide-react";
 import i18next from "i18next";
 import { menuRegistry } from "../../plugins/registry/store";
 import type { MenuItem } from "../../plugins/registry/types";
@@ -108,6 +108,24 @@ export const BUILTIN_MENU: MenuItem[] = [
     icon: BookOpen,
     route: "core.knowledge-desk",
     order: 20,
+  },
+  {
+    id: "core.arb-kb",
+    location: "primary.arbitration",
+    parentId: "core.tools-group",
+    label: navLabel("nav.arbKb", "仲裁知识库"),
+    icon: Library,
+    route: "core.arb-kb",
+    order: 21,
+  },
+  {
+    id: "core.award-review",
+    location: "primary.arbitration",
+    parentId: "core.tools-group",
+    label: navLabel("nav.awardReview", "裁决核阅"),
+    icon: ClipboardCheck,
+    route: "core.award-review",
+    order: 22,
   },
   {
     id: "core.engine-settings",

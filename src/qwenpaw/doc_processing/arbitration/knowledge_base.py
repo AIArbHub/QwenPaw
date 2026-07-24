@@ -224,35 +224,126 @@ class ArbitrationKnowledgeBase:
         doc_type: str = "case",
         auto_tag: bool = True
     ) -> List[str]:
-        """从文档文本中提取并导入知识条目"""
+        """从文档文本中提取并导入知识条目
+        
+        当 auto_tag=True 且 LLM 可用时，使用 qwenpaw 智能体
+        进行智能标签提取和条目结构化，大幅优于简单关键词匹配。
+        如果 LLM 不可用，则回退到基于规则的关键词匹配。
+        """
         entries_added = []
         
-        # 按段落分割
+        # 尝试使用 LLM 进行智能提取
+        if auto_tag:
+            ai_result = await self._ai_extract_entries(text, doc_type)
+            if ai_result:
+                for entry_data in ai_result:
+                    entry_id = await self.add_entry(
+                        title=entry_data.get("title", ""),
+                        content=entry_data.get("content", ""),
+                        entry_type=doc_type,
+                        tags=entry_data.get("tags", []),
+                        metadata=entry_data.get("metadata", {}),
+                    )
+                    entries_added.append(entry_id)
+                logger.info(f"AI 提取并导入了 {len(entries_added)} 个知识条目")
+                return entries_added
+        
+        # 回退：规则-based 段落分割
         paragraphs = [p.strip() for p in text.split("\n\n") if len(p.strip()) > 50]
         
         for i, para in enumerate(paragraphs):
-            # 提取标题（第一行或前50个字符）
             lines = para.split("\n")
             title = lines[0][:100] if lines else f"条目{i+1}"
             
             tags = []
             if auto_tag:
-                # 简单标签提取
-                if "合同" in para:
-                    tags.append("合同纠纷")
-                if "买卖" in para:
-                    tags.append("买卖合同")
-                if "租赁" in para:
-                    tags.append("租赁合同")
-                if "建设工程" in para:
-                    tags.append("建设工程")
-                if "股权" in para:
-                    tags.append("股权转让")
-                if "仲裁" in para:
-                    tags.append("仲裁程序")
+                tags = self._rule_based_tags(para)
             
             entry_id = await self.add_entry(title, para, doc_type, tags)
             entries_added.append(entry_id)
         
         logger.info(f"从文档导入了 {len(entries_added)} 个知识条目")
         return entries_added
+
+    async def _ai_extract_entries(
+        self,
+        text: str,
+        doc_type: str,
+    ) -> Optional[List[Dict[str, Any]]]:
+        """使用 LLM 从文档中智能提取知识条目"""
+        try:
+            from agentscope.message import Msg, TextBlock
+            from ...agents.model_factory import create_model_and_formatter
+            from ...utils.model_response import consume_model_response
+
+            model, _ = create_model_and_formatter()
+
+            prompt = (
+                "你是仲裁知识库管理专家。请从以下文档中提取结构化的知识条目。\n\n"
+                "要求：\n"
+                "1. 识别文档中的独立知识单元（如案例、法条、裁判规则等）\n"
+                "2. 为每个条目生成简洁的标题\n"
+                "3. 为每个条目分配 2-5 个相关标签\n"
+                "4. 提取关键元数据（如案号、法院、判决日期等）\n\n"
+                f"文档内容（前5000字）：\n{text[:5000]}\n\n"
+                "请返回JSON数组格式：\n"
+                '[{"title": "标题", "content": "内容", '
+                '"tags": ["标签1", "标签2"], "metadata": {"key": "value"}}]'
+            )
+
+            messages = [
+                Msg(
+                    name="system",
+                    role="system",
+                    content=[TextBlock(type="text", text="你是知识库管理专家，只返回JSON数组。")],
+                ),
+                Msg(
+                    name="user",
+                    role="user",
+                    content=[TextBlock(type="text", text=prompt)],
+                ),
+            ]
+
+            response = await consume_model_response(model, messages)
+
+            import json
+            import re
+            # 提取 JSON 数组
+            try:
+                result = json.loads(response)
+            except (json.JSONDecodeError, TypeError):
+                json_match = re.search(r'\[[\s\S]*\]', response)
+                if json_match:
+                    result = json.loads(json_match.group())
+                else:
+                    logger.debug(f"AI 知识提取返回非JSON: {response[:200]}")
+                    return None
+
+            if isinstance(result, list) and result:
+                return result
+            return None
+
+        except Exception as e:
+            logger.debug(f"AI 知识提取不可用（回退到规则提取）: {e}")
+            return None
+
+    @staticmethod
+    def _rule_based_tags(text: str) -> List[str]:
+        """基于规则的关键词标签提取（LLM 不可用时的回退方案）"""
+        tags = []
+        tag_rules = [
+            ("合同纠纷", ["合同", "协议", "违约"]),
+            ("买卖合同", ["买卖", "购销", "销售"]),
+            ("租赁合同", ["租赁", "租金", "承租"]),
+            ("建设工程", ["建设工程", "施工", "工程款"]),
+            ("股权转让", ["股权", "股份转让", "股东"]),
+            ("仲裁程序", ["仲裁", "仲裁庭", "裁决"]),
+            ("金融借款", ["借款", "贷款", "利息", "担保"]),
+            ("劳动争议", ["劳动", "工资", "解除合同"]),
+            ("知识产权", ["商标", "专利", "著作权"]),
+            ("房地产", ["房产", "房屋", "土地"]),
+        ]
+        for tag, keywords in tag_rules:
+            if any(kw in text for kw in keywords):
+                tags.append(tag)
+        return tags

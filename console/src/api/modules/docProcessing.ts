@@ -33,6 +33,7 @@ export type RedactionStrategy =
   | "mask"
   | "hash"
   | "replace"
+  | "simulate"
   | "delete"
   | "partial_mask";
 
@@ -245,6 +246,18 @@ export const docProcessingApi = {
       }),
     }),
 
+  aiDetectMissedRedactions: (text: string, redactedText: string, context?: Record<string, any>) =>
+    request<{
+      missed_items: Array<{ type: string; text: string; reason: string }>;
+      suggestions: Array<{ pattern: string; name: string; strategy: string }>;
+      risk_level: "low" | "medium" | "high" | "unknown";
+      method?: string;
+      error?: string;
+    }>("/doc/redaction/ai-detect", {
+      method: "POST",
+      body: JSON.stringify({ text, redacted_text: redactedText, context }),
+    }),
+
   importRedactionPresets: () =>
     request<{ imported: number }>("/doc/redaction/import-presets", {
       method: "POST",
@@ -304,4 +317,77 @@ export const docProcessingApi = {
       method: "POST",
       body: JSON.stringify({ format }),
     }),
+
+  // ── Download ────────────────────────────────────────────────────
+
+  downloadResult: (taskId: string, format: string) =>
+    request<Blob>(`/doc/download/${encodeURIComponent(taskId)}/${format}`, {
+      method: "GET",
+      responseType: "blob",
+    }),
+
+  // ── Redaction Templates & Stats ──────────────────────────────────
+
+  getRedactionTemplates: () =>
+    request<{ templates: any[] }>("/doc/redaction/templates"),
+
+  getRedactionStatistics: () =>
+    request<any>("/doc/redaction/statistics"),
+
+  // ── Batch Processing ─────────────────────────────────────────────
+
+  createBatch: (files: string[], options?: Record<string, any>) =>
+    request<{ batch_id: string }>("/doc/batch/create", {
+      method: "POST",
+      body: JSON.stringify({ files, ...options }),
+    }),
+
+  startBatchTask: (batchId: string, taskId: string) =>
+    request<{ success: boolean }>(`/doc/batch/${encodeURIComponent(taskId)}/start`, {
+      method: "POST",
+    }),
+
+  getBatchStatus: (batchId: string) =>
+    request<any>(`/doc/batch/${encodeURIComponent(batchId)}/status`),
+
+  getBatchResult: (batchId: string) =>
+    request<any>(`/doc/batch/${encodeURIComponent(batchId)}/result`),
+
+  cancelBatch: (batchId: string) =>
+    request<{ success: boolean }>(`/doc/batch/${encodeURIComponent(batchId)}/cancel`, {
+      method: "POST",
+    }),
+
+  listBatches: (limit: number = 20) =>
+    request<{ batches: any[] }>(`/doc/batch/list?limit=${limit}`),
+
+  exportBatch: (batchId: string) =>
+    request<{ data: string }>(`/doc/batch/${encodeURIComponent(batchId)}/export`, {
+      method: "POST",
+    }),
+
+  // ── Arbitration Review & Knowledge ──────────────────────────────
+
+  createArbitrationReview: (body: Record<string, any>) =>
+    request<{ review_id: string }>("/doc/arbitration/review", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  exportArbitrationReview: (reviewId: string) =>
+    request<{ data: string }>(`/doc/arbitration/review/${encodeURIComponent(reviewId)}/export`, {
+      method: "POST",
+    }),
+
+  searchArbitrationKnowledge: (query: string, limit: number = 10) =>
+    request<{ results: any[] }>(`/doc/arbitration/knowledge/search?q=${encodeURIComponent(query)}&limit=${limit}`),
+
+  importArbitrationKnowledge: (body: Record<string, any>) =>
+    request<{ imported: number }>("/doc/arbitration/knowledge/import", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  getArbitrationKnowledgeStats: () =>
+    request<any>("/doc/arbitration/knowledge/stats"),
 };

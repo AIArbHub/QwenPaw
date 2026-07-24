@@ -31,6 +31,7 @@ class ComponentManager:
         self.models_dir.mkdir(parents=True, exist_ok=True)
         self._installation_progress: Dict[str, float] = {}
         self._installation_logs: Dict[str, List[str]] = {}
+        self._last_error: Dict[str, str] = {}
     
     async def initialize(self) -> bool:
         """初始化组件管理器"""
@@ -130,6 +131,8 @@ class ComponentManager:
     
     async def install_component(self, component_id: str, **kwargs) -> bool:
         """安装指定组件"""
+        from . import LocalComponent, CloudComponent
+        
         if component_id not in self._components:
             logger.error(f"组件 {component_id} 不存在")
             return False
@@ -146,6 +149,7 @@ class ComponentManager:
                 compatibility = await self._check_component_compatibility(component)
                 if not compatibility["compatible"]:
                     logger.error(f"组件 {component_id} 环境不兼容: {compatibility['reason']}")
+                    self._last_error[component_id] = compatibility["reason"]
                     return False
             
             # 执行安装
@@ -163,37 +167,56 @@ class ComponentManager:
             
         except Exception as e:
             logger.error(f"安装组件 {component_id} 时发生异常: {e}")
+            self._last_error[component_id] = str(e)
             return False
         finally:
             # 清理进度
             if component_id in self._installation_progress:
                 del self._installation_progress[component_id]
     
+    def get_last_error(self, component_id: str) -> str:
+        """获取最后一次安装失败的错误信息"""
+        return self._last_error.get(component_id, "")
+    
     async def _check_component_compatibility(self, component: 'LocalComponent') -> Dict[str, Any]:
         """检查组件环境兼容性"""
         system_info = self._system_info.get_info()
         
+        # 如果系统信息为空，跳过兼容性检查（不阻塞安装）
+        if not system_info:
+            logger.warning("系统信息未检测，跳过兼容性检查")
+            return {"compatible": True, "reason": ""}
+        
         # 检查内存
         min_memory_mb = component.metadata.get("min_memory_mb", 0)
-        if system_info["memory_mb"] < min_memory_mb:
+        total_memory_mb = system_info.get("total_memory_mb", 0)
+        if total_memory_mb and total_memory_mb < min_memory_mb:
             return {
                 "compatible": False,
-                "reason": f"内存不足，需要 {min_memory_mb}MB，当前 {system_info['memory_mb']}MB"
+                "reason": f"内存不足，需要 {min_memory_mb}MB，当前 {total_memory_mb}MB"
             }
         
         # 检查磁盘空间
-        if system_info["free_disk_mb"] < component.install_size_mb * 2:  # 预留2倍空间
+        free_disk_mb = system_info.get("free_disk_mb", 0)
+        if free_disk_mb and component.install_size_mb and free_disk_mb < component.install_size_mb * 2:
             return {
                 "compatible": False, 
                 "reason": f"磁盘空间不足，需要 {component.install_size_mb * 2}MB"
             }
         
         # 检查操作系统兼容性
+        platform_val = system_info.get("platform", "")
+        # Normalize platform names: sys.platform returns 'win32' but components list 'windows'
+        platform_normalized = {
+            "win32": "windows",
+            "darwin": "darwin",
+            "linux": "linux",
+        }.get(platform_val, platform_val)
         supported_platforms = component.metadata.get("supported_platforms", ["windows", "darwin", "linux"])
-        if system_info["platform"] not in supported_platforms:
+        if platform_normalized and platform_normalized not in supported_platforms:
             return {
                 "compatible": False,
-                "reason": f"不支持的操作系统: {system_info['platform']}"
+                "reason": f"不支持的操作系统: {platform_val}"
             }
         
         return {"compatible": True, "reason": ""}
@@ -205,6 +228,7 @@ class ComponentManager:
             await self._update_progress(component.component_id, 10.0, "检查依赖...")
             if not await component.check_dependencies():
                 await self._update_progress(component.component_id, 20.0, "依赖检查失败")
+                self._last_error[component.component_id] = "依赖检查失败，请确保所需 Python 包和系统依赖已安装"
                 return False
             
             # 2. 安装Python包
@@ -212,6 +236,7 @@ class ComponentManager:
                 await self._update_progress(component.component_id, 30.0, "安装Python依赖包...")
                 success = await self._install_python_packages(component.required_packages)
                 if not success:
+                    self._last_error[component.component_id] = f"Python 包安装失败: {', '.join(component.required_packages)}"
                     return False
             
             # 3. 安装系统依赖
@@ -219,12 +244,14 @@ class ComponentManager:
                 await self._update_progress(component.component_id, 60.0, "安装系统依赖...")
                 success = await component._install_system_dependencies()
                 if not success:
+                    self._last_error[component.component_id] = f"系统依赖安装失败: {', '.join(component.required_system_deps)}"
                     return False
             
             # 4. 初始化组件
             await self._update_progress(component.component_id, 90.0, "初始化组件...")
             success = await component.initialize(self)
             if not success:
+                self._last_error[component.component_id] = "组件初始化失败"
                 return False
             
             # 5. 更新状态
@@ -235,6 +262,7 @@ class ComponentManager:
             
         except Exception as e:
             logger.error(f"安装本地组件 {component.name} 失败: {e}")
+            self._last_error[component.component_id] = str(e)
             return False
     
     async def _install_cloud_component(self, component: 'CloudComponent', **kwargs) -> bool:
@@ -246,11 +274,13 @@ class ComponentManager:
             
             if not api_key:
                 logger.error(f"云端组件 {component.name} 需要API密钥")
+                self._last_error[component.component_id] = "缺少 API 密钥，请先配置 API 密钥"
                 return False
             
             await self._update_progress(component.component_id, 50.0, "配置云端连接...")
             success = await component.configure(api_key)
             if not success:
+                self._last_error[component.component_id] = "云端连接配置失败，请检查 API 密钥是否正确"
                 return False
             
             component.is_installed = True
@@ -260,6 +290,7 @@ class ComponentManager:
             
         except Exception as e:
             logger.error(f"配置云端组件 {component.name} 失败: {e}")
+            self._last_error[component.component_id] = str(e)
             return False
     
     async def _install_python_packages(self, packages: List[str]) -> bool:
@@ -290,6 +321,8 @@ class ComponentManager:
     
     async def uninstall_component(self, component_id: str) -> bool:
         """卸载组件"""
+        from . import LocalComponent
+        
         if component_id not in self._components:
             logger.error(f"组件 {component_id} 不存在")
             return False
@@ -327,10 +360,11 @@ class ComponentManager:
         recommendations["full"].append("basic_parser")
         
         # 根据内存推荐OCR组件
-        if system_info["memory_mb"] >= 8000:
+        total_memory_mb = system_info.get("total_memory_mb", 0)
+        if total_memory_mb >= 8000:
             recommendations["full"].append("ocr_paddle")
             recommendations["standard"].append("ocr_tesseract")
-        elif system_info["memory_mb"] >= 4000:
+        elif total_memory_mb >= 4000:
             recommendations["standard"].append("ocr_tesseract")
             recommendations["light"].append("ocr_tesseract")
         else:
@@ -385,6 +419,8 @@ class ComponentManager:
     
     async def test_cloud_connection(self, component_id: str, api_key: str) -> Dict[str, Any]:
         """测试云端连接"""
+        from . import CloudComponent
+        
         component = self.get_component(component_id)
         if not component or not isinstance(component, CloudComponent):
             return {"success": False, "error": "组件不存在或不是云端组件"}

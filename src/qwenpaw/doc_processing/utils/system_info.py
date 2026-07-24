@@ -20,6 +20,18 @@ class SystemInfoDetector:
     
     async def detect(self) -> Dict[str, Any]:
         """检测系统信息"""
+        # Windows 上 '/' 可能不可用，使用系统盘
+        disk_path = "C:\\" if sys.platform == "win32" else "/"
+        
+        try:
+            disk_usage = psutil.disk_usage(disk_path)
+        except Exception:
+            # 回退：尝试当前工作目录所在磁盘
+            try:
+                disk_usage = psutil.disk_usage(os.getcwd())
+            except Exception:
+                disk_usage = None
+
         self._system_info = {
             # 基本信息
             "platform": sys.platform,
@@ -34,12 +46,12 @@ class SystemInfoDetector:
             "memory_percent": psutil.virtual_memory().percent,
             
             # 磁盘信息
-            "total_disk_mb": round(psutil.disk_usage('/').total / (1024 * 1024)),
-            "free_disk_mb": round(psutil.disk_usage('/').free / (1024 * 1024)),
-            "disk_percent": psutil.disk_usage('/').percent,
+            "total_disk_mb": round(disk_usage.total / (1024 * 1024)) if disk_usage else 0,
+            "free_disk_mb": round(disk_usage.free / (1024 * 1024)) if disk_usage else 0,
+            "disk_percent": disk_usage.percent if disk_usage else 0,
             
             # CPU信息
-            "cpu_count": psutil.cpu_count(),
+            "cpu_count": psutil.cpu_count() or 0,
             "cpu_percent": psutil.cpu_percent(interval=1),
             
             # GPU信息

@@ -43,6 +43,11 @@ from .text_selection import router as text_selection_router
 from .provider_oauth import router as provider_oauth_router
 from .pawapps import router as pawapps_router
 from .utils import router as utils_router
+from .kb import build_router as build_kb_router
+from .review import build_router as build_review_router
+
+kb_router = build_kb_router()
+review_router = build_review_router()
 
 # 文档处理路由
 try:
@@ -95,6 +100,8 @@ router.include_router(text_selection_router)
 router.include_router(provider_oauth_router)
 router.include_router(pawapps_router)
 router.include_router(utils_router)
+router.include_router(kb_router)
+router.include_router(review_router)
 
 # 文档处理路由
 if doc_processing_router:

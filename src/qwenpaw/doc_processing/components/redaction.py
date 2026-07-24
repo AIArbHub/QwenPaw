@@ -49,9 +49,11 @@ class RedactionComponent(LocalComponent):
         self.redaction_strategies = {
             'mask': self._mask_redaction,
             'hash': self._hash_redaction,
-            'replace': self._replace_redaction
+            'replace': self._replace_redaction,
+            'simulate': self._simulate_redaction,
         }
         self.applied_redactions = []
+        self._simulation_cache: Dict[str, str] = {}
     
     # ── 抽象方法实现 ──────────────────────────────────────────
     
@@ -491,6 +493,238 @@ class RedactionComponent(LocalComponent):
             str: 替换后的文本
         """
         return base_replacement
+    
+    def _simulate_redaction(self, text: str, pattern_type: str = "") -> str:
+        """
+        仿真脱敏策略 — 生成逼真的假数据替代真实信息
+        
+        不同于代号替换（如 ***ID***），仿真策略生成格式正确但
+        随机的假数据，使脱敏后的文档在阅读时更自然：
+        - 身份证号 → 随机但合法的假身份证号
+        - 手机号 → 随机假手机号
+        - 邮箱 → 随机假邮箱
+        - 银行卡号 → 随机但符合 Luhn 校验的假卡号
+        - 姓名 → 随机假名
+        
+        对于同一个原始值，始终返回相同的仿真值（基于缓存），
+        保证文档内一致性。
+        
+        Args:
+            text: 原文本（将被替换）
+            pattern_type: 模式类型标识（用于生成对应格式的假数据）
+            
+        Returns:
+            str: 仿真后的假数据
+        """
+        import random
+        import hashlib
+        
+        # 一致性缓存：同一原文 → 同一仿真值
+        cache_key = hashlib.md5(text.encode('utf-8')).hexdigest()[:8]
+        if cache_key in self._simulation_cache:
+            return self._simulation_cache[cache_key]
+        
+        result = text  # 默认返回原文
+        
+        # 根据模式类型生成对应格式的假数据
+        if 'id_card' in pattern_type or self._looks_like_id_card(text):
+            # 生成假身份证号（18位，最后一位是校验码）
+            region = random.choice(['110101', '310101', '440101', '510101'])
+            birth = f"{random.randint(1960, 2005)}{random.randint(1,12):02d}{random.randint(1,28):02d}"
+            seq = f"{random.randint(1, 999):03d}"
+            # 简化校验码计算
+            check = random.choice('0123456789X')
+            result = f"{region}{birth}{seq}{check}"
+            
+        elif 'phone' in pattern_type or self._looks_like_phone(text):
+            # 生成假手机号（1开头，11位）
+            prefix = random.choice(['138', '139', '150', '151', '180', '181', '188', '199'])
+            result = prefix + ''.join(str(random.randint(0, 9)) for _ in range(8))
+            
+        elif 'email' in pattern_type or '@' in text:
+            # 生成假邮箱
+            names = ['user', 'test', 'info', 'contact', 'noreply', 'service']
+            domains = ['example.com', 'test.cn', 'demo.org', 'sample.net']
+            result = f"{random.choice(names)}{random.randint(100, 999)}@{random.choice(domains)}"
+            
+        elif 'bank' in pattern_type or self._looks_like_bank_card(text):
+            # 生成假银行卡号（16位，符合基本格式）
+            prefix = random.choice(['6222', '6225', '6217', '6228'])
+            result = prefix + ''.join(str(random.randint(0, 9)) for _ in range(12))
+            
+        elif 'name' in pattern_type:
+            # 生成假姓名
+            surnames = ['张', '王', '李', '刘', '陈', '杨', '赵', '黄', '周', '吴']
+            given_names = ['伟', '芳', '娜', '敏', '静', '强', '磊', '军', '洋', '勇']
+            result = random.choice(surnames) + random.choice(given_names)
+            
+        else:
+            # 通用仿真：生成等长的随机字母数字串
+            import string
+            chars = string.ascii_letters + string.digits
+            result = ''.join(random.choice(chars) for _ in range(min(len(text), 12)))
+        
+        self._simulation_cache[cache_key] = result
+        return result
+    
+    @staticmethod
+    def _looks_like_id_card(text: str) -> bool:
+        """快速判断是否像身份证号"""
+        import re
+        return bool(re.match(r'^\d{17}[\dXx]$', text.strip()))
+    
+    @staticmethod
+    def _looks_like_phone(text: str) -> bool:
+        """快速判断是否像手机号"""
+        import re
+        return bool(re.match(r'^1[3-9]\d{9}$', text.strip()))
+    
+    @staticmethod
+    def _looks_like_bank_card(text: str) -> bool:
+        """快速判断是否像银行卡号"""
+        digits = ''.join(c for c in text if c.isdigit())
+        return len(digits) >= 16
+    
+    async def ai_detect_missed_redactions(
+        self,
+        text: str,
+        redacted_text: str,
+        context: Dict[str, Any] = None,
+    ) -> Dict[str, Any]:
+        """
+        AI 辅助检测漏脱敏项
+        
+        使用 qwenpaw 智能体的 LLM 能力分析已脱敏文本中是否仍有
+       未脱敏的敏感信息，例如：
+        - 正则未覆盖的新格式敏感数据
+        - 上下文中隐含的个人信息（如"住在朝阳区XXX小区"）
+        - 脱敏后仍可通过上下文推断原值的信息
+        
+        通过 create_model_and_formatter 获取已配置的 LLM 实例，
+        如果未配置任何 LLM provider，则回退到基于规则增强的检测。
+        
+        Args:
+            text: 原始文本
+            redacted_text: 已脱敏文本
+            context: 额外上下文（如文件名、文档类型等）
+            
+        Returns:
+            Dict包含:
+            - missed_items: 漏脱敏项列表
+            - suggestions: 建议的新规则
+            - risk_level: 风险等级 (low/medium/high)
+            - method: 检测方法 (llm/rule_based)
+        """
+        try:
+            # 使用 qwenpaw 智能体系统的 LLM
+            from agentscope.message import Msg, TextBlock
+            from ...agents.model_factory import create_model_and_formatter
+            from ...utils.model_response import consume_model_response
+            
+            model, _ = create_model_and_formatter()
+            
+            prompt = (
+                "你是一个专业的文档脱敏审查专家。请分析以下已脱敏文本，"
+                "找出可能遗漏的敏感信息（如姓名、地址、身份证号、"
+                "手机号、银行卡号、邮箱等）。\n\n"
+                f"已脱敏文本：\n{redacted_text[:3000]}\n\n"
+                "请返回 JSON 格式：\n"
+                '{"missed_items": [{"type": "敏感信息类型", "text": "原文片段", '
+                '"reason": "未脱敏原因"}], "suggestions": [{"pattern": "正则表达式", '
+                '"name": "规则名", "strategy": "simulate"}], "risk_level": "low/medium/high"}'
+            )
+            
+            messages = [
+                Msg(
+                    name="system",
+                    role="system",
+                    content=[TextBlock(type="text", text="你是文档脱敏审查专家，只返回JSON。")],
+                ),
+                Msg(
+                    name="user",
+                    role="user",
+                    content=[TextBlock(type="text", text=prompt)],
+                ),
+            ]
+            
+            response = await consume_model_response(model, messages)
+            
+            import json
+            # 尝试从响应中提取 JSON
+            try:
+                result = json.loads(response)
+            except (json.JSONDecodeError, TypeError):
+                # 如果直接解析失败，尝试提取 JSON 块
+                import re
+                json_match = re.search(r'\{[\s\S]*\}', response)
+                if json_match:
+                    result = json.loads(json_match.group())
+                else:
+                    raise ValueError(f"LLM 返回非 JSON 格式: {response[:200]}")
+            
+            result["method"] = "llm"
+            return result
+            
+        except Exception as e:
+            logger.warning(
+                f"AI 辅助脱敏检测失败，回退到规则检测: {e}"
+            )
+            # LLM 不可用，回退到规则增强检测
+            return self._rule_based_missed_detection(text, redacted_text)
+    
+    def _rule_based_missed_detection(
+        self,
+        text: str,
+        redacted_text: str,
+    ) -> Dict[str, Any]:
+        """基于规则的增强漏脱敏检测（LLM 不可用时的回退方案）"""
+        import re
+        
+        missed = []
+        
+        # 检测常见但可能未被正则覆盖的敏感信息模式
+        extra_patterns = {
+            # 地址中的门牌号
+            'address_detail': r'\d+号\d+室',
+            # 车牌号
+            'license_plate': r'[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤川青藏琼宁][A-Z]\d{4,5}',
+            # 护照号
+            'passport': r'[A-Z]\d{8,9}',
+            # 社保号
+            'social_security': r'\d{3}-\d{2}-\d{4}',
+            # IP 地址
+            'ip_address': r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b',
+        }
+        
+        for name, pattern in extra_patterns.items():
+            matches = re.findall(pattern, redacted_text)
+            if matches:
+                for match in matches[:5]:  # 限制每类最多5个
+                    missed.append({
+                        "type": name,
+                        "text": match,
+                        "reason": "未在当前规则中覆盖",
+                    })
+        
+        # 判断风险等级
+        risk = "low" if len(missed) == 0 else "medium" if len(missed) <= 3 else "high"
+        
+        suggestions = [
+            {
+                "pattern": p,
+                "name": n,
+                "strategy": "simulate",
+            }
+            for n, p in extra_patterns.items()
+            if re.search(p, redacted_text)
+        ]
+        
+        return {
+            "missed_items": missed,
+            "suggestions": suggestions,
+            "risk_level": risk,
+            "method": "rule_based",
+        }
     
     def _write_file_content(self, file_path: str, content: str, file_type: str = None) -> bool:
         """

@@ -88,6 +88,25 @@ class BasicParserComponent(LocalComponent):
             self.is_enabled = True
             
             # 验证基础库可用性
+            missing = []
+            if fitz is None:
+                missing.append("PyMuPDF (fitz)")
+            if docx is None:
+                missing.append("python-docx")
+            if openpyxl is None:
+                missing.append("openpyxl")
+            if pptx is None:
+                missing.append("python-pptx")
+            
+            if missing:
+                from ...utils.logging import logger
+                logger.warning(
+                    f"基础解析组件部分依赖缺失: {', '.join(missing)}。"
+                    f"支持的功能将受限。"
+                )
+                # 仍然标记为已安装，只是功能受限
+                return True
+            
             await self._verify_dependencies()
             
             logger.info("基础文档解析组件初始化成功")
@@ -101,15 +120,16 @@ class BasicParserComponent(LocalComponent):
         """验证依赖库"""
         try:
             # 简单测试各个库是否可用
-            doc = fitz.open()
-            doc.close()
-            
-            with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
+            if fitz is not None:
                 doc = fitz.open()
-                page = doc.new_page()
-                doc.save(tmp.name)
                 doc.close()
-                os.unlink(tmp.name)
+                
+                with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
+                    doc = fitz.open()
+                    page = doc.new_page()
+                    doc.save(tmp.name)
+                    doc.close()
+                    os.unlink(tmp.name)
             
             logger.debug("基础解析依赖库验证通过")
             

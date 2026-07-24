@@ -72,9 +72,17 @@ export default function DocSDKHistory() {
   const fetchHistory = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await docProcessingApi.listHistory();
-      setItems(data.items);
-      setStatistics(data.statistics);
+      const data: any = await docProcessingApi.listHistory();
+      // API may return { items, statistics }, { records, stats }, or a bare array
+      const list = Array.isArray(data) ? data : (data?.items ?? data?.records ?? []);
+      const stats = Array.isArray(data) ? {} : (data?.statistics ?? data?.stats ?? {});
+      setItems(list);
+      setStatistics({
+        total: stats.total ?? list.length,
+        success: stats.success ?? list.filter((i: any) => i.status === "completed").length,
+        failed: stats.failed ?? list.filter((i: any) => i.status === "failed").length,
+        today_count: stats.today_count ?? 0,
+      });
     } catch (err) {
       message.error(t("docSdk.history.loadFailed"));
       console.error(err);

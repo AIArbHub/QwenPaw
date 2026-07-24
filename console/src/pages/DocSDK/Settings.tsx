@@ -62,6 +62,8 @@ const DEFAULT_SETTINGS: Record<string, any> = {
   api_keys: {
     mineru: { key: "", endpoint: "" },
     baidu_ocr: { key: "" },
+    tencent_ocr: { key: "" },
+    aliyun_ocr: { key: "" },
     wechat_miniapp: { key: "" },
   },
 };
@@ -74,9 +76,9 @@ const LANGUAGE_OPTIONS = [
 ];
 
 const THEME_OPTIONS = [
-  { value: "light", labelKey: "docSdk.settings.themeLight" },
-  { value: "dark", labelKey: "docSdk.settings.themeDark" },
-  { value: "auto", labelKey: "docSdk.settings.themeAuto" },
+  { value: "light", labelKey: "docSdk.settings.light" },
+  { value: "dark", labelKey: "docSdk.settings.dark" },
+  { value: "auto", labelKey: "docSdk.settings.auto" },
 ];
 
 const ENGINE_STRATEGY_OPTIONS = [
@@ -97,13 +99,16 @@ const OCR_ENGINE_OPTIONS = [
   { value: "paddle-ocr", label: "PaddleOCR" },
   { value: "easy-ocr", label: "EasyOCR" },
   { value: "google-vision", label: "Google Vision" },
+  { value: "tencent-ocr", label: "Tencent Cloud OCR" },
+  { value: "aliyun-ocr", label: "Aliyun OCR" },
+  { value: "baidu-ocr", label: "Baidu OCR" },
 ];
 
 const REDACTION_LEVEL_OPTIONS = [
-  { value: "light", labelKey: "docSdk.settings.redactionLight" },
-  { value: "standard", labelKey: "docSdk.settings.redactionStandard" },
-  { value: "strict", labelKey: "docSdk.settings.redactionStrict" },
-  { value: "maximum", labelKey: "docSdk.settings.redactionMaximum" },
+  { value: "light", labelKey: "docSdk.settings.levelLight" },
+  { value: "standard", labelKey: "docSdk.settings.levelStandard" },
+  { value: "strict", labelKey: "docSdk.settings.levelStrict" },
+  { value: "maximum", labelKey: "docSdk.settings.levelMaximum" },
 ];
 
 const RETENTION_OPTIONS = [
@@ -113,7 +118,7 @@ const RETENTION_OPTIONS = [
   { value: 72, label: "72h" },
   { value: 168, label: "7d" },
   { value: 720, label: "30d" },
-  { value: 0, labelKey: "docSdk.settings.retentionPermanent" },
+  { value: 0, labelKey: "docSdk.settings.permanent" },
 ];
 
 /* ── Helper: deep‐merge nested defaults ───────────────────────────── */
@@ -152,9 +157,17 @@ export default function DocSDKSettings() {
     try {
       const data = await docProcessingApi.getSettings();
       setSettings(mergeDefaults(data));
-    } catch (err) {
-      message.error(t("docSdk.settings.loadFailed"));
+    } catch (err: any) {
+      // Detect HTML response (Vite SPA fallback / backend not running)
+      const errMsg = String(err?.message || err);
+      if (errMsg.includes("<!") || errMsg.includes("doctype")) {
+        message.error(t("docSdk.settings.backendNotRunning"));
+      } else {
+        message.error(t("docSdk.settings.loadFailed"));
+      }
       console.error(err);
+      // Fall back to defaults so the UI is still usable
+      setSettings(DEFAULT_SETTINGS);
     } finally {
       setLoading(false);
     }
@@ -403,6 +416,30 @@ export default function DocSDKSettings() {
             })
           }
           placeholder={t("docSdk.settings.baiduOcrKeyPlaceholder")}
+        />
+      </Form.Item>
+      <Form.Item label={t("docSdk.settings.tencentOcrKey")}>
+        <Input.Password
+          value={apiKeys.tencent_ocr?.key ?? ""}
+          onChange={(e) =>
+            updateSection("api_keys", "tencent_ocr", {
+              ...apiKeys.tencent_ocr,
+              key: e.target.value,
+            })
+          }
+          placeholder={t("docSdk.settings.tencentOcrKeyPlaceholder")}
+        />
+      </Form.Item>
+      <Form.Item label={t("docSdk.settings.aliyunOcrKey")}>
+        <Input.Password
+          value={apiKeys.aliyun_ocr?.key ?? ""}
+          onChange={(e) =>
+            updateSection("api_keys", "aliyun_ocr", {
+              ...apiKeys.aliyun_ocr,
+              key: e.target.value,
+            })
+          }
+          placeholder={t("docSdk.settings.aliyunOcrKeyPlaceholder")}
         />
       </Form.Item>
       <Form.Item label={t("docSdk.settings.wechatMiniappKey")}>

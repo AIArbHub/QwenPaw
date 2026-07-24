@@ -34,8 +34,16 @@ export default function DocSDKPage() {
         docProcessingApi.getEnvironmentReport(),
       ]);
 
-      if (compRes.status === "fulfilled") setComponents(compRes.value);
-      if (rulesRes.status === "fulfilled") setRedactionRules(rulesRes.value);
+      if (compRes.status === "fulfilled") {
+        const raw = compRes.value;
+        const arr = Array.isArray(raw) ? raw : (raw as any)?.components ?? [];
+        setComponents(arr);
+      }
+      if (rulesRes.status === "fulfilled") {
+        const raw = rulesRes.value;
+        const arr = Array.isArray(raw) ? raw : (raw as any)?.rules ?? [];
+        setRedactionRules(arr);
+      }
       if (envRes.status === "fulfilled") setEnvReport(envRes.value);
     } catch {
       // Silently ignore stats errors

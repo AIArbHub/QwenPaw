@@ -274,12 +274,20 @@ def create_doc_processing_router() -> APIRouter:
             if request.api_key:
                 kwargs["api_key"] = request.api_key
             
-            success = await doc_parser.install_component(request.component_id, **kwargs)
+            success = await doc_parser.component_manager.install_component(request.component_id, **kwargs)
+            
+            # 获取失败原因
+            error_msg = ""
+            if not success:
+                error_msg = doc_parser.component_manager.get_last_error(request.component_id)
+                if not error_msg:
+                    error_msg = "安装失败，请检查依赖环境"
             
             return ComponentInstallResponse(
                 success=success,
                 component_id=request.component_id,
-                message="安装成功" if success else "安装失败"
+                message="安装成功" if success else error_msg,
+                error=error_msg if not success else None
             )
             
         except Exception as e:
@@ -297,7 +305,7 @@ def create_doc_processing_router() -> APIRouter:
     ):
         """卸载组件"""
         try:
-            success = await doc_parser.uninstall_component(component_id)
+            success = await doc_parser.component_manager.uninstall_component(component_id)
             
             return ComponentInstallResponse(
                 success=success,
@@ -417,9 +425,11 @@ def create_doc_processing_router() -> APIRouter:
             
             # 转换为响应模型
             system_info = report["system_info"]
+            # hardware_tier is computed by the detector, not stored in system_info dict
+            hardware_tier = doc_parser.component_manager._system_info.get_hardware_tier()
             return EnvironmentReport(
                 system_info=SystemInfo(**system_info),
-                hardware_tier=system_info.get("hardware_tier", "unknown"),
+                hardware_tier=hardware_tier,
                 recommendations=report["recommendations"],
                 installed_components=report["installed_components"],
                 total_components=report["total_components"]
@@ -713,6 +723,30 @@ def create_doc_processing_router() -> APIRouter:
             replacement=request.get("replacement", "***REDACTED***"),
             strategy=request.get("strategy", "mask"),
             test_text=request["test_text"]
+        )
+        return result
+    
+    @router.post("/redaction/ai-detect")
+    async def ai_detect_missed_redactions(request: Dict[str, Any]):
+        """AI 辅助检测漏脱敏项"""
+        doc_parser = await get_doc_parser()
+        if doc_parser.component_manager is None:
+            raise HTTPException(500, detail="组件管理器未初始化")
+        
+        from ..components.redaction import RedactionComponent
+        redaction_comp = None
+        for comp_id, comp in doc_parser.component_manager._components.items():
+            if isinstance(comp, RedactionComponent):
+                redaction_comp = comp
+                break
+        
+        if redaction_comp is None:
+            raise HTTPException(404, detail="脱敏组件未安装")
+        
+        result = await redaction_comp.ai_detect_missed_redactions(
+            text=request.get("text", ""),
+            redacted_text=request.get("redacted_text", ""),
+            context=request.get("context"),
         )
         return result
     

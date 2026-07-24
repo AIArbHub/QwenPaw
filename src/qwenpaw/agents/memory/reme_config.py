@@ -676,10 +676,9 @@ def _apply_embedding_config(
             "api_key": embedding_config.api_key,
             "base_url": embedding_config.base_url,
         },
-    "parameters": parameters,
-}
-if embedding_config.use_dimensions and "dimensions" in parameters:
-    _embedding_component["dimensions"] = parameters["dimensions"]
+        "parameters": parameters,
+    }
+    if embedding_config.use_dimensions and "dimensions" in parameters:
         _embedding_component["dimensions"] = parameters["dimensions"]
     components["as_embedding"]["default"].update(_embedding_component)
 

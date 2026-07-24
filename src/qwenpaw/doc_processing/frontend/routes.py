@@ -15,7 +15,7 @@ STATIC_DIR = Path(__file__).parent / "static"
 
 def create_frontend_router() -> APIRouter:
     """创建前端路由"""
-    router = APIRouter(prefix="/ui", tags=["doc_frontend"])
+    router = APIRouter(prefix="/doc/ui", tags=["doc_frontend"])
 
     # 挂载静态文件目录
     router.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")

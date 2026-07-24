@@ -77,9 +77,14 @@ const DocumentsPage = lazyImportWithRetry("../../pages/Documents");
 const MemoryPage = lazyImportWithRetry("../../pages/Memory");
 const ArbitrationDeskPage = lazyImportWithRetry("../../pages/ArbitrationDesk");
 const KnowledgeDeskPage = lazyImportWithRetry("../../pages/KnowledgeDesk");
+const ArbitrationKBPage = lazyImportWithRetry("../../pages/ArbitrationKB");
+const AwardReviewPage = lazyImportWithRetry("../../pages/AwardReview");
 const EngineSettingsPage = lazyImportWithRetry("../../pages/EngineSettings");
 const DocSDKPage = lazyImportWithRetry("../../pages/DocSDK");
-const DocSDKIframePage = lazyImportWithRetry("../../pages/DocSDK/IframeView");
+const DocSDKIframePage = lazyWithRetry(
+  () => import("../../pages/DocSDK/IframeView"),
+  "../../pages/DocSDK/IframeView",
+);
 
 // Design mode merged pages
 const DesignSkillsPage = lazyImportWithRetry("../../pages/Design/Skills");
@@ -126,6 +131,8 @@ export const BUILTIN_ROUTES: Route[] = [
   { id: "core.desk", path: "/desk", component: ArbitrationDeskPage },
   { id: "core.desk-case", path: "/desk/:caseId", component: ArbitrationDeskPage },
   { id: "core.knowledge-desk", path: "/knowledge", component: KnowledgeDeskPage },
+  { id: "core.arb-kb", path: "/arb-kb", component: ArbitrationKBPage },
+  { id: "core.award-review", path: "/award-review", component: AwardReviewPage },
   { id: "core.engine-settings", path: "/engine", component: EngineSettingsPage },
   // ── DocSDK routes (方案B: native React / 方案A: iframe) ──
   { id: "core.doc-sdk", path: "/doc-sdk", component: DocSDKPage },
