@@ -294,7 +294,7 @@ function AgentConfigPage() {
             activeKey={activeTab}
             onChange={setActiveTab}
             items={dynamicTabs}
-            destroyInactiveTabPane={false}
+            destroyOnHidden={false}
           />
         </Form>
       </div>
