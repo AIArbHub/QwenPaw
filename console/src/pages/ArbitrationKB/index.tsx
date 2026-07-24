@@ -683,7 +683,7 @@ export default function ArbitrationKB() {
   );
 
   const renderSearchResults = () => {
-    if (searching) return <div style={{ textAlign: "center", padding: 60 }}><Spin size="large" tip={tt("searching", "检索中...")} /></div>;
+    if (searching) return <div style={{ textAlign: "center", padding: 60 }}><Spin size="large" tip={tt("searching", "检索中...")}><div style={{ minHeight: 100 }} /></Spin></div>;
     if (searchResults && searchResults.length === 0) return <Empty description={tt("noResults", "未找到相关结果，请尝试更换关键词或模式")} />;
     if (searchResults && searchResults.length > 0) {
       return (
@@ -714,7 +714,7 @@ export default function ArbitrationKB() {
 
   const renderContent = () => {
     if (searchResults || linkResults || searching) return renderSearchResults();
-    if (fileLoading) return <div style={{ textAlign: "center", padding: 60 }}><Spin size="large" tip={tt("loadingFile", "加载文档中...")} /></div>;
+    if (fileLoading) return <div style={{ textAlign: "center", padding: 60 }}><Spin size="large" tip={tt("loadingFile", "加载文档中...")}><div style={{ minHeight: 100 }} /></Spin></div>;
     if (fileContent) {
       return (
         <>
@@ -973,7 +973,7 @@ export default function ArbitrationKB() {
         okText={tt("create", "创建")}
         cancelText={tt("cancel", "取消")}
         width={640}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={createForm} layout="vertical" preserve={false}>
           <Form.Item name="title" label={tt("formTitle", "标题")} rules={[{ required: true, message: tt("formTitleRequired", "请输入标题") }]}>

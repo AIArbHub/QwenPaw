@@ -376,7 +376,9 @@ export default function ArbitrationDesk() {
     return (
       <div className={styles.page}>
         <div style={{ textAlign: "center", padding: "100px" }}>
-          <Spin size="large" tip="加载案件工作台..." />
+          <Spin size="large" tip="加载案件工作台...">
+            <div style={{ minHeight: 100 }} />
+          </Spin>
         </div>
       </div>
     );

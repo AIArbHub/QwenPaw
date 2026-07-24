@@ -465,7 +465,7 @@ export default function ToolsPage() {
         <ToolConfigModal
           key={currentTool.name}
           tool={currentTool}
-          visible={configModalVisible}
+          open={configModalVisible}
           onClose={() => setConfigModalVisible(false)}
           onSave={handleSaveConfig}
         />

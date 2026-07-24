@@ -2834,13 +2834,13 @@ def load_agent_config(  # pylint: disable=too-many-branches,too-many-statements
         with open(agent_config_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-# One-shot migration: rename legacy ``channels.weixin`` key to
-# ``channels.wechat`` and rewrite the file on disk so future loads
-# see the canonical key directly. This rewrite must happen BEFORE
-# any in-memory normalization (e.g. ~/.qwenpaw / ~/.copaw path rewriting) so we
-# only persist the key rename, not unrelated runtime transforms.
-# Match the existing migration behavior: migrate this workspace only
-# when its agent configuration is loaded.
+        # One-shot migration: rename legacy ``channels.weixin`` key to
+        # ``channels.wechat`` and rewrite the file on disk so future loads
+        # see the canonical key directly. This rewrite must happen BEFORE
+        # any in-memory normalization (e.g. ~/.qwenpaw / ~/.copaw path rewriting) so we
+        # only persist the key rename, not unrelated runtime transforms.
+        # Match the existing migration behavior: migrate this workspace only
+        # when its agent configuration is loaded.
         channels = data.get("channels")
         weixin_migrated = False
         if isinstance(channels, dict) and "weixin" in channels:
@@ -2885,28 +2885,7 @@ def load_agent_config(  # pylint: disable=too-many-branches,too-many-statements
             except OSError:
                 pass
 
-# One-shot migration: convert legacy access control fields.
-if isinstance(channels, dict):
-    _acl_migrated = _migrate_access_control_fields(
-        channels,
-        workspace_dir,
-    )
-    if _acl_migrated:
-        try:
-            with open(
-                agent_config_path,
-                "w",
-                encoding="utf-8",
-            ) as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
-            try:
-                current_mtime = agent_config_path.stat().st_mtime
-            except OSError:
-                pass
-        except OSError:
-            pass
-
-# Normalize legacy ~/.copaw-bound paths to current WORKING_DIR.
+        # Normalize legacy ~/.copaw-bound paths to current WORKING_DIR.
         # This keeps QWENPAW_WORKING_DIR effective even if existing agent.json
         # contains older hard-coded paths like "~/.qwenpaw/media" or "~/.copaw/media".
         # NOTE: this transform is applied in-memory only; it must not be

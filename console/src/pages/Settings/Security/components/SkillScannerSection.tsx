@@ -50,7 +50,7 @@ function FindingsModal({
     >
       <Table
         dataSource={findings}
-        rowKey={(_, idx) => String(idx)}
+        rowKey={(record) => `${record.rule_id}:${record.file_path}:${record.line_number}`}
         pagination={false}
         size="small"
         columns={[
@@ -402,7 +402,7 @@ export function SkillScannerSection() {
                     <Table
                       dataSource={blockedHistory}
                       columns={blockedColumns}
-                      rowKey={(_, idx) => String(idx)}
+                      rowKey={(record) => record.content_hash}
                       pagination={false}
                       size="small"
                     />

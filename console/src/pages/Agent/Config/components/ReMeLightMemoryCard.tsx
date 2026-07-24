@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Form,
   Card,
@@ -67,7 +66,6 @@ export function isValidDreamCronShape(value?: string) {
 }
 
 export function ReMeLightMemoryCard() {
-  const { t } = useTranslation();
   const { t } = useTranslation();
   const { message, modal } = useAppMessage();
   const { selectedAgent } = useAgentStore();

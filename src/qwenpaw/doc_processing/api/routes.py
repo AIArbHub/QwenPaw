@@ -18,6 +18,7 @@ from ..schemas import (
     ParseRequest, ParseResponse, TaskStatusResponse,
     ComponentInfo, ComponentInstallRequest, ComponentInstallResponse,
     CloudConfigRequest, CloudTestResponse, EnvironmentReport,
+    SystemInfo,
     ConfigRequest, ConfigResponse
 )
 from ...utils.logging import logger

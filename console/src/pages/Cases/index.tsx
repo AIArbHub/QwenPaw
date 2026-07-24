@@ -1188,7 +1188,9 @@ export default function CasesPage() {
                         )}
                         {aiLoading && (
                           <div style={{ textAlign: "center", padding: 12 }}>
-                            <Spin tip="AI正在思考..." />
+                            <Spin tip="AI正在思考...">
+                              <div style={{ minHeight: 60 }} />
+                            </Spin>
                           </div>
                         )}
                       </div>

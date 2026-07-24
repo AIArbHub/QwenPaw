@@ -1106,7 +1106,6 @@ const arbitrationMenuItems = useMemo(
             type="text"
             icon={<SparkSearchUserLine size={16} />}
             onClick={() => {
-              accountForm.resetFields();
               setAccountModalOpen(true);
             }}
             block

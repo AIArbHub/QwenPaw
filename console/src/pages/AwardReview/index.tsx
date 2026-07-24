@@ -590,7 +590,7 @@ export default function AwardReview() {
           <Divider style={{ margin: "12px 0" }} />
           <div className={styles.sectionTitle}><FileTextOutlined /> 文档对照</div>
           <Tabs className={styles.docTabs} activeKey={activeDocTab} onChange={setActiveDocTab}
-            items={docTabItems} size="small" destroyInactiveTabPane={false} />
+            items={docTabItems} size="small" destroyOnHidden={false} />
         </div>
       </div>
     );
@@ -800,7 +800,7 @@ export default function AwardReview() {
           </div>
         }
         placement="right" width={620} open={kbDrawerOpen}
-        onClose={() => setKbDrawerOpen(false)} destroyOnClose>
+        onClose={() => setKbDrawerOpen(false)} destroyOnHidden>
         {kbFileLoading ? (
           <Spin style={{ display: "block", margin: "20vh auto" }} />
         ) : kbFileContent ? (

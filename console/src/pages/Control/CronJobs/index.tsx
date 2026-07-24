@@ -880,7 +880,7 @@ function CronJobsPage() {
       />
 
       <Modal
-        visible={historyModalOpen}
+        open={historyModalOpen}
         title={t("cronJobs.historyTitle", { name: historyJobName })}
         footer={null}
         onCancel={() => setHistoryModalOpen(false)}

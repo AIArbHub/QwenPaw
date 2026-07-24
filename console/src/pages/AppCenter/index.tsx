@@ -329,7 +329,9 @@ export default function AppCenterPage() {
           <Spin
             tip={t("common.loading")}
             style={{ display: "block", margin: "10vh auto" }}
-          />
+          >
+            <div style={{ minHeight: 100 }} />
+          </Spin>
         ) : loadError ? (
           <Empty
             image={<AppWindow size={48} strokeWidth={1} />}

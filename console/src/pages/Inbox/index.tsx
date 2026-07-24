@@ -66,6 +66,13 @@ const NOTIFICATION_SETTINGS_KEY = "qwenpaw.inbox.notificationSettings";
 const SOURCE_TYPES = ["heartbeat", "cron", "memory", "skill_autoupdate"] as const;
 type SourceType = (typeof SOURCE_TYPES)[number];
 
+const SOURCE_TYPE_LABEL_KEYS: Record<string, string> = {
+  heartbeat: "inbox.sourceType.heartbeat",
+  cron: "inbox.sourceType.cron",
+  memory: "inbox.sourceType.memory",
+  skill_autoupdate: "inbox.sourceType.skillAutoupdate",
+};
+
 interface NotificationSettings {
   mutedSources: Record<SourceType, boolean>;
   blockedSources: Record<SourceType, boolean>;

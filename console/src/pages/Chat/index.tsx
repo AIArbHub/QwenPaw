@@ -2511,7 +2511,7 @@ export default function ChatPage() {
       .sort((a, b) => a.name.localeCompare(b.name))
       .map((skill) => ({
         command: `/${skill.name}`,
-        value: loopSkillNames.has(skill.name)
+        value: loopCommandNames.has(skill.name)
           ? `__loop__${skill.name}`
           : skill.name,
         description: skill.display_description || skill.description || "",
@@ -3197,7 +3197,7 @@ export default function ChatPage() {
     handleQueuePauseResume,
     handleQueueRetry,
     handleQueueSkip,
-    effectiveIsFullMode,
+    isFullMode,
     historyPanelOpen,
     toggleHistoryPanel,
     handleCompactCommand,

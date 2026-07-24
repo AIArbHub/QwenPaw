@@ -967,7 +967,9 @@ export default function MootPage() {
       >
         {analyzing ? (
           <div style={{ textAlign: "center", padding: 60 }}>
-            <Spin size="large" tip="AI 正在分析策略..." />
+            <Spin size="large" tip="AI 正在分析策略...">
+              <div style={{ minHeight: 100 }} />
+            </Spin>
           </div>
         ) : strategyAnalysis ? (
           <Space direction="vertical" style={{ width: "100%" }} size="middle">
@@ -1078,7 +1080,9 @@ export default function MootPage() {
       >
         {importLoading ? (
           <div style={{ textAlign: "center", padding: 40 }}>
-            <Spin tip="加载案件列表..." />
+            <Spin tip="加载案件列表...">
+              <div style={{ minHeight: 100 }} />
+            </Spin>
           </div>
         ) : importableCases.length === 0 ? (
           <Empty description="暂无可导入的案件，请先在案件管理中创建案件" />
@@ -1300,7 +1304,7 @@ function AddParticipantModal({
       confirmLoading={loading}
       okText="添加"
       cancelText="取消"
-      destroyOnClose
+      destroyOnHidden
     >
       <Form form={form} layout="vertical">
         <Form.Item

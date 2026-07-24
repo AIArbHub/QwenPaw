@@ -31,7 +31,8 @@ if (typeof window !== "undefined") {
     const msg = args[0]?.toString() || "";
     if (
       matchesPatterns(msg, SUPPRESSED_PATTERNS_ERROR) ||
-      (msg.includes("AbortError") && msg.includes("signal is aborted"))
+      (msg.includes("AbortError") && msg.includes("signal is aborted")) ||
+      args.some((arg) => typeof arg === "string" && arg === "fill-rule")
     ) {
       return;
     }

@@ -6,26 +6,32 @@
  * register via `QwenPaw.menu.add(...)` which lands in the same registry, so
  * Sidebar treats core + plugin items uniformly.
  *
- * ── Design principles (2026-07) ────────────────────────────────────────────
- *  User-centric (C端) layering with 4 groups across 3 locations:
- *  - 仲裁业务 (5 domain items) → primary.arbitration — always fully visible
- *  - 智能体工作区 (6 items)    → primary.agentScoped  — workspace-level config
- *  - 系统设置 (6 items)        → primary.settings grp1 — global system config
- *  - 运维与调试 (9 items)      → primary.settings grp2 — ops/debug, collapsible
+ * ── Design principles (2026-07-24 redesign) ───────────────────────────────
+ *  User-centric (C端) layering with 5 groups across 3 locations:
+ *
+ *  primary.agentScoped (顶部)
+ *    ├── 快速入口 (2 items, no group) — inbox, app-center
+ *    └── 智能体工作区 (6 items) — workspace, skills, tools, mcp, acp, agent-config
+ *
+ *  primary.arbitration (仲裁业务)
+ *    └── 仲裁业务 (6 items) — desk, arb-kb, award-review, moot, cases, knowledge
+ *
+ *  primary.settings (系统设置)
+ *    ├── 系统设置 (13 items) — models, agents, channels, sessions, token-usage,
+ *    │                        environments, engine-settings, memory, security,
+ *    │                        backups, cloud-backups, plugin-manager, agent-stats
+ *    ├── 用户偏好 (3 items) — pet, text-selection, voice-transcription
+ *    └── 运维与调试 (5 items) — debug, cron-jobs, heartbeat, doc-sdk, doc-sdk-iframe
  *
  * ── Naming convention ──────────────────────────────────────────────────────
- *  Group ids: `core.<name>-group` (e.g. core.tools-group)
- *  Item ids:  `core.<key>`        (e.g. core.knowledge)
+ *  Group ids: `core.<name>-group` (e.g. core.arbitration-group)
+ *  Item ids:  `core.<key>`        (e.g. core.desk)
  *  Plugin items use their own prefix (e.g. cloudpaw.a2a) — no clash possible.
  *
  * ── Sticky chat button carve-out ───────────────────────────────────────────
  *  `core.chat` is NOT in this data. The sticky chat button lives outside the
  *  antd <Menu> (rendered next to AgentSelector with bespoke styling); see
- *  Sidebar.tsx. We don't model it as menu data because it has zero antd-Menu
- *  semantics in common with the rest of the sidebar entries.
- *
- * ── Removed from sidebar nav (routes preserved) ────────────────────────────
- *  core.inbox — accessed via header icon button with unread badge
+ *  Sidebar.tsx.
  *
  * ── Order convention ───────────────────────────────────────────────────────
  *  Within each group, items use order = 10/20/30/… in their natural sequence
@@ -36,6 +42,7 @@ import {
   SparkBrowseLine,
   SparkDataLine,
   SparkDebugLine,
+  SparkEmailLine,
   SparkInternetLine,
   SparkLocalFileLine,
   SparkMagicWandLine,
@@ -43,8 +50,6 @@ import {
   SparkMicLine,
   SparkModifyLine,
   SparkMyApplicationLine,
-  SparkOtherLine,
-  SparkPluginLine,
   SparkModePlazaLine,
   SparkSaveLine,
   SparkScanLine,
@@ -52,7 +57,7 @@ import {
   SparkUserGroupLine,
   SparkWifiLine,
 } from "@agentscope-ai/icons";
-import { Package, Users, FolderOpen, FileText, BookOpen, Briefcase, Brain, Clock, Activity, Layers, PawPrint, ScanText, Cloud, ScrollText, Scale, Settings, Gavel, FolderKanban, Cpu, FileCode2, Library, ClipboardCheck } from "lucide-react";
+import { Package, Brain, Clock, Activity, PawPrint, ScanText, Cloud, ScrollText, Scale, Gavel, FolderKanban, Cpu, FileCode2, Library, ClipboardCheck, BookOpen } from "lucide-react";
 import i18next from "i18next";
 import { menuRegistry } from "../../plugins/registry/store";
 import type { MenuItem } from "../../plugins/registry/types";
@@ -62,7 +67,9 @@ const navLabel = (key: string, defaultValue?: string) => (): string =>
   i18next.t(key, defaultValue ?? key);
 
 export const BUILTIN_MENU: MenuItem[] = [
-  // ── 仲裁业务 (primary.arbitration) ──────────────────────────────────────
+  // ══ primary.agentScoped ════════════════════════════════════════════════
+
+  // ── 快速入口 (top-level, no group) ──────────────────────────────────────
   {
     id: "core.inbox",
     location: "primary.agentScoped",
@@ -71,7 +78,6 @@ export const BUILTIN_MENU: MenuItem[] = [
     route: "core.inbox",
     order: 10,
   },
-
   {
     id: "core.app-center",
     location: "primary.agentScoped",
@@ -81,114 +87,13 @@ export const BUILTIN_MENU: MenuItem[] = [
     order: 15,
   },
 
-  {
-    id: "core.tools-group",
-    location: "primary.arbitration",
-    label: navLabel("nav.arbitration", "仲裁业务"),
-    isGroup: true,
-    order: 10,
-  },
-    isGroup: true,
-    order: 10,
-  },
-  {
-    id: "core.desk",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.desk", "仲裁工作台"),
-    icon: Scale,
-    route: "core.desk",
-    order: 10,
-  },
-  {
-    id: "core.knowledge",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.knowledgeDesk", "知识工作台"),
-    icon: BookOpen,
-    route: "core.knowledge-desk",
-    order: 20,
-  },
-  {
-    id: "core.arb-kb",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.arbKb", "仲裁知识库"),
-    icon: Library,
-    route: "core.arb-kb",
-    order: 21,
-  },
-  {
-    id: "core.award-review",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.awardReview", "裁决核阅"),
-    icon: ClipboardCheck,
-    route: "core.award-review",
-    order: 22,
-  },
-  {
-    id: "core.engine-settings",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.engineSettings", "文档引擎设置"),
-    icon: Cpu,
-    route: "core.engine-settings",
-    order: 30,
-  },
-  {
-    id: "core.doc-sdk",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.docSdk", "文档处理SDK"),
-    icon: FileCode2,
-    route: "core.doc-sdk",
-    order: 31,
-  },
-  {
-    id: "core.doc-sdk-iframe",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.docSdkIframe", "文档处理(iframe)"),
-    icon: ScrollText,
-    route: "core.doc-sdk-iframe",
-    order: 32,
-  },
-  {
-    id: "core.moot",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.moot", "模拟仲裁"),
-    icon: Gavel,
-    route: "core.moot",
-    order: 40,
-  },
-  {
-    id: "core.cases",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.cases", "案件管理"),
-    icon: FolderKanban,
-    route: "core.cases",
-    order: 50,
-  },
-  {
-    id: "core.memory",
-    location: "primary.arbitration",
-    parentId: "core.tools-group",
-    label: navLabel("nav.memory", "记忆中心"),
-    icon: Brain,
-    route: "core.memory",
-    order: 60,
-  },
-
-  // ── 智能体工作区 (primary.agentScoped) ─────────────────────────────────
+  // ── 智能体工作区 ─────────────────────────────────────────────────────────
   {
     id: "core.agent-workspace-group",
     location: "primary.agentScoped",
     label: navLabel("nav.agentWorkspace", "智能体工作区"),
     isGroup: true,
-    order: 10,
+    order: 20,
   },
   {
     id: "core.workspace",
@@ -245,7 +150,74 @@ export const BUILTIN_MENU: MenuItem[] = [
     order: 60,
   },
 
-  // ── 系统设置 (primary.settings, group 1) ───────────────────────────────
+  // ══ primary.arbitration ════════════════════════════════════════════════
+
+  // ── 仲裁业务 ─────────────────────────────────────────────────────────────
+  {
+    id: "core.arbitration-group",
+    location: "primary.arbitration",
+    label: navLabel("nav.arbitration", "仲裁业务"),
+    isGroup: true,
+    order: 10,
+  },
+  {
+    id: "core.desk",
+    location: "primary.arbitration",
+    parentId: "core.arbitration-group",
+    label: navLabel("nav.desk", "仲裁工作台"),
+    icon: Scale,
+    route: "core.desk",
+    order: 10,
+  },
+  {
+    id: "core.arb-kb",
+    location: "primary.arbitration",
+    parentId: "core.arbitration-group",
+    label: navLabel("nav.arbKb", "仲裁知识库"),
+    icon: Library,
+    route: "core.arb-kb",
+    order: 20,
+  },
+  {
+    id: "core.award-review",
+    location: "primary.arbitration",
+    parentId: "core.arbitration-group",
+    label: navLabel("nav.awardReview", "裁决核阅"),
+    icon: ClipboardCheck,
+    route: "core.award-review",
+    order: 30,
+  },
+  {
+    id: "core.moot",
+    location: "primary.arbitration",
+    parentId: "core.arbitration-group",
+    label: navLabel("nav.moot", "模拟仲裁"),
+    icon: Gavel,
+    route: "core.moot",
+    order: 40,
+  },
+  {
+    id: "core.cases",
+    location: "primary.arbitration",
+    parentId: "core.arbitration-group",
+    label: navLabel("nav.cases", "案件管理"),
+    icon: FolderKanban,
+    route: "core.cases",
+    order: 50,
+  },
+  {
+    id: "core.knowledge",
+    location: "primary.arbitration",
+    parentId: "core.arbitration-group",
+    label: navLabel("nav.knowledgeDesk", "知识工作台"),
+    icon: BookOpen,
+    route: "core.knowledge-desk",
+    order: 60,
+  },
+
+  // ══ primary.settings ═══════════════════════════════════════════════════
+
+  // ── 系统设置 ─────────────────────────────────────────────────────────────
   {
     id: "core.system-settings-group",
     location: "primary.settings",
@@ -299,43 +271,6 @@ export const BUILTIN_MENU: MenuItem[] = [
     order: 50,
   },
   {
-    id: "core.security",
-    location: "primary.settings",
-    parentId: "core.advanced-group",
-    label: navLabel("nav.security", "安全"),
-    icon: SparkBrowseLine,
-    route: "core.security",
-    order: 100,
-  },
-  {
-    id: "core.backups",
-    location: "primary.settings",
-    parentId: "core.advanced-group",
-    label: navLabel("nav.backups", "备份"),
-    icon: SparkSaveLine,
-    route: "core.backups",
-    order: 110,
-  },
-  {
-    id: "core.debug",
-    location: "primary.settings",
-    parentId: "core.advanced-group",
-    label: navLabel("nav.debug", "调试"),
-    icon: SparkDebugLine,
-    route: "core.debug",
-    order: 120,
-  },
-  {
-    id: "core.plugin-manager",
-    location: "primary.settings",
-    parentId: "core.settings-group",
-    label: navLabel("nav.pluginManager", "Plugin Manager"),
-    icon: Package,
-    route: "core.plugin-manager",
-    order: 130,
-
-  },
-  {
     id: "core.environments",
     location: "primary.settings",
     parentId: "core.system-settings-group",
@@ -344,41 +279,113 @@ export const BUILTIN_MENU: MenuItem[] = [
     route: "core.environments",
     order: 60,
   },
+  {
+    id: "core.engine-settings",
+    location: "primary.settings",
+    parentId: "core.system-settings-group",
+    label: navLabel("nav.engineSettings", "文档引擎设置"),
+    icon: Cpu,
+    route: "core.engine-settings",
+    order: 70,
+  },
+  {
+    id: "core.memory",
+    location: "primary.settings",
+    parentId: "core.system-settings-group",
+    label: navLabel("nav.memory", "记忆中心"),
+    icon: Brain,
+    route: "core.memory",
+    order: 80,
+  },
+  {
+    id: "core.security",
+    location: "primary.settings",
+    parentId: "core.system-settings-group",
+    label: navLabel("nav.security", "安全"),
+    icon: SparkBrowseLine,
+    route: "core.security",
+    order: 90,
+  },
+  {
+    id: "core.backups",
+    location: "primary.settings",
+    parentId: "core.system-settings-group",
+    label: navLabel("nav.backups", "备份"),
+    icon: SparkSaveLine,
+    route: "core.backups",
+    order: 100,
+  },
+  {
+    id: "core.cloud-backups",
+    location: "primary.settings",
+    parentId: "core.system-settings-group",
+    label: navLabel("nav.cloudBackups", "云备份"),
+    icon: Cloud,
+    route: "core.cloud-backups",
+    order: 101,
+  },
+  {
+    id: "core.plugin-manager",
+    location: "primary.settings",
+    parentId: "core.system-settings-group",
+    label: navLabel("nav.pluginManager", "插件"),
+    icon: Package,
+    route: "core.plugin-manager",
+    order: 110,
+  },
+  {
+    id: "core.agent-stats",
+    location: "primary.settings",
+    parentId: "core.system-settings-group",
+    label: navLabel("nav.agentStats", "智能体统计"),
+    icon: SparkDataLine,
+    route: "core.agent-stats",
+    order: 120,
+  },
 
-  // ── 运维与调试 (primary.settings, group 2) ─────────────────────────────
+  // ── 用户偏好 ─────────────────────────────────────────────────────────────
+  {
+    id: "core.user-prefs-group",
+    location: "primary.settings",
+    label: navLabel("nav.userPrefs", "用户偏好"),
+    isGroup: true,
+    order: 20,
+  },
+  {
+    id: "core.pet",
+    location: "primary.settings",
+    parentId: "core.user-prefs-group",
+    label: navLabel("nav.pet", "桌面宠物"),
+    icon: PawPrint,
+    route: "core.pet",
+    order: 10,
+  },
+  {
+    id: "core.text-selection",
+    location: "primary.settings",
+    parentId: "core.user-prefs-group",
+    label: navLabel("nav.textSelection", "全局划词"),
+    icon: ScanText,
+    route: "core.text-selection",
+    order: 20,
+  },
+  {
+    id: "core.voice-transcription",
+    location: "primary.settings",
+    parentId: "core.user-prefs-group",
+    label: navLabel("nav.voiceTranscription", "语音转写"),
+    icon: SparkMicLine,
+    route: "core.voice-transcription",
+    order: 30,
+  },
+
+  // ── 运维与调试 ───────────────────────────────────────────────────────────
   {
     id: "core.ops-debug-group",
     location: "primary.settings",
     label: navLabel("nav.opsDebug", "运维与调试"),
     isGroup: true,
-    order: 20,
-  },
-  {
-    id: "core.security",
-    location: "primary.settings",
-    parentId: "core.ops-debug-group",
-    label: navLabel("nav.security", "安全"),
-    icon: SparkBrowseLine,
-    route: "core.security",
-    order: 10,
-  },
-  {
-    id: "core.backups",
-    location: "primary.settings",
-    parentId: "core.ops-debug-group",
-    label: navLabel("nav.backups", "备份"),
-    icon: SparkSaveLine,
-    route: "core.backups",
-    order: 20,
-  },
-  {
-    id: "core.cloud-backups",
-    location: "primary.settings",
-    parentId: "core.ops-debug-group",
-    label: navLabel("nav.cloudBackups", "云备份"),
-    icon: Cloud,
-    route: "core.cloud-backups",
-    order: 21,
+    order: 30,
   },
   {
     id: "core.debug",
@@ -387,16 +394,7 @@ export const BUILTIN_MENU: MenuItem[] = [
     label: navLabel("nav.debug", "调试"),
     icon: SparkDebugLine,
     route: "core.debug",
-    order: 30,
-  },
-  {
-    id: "core.plugin-manager",
-    location: "primary.settings",
-    parentId: "core.ops-debug-group",
-    label: navLabel("nav.pluginManager", "插件"),
-    icon: Package,
-    route: "core.plugin-manager",
-    order: 40,
+    order: 10,
   },
   {
     id: "core.cron-jobs",
@@ -405,7 +403,7 @@ export const BUILTIN_MENU: MenuItem[] = [
     label: navLabel("nav.cronJobs", "定时任务"),
     icon: Clock,
     route: "core.cron-jobs",
-    order: 50,
+    order: 20,
   },
   {
     id: "core.heartbeat",
@@ -414,44 +412,25 @@ export const BUILTIN_MENU: MenuItem[] = [
     label: navLabel("nav.heartbeat", "心跳"),
     icon: Activity,
     route: "core.heartbeat",
-    order: 60,
+    order: 30,
   },
   {
-    id: "core.voice-transcription",
+    id: "core.doc-sdk",
     location: "primary.settings",
     parentId: "core.ops-debug-group",
-    label: navLabel("nav.voiceTranscription", "语音转写"),
-    icon: SparkMicLine,
-    route: "core.voice-transcription",
-    order: 70,
+    label: navLabel("nav.docSdk", "文档处理SDK"),
+    icon: FileCode2,
+    route: "core.doc-sdk",
+    order: 40,
   },
   {
-    id: "core.agent-stats",
+    id: "core.doc-sdk-iframe",
     location: "primary.settings",
     parentId: "core.ops-debug-group",
-    label: navLabel("nav.agentStats", "智能体统计"),
-    icon: SparkDataLine,
-    route: "core.agent-stats",
-    order: 80,
-  },
-  // core.skill-pool removed from menu — now a tab inside /skills (unified page)
-  {
-    id: "core.pet",
-    location: "primary.settings",
-    parentId: "core.ops-debug-group",
-    label: navLabel("nav.pet", "桌面宠物"),
-    icon: PawPrint,
-    route: "core.pet",
-    order: 100,
-  },
-  {
-    id: "core.text-selection",
-    location: "primary.settings",
-    parentId: "core.ops-debug-group",
-    label: navLabel("nav.textSelection", "全局划词"),
-    icon: ScanText,
-    route: "core.text-selection",
-    order: 110,
+    label: navLabel("nav.docSdkIframe", "文档处理(iframe)"),
+    icon: ScrollText,
+    route: "core.doc-sdk-iframe",
+    order: 50,
   },
 ];
 

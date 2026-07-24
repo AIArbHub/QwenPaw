@@ -609,7 +609,9 @@ export default function KnowledgeDesk() {
               <div className={styles.searchResults}>
                 {searching ? (
                   <div style={{ textAlign: "center", padding: 40 }}>
-                    <Spin size="large" tip={searchMode === "ai" ? "AI 语义检索中..." : "检索中..."} />
+                    <Spin size="large" tip={searchMode === "ai" ? "AI 语义检索中..." : "检索中..."}>
+                      <div style={{ minHeight: 100 }} />
+                    </Spin>
                   </div>
                 ) : searchResults.length > 0 ? (
                   searchResults.map((result, i) => (
@@ -1038,7 +1040,9 @@ export default function KnowledgeDesk() {
             {/* Content */}
             {contentLoading ? (
               <div style={{ textAlign: "center", padding: 40 }}>
-                <Spin tip="加载文档内容..." />
+                <Spin tip="加载文档内容...">
+                  <div style={{ minHeight: 100 }} />
+                </Spin>
               </div>
             ) : editing ? (
               <TextArea

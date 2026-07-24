@@ -907,7 +907,7 @@ export function AgentDetailDrawer({
         activeKey={activeTab}
         onChange={setActiveTab}
         items={tabs}
-        destroyInactiveTabPane={false}
+        destroyOnHidden={false}
       />
     </Drawer>
   );
