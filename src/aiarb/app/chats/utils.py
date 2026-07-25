@@ -28,7 +28,7 @@ from aiarb.exceptions import (
 
 from ...config import load_config
 from ...constant import (
-    QWENPAW_MESSAGE_TAG_KEY,
+    AIARB_MESSAGE_TAG_KEY,
     SCROLL_MEMORY_MESSAGE_TAG,
 )
 
@@ -46,7 +46,7 @@ def _is_scroll_memory_placeholder(msg: Msg) -> bool:
     metadata = getattr(msg, "metadata", None)
     if (
         isinstance(metadata, dict)
-        and metadata.get(QWENPAW_MESSAGE_TAG_KEY) == SCROLL_MEMORY_MESSAGE_TAG
+        and metadata.get(AIARB_MESSAGE_TAG_KEY) == SCROLL_MEMORY_MESSAGE_TAG
     ):
         return True
 

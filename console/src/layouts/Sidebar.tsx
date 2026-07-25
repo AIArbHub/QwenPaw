@@ -34,6 +34,7 @@ import {
   SparkDataLine,
   SparkSaveLine,
   SparkUserGroupLine,
+  SparkBarChartLine,
 } from "@agentscope-ai/icons";
 import { Clock, Activity } from "lucide-react";
 import SidebarSessionList from "./SidebarSessionList";
@@ -262,7 +263,6 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(isMobileSidebarViewport);
-const [hasInboxUnread, setHasInboxUnread] = useState(false);
 const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
 const [hasPendingApprovals, setHasPendingApprovals] = useState(false);
 const [shakeInbox, setShakeInbox] = useState(false);
@@ -799,7 +799,6 @@ const arbitrationMenuItems = useMemo(
               <span>{t("sidebar.tab.arbitration")}</span>
             </button>
           </div>
-          </div>
 
           {sidebarTab === "agent" ? (
             <>
@@ -1070,33 +1069,21 @@ const arbitrationMenuItems = useMemo(
                 />
               </div>
 
-            {/* Agent-scoped menu */}
-            <Menu
-              mode="inline"
-              selectedKeys={[selectedKey]}
-              openKeys={openKeys}
-              onClick={({ key }) =>
-                handleMenuClick(String(key), agentMenu)
-              }
-              items={agentMenuItems}
-              theme={isDark ? "dark" : "light"}
-              className={styles.sideMenu}
-            />
-          </div>
-
-          {/* Global settings section */}
-          <Menu
-            mode="inline"
-            selectedKeys={[selectedKey]}
-            openKeys={openKeys}
-            onClick={({ key }) =>
-              handleMenuClick(String(key), settingsMenu)
-            }
-            items={settingsMenuItems}
-            theme={isDark ? "dark" : "light"}
-            className={styles.sideMenu}
-          />
-          <Slot name="sider.bottom" kind="fill" />
+              {/* Global settings section */}
+              <Menu
+                mode="inline"
+                selectedKeys={[selectedKey]}
+                openKeys={openKeys}
+                onClick={({ key }) =>
+                  handleMenuClick(String(key), settingsMenu)
+                }
+                items={settingsMenuItems}
+                theme={isDark ? "dark" : "light"}
+                className={styles.sideMenu}
+              />
+              <Slot name="sider.bottom" kind="fill" />
+            </>
+          ) : null}
         </>
       )}
 
