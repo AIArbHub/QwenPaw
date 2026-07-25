@@ -69,35 +69,11 @@ const PluginManagerPage = lazyImportWithRetry(
   "../../pages/Settings/PluginManager",
 );
 const AppCenterPage = lazyImportWithRetry("../../pages/AppCenter");
-const MootPage = lazyImportWithRetry("../../pages/Moot");
-const AwardPage = lazyImportWithRetry("../../pages/Award");
-const KnowledgePage = lazyImportWithRetry("../../pages/Knowledge");
-const CasesPage = lazyImportWithRetry("../../pages/Cases");
-const DocumentsPage = lazyImportWithRetry("../../pages/Documents");
 const MemoryPage = lazyImportWithRetry("../../pages/Memory");
 const SopPage = lazyWithRetry(
   () => import("../../pages/Settings/Sop"),
   "../../pages/Settings/Sop",
 );
-const ArbitrationDeskPage = lazyImportWithRetry("../../pages/ArbitrationDesk");
-const KnowledgeDeskPage = lazyImportWithRetry("../../pages/KnowledgeDesk");
-const ArbitrationKBPage = lazyImportWithRetry("../../pages/ArbitrationKB");
-const AwardReviewPage = lazyImportWithRetry("../../pages/AwardReview");
-const EngineSettingsPage = lazyImportWithRetry("../../pages/EngineSettings");
-const DocSDKPage = lazyImportWithRetry("../../pages/DocSDK");
-const DocSDKIframePage = lazyWithRetry(
-  () => import("../../pages/DocSDK/IframeView"),
-  "../../pages/DocSDK/IframeView",
-);
-
-// Design mode merged pages
-const DesignSkillsPage = lazyImportWithRetry("../../pages/Design/Skills");
-const DesignExtensionsPage = lazyImportWithRetry(
-  "../../pages/Design/Extensions",
-);
-const DesignAgentPage = lazyImportWithRetry("../../pages/Design/Agent");
-const DesignUsagePage = lazyImportWithRetry("../../pages/Design/Usage");
-const DesignOpsPage = lazyImportWithRetry("../../pages/Design/Ops");
 
 /**
  * "/" lands here. Waits for useSyncCodingMode to populate the store before
@@ -131,50 +107,12 @@ export const BUILTIN_ROUTES: Route[] = [
   { id: "core.channels", path: "/channels", component: ChannelsPage },
   { id: "core.sessions", path: "/sessions", component: SessionsPage },
   { id: "core.inbox", path: "/inbox", component: InboxPage },
-  // ── New desk routes (primary) ──
-  { id: "core.desk", path: "/desk", component: ArbitrationDeskPage },
-  { id: "core.desk-case", path: "/desk/:caseId", component: ArbitrationDeskPage },
-  { id: "core.knowledge-desk", path: "/knowledge", component: KnowledgeDeskPage },
-  { id: "core.arb-kb", path: "/arb-kb", component: ArbitrationKBPage },
-  { id: "core.award-review", path: "/award-review", component: AwardReviewPage },
-  { id: "core.engine-settings", path: "/engine", component: EngineSettingsPage },
-  // ── DocSDK routes (方案B: native React / 方案A: iframe) ──
-  { id: "core.doc-sdk", path: "/doc-sdk", component: DocSDKPage },
-  { id: "core.doc-sdk-iframe", path: "/doc-sdk-iframe", component: DocSDKIframePage },
-  // ── Legacy routes (kept for backward compat, old pages still accessible) ──
-  { id: "core.moot", path: "/moot", component: MootPage },
-  { id: "core.moot-tribunal", path: "/tribunal", component: MootPage },
-  { id: "core.award", path: "/award", component: AwardPage },
-  { id: "core.documents", path: "/documents", component: DocumentsPage },
-  { id: "core.cases", path: "/cases", component: CasesPage },
-  // Legacy redirects: /wiki → /knowledge, /desensitize & /docforge → /documents
-  {
-    id: "core.wiki-redirect",
-    path: "/wiki",
-    component: () => <Navigate to="/knowledge" replace />,
-  },
-  {
-    id: "core.docforge-redirect",
-    path: "/docforge",
-    component: () => <Navigate to="/documents" replace />,
-  },
-  {
-    id: "core.desensitize-redirect",
-    path: "/desensitize",
-    component: () => <Navigate to="/engine" replace />,
-  },
   {
     id: "core.memory",
     path: "/memory",
     component: MemoryPage,
   },
   { id: "core.sop", path: "/sop", component: SopPage },
-  // Redirect old desk paths to new desk pages
-  {
-    id: "core.moot-desk-redirect",
-    path: "/moot-desk",
-    component: () => <Navigate to="/desk" replace />,
-  },
   { id: "core.cron-jobs", path: "/cron-jobs", component: CronJobsPage },
   { id: "core.heartbeat", path: "/heartbeat", component: HeartbeatPage },
   // ── Skills: unified tabbed page (技能 / 技能池 / 技能市场) for all sidebar modes ──
@@ -236,17 +174,6 @@ export const BUILTIN_ROUTES: Route[] = [
     path: "/apps/:appId",
     component: AppCenterPage,
   },
-
-  // Design mode merged routes
-  { id: "design.skills", path: "/design/skills", component: DesignSkillsPage },
-  {
-    id: "design.extensions",
-    path: "/design/extensions",
-    component: DesignExtensionsPage,
-  },
-  { id: "design.agent", path: "/design/agent", component: DesignAgentPage },
-  { id: "design.usage", path: "/design/usage", component: DesignUsagePage },
-  { id: "design.ops", path: "/design/ops", component: DesignOpsPage },
 ];
 
 routeRegistry.addBuiltin(BUILTIN_ROUTES);

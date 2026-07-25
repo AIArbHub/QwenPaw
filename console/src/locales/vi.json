@@ -164,13 +164,13 @@
       "backgroundFailed": "Background download failed"
     },
     "settings": {
+      "title": "Cài đặt",
       "language": "Ngôn ngữ",
       "theme": "Giao diện",
       "mode": "Chế độ"
     },
     "simpleMode": "Chế độ đơn giản",
-    "fullMode": "Chế độ đầy đủ",
-    "designMode": "Chế độ thiết kế"
+    "fullMode": "Chế độ đầy đủ"
   },
   "theme": {
     "dark": "Tối",

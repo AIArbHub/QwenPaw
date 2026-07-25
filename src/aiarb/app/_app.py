@@ -134,7 +134,6 @@ async def lifespan(  # pylint: disable=too-many-statements,too-many-branches
     ensure_default_agent_exists()
     migrate_legacy_skills_to_skill_pool()
     ensure_qa_agent_exists()
-    ensure_builtin_arbitration_agents()
 
     # Ensure built-in SOP SkillCard templates exist (non-blocking)
     try:

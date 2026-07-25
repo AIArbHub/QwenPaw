@@ -2485,13 +2485,13 @@
       "backgroundFailed": "Falha no download em segundo plano"
     },
     "settings": {
+      "title": "Configurações",
       "language": "Idioma",
       "theme": "Tema",
       "mode": "Modo"
     },
     "simpleMode": "Modo simples",
-    "fullMode": "Modo completo",
-    "designMode": "Modo design"
+    "fullMode": "Modo completo"
   },
   "chat": {
     "modelSelectTooltip": "Selecionar Modelo",

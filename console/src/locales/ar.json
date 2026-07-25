@@ -142,13 +142,13 @@
       "backgroundFailed": "Background download failed"
     },
     "settings": {
+      "title": "الإعدادات",
       "language": "Language",
       "theme": "Theme",
       "mode": "Mode"
     },
     "simpleMode": "Simple Mode",
-    "fullMode": "Full Mode",
-    "designMode": "وضع التصميم"
+    "fullMode": "Full Mode"
   },
   "debug": {
     "title": "Debug",

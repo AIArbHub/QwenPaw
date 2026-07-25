@@ -363,8 +363,7 @@ async def future(
 
     if llm_call_fn is None:
         try:
-            from ..knowledge.desensitize_llm import get_llm_call_fn
-            llm_call_fn = get_llm_call_fn()
+            llm_call_fn = None  # LLM desensitize function removed
         except Exception:
             return {"results": [], "errors": ["LLM service not available"], "total_qa": 0}
 

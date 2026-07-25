@@ -2259,13 +2259,13 @@
       "backgroundFailed": "Фоновая загрузка не удалась"
     },
     "settings": {
+      "title": "Настройки",
       "language": "Язык",
       "theme": "Тема",
       "mode": "Режим"
     },
     "simpleMode": "Простой режим",
-    "fullMode": "Полный режим",
-    "designMode": "Режим дизайна"
+    "fullMode": "Полный режим"
   },
   "chat": {
     "modelSelectTooltip": "Выбор модели",

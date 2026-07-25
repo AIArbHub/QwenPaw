@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 const STORAGE_KEY = "aiarb_sidebar_mode";
 
-export type SidebarMode = "simple" | "full" | "design";
+export type SidebarMode = "simple" | "full";
 
 interface SidebarModeState {
   mode: SidebarMode;
@@ -14,7 +14,7 @@ export const useSidebarModeStore = create<SidebarModeState>((set) => ({
   mode: (() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored === "simple" || stored === "design") return stored;
+      if (stored === "simple") return stored;
       return "full";
     } catch {
       return "full";
@@ -23,7 +23,7 @@ export const useSidebarModeStore = create<SidebarModeState>((set) => ({
 
   toggleMode: () =>
     set((state) => {
-      const cycle: SidebarMode[] = ["full", "simple", "design"];
+      const cycle: SidebarMode[] = ["full", "simple"];
       const idx = cycle.indexOf(state.mode);
       const next = cycle[(idx + 1) % cycle.length];
       try {

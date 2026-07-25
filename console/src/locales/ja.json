@@ -2259,13 +2259,13 @@
       "backgroundFailed": "バックグラウンドダウンロード失敗"
     },
     "settings": {
+      "title": "設定",
       "language": "言語",
       "theme": "テーマ",
       "mode": "モード"
     },
     "simpleMode": "シンプルモード",
-    "fullMode": "フルモード",
-    "designMode": "デザインモード"
+    "fullMode": "フルモード"
   },
   "chat": {
     "modelSelectTooltip": "モデルを選択",

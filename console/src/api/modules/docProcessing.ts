@@ -365,29 +365,4 @@ export const docProcessingApi = {
     request<{ data: string }>(`/doc/batch/${encodeURIComponent(batchId)}/export`, {
       method: "POST",
     }),
-
-  // ── Arbitration Review & Knowledge ──────────────────────────────
-
-  createArbitrationReview: (body: Record<string, any>) =>
-    request<{ review_id: string }>("/doc/arbitration/review", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-
-  exportArbitrationReview: (reviewId: string) =>
-    request<{ data: string }>(`/doc/arbitration/review/${encodeURIComponent(reviewId)}/export`, {
-      method: "POST",
-    }),
-
-  searchArbitrationKnowledge: (query: string, limit: number = 10) =>
-    request<{ results: any[] }>(`/doc/arbitration/knowledge/search?q=${encodeURIComponent(query)}&limit=${limit}`),
-
-  importArbitrationKnowledge: (body: Record<string, any>) =>
-    request<{ imported: number }>("/doc/arbitration/knowledge/import", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-
-  getArbitrationKnowledgeStats: () =>
-    request<any>("/doc/arbitration/knowledge/stats"),
 };

@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 
 import { SunMoon } from "lucide-react";
 import { Select } from "antd";
-import { Palette } from "lucide-react";
 import {
   SparkSunLine,
   SparkMoonLine,
@@ -202,18 +201,6 @@ export default function SidebarSettingsPanel({
             }}
           >
             <SparkExitFullscreenLine size={14} />
-          </button>
-          <button
-            title={t("sidebar.designMode", "Design Mode")}
-            className={`${styles.optBtn} ${
-              sidebarMode === "design" ? styles.optBtnActive : ""
-            }`}
-            onClick={() => {
-              setSidebarMode("design");
-              onClose?.();
-            }}
-          >
-            <Palette size={14} />
           </button>
         </div>
       </div>

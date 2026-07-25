@@ -168,13 +168,13 @@
       "backgroundFailed": "Unduhan latar belakang gagal"
     },
     "settings": {
+      "title": "Pengaturan",
       "language": "Bahasa",
       "theme": "Tema",
       "mode": "Mode"
     },
     "simpleMode": "Mode sederhana",
-    "fullMode": "Mode lengkap",
-    "designMode": "Mode desain"
+    "fullMode": "Mode lengkap"
   },
   "login": {
     "title": "Masuk ke AI Arb",

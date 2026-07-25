@@ -142,13 +142,13 @@
       "backgroundFailed": "Background download failed"
     },
     "settings": {
+      "title": "设置",
       "language": "語言",
       "theme": "主題",
       "mode": "模式"
     },
     "simpleMode": "精簡模式",
-    "fullMode": "完整模式",
-    "designMode": "設計版"
+    "fullMode": "完整模式"
   },
   "debug": {
     "title": "調試",

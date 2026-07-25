@@ -1426,18 +1426,6 @@ async def put_documents_parser(
 
     save_config(config)
 
-    # Invalidate cached parser routers so new config takes effect
-    try:
-        from . import knowledge as _kmod
-        _kmod._parser_router = None
-    except Exception:
-        pass
-    try:
-        from . import cases as _cmod
-        _cmod._parser_router = None
-    except Exception:
-        pass
-
     _mineru_configured = bool(parser_cfg.mineru_api_key) or (
         "localhost" in parser_cfg.mineru_base_url or "127.0.0.1" in parser_cfg.mineru_base_url
     )

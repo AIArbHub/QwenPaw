@@ -11,7 +11,6 @@ from .components import ComponentManager, ParseResult
 from .routing import RoutingScheduler, EngineStrategy, DocumentType
 from .api.routes import create_doc_processing_router
 from .batch_processor import BatchProcessor, batch_processor
-from .arbitration import ArbitrationKnowledgeBase, AwardReviewer
 from ..utils.logging import logger
 
 
@@ -366,9 +365,6 @@ __all__ = [
     'get_doc_environment_info',
     'install_doc_component',
     'list_doc_components',
-    # 仲裁场景
-    'ArbitrationKnowledgeBase',
-    'AwardReviewer',
     # 批量处理
     'BatchProcessor',
     'batch_processor',
