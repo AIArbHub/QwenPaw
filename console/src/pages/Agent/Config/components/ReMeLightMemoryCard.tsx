@@ -1,4 +1,4 @@
-import {
+﻿import {
   Form,
   Card,
   Switch,
@@ -20,7 +20,7 @@ import { SliderWithValue } from "./SliderWithValue";
 import api from "@/api";
 import styles from "../index.module.less";
 
-// Keep in sync with src/qwenpaw/agents/memory/reme_config.py
+// Keep in sync with src/aiarb/agents/memory/reme_config.py
 // _OPENAI_COMPAT_EMBEDDING_BACKENDS.
 const OPENAI_COMPAT_EMBEDDING_BACKENDS = new Set([
   "openai",
@@ -44,7 +44,7 @@ export function isEmbeddingEnabled(
   if (!modelName?.trim()) {
     return false;
   }
-  // Keep enablement aligned with AgentScope credential requirements.
+  // Keep enablement aligned with AIArb credential requirements.
   if (OPENAI_COMPAT_EMBEDDING_BACKENDS.has(backend)) {
     return !!apiKey?.trim();
   }

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests for MediaPreview error handling.
  *
  * Covers the streaming race where the preview is first probed with a

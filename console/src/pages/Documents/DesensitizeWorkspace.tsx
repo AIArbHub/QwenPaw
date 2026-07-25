@@ -91,7 +91,7 @@ const SAMPLE_TEXT = `申请人：张三，身份证号110101199001011234，手�
 被申请人的银行账户为：中国建设银行深圳分行 6227 0033 8888 9999 888
 法定代表人：王五，统一社会信用代码：91440300MA5DQXXXXX`;
 
-const HISTORY_KEY = "qwenpaw.desensitize.history";
+const HISTORY_KEY = "aiarb.desensitize.history";
 const MAX_HISTORY = 50;
 
 function loadHistory(): HistoryEntry[] {

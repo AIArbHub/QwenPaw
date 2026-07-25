@@ -1,7 +1,7 @@
 [package]
-name = "ai-arb-desktop"
-version = "0.1.0"
-description = "AI Arb Desktop Tauri shell that wraps the QwenPaw Console frontend and runs the Python FastAPI backend as a local sidecar process."
+name = "aiarb-desktop"
+version = "2.0.1"
+description = "AI Arb Desktop Tauri shell that wraps the AIArb Console frontend and runs the Python FastAPI backend as a local sidecar process."
 authors = ["山木Simba"]
 license = "Apache-2.0"
 repository = "https://github.com/agentscope-ai/QwenPaw"

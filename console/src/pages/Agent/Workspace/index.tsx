@@ -1,4 +1,4 @@
-import { useAgentsData, FileListPanel, FileEditor } from "./components";
+﻿import { useAgentsData, FileListPanel, FileEditor } from "./components";
 import styles from "./index.module.less";
 import { UploadOutlined, DownloadOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import { Button, Tooltip } from "@agentscope-ai/design";

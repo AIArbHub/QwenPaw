@@ -1,4 +1,4 @@
-import { Select, Tag, Tooltip } from "antd";
+﻿import { Select, Tag, Tooltip } from "antd";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import {
@@ -24,7 +24,7 @@ import { AgentStatusIndicator } from "../AgentStatusIndicator";
 import { useAgentLongPress } from "./useAgentLongPress";
 import styles from "./index.module.less";
 
-const DEFAULT_AVATAR = "/ai-arb-avatar.svg";
+const DEFAULT_AVATAR = "/aiarb-avatar.svg";
 
 function AgentAvatar({
   avatar,

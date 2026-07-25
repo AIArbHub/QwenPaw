@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -30,7 +30,7 @@ vi.mock("../hooks/useMarketPlugins", () => ({
     category: undefined,
     sortBy: "downloads",
     installingId: null,
-    qwenpawVersion: "2.0.0",
+    aiarbVersion: "2.0.0",
     isCompatible: () => true,
     handleSearch: vi.fn(),
     handleCategoryChange: vi.fn(),
@@ -43,19 +43,19 @@ vi.mock("../hooks/useMarketPlugins", () => ({
 
 function makePlugin(
   detailsUrl: string,
-  qwenpawCompatLabels?: string[],
+  aiarbCompatLabels?: string[],
 ): MarketPluginEntry {
   return {
-    id: "@agentscope/demo",
+    id: "@agentscope-ai/demo",
     display_name: "Demo plugin",
-    developer: "AgentScope",
-    owner: "agentscope",
+    developer: "AIArb",
+    owner: "aiarb",
     version: "1.0.0",
     logo_url: null,
     downloads: 10,
     view_count: 20,
     details_url: detailsUrl,
-    qwenpaw_compat_labels: qwenpawCompatLabels,
+    aiarb_compat_labels: aiarbCompatLabels,
     locales: {
       en: {
         description: "Demo description",
@@ -83,14 +83,14 @@ describe("MarketPluginList", () => {
 
   it("opens plugin details through the shared external-link guard", () => {
     hoisted.plugins.push(
-      makePlugin("https://platform.agentscope.io/plugins/agentscope/demo"),
+      makePlugin("https://platform.agentscope.io/plugins/aiarb/demo"),
     );
 
     render(<MarketPluginList onInstalled={vi.fn()} />);
     fireEvent.click(screen.getByText("pluginManager.marketDetails"));
 
     expect(windowOpen).toHaveBeenCalledWith(
-      "https://platform.agentscope.io/plugins/agentscope/demo",
+      "https://platform.agentscope.io/plugins/aiarb/demo",
       "_blank",
       "noopener,noreferrer",
     );
@@ -106,9 +106,9 @@ describe("MarketPluginList", () => {
     expect(invoke).not.toHaveBeenCalled();
   });
 
-  it("shows the QwenPaw compatibility versions returned by the market", () => {
+  it("shows the AIArb compatibility versions returned by the market", () => {
     hoisted.plugins.push(
-      makePlugin("https://platform.agentscope.io/plugins/agentscope/demo", [
+      makePlugin("https://platform.agentscope.io/plugins/aiarb/demo", [
         "1.x",
         "2.x",
       ]),
@@ -116,7 +116,7 @@ describe("MarketPluginList", () => {
 
     render(<MarketPluginList onInstalled={vi.fn()} />);
 
-    expect(screen.getByText("QwenPaw 1.x, 2.x")).toBeInTheDocument();
+    expect(screen.getByText("AIArb 1.x, 2.x")).toBeInTheDocument();
   });
 
   it("changes the plugin market sort order", () => {

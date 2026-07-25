@@ -32,7 +32,7 @@ interface ApprovalContextValue {
   clearHistory: () => void;
 }
 
-const APPROVAL_HISTORY_KEY = "qwenpaw.approval.history";
+const APPROVAL_HISTORY_KEY = "aiarb.approval.history";
 const MAX_HISTORY_ITEMS = 200;
 
 const loadApprovalHistory = (): ApprovalHistoryItem[] => {

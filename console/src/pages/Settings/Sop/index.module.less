@@ -1,0 +1,249 @@
+.page {
+  max-width: 1000px;
+}
+
+.card {
+  margin-bottom: 16px;
+}
+
+.intro {
+  color: var(--ant-color-text-secondary);
+  font-size: 13px;
+}
+
+// ---------------------------------------------------------------------------
+// Detail drawer
+// ---------------------------------------------------------------------------
+
+.detailSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.sectionTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ant-color-text);
+}
+
+.detailRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--ant-color-border-secondary);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.detailKey {
+  flex: 0 0 88px;
+  color: var(--ant-color-text-secondary);
+  font-size: 13px;
+}
+
+.detailValue {
+  flex: 1;
+  font-size: 13px;
+  color: var(--ant-color-text);
+  word-break: break-word;
+}
+
+.issueList {
+  margin: 4px 0 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--ant-color-text);
+}
+
+// ---------------------------------------------------------------------------
+// Node list
+// ---------------------------------------------------------------------------
+
+.nodeList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nodeItem {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--ant-color-fill-quaternary);
+  border: 1px solid var(--ant-color-border-secondary);
+  border-radius: 8px;
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: var(--ant-color-primary-border);
+  }
+}
+
+.nodeIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  background: var(--ant-color-bg-container);
+}
+
+.nodeBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.nodeTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.nodeTitle {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ant-color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nodeDesc {
+  font-size: 12px;
+  color: var(--ant-color-text-secondary);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.nodeMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--ant-color-text-tertiary);
+
+  code {
+    font-size: 11px;
+    background: var(--ant-color-fill-tertiary);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+}
+
+.nodeHint {
+  margin-top: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: var(--ant-color-text-secondary);
+  background: var(--ant-color-fill-tertiary);
+  border-radius: 4px;
+  line-height: 1.5;
+}
+
+// ---------------------------------------------------------------------------
+// Edge list
+// ---------------------------------------------------------------------------
+
+.edgeList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.edgeItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--ant-color-fill-quaternary);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.edgeNode {
+  font-size: 12px;
+  background: var(--ant-color-fill-tertiary);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--ant-color-text);
+}
+
+.edgeArrow {
+  color: var(--ant-color-text-tertiary);
+  font-family: "SFMono-Regular", Consolas, monospace;
+}
+
+.edgePriority {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--ant-color-text-tertiary);
+  font-family: "SFMono-Regular", Consolas, monospace;
+}
+
+// ---------------------------------------------------------------------------
+// Distill panel
+// ---------------------------------------------------------------------------
+
+.distillHint {
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--ant-color-text-secondary);
+  background: var(--ant-color-info-bg);
+  border: 1px solid var(--ant-color-info-border);
+  border-radius: 8px;
+  line-height: 1.6;
+}
+
+.distillDocLabel {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--ant-color-text);
+  font-weight: 500;
+}
+
+.distillDocRequired {
+  color: var(--ant-color-error);
+  margin-right: 4px;
+}
+
+.distillDocInput {
+  margin-bottom: 24px;
+}
+
+.distillFormRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.distillFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}

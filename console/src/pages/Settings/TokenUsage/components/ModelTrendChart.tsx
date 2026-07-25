@@ -1,4 +1,4 @@
-import { Card } from "@agentscope-ai/design";
+﻿import { Card } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import { Line } from "@ant-design/plots";
 import styles from "../index.module.less";

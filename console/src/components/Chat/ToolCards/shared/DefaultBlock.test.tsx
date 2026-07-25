@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests for DefaultBlock Output copy button.
  */
 // @vitest-environment jsdom

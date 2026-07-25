@@ -1,4 +1,4 @@
-import type { LucideProps } from "lucide-react";
+﻿import type { LucideProps } from "lucide-react";
 import {
   MessageSquare,
   CalendarClock,
@@ -42,10 +42,10 @@ const ITEMS: Array<{
   },
   { key: "qq", icon: MessageSquare, labelZh: "QQ", labelEn: "QQ" },
   {
-    key: "agentscope",
+    key: "aiarb",
     icon: Puzzle,
-    labelZh: "AgentScope",
-    labelEn: "AgentScope",
+    labelZh: "AIArb",
+    labelEn: "AIArb",
   },
   { key: "python", icon: Code2, labelZh: "Python", labelEn: "Python" },
   { key: "cron", icon: CalendarClock, labelZh: "Cron", labelEn: "Cron" },

@@ -1,27 +1,27 @@
 version: '3.8'
 
 volumes:
-  qwenpaw-data:
-    name: qwenpaw-data
-  qwenpaw-secrets:
-    name: qwenpaw-secrets
-  qwenpaw-backups:
-    name: qwenpaw-backups
+  aiarb-data:
+    name: aiarb-data
+  aiarb-secrets:
+    name: aiarb-secrets
+  aiarb-backups:
+    name: aiarb-backups
 
 services:
-  qwenpaw:
+  aiarb:
     build:
       context: .
       dockerfile: deploy/Dockerfile.local
-    container_name: qwenpaw
+    container_name: aiarb
     restart: always
     ports:
       - "127.0.0.1:8088:8088"
     # environment:
-    #   - QWENPAW_AUTH_ENABLED=true
-    #   - QWENPAW_AUTH_USERNAME=admin
-    #   - QWENPAW_AUTH_PASSWORD=yourpassword
+    #   - AIARB_AUTH_ENABLED=true
+    #   - AIARB_AUTH_USERNAME=admin
+    #   - AIARB_AUTH_PASSWORD=yourpassword
     volumes:
-      - qwenpaw-data:/app/working
-      - qwenpaw-secrets:/app/working.secret
-      - qwenpaw-backups:/app/working.backups
+      - aiarb-data:/app/working
+      - aiarb-secrets:/app/working.secret
+      - aiarb-backups:/app/working.backups

@@ -40,7 +40,7 @@ function notify(): void {
     try {
       fn();
     } catch (err) {
-      console.warn("[QwenPaw registry] subscriber threw:", err);
+      console.warn("[AIArb registry] subscriber threw:", err);
     }
   }
 }

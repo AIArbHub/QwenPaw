@@ -12,9 +12,9 @@ import os
 # 添加src路径到Python路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from qwenpaw.doc_processing.components.component_manager import init_component_manager
-from qwenpaw.doc_processing.routing import RoutingScheduler, EngineStrategy
-from qwenpaw.doc_processing.components.mineru_cloud import MinerUCloudComponent
+from aiarb.doc_processing.components.component_manager import init_component_manager
+from aiarb.doc_processing.routing import RoutingScheduler, EngineStrategy
+from aiarb.doc_processing.components.mineru_cloud import MinerUCloudComponent
 
 
 async def test_mineru_cloud_integration():

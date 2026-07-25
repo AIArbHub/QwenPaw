@@ -34,7 +34,9 @@
     "unknown": "Unknown",
     "back": "Back",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "operationSuccess": "操作成功",
+    "operationFailed": "操作失敗"
   },
   "desktop": {
     "closeWindow": {
@@ -269,7 +271,12 @@
     "workDirBaseDirUpdated": "Work directory updated",
     "listView": "List View",
     "gridView": "Card View",
-    "basicInfo": "Basic Info"
+    "basicInfo": "Basic Info",
+    "skillsManagementHint": "このエージェントのスキルを管理 — スキルプールとスキルマーケットからインポート",
+    "importFromMarket": "マーケットからインポート",
+    "fullSkillsManagement": "スキル詳細管理",
+    "installedSkills": "インストール済みスキル",
+    "addSkillsFromPool": "スキールプールから追加"
   },
   "workspace": {
     "title": "ファイル",
@@ -454,7 +461,10 @@
     "aiCreateSkillGenerating": "正在生成技能...",
     "aiCreateSkillSuccess": "技能内容已生成，请检查并保存",
     "aiCreateSkillFailed": "AI 生成技能失败",
-    "useGenerated": "使用此内容"
+    "useGenerated": "使用此内容",
+    "importSuccess": "スキルのインポートに成功しました",
+    "confirmDelete": "スキール削除の確認",
+    "confirmDeleteDesc": "スキル「{{name}}」を削除しますか？この操作は元に戻せません。"
   },
   "skillPool": {
     "description": "ビルトインスキルとワークスペースアップロード用の共有ローカルスキルプール。ClawHub や LobeHub などの外部インポートは別機能です。",
@@ -1691,7 +1701,7 @@
     "contextManagementTitle": "コンテキスト管理",
     "memoryManagerBackend": "長期記憶管理バックエンド",
     "memoryManagerBackendTooltip": "メモリマネージャーのバックエンドタイプ。remelight（ローカルファイル）または adbpg（クラウドデータベース）から選択できます。",
-    "memoryManagerBackendRestartWarning": "長期記憶管理バックエンドの切り替えはホットリロードに対応していません。変更を反映するには保存後に QwenPaw を再起動してください。",
+    "memoryManagerBackendRestartWarning": "長期記憶管理バックエンドの切り替えはホットリロードに対応していません。変更を反映するには保存後に AIArb を再起動してください。",
     "maxIters": "最大反復回数",
     "maxItersTooltip": "ReActエージェントの推論・行動サイクルの最大反復回数",
     "maxItersPlaceholder": "最大反復回数を入力",
@@ -1747,7 +1757,7 @@
       "enableRepetitionProtection": "反復保護を有効化",
       "removeRule": "ルールを削除",
       "custom": "カスタム",
-      "customDescription": "QwenPaw 組み込み Gate で保存可能なパイプラインを構築します。",
+      "customDescription": "AIArb 組み込み Gate で保存可能なパイプラインを構築します。",
       "duplicate": "複製",
       "delete": "削除",
       "displayName": "表示名",
@@ -1780,9 +1790,9 @@
       "completionRubricDescription": "ツール呼び出しのないテキスト応答で完了信号を確認します。",
       "completionRubricHelp": "ツール呼び出しのないテキスト応答後に実行します。完了時は完了信号を出力し、未完了時は最大判定回数に達するまで作業を続行します。",
       "completionPrompt": "完了判定プロンプト",
-      "completionPromptHelp": "完了と見なす条件を記述します。完了信号の出力指示は QwenPaw が自動的に挿入します。",
+      "completionPromptHelp": "完了と見なす条件を記述します。完了信号の出力指示は AIArb が自動的に挿入します。",
       "completionSignal": "完了信号",
-      "completionSignalHelp": "QwenPaw はこの信号と、この信号だけを出力する指示を判定プロンプトに挿入します。前後の空白と大文字小文字を無視した完全一致のみが Loop を終了します。",
+      "completionSignalHelp": "AIArb はこの信号と、この信号だけを出力する指示を判定プロンプトに挿入します。前後の空白と大文字小文字を無視した完全一致のみが Loop を終了します。",
       "removeCriterion": "基準 {{number}} を削除",
       "totalTokensHelp": "このターンで使用する入力・出力トークンの合計上限です。",
       "promptTokensHelp": "システム指示、会話履歴、ツール定義、ツール結果を含みます。",
@@ -1988,7 +1998,7 @@
     "dreamCronRequired": "ドリームを有効にする場合は Cron 式を入力してください",
     "dreamCronInvalid": "有効な5フィールドの Cron 式を入力してください",
     "autoMemorySearch": "自動記憶検索（Beta）",
-    "autoMemorySearchTooltip": "毎回の会話で記憶検索を自動実行します。各クエリで自動的に記憶検索機能を呼び出し、QwenPawがあなたをより理解できますが、トークン消費が増加します。",
+    "autoMemorySearchTooltip": "毎回の会話で記憶検索を自動実行します。各クエリで自動的に記憶検索機能を呼び出し、AIArbがあなたをより理解できますが、トークン消費が増加します。",
     "autoMaxResults": "自動検索の最大結果数",
     "autoMaxResultsTooltip": "自動記憶検索が有効な場合に返される最大結果数",
     "autoMaxResultsRequired": "最大結果数は必須です",
@@ -2590,7 +2600,7 @@
     },
     "sandboxEnabled": "Enable Sandbox Execution",
     "sandboxEnabledTooltip": "When enabled, shell commands with no matching rule run silently inside the sandbox. When disabled, such commands run directly without the sandbox (no approval prompt). Either way, secret-file reads and dangerous commands (e.g. rm -rf /, sudo) are still blocked or require approval.",
-    "sandboxDegradedWarning": "Sandbox is configured as enabled, but QwenPaw is not running as administrator. The sandbox will be inactive for this session. To use the sandbox, restart QwenPaw with administrator privileges.",
+    "sandboxDegradedWarning": "Sandbox is configured as enabled, but AIArb is not running as administrator. The sandbox will be inactive for this session. To use the sandbox, restart AIArb with administrator privileges.",
     "shellEvasion": {
       "title": "Shell Evasion Detection",
       "description": "Configure which shell evasion and obfuscation detection checks are enabled. These checks detect techniques that attempt to hide malicious intent from simpler regex-only detection.",
@@ -2627,7 +2637,7 @@
     }
   },
   "login": {
-    "title": "QwenPaw にログイン",
+    "title": "AIArb にログイン",
     "registerTitle": "アカウント作成",
     "firstUserHint": "管理者アカウントを作成して始めましょう",
     "usernamePlaceholder": "ユーザー名",
@@ -2689,7 +2699,7 @@
     "providerTypeLocalWhisperDesc": "ローカルにインストールされた openai-whisper Python ライブラリで文字起こしを実行します。ffmpeg と openai-whisper の両方のインストールが必要です。",
     "localWhisperReady": "ローカル Whisper は準備完了です。ffmpeg と openai-whisper がインストールされています。",
     "localWhisperMissing": "ローカル Whisper は準備ができていません。不足している依存関係をインストールしてください。",
-    "localWhisperMissingDesc": "ffmpeg: {{ffmpeg}} | openai-whisper: {{whisper}}。不足している依存関係をインストールしてください：ffmpeg（システムパッケージ）と openai-whisper（uv pip install openai-whisper、または QwenPaw を [whisper] エクストラ付きでインストール）。",
+    "localWhisperMissingDesc": "ffmpeg: {{ffmpeg}} | openai-whisper: {{whisper}}。不足している依存関係をインストールしてください：ffmpeg（システムパッケージ）と openai-whisper（uv pip install openai-whisper、または AIArb を [whisper] エクストラ付きでインストール）。",
     "providerLabel": "Whisper API プロバイダー",
     "providerDescription": "Whisper API による音声文字起こしに使用するプロバイダーを選択します。Whisper 対応エンドポイントを持つプロバイダーのみ表示されます。",
     "providerPlaceholder": "プロバイダーを選択...",
@@ -3093,7 +3103,7 @@
   "codingMode": {
     "title": "コーディングモード",
     "experimental": "実験的機能",
-    "experimentalDesc": "コーディングモードは QwenPaw を軽量な Web IDE に変換し、コードエディター、ファイルツリー、Git 統合、AI コーディング支援を提供します。",
+    "experimentalDesc": "コーディングモードは AIArb を軽量な Web IDE に変換し、コードエディター、ファイルツリー、Git 統合、AI コーディング支援を提供します。",
     "experimentalNote": "この機能は実験的であり、現在も積極的に開発中です。一部の機能は制限されているか、将来のアップデートで変更される場合があります。",
     "confirmBtn": "コーディングモードを有効にする",
     "enterTooltip": "コーディングモードに入る",
@@ -3994,7 +4004,8 @@
     "version": "Version",
     "id": "ID",
     "category": "Category",
-    "description": "Description"
+    "description": "Description",
+    "builtin": "組み込み"
   },
   "cloudBackup": {
     "title": "Cloud Backups",
@@ -4049,9 +4060,9 @@
   },
   "persona": {
     "visualMode": "Visual",
-    "expertMode": "Expert",
+    "expertMode": "テキスト",
     "visualModeTooltip": "Form-based persona editor for everyday users",
-    "expertModeTooltip": "Edit Markdown files directly, for power users",
+    "expertModeTooltip": "Markdownテキストファイルを直接編集",
     "identityTitle": "Identity",
     "agentName": "Name",
     "agentNamePlaceholder": "Give your agent a name",
@@ -4073,7 +4084,7 @@
     "userNotesPlaceholder": "Other info about you",
     "userBackground": "Background",
     "userBackgroundPlaceholder": "What do you care about? What projects are you working on?",
-    "soulTitle": "Soul & Personality",
+    "soulTitle": "人格設定",
     "corePrinciples": "Core Principles",
     "addPrinciple": "Add principle",
     "principlePlaceholder": "Enter a new behavioral principle...",
@@ -4088,10 +4099,11 @@
     "heartbeatEnable": "Enable heartbeat check",
     "heartbeatIntervalUnit": "minutes",
     "fileManagementTitle": "File Management",
-    "unparsedWarning": "Some content could not be parsed into structured form. Use Expert mode to edit the full content.",
+    "unparsedWarning": "一部のコンテンツを構造化フォームに解析できませんでした。テキストモードで完全なコンテンツを編集してください。",
     "loadFailed": "Failed to load persona files",
     "saveSuccess": "Persona saved",
-    "saveFailed": "Failed to save persona"
+    "saveFailed": "Failed to save persona",
+    "roleCustomPlaceholder": "カスタムロールを入力"
   },
   "moot": {
     "title": "Arbitration Moot",
@@ -4169,7 +4181,7 @@
   },
   "pet": {
     "title": "Desktop Pet",
-    "intro": "Manage QwenPaw desktop pet: start, switch, create and import pets.",
+    "intro": "Manage AIArb desktop pet: start, switch, create and import pets.",
     "control": "Control Panel",
     "installedPets": "Installed Pets",
     "startDesktop": "Start Desktop Pet",
@@ -4268,7 +4280,17 @@
     "spritePreview": "预览（第0行第0帧）",
     "spriteInvalidFormat": "不支持的文件格式，请使用 WebP / PNG / JPG",
     "spriteInvalidSize": "尺寸不正确，必须为 1536×1872 px",
-    "spriteInvalidFile": "无法读取图片文件"
+    "spriteInvalidFile": "无法读取图片文件",
+    "chat": "チャット",
+    "chatWithPet": "ペットとチャット",
+    "chatTitle": "{name} とチャット",
+    "chatPlaceholder": "メッセージを送信してバインドされたエージェントとの会話を開始",
+    "chatInputPlaceholder": "メッセージを入力、Enter で送信、Shift+Enter で改行",
+    "chatSend": "送信",
+    "chatThinking": "考え中…",
+    "chatNoAgent": "まずエージェントをバインドしてください",
+    "chatError": "チャットエラー",
+    "chatToolUsed": "ツール使用"
   },
   "textSelection": {
     "title": "Text Selection",

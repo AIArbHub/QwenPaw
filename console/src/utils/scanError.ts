@@ -1,4 +1,4 @@
-import { Modal } from "@agentscope-ai/design";
+﻿import { Modal } from "@agentscope-ai/design";
 import React from "react";
 import type {
   SecurityScanErrorResponse,

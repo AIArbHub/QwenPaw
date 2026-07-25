@@ -1,4 +1,4 @@
-import { Drawer, Form, Input, Button } from "@agentscope-ai/design";
+﻿import { Drawer, Form, Input, Button } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import type { FormInstance } from "antd";
 import type { Session } from "./constants";

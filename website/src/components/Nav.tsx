@@ -1,39 +1,39 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, BookOpen, Globe, Download, Ellipsis } from "lucide-react";
-import { QwenpawMascot } from "./QwenpawMascot";
+import { AiarbMascot } from "./AiarbMascot";
 import { useTranslation } from "react-i18next";
 import { useSiteLanguage } from "@/i18n/SiteLanguageContext";
 import { useSiteConfig } from "@/config-context";
-import { GitHubIcon, BlogIcon, NoteIcon, AgentScopePlatformIcon } from "./Icon";
+import { GitHubIcon, BlogIcon, NoteIcon, AIArbPlatformIcon } from "./Icon";
 import {
   CommunityBenefitsMobileList,
   CommunityBenefitsPanel,
   CommunityBenefitsTriggerLabel,
 } from "./NavCommunityBenefits";
 
-const AGENTSCOPE_PLATFORM_URL = "https://platform.agentscope.io/";
+const AIARB_PLATFORM_URL = "https://platform.agentscope.io/";
 
-const AGENTSCOPE_LOGO_SIZE = 22;
+const AIARB_LOGO_SIZE = 22;
 
-const agentscopeLogoStyle: React.CSSProperties = {
+const aiarbLogoStyle: React.CSSProperties = {
   display: "block",
   flexShrink: 0,
-  width: AGENTSCOPE_LOGO_SIZE,
-  height: AGENTSCOPE_LOGO_SIZE,
+  width: AIARB_LOGO_SIZE,
+  height: AIARB_LOGO_SIZE,
   objectFit: "contain",
   verticalAlign: "middle",
   marginTop: -2,
 };
 
-function AgentScopeLogo() {
+function AIArbLogo() {
   return (
     <img
-      src="/agentscope.svg"
+      src="/aiarb.svg"
       alt=""
-      width={AGENTSCOPE_LOGO_SIZE}
-      height={AGENTSCOPE_LOGO_SIZE}
-      style={agentscopeLogoStyle}
+      width={AIARB_LOGO_SIZE}
+      height={AIARB_LOGO_SIZE}
+      style={aiarbLogoStyle}
       aria-hidden
     />
   );
@@ -119,29 +119,29 @@ export function Nav() {
 
   const platformLink = (
     <a
-      href={AGENTSCOPE_PLATFORM_URL}
+      href={AIARB_PLATFORM_URL}
       target="_blank"
       rel="noopener noreferrer"
       className={navLinkOrangeClass}
       title={t("nav.platformTitle")}
       aria-label={t("nav.platformTitle")}
     >
-      <AgentScopePlatformIcon size={18} />
+      <AIArbPlatformIcon size={18} />
       <span>{t("nav.platform")}</span>
     </a>
   );
 
-  const agentscopeLink = (
+  const aiarbLink = (
     <a
-      href="https://agentscope.io/"
+      href="https://aiarb.cn/"
       target="_blank"
       rel="noopener noreferrer"
       className={`${navLinkBlueClass} whitespace-nowrap`}
-      title={isZh ? "基于 AgentScope 打造" : "Built on AgentScope"}
-      aria-label={t("nav.agentscopeTeam")}
+      title={isZh ? "基于 AIArb 打造" : "Built on AIArb"}
+      aria-label={t("nav.aiarbTeam")}
     >
-      <AgentScopeLogo />
-      <span>{t("nav.agentscopeTeam")}</span>
+      <AIArbLogo />
+      <span>{t("nav.aiarbTeam")}</span>
     </a>
   );
 
@@ -190,7 +190,7 @@ export function Nav() {
           aria-label={projectName}
         >
           <span className="nav-brand-logo -mt-1 flex">
-            <QwenpawMascot size={120} />
+            <AiarbMascot size={120} />
           </span>
         </Link>
         <div className="nav-links hidden min-[641px]:flex min-[641px]:min-w-0 min-[641px]:flex-1 min-[641px]:items-center min-[641px]:justify-end min-[641px]:gap-3 lg:gap-5 xl:gap-6">
@@ -207,16 +207,16 @@ export function Nav() {
             target="_blank"
             rel="noopener noreferrer"
             className={navLinkOrangeClass}
-            title="QwenPaw on GitHub"
+            title="AIArb on GitHub"
           >
             <GitHubIcon />
             <span>{t("nav.github")}</span>
           </a>
 
-          {/* lg+: show Platform / AgentScope inline; below lg they move into More */}
+          {/* lg+: show Platform / AIArb inline; below lg they move into More */}
           <span className="hidden lg:contents">
             {platformLink}
-            {agentscopeLink}
+            {aiarbLink}
           </span>
 
           {/* xl+: community benefits + release notes inline */}
@@ -248,24 +248,24 @@ export function Nav() {
               >
                 <div className="flex flex-col gap-0.5 px-1 lg:hidden">
                   <a
-                    href={AGENTSCOPE_PLATFORM_URL}
+                    href={AIARB_PLATFORM_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={moreMenuItemClass}
                     onClick={() => setMoreOpen(false)}
                   >
-                    <AgentScopePlatformIcon size={18} />
+                    <AIArbPlatformIcon size={18} />
                     <span>{t("nav.platform")}</span>
                   </a>
                   <a
-                    href="https://agentscope.io/"
+                    href="https://aiarb.cn/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`${moreMenuItemClass} !text-[#0064FD]`}
                     onClick={() => setMoreOpen(false)}
                   >
-                    <AgentScopeLogo />
-                    <span>{t("nav.agentscopeTeam")}</span>
+                    <AIArbLogo />
+                    <span>{t("nav.aiarbTeam")}</span>
                   </a>
                 </div>
 
@@ -347,12 +347,12 @@ export function Nav() {
           rel="noopener noreferrer"
           className={navLinkOrangeClass}
           onClick={() => setOpen(false)}
-          title="QwenPaw on GitHub"
+          title="AIArb on GitHub"
         >
           <GitHubIcon /> {t("nav.github")}
         </a>
         <a
-          href={AGENTSCOPE_PLATFORM_URL}
+          href={AIARB_PLATFORM_URL}
           target="_blank"
           rel="noopener noreferrer"
           className={navLinkOrangeClass}
@@ -360,20 +360,20 @@ export function Nav() {
           title={t("nav.platformTitle")}
           aria-label={t("nav.platformTitle")}
         >
-          <AgentScopePlatformIcon size={18} />
+          <AIArbPlatformIcon size={18} />
           <span>{t("nav.platform")}</span>
         </a>
         <a
-          href="https://agentscope.io/"
+          href="https://aiarb.cn/"
           target="_blank"
           rel="noopener noreferrer"
           className={`${navLinkBlueClass} inline-flex items-center gap-2`}
           onClick={() => setOpen(false)}
-          title={isZh ? "基于 AgentScope 打造" : "Built on AgentScope"}
-          aria-label={t("nav.agentscopeTeam")}
+          title={isZh ? "基于 AIArb 打造" : "Built on AIArb"}
+          aria-label={t("nav.aiarbTeam")}
         >
-          <AgentScopeLogo />
-          <span>{t("nav.agentscopeTeam")}</span>
+          <AIArbLogo />
+          <span>{t("nav.aiarbTeam")}</span>
         </a>
 
         <div>

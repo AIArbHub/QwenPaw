@@ -41,7 +41,7 @@
       "../../scripts/pack/assets/icon.ico"
     ],
     "resources": [
-      "binaries/ai-arb-backend",
+      "binaries/aiarb-backend",
       "binaries/python-runtime",
       "binaries/node-runtime",
       "binaries/ocr-tools"

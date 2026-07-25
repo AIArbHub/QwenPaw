@@ -1,4 +1,4 @@
-import {
+﻿import {
   useEffect,
   useMemo,
   useRef,
@@ -35,11 +35,15 @@ import {
   RobotOutlined,
   LinkOutlined,
   DisconnectOutlined,
+  MessageOutlined,
+  SendOutlined,
+  LoadingOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
 import { PageHeader } from "@/components/PageHeader";
 import styles from "./index.module.less";
 
-const PET_API_BASE = "/api/qwenpaw-pet";
+const PET_API_BASE = "/api/aiarb-pet";
 
 // ---------------------------------------------------------------------------
 // Types — match the backend contracts documented in the task spec.
@@ -1181,6 +1185,318 @@ function BindAgentModal({ open, pet, onClose, onBound }: BindAgentModalProps) {
 }
 
 // ---------------------------------------------------------------------------
+// Pet chat modal — talk to the bound agent through the pet
+// ---------------------------------------------------------------------------
+
+interface ChatMsg {
+  role: "user" | "assistant" | "tool" | "error";
+  text: string;
+  toolName?: string;
+  streaming?: boolean;
+}
+
+interface PetChatModalProps {
+  open: boolean;
+  pet: PetEntry | null;
+  binding: PetBinding | null;
+  onClose: () => void;
+}
+
+function PetChatModal({ open, pet, binding, onClose }: PetChatModalProps) {
+  const { t } = useTranslation();
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+  const [thinking, setThinking] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  // Reset messages when opening for a different pet
+  useEffect(() => {
+    if (open) {
+      setMessages([]);
+      setInput("");
+      setThinking(false);
+      setSending(false);
+    }
+    return () => {
+      // Abort any in-flight SSE on close
+      abortRef.current?.abort();
+      abortRef.current = null;
+    };
+  }, [open, pet?.folder]);
+
+  // Auto-scroll to bottom on new messages
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleSend = async () => {
+    const text = input.trim();
+    if (!text || !pet || sending) return;
+    if (!binding?.agent_id) {
+      message.warning(t("pet.chatNoAgent", "请先绑定智能体"));
+      return;
+    }
+
+    // Add user message
+    setMessages((prev) => [...prev, { role: "user", text }]);
+    setInput("");
+    setSending(true);
+    setThinking(true);
+
+    // Add a placeholder assistant message for streaming
+    setMessages((prev) => [...prev, { role: "assistant", text: "", streaming: true }]);
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      const res = await fetch(`${PET_API_BASE}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pet_id: pet.folder,
+          message: text,
+          session_id: binding.session_id,
+        }),
+        signal: controller.signal,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || `HTTP ${res.status}`);
+      }
+
+      // Read SSE stream via ReadableStream (POST + SSE, not EventSource)
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let fullText = "";
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const jsonStr = line.slice(6).trim();
+            if (!jsonStr) continue;
+
+            try {
+              const evt = JSON.parse(jsonStr);
+              if (evt.type === "start") {
+                // thinking state already set
+              } else if (evt.type === "token") {
+                setThinking(false);
+                fullText += evt.text || "";
+                setMessages((prev) => {
+                  const next = [...prev];
+                  const last = next[next.length - 1];
+                  if (last && last.role === "assistant" && last.streaming) {
+                    next[next.length - 1] = { ...last, text: fullText };
+                  }
+                  return next;
+                });
+              } else if (evt.type === "tool") {
+                setThinking(false);
+                fullText = ""; // reset for the new assistant response after tool
+                setMessages((prev) => {
+                  const next = [...prev];
+                  const last = next[next.length - 1];
+                  // If the last streaming assistant message has no text, remove it
+                  if (last && last.role === "assistant" && last.streaming && !last.text) {
+                    next.pop();
+                  }
+                  // Add tool notice and a new empty assistant placeholder
+                  next.push({ role: "tool", text: "", toolName: evt.name });
+                  next.push({ role: "assistant", text: "", streaming: true });
+                  return next;
+                });
+              } else if (evt.type === "done") {
+                setThinking(false);
+                setMessages((prev) => {
+                  const next = [...prev];
+                  const last = next[next.length - 1];
+                  if (last && last.role === "assistant" && last.streaming) {
+                    next[next.length - 1] = {
+                      ...last,
+                      text: evt.text || fullText,
+                      streaming: false,
+                    };
+                  }
+                  return next;
+                });
+              } else if (evt.type === "error") {
+                setThinking(false);
+                setMessages((prev) => {
+                  const next = [...prev];
+                  const last = next[next.length - 1];
+                  if (last && last.role === "assistant" && last.streaming && !last.text) {
+                    next.pop(); // remove empty placeholder
+                  }
+                  next.push({ role: "error", text: evt.message || "Unknown error" });
+                  return next;
+                });
+              }
+            } catch {
+              // skip malformed SSE lines
+            }
+          }
+        }
+      }
+
+      // Finalize: mark last streaming message as done
+      setMessages((prev) => {
+        const next = [...prev];
+        const last = next[next.length - 1];
+        if (last && last.role === "assistant" && last.streaming) {
+          next[next.length - 1] = { ...last, streaming: false };
+        }
+        return next;
+      });
+    } catch (err: any) {
+      if (err.name === "AbortError") return;
+      setMessages((prev) => {
+        const next = [...prev];
+        const last = next[next.length - 1];
+        if (last && last.role === "assistant" && last.streaming && !last.text) {
+          next.pop();
+        }
+        next.push({
+          role: "error",
+          text: err.message || t("pet.chatError", "聊天出错"),
+        });
+        return next;
+      });
+    } finally {
+      setSending(false);
+      setThinking(false);
+      abortRef.current = null;
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const petName = pet ? pet.displayName || pet.folder : "";
+  const agentName = binding?.agent_name || binding?.agent_id || "";
+
+  return (
+    <Modal
+      title={
+        <Space>
+          <MessageOutlined />
+          {t("pet.chatTitle", "与 {name} 聊天").replace("{name}", petName)}
+          {agentName && (
+            <Tag icon={<RobotOutlined />} color="blue" style={{ marginInlineEnd: 0 }}>
+              {agentName}
+            </Tag>
+          )}
+        </Space>
+      }
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      destroyOnHidden
+      width={560}
+      styles={{ body: { padding: 0 } }}
+    >
+      <div className={styles.chatContainer}>
+        <div className={styles.chatMessages} ref={scrollRef}>
+          {messages.length === 0 && (
+            <div className={styles.chatEmpty}>
+              <RobotOutlined style={{ fontSize: 32, color: "var(--ant-color-text-quaternary)" }} />
+              <p>{t("pet.chatPlaceholder", "发送消息开始与绑定的智能体对话")}</p>
+            </div>
+          )}
+          {messages.map((msg, idx) => {
+            if (msg.role === "user") {
+              return (
+                <div key={idx} className={styles.chatBubbleUser}>
+                  <div className={styles.chatBubbleContent}>{msg.text}</div>
+                </div>
+              );
+            }
+            if (msg.role === "tool") {
+              return (
+                <div key={idx} className={styles.chatToolNotice}>
+                  <ToolOutlined /> {t("pet.chatToolUsed", "使用工具")}: {msg.toolName}
+                </div>
+              );
+            }
+            if (msg.role === "error") {
+              return (
+                <div key={idx} className={styles.chatBubbleError}>
+                  {msg.text}
+                </div>
+              );
+            }
+            // assistant
+            return (
+              <div key={idx} className={styles.chatBubbleAssistant}>
+                <div className={styles.chatBubbleAvatar}>
+                  <img
+                    src={pet ? `${PET_API_BASE}/pets/${encodeURIComponent(pet.folder)}/spritesheet` : ""}
+                    alt=""
+                    style={{
+                      width: 32,
+                      height: 36,
+                      objectFit: "none",
+                      objectPosition: "0 0",
+                      imageRendering: "pixelated",
+                      borderRadius: 4,
+                    }}
+                  />
+                </div>
+                <div className={styles.chatBubbleContent}>
+                  {msg.text || (msg.streaming && thinking ? (
+                    <span className={styles.chatThinking}>
+                      <LoadingOutlined /> {t("pet.chatThinking", "思考中…")}
+                    </span>
+                  ) : msg.streaming ? "…" : "")}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className={styles.chatInputBar}>
+          <Input.TextArea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={t("pet.chatInputPlaceholder", "输入消息，Enter 发送，Shift+Enter 换行")}
+            autoSize={{ minRows: 1, maxRows: 4 }}
+            disabled={sending}
+            className={styles.chatInput}
+          />
+          <Button
+            type="primary"
+            icon={<SendOutlined />}
+            onClick={handleSend}
+            loading={sending}
+            disabled={!input.trim()}
+          >
+            {t("pet.chatSend", "发送")}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 
@@ -1198,6 +1514,8 @@ export default function PetPage() {
   const [bindings, setBindings] = useState<Map<string, PetBinding>>(new Map());
   const [bindOpen, setBindOpen] = useState(false);
   const [bindPet, setBindPet] = useState<PetEntry | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatPet, setChatPet] = useState<PetEntry | null>(null);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -1408,12 +1726,12 @@ export default function PetPage() {
     {
       title: t("pet.colAgent", "智能体"),
       key: "agent",
-      width: 220,
+      width: 280,
       render: (_: unknown, record: PetEntry) => {
         const binding = bindings.get(record.folder);
         if (binding) {
           return (
-            <Space size={4}>
+            <Space size={4} wrap>
               <Tag
                 icon={<LinkOutlined />}
                 color="blue"
@@ -1421,6 +1739,20 @@ export default function PetPage() {
               >
                 {binding.agent_name || binding.agent_id}
               </Tag>
+              <Tooltip title={t("pet.chatWithPet", "与宠物聊天")}>
+                <Button
+                  size="small"
+                  type="primary"
+                  ghost
+                  icon={<MessageOutlined />}
+                  onClick={() => {
+                    setChatPet(record);
+                    setChatOpen(true);
+                  }}
+                >
+                  {t("pet.chat", "聊天")}
+                </Button>
+              </Tooltip>
               <Popconfirm
                 title={t("pet.unbindConfirm", "确定解绑此智能体？")}
                 okText={t("pet.unbindAgent", "解绑")}
@@ -1432,9 +1764,7 @@ export default function PetPage() {
                   <Button
                     size="small"
                     icon={<DisconnectOutlined />}
-                  >
-                    {t("pet.unbindAgent", "解绑")}
-                  </Button>
+                  />
                 </Tooltip>
               </Popconfirm>
             </Space>
@@ -1506,7 +1836,7 @@ export default function PetPage() {
           >
             {t(
               "pet.intro",
-              "管理 QwenPaw 桌面宠物，支持启动、切换、创建与导入。",
+              "管理 AIArb 桌面宠物，支持启动、切换、创建与导入。",
             )}
           </div>
         }
@@ -1616,6 +1946,14 @@ export default function PetPage() {
         pet={bindPet}
         onClose={() => setBindOpen(false)}
         onBound={fetchBindings}
+      />
+
+      {/* Pet chat modal — talk to the bound agent through the pet */}
+      <PetChatModal
+        open={chatOpen}
+        pet={chatPet}
+        binding={chatPet ? bindings.get(chatPet.folder) ?? null : null}
+        onClose={() => setChatOpen(false)}
       />
     </div>
   );

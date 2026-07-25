@@ -1,4 +1,4 @@
-/**
+﻿/**
  * sessionListStore — a thin Zustand bridge that makes the chat library's
  * session list accessible outside the AgentScopeRuntimeWebUI context tree
  * (e.g. the simple-mode sidebar).

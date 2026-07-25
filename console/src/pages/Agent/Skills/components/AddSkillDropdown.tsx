@@ -1,4 +1,4 @@
-import { Button, Dropdown } from "@agentscope-ai/design";
+﻿import { Button, Dropdown } from "@agentscope-ai/design";
 import type { MenuProps } from "antd";
 import {
   AppstoreOutlined,

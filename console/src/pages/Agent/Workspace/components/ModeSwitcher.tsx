@@ -1,5 +1,5 @@
 /**
- * ModeSwitcher — Toggle between Visual and Expert persona editing modes.
+ * ModeSwitcher — Toggle between Visual and Text persona editing modes.
  *
  * Persists the user's choice in localStorage so the preference survives
  * across sessions.
@@ -10,7 +10,7 @@ import styles from "../index.module.less";
 
 export type EditMode = "visual" | "expert";
 
-const STORAGE_KEY = "qwenpaw-persona-edit-mode";
+const STORAGE_KEY = "aiarb-persona-edit-mode";
 
 export function getStoredEditMode(): EditMode {
   try {

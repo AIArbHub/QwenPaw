@@ -34,7 +34,9 @@
     "retry": "Retry",
     "collapse": "Collapse",
     "unknown": "Unknown",
-    "back": "Back"
+    "back": "Back",
+    "operationSuccess": "Operation successful",
+    "operationFailed": "Operation failed"
   },
   "desktop": {
     "closeWindow": {
@@ -498,7 +500,12 @@
     "addSkillsToAgent": "Add Skills",
     "listView": "List View",
     "gridView": "Card View",
-    "basicInfo": "Basic Info"
+    "basicInfo": "Basic Info",
+    "skillsManagementHint": "Manage skills for this agent — import from skill pool or skill market",
+    "importFromMarket": "Import from Market",
+    "fullSkillsManagement": "Full Skills Management",
+    "installedSkills": "Installed Skills",
+    "addSkillsFromPool": "Add from Skill Pool"
   },
   "skills": {
     "title": "Skill",
@@ -645,7 +652,10 @@
     "aiCreateSkillGenerating": "正在生成技能...",
     "aiCreateSkillSuccess": "技能内容已生成，请检查并保存",
     "aiCreateSkillFailed": "AI 生成技能失败",
-    "useGenerated": "使用此内容"
+    "useGenerated": "使用此内容",
+    "importSuccess": "Skill imported successfully",
+    "confirmDelete": "Confirm Delete Skill",
+    "confirmDeleteDesc": "Are you sure you want to delete skill \"{{name}}\"? This action cannot be undone."
   },
   "skillPool": {
     "description": "Kumpulan skill lokal bersama untuk skill bawaan dan unggahan workspace.",
@@ -1169,7 +1179,7 @@
     "enabledTooltip": "When enabled, tool calls are scanned for dangerous patterns before execution",
     "sandboxEnabled": "Enable Sandbox Execution",
     "sandboxEnabledTooltip": "When enabled, shell commands with no matching rule run silently inside the sandbox. When disabled, such commands run directly without the sandbox (no approval prompt). Either way, secret-file reads and dangerous commands (e.g. rm -rf /, sudo) are still blocked or require approval.",
-    "sandboxDegradedWarning": "Sandbox is configured as enabled, but QwenPaw is not running as administrator. The sandbox will be inactive for this session. To use the sandbox, restart QwenPaw with administrator privileges.",
+    "sandboxDegradedWarning": "Sandbox is configured as enabled, but AIArb is not running as administrator. The sandbox will be inactive for this session. To use the sandbox, restart AIArb with administrator privileges.",
     "guardedToolsTooltip": "Tools that require approval when dangerous patterns are detected. Leave empty to use the built-in default set.",
     "guardedToolsPlaceholder": "Select tools or type custom tool names",
     "deniedToolsTooltip": "Tools that are always rejected without asking for approval",
@@ -2920,7 +2930,7 @@
     "contextManagementTitle": "Manajemen Konteks",
     "memoryManagerBackend": "Backend Manajemen Memori Jangka Panjang",
     "memoryManagerBackendTooltip": "Backend untuk manajer memori. Pilih remelight (file lokal) atau adbpg (database cloud).",
-    "memoryManagerBackendRestartWarning": "Mengalihkan backend manajemen memori jangka panjang tidak mendukung hot reload. Simpan dan restart QwenPaw agar perubahan berlaku",
+    "memoryManagerBackendRestartWarning": "Mengalihkan backend manajemen memori jangka panjang tidak mendukung hot reload. Simpan dan restart AIArb agar perubahan berlaku",
     "maxIters": "Iterasi Maksimum",
     "maxItersTooltip": "Jumlah maksimum iterasi penalaran-tindakan untuk agen ReAct",
     "maxItersPlaceholder": "Masukkan iterasi maksimum",
@@ -2976,7 +2986,7 @@
       "enableRepetitionProtection": "Aktifkan perlindungan pengulangan",
       "removeRule": "Hapus aturan",
       "custom": "Kustom",
-      "customDescription": "Bangun pipeline tersimpan dari Gate bawaan QwenPaw.",
+      "customDescription": "Bangun pipeline tersimpan dari Gate bawaan AIArb.",
       "duplicate": "Duplikat",
       "delete": "Hapus",
       "displayName": "Nama tampilan",
@@ -3009,9 +3019,9 @@
       "completionRubricDescription": "Memeriksa sinyal penyelesaian pada respons teks tanpa panggilan alat.",
       "completionRubricHelp": "Dipicu setelah respons teks tanpa panggilan alat. Agen mengeluarkan sinyal penyelesaian saat selesai; jika belum, agen terus bekerja hingga batas putaran evaluasi tercapai.",
       "completionPrompt": "Prompt pemeriksaan penyelesaian",
-      "completionPromptHelp": "Jelaskan kapan hasil dianggap selesai. QwenPaw secara otomatis menyisipkan instruksi keluaran sinyal penyelesaian.",
+      "completionPromptHelp": "Jelaskan kapan hasil dianggap selesai. AIArb secara otomatis menyisipkan instruksi keluaran sinyal penyelesaian.",
       "completionSignal": "Sinyal penyelesaian",
-      "completionSignalHelp": "QwenPaw menyisipkan sinyal ini dan instruksi untuk hanya mengeluarkan sinyal tersebut ke prompt pemeriksaan. Loop hanya selesai pada kecocokan penuh setelah spasi dibuang dan huruf besar-kecil diabaikan.",
+      "completionSignalHelp": "AIArb menyisipkan sinyal ini dan instruksi untuk hanya mengeluarkan sinyal tersebut ke prompt pemeriksaan. Loop hanya selesai pada kecocokan penuh setelah spasi dibuang dan huruf besar-kecil diabaikan.",
       "removeCriterion": "Hapus kriteria {{number}}",
       "totalTokensHelp": "Batas gabungan token input dan output yang digunakan dalam giliran ini.",
       "promptTokensHelp": "Mencakup instruksi sistem, konteks percakapan, skema alat, dan hasil alat.",
@@ -4010,7 +4020,8 @@
     "version": "Version",
     "id": "ID",
     "category": "Category",
-    "description": "Description"
+    "description": "Description",
+    "builtin": "Bawaan"
   },
   "cloudBackup": {
     "title": "Cloud Backups",
@@ -4065,9 +4076,9 @@
   },
   "persona": {
     "visualMode": "Visual",
-    "expertMode": "Expert",
+    "expertMode": "Text",
     "visualModeTooltip": "Form-based persona editor for everyday users",
-    "expertModeTooltip": "Edit Markdown files directly, for power users",
+    "expertModeTooltip": "Edit Markdown text files directly",
     "identityTitle": "Identity",
     "agentName": "Name",
     "agentNamePlaceholder": "Give your agent a name",
@@ -4089,7 +4100,7 @@
     "userNotesPlaceholder": "Other info about you",
     "userBackground": "Background",
     "userBackgroundPlaceholder": "What do you care about? What projects are you working on?",
-    "soulTitle": "Soul & Personality",
+    "soulTitle": "Personality",
     "corePrinciples": "Core Principles",
     "addPrinciple": "Add principle",
     "principlePlaceholder": "Enter a new behavioral principle...",
@@ -4104,10 +4115,11 @@
     "heartbeatEnable": "Enable heartbeat check",
     "heartbeatIntervalUnit": "minutes",
     "fileManagementTitle": "File Management",
-    "unparsedWarning": "Some content could not be parsed into structured form. Use Expert mode to edit the full content.",
+    "unparsedWarning": "Some content could not be parsed into structured form. Use Text mode to edit the full content.",
     "loadFailed": "Failed to load persona files",
     "saveSuccess": "Persona saved",
-    "saveFailed": "Failed to save persona"
+    "saveFailed": "Failed to save persona",
+    "roleCustomPlaceholder": "Enter a custom role"
   },
   "moot": {
     "title": "Arbitration Moot",
@@ -4185,7 +4197,7 @@
   },
   "pet": {
     "title": "Desktop Pet",
-    "intro": "Manage QwenPaw desktop pet: start, switch, create and import pets.",
+    "intro": "Manage AIArb desktop pet: start, switch, create and import pets.",
     "control": "Control Panel",
     "installedPets": "Installed Pets",
     "startDesktop": "Start Desktop Pet",
@@ -4284,7 +4296,17 @@
     "spritePreview": "预览（第0行第0帧）",
     "spriteInvalidFormat": "不支持的文件格式，请使用 WebP / PNG / JPG",
     "spriteInvalidSize": "尺寸不正确，必须为 1536×1872 px",
-    "spriteInvalidFile": "无法读取图片文件"
+    "spriteInvalidFile": "无法读取图片文件",
+    "chat": "Chat",
+    "chatWithPet": "Ngobrol dengan hewan peliharaan",
+    "chatTitle": "Ngobrol dengan {name}",
+    "chatPlaceholder": "Kirim pesan untuk mulai mengobrol dengan agen yang terikat",
+    "chatInputPlaceholder": "Ketik pesan, Enter untuk kirim, Shift+Enter untuk baris baru",
+    "chatSend": "Kirim",
+    "chatThinking": "Berpikir…",
+    "chatNoAgent": "Silakan ikat agen terlebih dahulu",
+    "chatError": "Kesalahan chat",
+    "chatToolUsed": "Alat digunakan"
   },
   "textSelection": {
     "title": "Text Selection",

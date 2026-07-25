@@ -1,8 +1,8 @@
-/**
+﻿/**
  * hostExternals.compat.test.tsx — back-compat shim for legacy registerRoutes.
  *
  * Verifies that a call shaped like CloudPaw's existing one:
- *   window.QwenPaw.registerRoutes("cloudpaw", [{ path: "/a2a", ... }])
+ *   window.AIArb.registerRoutes("cloudpaw", [{ path: "/a2a", ... }])
  *
  * translates into both:
  *   - routeRegistry entry under id `legacy:cloudpaw:a2a`
@@ -17,7 +17,7 @@ import { auditStore } from "../audit";
 
 function freshInstall() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).QwenPaw = undefined;
+  (window as any).AIArb = undefined;
   menuRegistry.__resetForTests();
   routeRegistry.__resetForTests();
   auditStore.clear();
@@ -31,15 +31,15 @@ beforeEach(() => {
 });
 
 describe("legacy registerRoutes shim", () => {
-  it("attaches window.QwenPaw.{menu, route, slot, audit}", () => {
-    expect(typeof window.QwenPaw.menu?.add).toBe("function");
-    expect(typeof window.QwenPaw.route?.add).toBe("function");
-    expect(typeof window.QwenPaw.slot?.fill).toBe("function");
-    expect(typeof window.QwenPaw.audit?.overrides).toBe("function");
+  it("attaches window.AIArb.{menu, route, slot, audit}", () => {
+    expect(typeof window.AIArb.menu?.add).toBe("function");
+    expect(typeof window.AIArb.route?.add).toBe("function");
+    expect(typeof window.AIArb.slot?.fill).toBe("function");
+    expect(typeof window.AIArb.audit?.overrides).toBe("function");
   });
 
   it("translates CloudPaw-shape registerRoutes into menu+route", () => {
-    window.QwenPaw.registerRoutes!("cloudpaw", [
+    window.AIArb.registerRoutes!("cloudpaw", [
       {
         path: "/a2a",
         component: Comp,
@@ -65,10 +65,10 @@ describe("legacy registerRoutes shim", () => {
   });
 
   it("multiple legacy registers share the synthesized plugins-group", () => {
-    window.QwenPaw.registerRoutes!("p1", [
+    window.AIArb.registerRoutes!("p1", [
       { path: "/p1", component: Comp, label: "P1", icon: "1" },
     ]);
-    window.QwenPaw.registerRoutes!("p2", [
+    window.AIArb.registerRoutes!("p2", [
       { path: "/p2", component: Comp, label: "P2", icon: "2" },
     ]);
 
@@ -82,13 +82,13 @@ describe("legacy registerRoutes shim", () => {
     );
   });
 
-  it("new QwenPaw.menu.add coexists with legacy in plugins-group", () => {
-    window.QwenPaw.registerRoutes!("cloudpaw", [
+  it("new AIArb.menu.add coexists with legacy in plugins-group", () => {
+    window.AIArb.registerRoutes!("cloudpaw", [
       { path: "/a2a", component: Comp, label: "A2A", icon: "🔗" },
     ]);
-    window.QwenPaw.menu!.add("newPlugin", {
+    window.AIArb.menu!.add("newPlugin", {
       id: "newPlugin.foo",
-      location: "primary.agentScoped",
+      location: "primary.agentWorkspace",
       parentId: "core.agent-group",
       label: "Foo",
     });
@@ -100,14 +100,14 @@ describe("legacy registerRoutes shim", () => {
     expect(pluginsGroup?.__children?.map((c) => c.id)).toContain(
       "legacy:cloudpaw:a2a",
     );
-    // newPlugin lives in primary.agentScoped, not settings
+    // newPlugin lives in primary.agentWorkspace, not settings
     expect(settings.find((i) => i.id === "newPlugin.foo")).toBeUndefined();
   });
 
   it("legacy registerToolRender still writes to pluginSystem", async () => {
     const { pluginSystem } = await import("../../hostExternals");
     const RenderFC = () => null;
-    window.QwenPaw.registerToolRender!("p1", { my_tool: RenderFC });
+    window.AIArb.registerToolRender!("p1", { my_tool: RenderFC });
     expect(pluginSystem.getToolRenderConfig().my_tool).toBe(RenderFC);
   });
 });

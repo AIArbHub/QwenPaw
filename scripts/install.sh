@@ -18,9 +18,9 @@ else
     BOLD="" GREEN="" YELLOW="" RED="" RESET=""
 fi
 
-info()  { printf "${GREEN}[ai-arb]${RESET} %s\n" "$*"; }
-warn()  { printf "${YELLOW}[ai-arb]${RESET} %s\n" "$*"; }
-error() { printf "${RED}[ai-arb]${RESET} %s\n" "$*" >&2; }
+info()  { printf "${GREEN}[aiarb]${RESET} %s\n" "$*"; }
+warn()  { printf "${YELLOW}[aiarb]${RESET} %s\n" "$*"; }
+error() { printf "${RED}[aiarb]${RESET} %s\n" "$*" >&2; }
 die()   { error "$@"; exit 1; }
 
 # ── Defaults ──────────────────────────────────────────────────────────────────
@@ -104,7 +104,7 @@ case "$OS" in
     *) die "Unsupported OS: $OS. This installer supports Linux and macOS only." ;;
 esac
 
-printf "${GREEN}[ai-arb]${RESET} Installing AI Arb into ${BOLD}%s${RESET}\n" "$AIARB_HOME"
+printf "${GREEN}[aiarb]${RESET} Installing AI Arb into ${BOLD}%s${RESET}\n" "$AIARB_HOME"
 
 # ── Step 1: Ensure uv is available ───────────────────────────────────────────
 ensure_uv() {
@@ -158,14 +158,14 @@ if [ -n "$EXTRAS" ]; then
     EXTRAS_SUFFIX="[$EXTRAS]"
 fi
 
-## Ensure console frontend assets are in src/qwenpaw/console/ for source installs.
+## Ensure console frontend assets are in src/aiarb/console/ for source installs.
 ## Sets _CONSOLE_COPIED=1 if we populated the directory (so we can clean up).
 _CONSOLE_COPIED=0
 _CONSOLE_AVAILABLE=0
 prepare_console() {
     local repo_dir="$1"
     local console_src="$repo_dir/console/dist"
-    local console_dest="$repo_dir/src/qwenpaw/console"
+    local console_dest="$repo_dir/src/aiarb/console"
 
     # Already populated
     if [ -f "$console_dest/index.html" ]; then
@@ -214,16 +214,16 @@ prepare_console() {
 cleanup_console() {
     local repo_dir="$1"
     if [ "$_CONSOLE_COPIED" = 1 ]; then
-        rm -rf "$repo_dir/src/qwenpaw/console/"*
+        rm -rf "$repo_dir/src/aiarb/console/"*
     fi
 }
 
-## Ensure docs are available in src/qwenpaw/docs/ for source installs.
+## Ensure docs are available in src/aiarb/docs/ for source installs.
 _DOCS_COPIED=0
 prepare_docs() {
     local repo_dir="$1"
     local docs_src="$repo_dir/website/public/docs"
-    local docs_dest="$repo_dir/src/qwenpaw/docs"
+    local docs_dest="$repo_dir/src/aiarb/docs"
 
     if [ -d "$docs_dest" ] && ls "$docs_dest"/*.md >/dev/null 2>&1; then
         return
@@ -239,7 +239,7 @@ prepare_docs() {
 cleanup_docs() {
     local repo_dir="$1"
     if [ "$_DOCS_COPIED" = 1 ]; then
-        rm -rf "$repo_dir/src/qwenpaw/docs"
+        rm -rf "$repo_dir/src/aiarb/docs"
     fi
 }
 
@@ -264,9 +264,9 @@ if [ "$FROM_SOURCE" = true ]; then
         # CLONE_DIR is cleaned up by trap; no need for cleanup_console/cleanup_docs
     fi
 else
-    PACKAGE="qwenpaw"
+    PACKAGE="aiarb"
     if [ -n "$VERSION" ]; then
-        PACKAGE="qwenpaw==$VERSION"
+        PACKAGE="aiarb==$VERSION"
     fi
 
     PRERELEASE_ARGS=()
@@ -275,32 +275,32 @@ else
     fi
 
     info "Installing ${PACKAGE}${EXTRAS_SUFFIX} from PyPI..."
-    uv pip install "${PACKAGE}${EXTRAS_SUFFIX}" --python "$AIARB_VENV/bin/python" --quiet --index-url "$PYPI_MIRROR" --refresh-package qwenpaw ${PRERELEASE_ARGS[@]+"${PRERELEASE_ARGS[@]}"}
+    uv pip install "${PACKAGE}${EXTRAS_SUFFIX}" --python "$AIARB_VENV/bin/python" --quiet --index-url "$PYPI_MIRROR" --refresh-package aiarb ${PRERELEASE_ARGS[@]+"${PRERELEASE_ARGS[@]}"}
 fi
 
 # Verify the CLI entry point exists
-[ -x "$AIARB_VENV/bin/qwenpaw" ] || die "Installation failed: qwenpaw CLI not found in venv"
+[ -x "$AIARB_VENV/bin/aiarb" ] || die "Installation failed: aiarb CLI not found in venv"
 info "AI Arb installed successfully"
 
 # Check console availability (for PyPI installs, check the installed package)
 if [ "$_CONSOLE_AVAILABLE" = 0 ]; then
     # Check if console assets were included in the installed package
-    CONSOLE_CHECK="$("$AIARB_VENV/bin/python" -c "import importlib.resources, qwenpaw; p=importlib.resources.files('qwenpaw')/'console'/'index.html'; print('yes' if p.is_file() else 'no')" 2>/dev/null || echo 'no')"
+    CONSOLE_CHECK="$("$AIARB_VENV/bin/python" -c "import importlib.resources, aiarb; p=importlib.resources.files('aiarb')/'console'/'index.html'; print('yes' if p.is_file() else 'no')" 2>/dev/null || echo 'no')"
     if [ "$CONSOLE_CHECK" = "yes" ]; then
         _CONSOLE_AVAILABLE=1
     fi
 fi
 
 # ── Step 4: Create wrapper script ────────────────────────────────────────────
-mkdir -p "$QWENPAW_BIN"
+mkdir -p "$AIARB_BIN"
 
-cat > "$AIARB_BIN/qwenpaw" << 'WRAPPER'
+cat > "$AIARB_BIN/aiarb" << 'WRAPPER'
 #!/usr/bin/env bash
 # AI Arb CLI wrapper — delegates to the uv-managed environment.
 set -euo pipefail
 
 AIARB_HOME="${AIARB_HOME:-${QWENPAW_HOME:-$HOME/.aiarb}}"
-REAL_BIN="$AIARB_HOME/venv/bin/qwenpaw"
+REAL_BIN="$AIARB_HOME/venv/bin/aiarb"
 
 if [ ! -x "$REAL_BIN" ]; then
     echo "Error: AI Arb environment not found at $AIARB_HOME/venv" >&2
@@ -311,8 +311,8 @@ fi
 exec "$REAL_BIN" "$@"
 WRAPPER
 
-chmod +x "$AIARB_BIN/qwenpaw"
-info "Wrapper created at $AIARB_BIN/qwenpaw"
+chmod +x "$AIARB_BIN/aiarb"
+info "Wrapper created at $AIARB_BIN/aiarb"
 
 # ── Step 5: Update PATH in shell profile ─────────────────────────────────────
 PATH_ENTRY="export PATH=\"\$HOME/.aiarb/bin:\$PATH\""

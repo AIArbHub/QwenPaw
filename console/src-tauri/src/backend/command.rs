@@ -1,4 +1,4 @@
-//! Backend command construction for development and packaged builds.
+﻿//! Backend command construction for development and packaged builds.
 
 use std::path::{Path, PathBuf};
 #[cfg(debug_assertions)]
@@ -24,23 +24,23 @@ pub(super) fn create(app: &tauri::AppHandle) -> Result<Command, String> {
 
     let command = if command_exists("uv") {
         log::info!(
-            "[backend] dev command: uv run python -m qwenpaw.tauri.entry cwd={}",
+            "[backend] dev command: uv run python -m aiarb.tauri.entry cwd={}",
             repo_root.display(),
         );
         let mut cmd = app
             .shell()
             .command("uv")
-            .args(["run", "python", "-m", "qwenpaw.tauri.entry"])
+            .args(["run", "python", "-m", "aiarb.tauri.entry"])
             .current_dir(repo_root)
             .env("PYTHONPATH", source_path.display().to_string());
         if let Some(path) = ocr_tools {
-            cmd = cmd.env("QWENPAW_DESKTOP_OCR_TOOLS", path.display().to_string());
+            cmd = cmd.env("AIARB_DESKTOP_OCR_TOOLS", path.display().to_string());
         }
         cmd
     } else {
         let (python, prefix_args) = python_command(&repo_root);
         let mut args = prefix_args;
-        args.extend(["-m", "qwenpaw.tauri.entry"]);
+        args.extend(["-m", "aiarb.tauri.entry"]);
         log::info!(
             "[backend] dev command: {} {} cwd={}",
             python,
@@ -54,7 +54,7 @@ pub(super) fn create(app: &tauri::AppHandle) -> Result<Command, String> {
             .current_dir(repo_root)
             .env("PYTHONPATH", source_path.display().to_string());
         if let Some(path) = ocr_tools {
-            cmd = cmd.env("QWENPAW_DESKTOP_OCR_TOOLS", path.display().to_string());
+            cmd = cmd.env("AIARB_DESKTOP_OCR_TOOLS", path.display().to_string());
         }
         cmd
     };
@@ -103,7 +103,7 @@ pub(super) fn create(app: &tauri::AppHandle) -> Result<Command, String> {
     if let Some(python) = packaged_python_runtime(app) {
         log::info!("[backend] bundled python runtime: {}", python.display());
         command = command.env(
-            "QWENPAW_DESKTOP_PY_RUNTIME",
+            "AIARB_DESKTOP_PY_RUNTIME",
             python.to_string_lossy().to_string(),
         );
     } else {
@@ -115,7 +115,7 @@ pub(super) fn create(app: &tauri::AppHandle) -> Result<Command, String> {
     if let Some(node_runtime) = packaged_node_runtime(app) {
         log::info!("[backend] bundled node runtime: {}", node_runtime.display());
         command = command.env(
-            "QWENPAW_DESKTOP_NODE_RUNTIME",
+            "AIARB_DESKTOP_NODE_RUNTIME",
             node_runtime.to_string_lossy().to_string(),
         );
     } else {
@@ -124,7 +124,7 @@ pub(super) fn create(app: &tauri::AppHandle) -> Result<Command, String> {
     if let Some(ocr_tools) = packaged_ocr_tools(app) {
         log::info!("[backend] bundled OCR tools: {}", ocr_tools.display());
         command = command.env(
-            "QWENPAW_DESKTOP_OCR_TOOLS",
+            "AIARB_DESKTOP_OCR_TOOLS",
             ocr_tools.to_string_lossy().to_string(),
         );
     } else {
@@ -199,7 +199,7 @@ fn packaged_backend_executable(app: &tauri::AppHandle) -> Result<PathBuf, String
         .resource_dir()
         .map_err(|err| format!("failed to resolve resource directory: {err}"))?
         .join("binaries")
-        .join("ai-arb-backend")
+        .join("aiarb-backend")
         .join(executable_name);
 
     if path.is_file() {

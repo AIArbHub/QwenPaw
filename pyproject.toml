@@ -1,12 +1,12 @@
 [project]
-name = "qwenpaw"
+name = "aiarb"
 dynamic = ["version"]
-description = "QwenPaw is a **personal assistant** that runs in your own environment. It talks to you over multiple channels (DingTalk, Feishu, QQ, Discord, iMessage, etc.) and runs scheduled tasks according to your configuration. **What it can do is driven by Skills — the possibilities are open-ended.** Built-in skills include cron, PDF/Office handling, news digest, file reading, and more; you can add custom skills. All data and tasks run on your machine; no third-party hosting."
+description = "AIArb is a **personal assistant** that runs in your own environment. It talks to you over multiple channels (DingTalk, Feishu, QQ, Discord, iMessage, etc.) and runs scheduled tasks according to your configuration. **What it can do is driven by Skills — the possibilities are open-ended.** Built-in skills include cron, PDF/Office handling, news digest, file reading, and more; you can add custom skills. All data and tasks run on your machine; no third-party hosting."
 readme = "README.md"
 authors = [{name = "山木Simba"}]
 requires-python = ">=3.11,<3.14"
 dependencies = [
-    "agentscope==2.0.4.post1",
+    "agentscope>=2.0.2",
     "httpx>=0.27.0",
     "packaging>=24.0",
     "discord-py>=2.3",
@@ -47,17 +47,17 @@ dependencies = [
     "huggingface_hub>=0.20.0",
     "pillow>=10.0.0",
     "agent-client-protocol>=0.9.0,<0.11.0",
-    # Streaming-markdown terminal UI for the bundled `qwenpaw` TUI
+    # Streaming-markdown terminal UI for the bundled `aiarb` TUI
     # (v4+ adds the streaming Markdown widget). 8.2.8 fixes parsing of
     # multi-codepoint Kitty "associated text" so input methods (Chinese,
     # Japanese, accents, ...) no longer leak escape sequences into the prompt
     # (Textualize/textual#6592). Keep the temporary upper bound in sync with
     # the TUI compatibility shim for Textualize/textual#6643; remove both
-    # after Textual ships and QwenPaw verifies the upstream fix.
+    # after Textual ships and AIArb verifies the upstream fix.
     "textual>=8.2.8,<8.2.9",
     "psutil>=6.0.0",
     "openai>=2.0.0,<=2.33.0",
-    # anyio 4.13.0: _deliver_cancellation busy-loop / getpid storm (QwenPaw#2632)
+    # anyio 4.13.0: _deliver_cancellation busy-loop / getpid storm (AIArb#2632)
     "anyio>=4.0.0,<4.13.0",
     "watchfiles>=0.22",
     "orjson>=3.9",
@@ -83,25 +83,26 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://qwenpaw.agentscope.io/"
+Homepage = "https://aiarb.cn/"
 Repository = "https://github.com/agentscope-ai/QwenPaw"
-Documentation = "https://qwenpaw.agentscope.io/docs/"
+Documentation = "https://aiarb.cn/docs/"
 Issues = "https://github.com/agentscope-ai/QwenPaw/issues"
 
 [tool.setuptools.dynamic]
-version = {attr = "qwenpaw.__version__.__version__"}
+version = {attr = "aiarb.__version__.__version__"}
 
 [tool.setuptools]
 packages = { find = { where = ["src"] } }
 include-package-data = true
 
 [tool.setuptools.package-data]
-# Dockerfile copies console build output to src/qwenpaw/console/ (no dist subdir).
-"qwenpaw" = [
+# Dockerfile copies console build output to src/aiarb/console/ (no dist subdir).
+"aiarb" = [
     "console/**",
     "agents/md_files/**",
     "agents/skills/**",
     "builtins/**",
+    "builtin_plugins/**",
     "tokenizer/**",
     "security/tool_guard/rules/**",
     "security/skill_scanner/rules/**",
@@ -115,11 +116,11 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
-qwenpaw = "qwenpaw.cli.main:cli"
-copaw = "qwenpaw.cli.main:cli"
+aiarb = "aiarb.cli.main:cli"
+copaw = "aiarb.cli.main:cli"
 
 # Optional doctor plugins: callable (DoctorRunContext) -> list[str]
-# [project.entry-points."qwenpaw.doctor"]
+# [project.entry-points."aiarb.doctor"]
 # my_pkg = "my_pkg.doctor:doctor_notes"
 # Legacy group "copaw.doctor" is still loaded when present.
 
@@ -142,7 +143,7 @@ whisper = [
     "openai-whisper>=20231117",
 ]
 full = [
-    "qwenpaw[local,whisper]",
+    "aiarb[local,whisper]",
 ]
 sip = [
     "pyVoIP>=1.6.0",
@@ -151,7 +152,7 @@ sip = [
     "audioop-lts; python_version >= '3.13'",
 ]
 sip-livekit = [
-    "qwenpaw[sip]",
+    "aiarb[sip]",
     "livekit>=1.0.0",
     "livekit-api>=0.6.0",
 ]
@@ -174,7 +175,7 @@ testpaths = [
 ]
 
 [tool.coverage.run]
-source = ["src/qwenpaw"]
+source = ["src/aiarb"]
 omit = [
     "*/tests/*",
     "*/test_*",

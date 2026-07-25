@@ -6,8 +6,8 @@ export async function collectBrowserData(): Promise<BrowserDataPayload> {
     docforgeParseTasks,
     messageQueues,
   ] = await Promise.all([
-    loadIndexedDBStore("qwenpaw_desensitize", "tasks"),
-    loadIndexedDBStore("qwenpaw_desensitize", "parse_tasks"),
+    loadIndexedDBStore("aiarb_desensitize", "tasks"),
+    loadIndexedDBStore("aiarb_desensitize", "parse_tasks"),
     loadMessageQueues(),
   ]);
 
@@ -56,7 +56,7 @@ function loadMessageQueues(): Promise<Record<string, unknown[]>> {
   try {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key?.startsWith("qwenpaw:message-queue:")) {
+      if (key?.startsWith("aiarb:message-queue:")) {
         try {
           const raw = localStorage.getItem(key);
           if (raw) {
@@ -76,14 +76,14 @@ function loadMessageQueues(): Promise<Record<string, unknown[]>> {
 function collectPreferences() {
   try {
     return {
-      theme: localStorage.getItem("qwenpaw-theme"),
+      theme: localStorage.getItem("aiarb-theme"),
       language: localStorage.getItem("language"),
-      sidebarMode: localStorage.getItem("qwenpaw_sidebar_mode"),
-      lastUsedAgent: localStorage.getItem("qwenpaw-last-used-agent"),
+      sidebarMode: localStorage.getItem("aiarb_sidebar_mode"),
+      lastUsedAgent: localStorage.getItem("aiarb-last-used-agent"),
       codingTabs: safeJsonParse(
-        localStorage.getItem("qwenpaw-coding-tabs"),
+        localStorage.getItem("aiarb-coding-tabs"),
       ),
-      closeWindowAction: localStorage.getItem("qwenpaw.closeWindowAction"),
+      closeWindowAction: localStorage.getItem("aiarb.closeWindowAction"),
     };
   } catch {
     return {

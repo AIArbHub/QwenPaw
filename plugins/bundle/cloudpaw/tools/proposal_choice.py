@@ -16,15 +16,15 @@ import logging
 import re
 from typing import Any, List, Optional, Union
 
-from agentscope.message import TextBlock
-from agentscope.message import ToolResultState
-from agentscope.tool import ToolChunk
+from aiarb.framework.message import TextBlock
+from aiarb.framework.message import ToolResultState
+from aiarb.framework.tool import ToolChunk
 
 # pylint: disable=no-name-in-module
-from qwenpaw.app.interaction import InteractionManager
-from qwenpaw.app.agent_context import get_current_session_id
+from aiarb.app.interaction import InteractionManager
+from aiarb.app.agent_context import get_current_session_id
 
-logger = logging.getLogger("qwenpaw").getChild(
+logger = logging.getLogger("aiarb").getChild(
     __name__.replace("plugin_cloudpaw.", ""),
 )
 

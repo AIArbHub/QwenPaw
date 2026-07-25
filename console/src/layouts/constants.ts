@@ -1,10 +1,10 @@
 // ── URLs ──────────────────────────────────────────────────────────────────
 
-export const PYPI_URL = "https://pypi.org/pypi/qwenpaw/json";
+export const PYPI_URL = "https://pypi.org/pypi/aiarb/json";
 
 export const SITE_URL = "https://www.aiarb.cn" as const;
 
-export const GITHUB_URL = SITE_URL;
+export const GITHUB_URL = "https://github.com/agentscope-ai/QwenPaw";
 
 // ── Timing ────────────────────────────────────────────────────────────────
 
@@ -15,11 +15,14 @@ export const ONE_HOUR_MS = 60 * 60 * 1000;
 export const getWebsiteLang = (lang: string): string =>
   lang.startsWith("zh") ? "zh" : "en";
 
-export const getDocsUrl = (_lang: string): string => SITE_URL;
+export const getDocsUrl = (lang: string): string =>
+  `${SITE_URL}/docs/intro?lang=${getWebsiteLang(lang)}`;
 
-export const getFaqUrl = (_lang: string): string => SITE_URL;
+export const getFaqUrl = (lang: string): string =>
+  `${SITE_URL}/docs/faq?lang=${getWebsiteLang(lang)}`;
 
-export const getReleaseNotesUrl = (_lang: string): string => SITE_URL;
+export const getReleaseNotesUrl = (lang: string): string =>
+  `${SITE_URL}/release-notes?lang=${getWebsiteLang(lang)}`;
 
 export const getFeatureDemosUrl = (_lang: string): string => SITE_URL;
 
@@ -90,7 +93,7 @@ aiarb update
 3. 如果你是从源码安装，进入项目目录并拉取最新代码后重新安装：
 
 \`\`\`
-cd QwenPaw
+cd AIArb
 git pull origin main
 cd console && npm ci && npm run build
 cd .. && mkdir -p src/aiarb/console
@@ -101,8 +104,8 @@ pip install -e .
 4. 如果你使用的是 Docker，拉取最新镜像并重启容器：
 
 \`\`\`
-docker pull agentscope/aiarb:latest
-docker run -p 127.0.0.1:8088:8088 -v aiarb-data:/app/working -v aiarb-secrets:/app/working.secret -v aiarb-backups:/app/working.backups agentscope/aiarb:latest
+docker pull aiarb/aiarb:latest
+docker run -p 127.0.0.1:8088:8088 -v aiarb-data:/app/working -v aiarb-secrets:/app/working.secret -v aiarb-backups:/app/working.backups aiarb/aiarb:latest
 \`\`\`
 
 升级后重启服务 aiarb app。`,
@@ -122,7 +125,7 @@ aiarb update
 3. Если устанавливали из исходников, получите последние изменения и переустановите:
 
 \`\`\`
-cd QwenPaw
+cd AIArb
 git pull origin main
 cd console && npm ci && npm run build
 cd .. && mkdir -p src/aiarb/console
@@ -133,8 +136,8 @@ pip install -e .
 4. Если используете Docker, загрузите новый образ и перезапустите контейнер:
 
 \`\`\`
-docker pull agentscope/aiarb:latest
-docker run -p 127.0.0.1:8088:8088 -v aiarb-data:/app/working -v aiarb-secrets:/app/working.secret -v aiarb-backups:/app/working.backups agentscope/aiarb:latest
+docker pull aiarb/aiarb:latest
+docker run -p 127.0.0.1:8088:8088 -v aiarb-data:/app/working -v aiarb-secrets:/app/working.secret -v aiarb-backups:/app/working.backups aiarb/aiarb:latest
 \`\`\`
 
 After upgrading, restart the service with \`aiarb app\`.`,
@@ -154,7 +157,7 @@ aiarb update
 3. If installed from source, pull the latest code and reinstall:
 
 \`\`\`
-cd QwenPaw
+cd AIArb
 git pull origin main
 cd console && npm ci && npm run build
 cd .. && mkdir -p src/aiarb/console
@@ -165,8 +168,8 @@ pip install -e .
 4. If using Docker, pull the latest image and restart the container:
 
 \`\`\`
-docker pull agentscope/aiarb:latest
-docker run -p 127.0.0.1:8088:8088 -v aiarb-data:/app/working -v aiarb-secrets:/app/working.secret -v aiarb-backups:/app/working.backups agentscope/aiarb:latest
+docker pull aiarb/aiarb:latest
+docker run -p 127.0.0.1:8088:8088 -v aiarb-data:/app/working -v aiarb-secrets:/app/working.secret -v aiarb-backups:/app/working.backups aiarb/aiarb:latest
 \`\`\`
 
 After upgrading, restart the service with \`aiarb app\`.`,

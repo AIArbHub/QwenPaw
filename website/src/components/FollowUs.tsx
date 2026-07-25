@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+﻿import { motion } from "motion/react";
 import { t, type Lang } from "../i18n";
 
 interface FollowUsProps {
@@ -10,13 +10,13 @@ const links = [
     key: "xiaohongshu",
     icon: "🍠",
     href: "https://xhslink.com/m/4dw1MpY7Xta",
-    label: "AgentScope",
+    label: "AIArb",
   },
   {
     key: "x",
     icon: "𝕏",
-    href: "https://x.com/agentscope_ai",
-    label: "@agentscope_ai",
+    href: "https://x.com/AIArbHub",
+    label: "@AIArbHub",
   },
 ] as const;
 

@@ -1,4 +1,4 @@
-import {
+﻿import {
   AgentScopeRuntimeWebUI,
   IAgentScopeRuntimeWebUIOptions,
   type IAgentScopeRuntimeWebUIRef,
@@ -556,7 +556,7 @@ function renderSuggestionLabel(command: string, description?: string) {
 
 const DEFAULT_USER_ID = "default";
 const DEFAULT_CHANNEL = "console";
-const WIDE_MODE_STORAGE_KEY = "qwenpaw_chat_wide_mode";
+const WIDE_MODE_STORAGE_KEY = "aiarb_chat_wide_mode";
 
 // Stable fallback so an absent queue entry doesn't produce a fresh array
 // reference on every render (which would invalidate the options memo).
@@ -912,7 +912,7 @@ function useMessageHistoryNavigation(
 // Chat input draft persistence
 // ---------------------------------------------------------------------------
 
-const DRAFT_STORAGE_KEY_PREFIX = "qwenpaw_chat_input_draft";
+const DRAFT_STORAGE_KEY_PREFIX = "aiarb_chat_input_draft";
 let draftSuppressed = false;
 
 function getDraftStorageKey(agentId?: string): string {
@@ -1128,7 +1128,7 @@ function SessionQueuePanel({ sessionId, ...handlers }: SessionQueuePanelProps) {
   return <MessageQueuePanel items={items} runState={runState} {...handlers} />;
 }
 
-const HISTORY_PANEL_STORAGE_KEY = "qwenpaw_history_panel_open";
+const HISTORY_PANEL_STORAGE_KEY = "aiarb_history_panel_open";
 
 export default function ChatPage() {
   const { t, i18n } = useTranslation();
@@ -1301,7 +1301,7 @@ export default function ChatPage() {
   >([]);
 
   // Build SDK fileList from QueueItem.attachments
-  // SDK reads file.response.url for image_url / file_url (see AgentScopeRuntimeRequestBuilder)
+  // SDK reads file.response.url for image_url / file_url (see AIArbRuntimeRequestBuilder)
   const buildFileList = useCallback(
     (item: {
       attachments?: {
@@ -2138,7 +2138,7 @@ export default function ChatPage() {
       // Clean up the queue and abort any in-flight background send for the
       // removed session so stale items don't linger in storage or get sent
       // after the conversation is deleted. Navigation to a fresh chat is
-      // owned by the delete handlers (via the "qwenpaw:sidebar-new-chat"
+      // owned by the delete handlers (via the "aiarb:sidebar-new-chat"
       // event), so this callback stays focused on resource cleanup and can
       // run regardless of which session is currently active.
       try {
@@ -2799,7 +2799,7 @@ export default function ChatPage() {
       welcome: {
         ...i18nConfig.welcome,
         nick: extNick ?? "AI Arb",
-        avatar: extAvatar ?? agents?.find((a) => a.id === selectedAgent)?.avatar ?? "/ai-arb-avatar.svg",
+        avatar: extAvatar ?? agents?.find((a) => a.id === selectedAgent)?.avatar ?? "/aiarb-avatar.svg",
         ...(extGreeting !== undefined ? { greeting: extGreeting } : {}),
         ...(extDescription !== undefined
           ? { description: extDescription }
@@ -3018,8 +3018,8 @@ export default function ChatPage() {
         // Host wrappers that delegate to vendor defaults when no plugin
         // request/response render/prepend/append is registered — and
         // compose plugin slots otherwise.
-        AgentScopeRuntimeRequestCard: HostRequestCard,
-        AgentScopeRuntimeResponseCard: HostResponseCard,
+        AIArbRuntimeRequestCard: HostRequestCard,
+        AIArbRuntimeResponseCard: HostResponseCard,
         ...pluginCards,
       },
       actions: {
@@ -3507,7 +3507,7 @@ export default function ChatPage() {
                 onClick={() => {
                   if (!multiShareImage) return;
                   const link = document.createElement("a");
-                  link.download = `ai-arb-${Date.now()}.png`;
+                  link.download = `aiarb-${Date.now()}.png`;
                   link.href = multiShareImage;
                   link.click();
                   antMessage.success("图片已下载");

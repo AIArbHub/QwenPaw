@@ -1,4 +1,4 @@
-/**
+﻿/**
  * v1Adapter — bridges ChatV2 tool cards to ChatV1's @agentscope-ai/chat format.
  *
  * ChatV1 uses `customToolRenderConfig: Record<string, React.FC<any>>` where

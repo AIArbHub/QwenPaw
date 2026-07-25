@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 # Unpack, launch the Tauri macOS shell, and wait for the backend to be ready.
 # Outputs BASE_URL to $GITHUB_ENV for subsequent steps.
 set -euo pipefail
@@ -49,7 +49,7 @@ for i in $(seq 1 60); do
     echo "[debug] PORT_FILE=$PORT_FILE exists=$([ -f "$PORT_FILE" ] && echo yes || echo no)"
     echo "[debug] WORKING_DIR (~/.aiarb) contents:"
     ls -la "$HOME/.aiarb/" 2>/dev/null || echo "  (missing)"
-    echo "[debug] All ai-arb-related files under HOME (top 30):"
+    echo "[debug] All aiarb-related files under HOME (top 30):"
     find "$HOME/.aiarb" -maxdepth 4 -type f 2>/dev/null | head -30 || true
     echo "[debug] desktop.log tail (if exists):"
     tail -50 "$HOME/.aiarb/desktop.log" 2>/dev/null || echo "  (no desktop.log)"

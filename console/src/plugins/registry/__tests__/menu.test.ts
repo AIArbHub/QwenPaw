@@ -1,4 +1,4 @@
-/**
+﻿/**
  * menu.test.ts — MenuRegistry behaviour.
  */
 import { describe, it, expect, beforeEach } from "vitest";
@@ -158,10 +158,10 @@ describe("menuRegistry topology (before/after/order)", () => {
 });
 
 describe("menuRegistry locations", () => {
-  it("separates agentScoped vs settings buckets", () => {
+  it("separates agentWorkspace vs settings buckets", () => {
     menuRegistry.add("core", {
       id: "a",
-      location: "primary.agentScoped",
+      location: "primary.agentWorkspace",
       label: "A",
     });
     menuRegistry.add("core", {
@@ -170,7 +170,7 @@ describe("menuRegistry locations", () => {
       label: "S",
     });
     expect(
-      menuRegistry.snapshot("primary.agentScoped").map((i) => i.id),
+      menuRegistry.snapshot("primary.agentWorkspace").map((i) => i.id),
     ).toEqual(["a"]);
     expect(menuRegistry.snapshot("primary.settings").map((i) => i.id)).toEqual([
       "s",

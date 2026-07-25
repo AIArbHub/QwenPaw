@@ -34,7 +34,9 @@
     "no": "否",
     "retry": "Retry",
     "collapse": "Collapse",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "operationSuccess": "操作成功",
+    "operationFailed": "操作失敗"
   },
   "chunkError": {
     "title": "頁面加載失敗",
@@ -201,9 +203,9 @@
     "reject": "拒絕",
     "ready": "已就緒",
     "harvestNow": "立即收穫",
-    "createHarvest": "創建 Harvest",
-    "createFirstHarvest": "創建第一個 Harvest",
-    "createSuccess": "Harvest 創建成功",
+    "createHarvest": "創建收穫任務",
+    "createFirstHarvest": "創建第一個收穫任務",
+    "createSuccess": "收穫任務創建成功",
     "emptyApprovals": "暫無待審批項",
     "emptyApprovalHistory": "暫無審批歷史",
     "approvalPending": "待審批",
@@ -219,13 +221,13 @@
       "critical": "嚴重"
     },
     "emptyPush": "暫無推播訊息",
-    "emptyHarvests": "暫無 Harvest 任務",
+    "emptyHarvests": "暫無收穫任務",
     "statusReadyToHarvest": "可立即收穫",
     "statusGrowing": "生成中",
     "harvestedTimes": "已生成 {{count}} 次",
     "harvestSuccessRate": "成功率 {{rate}}%",
     "messageDetailComingSoon": "訊息詳情功能開發中",
-    "harvestSettingsComingSoon": "Harvest 設置功能開發中",
+    "harvestSettingsComingSoon": "收穫設置功能開發中",
     "messageDetailTitle": "執行詳情",
     "detailCronTitle": "定時任務：{{name}}",
     "detailHeartbeatTitle": "心跳",
@@ -445,7 +447,12 @@
     "copyOptionJobsHint": "Copies job definitions only, not run history. The new agent will start running them on schedule after creation.",
     "copySuccess": "Agent configuration copied successfully",
     "copyFailed": "Failed to copy agent configuration",
-    "basicInfo": "Basic Info"
+    "basicInfo": "Basic Info",
+    "skillsManagementHint": "管理此智慧型代理的技能，支援從技能池和技能市場匯入",
+    "importFromMarket": "從技能市場匯入",
+    "fullSkillsManagement": "完整技能管理",
+    "installedSkills": "已安裝技能",
+    "addSkillsFromPool": "從技能池新增"
   },
   "acp": {
     "title": "ACP",
@@ -629,7 +636,10 @@
     "aiCreateSkillSuccess": "技能内容已生成，请检查并保存",
     "aiCreateSkillFailed": "AI 生成技能失败",
     "addSkill": "添加技能",
-    "useGenerated": "使用此内容"
+    "useGenerated": "使用此内容",
+    "importSuccess": "技能匯入成功",
+    "confirmDelete": "確認刪除技能",
+    "confirmDeleteDesc": "確定要刪除技能「{{name}}」嗎？此操作不可撤銷。"
   },
   "skillPool": {
     "description": "共享本地技能池，包含內置技能和工作區上傳。ClawHub 或 LobeHub 等外部導入為獨立功能。",
@@ -996,6 +1006,7 @@
     "dispatchTargetSessionId": "目標會話ID",
     "dispatchMode": "分發模式",
     "runtimeShareSession": "共用會話",
+    "runtimeToolSafety": "工具安全",
     "runtimeMaxConcurrency": "最大並發數",
     "runtimeTimeoutSeconds": "超時時間（秒）",
     "runtimeMisfireGraceSeconds": "錯過執行寬限期（秒）",
@@ -1017,6 +1028,7 @@
     "dispatchTargetSessionIdTooltip": "在目標頻道中傳遞響應的會話ID。",
     "dispatchModeTooltip": "選擇 'stream' 獲取實時響應，或選擇 'final' 僅獲取完整響應。",
     "shareSessionTooltip": "開啟時，與目標用戶共用會話。關閉時，每次運行創建獨立的會話上下文，互不影響。適用於不需要記憶歷史的獨立任務。默認：開啟",
+    "toolSafetyTooltip": "開啟時，工具調用需審批後方可執行。關閉時，工具自動運行無需確認。默認：關閉",
     "maxConcurrencyTooltip": "此任務可以同時運行的最大數量。默認：1",
     "timeoutSecondsTooltip": "最大執行時間（秒）。超時將終止任務。",
     "misfireGraceSecondsTooltip": "錯過執行的寬限期。如果任務錯過計劃時間超過此時長，將不會執行。",
@@ -2126,7 +2138,7 @@
       "enableRepetitionProtection": "Enable repetition protection",
       "removeRule": "Remove rule",
       "custom": "Custom",
-      "customDescription": "Build a saved pipeline from QwenPaw-owned gates.",
+      "customDescription": "Build a saved pipeline from AIArb-owned gates.",
       "duplicate": "Duplicate",
       "delete": "Delete",
       "displayName": "Display name",
@@ -2159,9 +2171,9 @@
       "completionRubricDescription": "Check text responses without tool calls for a completion signal.",
       "completionRubricHelp": "Triggered after text responses without tool calls. The agent outputs the completion signal when done; otherwise it keeps working until the maximum evaluation rounds is reached.",
       "completionPrompt": "Completion check prompt",
-      "completionPromptHelp": "Describe when the result is complete. QwenPaw automatically injects the completion-signal output instruction.",
+      "completionPromptHelp": "Describe when the result is complete. AIArb automatically injects the completion-signal output instruction.",
       "completionSignal": "Completion signal",
-      "completionSignalHelp": "QwenPaw injects this signal into the check prompt and instructs the agent to output only it. Matching is exact after trimming whitespace and ignoring case.",
+      "completionSignalHelp": "AIArb injects this signal into the check prompt and instructs the agent to output only it. Matching is exact after trimming whitespace and ignoring case.",
       "removeCriterion": "Remove criterion {{number}}",
       "totalTokensHelp": "Maximum combined input and output tokens used by this turn.",
       "promptTokensHelp": "Includes system instructions, conversation context, tool schemas, and tool results.",
@@ -2767,7 +2779,7 @@
     },
     "sandboxEnabled": "Enable Sandbox Execution",
     "sandboxEnabledTooltip": "When enabled, shell commands with no matching rule run silently inside the sandbox. When disabled, such commands run directly without the sandbox (no approval prompt). Either way, secret-file reads and dangerous commands (e.g. rm -rf /, sudo) are still blocked or require approval.",
-    "sandboxDegradedWarning": "Sandbox is configured as enabled, but QwenPaw is not running as administrator. The sandbox will be inactive for this session. To use the sandbox, restart QwenPaw with administrator privileges."
+    "sandboxDegradedWarning": "Sandbox is configured as enabled, but AIArb is not running as administrator. The sandbox will be inactive for this session. To use the sandbox, restart AIArb with administrator privileges."
   },
   "login": {
     "title": "登錄 AI Arb",
@@ -3960,7 +3972,8 @@
     "version": "Version",
     "id": "ID",
     "category": "Category",
-    "description": "Description"
+    "description": "Description",
+    "builtin": "內建應用"
   },
   "cloudBackup": {
     "title": "Cloud Backups",
@@ -4015,9 +4028,9 @@
   },
   "persona": {
     "visualMode": "Visual",
-    "expertMode": "Expert",
+    "expertMode": "文字",
     "visualModeTooltip": "Form-based persona editor for everyday users",
-    "expertModeTooltip": "Edit Markdown files directly, for power users",
+    "expertModeTooltip": "直接編輯 Markdown 文字檔案",
     "identityTitle": "Identity",
     "agentName": "Name",
     "agentNamePlaceholder": "Give your agent a name",
@@ -4039,7 +4052,7 @@
     "userNotesPlaceholder": "Other info about you",
     "userBackground": "Background",
     "userBackgroundPlaceholder": "What do you care about? What projects are you working on?",
-    "soulTitle": "Soul & Personality",
+    "soulTitle": "人格設定",
     "corePrinciples": "Core Principles",
     "addPrinciple": "Add principle",
     "principlePlaceholder": "Enter a new behavioral principle...",
@@ -4054,10 +4067,11 @@
     "heartbeatEnable": "Enable heartbeat check",
     "heartbeatIntervalUnit": "minutes",
     "fileManagementTitle": "File Management",
-    "unparsedWarning": "Some content could not be parsed into structured form. Use Expert mode to edit the full content.",
+    "unparsedWarning": "部分內容無法解析為結構化表單，建議使用文字模式編輯完整內容。",
     "loadFailed": "Failed to load persona files",
     "saveSuccess": "Persona saved",
-    "saveFailed": "Failed to save persona"
+    "saveFailed": "Failed to save persona",
+    "roleCustomPlaceholder": "輸入自訂角色定位"
   },
   "loop": {
     "selectorTitle": "循環模式",
@@ -4174,7 +4188,7 @@
   },
   "pet": {
     "title": "Desktop Pet",
-    "intro": "Manage QwenPaw desktop pet: start, switch, create and import pets.",
+    "intro": "Manage AIArb desktop pet: start, switch, create and import pets.",
     "control": "Control Panel",
     "installedPets": "Installed Pets",
     "startDesktop": "Start Desktop Pet",
@@ -4273,7 +4287,17 @@
     "spritePreview": "预览（第0行第0帧）",
     "spriteInvalidFormat": "不支持的文件格式，请使用 WebP / PNG / JPG",
     "spriteInvalidSize": "尺寸不正确，必须为 1536×1872 px",
-    "spriteInvalidFile": "无法读取图片文件"
+    "spriteInvalidFile": "无法读取图片文件",
+    "chat": "聊天",
+    "chatWithPet": "與寵物聊天",
+    "chatTitle": "與 {name} 聊天",
+    "chatPlaceholder": "發送訊息開始與綁定的智慧體對話",
+    "chatInputPlaceholder": "輸入訊息，Enter 發送，Shift+Enter 換行",
+    "chatSend": "發送",
+    "chatThinking": "思考中…",
+    "chatNoAgent": "請先綁定智慧體",
+    "chatError": "聊天出錯",
+    "chatToolUsed": "使用工具"
   },
   "textSelection": {
     "title": "Text Selection",

@@ -14,7 +14,7 @@ Covers:
 import json
 from unittest.mock import MagicMock
 
-from agentscope.message import (
+from aiarb.framework.message import (
     TextBlock,
     ToolCallBlock,
     ToolCallState,
@@ -22,7 +22,7 @@ from agentscope.message import (
     ToolResultState,
 )
 
-from qwenpaw.agents.utils.tool_message_utils import (
+from aiarb.agents.utils.tool_message_utils import (
     _coerce_tool_inputs_to_json,
     _dedup_tool_blocks,
     _remove_invalid_tool_blocks,
@@ -661,7 +661,7 @@ class TestSanitizeToolMessages:
         assert result == []
 
     def test_self_paired_message_kept_when_another_block_unpaired(self):
-        # An AgentScope 2.0 self-paired assistant message carries its own
+        # An the framework 2.0 self-paired assistant message carries its own
         # tool_use and matching tool_result (plus text). When an *unrelated*
         # unpaired tool_use elsewhere triggers sanitation, the valid
         # self-paired turn must NOT be dropped (previously it was silently

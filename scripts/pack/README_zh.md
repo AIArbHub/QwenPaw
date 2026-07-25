@@ -1,9 +1,9 @@
-# AI Arb Desktop 打包脚本
+﻿# AI Arb Desktop 打包脚本
 
 > ⚠️ **旧版（仅用于回滚）。** 这套基于 conda-pack 的打包脚本已被 **Tauri**
 > 桌面版构建取代（详见 `console/src-tauri/` 与 `scripts/pack-tauri/`），仅作
 > 短期回滚保留，发布流程已不再使用。当前桌面应用请参考
-> [桌面应用指南](https://qwenpaw.agentscope.io/docs/desktop)。
+> [桌面应用指南](https://aiarb.cn/docs/desktop)。
 
 一键打包：脚本会先运行 `scripts/wheel_build.sh` 构建 **wheel**
 （包含 console 前端产物），再用 **临时 conda 环境** + **conda-pack**
@@ -39,7 +39,7 @@ CREATE_ZIP=1 bash ./scripts/pack/build_macos.sh   # 同时生成 .zip
 **Windows (PowerShell)**
 ```powershell
 ./scripts/pack/build_win.ps1
-# 产出: dist/AI-Arb-<version>-Windows.zip
+# 产出: dist/AIArb-<version>-Windows.zip
 # 创建两个启动器：
 #   - AI Arb Desktop.vbs (静默启动，无终端窗口)
 #   - AI Arb Desktop (Debug).bat (显示终端，便于调试)
@@ -52,7 +52,7 @@ CREATE_ZIP=1 bash ./scripts/pack/build_macos.sh   # 同时生成 .zip
 ```bash
 # 在仓库根目录执行，强制只用打包环境（不用系统 conda / PYTHONPATH）。路径按需改。
 APP_ENV="$(pwd)/dist/AI Arb.app/Contents/Resources/env"
-PYTHONNOUSERSITE=1 PYTHONPATH= PYTHONHOME="$APP_ENV" "$APP_ENV/bin/python" -m qwenpaw desktop
+PYTHONNOUSERSITE=1 PYTHONPATH= PYTHONHOME="$APP_ENV" "$APP_ENV/bin/python" -m aiarb desktop
 ```
 
 `PYTHONNOUSERSITE=1` 可防止 Python 加载 `~/.local/lib/pythonX.Y/site-packages` 中的包，避免与打包环境冲突。所有标准输出和错误（包括 Python traceback）都会打在终端里；可加 `--log-level debug` 查看更详细日志。
@@ -87,7 +87,7 @@ PYTHONNOUSERSITE=1 PYTHONPATH= PYTHONHOME="$APP_ENV" "$APP_ENV/bin/python" -m qw
 
 | 文件 | 说明 |
 |------|------|
-| `build_common.py` | 创建临时 conda 环境，从 wheel 安装 `qwenpaw[full]`，conda-pack 产出归档 |
+| `build_common.py` | 创建临时 conda 环境，从 wheel 安装 `aiarb[full]`，conda-pack 产出归档 |
 | `build_macos.sh` | 一键：构建 wheel → build_common → 解压到 AI Arb.app；可选打 zip |
 | `build_win.ps1` | 一键：构建 wheel → build_common → 解压 → 创建 VBS/BAT 启动器 → 打包压缩 |
 | `desktop.nsi` | NSIS 脚本：打包 `dist/win-unpacked`，添加图标，创建快捷方式 |

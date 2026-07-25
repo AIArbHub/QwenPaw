@@ -1,4 +1,4 @@
-import { Slider } from "@agentscope-ai/design";
+﻿import { Slider } from "@agentscope-ai/design";
 import styles from "../index.module.less";
 
 interface SliderWithValueProps {

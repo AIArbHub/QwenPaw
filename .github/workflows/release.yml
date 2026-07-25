@@ -1,4 +1,4 @@
-# QwenPaw unified release orchestrator (draft-driven, all-or-nothing).
+﻿# AIArb unified release orchestrator (draft-driven, all-or-nothing).
 #
 # Flow (方案二 · 草稿变体):
 #   1. A maintainer creates a DRAFT GitHub Release (tag + notes), does NOT publish.
@@ -95,10 +95,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Validate tag matches src/qwenpaw/__version__.py
+      - name: Validate tag matches src/aiarb/__version__.py
         run: |
           python -m pip install --quiet packaging
-          ver="$(sed -n 's/^__version__[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' src/qwenpaw/__version__.py)"
+          ver="$(sed -n 's/^__version__[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' src/aiarb/__version__.py)"
           tag="${{ steps.pick.outputs.tag }}"
           python - "${tag#v}" "$ver" <<'PY'
           import sys
@@ -109,7 +109,7 @@ jobs:
               if Version(tag_ver) != Version(ver):
                   print(
                       f"::error::Draft tag '{tag_ver}' does not match "
-                      f"src/qwenpaw/__version__.py '{ver}'. "
+                      f"src/aiarb/__version__.py '{ver}'. "
                       f"Fix the tag or bump the version before releasing."
                   )
                   sys.exit(1)
@@ -121,10 +121,10 @@ jobs:
 
       - name: Ensure release secrets present (skip on dry_run)
         env:
-          QWENPAW_DASHSCOPE_API_KEY: ${{ secrets.QWENPAW_DASHSCOPE_API_KEY }}
+          AIARB_DASHSCOPE_API_KEY: ${{ secrets.AIARB_DASHSCOPE_API_KEY }}
         run: |
-          if [ "${{ inputs.dry_run }}" != "true" ] && [ -z "${QWENPAW_DASHSCOPE_API_KEY:-}" ]; then
-            echo "::error::QWENPAW_DASHSCOPE_API_KEY is not set; desktop verification cannot validate the LLM chat round."
+          if [ "${{ inputs.dry_run }}" != "true" ] && [ -z "${AIARB_DASHSCOPE_API_KEY:-}" ]; then
+            echo "::error::AIARB_DASHSCOPE_API_KEY is not set; desktop verification cannot validate the LLM chat round."
             exit 1
           fi
           echo "Secret check OK (dry_run=${{ inputs.dry_run }})"
@@ -156,15 +156,15 @@ jobs:
 
       - name: Copy console build into package
         run: |
-          rm -rf src/qwenpaw/console/*
-          mkdir -p src/qwenpaw/console
-          cp -R console/dist/* src/qwenpaw/console/
+          rm -rf src/aiarb/console/*
+          mkdir -p src/aiarb/console
+          cp -R console/dist/* src/aiarb/console/
 
       - name: Bundle docs into package
         run: |
-          rm -rf src/qwenpaw/docs
-          mkdir -p src/qwenpaw/docs
-          cp website/public/docs/*.md src/qwenpaw/docs/
+          rm -rf src/aiarb/docs
+          mkdir -p src/aiarb/docs
+          cp website/public/docs/*.md src/aiarb/docs/
 
       - name: Install build dependencies
         run: |
@@ -177,15 +177,15 @@ jobs:
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: qwenpaw-dist
+          name: aiarb-dist
           path: dist/
           retention-days: 7
 
       - name: Upload version metadata
         uses: actions/upload-artifact@v4
         with:
-          name: qwenpaw-version
-          path: src/qwenpaw/__version__.py
+          name: aiarb-version
+          path: src/aiarb/__version__.py
           retention-days: 7
 
   verify-web:
@@ -233,7 +233,7 @@ jobs:
       - name: Upload plugins dist
         uses: actions/upload-artifact@v4
         with:
-          name: qwenpaw-plugins-dist
+          name: aiarb-plugins-dist
           path: dist/plugins
           retention-days: 7
 
@@ -246,7 +246,7 @@ jobs:
       - name: Download dist artifacts
         uses: actions/download-artifact@v4
         with:
-          name: qwenpaw-dist
+          name: aiarb-dist
           path: dist
 
       - name: Publish package to PyPI
@@ -265,8 +265,8 @@ jobs:
     needs: [resolve, build-wheel, verify-web, build-desktop, build-plugins]
     runs-on: ubuntu-latest
     env:
-      ACR_REGISTRY: agentscope-registry.ap-southeast-1.cr.aliyuncs.com
-      IMAGE: agentscope/qwenpaw
+      ACR_REGISTRY: aiarb-registry.ap-southeast-1.cr.aliyuncs.com
+      IMAGE: aiarb/aiarb
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -297,7 +297,7 @@ jobs:
         if: ${{ !inputs.dry_run }}
         env:
           VERSION: ${{ needs.resolve.outputs.tag }}
-          QWENPAW_DISABLED_CHANNELS: "imessage"
+          AIARB_DISABLED_CHANNELS: "imessage"
         run: |
           if [[ "$VERSION" =~ (beta|alpha|rc|dev) ]]; then
             IS_PRERELEASE=true
@@ -311,7 +311,7 @@ jobs:
           fi
           docker buildx build --platform linux/amd64,linux/arm64 \
             -f deploy/Dockerfile \
-            --build-arg QWENPAW_DISABLED_CHANNELS="${QWENPAW_DISABLED_CHANNELS}" \
+            --build-arg AIARB_DISABLED_CHANNELS="${AIARB_DISABLED_CHANNELS}" \
             ${TAGS} --push .
 
       - name: Dry-run notice
@@ -332,7 +332,7 @@ jobs:
     needs: [resolve, build-wheel, verify-web, build-desktop, build-plugins]
     runs-on: ubuntu-latest
     env:
-      OSS_BUCKET: ${{ vars.OSS_BUCKET || 'qwenpaw-download' }}
+      OSS_BUCKET: ${{ vars.OSS_BUCKET || 'aiarb-download' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -346,7 +346,7 @@ jobs:
       - name: Download plugins dist
         uses: actions/download-artifact@v4
         with:
-          name: qwenpaw-plugins-dist
+          name: aiarb-plugins-dist
           path: dist/plugins
 
       - name: Dry-run notice

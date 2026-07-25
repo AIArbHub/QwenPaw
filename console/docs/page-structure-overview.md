@@ -1,4 +1,4 @@
-# QwenPaw 前端页面结构总览
+# AIArb 前端页面结构总览
 
 > 生成时间：2026-07-11
 > 来源：`builtinRoutes.tsx` + `builtinMenu.ts` + `Sidebar.tsx` + 各页面源码
@@ -7,7 +7,7 @@
 
 ## 三种侧栏模式
 
-侧栏模式存储在 `localStorage("qwenpaw_sidebar_mode")`，通过 `sidebarModeStore` 管理，循环切换顺序为 `full → simple → design`。
+侧栏模式存储在 `localStorage("aiarb_sidebar_mode")`，通过 `sidebarModeStore` 管理，循环切换顺序为 `full → simple → design`。
 
 | 模式 | 内部ID | 说明 |
 |------|--------|------|
@@ -38,7 +38,7 @@
 | 5 | 案件卷宗 | `core.cases` | `/cases` | `pages/Cases/` | — |
 | 6 | 记忆中心 | `core.memory` | `/memory` | `pages/Memory/` | — |
 
-### 🗂️ 分组 2：智能体工作区（`primary.agentScoped`）
+### 🗂️ 分组 2：智能体工作区（`primary.the frameworkd`）
 
 | 序号 | 菜单项 | 路由ID | 路径 | 页面文件 | 内部Tab |
 |------|--------|--------|------|----------|---------|

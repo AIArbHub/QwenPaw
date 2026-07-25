@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests for AgentScope event metadata in real-time envelopes."""
+"""Tests for the framework event metadata in real-time envelopes."""
 
 from __future__ import annotations
 
@@ -7,10 +7,10 @@ from types import SimpleNamespace
 from typing import Any, AsyncGenerator
 
 import pytest
-from agentscope.event import EventType
+from aiarb.framework.event import EventType
 
-from qwenpaw.runtime.envelope import Envelope, _propagate_event_metadata
-from qwenpaw.schemas import ContentType, MessageType, RunStatus, TextContent
+from aiarb.runtime.envelope import Envelope, _propagate_event_metadata
+from aiarb.schemas import ContentType, MessageType, RunStatus, TextContent
 
 
 class _SyntheticEnvelope(Envelope):

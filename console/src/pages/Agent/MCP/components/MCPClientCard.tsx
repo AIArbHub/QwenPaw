@@ -1,4 +1,4 @@
-import { Card, Button, Modal, Tooltip, Input } from "@agentscope-ai/design";
+﻿import { Card, Button, Modal, Tooltip, Input } from "@agentscope-ai/design";
 import type { MCPAccessPolicy, MCPClientInfo } from "../../../../api/types";
 import { useTranslation } from "react-i18next";
 import React, { useState } from "react";

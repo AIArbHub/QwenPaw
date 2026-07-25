@@ -1,0 +1,34 @@
+{
+  "id": "agent-kanban",
+  "name": {
+    "zh-CN": "智能体看板",
+    "en-US": "Agent Kanban"
+  },
+  "version": "0.1.0",
+  "description": {
+    "zh-CN": "看板工具，可创建任务、分配给智能体、通过分配的智能体自动运行，并实时查看输出流。",
+    "en-US": "A Kanban board to create issues, assign them to agents, auto-run them via the assigned agent, and watch their output stream in real time."
+  },
+  "author": "AIArb Team",
+  "type": "app",
+  "entry": {
+    "backend": "backend/main.py",
+    "frontend": "ui/index.js"
+  },
+  "aiarb_version": {
+    "min": "2.0.1"
+  },
+  "meta": {
+    "pawapp": {
+      "icon": "📋",
+      "category": "productivity",
+      "entry_page": "/apps/agent-kanban",
+      "launch_scope": "page"
+    },
+    "permissions": {
+      "chat": true,
+      "storage": true
+    },
+    "settings": []
+  }
+}

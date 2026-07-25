@@ -1,4 +1,4 @@
-/**
+﻿/**
  * registerBuiltinCards — registers all built-in tool cards into the
  * PluginSystem so they are available to both ChatV2 (via CardRegistry)
  * and ChatV1 (via customToolRenderConfig / usePlugins).

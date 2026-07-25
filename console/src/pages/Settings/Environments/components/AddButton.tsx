@@ -1,4 +1,4 @@
-import { SparkPlusLine } from "@agentscope-ai/icons";
+﻿import { SparkPlusLine } from "@agentscope-ai/icons";
 import { useTranslation } from "react-i18next";
 import styles from "../index.module.less";
 

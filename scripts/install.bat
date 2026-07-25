@@ -100,24 +100,24 @@ echo   -Help                 Show this help
 echo.
 echo Environment:
 echo   AIARB_HOME              Installation directory (default: %%USERPROFILE%%\.aiarb)
-echo   QWENPAW_HOME            (legacy) Alias for AIARB_HOME
+echo   AIARB_HOME            (legacy) Alias for AIARB_HOME
 exit /b 0
 
 REM ──── Helper functions ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 :write_info
-echo [ai-arb] %~1
+echo [aiarb] %~1
 exit /b 0
 
 :write_warn
-echo [ai-arb] WARNING: %~1
+echo [aiarb] WARNING: %~1
 exit /b 0
 
 :write_err
-echo [ai-arb] ERROR: %~1
+echo [aiarb] ERROR: %~1
 exit /b 0
 
 :stop_with_error
-echo [ai-arb] ERROR: %~1
+echo [aiarb] ERROR: %~1
 exit /b 1
 
 REM ──── Download uv from GitHub Releases ────────────────────────────────────────────────────────────────────────────────────
@@ -133,41 +133,41 @@ set "_DL_URL=https://github.com/astral-sh/uv/releases/latest/download/uv-!_DL_AR
 set "_DL_DEST=%LOCALAPPDATA%\uv"
 set "_DL_ZIP=%TEMP%\uv-gh-%RANDOM%.zip"
 
-echo [ai-arb] Downloading uv ^(!_DL_ARCH!^) from GitHub Releases...
+echo [aiarb] Downloading uv ^(!_DL_ARCH!^) from GitHub Releases...
 
 REM Try curl.exe (built into Windows 10+), then fall back to PowerShell
 where curl >nul 2>&1
 if not errorlevel 1 (
     curl -L --progress-bar -o "!_DL_ZIP!" "!_DL_URL!"
     if not errorlevel 1 goto :download_uv_extract
-    echo [ai-arb] curl failed, retrying with PowerShell...
+    echo [aiarb] curl failed, retrying with PowerShell...
     del "!_DL_ZIP!" >nul 2>&1
 )
 
 powershell -NoProfile -Command "$ProgressPreference='SilentlyContinue'; Invoke-WebRequest -Uri '!_DL_URL!' -OutFile '!_DL_ZIP!' -UseBasicParsing"
 if errorlevel 1 (
-    echo [ai-arb] ERROR: GitHub download also failed.
-    echo [ai-arb] Download uv manually from: https://github.com/astral-sh/uv/releases/latest
+    echo [aiarb] ERROR: GitHub download also failed.
+    echo [aiarb] Download uv manually from: https://github.com/astral-sh/uv/releases/latest
     del "!_DL_ZIP!" >nul 2>&1
     exit /b 1
 )
 
 :download_uv_extract
 if not exist "!_DL_DEST!" mkdir "!_DL_DEST!"
-echo [ai-arb] Extracting uv...
+echo [aiarb] Extracting uv...
 powershell -NoProfile -Command "Expand-Archive -Force -Path '!_DL_ZIP!' -DestinationPath '!_DL_DEST!'"
 set "_DL_ERR=%errorlevel%"
 del "!_DL_ZIP!" >nul 2>&1
 if %_DL_ERR% neq 0 (
-    echo [ai-arb] ERROR: Extraction failed.
+    echo [aiarb] ERROR: Extraction failed.
     exit /b 1
 )
 if not exist "!_DL_DEST!\uv.exe" (
-    echo [ai-arb] ERROR: uv.exe not found after extraction.
+    echo [aiarb] ERROR: uv.exe not found after extraction.
     exit /b 1
 )
 set "PATH=!_DL_DEST!;!PATH!"
-echo [ai-arb] uv installed: !_DL_DEST!\uv.exe
+echo [aiarb] uv installed: !_DL_DEST!\uv.exe
 exit /b 0
 
 REM ──── Ensure uv ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -175,11 +175,11 @@ REM ──── Ensure uv ─────────────────�
 REM 0. User-supplied path (-UvPath)
 if defined ARG_UV_PATH (
     if not exist "%ARG_UV_PATH%" (
-        echo [ai-arb] ERROR: Specified uv not found: %ARG_UV_PATH%
+        echo [aiarb] ERROR: Specified uv not found: %ARG_UV_PATH%
         exit /b 1
     )
     for %%I in ("%ARG_UV_PATH%") do set "PATH=%%~dpI;!PATH!"
-    echo [ai-arb] uv found: %ARG_UV_PATH%
+    echo [aiarb] uv found: %ARG_UV_PATH%
     goto :ensure_uv_done
 )
 
@@ -187,7 +187,7 @@ REM 1. Already on PATH
 where uv >nul 2>&1
 if %errorlevel%==0 (
     for /f "delims=" %%p in ('where uv 2^>nul') do (
-        echo [ai-arb] uv found: %%p
+        echo [aiarb] uv found: %%p
         goto :ensure_uv_done
     )
 )
@@ -197,22 +197,22 @@ for %%c in ("%USERPROFILE%\.local\bin\uv.exe" "%USERPROFILE%\.cargo\bin\uv.exe" 
     if exist %%c (
         set "_UV_DIR=%%~dpc"
         set "PATH=!_UV_DIR!;!PATH!"
-        echo [ai-arb] uv found: %%~c
+        echo [aiarb] uv found: %%~c
         goto :ensure_uv_done
     )
 )
 
 REM 3. Try astral.sh (standard installer, fast outside China)
-echo [ai-arb] Installing uv via astral.sh...
+echo [aiarb] Installing uv via astral.sh...
 powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://astral.sh/uv/install.ps1 -TimeoutSec 15 | iex"
 if not errorlevel 1 goto :ensure_uv_refresh
 
 REM 4. astral.sh failed -- fall back to GitHub Releases (works in China)
-echo [ai-arb] astral.sh unreachable, falling back to GitHub Releases...
+echo [aiarb] astral.sh unreachable, falling back to GitHub Releases...
 call :download_uv_github
 if errorlevel 1 (
-    echo [ai-arb] ERROR: Failed to install uv automatically.
-    echo [ai-arb] Please install uv manually: https://docs.astral.sh/uv/
+    echo [aiarb] ERROR: Failed to install uv automatically.
+    echo [aiarb] Please install uv manually: https://docs.astral.sh/uv/
     exit /b 1
 )
 goto :ensure_uv_done
@@ -227,10 +227,10 @@ for %%p in ("%USERPROFILE%\.local\bin" "%USERPROFILE%\.cargo\bin" "%LOCALAPPDATA
 )
 where uv >nul 2>&1
 if errorlevel 1 (
-    echo [ai-arb] ERROR: Failed to install uv. Please install it manually: https://docs.astral.sh/uv/
+    echo [aiarb] ERROR: Failed to install uv. Please install it manually: https://docs.astral.sh/uv/
     exit /b 1
 )
-echo [ai-arb] uv installed via astral.sh
+echo [aiarb] uv installed via astral.sh
 
 :ensure_uv_done
 exit /b 0
@@ -240,7 +240,7 @@ REM ──── Prepare console frontend ────────────�
 REM %~1 = RepoDir
 set "_REPO_DIR=%~1"
 set "_CONSOLE_SRC=%_REPO_DIR%\console\dist"
-set "_CONSOLE_DEST=%_REPO_DIR%\src\qwenpaw\console"
+set "_CONSOLE_DEST=%_REPO_DIR%\src\aiarb\console"
 
 REM Already populated
 if exist "%_CONSOLE_DEST%\index.html" (
@@ -250,7 +250,7 @@ if exist "%_CONSOLE_DEST%\index.html" (
 
 REM Copy pre-built assets if available
 if exist "%_CONSOLE_SRC%\index.html" (
-    echo [ai-arb] Copying console frontend assets...
+    echo [aiarb] Copying console frontend assets...
     if not exist "%_CONSOLE_DEST%" mkdir "%_CONSOLE_DEST%"
     xcopy /s /e /y /q "%_CONSOLE_SRC%\*" "%_CONSOLE_DEST%\" >nul
     set "CONSOLE_COPIED=1"
@@ -260,30 +260,30 @@ if exist "%_CONSOLE_SRC%\index.html" (
 
 REM Try to build if npm is available
 if not exist "%_REPO_DIR%\console\package.json" (
-    echo [ai-arb] WARNING: Console source not found - the web UI won't be available.
+    echo [aiarb] WARNING: Console source not found - the web UI won't be available.
     exit /b 0
 )
 
 where npm >nul 2>&1
 if errorlevel 1 (
-    echo [ai-arb] WARNING: npm not found - skipping console frontend build.
-    echo [ai-arb] WARNING: Install Node.js from https://nodejs.org/ then re-run this installer,
-    echo [ai-arb] WARNING: or run 'cd console ^&^& npm ci ^&^& npm run build' manually.
+    echo [aiarb] WARNING: npm not found - skipping console frontend build.
+    echo [aiarb] WARNING: Install Node.js from https://nodejs.org/ then re-run this installer,
+    echo [aiarb] WARNING: or run 'cd console ^&^& npm ci ^&^& npm run build' manually.
     exit /b 0
 )
 
-echo [ai-arb] Building console frontend (npm ci ^&^& npm run build)...
+echo [aiarb] Building console frontend (npm ci ^&^& npm run build)...
 pushd "%_REPO_DIR%\console"
 npm ci
 if errorlevel 1 (
     popd
-    echo [ai-arb] WARNING: npm ci failed - the web UI won't be available.
+    echo [aiarb] WARNING: npm ci failed - the web UI won't be available.
     exit /b 0
 )
 npm run build
 if errorlevel 1 (
     popd
-    echo [ai-arb] WARNING: npm run build failed - the web UI won't be available.
+    echo [aiarb] WARNING: npm run build failed - the web UI won't be available.
     exit /b 0
 )
 popd
@@ -293,25 +293,25 @@ if exist "%_CONSOLE_SRC%\index.html" (
     xcopy /s /e /y /q "%_CONSOLE_SRC%\*" "%_CONSOLE_DEST%\" >nul
     set "CONSOLE_COPIED=1"
     set "CONSOLE_AVAILABLE=1"
-    echo [ai-arb] Console frontend built successfully
+    echo [aiarb] Console frontend built successfully
     exit /b 0
 )
 
-echo [ai-arb] WARNING: Console build completed but index.html not found - the web UI won't be available.
+echo [aiarb] WARNING: Console build completed but index.html not found - the web UI won't be available.
 exit /b 0
 
 REM ──── Cleanup console frontend ────────────────────────────────────────────────────────────────────────────────────────────────────
 :cleanup_console
 REM %~1 = RepoDir
 if "%CONSOLE_COPIED%"=="1" (
-    set "_CLEANUP_DEST=%~1\src\qwenpaw\console"
+    set "_CLEANUP_DEST=%~1\src\aiarb\console"
     if exist "!_CLEANUP_DEST!" rd /s /q "!_CLEANUP_DEST!" 2>nul
 )
 exit /b 0
 
 REM ══════════════════════════════ MAIN ═════════════════════════════════════════
 :main
-echo [ai-arb] Installing AI Arb into %AIARB_HOME%
+echo [aiarb] Installing AI Arb into %AIARB_HOME%
 
 REM ──── Step 1: Ensure uv ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 call :ensure_uv
@@ -319,93 +319,93 @@ if errorlevel 1 exit /b 1
 
 REM ──── Step 2: Create / update virtual environment ──────────────────────────────────────────────────────────────
 if exist "%AIARB_VENV%" (
-    echo [ai-arb] Existing environment found, upgrading...
+    echo [aiarb] Existing environment found, upgrading...
 ) else (
-    echo [ai-arb] Creating Python %PYTHON_VERSION% environment...
+    echo [aiarb] Creating Python %PYTHON_VERSION% environment...
 )
 
 uv venv "%AIARB_VENV%" --python %PYTHON_VERSION% --quiet --clear
 if errorlevel 1 (
-    echo [ai-arb] ERROR: Failed to create virtual environment
+    echo [aiarb] ERROR: Failed to create virtual environment
     exit /b 1
 )
 
 set "VENV_PYTHON=%AIARB_VENV%\Scripts\python.exe"
 if not exist "!VENV_PYTHON!" (
-    echo [ai-arb] ERROR: Failed to create virtual environment
+    echo [aiarb] ERROR: Failed to create virtual environment
     exit /b 1
 )
 
 for /f "usebackq delims=" %%v in (`"!VENV_PYTHON!" --version 2^>^&1`) do set "PY_VERSION=%%v"
-echo [ai-arb] Python environment ready (!PY_VERSION!)
+echo [aiarb] Python environment ready (!PY_VERSION!)
 
 REM ──── Step 3: Install AI Arb ──────────────────────────────────────────────────────────────────────────────────────────────────
 set "EXTRAS_SUFFIX="
 if defined ARG_EXTRAS set "EXTRAS_SUFFIX=[%ARG_EXTRAS%]"
 
-set "VENV_AIARB=%AIARB_VENV%\Scripts\qwenpaw.exe"
+set "VENV_AIARB=%AIARB_VENV%\Scripts\aiarb.exe"
 
 if "%ARG_FROM_SOURCE%"=="1" (
     if defined ARG_SOURCE_DIR (
         set "ARG_SOURCE_DIR=%~f2"
-        echo [ai-arb] Installing AI Arb from local source: %ARG_SOURCE_DIR%
+        echo [aiarb] Installing AI Arb from local source: %ARG_SOURCE_DIR%
         call :prepare_console "%ARG_SOURCE_DIR%"
-        echo [ai-arb] Installing package from source...
+        echo [aiarb] Installing package from source...
         uv pip install "%ARG_SOURCE_DIR%%EXTRAS_SUFFIX%" --python "!VENV_PYTHON!"
         if errorlevel 1 (
-            echo [ai-arb] ERROR: Installation from source failed
+            echo [aiarb] ERROR: Installation from source failed
             exit /b 1
         )
         call :cleanup_console "%ARG_SOURCE_DIR%"
     ) else (
         where git >nul 2>&1
         if errorlevel 1 (
-            echo [ai-arb] ERROR: git is required for -FromSource without a local directory.
-            echo [ai-arb] Please install Git from https://git-scm.com/ or pass a local path: install.bat -FromSource -SourceDir C:\path\to\QwenPaw
+            echo [aiarb] ERROR: git is required for -FromSource without a local directory.
+            echo [aiarb] Please install Git from https://git-scm.com/ or pass a local path: install.bat -FromSource -SourceDir C:\path\to\AIArb
             exit /b 1
         )
-        echo [ai-arb] Installing AI Arb from source (GitHub)...
-        set "CLONE_DIR=%TEMP%\qwenpaw-install-!RANDOM!"
+        echo [aiarb] Installing AI Arb from source (GitHub)...
+        set "CLONE_DIR=%TEMP%\aiarb-install-!RANDOM!"
         git clone --depth 1 %AIARB_REPO% "!CLONE_DIR!"
         if errorlevel 1 (
-            echo [ai-arb] ERROR: Failed to clone repository
+            echo [aiarb] ERROR: Failed to clone repository
             exit /b 1
         )
         call :prepare_console "!CLONE_DIR!"
-        echo [ai-arb] Installing package from source...
+        echo [aiarb] Installing package from source...
         uv pip install "!CLONE_DIR!%EXTRAS_SUFFIX%" --python "!VENV_PYTHON!"
         if errorlevel 1 (
-            echo [ai-arb] ERROR: Installation from source failed
+            echo [aiarb] ERROR: Installation from source failed
             exit /b 1
         )
         if exist "!CLONE_DIR!" rd /s /q "!CLONE_DIR!" 2>nul
     )
 ) else (
-    set "PACKAGE=qwenpaw"
-    if defined ARG_VERSION set "PACKAGE=qwenpaw==%ARG_VERSION%"
+    set "PACKAGE=aiarb"
+    if defined ARG_VERSION set "PACKAGE=aiarb==%ARG_VERSION%"
 
     set "PRERELEASE_ARGS="
     if "%ARG_PRERELEASE%"=="1" set "PRERELEASE_ARGS=--prerelease=allow"
 
-    echo [ai-arb] Installing !PACKAGE!!EXTRAS_SUFFIX! from PyPI...
-    uv pip install "!PACKAGE!!EXTRAS_SUFFIX!" --python "!VENV_PYTHON!" --quiet --refresh-package qwenpaw !PRERELEASE_ARGS!
+    echo [aiarb] Installing !PACKAGE!!EXTRAS_SUFFIX! from PyPI...
+    uv pip install "!PACKAGE!!EXTRAS_SUFFIX!" --python "!VENV_PYTHON!" --quiet --refresh-package aiarb !PRERELEASE_ARGS!
     if errorlevel 1 (
-        echo [ai-arb] ERROR: Installation failed
+        echo [aiarb] ERROR: Installation failed
         exit /b 1
     )
 )
 
 REM Verify the CLI entry point exists
 if not exist "!VENV_AIARB!" (
-    echo [ai-arb] ERROR: Installation failed: qwenpaw CLI not found in venv
+    echo [aiarb] ERROR: Installation failed: aiarb CLI not found in venv
     exit /b 1
 )
 
-echo [ai-arb] AI Arb installed successfully
+echo [aiarb] AI Arb installed successfully
 
 REM Check console availability (for PyPI installs, check the installed package)
 if "%CONSOLE_AVAILABLE%"=="0" (
-    for /f "usebackq delims=" %%r in (`"!VENV_PYTHON!" -c "import importlib.resources, qwenpaw; p=importlib.resources.files('qwenpaw')/'console'/'index.html'; print('yes' if p.is_file() else 'no')"`) do (
+    for /f "usebackq delims=" %%r in (`"!VENV_PYTHON!" -c "import importlib.resources, aiarb; p=importlib.resources.files('aiarb')/'console'/'index.html'; print('yes' if p.is_file() else 'no')"`) do (
         if "%%r"=="yes" set "CONSOLE_AVAILABLE=1"
     )
 )
@@ -423,7 +423,7 @@ echo. >> "%WRAPPER_PS1%"
 echo $ErrorActionPreference = "Stop" >> "%WRAPPER_PS1%"
 echo. >> "%WRAPPER_PS1%"
 echo $AiarbHome = if ($env:AIARB_HOME) { $env:AIARB_HOME } elseif ($env:QWENPAW_HOME) { $env:QWENPAW_HOME } else { Join-Path $HOME ".aiarb" } >> "%WRAPPER_PS1%"
-echo $RealBin   = Join-Path $AiarbHome "venv\Scripts\qwenpaw.exe" >> "%WRAPPER_PS1%"
+echo $RealBin   = Join-Path $AiarbHome "venv\Scripts\aiarb.exe" >> "%WRAPPER_PS1%"
 echo. >> "%WRAPPER_PS1%"
 echo if (-not (Test-Path $RealBin)) { >> "%WRAPPER_PS1%"
 echo     Write-Error "AI Arb environment not found at $AiarbHome\venv" >> "%WRAPPER_PS1%"
@@ -432,7 +432,7 @@ echo     exit 1 >> "%WRAPPER_PS1%"
 echo } >> "%WRAPPER_PS1%"
 echo. >> "%WRAPPER_PS1%"
 echo ^& $RealBin @args >> "%WRAPPER_PS1%"
-echo [ai-arb] Wrapper created at !WRAPPER_PS1!
+echo [aiarb] Wrapper created at !WRAPPER_PS1!
 
 REM Generate CMD wrapper
 if exist "%WRAPPER_CMD%" del "%WRAPPER_CMD%"
@@ -441,14 +441,14 @@ echo REM AI Arb CLI wrapper -- delegates to the uv-managed environment. >> "%WRA
 echo. >> "%WRAPPER_CMD%"
 echo set "AIARB_HOME=%%AIARB_HOME%%" >> "%WRAPPER_CMD%"
 echo if "%%AIARB_HOME%%"=="" set "AIARB_HOME=%%USERPROFILE%%\.aiarb" >> "%WRAPPER_CMD%"
-echo set "REAL_BIN=%%AIARB_HOME%%\venv\Scripts\qwenpaw.exe" >> "%WRAPPER_CMD%"
+echo set "REAL_BIN=%%AIARB_HOME%%\venv\Scripts\aiarb.exe" >> "%WRAPPER_CMD%"
 echo if not exist "%%REAL_BIN%%" ( >> "%WRAPPER_CMD%"
 echo     echo Error: AI Arb environment not found at %%AIARB_HOME%%\venv ^>^&2 >> "%WRAPPER_CMD%"
 echo     echo Please reinstall: irm ^<install-url^> ^| iex ^>^&2 >> "%WRAPPER_CMD%"
 echo     exit /b 1 >> "%WRAPPER_CMD%"
 echo ) >> "%WRAPPER_CMD%"
 echo "%%REAL_BIN%%" %%* >> "%WRAPPER_CMD%"
-echo [ai-arb] CMD wrapper created at !WRAPPER_CMD!
+echo [aiarb] CMD wrapper created at !WRAPPER_CMD!
 
 REM ──── Step 5: Update PATH via User Environment Variable ──────────────────────────────────────────────────────
 set "TARGET_PATH=%AIARB_BIN%"
@@ -473,7 +473,7 @@ if errorlevel 1 (
     reg add "%REG_PATH%" /v "%REG_NAME%" /t REG_EXPAND_SZ /d "!NEW_USER_PATH!" /f >nul 2>&1
     if not errorlevel 1 (
         set "PATH=!TARGET_PATH!;!PATH!"
-        echo [ai-arb] Successfully added !TARGET_PATH! to User PATH
+        echo [aiarb] Successfully added !TARGET_PATH! to User PATH
     ) else (
         echo.
         echo [CRITICAL WARNING] Automatic PATH update failed.
@@ -492,7 +492,7 @@ if errorlevel 1 (
         echo.
     )
 ) else (
-    echo [ai-arb] !TARGET_PATH! is already in your User PATH
+    echo [aiarb] !TARGET_PATH! is already in your User PATH
 )
 
 REM ──── Done ────────────────────────────────────────────────────────────────────────────────────────────────────

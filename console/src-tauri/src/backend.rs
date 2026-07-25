@@ -1,4 +1,4 @@
-//! Backend sidecar lifecycle for the Tauri desktop app.
+﻿//! Backend sidecar lifecycle for the Tauri desktop app.
 
 use std::{
     sync::{
@@ -19,8 +19,8 @@ mod events;
 
 /// Path of the desktop-only graceful shutdown endpoint on the backend.
 const DESKTOP_SHUTDOWN_PATH: &str = "/api/desktop/shutdown";
-const DESKTOP_SHUTDOWN_TOKEN_ENV: &str = "QWENPAW_DESKTOP_SHUTDOWN_TOKEN";
-const DESKTOP_SHUTDOWN_TOKEN_HEADER: &str = "X-QwenPaw-Desktop-Shutdown-Token";
+const DESKTOP_SHUTDOWN_TOKEN_ENV: &str = "AIARB_DESKTOP_SHUTDOWN_TOKEN";
+const DESKTOP_SHUTDOWN_TOKEN_HEADER: &str = "X-AIArb-Desktop-Shutdown-Token";
 /// Upper bound for the shutdown HTTP request. The endpoint just flips
 /// uvicorn's `should_exit` and returns immediately, so the request is
 /// milliseconds in the happy path; this is only a fallback so a wedged
@@ -318,7 +318,7 @@ pub(crate) fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Erro
             .targets([
                 Target::new(TargetKind::Stdout),
                 Target::new(TargetKind::LogDir {
-                    file_name: Some("ai-arb-desktop".into()),
+                    file_name: Some("aiarb-desktop".into()),
                 }),
             ])
             .level(desktop_log_level())
@@ -335,7 +335,7 @@ pub(crate) async fn stop_and_wait(app: &tauri::AppHandle) -> Result<(), String> 
 }
 
 fn desktop_log_level() -> log::LevelFilter {
-    if std::env::var("QWENPAW_DESKTOP_DEBUG").is_ok_and(|value| {
+    if std::env::var("AIARB_DESKTOP_DEBUG").is_ok_and(|value| {
         matches!(
             value.to_ascii_lowercase().as_str(),
             "1" | "true" | "yes" | "on"
@@ -365,7 +365,7 @@ fn start(app: &tauri::AppHandle) {
     .env("PYTHONIOENCODING", "utf-8")
     .env("PYTHONUNBUFFERED", "1")
     .env("PYTHONFAULTHANDLER", "1")
-    .env("QWENPAW_DESKTOP_APP", "1")
+    .env("AIARB_DESKTOP_APP", "1")
     .env(DESKTOP_SHUTDOWN_TOKEN_ENV, &shutdown_token);
 
     log::info!("[backend] starting generation={generation}");

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -euo pipefail
 
 BUILDX_VERSION="v0.31.1"
@@ -59,8 +59,8 @@ require_buildx_imagetools() {
 
 require_buildx_imagetools
 
-ACR_REGISTRY="agentscope-registry.ap-southeast-1.cr.aliyuncs.com"
-IMAGE="agentscope/qwenpaw"
+ACR_REGISTRY="aiarb-registry.ap-southeast-1.cr.aliyuncs.com"
+IMAGE="aiarb/aiarb"
 
 ACR_PRE="${ACR_REGISTRY}/${IMAGE}:pre"
 ACR_LATEST="${ACR_REGISTRY}/${IMAGE}:latest"

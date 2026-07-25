@@ -35,9 +35,9 @@ $PythonVersion = "3.12"
 $AiarbRepo     = "https://github.com/agentscope-ai/QwenPaw.git"
 
 # ── Colors ────────────────────────────────────────────────────────────────────
-function Write-Info { param([string]$Message) Write-Host "[ai-arb] " -ForegroundColor Green  -NoNewline; Write-Host $Message }
-function Write-Warn { param([string]$Message) Write-Host "[ai-arb] " -ForegroundColor Yellow -NoNewline; Write-Host $Message }
-function Write-Err  { param([string]$Message) Write-Host "[ai-arb] " -ForegroundColor Red    -NoNewline; Write-Host $Message }
+function Write-Info { param([string]$Message) Write-Host "[aiarb] " -ForegroundColor Green  -NoNewline; Write-Host $Message }
+function Write-Warn { param([string]$Message) Write-Host "[aiarb] " -ForegroundColor Yellow -NoNewline; Write-Host $Message }
+function Write-Err  { param([string]$Message) Write-Host "[aiarb] " -ForegroundColor Red    -NoNewline; Write-Host $Message }
 function Stop-WithError { param([string]$Message) Write-Err $Message; exit 1 }
 
 # ── Help ──────────────────────────────────────────────────────────────────────
@@ -59,12 +59,12 @@ Options:
 
 Environment:
   AIARB_HOME              Installation directory (default: ~/.aiarb)
-  QWENPAW_HOME            (legacy) Alias for AIARB_HOME
+  AIARB_HOME            (legacy) Alias for AIARB_HOME
 "@
     exit 0
 }
 
-Write-Host "[ai-arb] " -ForegroundColor Green -NoNewline
+Write-Host "[aiarb] " -ForegroundColor Green -NoNewline
 Write-Host "Installing AI Arb into " -NoNewline
 Write-Host "$AiarbHome" -ForegroundColor White
 
@@ -222,7 +222,7 @@ function Prepare-Console {
     param([string]$RepoDir)
 
     $consoleSrc  = Join-Path $RepoDir "console\dist"
-    $consoleDest = Join-Path $RepoDir "src\qwenpaw\console"
+    $consoleDest = Join-Path $RepoDir "src\aiarb\console"
 
     # Already populated
     if (Test-Path (Join-Path $consoleDest "index.html")) { $script:ConsoleAvailable = $true; return }
@@ -276,14 +276,14 @@ function Prepare-Console {
 function Cleanup-Console {
     param([string]$RepoDir)
     if ($script:ConsoleCopied) {
-        $consoleDest = Join-Path $RepoDir "src\qwenpaw\console"
+        $consoleDest = Join-Path $RepoDir "src\aiarb\console"
         if (Test-Path $consoleDest) {
             Remove-Item -Path "$consoleDest\*" -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
 }
 
-$VenvAiarb = Join-Path $AiarbVenv "Scripts\qwenpaw.exe"
+$VenvAiarb = Join-Path $AiarbVenv "Scripts\aiarb.exe"
 
 if ($FromSource) {
     if ($SourceDir) {
@@ -296,10 +296,10 @@ if ($FromSource) {
         Cleanup-Console $SourceDir
     } else {
         if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-            Stop-WithError "git is required for -FromSource without a local directory. Please install Git from https://git-scm.com/ or pass a local path: .\install.ps1 -FromSource -SourceDir C:\path\to\QwenPaw"
+            Stop-WithError "git is required for -FromSource without a local directory. Please install Git from https://git-scm.com/ or pass a local path: .\install.ps1 -FromSource -SourceDir C:\path\to\AIArb"
         }
         Write-Info "Installing AI Arb from source (GitHub)..."
-        $cloneDir = Join-Path $env:TEMP "qwenpaw-install-$(Get-Random)"
+        $cloneDir = Join-Path $env:TEMP "aiarb-install-$(Get-Random)"
         try {
             git clone --depth 1 $AiarbRepo $cloneDir
             if ($LASTEXITCODE -ne 0) { Stop-WithError "Failed to clone repository" }
@@ -314,25 +314,25 @@ if ($FromSource) {
         }
     }
 } else {
-    $package = "qwenpaw"
-    if ($Version) { $package = "qwenpaw==$Version" }
+    $package = "aiarb"
+    if ($Version) { $package = "aiarb==$Version" }
 
     $prereleaseArgs = @()
     if ($Prerelease) { $prereleaseArgs = @("--prerelease=allow") }
 
     Write-Info "Installing ${package}${ExtrasSuffix} from PyPI..."
-    uv pip install "${package}${ExtrasSuffix}" --python $VenvPython --quiet --refresh-package qwenpaw @prereleaseArgs
+    uv pip install "${package}${ExtrasSuffix}" --python $VenvPython --quiet --refresh-package aiarb @prereleaseArgs
     if ($LASTEXITCODE -ne 0) { Stop-WithError "Installation failed" }
 }
 
 # Verify the CLI entry point exists
-if (-not (Test-Path $VenvAiarb)) { Stop-WithError "Installation failed: qwenpaw CLI not found in venv" }
+if (-not (Test-Path $VenvAiarb)) { Stop-WithError "Installation failed: aiarb CLI not found in venv" }
 
 Write-Info "AI Arb installed successfully"
 
 # Check console availability (for PyPI installs, check the installed package)
 if (-not $script:ConsoleAvailable) {
-    $consoleCheck = & $VenvPython -c "import importlib.resources, qwenpaw; p=importlib.resources.files('qwenpaw')/'console'/'index.html'; print('yes' if p.is_file() else 'no')" 2>&1
+    $consoleCheck = & $VenvPython -c "import importlib.resources, aiarb; p=importlib.resources.files('aiarb')/'console'/'index.html'; print('yes' if p.is_file() else 'no')" 2>&1
     if ($consoleCheck -eq "yes") { $script:ConsoleAvailable = $true }
 }
 
@@ -345,7 +345,7 @@ $wrapperContent = @'
 $ErrorActionPreference = "Stop"
 
 $AiarbHome = if ($env:AIARB_HOME) { $env:AIARB_HOME } elseif ($env:QWENPAW_HOME) { $env:QWENPAW_HOME } else { Join-Path $HOME ".aiarb" }
-$RealBin   = Join-Path $AiarbHome "venv\Scripts\qwenpaw.exe"
+$RealBin   = Join-Path $AiarbHome "venv\Scripts\aiarb.exe"
 
 if (-not (Test-Path $RealBin)) {
     Write-Error "AI Arb environment not found at $AiarbHome\venv"
@@ -366,7 +366,7 @@ $cmdWrapperContent = @"
 REM AI Arb CLI wrapper — delegates to the uv-managed environment.
 set "AIARB_HOME=%AIARB_HOME%"
 if "%AIARB_HOME%"=="" set "AIARB_HOME=%USERPROFILE%\.aiarb"
-set "REAL_BIN=%AIARB_HOME%\venv\Scripts\qwenpaw.exe"
+set "REAL_BIN=%AIARB_HOME%\venv\Scripts\aiarb.exe"
 if not exist "%REAL_BIN%" (
     echo Error: AI Arb environment not found at %AIARB_HOME%\venv >&2
     echo Please reinstall: irm ^<install-url^> ^| iex >&2

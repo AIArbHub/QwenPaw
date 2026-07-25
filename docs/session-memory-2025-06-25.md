@@ -1,4 +1,4 @@
-# 会话记忆 - 2025年6月25日
+﻿# 会话记忆 - 2025年6月25日
 
 ## 一、硅基流动推荐信息
 
@@ -18,7 +18,7 @@
 
 **原因：** `provider_oauth` 路由模块没有被注册到 FastAPI 应用中。
 
-**修复：** 在 `src/qwenpaw/app/routers/__init__.py` 中添加导入和注册：
+**修复：** 在 `src/aiarb/app/routers/__init__.py` 中添加导入和注册：
 ```python
 from .provider_oauth import router as provider_oauth_router
 router.include_router(provider_oauth_router)
@@ -28,14 +28,14 @@ router.include_router(provider_oauth_router)
 
 为聊天界面添加超时提示功能。当模型响应超过30秒未返回时，在页面右下角显示警告提示。
 
-**新增文件：** `console/src/pages/Chat/components/ResponseTimeout.tsx` — 超时检测组件，使用 `useState` + `setTimeout` 实现，超过30秒显示 `Alert`，icon 用 `LoadingOutlined`（注意：不能从 `@agentscope-ai/design` 导入 `Spin`，该库未导出此组件）。
+**新增文件：** `console/src/pages/Chat/components/ResponseTimeout.tsx` — 超时检测组件，使用 `useState` + `setTimeout` 实现，超过30秒显示 `Alert`，icon 用 `LoadingOutlined`（注意：不能从 `@aiarb/design` 导入 `Spin`，该库未导出此组件）。
 
 **修改文件：**
 - `console/src/pages/Chat/index.tsx` — 导入并使用 `ResponseTimeout` 组件，传入 `isWaiting` 状态
 - `console/src/locales/zh.json` — 添加 `chat.queue.longResponseTime`、`chat.queue.checkConnection` 翻译
 - `console/src/locales/en.json` — 对应英文翻译
 
-**⚠️ 重要：** `@agentscope-ai/design` 不导出 `Spin` 组件。如果从该库导入不存在的导出，会导致页面空白（整个 JS 加载失败）。使用 `@ant-design/icons` 的 `LoadingOutlined` 替代。
+**⚠️ 重要：** `@aiarb/design` 不导出 `Spin` 组件。如果从该库导入不存在的导出，会导致页面空白（整个 JS 加载失败）。使用 `@ant-design/icons` 的 `LoadingOutlined` 替代。
 
 ## 四、修复页面空白（Spin 导入错误）
 
@@ -77,7 +77,7 @@ router.include_router(provider_oauth_router)
 ## 八、前后端服务
 
 - **前端：** `cd console; npx vite --host --port 5173` — 端口 5173
-- **后端：** `cd .; .\.venv\Scripts\python.exe -m qwenpaw app --reload --port 8088` — 端口 8088
+- **后端：** `cd .; .\.venv\Scripts\python.exe -m aiarb app --reload --port 8088` — 端口 8088
 - 后端修改路由注册后需重启才能生效
 
 ## 九、OpenCode API 连接问题

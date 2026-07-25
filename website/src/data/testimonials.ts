@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Testimonials (community voices) data.
  * REAL_TESTIMONIALS: production-only; section is hidden when empty in build.
  * MOCK_TESTIMONIALS: dev-only; shown together with real in dev mode.
@@ -19,7 +19,7 @@ export const MOCK_TESTIMONIALS: TestimonialItem[] = [
   {
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=alex",
     quoteEn:
-      "I've enjoyed my QwenPaw assistant so much. One entry for iMessage, " +
+      "I've enjoyed my AIArb assistant so much. One entry for iMessage, " +
       "Discord, Feishu and DingTalk. It just works.",
     quoteZh: "一个入口管 iMessage、Discord、飞书、钉钉，用下来很顺手。",
     username: "@jdrhyne",
@@ -37,9 +37,9 @@ export const MOCK_TESTIMONIALS: TestimonialItem[] = [
   {
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=casey",
     quoteEn:
-      "Teams who want full control love it. Python + AgentScope, " +
+      "Teams who want full control love it. Python + AIArb, " +
       "everything in our repo.",
-    quoteZh: "想完全掌控的团队用着很顺手，Python + AgentScope 全在自家仓库。",
+    quoteZh: "想完全掌控的团队用着很顺手，Python + AIArb 全在自家仓库。",
     username: "@Ashwinreads",
     url: "https://x.com/iamsubhrajyoti/status/2009949389884920153",
   },

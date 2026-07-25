@@ -3,7 +3,7 @@ interface CatPawIconProps {
   className?: string;
 }
 
-const LOGO_SRC = "/qwenpaw-symbol.svg";
+const LOGO_SRC = "/aiarb-symbol.svg";
 
 export function CatPawIcon({ size, className = "" }: CatPawIconProps) {
   return (

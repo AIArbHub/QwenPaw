@@ -1,4 +1,4 @@
-import { Button, Checkbox, Switch } from "@agentscope-ai/design";
+﻿import { Button, Checkbox, Switch } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import type { SkillSpec } from "../../../../api/types";
 import { isSkillBuiltin } from "@/utils/skill";

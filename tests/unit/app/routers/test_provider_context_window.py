@@ -3,8 +3,8 @@
 
 from types import SimpleNamespace
 
-from qwenpaw.app.routers.providers import _active_models_info
-from qwenpaw.config.config import ModelSlotConfig
+from aiarb.app.routers.providers import _active_models_info
+from aiarb.config.config import ModelSlotConfig
 
 
 def test_active_models_info_uses_runtime_context_resolution():

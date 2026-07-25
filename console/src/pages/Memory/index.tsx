@@ -1,4 +1,4 @@
-import {
+﻿import {
   useState,
   useEffect,
   useCallback,
@@ -108,8 +108,8 @@ const ALL_AGENTS = "__all__" as const;
 function getCurrentAgentId(): string | undefined {
   try {
     const agentStorage =
-      sessionStorage.getItem("qwenpaw-agent-storage") ||
-      localStorage.getItem("qwenpaw-agent-storage");
+      sessionStorage.getItem("aiarb-agent-storage") ||
+      localStorage.getItem("aiarb-agent-storage");
     if (agentStorage) {
       const parsed = JSON.parse(agentStorage);
       return parsed?.state?.selectedAgent || undefined;

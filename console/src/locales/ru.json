@@ -34,7 +34,9 @@
     "unknown": "Unknown",
     "back": "Back",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "operationSuccess": "Operation successful",
+    "operationFailed": "Operation failed"
   },
   "desktop": {
     "closeWindow": {
@@ -269,7 +271,12 @@
     "workDirBaseDirUpdated": "Work directory updated",
     "listView": "List View",
     "gridView": "Card View",
-    "basicInfo": "Basic Info"
+    "basicInfo": "Basic Info",
+    "skillsManagementHint": "Manage skills for this agent — import from skill pool or skill market",
+    "importFromMarket": "Import from Market",
+    "fullSkillsManagement": "Full Skills Management",
+    "installedSkills": "Installed Skills",
+    "addSkillsFromPool": "Add from Skill Pool"
   },
   "workspace": {
     "title": "Файлы",
@@ -454,7 +461,10 @@
     "aiCreateSkillGenerating": "正在生成技能...",
     "aiCreateSkillSuccess": "技能内容已生成，请检查并保存",
     "aiCreateSkillFailed": "AI 生成技能失败",
-    "useGenerated": "使用此内容"
+    "useGenerated": "使用此内容",
+    "importSuccess": "Skill imported successfully",
+    "confirmDelete": "Confirm Delete Skill",
+    "confirmDeleteDesc": "Are you sure you want to delete skill \"{{name}}\"? This action cannot be undone."
   },
   "skillPool": {
     "description": "Общий локальный пул навыков для встроенных навыков и загрузок из рабочих пространств. Внешние импорты (ClawHub, LobeHub) — отдельная функция.",
@@ -1691,7 +1701,7 @@
     "contextManagementTitle": "Управление контекстом",
     "memoryManagerBackend": "Бэкенд управления долговременной памятью",
     "memoryManagerBackendTooltip": "Тип бэкенда менеджера памяти. Выберите remelight (локальные файлы) или adbpg (облачная база данных).",
-    "memoryManagerBackendRestartWarning": "Смена бэкенда управления долговременной памятью не поддерживает горячую перезагрузку. Сохраните и перезапустите QwenPaw для применения изменений.",
+    "memoryManagerBackendRestartWarning": "Смена бэкенда управления долговременной памятью не поддерживает горячую перезагрузку. Сохраните и перезапустите AIArb для применения изменений.",
     "maxIters": "Макс. итераций",
     "maxItersTooltip": "Максимальное число итераций рассуждение-действие для агента ReAct",
     "maxItersPlaceholder": "Введите макс. число итераций",
@@ -1747,7 +1757,7 @@
       "enableRepetitionProtection": "Включить защиту от повторов",
       "removeRule": "Удалить правило",
       "custom": "Пользовательский",
-      "customDescription": "Создайте сохраняемую цепочку из встроенных Gate QwenPaw.",
+      "customDescription": "Создайте сохраняемую цепочку из встроенных Gate AIArb.",
       "duplicate": "Дублировать",
       "delete": "Удалить",
       "displayName": "Отображаемое имя",
@@ -1780,9 +1790,9 @@
       "completionRubricDescription": "Проверяет сигнал завершения в текстовом ответе без вызовов инструментов.",
       "completionRubricHelp": "Срабатывает после текстовых ответов без вызовов инструментов. По завершении агент выводит сигнал; иначе продолжает работу до достижения максимального числа проверок.",
       "completionPrompt": "Промпт проверки завершения",
-      "completionPromptHelp": "Опишите, когда результат считается завершённым. QwenPaw автоматически добавит инструкцию вывода сигнала завершения.",
+      "completionPromptHelp": "Опишите, когда результат считается завершённым. AIArb автоматически добавит инструкцию вывода сигнала завершения.",
       "completionSignal": "Сигнал завершения",
-      "completionSignalHelp": "QwenPaw добавляет этот сигнал и требование вывести только его в промпт проверки. Loop завершается только при полном совпадении без учёта регистра и крайних пробелов.",
+      "completionSignalHelp": "AIArb добавляет этот сигнал и требование вывести только его в промпт проверки. Loop завершается только при полном совпадении без учёта регистра и крайних пробелов.",
       "removeCriterion": "Удалить критерий {{number}}",
       "totalTokensHelp": "Максимум входных и выходных токенов вместе за этот ход.",
       "promptTokensHelp": "Включает системные инструкции, контекст, схемы инструментов и их результаты.",
@@ -1988,7 +1998,7 @@
     "dreamCronRequired": "Введите Cron-выражение, если сновидения включены",
     "dreamCronInvalid": "Введите допустимое Cron-выражение из 5 полей",
     "autoMemorySearch": "Автоматический поиск по памяти (Beta)",
-    "autoMemorySearchTooltip": "Автоматически запускать поиск по памяти при каждом диалоге. Каждый запрос будет автоматически вызывать функцию поиска по памяти, помогая QwenPaw лучше понять вас — но это увеличивает расход токенов.",
+    "autoMemorySearchTooltip": "Автоматически запускать поиск по памяти при каждом диалоге. Каждый запрос будет автоматически вызывать функцию поиска по памяти, помогая AIArb лучше понять вас — но это увеличивает расход токенов.",
     "autoMaxResults": "Макс. результатов автоматического поиска",
     "autoMaxResultsTooltip": "Максимальное количество результатов при включённом автоматическом поиске по памяти",
     "autoMaxResultsRequired": "Требуется указать макс. число результатов",
@@ -2590,7 +2600,7 @@
     },
     "sandboxEnabled": "Enable Sandbox Execution",
     "sandboxEnabledTooltip": "When enabled, shell commands with no matching rule run silently inside the sandbox. When disabled, such commands run directly without the sandbox (no approval prompt). Either way, secret-file reads and dangerous commands (e.g. rm -rf /, sudo) are still blocked or require approval.",
-    "sandboxDegradedWarning": "Sandbox is configured as enabled, but QwenPaw is not running as administrator. The sandbox will be inactive for this session. To use the sandbox, restart QwenPaw with administrator privileges.",
+    "sandboxDegradedWarning": "Sandbox is configured as enabled, but AIArb is not running as administrator. The sandbox will be inactive for this session. To use the sandbox, restart AIArb with administrator privileges.",
     "shellEvasion": {
       "title": "Shell Evasion Detection",
       "description": "Configure which shell evasion and obfuscation detection checks are enabled. These checks detect techniques that attempt to hide malicious intent from simpler regex-only detection.",
@@ -2627,7 +2637,7 @@
     }
   },
   "login": {
-    "title": "Вход в QwenPaw",
+    "title": "Вход в AIArb",
     "registerTitle": "Создание аккаунта",
     "firstUserHint": "Создайте учётную запись администратора для начала работы",
     "usernamePlaceholder": "Имя пользователя",
@@ -2689,7 +2699,7 @@
     "providerTypeLocalWhisperDesc": "Запускать транскрипцию локально с помощью библиотеки openai-whisper. Требуются ffmpeg и openai-whisper.",
     "localWhisperReady": "Локальный Whisper готов к работе. ffmpeg и openai-whisper установлены.",
     "localWhisperMissing": "Локальный Whisper не готов. Необходимо установить недостающие зависимости.",
-    "localWhisperMissingDesc": "ffmpeg: {{ffmpeg}} | openai-whisper: {{whisper}}. Установите недостающие зависимости: ffmpeg (системный пакет) и openai-whisper (uv pip install openai-whisper или установите QwenPaw с опцией [whisper]).",
+    "localWhisperMissingDesc": "ffmpeg: {{ffmpeg}} | openai-whisper: {{whisper}}. Установите недостающие зависимости: ffmpeg (системный пакет) и openai-whisper (uv pip install openai-whisper или установите AIArb с опцией [whisper]).",
     "providerLabel": "Провайдер Whisper API",
     "providerDescription": "Выберите провайдера для транскрипции аудио через Whisper API. Отображаются только провайдеры с совместимым эндпоинтом.",
     "providerPlaceholder": "Выберите провайдера...",
@@ -3094,7 +3104,7 @@
   "codingMode": {
     "title": "Режим кодирования",
     "experimental": "Экспериментальная функция",
-    "experimentalDesc": "Режим кодирования превращает QwenPaw в лёгкую Web IDE с редактором кода, деревом файлов, интеграцией Git и AI-помощником для программирования.",
+    "experimentalDesc": "Режим кодирования превращает AIArb в лёгкую Web IDE с редактором кода, деревом файлов, интеграцией Git и AI-помощником для программирования.",
     "experimentalNote": "Эта функция является экспериментальной и находится в активной разработке. Некоторые возможности могут быть ограничены или изменены в будущих обновлениях.",
     "confirmBtn": "Включить режим кодирования",
     "enterTooltip": "Войти в режим кодирования",
@@ -3995,7 +4005,8 @@
     "version": "Version",
     "id": "ID",
     "category": "Category",
-    "description": "Description"
+    "description": "Description",
+    "builtin": "Встроено"
   },
   "cloudBackup": {
     "title": "Cloud Backups",
@@ -4050,9 +4061,9 @@
   },
   "persona": {
     "visualMode": "Visual",
-    "expertMode": "Expert",
+    "expertMode": "Text",
     "visualModeTooltip": "Form-based persona editor for everyday users",
-    "expertModeTooltip": "Edit Markdown files directly, for power users",
+    "expertModeTooltip": "Edit Markdown text files directly",
     "identityTitle": "Identity",
     "agentName": "Name",
     "agentNamePlaceholder": "Give your agent a name",
@@ -4074,7 +4085,7 @@
     "userNotesPlaceholder": "Other info about you",
     "userBackground": "Background",
     "userBackgroundPlaceholder": "What do you care about? What projects are you working on?",
-    "soulTitle": "Soul & Personality",
+    "soulTitle": "Personality",
     "corePrinciples": "Core Principles",
     "addPrinciple": "Add principle",
     "principlePlaceholder": "Enter a new behavioral principle...",
@@ -4089,10 +4100,11 @@
     "heartbeatEnable": "Enable heartbeat check",
     "heartbeatIntervalUnit": "minutes",
     "fileManagementTitle": "File Management",
-    "unparsedWarning": "Some content could not be parsed into structured form. Use Expert mode to edit the full content.",
+    "unparsedWarning": "Some content could not be parsed into structured form. Use Text mode to edit the full content.",
     "loadFailed": "Failed to load persona files",
     "saveSuccess": "Persona saved",
-    "saveFailed": "Failed to save persona"
+    "saveFailed": "Failed to save persona",
+    "roleCustomPlaceholder": "Enter a custom role"
   },
   "moot": {
     "title": "Arbitration Moot",
@@ -4170,7 +4182,7 @@
   },
   "pet": {
     "title": "Desktop Pet",
-    "intro": "Manage QwenPaw desktop pet: start, switch, create and import pets.",
+    "intro": "Manage AIArb desktop pet: start, switch, create and import pets.",
     "control": "Control Panel",
     "installedPets": "Installed Pets",
     "startDesktop": "Start Desktop Pet",
@@ -4269,7 +4281,17 @@
     "spritePreview": "预览（第0行第0帧）",
     "spriteInvalidFormat": "不支持的文件格式，请使用 WebP / PNG / JPG",
     "spriteInvalidSize": "尺寸不正确，必须为 1536×1872 px",
-    "spriteInvalidFile": "无法读取图片文件"
+    "spriteInvalidFile": "无法读取图片文件",
+    "chat": "Чат",
+    "chatWithPet": "Чат с питомцем",
+    "chatTitle": "Чат с {name}",
+    "chatPlaceholder": "Отправьте сообщение, чтобы начать беседу с привязанным агентом",
+    "chatInputPlaceholder": "Введите сообщение, Enter для отправки, Shift+Enter для новой строки",
+    "chatSend": "Отправить",
+    "chatThinking": "Размышляю…",
+    "chatNoAgent": "Сначала привяжите агента",
+    "chatError": "Ошибка чата",
+    "chatToolUsed": "Использован инструмент"
   },
   "textSelection": {
     "title": "Text Selection",

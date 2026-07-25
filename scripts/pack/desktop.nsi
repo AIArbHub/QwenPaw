@@ -1,6 +1,6 @@
 ; AI Arb Desktop NSIS installer. Run makensis from repo root after
 ; building dist/win-unpacked (see scripts/pack/build_win.ps1).
-; Usage: makensis /DQWENPAW_VERSION=1.2.3 /DOUTPUT_EXE=dist\QwenPaw-Setup-1.2.3.exe scripts\pack\desktop.nsi
+; Usage: makensis /DAIARB_VERSION=1.2.3 /DOUTPUT_EXE=dist\AIArb-Setup-1.2.3.exe scripts\pack\desktop.nsi
 
 !include "MUI2.nsh"
 !define MUI_ABORTWARNING
@@ -8,11 +8,11 @@
 !define MUI_ICON "${UNPACKED}\icon.ico"
 !define MUI_UNICON "${UNPACKED}\icon.ico"
 
-!ifndef QWENPAW_VERSION
-  !define QWENPAW_VERSION "0.0.0"
+!ifndef AIARB_VERSION
+  !define AIARB_VERSION "0.0.0"
 !endif
 !ifndef OUTPUT_EXE
-  !define OUTPUT_EXE "dist\QwenPaw-Setup-${QWENPAW_VERSION}.exe"
+  !define OUTPUT_EXE "dist\AIArb-Setup-${AIARB_VERSION}.exe"
 !endif
 
 Name "AI Arb Desktop"

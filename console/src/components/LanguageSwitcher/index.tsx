@@ -1,4 +1,4 @@
-import { Dropdown } from "@agentscope-ai/design";
+﻿import { Dropdown } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import { Button, type MenuProps } from "antd";
 import { languageApi } from "../../api/modules/language";

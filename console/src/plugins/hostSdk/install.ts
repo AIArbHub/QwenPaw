@@ -1,6 +1,6 @@
 /**
- * hostSdk/install.ts — attach `window.QwenPaw.chat`, `window.QwenPaw.host.*`
- * (hooks + fetch), and `window.QwenPaw.audit` to the global namespace.
+ * hostSdk/install.ts — attach `window.AIArb.chat`, `window.AIArb.host.*`
+ * (hooks + fetch), and `window.AIArb.audit` to the global namespace.
  *
  * Call AFTER `installHostExternals()` from main.tsx.
  *
@@ -76,7 +76,7 @@ interface ResponsePartial {
   nick?: ChatScalarValues["welcome.nick"];
 }
 
-export interface QwenPawChatNamespace {
+export interface AIArbChatNamespace {
   welcome: {
     set(pluginId: string, partial: WelcomePartial): Disposable;
     render(pluginId: string, value: WelcomeRenderValue): Disposable;
@@ -163,7 +163,7 @@ export interface QwenPawChatNamespace {
   disposeAll(pluginId: string): void;
 }
 
-export interface QwenPawAuditNamespace {
+export interface AIArbAuditNamespace {
   overrides(): OverrideRecord[];
 }
 
@@ -215,7 +215,7 @@ function normalizeWelcomeRender(value: WelcomeRenderValue): WelcomeRenderFn {
 // Build the namespace
 // ─────────────────────────────────────────────────────────────────────────────
 
-function makeChatNamespace(): QwenPawChatNamespace {
+function makeChatNamespace(): AIArbChatNamespace {
   let anonSeq = 0;
   const anonId = (kind: string) => {
     anonSeq += 1;
@@ -369,20 +369,20 @@ function makeChatNamespace(): QwenPawChatNamespace {
 export function installHostSdk(): void {
   if (typeof window === "undefined") return;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ns = (window.QwenPaw as any) ?? ((window as any).QwenPaw = {});
+  const ns = (window.AIArb as any) ?? ((window as any).AIArb = {});
 
   if (!ns.chat) {
     ns.chat = makeChatNamespace();
   }
 
   if (!ns.audit) {
-    const auditNamespace: QwenPawAuditNamespace = {
+    const auditNamespace: AIArbAuditNamespace = {
       overrides: () => auditStore.overrides(),
     };
     ns.audit = auditNamespace;
   }
 
-  // Extend window.QwenPaw.host with hooks + fetch.
+  // Extend window.AIArb.host with hooks + fetch.
   // hostExternals.ts attaches host first; we add new fields without
   // overwriting React / antd / antdIcons / getApiUrl / getApiToken.
   const host = ns.host ?? (ns.host = {});

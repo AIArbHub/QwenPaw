@@ -1,10 +1,10 @@
-import type { TFunction } from "i18next";
+﻿import type { TFunction } from "i18next";
 
 const defaultConfig = {
   theme: {
     colorPrimary: "#4B3FE3",
     darkMode: false,
-    prefix: "qwenpaw",
+    prefix: "aiarb",
     leftHeader: {
       logo: "",
       title: "Work with AI Arb",
@@ -27,7 +27,7 @@ const defaultConfig = {
     greeting: "Hello, how can I help you today?",
     description:
       "I am a helpful assistant that can help you with your questions.",
-    avatar: "/ai-arb-avatar.svg",
+    avatar: "/aiarb-avatar.svg",
     prompts: [
       {
         value: "Let's start a new journey!",

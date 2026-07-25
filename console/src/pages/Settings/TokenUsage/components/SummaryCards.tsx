@@ -1,4 +1,4 @@
-import { Card } from "@agentscope-ai/design";
+﻿import { Card } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import { formatCompact } from "../../../../utils/formatNumber";
 import styles from "../index.module.less";

@@ -1,11 +1,11 @@
-import ReactDOM from "react-dom";
+﻿import ReactDOM from "react-dom";
 import type {
   IAgentScopeRuntimeWebUIRef,
   IAgentScopeRuntimeWebUIMessage,
 } from "@agentscope-ai/chat";
 import { useTurnUsageStore } from "./turnUsageStore";
 
-export const TURN_USAGE_META_KEY = "qwenpaw_turn_usage";
+export const TURN_USAGE_META_KEY = "aiarb_turn_usage";
 
 export interface TurnUsage {
   prompt_tokens?: number;
@@ -52,7 +52,7 @@ function parseTurnUsagePayload(raw: unknown): TurnUsageSnapshot | null {
   };
 }
 
-/** Read ``qwenpaw_turn_usage`` from backend message metadata wrappers. */
+/** Read ``aiarb_turn_usage`` from backend message metadata wrappers. */
 export function extractTurnUsageFromBackendMetadata(
   meta: unknown,
 ): TurnUsageSnapshot | null {
@@ -110,7 +110,7 @@ function getResponseCardData(
     cards as
       | Array<{ code?: string; data?: Record<string, unknown> }>
       | undefined
-  )?.find((c) => c?.code === "AgentScopeRuntimeResponseCard");
+  )?.find((c) => c?.code === "AIArbRuntimeResponseCard");
   return card?.data ?? null;
 }
 

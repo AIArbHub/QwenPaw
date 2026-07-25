@@ -1,6 +1,6 @@
 # Long-term Memory
 
-**Long-term Memory** gives QwenPaw persistent memory across conversations. In the default backend, QwenPaw embeds the
+**Long-term Memory** gives AIArb persistent memory across conversations. In the default backend, AIArb embeds the
 ReMe application in-process and runs ReMe jobs to save conversation facts, build daily notes, extract digest memories,
 watch resource files, and search the memory vault.
 
@@ -32,13 +32,13 @@ Long-term memory management includes the following capabilities:
 
 | Capability             | Description                                                                                                      |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| **Embedded ReMe app**  | QwenPaw starts ReMe in-process and injects the active QwenPaw model into ReMe's default LLM component            |
+| **Embedded ReMe app**  | AIArb starts ReMe in-process and injects the active AIArb model into ReMe's default LLM component            |
 | **Auto-Memory**        | After a configurable number of user turns, ReMe extracts useful conversation facts into daily Markdown notes     |
 | **Context compaction** | Before context compression, pending turns can be flushed into the same `auto_memory` pipeline                    |
 | **Auto-Dream**         | A cron job extracts higher-level digest units and proactive-interest topics from recent daily notes              |
 | **Hybrid Search**      | `memory_search` calls ReMe's `search` job, using BM25 plus optional vector search and reciprocal-rank fusion     |
 | **Resource Memory**    | Files under `resource/` are cataloged and can be interpreted into source-linked daily notes                      |
-| **Inbox Results**      | `auto_memory`, `auto_dream`, and `auto_resource` results are pushed to QwenPaw's inbox when they produce changes |
+| **Inbox Results**      | `auto_memory`, `auto_dream`, and `auto_resource` results are pushed to AIArb's inbox when they produce changes |
 
 ---
 
@@ -201,13 +201,13 @@ graph LR
 
 ## Backup & Restore
 
-Backup & Restore is QwenPaw's backup and recovery capability, enabling safe saving and restoration of the entire agent environment for scenarios like version upgrades, cross-device migration, or undoing mistakes. Access: Console → Settings → Backup.
+Backup & Restore is AIArb's backup and recovery capability, enabling safe saving and restoration of the entire agent environment for scenarios like version upgrades, cross-device migration, or undoing mistakes. Access: Console → Settings → Backup.
 
 ### Creating Backups
 
 **Backup Storage**
 
-All backups are saved as independent zip packages in `~/.qwenpaw/backups` (alongside the working directory `~/.qwenpaw`). Each backup contains `meta.json` metadata and packaged content files. The zip file is exported for easy migration. Note that backups do not include local model files; re-download is required for cross-device migration.
+All backups are saved as independent zip packages in `~/.aiarb/backups` (alongside the working directory `~/.aiarb`). Each backup contains `meta.json` metadata and packaged content files. The zip file is exported for easy migration. Note that backups do not include local model files; re-download is required for cross-device migration.
 
 **Backup Scope**
 
@@ -316,7 +316,7 @@ exceeding the model context window and returning HTTP 400 with combinations such
 `max_input_length` remains an approximate character budget rather than a strict token limit calculated by the model's
 tokenizer. Reduce it further when using a model with a smaller context window.
 
-Vector retrieval is enabled only when the selected backend has the minimum runnable configuration. These conditions are aligned with AgentScope credential requirements:
+Vector retrieval is enabled only when the selected backend has the minimum runnable configuration. These conditions are aligned with AIArb credential requirements:
 
 | Backend                                         | Enable condition                              | Credential mapping              |
 | ----------------------------------------------- | --------------------------------------------- | ------------------------------- |
@@ -340,11 +340,11 @@ The embedded ReMe configuration uses a local file store with:
 
 ## Other Memory Backends
 
-QwenPaw's memory system uses a pluggable backend architecture. In addition to the default ReMeLight (local file storage), you can switch to other backends via `memory_manager_backend`.
+AIArb's memory system uses a pluggable backend architecture. In addition to the default ReMeLight (local file storage), you can switch to other backends via `memory_manager_backend`.
 
 ### ADBPG (AnalyticDB for PostgreSQL)
 
-A long-term memory backend backed by a cloud vector database. It is suitable for scenarios that need cross-device sharing or large-scale semantic retrieval. QwenPaw connects through the ADBPG memory service REST API, so no additional database driver is required.
+A long-term memory backend backed by a cloud vector database. It is suitable for scenarios that need cross-device sharing or large-scale semantic retrieval. AIArb connects through the ADBPG memory service REST API, so no additional database driver is required.
 
 **Key features:**
 
@@ -359,12 +359,12 @@ Open the agent's "Running Config" tab in the Console, locate the "Long-term Memo
 
 ![adbpg-backend](https://img.alicdn.com/imgextra/i3/O1CN01bH1Rj41wwQs3v04U6_!!6000000006372-2-tps-2954-1484.png)
 
-> ⚠️ Switching the backend does not support hot reload. After saving, restart QwenPaw for the change to take effect (the page also shows a yellow banner reminder).
+> ⚠️ Switching the backend does not support hot reload. After saving, restart AIArb for the change to take effect (the page also shows a yellow banner reminder).
 
 > Migration note: ADBPG direct SQL mode has been removed. Old fields such as
 > `api_mode: "sql"`, `host`, `port`, `user`, `password`, `dbname`, and LLM /
 > Embedding settings are ignored; configure `rest_base_url` and `rest_api_key`
-> instead, then restart QwenPaw.
+> instead, then restart AIArb.
 
 | Field                       | Description                                                                              | Default                               |
 | --------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------- |

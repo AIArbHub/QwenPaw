@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Global stub for @agentscope-ai/icons in tests.
  * The real index.js does `import "./src/index.css"` which Node/vitest cannot handle.
  * All icons return a simple <span> stub so tests can find them via data-icon attribute.

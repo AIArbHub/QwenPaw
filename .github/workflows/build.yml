@@ -14,13 +14,13 @@ jobs:
         include:
           - os: windows-latest
             python_version: '3.11'
-            artifact_name: QwenPaw-Windows
+            artifact_name: AIArb-Windows
           - os: macos-latest
             python_version: '3.11'
-            artifact_name: QwenPaw-macOS
+            artifact_name: AIArb-macOS
           - os: ubuntu-latest
             python_version: '3.11'
-            artifact_name: QwenPaw-Linux
+            artifact_name: AIArb-Linux
 
     runs-on: ${{ matrix.os }}
 
@@ -84,9 +84,9 @@ jobs:
       - name: Run PyInstaller
         run: |
           if [ "$RUNNER_OS" = "Windows" ]; then
-            .venv\Scripts\pyinstaller scripts/qwenpaw.spec --distpath dist --workpath build/pyinstaller --clean
+            .venv\Scripts\pyinstaller scripts/aiarb.spec --distpath dist --workpath build/pyinstaller --clean
           else
-            .venv/bin/pyinstaller scripts/qwenpaw.spec --distpath dist --workpath build/pyinstaller --clean
+            .venv/bin/pyinstaller scripts/aiarb.spec --distpath dist --workpath build/pyinstaller --clean
           fi
         shell: bash
 
@@ -94,21 +94,21 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           cd dist
-          powershell Compress-Archive -Path QwenPaw -DestinationPath AI-Arb-Windows.zip
+          powershell Compress-Archive -Path AIArb -DestinationPath AIArb-Windows.zip
         shell: bash
 
       - name: Create archive (macOS)
         if: matrix.os == 'macos-latest'
         run: |
           cd dist
-          zip -r -y AI-Arb-macOS.zip QwenPaw
+          zip -r -y AIArb-macOS.zip AIArb
         shell: bash
 
       - name: Create archive (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           cd dist
-          tar -czf AI-Arb-Linux.tar.gz QwenPaw
+          tar -czf AIArb-Linux.tar.gz AIArb
         shell: bash
 
       - name: Upload artifact
@@ -116,9 +116,9 @@ jobs:
         with:
           name: ${{ matrix.artifact_name }}
           path: |
-            dist/AI-Arb-Windows.zip
-            dist/AI-Arb-macOS.zip
-            dist/AI-Arb-Linux.tar.gz
+            dist/AIArb-Windows.zip
+            dist/AIArb-macOS.zip
+            dist/AIArb-Linux.tar.gz
           if-no-files-found: ignore
 
   release:

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+﻿import React, { useState, useCallback, useRef } from "react";
 import { Modal, message, Button } from "antd";
 import { DeleteOutlined, ShareAltOutlined, DownloadOutlined } from "@ant-design/icons";
 
@@ -182,7 +182,7 @@ export const MessageShareAction: React.FC<{
     if (!imageData) return;
 
     const link = document.createElement("a");
-    link.download = `ai-arb-${Date.now()}.png`;
+    link.download = `aiarb-${Date.now()}.png`;
     link.href = imageData;
     link.click();
     message.success("图片已下载");

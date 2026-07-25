@@ -7,9 +7,9 @@ import time
 from pathlib import Path
 from typing import Any
 
-from agentscope.message import TextBlock
-from agentscope.message import ToolResultState
-from agentscope.tool import ToolChunk
+from aiarb.framework.message import TextBlock
+from aiarb.framework.message import ToolResultState
+from aiarb.framework.tool import ToolChunk
 
 logger = logging.getLogger(__name__)
 

@@ -10,10 +10,10 @@ import unittest
 from unittest.mock import Mock, patch, AsyncMock
 from pathlib import Path
 
-from src.qwenpaw.doc_processing.components.component_manager import ComponentManager, init_component_manager
-from src.qwenpaw.doc_processing.components.mineru_cloud import MinerUCloudComponent, MinerUCloudAuthError
-from src.qwenpaw.doc_processing.routing import RoutingScheduler, EngineStrategy, DocumentType
-from src.qwenpaw.doc_processing.progress import InstallationProgressManager, ProgressStatus
+from src.aiarb.doc_processing.components.component_manager import ComponentManager, init_component_manager
+from src.aiarb.doc_processing.components.mineru_cloud import MinerUCloudComponent, MinerUCloudAuthError
+from src.aiarb.doc_processing.routing import RoutingScheduler, EngineStrategy, DocumentType
+from src.aiarb.doc_processing.progress import InstallationProgressManager, ProgressStatus
 
 
 class TestMinerUCloudIntegration(unittest.TestCase):

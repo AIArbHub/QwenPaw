@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+﻿import { memo, useCallback } from "react";
 import { Button } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import type { InstallQueueItem } from "../useMarketInstall";

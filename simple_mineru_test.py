@@ -20,7 +20,7 @@ def test_mineru_cloud_component_structure():
     try:
         # 1. 验证MinerU组件文件存在
         print("1. 验证组件文件...")
-        mineru_file = Path("src/qwenpaw/doc_processing/components/mineru_cloud.py")
+        mineru_file = Path("src/aiarb/doc_processing/components/mineru_cloud.py")
         if not mineru_file.exists():
             print("   ✗ MinerU云端组件文件不存在")
             return False
@@ -88,7 +88,7 @@ def test_mineru_cloud_component_structure():
         
         # 7. 验证路由调度器配置
         print("\n7. 验证路由系统集成...")
-        routing_file = Path("src/qwenpaw/doc_processing/routing/__init__.py")
+        routing_file = Path("src/aiarb/doc_processing/routing/__init__.py")
         if routing_file.exists():
             routing_content = routing_file.read_text(encoding='utf-8')
             if "advanced_mineru_cloud" in routing_content:
@@ -96,7 +96,7 @@ def test_mineru_cloud_component_structure():
         
         # 8. 验证API路由
         print("\n8. 验证API路由集成...")
-        api_file = Path("src/qwenpaw/doc_processing/api/routes.py")
+        api_file = Path("src/aiarb/doc_processing/api/routes.py")
         if api_file.exists():
             api_content = api_file.read_text(encoding='utf-8')
             if "advanced_mineru_cloud" in api_content:
@@ -104,7 +104,7 @@ def test_mineru_cloud_component_structure():
         
         # 9. 验证安装进度管理
         print("\n9. 验证安装进度管理...")
-        progress_file = Path("src/qwenpaw/doc_processing/progress.py")
+        progress_file = Path("src/aiarb/doc_processing/progress.py")
         if progress_file.exists():
             progress_content = progress_file.read_text(encoding='utf-8')
             if "InstallationProgressManager" in progress_content:
@@ -133,7 +133,7 @@ def test_api_compatibility():
     
     try:
         # 检查API版本的兼容性
-        mineru_file = Path("src/qwenpaw/doc_processing/components/mineru_cloud.py")
+        mineru_file = Path("src/aiarb/doc_processing/components/mineru_cloud.py")
         content = mineru_file.read_text(encoding='utf-8')
         
         # 检查API v4兼容性
@@ -167,27 +167,27 @@ def test_integration_completeness():
     checklist = [
         {
             "name": "组件基类继承",
-            "file": "src/qwenpaw/doc_processing/components/mineru_cloud.py",
+            "file": "src/aiarb/doc_processing/components/mineru_cloud.py",
             "check": "CloudComponent"
         },
         {
             "name": "路由调度支持", 
-            "file": "src/qwenpaw/doc_processing/routing/__init__.py",
+            "file": "src/aiarb/doc_processing/routing/__init__.py",
             "check": "advanced_mineru_cloud"
         },
         {
             "name": "组件管理器注册",
-            "file": "src/qwenpaw/doc_processing/components/component_manager.py", 
+            "file": "src/aiarb/doc_processing/components/component_manager.py", 
             "check": "mineru_cloud"
         },
         {
             "name": "API路由支持",
-            "file": "src/qwenpaw/doc_processing/api/routes.py",
+            "file": "src/aiarb/doc_processing/api/routes.py",
             "check": "advanced_mineru_cloud"
         },
         {
             "name": "进度跟踪集成",
-            "file": "src/qwenpaw/doc_processing/progress.py",
+            "file": "src/aiarb/doc_processing/progress.py",
             "check": "InstallationProgressManager"
         }
     ]
@@ -239,7 +239,7 @@ def main():
         print("   • FastAPI接口完整支持")
         print("   • 实时进度跟踪和增量推送")
         print("   • 完善的错误处理和降级机制")
-        print("   • 与QwenPaw框架的完整整合")
+        print("   • 与AIArb框架的完整整合")
         print("   • 符合商业仲裁场景的专业文档处理")
         print("\n🔧 部署说明:")
         print("   1. 配置MinerU API密钥")

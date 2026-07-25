@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DefaultBlock — reusable Input/Output block with title + copy button.
  *
  * Renders monospace text or auto-detected markdown/JSON content inside a

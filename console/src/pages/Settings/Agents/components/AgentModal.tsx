@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from "react";
+﻿import { useEffect, useState, useMemo, useRef } from "react";
 import {
   Modal,
   Form,
@@ -25,7 +25,7 @@ import { agentsApi } from "@/api/modules/agents";
 import { providerIcon } from "../../Models/components/providerIcon";
 import styles from "../index.module.less";
 
-const DEFAULT_AVATAR = "/ai-arb-avatar.svg";
+const DEFAULT_AVATAR = "/aiarb-avatar.svg";
 
 const { Text } = Typography;
 

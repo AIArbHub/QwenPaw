@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PR-F3 — Large session / large payload regression tests for issue #5479
  *
  * Issue #5479: "大会话文件（>500KB）打开报错：渲染此页面时发生了意外错误"
@@ -127,7 +127,7 @@ function buildLargeMessages(
           timestamp: `2026-06-01 10:00:${(t % 60)
             .toString()
             .padStart(2, "0")}.${(s * 100).toString().padStart(3, "0")}`,
-          qwenpaw_turn_usage: {
+          aiarb_turn_usage: {
             usage: {
               prompt_tokens: 100 + s,
               completion_tokens: 50 + s,
@@ -163,7 +163,7 @@ function buildOneGiantAssistantMessage(bytes: number): Message[] {
       content: [{ type: "text", text: bigText(bytes, "huge") }],
       metadata: {
         timestamp: "2026-06-01 10:00:01.000",
-        qwenpaw_turn_usage: {
+        aiarb_turn_usage: {
           usage: { prompt_tokens: 1, completion_tokens: 2, total_tokens: 3 },
           context_usage: {
             estimated_tokens: 4,
@@ -418,7 +418,7 @@ describe("convertMessages — structural correctness on large input", () => {
     }
   });
 
-  it("every assistant card has exactly one AgentScopeRuntimeResponseCard", () => {
+  it("every assistant card has exactly one AIArbRuntimeResponseCard", () => {
     const { messages } = buildLargeMessages(200 * 1024, {
       turnCount: 30,
       assistantPerTurn: 2,
@@ -428,12 +428,12 @@ describe("convertMessages — structural correctness on large input", () => {
       if (card.role === "assistant") {
         expect(card.cards).toBeDefined();
         expect(card.cards!.length).toBe(1);
-        expect(card.cards![0].code).toBe("AgentScopeRuntimeResponseCard");
+        expect(card.cards![0].code).toBe("AIArbRuntimeResponseCard");
       }
     }
   });
 
-  it("every user card has exactly one AgentScopeRuntimeRequestCard", () => {
+  it("every user card has exactly one AIArbRuntimeRequestCard", () => {
     const { messages } = buildLargeMessages(200 * 1024, {
       turnCount: 30,
       assistantPerTurn: 2,
@@ -443,7 +443,7 @@ describe("convertMessages — structural correctness on large input", () => {
       if (card.role === "user") {
         expect(card.cards).toBeDefined();
         expect(card.cards!.length).toBe(1);
-        expect(card.cards![0].code).toBe("AgentScopeRuntimeRequestCard");
+        expect(card.cards![0].code).toBe("AIArbRuntimeRequestCard");
       }
     }
   });
@@ -458,7 +458,7 @@ describe("convertMessages — structural correctness on large input", () => {
         role: "assistant",
         content: "p1",
         metadata: {
-          qwenpaw_turn_usage: {
+          aiarb_turn_usage: {
             usage: {
               prompt_tokens: 10,
               completion_tokens: 5,
@@ -471,7 +471,7 @@ describe("convertMessages — structural correctness on large input", () => {
         role: "assistant",
         content: "p2",
         metadata: {
-          qwenpaw_turn_usage: {
+          aiarb_turn_usage: {
             usage: {
               prompt_tokens: 100,
               completion_tokens: 50,

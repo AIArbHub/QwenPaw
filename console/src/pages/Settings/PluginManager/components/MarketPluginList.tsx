@@ -84,7 +84,7 @@ export function MarketPluginList({ onInstalled }: MarketPluginListProps) {
     category,
     sortBy,
     installingId,
-    qwenpawVersion,
+    aiarbVersion,
     isCompatible,
     handleSearch,
     handleCategoryChange,
@@ -217,13 +217,13 @@ export function MarketPluginList({ onInstalled }: MarketPluginListProps) {
                       {entry.locales[lang].category}
                     </Tag>
                   )}
-                  {entry.qwenpaw_compat_labels &&
-                    entry.qwenpaw_compat_labels.length > 0 && (
+                  {entry.aiarb_compat_labels &&
+                    entry.aiarb_compat_labels.length > 0 && (
                       <Tag
                         color={isCompatible(entry) ? "green" : "orange"}
                         style={{ margin: 0, fontSize: 11 }}
                       >
-                        {`QwenPaw ${entry.qwenpaw_compat_labels.join(", ")}`}
+                        {`AIArb ${entry.aiarb_compat_labels.join(", ")}`}
                       </Tag>
                     )}
                 </div>
@@ -260,10 +260,10 @@ export function MarketPluginList({ onInstalled }: MarketPluginListProps) {
                 <Tooltip
                   title={
                     !isCompatible(entry)
-                      ? `This plugin is labeled for QwenPaw ${
-                          entry.qwenpaw_compat_labels?.join(", ") ?? "unknown"
-                        }; compatibility with QwenPaw ${
-                          qwenpawVersion ?? "unknown"
+                      ? `This plugin is labeled for AIArb ${
+                          entry.aiarb_compat_labels?.join(", ") ?? "unknown"
+                        }; compatibility with AIArb ${
+                          aiarbVersion ?? "unknown"
                         } is unverified.`
                       : undefined
                   }
@@ -285,11 +285,11 @@ export function MarketPluginList({ onInstalled }: MarketPluginListProps) {
                           ),
                           content: t("pluginManager.compatWarningContent", {
                             defaultValue:
-                              "This plugin is labeled for QwenPaw {{labels}}. Your QwenPaw version is {{version}}. Installing it may cause errors. Are you sure you want to continue?",
+                              "This plugin is labeled for AIArb {{labels}}. Your AIArb version is {{version}}. Installing it may cause errors. Are you sure you want to continue?",
                             labels:
-                              entry.qwenpaw_compat_labels?.join(", ") ??
+                              entry.aiarb_compat_labels?.join(", ") ??
                               "unknown",
-                            version: qwenpawVersion ?? "unknown",
+                            version: aiarbVersion ?? "unknown",
                           }),
                           okText: t(
                             "pluginManager.compatWarningConfirm",

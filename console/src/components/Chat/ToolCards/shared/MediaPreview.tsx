@@ -1,4 +1,4 @@
-/**
+﻿/**
  * MediaPreview — renders image / video / audio / file preview.
  *
  * Shared by all media-related tool cards (view_image, view_video,

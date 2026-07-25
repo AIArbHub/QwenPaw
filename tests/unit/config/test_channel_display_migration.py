@@ -4,7 +4,7 @@
 import json
 from threading import Lock
 
-from qwenpaw.config.config import (
+from aiarb.config.config import (
     AgentProfileConfig,
     AgentProfileRef,
     AgentsConfig,
@@ -12,8 +12,8 @@ from qwenpaw.config.config import (
     load_agent_config,
     migrate_channel_display_fields,
 )
-from qwenpaw.config import utils as config_utils
-from qwenpaw.config.utils import _load_and_validate_config
+from aiarb.config import utils as config_utils
+from aiarb.config.utils import _load_and_validate_config
 
 
 def test_migrate_legacy_hidden_tool_messages():

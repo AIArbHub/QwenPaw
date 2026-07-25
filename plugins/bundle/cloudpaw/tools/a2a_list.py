@@ -8,11 +8,11 @@ registered remote agents with their connection info and capabilities.
 import json
 import logging
 
-from agentscope.message import TextBlock
-from agentscope.message import ToolResultState
-from agentscope.tool import ToolChunk
+from aiarb.framework.message import TextBlock
+from aiarb.framework.message import ToolResultState
+from aiarb.framework.tool import ToolChunk
 
-logger = logging.getLogger("qwenpaw").getChild(
+logger = logging.getLogger("aiarb").getChild(
     __name__.replace("plugin_cloudpaw.", ""),
 )
 

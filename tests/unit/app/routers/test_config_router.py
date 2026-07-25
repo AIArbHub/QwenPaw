@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Unit tests for ``qwenpaw.app.routers.config``.
+"""Unit tests for ``aiarb.app.routers.config``.
 
 Scope: representative subset of the config router as called out in the
 acceptance criteria — GET / PUT happy paths, 404 / 422 validation
@@ -23,15 +23,15 @@ import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.crons import heartbeat
-from qwenpaw.app.routers.config import router as config_router
-from qwenpaw.config.config import (
+from aiarb.app.crons import heartbeat
+from aiarb.app.routers.config import router as config_router
+from aiarb.config.config import (
     ChannelConfig,
     ConsoleConfig,
     HeartbeatConfig,
     ToolGuardConfig,
 )
-from qwenpaw.constant import (
+from aiarb.constant import (
     HEARTBEAT_FILE,
     HEARTBEAT_TARGET_INBOX,
     HEARTBEAT_TARGET_LAST,
@@ -76,7 +76,7 @@ def fake_agent_workspace():
 def patch_get_agent(fake_agent_workspace):
     """Patch ``get_agent_for_request`` (imported lazily inside handlers)."""
     with patch(
-        "qwenpaw.app.agent_context.get_agent_for_request",
+        "aiarb.app.agent_context.get_agent_for_request",
         new=AsyncMock(return_value=fake_agent_workspace),
     ) as patched:
         yield patched
@@ -118,7 +118,7 @@ def test_list_channels_returns_dict_with_isBuiltin_flag(
 
 def test_list_channels_404_when_agent_lookup_fails(client):
     with patch(
-        "qwenpaw.app.agent_context.get_agent_for_request",
+        "aiarb.app.agent_context.get_agent_for_request",
         new=AsyncMock(
             side_effect=HTTPException(status_code=404, detail="nope"),
         ),
@@ -135,10 +135,10 @@ def test_put_channels_saves_and_triggers_reload(
 ):
     with (
         patch(
-            "qwenpaw.config.config.save_agent_config",
+            "aiarb.config.config.save_agent_config",
         ) as save_mock,
         patch(
-            "qwenpaw.app.routers.config.schedule_agent_reload",
+            "aiarb.app.routers.config.schedule_agent_reload",
         ) as reload_mock,
     ):
         payload = ChannelConfig(
@@ -196,7 +196,7 @@ def test_put_heartbeat_preserves_timeout_seconds(
 ):
     fake_agent_workspace.cron_manager = None
 
-    with patch("qwenpaw.config.config.save_agent_config") as save_mock:
+    with patch("aiarb.config.config.save_agent_config") as save_mock:
         response = client.put(
             "/api/config/heartbeat",
             json={
@@ -279,7 +279,7 @@ async def test_run_heartbeat_once_uses_configured_timeout(
         ),
     )
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: SimpleNamespace(last_dispatch=last_dispatch),
     )
     monkeypatch.setattr(
@@ -316,7 +316,7 @@ def test_get_tool_guard_returns_current_config(client):
     fake_cfg.security.tool_guard = ToolGuardConfig(enabled=True)
 
     with patch(
-        "qwenpaw.app.routers.config.load_config",
+        "aiarb.app.routers.config.load_config",
         return_value=fake_cfg,
     ):
         response = client.get("/api/config/security/tool-guard")
@@ -332,12 +332,12 @@ def test_put_tool_guard_saves_and_reloads_engine(client):
 
     with (
         patch(
-            "qwenpaw.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ),
-        patch("qwenpaw.app.routers.config.save_config") as save_mock,
+        patch("aiarb.app.routers.config.save_config") as save_mock,
         patch(
-            "qwenpaw.security.tool_guard.engine.get_guard_engine",
+            "aiarb.security.tool_guard.engine.get_guard_engine",
             return_value=engine_mock,
         ),
     ):
@@ -366,11 +366,11 @@ def test_get_sandbox_returns_enabled_effective_reason(client):
 
     with (
         patch(
-            "qwenpaw.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ),
         patch(
-            "qwenpaw.app.routers.config._sandbox_effective_status",
+            "aiarb.app.routers.config._sandbox_effective_status",
             return_value=(True, None),
         ),
     ):
@@ -390,11 +390,11 @@ def test_get_sandbox_preview_with_enabled_param(client):
 
     with (
         patch(
-            "qwenpaw.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ),
         patch(
-            "qwenpaw.app.routers.config._sandbox_effective_status",
+            "aiarb.app.routers.config._sandbox_effective_status",
             return_value=(False, None),
         ) as mock_status,
     ):
@@ -419,18 +419,18 @@ def test_put_sandbox_idempotent_same_value_no_403(client):
 
     with (
         patch(
-            "qwenpaw.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ),
         patch(
-            "qwenpaw.app.routers.config._sandbox_effective_status",
+            "aiarb.app.routers.config._sandbox_effective_status",
             return_value=(False, "not_admin"),
         ),
         # is_windows_admin is lazily imported from utils.platform
         patch(
-            "qwenpaw.utils.platform.is_windows_admin",
+            "aiarb.utils.platform.is_windows_admin",
         ) as mock_admin,
-        patch("qwenpaw.app.routers.config.save_config") as mock_save,
+        patch("aiarb.app.routers.config.save_config") as mock_save,
     ):
         response = client.put(
             "/api/config/security/sandbox",
@@ -455,11 +455,11 @@ def test_put_sandbox_non_admin_enabling_returns_403(client):
 
     with (
         patch(
-            "qwenpaw.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ),
         patch(
-            "qwenpaw.utils.platform.is_windows_admin",
+            "aiarb.utils.platform.is_windows_admin",
             return_value=False,
         ),
     ):
@@ -479,18 +479,18 @@ def test_put_sandbox_admin_enabling_saves(client):
 
     with (
         patch(
-            "qwenpaw.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ),
         patch(
-            "qwenpaw.utils.platform.is_windows_admin",
+            "aiarb.utils.platform.is_windows_admin",
             return_value=True,
         ),
         patch(
-            "qwenpaw.app.routers.config._sandbox_effective_status",
+            "aiarb.app.routers.config._sandbox_effective_status",
             return_value=(True, None),
         ),
-        patch("qwenpaw.app.routers.config.save_config") as mock_save,
+        patch("aiarb.app.routers.config.save_config") as mock_save,
     ):
         response = client.put(
             "/api/config/security/sandbox",

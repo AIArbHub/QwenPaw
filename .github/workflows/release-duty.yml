@@ -1,4 +1,4 @@
-# Auto-create a Release Duty issue for every published release
+﻿# Auto-create a Release Duty issue for every published release
 # (pre-release, stable, and post-release).
 # Each platform gets its own assignee from an independent rotation list.
 # Rotation is sequential: index = (number of releases published BEFORE
@@ -236,13 +236,13 @@ jobs:
             ## PyPI — ${mention('pypi')}
 
             \`\`\`bash
-            python -m venv /tmp/qwenpaw-test && source /tmp/qwenpaw-test/bin/activate
-            pip install qwenpaw==${version}
-            qwenpaw
+            python -m venv /tmp/aiarb-test && source /tmp/aiarb-test/bin/activate
+            pip install aiarb==${version}
+            aiarb
             \`\`\`
 
             - [ ] Install succeeds (\`pip install\` exits cleanly)
-            - [ ] Launch succeeds (\`qwenpaw\` starts, browser UI reachable)
+            - [ ] Launch succeeds (\`aiarb\` starts, browser UI reachable)
             - [ ] Model configured (API key + model saved without error)
             - [ ] Basic chat works (message sent, normal reply received)
 
@@ -253,7 +253,7 @@ jobs:
             ## Docker — ${mention('docker')}
 
             \`\`\`bash
-            docker run --rm -p 8088:8088 agentscope/qwenpaw:${tag}
+            docker run --rm -p 8088:8088 aiarb/aiarb:${tag}
             \`\`\`
 
             - [ ] Image pulled successfully
@@ -268,7 +268,7 @@ jobs:
             ## macOS Desktop — ${mention('macos')}
 
             1. Go to the [Release page](${releaseUrl})
-            2. Download \`AI-Arb-${version}-macOS.zip\`
+            2. Download \`AIArb-${version}-macOS.zip\`
             3. Unzip, drag `AI Arb.app` to Applications, launch
 
             - [ ] Download and unzip succeed
@@ -283,7 +283,7 @@ jobs:
             ## Windows Desktop — ${mention('windows')}
 
             1. Go to the [Release page](${releaseUrl})
-            2. Download \`AI-Arb-Setup-${version}.exe\`
+            2. Download \`AIArb-Setup-${version}.exe\`
             3. Run the installer, follow the wizard, launch AI Arb
 
             - [ ] Installer runs without error
@@ -314,7 +314,7 @@ jobs:
             const { data: issue } = await github.rest.issues.create({
               owner: context.repo.owner,
               repo:  context.repo.repo,
-              title: `[Release Duty] QwenPaw ${tag} (${typeBadge}) — Installation Verification`,
+              title: `[Release Duty] AIArb ${tag} (${typeBadge}) — Installation Verification`,
               body:  body,
               labels: ['release-duty', releaseType === 'stable' || releaseType === 'post'
                 ? 'stable'

@@ -1,4 +1,4 @@
-# Install Tauri via NSIS, launch the shell, and wait for the backend.
+﻿# Install Tauri via NSIS, launch the shell, and wait for the backend.
 # Outputs BASE_URL to $env:GITHUB_ENV for subsequent steps.
 $ErrorActionPreference = "Stop"
 
@@ -9,7 +9,7 @@ $installer = Get-ChildItem `
   dist/bundle/nsis/*-setup.exe, `
   console/src-tauri/target/release/bundle/nsis/*-setup.exe `
   -ErrorAction SilentlyContinue |
-  Where-Object { $_.Name -match "AI Arb|AI-Arb|QwenPaw" } |
+  Where-Object { $_.Name -match "AI Arb|AIArb|aiarb" } |
   Select-Object -First 1
 if (-not $installer) { throw "NSIS installer not found in dist/" }
 Write-Host "Installing $($installer.Name) silently..."
@@ -37,7 +37,7 @@ foreach ($hive in @("HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
   if ($reg) {
     $loc = (Get-ItemProperty $reg.PSPath).InstallLocation
     if ($loc -and (Test-Path $loc)) {
-      $found = Get-ChildItem -Path $loc -Filter "ai-arb-desktop.exe" `
+      $found = Get-ChildItem -Path $loc -Filter "aiarb-desktop.exe" `
         -Recurse -Depth 3 -ErrorAction SilentlyContinue |
         Select-Object -First 1
       if ($found) { $tauriExe = $found.FullName; break }
@@ -55,7 +55,7 @@ if (-not $tauriExe) {
   )
   foreach ($root in $candidateRoots) {
     if (Test-Path $root) {
-      $found = Get-ChildItem -Path $root -Filter "ai-arb-desktop.exe" `
+      $found = Get-ChildItem -Path $root -Filter "aiarb-desktop.exe" `
         -Recurse -Depth 3 -ErrorAction SilentlyContinue |
         Select-Object -First 1
       if ($found) { $tauriExe = $found.FullName; break }

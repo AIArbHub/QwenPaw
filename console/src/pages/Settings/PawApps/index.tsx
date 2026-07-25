@@ -5,12 +5,14 @@ import { AppWindow, ExternalLink, RefreshCw } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { pawappApi, type PawAppInfo } from "../../../api/modules/pawapp";
 import { getApiUrl } from "../../../api/config";
+import { pickLocalised } from "@/utils/pluginI18n";
 import styles from "./index.module.less";
 
 const { Text, Paragraph } = Typography;
 
 export default function PawAppsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const [apps, setApps] = useState<PawAppInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<PawAppInfo | null>(null);
@@ -93,7 +95,9 @@ export default function PawAppsPage() {
                     style={{ width: "100%" }}
                   >
                     <Space align="center">
-                      <Text strong>{app.name}</Text>
+                      <Text strong>
+                        {pickLocalised(app.name_i18n, lang, app.name)}
+                      </Text>
                       <Tag color="green" style={{ margin: 0 }}>
                         v{app.version}
                       </Tag>
@@ -103,7 +107,7 @@ export default function PawAppsPage() {
                       style={{ margin: 0, fontSize: 12 }}
                       ellipsis={{ rows: 2 }}
                     >
-                      {app.description || "No description"}
+                      {pickLocalised(app.description_i18n, lang, app.description) || "No description"}
                     </Paragraph>
                     {app.category && (
                       <Tag style={{ marginTop: 4 }}>{app.category}</Tag>
@@ -120,7 +124,7 @@ export default function PawAppsPage() {
                   <div className={styles.appHeader}>
                     <Space>
                       <Text strong style={{ fontSize: 16 }}>
-                        {selectedApp.name}
+                        {pickLocalised(selectedApp.name_i18n, lang, selectedApp.name)}
                       </Text>
                       <Tag color="blue">v{selectedApp.version}</Tag>
                     </Space>
@@ -141,7 +145,7 @@ export default function PawAppsPage() {
                     <iframe
                       className={styles.appIframe}
                       src={getIframeSrc(selectedApp) || ""}
-                      title={selectedApp.name}
+                      title={pickLocalised(selectedApp.name_i18n, lang, selectedApp.name)}
                       sandbox="allow-scripts allow-forms allow-same-origin"
                     />
                   ) : (

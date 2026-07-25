@@ -2,7 +2,7 @@
  * pawapp-sdk/host.ts — Host capability wrappers for PawApps.
  *
  * Provides `paw.chat()`, `paw.storage`, `paw.toast()`, `paw.notify()`
- * which delegate to the host's existing QwenPaw namespace and APIs.
+ * which delegate to the host's existing AIArb namespace and APIs.
  */
 import { hostFetch } from "../hostSdk/fetch";
 import type { PawStorageApi } from "./types";
@@ -80,13 +80,13 @@ export async function toast(
   message: string,
   kind: "info" | "success" | "warning" | "error" = "info",
 ): Promise<void> {
-  // Use QwenPaw host notification if available (same-origin)
+  // Use AIArb host notification if available (same-origin)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const qwenpaw = (window as any).QwenPaw as
+  const aiarb = (window as any).AIArb as
     | Record<string, unknown>
     | undefined;
-  if (qwenpaw?.host) {
-    const host = qwenpaw.host as {
+  if (aiarb?.host) {
+    const host = aiarb.host as {
       toast?: (msg: string, kind: string) => void;
     };
     if (host.toast) {

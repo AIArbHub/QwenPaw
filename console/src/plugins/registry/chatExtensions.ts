@@ -478,7 +478,7 @@ class ChatExtensionsRegistry {
       try {
         fn();
       } catch (err) {
-        console.warn("[QwenPaw] chatExtensions listener threw:", err);
+        console.warn("[AIArb] chatExtensions listener threw:", err);
       }
     }
   }

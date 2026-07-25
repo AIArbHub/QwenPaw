@@ -1,10 +1,10 @@
-/// <reference types="vitest" />
+﻿/// <reference types="vitest" />
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
 // Vitest plugin: transforms .css imports inside node_modules to empty stubs.
-// This prevents errors from packages like @agentscope-ai/icons that import CSS.
+// This prevents errors from packages like @aiarb/icons that import CSS.
 const cssStubPlugin = {
   name: "css-stub",
   transform(_code: string, id: string) {
@@ -66,7 +66,7 @@ export default defineConfig(({ mode }) => {
       // all @agentscope-ai/* packages excluded from inline — they are large / have CSS imports
       // aliases below redirect each to a stub or compiled entry
       deps: {
-        inline: [/@agentscope-ai\/(?!icons|chat|design)/],
+        inline: [/@agentscope-ai\//],
       },
       alias: {
         // chat is aliased to a tiny stub to avoid OOM from the 2.3MB real package
@@ -153,9 +153,9 @@ export default defineConfig(({ mode }) => {
       ],
     },
     build: {
-      // Output to QwenPaw's console directory,
+      // Output to AIArb's console directory,
       // so we don't need to copy files manually after build.
-      // outDir: path.resolve(__dirname, "../src/qwenpaw/console"),
+      // outDir: path.resolve(__dirname, "../src/aiarb/console"),
       // emptyOutDir: true,
       cssCodeSplit: true,
       sourcemap: mode !== "production",
@@ -172,7 +172,7 @@ export default defineConfig(({ mode }) => {
             ) {
               return "react-vendor";
             }
-            // Ant Design + AgentScope design system (merged to avoid circular deps)
+            // Ant Design + AIArb design system (merged to avoid circular deps)
             if (
               id.includes("node_modules/antd/") ||
               id.includes("node_modules/antd-style/") ||

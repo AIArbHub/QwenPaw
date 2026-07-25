@@ -1,14 +1,14 @@
-# Context Management
+﻿# Context Management
 
 ## Overview
 
-QwenPaw's default context strategy is **scroll**: older turns are not summarized and discarded. They are written to a durable SQLite history store, evicted from the live model window when needed, and represented by a compact in-context index that can be expanded on demand.
+AIArb's default context strategy is **scroll**: older turns are not summarized and discarded. They are written to a durable SQLite history store, evicted from the live model window when needed, and represented by a compact in-context index that can be expanded on demand.
 
 Scroll is the user-facing default. Existing `strategy: "native"` configurations remain accepted for backward compatibility and fallback, but strategy switching is not exposed in the Console.
 
 ## The Three Memory Systems
 
-QwenPaw organizes memory into three complementary systems, loosely mirroring human memory, each owned by a different subsystem:
+AIArb organizes memory into three complementary systems, loosely mirroring human memory, each owned by a different subsystem:
 
 | System              | What it is                                                                                                                               | Documented in                   |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
@@ -53,7 +53,7 @@ Key properties:
 - **No lossy-summary dependency**: raw evicted content remains authoritative in `history.db` and the `EvictionIndex`. A continuation summary is only a compact task-state cache; a failed update preserves the previous valid summary and never blocks eviction.
 - **Recallable raw history**: each index line carries a `seq` span. The agent can call `recall_history(op="expand", lo, hi)` to read the full original rows (or `ms.expand(lo, hi)` in the `recall_history_python` REPL).
 - **Cross-session memory**: history rows include `session_id` and `agent_id`, so recall can search this agent's past sessions and, when explicitly widened, other agents in the same workspace.
-- **Fallback-safe**: if scroll cannot be wired or its recall tools cannot run safely, QwenPaw falls back to native context management instead of evicting history that cannot be recalled.
+- **Fallback-safe**: if scroll cannot be wired or its recall tools cannot run safely, AIArb falls back to native context management instead of evicting history that cannot be recalled.
 
 Index tiers roll up only when they reach their 10-block capacity; pressure does not compact the index early. Scroll enters pre-trimming only when input is **strictly above** the automatic trigger (80% by default); input exactly at or below the trigger stops without folding tool results or evicting dialogue. Above the trigger, Scroll batch-folds every completed-turn tool result over 200 characters except those in the active turn and the five newest results globally, then recounts once. If the context is now at or below the trigger, it stops; otherwise it proceeds with normal eviction. After rebuilding, completed-result folding remains the final pressure valve above `max(trigger, reserve)`. If the input still exceeds the effective hard limit, Scroll batch-folds acknowledged old active-turn results and recounts once. Explicit `/compact` skips the pre-trim stage and performs the requested eviction.
 
@@ -77,7 +77,7 @@ Index tiers roll up only when they reach their 10-block capacity; pressure does 
 | `headline`                                      | Optional model-written task-state milestone used as an index leaf.          |
 | `blocks`, `metadata`, `created_at`, `dedup_key` | Full serialized blocks, metadata, timestamp, and idempotency key.           |
 
-If SQLite FTS5 is available, QwenPaw also keeps a `conversation_history_fts` index over `content`. Without FTS5, recall search degrades to a slower `LIKE` scan.
+If SQLite FTS5 is available, AIArb also keeps a `conversation_history_fts` index over `content`. Without FTS5, recall search degrades to a slower `LIKE` scan.
 
 ## Working Memory
 
@@ -127,12 +127,12 @@ Eviction index (a synthetic placeholder message named "memory")
   for recalling the original turns. Detailed in "Eviction Index" below.
 
 Recent tail — always including the active turn
-  The newest turns selected by AgentScope's pairing-safe split, plus the
+  The newest turns selected by AIArb's pairing-safe split, plus the
   ACTIVE TURN: the latest real user request and everything after it, kept
   live in full even when the token-based split would have evicted it.
 ```
 
-The split uses AgentScope's token accounting and pairing-safe compression helpers, so it preserves tool-call/tool-result alignment at the live-window boundary.
+The split uses AIArb's token accounting and pairing-safe compression helpers, so it preserves tool-call/tool-result alignment at the live-window boundary.
 
 ### Active-Turn Protection and the Pressure Pipeline
 
@@ -185,7 +185,7 @@ Each `⟦ … ⟧` leaf in the index is a model-written task-state headline. The
 
 ### Recall API
 
-The recall API is the interface to episodic memory: it reads back the durable, verbatim history that working-memory eviction left behind. When scroll is active, QwenPaw injects two tools:
+The recall API is the interface to episodic memory: it reads back the durable, verbatim history that working-memory eviction left behind. When scroll is active, AIArb injects two tools:
 
 - **`recall_history`** — the structured front door for the common reads. Each call is a bound, read-only query executed in-process, so it needs no sandbox and no approval on any platform:
 
@@ -227,7 +227,7 @@ Search (both `recall_history(op="search")` and `ms.search`) also never echoes th
 
 Security note: `recall_history_python` runs model-authored Python. It normally requires sandbox injection from the governance layer. (`recall_history` is unaffected: it never executes model-authored code, so it runs everywhere — including on platforms without a sandbox, such as Windows without WSL2.) If no sandbox is available, the REPL fails closed unless both are true:
 
-- environment variable `QWENPAW_ALLOW_UNSANDBOXED_RECALL` is truthy
+- environment variable `AIARB_ALLOW_UNSANDBOXED_RECALL` is truthy
 - `running.light_context_config.scroll_config.allow_unsandboxed = true`
 
 Unsandboxed recall executes arbitrary host Python as the agent user and should only be used in trusted local development.
@@ -242,7 +242,7 @@ Tool results are handled by one mechanism:
 
 Scroll no longer has a separate token-based tool-result cap. All live previews use `pruning_recent_msg_max_bytes`. At the automatic compression trigger, Scroll batch-replaces every eligible completed-turn result over 200 characters with an exact `recall_history` pointer, while preserving the active turn and five newest results, then recounts once. After eviction it can apply the same recovery-pointer fold to remaining completed results above the pressure target. Legacy tier settings are ignored by Scroll.
 
-When unified pruning is enabled, QwenPaw makes AgentScope's built-in token-based tool-result cap non-binding. This prevents a second truncation pass from replacing the byte-bounded preview and discarding its block-scoped recovery metadata. If unified pruning is disabled, AgentScope's default cap remains active as a safety net.
+When unified pruning is enabled, AIArb makes AIArb's built-in token-based tool-result cap non-binding. This prevents a second truncation pass from replacing the byte-bounded preview and discarding its block-scoped recovery metadata. If unified pruning is disabled, AIArb's default cap remains active as a safety net.
 
 `scroll_config.tool_output_token_cap` is accepted only so existing configuration files continue to load. It is ignored and an explicitly configured value produces a migration warning; replace it with `tool_result_pruning_config.pruning_recent_msg_max_bytes`, whose unit is bytes rather than model-estimated tokens. Disabling `tool_result_pruning_config.enabled` also disables Scroll's execution-time per-result bound.
 

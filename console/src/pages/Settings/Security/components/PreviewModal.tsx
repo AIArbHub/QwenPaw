@@ -1,4 +1,4 @@
-import { Modal, Button, Tag } from "@agentscope-ai/design";
+﻿import { Modal, Button, Tag } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import type { ToolGuardRule } from "../../../../api/modules/security";
 import { useTheme } from "../../../../contexts/ThemeContext";

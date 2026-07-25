@@ -1,8 +1,8 @@
 @echo off
-REM QwenPaw Windows Build Script
+REM AIArb Windows Build Script
 REM Usage: scripts\build.bat
 
-echo === Building QwenPaw ===
+echo === Building AIArb ===
 
 REM 1. Build frontend
 echo [1/3] Building frontend...
@@ -30,7 +30,7 @@ if errorlevel 1 (
 
 REM 3. Run PyInstaller
 echo [3/3] Running PyInstaller...
-pyinstaller scripts\qwenpaw.spec --distpath dist --workpath build\pyinstaller --clean
+pyinstaller scripts\aiarb.spec --distpath dist --workpath build\pyinstaller --clean
 if errorlevel 1 (
     echo ERROR: PyInstaller build failed
     exit /b 1
@@ -38,6 +38,6 @@ if errorlevel 1 (
 
 echo.
 echo === Build complete ===
-echo Output: dist\QwenPaw\qwenpaw.exe
+echo Output: dist\AIArb\aiarb.exe
 echo.
-echo To run: dist\QwenPaw\qwenpaw.exe app --port 8088
+echo To run: dist\AIArb\aiarb.exe app --port 8088

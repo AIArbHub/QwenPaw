@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw E2E Test Framework Configuration Module
+AIArb E2E Test Framework Configuration Module
 
 Provides unified configuration management with environment variable overrides.
 """
@@ -83,11 +83,11 @@ class Config:
     Uses the singleton pattern and supports environment variable overrides.
 
     Environment variables:
-    - QWENPAW_BASE_URL: Server URL
-    - QWENPAW_HEADLESS: Headless mode (true/false)
-    - QWENPAW_TIMEOUT: Timeout (milliseconds)
-    - QWENPAW_USER_ID: User ID
-    - QWENPAW_CHANNEL: Channel name
+    - AIARB_BASE_URL: Server URL
+    - AIARB_HEADLESS: Headless mode (true/false)
+    - AIARB_TIMEOUT: Timeout (milliseconds)
+    - AIARB_USER_ID: User ID
+    - AIARB_CHANNEL: Channel name
     - PLAYWRIGHT_SLOW_MO: Slow motion delay (milliseconds)
     """
     
@@ -115,34 +115,34 @@ class Config:
     def _load_from_env(self):
         """Load configuration from environment variables"""
         # Server configuration
-        if os.getenv("QWENPAW_BASE_URL"):
-            self.server.base_url = os.getenv("QWENPAW_BASE_URL")
+        if os.getenv("AIARB_BASE_URL"):
+            self.server.base_url = os.getenv("AIARB_BASE_URL")
 
         # Browser configuration
-        headless_env = os.getenv("QWENPAW_HEADLESS", "true").lower()
+        headless_env = os.getenv("AIARB_HEADLESS", "true").lower()
         self.browser.headless = headless_env in ("true", "1", "yes")
 
-        if os.getenv("QWENPAW_TIMEOUT"):
+        if os.getenv("AIARB_TIMEOUT"):
             try:
-                timeout = int(os.getenv("QWENPAW_TIMEOUT"))
+                timeout = int(os.getenv("AIARB_TIMEOUT"))
                 self.browser.timeout = timeout
                 self.server.timeout = timeout
             except ValueError:
                 import warnings
-                warnings.warn(f"Invalid QWENPAW_TIMEOUT value: '{os.getenv('QWENPAW_TIMEOUT')}', using default")
+                warnings.warn(f"Invalid AIARB_TIMEOUT value: '{os.getenv('AIARB_TIMEOUT')}', using default")
 
         if os.getenv("PLAYWRIGHT_SLOW_MO"):
             self.browser.slow_mo = int(os.getenv("PLAYWRIGHT_SLOW_MO"))
 
         # Test configuration
-        if os.getenv("QWENPAW_USER_ID"):
-            self.test.user_id = os.getenv("QWENPAW_USER_ID")
+        if os.getenv("AIARB_USER_ID"):
+            self.test.user_id = os.getenv("AIARB_USER_ID")
 
-        if os.getenv("QWENPAW_CHANNEL"):
-            self.test.channel = os.getenv("QWENPAW_CHANNEL")
+        if os.getenv("AIARB_CHANNEL"):
+            self.test.channel = os.getenv("AIARB_CHANNEL")
 
-        if os.getenv("QWENPAW_DASHSCOPE_API_KEY"):
-            self.server.model_key = os.getenv("QWENPAW_DASHSCOPE_API_KEY")
+        if os.getenv("AIARB_DASHSCOPE_API_KEY"):
+            self.server.model_key = os.getenv("AIARB_DASHSCOPE_API_KEY")
 
         # Set API base URL
         if not self.server.api_base_url:
@@ -177,25 +177,25 @@ class Config:
         what the running backend reads.
 
         Strict guarantees:
-        1. ``QWENPAW_WORKING_DIR`` MUST be set.
+        1. ``AIARB_WORKING_DIR`` MUST be set.
         2. The resolved path MUST be outside the user's home directory.
-           Writing seed data into ``~/.qwenpaw`` (or anywhere under
-           ``$HOME``) would corrupt the developer's real QwenPaw data.
+           Writing seed data into ``~/.aiarb`` (or anywhere under
+           ``$HOME``) would corrupt the developer's real AIArb data.
 
         Set it via:
         - ``e2e/scripts/start_test_server.sh`` (local; exports the var)
         - ``.github/workflows/_e2e-job.yml`` (CI; writes to
           ``$GITHUB_ENV``)
-        - or run ``QWENPAW_WORKING_DIR=/tmp/some/isolated/dir pytest``
+        - or run ``AIARB_WORKING_DIR=/tmp/some/isolated/dir pytest``
         """
-        explicit = os.getenv("QWENPAW_WORKING_DIR")
+        explicit = os.getenv("AIARB_WORKING_DIR")
         if not explicit:
             raise RuntimeError(
-                "QWENPAW_WORKING_DIR is not set. Refusing to fall back "
-                "to ~/.qwenpaw because that would corrupt the user's "
-                "real QwenPaw data. Start the backend via "
+                "AIARB_WORKING_DIR is not set. Refusing to fall back "
+                "to ~/.aiarb because that would corrupt the user's "
+                "real AIArb data. Start the backend via "
                 "e2e/scripts/start_test_server.sh, or run "
-                "`QWENPAW_WORKING_DIR=/tmp/qwenpaw-e2e-test-work-dir/working "
+                "`AIARB_WORKING_DIR=/tmp/aiarb-e2e-test-work-dir/working "
                 "pytest ...` against an isolated backend on the same "
                 "directory."
             )
@@ -208,11 +208,11 @@ class Config:
             in_home = False
         if in_home:
             raise RuntimeError(
-                f"QWENPAW_WORKING_DIR={resolved} is inside the user "
+                f"AIARB_WORKING_DIR={resolved} is inside the user "
                 f"home ({home}). Refusing to seed e2e fixtures into a "
-                "directory that may hold the developer's real QwenPaw "
+                "directory that may hold the developer's real AIArb "
                 "data. Point it at an isolated location such as "
-                "/tmp/qwenpaw-e2e-test-work-dir/working."
+                "/tmp/aiarb-e2e-test-work-dir/working."
             )
         return resolved
 

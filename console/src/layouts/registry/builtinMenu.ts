@@ -1,15 +1,15 @@
-/**
+﻿/**
  * builtinMenu.ts — host's built-in sidebar menu entries as data.
  *
  * Importing this module self-registers all builtins into menuRegistry, so the
  * Sidebar's `useMenuItems()` snapshot returns them on first render. Plugins
- * register via `QwenPaw.menu.add(...)` which lands in the same registry, so
+ * register via `AIArb.menu.add(...)` which lands in the same registry, so
  * Sidebar treats core + plugin items uniformly.
  *
  * ── Design principles (2026-07-24 redesign) ───────────────────────────────
  *  User-centric (C端) layering with 5 groups across 3 locations:
  *
- *  primary.agentScoped (顶部)
+ *  primary.agentWorkspace (顶部)
  *    ├── 快速入口 (2 items, no group) — inbox, app-center
  *    └── 智能体工作区 (6 items) — workspace, skills, tools, mcp, acp, agent-config
  *
@@ -57,7 +57,7 @@ import {
   SparkUserGroupLine,
   SparkWifiLine,
 } from "@agentscope-ai/icons";
-import { Package, Brain, Clock, Activity, PawPrint, ScanText, Cloud, ScrollText, Scale, Gavel, FolderKanban, Cpu, FileCode2, Library, ClipboardCheck, BookOpen } from "lucide-react";
+import { Package, Brain, Clock, Activity, PawPrint, ScanText, Cloud, ScrollText, Scale, Gavel, FolderKanban, Cpu, FileCode2, Library, ClipboardCheck, BookOpen, Workflow } from "lucide-react";
 import i18next from "i18next";
 import { menuRegistry } from "../../plugins/registry/store";
 import type { MenuItem } from "../../plugins/registry/types";
@@ -67,12 +67,12 @@ const navLabel = (key: string, defaultValue?: string) => (): string =>
   i18next.t(key, defaultValue ?? key);
 
 export const BUILTIN_MENU: MenuItem[] = [
-  // ══ primary.agentScoped ════════════════════════════════════════════════
+  // ══ primary.agentWorkspace ════════════════════════════════════════════════
 
   // ── 快速入口 (top-level, no group) ──────────────────────────────────────
   {
     id: "core.inbox",
-    location: "primary.agentScoped",
+    location: "primary.agentWorkspace",
     label: navLabel("nav.inbox"),
     icon: SparkEmailLine,
     route: "core.inbox",
@@ -80,7 +80,7 @@ export const BUILTIN_MENU: MenuItem[] = [
   },
   {
     id: "core.app-center",
-    location: "primary.agentScoped",
+    location: "primary.agentWorkspace",
     label: navLabel("nav.apps", "Apps"),
     icon: SparkMyApplicationLine,
     route: "core.app-center",
@@ -90,14 +90,14 @@ export const BUILTIN_MENU: MenuItem[] = [
   // ── 智能体工作区 ─────────────────────────────────────────────────────────
   {
     id: "core.agent-workspace-group",
-    location: "primary.agentScoped",
+    location: "primary.agentWorkspace",
     label: navLabel("nav.agentWorkspace", "智能体工作区"),
     isGroup: true,
     order: 20,
   },
   {
     id: "core.workspace",
-    location: "primary.agentScoped",
+    location: "primary.agentWorkspace",
     parentId: "core.agent-workspace-group",
     label: navLabel("nav.workspace", "工作区文件"),
     icon: SparkLocalFileLine,
@@ -106,7 +106,7 @@ export const BUILTIN_MENU: MenuItem[] = [
   },
   {
     id: "core.skills",
-    location: "primary.agentScoped",
+    location: "primary.agentWorkspace",
     parentId: "core.agent-workspace-group",
     label: navLabel("nav.skills", "技能"),
     icon: SparkMagicWandLine,
@@ -115,7 +115,7 @@ export const BUILTIN_MENU: MenuItem[] = [
   },
   {
     id: "core.tools",
-    location: "primary.agentScoped",
+    location: "primary.agentWorkspace",
     parentId: "core.agent-workspace-group",
     label: navLabel("nav.tools", "工具"),
     icon: SparkToolLine,
@@ -124,7 +124,7 @@ export const BUILTIN_MENU: MenuItem[] = [
   },
   {
     id: "core.mcp",
-    location: "primary.agentScoped",
+    location: "primary.agentWorkspace",
     parentId: "core.agent-workspace-group",
     label: navLabel("nav.mcp", "MCP"),
     icon: SparkMcpMcpLine,
@@ -133,7 +133,7 @@ export const BUILTIN_MENU: MenuItem[] = [
   },
   {
     id: "core.acp",
-    location: "primary.agentScoped",
+    location: "primary.agentWorkspace",
     parentId: "core.agent-workspace-group",
     label: navLabel("nav.acp", "ACP"),
     icon: SparkScanLine,
@@ -142,7 +142,7 @@ export const BUILTIN_MENU: MenuItem[] = [
   },
   {
     id: "core.agent-config",
-    location: "primary.agentScoped",
+    location: "primary.agentWorkspace",
     parentId: "core.agent-workspace-group",
     label: navLabel("nav.agentConfig", "Agent配置"),
     icon: SparkModifyLine,
@@ -296,6 +296,15 @@ export const BUILTIN_MENU: MenuItem[] = [
     icon: Brain,
     route: "core.memory",
     order: 80,
+  },
+  {
+    id: "core.sop",
+    location: "primary.settings",
+    parentId: "core.system-settings-group",
+    label: navLabel("nav.sop", "流程引擎"),
+    icon: Workflow,
+    route: "core.sop",
+    order: 85,
   },
   {
     id: "core.security",

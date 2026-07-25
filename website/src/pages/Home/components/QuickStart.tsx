@@ -19,7 +19,7 @@ import {
   GitHubIcon,
   ModelIcon,
   AliyunIcon,
-  AgentScopePlatformIcon,
+  AIArbPlatformIcon,
 } from "@/components/Icon";
 import { sectionStyles } from "@/lib/utils";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -27,16 +27,16 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 type InstallMethod = "pip" | "script" | "docker" | "cloud" | "desktop";
 type ScriptPlatform = "mac" | "windows";
 type ScriptWindowsVariant = "cmd" | "ps";
-type CloudPlatform = "agentscope" | "aliyun" | "modelscope";
+type CloudPlatform = "aiarb" | "aliyun" | "modelscope";
 
 type QuickStartProps = {
   docsBase: string;
 };
 
-const DOCKER_IMAGE = "agentscope/qwenpaw:latest";
-const AGENTSCOPE_PLATFORM_URL = "https://platform.agentscope.io/";
+const DOCKER_IMAGE = "aiarb/aiarb:latest";
+const AIARB_PLATFORM_URL = "https://platform.agentscope.io/";
 const MODELSCOPE_URL =
-  "https://modelscope.cn/studios/fork?target=AgentScope/QwenPaw";
+  "https://modelscope.cn/studios/fork?target=AIArb/AIArb";
 const ALIYUN_ECS_URL =
   "https://computenest.console.aliyun.com/service/instance/create/cn-hangzhou?type=user&ServiceId=service-1ed84201799f40879884";
 const ALIYUN_DOC_URL = "https://developer.aliyun.com/article/1713682";
@@ -71,34 +71,34 @@ function MethodTabIcon({ method }: { method: InstallMethod }) {
 }
 
 export const PIP_INSTALL_COMMANDS = [
-  "pip install qwenpaw",
-  "qwenpaw init --defaults",
-  "qwenpaw app",
+  "pip install aiarb",
+  "aiarb init --defaults",
+  "aiarb app",
 ] as const;
 
 const COMMANDS = {
   pip: [...PIP_INSTALL_COMMANDS],
   scriptMac: [
-    "curl -fsSL https://qwenpaw.agentscope.io/install.sh | bash",
-    "qwenpaw init --defaults",
-    "qwenpaw app",
+    "curl -fsSL https://aiarb.cn/install.sh | bash",
+    "aiarb init --defaults",
+    "aiarb app",
   ],
   scriptWinCmd: [
-    "curl -fsSL https://qwenpaw.agentscope.io/install.bat -o install.bat && install.bat",
-    "qwenpaw init --defaults",
-    "qwenpaw app",
+    "curl -fsSL https://aiarb.cn/install.bat -o install.bat && install.bat",
+    "aiarb init --defaults",
+    "aiarb app",
   ],
   scriptWinPs: [
-    "irm https://qwenpaw.agentscope.io/install.ps1 | iex",
-    "qwenpaw init --defaults",
-    "qwenpaw app",
+    "irm https://aiarb.cn/install.ps1 | iex",
+    "aiarb init --defaults",
+    "aiarb app",
   ],
   docker: [
     `docker pull ${DOCKER_IMAGE}`,
     `docker run -p 127.0.0.1:8088:8088 \\
-  -v qwenpaw-data:/app/working \\
-  -v qwenpaw-secrets:/app/working.secret \\
-  -v qwenpaw-backups:/app/working.backups \\
+  -v aiarb-data:/app/working \\
+  -v aiarb-secrets:/app/working.secret \\
+  -v aiarb-backups:/app/working.backups \\
   ${DOCKER_IMAGE}`,
   ],
 } as const;
@@ -232,7 +232,7 @@ export function QuickStart({ docsBase }: QuickStartProps) {
   const [scriptWinVariant, setScriptWinVariant] =
     useState<ScriptWindowsVariant>("cmd");
   const [cloudPlatform, setCloudPlatform] =
-    useState<CloudPlatform>("agentscope");
+    useState<CloudPlatform>("aiarb");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const currentScriptCommands = useMemo(() => {
@@ -262,10 +262,10 @@ export function QuickStart({ docsBase }: QuickStartProps) {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-60px" }}
-        id="qwenpaw-quickstart"
+        id="aiarb-quickstart"
       >
         <div
-          className="pointer-events-none absolute left-1/2 top-0 h-px w-screen -translate-x-1/2 animate-[qwenpaw-dash-move-right_1s_linear_infinite]"
+          className="pointer-events-none absolute left-1/2 top-0 h-px w-screen -translate-x-1/2 animate-[aiarb-dash-move-right_1s_linear_infinite]"
           style={{
             background:
               "repeating-linear-gradient(to right, rgba(255,157,77,0.45) 0 8px, transparent 8px 16px)",
@@ -273,7 +273,7 @@ export function QuickStart({ docsBase }: QuickStartProps) {
           }}
         />
         <div
-          className="pointer-events-none absolute left-1/2 top-full h-px w-screen -translate-x-1/2 -translate-y-px animate-[qwenpaw-dash-move-left_1s_linear_infinite]"
+          className="pointer-events-none absolute left-1/2 top-full h-px w-screen -translate-x-1/2 -translate-y-px animate-[aiarb-dash-move-left_1s_linear_infinite]"
           style={{
             background:
               "repeating-linear-gradient(to right, rgba(255,157,77,0.45) 0 8px, transparent 8px 16px)",
@@ -282,7 +282,7 @@ export function QuickStart({ docsBase }: QuickStartProps) {
         />
         <div className="relative mx-auto max-w-4xl">
           <div
-            className="pointer-events-none absolute bottom-0 left-4 top-0 w-px md:left-0 animate-[qwenpaw-dash-move-down_1s_linear_infinite]"
+            className="pointer-events-none absolute bottom-0 left-4 top-0 w-px md:left-0 animate-[aiarb-dash-move-down_1s_linear_infinite]"
             style={{
               background:
                 "repeating-linear-gradient(to bottom, rgba(255,157,77,0.45) 0 8px, transparent 8px 16px)",
@@ -290,7 +290,7 @@ export function QuickStart({ docsBase }: QuickStartProps) {
             }}
           />
           <div
-            className="pointer-events-none absolute bottom-0 right-4 top-0 w-px md:right-0 animate-[qwenpaw-dash-move-up_1s_linear_infinite]"
+            className="pointer-events-none absolute bottom-0 right-4 top-0 w-px md:right-0 animate-[aiarb-dash-move-up_1s_linear_infinite]"
             style={{
               background:
                 "repeating-linear-gradient(to bottom, rgba(255,157,77,0.45) 0 8px, transparent 8px 16px)",
@@ -314,7 +314,7 @@ export function QuickStart({ docsBase }: QuickStartProps) {
             </motion.div>
             <div className="relative isolate mx-auto max-w-4xl">
               <div
-                className="pointer-events-none absolute left-1/2 top-0 z-20 h-px w-screen -translate-x-1/2 animate-[qwenpaw-dash-move-left_1s_linear_infinite]"
+                className="pointer-events-none absolute left-1/2 top-0 z-20 h-px w-screen -translate-x-1/2 animate-[aiarb-dash-move-left_1s_linear_infinite]"
                 style={{
                   background:
                     "repeating-linear-gradient(to right, rgba(255,157,77,0.45) 0 8px, transparent 8px 16px)",
@@ -496,7 +496,7 @@ export function QuickStart({ docsBase }: QuickStartProps) {
                               <div className="inline-flex h-11 items-center rounded-xl border border-[#ebe5df] bg-(--color-fill-tertiary) p-1 sm:h-11">
                                 {(
                                   [
-                                    "agentscope",
+                                    "aiarb",
                                     "aliyun",
                                     "modelscope",
                                   ] as const
@@ -519,8 +519,8 @@ export function QuickStart({ docsBase }: QuickStartProps) {
 
                             <a
                               href={
-                                cloudPlatform === "agentscope"
-                                  ? AGENTSCOPE_PLATFORM_URL
+                                cloudPlatform === "aiarb"
+                                  ? AIARB_PLATFORM_URL
                                   : cloudPlatform === "aliyun"
                                   ? ALIYUN_ECS_URL
                                   : MODELSCOPE_URL
@@ -529,10 +529,10 @@ export function QuickStart({ docsBase }: QuickStartProps) {
                               rel="noopener noreferrer"
                               className="inline-flex items-center justify-center gap-2 rounded-xl bg-(--color-secondary) px-4 py-3 text-sm font-medium text-(--color-text) hover:brightness-105 md:px-5 md:py-3.5 md:text-[1.08rem]"
                             >
-                              {cloudPlatform === "agentscope" ? (
+                              {cloudPlatform === "aiarb" ? (
                                 <>
-                                  <AgentScopePlatformIcon size={20} />
-                                  {t("quickstart.cloud.agentscopeGo")}
+                                  <AIArbPlatformIcon size={20} />
+                                  {t("quickstart.cloud.aiarbGo")}
                                 </>
                               ) : cloudPlatform === "aliyun" ? (
                                 <>
@@ -621,7 +621,7 @@ export function QuickStart({ docsBase }: QuickStartProps) {
                 </motion.div>
               </div>
               <div
-                className="pointer-events-none absolute bottom-0 left-1/2 h-px w-screen -translate-x-1/2 animate-[qwenpaw-dash-move-right_1s_linear_infinite]"
+                className="pointer-events-none absolute bottom-0 left-1/2 h-px w-screen -translate-x-1/2 animate-[aiarb-dash-move-right_1s_linear_infinite]"
                 style={{
                   background:
                     "repeating-linear-gradient(to right, rgba(255,157,77,0.45) 0 8px, transparent 8px 16px)",

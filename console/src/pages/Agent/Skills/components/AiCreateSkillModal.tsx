@@ -1,4 +1,4 @@
-import { Modal, Button, Input } from "@agentscope-ai/design";
+﻿import { Modal, Button, Input } from "@agentscope-ai/design";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { BulbOutlined, StopOutlined } from "@ant-design/icons";

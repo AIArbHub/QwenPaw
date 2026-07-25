@@ -1,4 +1,4 @@
-import { Checkbox, Input } from "@agentscope-ai/design";
+﻿import { Checkbox, Input } from "@agentscope-ai/design";
 import { SparkDeleteLine, SparkPlusLine } from "@agentscope-ai/icons";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { useState } from "react";

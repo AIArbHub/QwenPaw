@@ -6,13 +6,13 @@ from types import SimpleNamespace
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.config.config import (
+from aiarb.config.config import (
     AgentProfileConfig,
     AgentProfileRef,
     Config,
 )
-from qwenpaw.config.utils import load_config, save_config
-from qwenpaw.app.routers import agents as agents_router
+from aiarb.config.utils import load_config, save_config
+from aiarb.app.routers import agents as agents_router
 
 
 def _build_config(

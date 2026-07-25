@@ -1,6 +1,6 @@
 # CLI
 
-`qwenpaw` is the command-line tool for QwenPaw. This page is organized from
+`aiarb` is the command-line tool for AIArb. This page is organized from
 "get-up-and-running" to "advanced management" — read from top to bottom if
 you're new, or jump to the section you need.
 
@@ -13,14 +13,14 @@ you're new, or jump to the section you need.
 
 These are the commands you'll use on day one.
 
-### qwenpaw init
+### aiarb init
 
 First-time setup. Walks you through configuration interactively.
 
 ```bash
-qwenpaw init              # Interactive setup (recommended for first time)
-qwenpaw init --defaults   # Non-interactive, use all defaults (good for scripts)
-qwenpaw init --force      # Overwrite existing config files
+aiarb init              # Interactive setup (recommended for first time)
+aiarb init --defaults   # Non-interactive, use all defaults (good for scripts)
+aiarb init --force      # Overwrite existing config files
 ```
 
 **What the interactive flow covers (in order):**
@@ -31,15 +31,15 @@ qwenpaw init --force      # Overwrite existing config files
 3. **Environment variables** — optionally add key-value pairs for tools.
 4. **HEARTBEAT.md** — edit the heartbeat checklist in your default editor.
 
-### qwenpaw app
+### aiarb app
 
-Start the QwenPaw server. Everything else — channels, cron jobs, the Console
+Start the AIArb server. Everything else — channels, cron jobs, the Console
 UI — depends on this.
 
 ```bash
-qwenpaw app                             # Start on 127.0.0.1:8088
-qwenpaw app --reload                    # Auto-reload on code change (dev)
-qwenpaw app --log-level debug           # Verbose logging
+aiarb app                             # Start on 127.0.0.1:8088
+aiarb app --reload                    # Auto-reload on code change (dev)
+aiarb app --log-level debug           # Verbose logging
 ```
 
 | Option        | Default     | Description                                                   |
@@ -48,21 +48,21 @@ qwenpaw app --log-level debug           # Verbose logging
 | `--port`      | `8088`      | Bind port                                                     |
 | `--reload`    | off         | Auto-reload on file changes (dev only)                        |
 | `--log-level` | `info`      | `critical` / `error` / `warning` / `info` / `debug` / `trace` |
-| `--workers`   | —           | **[DEPRECATED]** Ignored. QwenPaw always uses 1 worker        |
+| `--workers`   | —           | **[DEPRECATED]** Ignored. AIArb always uses 1 worker        |
 
-> **Note:** The `--workers` option is deprecated for stability reasons. QwenPaw is designed to run with a single worker process. Multi-worker mode can cause issues with in-memory state management and WebSocket connections. This option will be removed in a future version.
+> **Note:** The `--workers` option is deprecated for stability reasons. AIArb is designed to run with a single worker process. Multi-worker mode can cause issues with in-memory state management and WebSocket connections. This option will be removed in a future version.
 
-### qwenpaw tui
+### aiarb tui
 
-Open the bundled terminal chat UI. It runs QwenPaw through the current Python
+Open the bundled terminal chat UI. It runs AIArb through the current Python
 environment, so it is useful for development installs and shell-first
 workflows.
 
 ```bash
-qwenpaw                         # Open the TUI with the active agent
-qwenpaw tui --agent writer      # Open the TUI with a specific agent
-qwenpaw .                       # Bind this TUI session to the current project
-qwenpaw tui /path/to/repo       # Bind this TUI session to another project
+aiarb                         # Open the TUI with the active agent
+aiarb tui --agent writer      # Open the TUI with a specific agent
+aiarb .                       # Bind this TUI session to the current project
+aiarb tui /path/to/repo       # Bind this TUI session to another project
 ```
 
 Passing a project directory enables Coding Mode for that TUI session and uses
@@ -71,18 +71,18 @@ to `agent.json` or change the project selected in the Console.
 
 ### Console
 
-Once `qwenpaw app` is running, open `http://127.0.0.1:8088/` in your browser to
+Once `aiarb app` is running, open `http://127.0.0.1:8088/` in your browser to
 access the **Console** — a web UI for chat, channels, cron, skills, models,
 and more. See [Console](./console) for a full walkthrough.
 
-If the frontend was not built, the root URL returns a JSON message like `{"message": "QwenPaw Web Console is not available."}` but the API still works.
+If the frontend was not built, the root URL returns a JSON message like `{"message": "AIArb Web Console is not available."}` but the API still works.
 
 **To build the frontend:** in the project's `console/` directory run
 `npm ci && npm run build`, then copy the output to the package directory:
-`mkdir -p src/qwenpaw/console && cp -R console/dist/. src/qwenpaw/console/`.
+`mkdir -p src/aiarb/console && cp -R console/dist/. src/aiarb/console/`.
 Docker images and pip packages already include the Console.
 
-### qwenpaw daemon
+### aiarb daemon
 
 Inspect status, version, and recent logs without starting a conversation. Same
 behavior as sending `/daemon status` etc. in chat (CLI can show local info when
@@ -90,22 +90,22 @@ the app is not running).
 
 | Command                        | Description                                                                               |
 | ------------------------------ | ----------------------------------------------------------------------------------------- |
-| `qwenpaw daemon status`        | Status (config, working dir, memory manager)                                              |
-| `qwenpaw daemon restart`       | Print instructions (in-chat /daemon restart does in-process reload)                       |
-| `qwenpaw daemon reload-config` | Re-read and validate config (channel/MCP changes need /daemon restart or process restart) |
-| `qwenpaw daemon version`       | Version and paths                                                                         |
-| `qwenpaw daemon logs [-n N]`   | Last N lines of log (default 100; from `qwenpaw.log` in working dir)                      |
+| `aiarb daemon status`        | Status (config, working dir, memory manager)                                              |
+| `aiarb daemon restart`       | Print instructions (in-chat /daemon restart does in-process reload)                       |
+| `aiarb daemon reload-config` | Re-read and validate config (channel/MCP changes need /daemon restart or process restart) |
+| `aiarb daemon version`       | Version and paths                                                                         |
+| `aiarb daemon logs [-n N]`   | Last N lines of log (default 100; from `aiarb.log` in working dir)                      |
 
 **Multi-Agent Support:** All commands support the `--agent-id` parameter (defaults to `default`).
 
 ```bash
-qwenpaw daemon status                     # Default agent status
-qwenpaw daemon status --agent-id abc123   # Specific agent status
-qwenpaw daemon version
-qwenpaw daemon logs -n 50
+aiarb daemon status                     # Default agent status
+aiarb daemon status --agent-id abc123   # Specific agent status
+aiarb daemon version
+aiarb daemon logs -n 50
 ```
 
-### qwenpaw doctor
+### aiarb doctor
 
 Read-only diagnostics for your install: root `config.json` validation,
 workspaces, `agent.json`, channels, MCP, static console bundle, API
@@ -114,23 +114,23 @@ itself does not repair files** — use the separate **`doctor fix`** subcommand
 when you intend to change disk (that path creates backups by default).
 
 ```bash
-qwenpaw doctor                      # Default checks
-qwenpaw doctor --deep               # Extra: enabled-channel probes + local llama notes
-qwenpaw doctor --port 8088          # Force API target (see note below)
-qwenpaw doctor fix --dry-run        # Preview planned fixes (no writes)
-qwenpaw doctor fix -y --only …      # Apply allowlisted fixes (see --help)
+aiarb doctor                      # Default checks
+aiarb doctor --deep               # Extra: enabled-channel probes + local llama notes
+aiarb doctor --port 8088          # Force API target (see note below)
+aiarb doctor fix --dry-run        # Preview planned fixes (no writes)
+aiarb doctor fix -y --only …      # Apply allowlisted fixes (see --help)
 ```
 
 | Option          | Applies to | Purpose                                                               |
 | --------------- | ---------- | --------------------------------------------------------------------- |
 | `--timeout`     | `doctor`   | HTTP timeout for API / connectivity checks (default 5s)               |
 | `--llm-timeout` | `doctor`   | Timeout for model “ping” checks (default 15s)                         |
-| `--deep`        | `doctor`   | Outbound probes for enabled channels; extra notes for `qwenpaw-local` |
+| `--deep`        | `doctor`   | Outbound probes for enabled channels; extra notes for `aiarb-local` |
 
-**Which host/port does `doctor` hit?** Global `qwenpaw --host` / `--port`
+**Which host/port does `doctor` hit?** Global `aiarb --host` / `--port`
 apply to every subcommand, including `doctor`. If you omit them, the CLI
 fills missing values from **`last_api` in `config.json`** (updated when
-`qwenpaw app` last ran). Only when `last_api` is absent do you get
+`aiarb app` last ran). Only when `last_api` is absent do you get
 `127.0.0.1:8088`. If checks target the wrong port, pass `--port` explicitly or
 update `last_api`.
 
@@ -140,12 +140,12 @@ only.
 #### Recommended workflow (preview before apply)
 
 ```bash
-qwenpaw doctor fix --dry-run
+aiarb doctor fix --dry-run
 # Narrow to the exact ids you want
-qwenpaw doctor fix --dry-run --only ensure-working-dir,ensure-workspace-dirs
+aiarb doctor fix --dry-run --only ensure-working-dir,ensure-workspace-dirs
 
 # Apply after you confirm the plan
-qwenpaw doctor fix --only ensure-working-dir,ensure-workspace-dirs
+aiarb doctor fix --only ensure-working-dir,ensure-workspace-dirs
 ```
 
 - `--dry-run` prints planned operations and does not write files.
@@ -160,15 +160,15 @@ Pass comma-separated ids with `--only`.
   - `ensure-working-dir` - create working directory if missing
   - `ensure-workspace-dirs` - create missing agent workspace directories
 - For the full list of fix ids and risk semantics, run:
-  - `qwenpaw doctor fix --help`
-- When `qwenpaw doctor` detects issues, output includes matching fix hints,
+  - `aiarb doctor fix --help`
+- When `aiarb doctor` detects issues, output includes matching fix hints,
   including suggested `doctor fix --dry-run --only ...` commands.
 
 #### Applying risky ids safely
 
 ```bash
-qwenpaw doctor fix --dry-run --only seed-missing-agent-json,reset-invalid-agent-json
-qwenpaw doctor fix -y --only seed-missing-agent-json,reset-invalid-agent-json
+aiarb doctor fix --dry-run --only seed-missing-agent-json,reset-invalid-agent-json
+aiarb doctor fix -y --only seed-missing-agent-json,reset-invalid-agent-json
 ```
 
 - Risky ids require `-y` only when applying (without `--dry-run`).
@@ -190,50 +190,50 @@ directory using the same relative paths.
 
 ## Models & environment variables
 
-Before using QwenPaw you need at least one LLM provider configured. Environment
+Before using AIArb you need at least one LLM provider configured. Environment
 variables power many built-in tools (e.g. web search).
 
-### qwenpaw models
+### aiarb models
 
 Manage LLM providers and the active model.
 
 | Command                                  | What it does                                         |
 | ---------------------------------------- | ---------------------------------------------------- |
-| `qwenpaw models list`                    | Show all providers, API key status, and active model |
-| `qwenpaw models config`                  | Full interactive setup: API keys → active model      |
-| `qwenpaw models config-key [provider]`   | Configure a single provider's API key                |
-| `qwenpaw models set-llm`                 | Switch the active model (API keys unchanged)         |
-| `qwenpaw models download <repo_id>`      | Download a local model (llama.cpp)                   |
-| `qwenpaw models local`                   | List downloaded local models                         |
-| `qwenpaw models remove-local <model_id>` | Delete a downloaded local model                      |
+| `aiarb models list`                    | Show all providers, API key status, and active model |
+| `aiarb models config`                  | Full interactive setup: API keys → active model      |
+| `aiarb models config-key [provider]`   | Configure a single provider's API key                |
+| `aiarb models set-llm`                 | Switch the active model (API keys unchanged)         |
+| `aiarb models download <repo_id>`      | Download a local model (llama.cpp)                   |
+| `aiarb models local`                   | List downloaded local models                         |
+| `aiarb models remove-local <model_id>` | Delete a downloaded local model                      |
 
 ```bash
-qwenpaw models list                    # See what's configured
-qwenpaw models config                  # Full interactive setup
-qwenpaw models config-key modelscope   # Just set ModelScope's API key
-qwenpaw models config-key dashscope    # Just set DashScope's API key
-qwenpaw models config-key custom       # Set custom provider (Base URL + key)
-qwenpaw models set-llm                 # Change active model only
+aiarb models list                    # See what's configured
+aiarb models config                  # Full interactive setup
+aiarb models config-key modelscope   # Just set ModelScope's API key
+aiarb models config-key dashscope    # Just set DashScope's API key
+aiarb models config-key custom       # Set custom provider (Base URL + key)
+aiarb models set-llm                 # Change active model only
 ```
 
 #### Local models
 
-QwenPaw can also run models locally via llama.cpp, Ollama, or LM Studio — no API key needed.
+AIArb can also run models locally via llama.cpp, Ollama, or LM Studio — no API key needed.
 But you need to download the corresponding application first, such as [Ollama](https://ollama.com/download) or [LM Studio](https://lmstudio.ai/download).
 
 ```bash
 # Download a model (auto-selects Q4_K_M GGUF)
-qwenpaw models download Qwen/Qwen3-4B-GGUF
+aiarb models download Qwen/Qwen3-4B-GGUF
 
 # Download from ModelScope
-qwenpaw models download Qwen/Qwen2-0.5B-Instruct-GGUF --source modelscope
+aiarb models download Qwen/Qwen2-0.5B-Instruct-GGUF --source modelscope
 
 # List downloaded models
-qwenpaw models local
+aiarb models local
 
 # Delete a downloaded model
-qwenpaw models remove-local <model_id>
-qwenpaw models remove-local <model_id> --yes   # skip confirmation
+aiarb models remove-local <model_id>
+aiarb models remove-local <model_id> --yes   # skip confirmation
 ```
 
 | Option     | Short | Default       | Description                                                           |
@@ -243,9 +243,9 @@ qwenpaw models remove-local <model_id> --yes   # skip confirmation
 
 #### Ollama models
 
-QwenPaw integrates with Ollama to run models locally. Models are dynamically loaded from your Ollama daemon — install Ollama first from [ollama.com](https://ollama.com).
+AIArb integrates with Ollama to run models locally. Models are dynamically loaded from your Ollama daemon — install Ollama first from [ollama.com](https://ollama.com).
 
-Install the Ollama SDK: `pip install 'qwenpaw[ollama]'` (or re-run the installer with `--extras ollama`)
+Install the Ollama SDK: `pip install 'aiarb[ollama]'` (or re-run the installer with `--extras ollama`)
 
 ```bash
 # Download an Ollama model
@@ -259,37 +259,37 @@ ollama list
 ollama rm mistral:7b
 
 # Use in config flow (auto-detects Ollama models)
-qwenpaw models config           # Select Ollama → Choose from model list
-qwenpaw models set-llm          # Switch to a different Ollama model
+aiarb models config           # Select Ollama → Choose from model list
+aiarb models set-llm          # Switch to a different Ollama model
 ```
 
 **Key differences from local models:**
 
-- Models come from Ollama daemon (not downloaded by QwenPaw)
-- Use `ollama` CLI to manage models (not `qwenpaw models download/remove-local`)
-- Model list updates dynamically when you add/remove via Ollama CLI or QwenPaw
+- Models come from Ollama daemon (not downloaded by AIArb)
+- Use `ollama` CLI to manage models (not `aiarb models download/remove-local`)
+- Model list updates dynamically when you add/remove via Ollama CLI or AIArb
 
-> **Note:** You are responsible for ensuring the API key is valid. QwenPaw does
+> **Note:** You are responsible for ensuring the API key is valid. AIArb does
 > not verify key correctness. See [Config — LLM Providers](./config#llm-providers).
 
-### qwenpaw env
+### aiarb env
 
 Manage environment variables used by tools and skills at runtime.
 
 | Command                     | What it does                  |
 | --------------------------- | ----------------------------- |
-| `qwenpaw env list`          | List all configured variables |
-| `qwenpaw env set KEY VALUE` | Set or update a variable      |
-| `qwenpaw env delete KEY`    | Delete a variable             |
+| `aiarb env list`          | List all configured variables |
+| `aiarb env set KEY VALUE` | Set or update a variable      |
+| `aiarb env delete KEY`    | Delete a variable             |
 
 ```bash
-qwenpaw env list
-qwenpaw env set TAVILY_API_KEY "tvly-xxxxxxxx"
-qwenpaw env set GITHUB_TOKEN "ghp_xxxxxxxx"  # fine-grained PATs starting with github_pat_ are also supported
-qwenpaw env delete TAVILY_API_KEY
+aiarb env list
+aiarb env set TAVILY_API_KEY "tvly-xxxxxxxx"
+aiarb env set GITHUB_TOKEN "ghp_xxxxxxxx"  # fine-grained PATs starting with github_pat_ are also supported
+aiarb env delete TAVILY_API_KEY
 ```
 
-> **Note:** QwenPaw only stores and loads these values; you are responsible for
+> **Note:** AIArb only stores and loads these values; you are responsible for
 > ensuring they are correct. See
 > [Config — Environment Variables](./config#environment-variables).
 
@@ -297,29 +297,29 @@ qwenpaw env delete TAVILY_API_KEY
 
 ## Channels
 
-Connect QwenPaw to messaging platforms.
+Connect AIArb to messaging platforms.
 
-### qwenpaw channels
+### aiarb channels
 
 Manage channel configuration (iMessage, Discord, DingTalk, Feishu, QQ,
 Console, etc.) and send messages to channels. **Note:** Use `config` for interactive setup (no `configure`
 subcommand); use `remove` to uninstall custom channels (no `uninstall`).
 
-**Alias:** You can use `qwenpaw channel` (singular) as a shorthand for `qwenpaw channels`.
+**Alias:** You can use `aiarb channel` (singular) as a shorthand for `aiarb channels`.
 
 | Command                   | What it does                                                                       |
 | ------------------------- | ---------------------------------------------------------------------------------- |
-| `qwenpaw channels list`   | Show all channels and their status (secrets masked)                                |
-| `qwenpaw channels send`   | Send a one-way message to a user/session via a channel (requires all 5 parameters) |
-| `qwenpaw channels config` | Interactively enable/disable channels and fill in credentials                      |
+| `aiarb channels list`   | Show all channels and their status (secrets masked)                                |
+| `aiarb channels send`   | Send a one-way message to a user/session via a channel (requires all 5 parameters) |
+| `aiarb channels config` | Interactively enable/disable channels and fill in credentials                      |
 
 **Multi-Agent Support:** All commands support the `--agent-id` parameter (defaults to `default`).
 
 ```bash
-qwenpaw channels list                    # See default agent's channels
-qwenpaw channels list --agent-id abc123  # See specific agent's channels
-qwenpaw channels config                  # Configure default agent
-qwenpaw channels config --agent-id abc123 # Configure specific agent
+aiarb channels list                    # See default agent's channels
+aiarb channels list --agent-id abc123  # See specific agent's channels
+aiarb channels config                  # Configure default agent
+aiarb channels config --agent-id abc123 # Configure specific agent
 ```
 
 The interactive `config` flow lets you pick a channel, enable/disable it, and enter credentials. It loops until you choose "Save and exit".
@@ -339,7 +339,7 @@ The interactive `config` flow lets you pick a channel, enable/disable it, and en
 
 > Corresponding skill: **Channel Message**
 
-Use `qwenpaw channels send` to proactively push messages to users/sessions via any configured channel. This is a **one-way send** — no response expected.
+Use `aiarb channels send` to proactively push messages to users/sessions via any configured channel. This is a **one-way send** — no response expected.
 
 When agents have the **channel_message** skill enabled, they can automatically use this command to send proactive notifications when needed.
 
@@ -352,10 +352,10 @@ When agents have the **channel_message** skill enabled, they can automatically u
 
 ```bash
 # Step 1: Query available sessions
-qwenpaw chats list --agent-id my_bot --channel feishu
+aiarb chats list --agent-id my_bot --channel feishu
 
 # Step 2: Send message using queried parameters
-qwenpaw channels send \
+aiarb channels send \
   --agent-id my_bot \
   --channel feishu \
   --target-user ou_xxxx \
@@ -367,20 +367,20 @@ qwenpaw channels send \
 
 - `--agent-id`: Sending agent ID
 - `--channel`: Target channel (console/dingtalk/feishu/discord/imessage/qq)
-- `--target-user`: User ID (get from `qwenpaw chats list`)
-- `--target-session`: Session ID (get from `qwenpaw chats list`)
+- `--target-user`: User ID (get from `aiarb chats list`)
+- `--target-session`: Session ID (get from `aiarb chats list`)
 - `--text`: Message content
 
 **Important:**
 
-- Always query sessions with `qwenpaw chats list` first — do NOT guess `target-user` or `target-session`
+- Always query sessions with `aiarb chats list` first — do NOT guess `target-user` or `target-session`
 - If multiple sessions exist, prefer the most recently updated one
-- This is for proactive notifications only; for agent-to-agent communication, use `qwenpaw agents chat` (see "Agents" section below)
+- This is for proactive notifications only; for agent-to-agent communication, use `aiarb agents chat` (see "Agents" section below)
 
-**Key differences from `qwenpaw agents chat`:**
+**Key differences from `aiarb agents chat`:**
 
-- `qwenpaw channels send`: Agent-to-user/channel, one-way, no response
-- `qwenpaw agents chat`: Agent-to-agent, bidirectional, with response
+- `aiarb channels send`: Agent-to-user/channel, one-way, no response
+- `aiarb agents chat`: Agent-to-agent, bidirectional, with response
 
 ---
 
@@ -388,64 +388,64 @@ qwenpaw channels send \
 
 Manage agents and enable inter-agent communication.
 
-### qwenpaw agents
+### aiarb agents
 
 > Corresponding skill: **Multi-Agent Collaboration**
 
-When agents have the **multi_agent_collaboration** skill enabled, they can automatically use `qwenpaw agents chat` to collaborate with other agents as needed.
+When agents have the **multi_agent_collaboration** skill enabled, they can automatically use `aiarb agents chat` to collaborate with other agents as needed.
 
-**Alias:** You can use `qwenpaw agent` (singular) as a shorthand for `qwenpaw agents`.
+**Alias:** You can use `aiarb agent` (singular) as a shorthand for `aiarb agents`.
 
 | Command                 | What it does                                                                 |
 | ----------------------- | ---------------------------------------------------------------------------- |
-| `qwenpaw agents list`   | List all configured agents with their IDs, names, descriptions, workspaces   |
-| `qwenpaw agents create` | Create a new agent configuration and workspace locally                       |
-| `qwenpaw agents delete` | Delete a configured agent (stops it if running, removes from agent list)     |
-| `qwenpaw agents chat`   | Communicate with another agent (bidirectional, supports multi-turn dialogue) |
+| `aiarb agents list`   | List all configured agents with their IDs, names, descriptions, workspaces   |
+| `aiarb agents create` | Create a new agent configuration and workspace locally                       |
+| `aiarb agents delete` | Delete a configured agent (stops it if running, removes from agent list)     |
+| `aiarb agents chat`   | Communicate with another agent (bidirectional, supports multi-turn dialogue) |
 
 ```bash
 # List all agents
-qwenpaw agents list
-qwenpaw agent list  # Same with singular alias
+aiarb agents list
+aiarb agent list  # Same with singular alias
 
 # Create a new agent
-qwenpaw agents create --name "Data Analyst"
-qwenpaw agents create --name "Helper" --template coder --skill web_search --skill pdf_reader
-qwenpaw agents create --name "GPT Bot" --provider-id openai --model-id gpt-4
+aiarb agents create --name "Data Analyst"
+aiarb agents create --name "Helper" --template coder --skill web_search --skill pdf_reader
+aiarb agents create --name "GPT Bot" --provider-id openai --model-id gpt-4
 
 # Delete an agent (default agent cannot be deleted)
-qwenpaw agents delete my_agent
-qwenpaw agents delete my_agent --remove-workspace  # Also remove workspace directory
-qwenpaw agents delete my_agent --yes                # Skip confirmation
+aiarb agents delete my_agent
+aiarb agents delete my_agent --remove-workspace  # Also remove workspace directory
+aiarb agents delete my_agent --yes                # Skip confirmation
 
 # Chat with another agent (real-time mode, one-shot)
-qwenpaw agents chat \
+aiarb agents chat \
   --agent-id my_bot \
   --to-agent helper_bot \
   --text "Please analyze this data"
 
 # Multi-turn conversation (session reuse)
-qwenpaw agents chat \
+aiarb agents chat \
   --agent-id my_bot \
   --to-agent helper_bot \
   --session-id collab_session_001 \
   --text "Follow-up question"
 
 # Complex task (background mode)
-qwenpaw agents chat --background \
+aiarb agents chat --background \
   --agent-id my_bot \
   --to-agent data_analyst \
   --text "Analyze /data/logs/2026-03-26.log and generate detailed report"
 # Returns [TASK_ID: xxx] [SESSION: xxx]
 
 # Check background task status (--to-agent is optional when querying)
-qwenpaw agents chat --background \
+aiarb agents chat --background \
   --task-id <task_id>
 # Status flow: submitted → pending → running → finished
 # When finished, result shows: completed (✅) or failed (❌)
 
 # Stream mode (incremental response, real-time mode only)
-qwenpaw agents chat \
+aiarb agents chat \
   --agent-id my_bot \
   --to-agent helper_bot \
   --text "Long analysis task" \
@@ -493,30 +493,30 @@ When tasks are complex (e.g., data analysis, batch processing, report generation
 
 **Note:** You can use either `--from-agent` or `--agent-id` — they are equivalent. When checking task status, only `--task-id` is required (`--to-agent` is optional).
 
-**Key differences from `qwenpaw channels send`:**
+**Key differences from `aiarb channels send`:**
 
-- `qwenpaw agents chat`: Agent-to-agent, bidirectional, returns response
-- `qwenpaw channels send`: Agent-to-user/channel, one-way, no response
+- `aiarb agents chat`: Agent-to-agent, bidirectional, returns response
+- `aiarb channels send`: Agent-to-user/channel, one-way, no response
 
 ---
 
 ## Cron (scheduled tasks)
 
 Create jobs that run on a timed schedule — "every day at 9am", "every 2 hours
-ask QwenPaw and send the reply". **Requires `qwenpaw app` to be running.**
+ask AIArb and send the reply". **Requires `aiarb app` to be running.**
 
-### qwenpaw cron
+### aiarb cron
 
 | Command                        | What it does                                  |
 | ------------------------------ | --------------------------------------------- |
-| `qwenpaw cron list`            | List all jobs                                 |
-| `qwenpaw cron get <job_id>`    | Show a job's spec                             |
-| `qwenpaw cron state <job_id>`  | Show runtime state (next run, last run, etc.) |
-| `qwenpaw cron create ...`      | Create a job                                  |
-| `qwenpaw cron delete <job_id>` | Delete a job                                  |
-| `qwenpaw cron pause <job_id>`  | Pause a job                                   |
-| `qwenpaw cron resume <job_id>` | Resume a paused job                           |
-| `qwenpaw cron run <job_id>`    | Run once immediately                          |
+| `aiarb cron list`            | List all jobs                                 |
+| `aiarb cron get <job_id>`    | Show a job's spec                             |
+| `aiarb cron state <job_id>`  | Show runtime state (next run, last run, etc.) |
+| `aiarb cron create ...`      | Create a job                                  |
+| `aiarb cron delete <job_id>` | Delete a job                                  |
+| `aiarb cron pause <job_id>`  | Pause a job                                   |
+| `aiarb cron resume <job_id>` | Resume a paused job                           |
+| `aiarb cron run <job_id>`    | Run once immediately                          |
 
 **Multi-Agent Support:** All commands support the `--agent-id` parameter (defaults to `default`).
 
@@ -527,11 +527,11 @@ ask QwenPaw and send the reply". **Requires `qwenpaw app` to be running.**
 Two task types:
 
 - **text** — send a fixed message to a channel on schedule.
-- **agent** — ask QwenPaw a question on schedule and deliver the reply.
+- **agent** — ask AIArb a question on schedule and deliver the reply.
 
 ```bash
 # Text: send "Good morning!" to DingTalk every day at 9:00 (default agent)
-qwenpaw cron create \
+aiarb cron create \
   --type text \
   --schedule-type cron \
   --name "Daily 9am" \
@@ -542,7 +542,7 @@ qwenpaw cron create \
   --text "Good morning!"
 
 # Agent: create task for specific agent
-qwenpaw cron create \
+aiarb cron create \
   --agent-id abc123 \
   --type agent \
   --schedule-type cron \
@@ -554,7 +554,7 @@ qwenpaw cron create \
   --text "What are my todo items?"
 
 # Agent: run in the background without channel delivery
-qwenpaw cron create \
+aiarb cron create \
   --agent-id abc123 \
   --type agent \
   --schedule-type cron \
@@ -567,7 +567,7 @@ qwenpaw cron create \
   --silent
 
 # Scheduled one-time task (no repeat)
-qwenpaw cron create \
+aiarb cron create \
   --type text \
   --schedule-type scheduled \
   --name "One-time morning reminder" \
@@ -579,7 +579,7 @@ qwenpaw cron create \
   --save-result-to-inbox
 
 # Calendar-style task: start at a specific time, then repeat daily for 14 runs
-qwenpaw cron create \
+aiarb cron create \
   --type text \
   --schedule-type scheduled \
   --name "Two-week standup reminder" \
@@ -608,10 +608,10 @@ For repeating `scheduled` tasks, additionally pass:
 **Option 2 — JSON file (complex or batch)**
 
 ```bash
-qwenpaw cron create -f job_spec.json
+aiarb cron create -f job_spec.json
 ```
 
-JSON structure matches the output of `qwenpaw cron get <job_id>`.
+JSON structure matches the output of `aiarb cron get <job_id>`.
 
 ### Additional options
 
@@ -644,62 +644,62 @@ Five fields: **minute hour day month weekday** (no seconds).
 
 ## Chats (sessions)
 
-Manage chat sessions via the API. **Requires `qwenpaw app` to be running.**
+Manage chat sessions via the API. **Requires `aiarb app` to be running.**
 
-### qwenpaw chats
+### aiarb chats
 
-**Alias:** You can use `qwenpaw chat` (singular) as a shorthand for `qwenpaw chats`.
+**Alias:** You can use `aiarb chat` (singular) as a shorthand for `aiarb chats`.
 
 | Command                                  | What it does                                                  |
 | ---------------------------------------- | ------------------------------------------------------------- |
-| `qwenpaw chats list`                     | List all sessions (supports `--user-id`, `--channel` filters) |
-| `qwenpaw chats get <id>`                 | View a session's details and message history                  |
-| `qwenpaw chats create ...`               | Create a new session                                          |
-| `qwenpaw chats update <id> --name "..."` | Rename a session                                              |
-| `qwenpaw chats delete <id>`              | Delete a session                                              |
+| `aiarb chats list`                     | List all sessions (supports `--user-id`, `--channel` filters) |
+| `aiarb chats get <id>`                 | View a session's details and message history                  |
+| `aiarb chats create ...`               | Create a new session                                          |
+| `aiarb chats update <id> --name "..."` | Rename a session                                              |
+| `aiarb chats delete <id>`              | Delete a session                                              |
 
 **Multi-Agent Support:** All commands support the `--agent-id` parameter (defaults to `default`).
 
 ```bash
-qwenpaw chats list                        # Default agent's chats
-qwenpaw chats list --agent-id abc123      # Specific agent's chats
-qwenpaw chats list --user-id alice --channel dingtalk
-qwenpaw chats get 823845fe-dd13-43c2-ab8b-d05870602fd8
-qwenpaw chats create --session-id "discord:alice" --user-id alice --name "My Chat"
-qwenpaw chats create --agent-id abc123 -f chat.json
-qwenpaw chats update <chat_id> --name "Renamed"
-qwenpaw chats delete <chat_id>
+aiarb chats list                        # Default agent's chats
+aiarb chats list --agent-id abc123      # Specific agent's chats
+aiarb chats list --user-id alice --channel dingtalk
+aiarb chats get 823845fe-dd13-43c2-ab8b-d05870602fd8
+aiarb chats create --session-id "discord:alice" --user-id alice --name "My Chat"
+aiarb chats create --agent-id abc123 -f chat.json
+aiarb chats update <chat_id> --name "Renamed"
+aiarb chats delete <chat_id>
 ```
 
 ---
 
 ## Skills
 
-Extend QwenPaw's capabilities with skills (PDF reading, web search, etc.).
+Extend AIArb's capabilities with skills (PDF reading, web search, etc.).
 
-### qwenpaw skills
+### aiarb skills
 
 | Command                    | What it does                                              |
 | -------------------------- | --------------------------------------------------------- |
-| `qwenpaw skills install`   | Install a skill from a supported URL source               |
-| `qwenpaw skills uninstall` | Remove a skill from the skill pool or one agent workspace |
-| `qwenpaw skills list`      | Show all skills and their enabled/disabled status         |
-| `qwenpaw skills config`    | Interactively enable/disable skills (checkbox UI)         |
-| `qwenpaw skills info`      | Show local details for one workspace skill                |
+| `aiarb skills install`   | Install a skill from a supported URL source               |
+| `aiarb skills uninstall` | Remove a skill from the skill pool or one agent workspace |
+| `aiarb skills list`      | Show all skills and their enabled/disabled status         |
+| `aiarb skills config`    | Interactively enable/disable skills (checkbox UI)         |
+| `aiarb skills info`      | Show local details for one workspace skill                |
 
 **Multi-Agent Support:** All commands support the `--agent-id` parameter (defaults to `default`).
 
 ```bash
-qwenpaw skills install https://skills.sh/owner/repo/skill  # Import into the local skill pool
-qwenpaw skills install https://skills.sh/owner/repo/skill --agent-id abc123  # Import directly into a specific agent workspace
-qwenpaw skills uninstall skill-creator  # Remove from the local skill pool
-qwenpaw skills uninstall skill-creator --agent-id abc123  # Remove from a specific agent workspace
-qwenpaw skills list                   # See default agent's skills
-qwenpaw skills list --agent-id abc123 # See specific agent's skills
-qwenpaw skills config                 # Configure default agent
-qwenpaw skills config --agent-id abc123 # Configure specific agent
-qwenpaw skills info [skill_name]               # See default agent's skill details
-qwenpaw skills info [skill_name] --agent-id abc123 # See specific agent's skill details
+aiarb skills install https://skills.sh/owner/repo/skill  # Import into the local skill pool
+aiarb skills install https://skills.sh/owner/repo/skill --agent-id abc123  # Import directly into a specific agent workspace
+aiarb skills uninstall skill-creator  # Remove from the local skill pool
+aiarb skills uninstall skill-creator --agent-id abc123  # Remove from a specific agent workspace
+aiarb skills list                   # See default agent's skills
+aiarb skills list --agent-id abc123 # See specific agent's skills
+aiarb skills config                 # Configure default agent
+aiarb skills config --agent-id abc123 # Configure specific agent
+aiarb skills info [skill_name]               # See default agent's skill details
+aiarb skills info [skill_name] --agent-id abc123 # See specific agent's skill details
 ```
 
 In the interactive UI: ↑/↓ to navigate, Space to toggle, Enter to confirm.
@@ -711,43 +711,43 @@ A preview of changes is shown before applying.
 
 ## Maintenance
 
-### qwenpaw clean
+### aiarb clean
 
-Remove everything under the working directory (default `~/.qwenpaw`).
+Remove everything under the working directory (default `~/.aiarb`).
 
 ```bash
-qwenpaw clean             # Interactive confirmation
-qwenpaw clean --yes       # No confirmation
-qwenpaw clean --dry-run   # Only list what would be removed
+aiarb clean             # Interactive confirmation
+aiarb clean --yes       # No confirmation
+aiarb clean --dry-run   # Only list what would be removed
 ```
 
 ---
 
 ## Global options
 
-Every `qwenpaw` subcommand inherits:
+Every `aiarb` subcommand inherits:
 
 | Option          | Default     | Description                                      |
 | --------------- | ----------- | ------------------------------------------------ |
-| `--host`        | `127.0.0.1` | API host (auto-detected from last `qwenpaw app`) |
-| `--port`        | `8088`      | API port (auto-detected from last `qwenpaw app`) |
+| `--host`        | `127.0.0.1` | API host (auto-detected from last `aiarb app`) |
+| `--port`        | `8088`      | API port (auto-detected from last `aiarb app`) |
 | `-h` / `--help` |             | Show help message                                |
 
 If the server runs on a non-default address, pass these globally:
 
 ```bash
-qwenpaw --host 0.0.0.0 --port 9090 cron list
+aiarb --host 0.0.0.0 --port 9090 cron list
 ```
 
 ## Working directory
 
-All config and data live in `~/.qwenpaw` by default:
+All config and data live in `~/.aiarb` by default:
 
 - **Global config**: `config.json` (providers, environment variables, agent list)
 - **Agent workspaces**: `workspaces/{agent_id}/` (each agent's independent config and data)
 
 ```
-~/.qwenpaw/
+~/.aiarb/
 ├── config.json              # Global config
 └── workspaces/
     ├── default/             # Default agent workspace
@@ -762,8 +762,8 @@ All config and data live in `~/.qwenpaw` by default:
 
 | Variable              | Description                         |
 | --------------------- | ----------------------------------- |
-| `QWENPAW_WORKING_DIR` | Override the working directory path |
-| `QWENPAW_CONFIG_FILE` | Override the config file path       |
+| `AIARB_WORKING_DIR` | Override the working directory path |
+| `AIARB_CONFIG_FILE` | Override the config file path       |
 
 See [Config & Working Directory](./config) and [Multi-Agent](./multi-agent) for full details.
 
@@ -773,26 +773,26 @@ See [Config & Working Directory](./config) and [Multi-Agent](./multi-agent) for 
 
 | Command             | Subcommands                                                                          | Requires server? |
 | ------------------- | ------------------------------------------------------------------------------------ | :--------------: |
-| `qwenpaw init`      | —                                                                                    |        No        |
-| `qwenpaw app`       | —                                                                                    |  — (starts it)   |
-| `qwenpaw desktop`   | —                                                                                    |  — (starts it)   |
-| `qwenpaw doctor`    | `fix`                                                                                |        No        |
-| `qwenpaw daemon`    | `status` · `restart` · `reload-config` · `version` · `logs`                          |        No        |
-| `qwenpaw models`    | `list` · `config` · `config-key` · `set-llm` · `download` · `local` · `remove-local` |        No        |
-| `qwenpaw env`       | `list` · `set` · `delete`                                                            |        No        |
-| `qwenpaw channels`  | `list` · `send` · `install` · `add` · `remove` · `config`                            |     **Yes**      |
-| `qwenpaw agents`    | `list` · `create` · `delete` · `chat`                                                |    Partial ¹     |
-| `qwenpaw cron`      | `list` · `get` · `state` · `create` · `delete` · `pause` · `resume` · `run`          |     **Yes**      |
-| `qwenpaw chats`     | `list` · `get` · `create` · `update` · `delete`                                      |     **Yes**      |
-| `qwenpaw skills`    | `install` · `uninstall` · `list` · `config` · `info`                                 |        No        |
-| `qwenpaw task`      | —                                                                                    |        No        |
-| `qwenpaw auth`      | `reset-password`                                                                     |        No        |
-| `qwenpaw plugin`    | `install` · `list` · `info` · `uninstall` · `validate`                               |        No        |
-| `qwenpaw acp`       | —                                                                                    |        No        |
-| `qwenpaw clean`     | —                                                                                    |        No        |
-| `qwenpaw shutdown`  | —                                                                                    |        No        |
-| `qwenpaw update`    | —                                                                                    |        No        |
-| `qwenpaw uninstall` | —                                                                                    |        No        |
+| `aiarb init`      | —                                                                                    |        No        |
+| `aiarb app`       | —                                                                                    |  — (starts it)   |
+| `aiarb desktop`   | —                                                                                    |  — (starts it)   |
+| `aiarb doctor`    | `fix`                                                                                |        No        |
+| `aiarb daemon`    | `status` · `restart` · `reload-config` · `version` · `logs`                          |        No        |
+| `aiarb models`    | `list` · `config` · `config-key` · `set-llm` · `download` · `local` · `remove-local` |        No        |
+| `aiarb env`       | `list` · `set` · `delete`                                                            |        No        |
+| `aiarb channels`  | `list` · `send` · `install` · `add` · `remove` · `config`                            |     **Yes**      |
+| `aiarb agents`    | `list` · `create` · `delete` · `chat`                                                |    Partial ¹     |
+| `aiarb cron`      | `list` · `get` · `state` · `create` · `delete` · `pause` · `resume` · `run`          |     **Yes**      |
+| `aiarb chats`     | `list` · `get` · `create` · `update` · `delete`                                      |     **Yes**      |
+| `aiarb skills`    | `install` · `uninstall` · `list` · `config` · `info`                                 |        No        |
+| `aiarb task`      | —                                                                                    |        No        |
+| `aiarb auth`      | `reset-password`                                                                     |        No        |
+| `aiarb plugin`    | `install` · `list` · `info` · `uninstall` · `validate`                               |        No        |
+| `aiarb acp`       | —                                                                                    |        No        |
+| `aiarb clean`     | —                                                                                    |        No        |
+| `aiarb shutdown`  | —                                                                                    |        No        |
+| `aiarb update`    | —                                                                                    |        No        |
+| `aiarb uninstall` | —                                                                                    |        No        |
 
 ¹ `create` does not require server; `list`, `delete`, and `chat` require server.
 
@@ -800,7 +800,7 @@ See [Config & Working Directory](./config) and [Multi-Agent](./multi-agent) for 
 
 ## Related pages
 
-- [Introduction](./intro) — What QwenPaw can do
+- [Introduction](./intro) — What AIArb can do
 - [Console](./console) — Web-based management UI
 - [Channels](./channels) — DingTalk, Feishu, iMessage, Discord, QQ setup
 - [Heartbeat](./heartbeat) — Scheduled check-in / digest

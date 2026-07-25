@@ -1,2 +1,2 @@
 # Include built-in agent templates
-recursive-include src/qwenpaw/builtins *
+recursive-include src/aiarb/builtins *

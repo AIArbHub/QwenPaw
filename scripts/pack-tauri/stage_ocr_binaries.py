@@ -80,7 +80,7 @@ def _get_latest_release_url(repo: str, asset_pattern: str) -> str:
     for attempt in range(3):
         try:
             req = urllib.request.Request(
-                api_url, headers={"User-Agent": "QwenPaw-Build/1.0"}
+                api_url, headers={"User-Agent": "AIArb-Build/1.0"}
             )
             token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
             if token:
@@ -108,7 +108,7 @@ def _get_latest_release_url(repo: str, asset_pattern: str) -> str:
 def _download(url: str, dest: Path) -> Path:
     """Download a file with progress indication."""
     print(f"  Downloading: {url}")
-    req = urllib.request.Request(url, headers={"User-Agent": "QwenPaw-Build/1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent": "AIArb-Build/1.0"})
     with urllib.request.urlopen(req, timeout=120) as resp, open(dest, "wb") as f:
         total = int(resp.headers.get("Content-Length", 0))
         downloaded = 0

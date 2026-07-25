@@ -1,7 +1,7 @@
 import sys
 
 # Step 1: Add `documents` field to root Config class in config.py
-config_path = r"d:\BaiduSyncdisk\Project\QwenPaw\src\qwenpaw\config\config.py"
+config_path = r"d:\BaiduSyncdisk\Project\AIArb\src\aiarb\config\config.py"
 with open(config_path, "r", encoding="utf-8") as f:
     content = f.read()
 
@@ -25,7 +25,7 @@ else:
         print("  -> documents field already present in Config class")
 
 # Step 2: Fix _get_parser() in knowledge.py to read from config.documents.parser
-knowledge_path = r"d:\BaiduSyncdisk\Project\QwenPaw\src\qwenpaw\app\routers\knowledge.py"
+knowledge_path = r"d:\BaiduSyncdisk\Project\AIArb\src\aiarb\app\routers\knowledge.py"
 with open(knowledge_path, "r", encoding="utf-8") as f:
     content = f.read()
 

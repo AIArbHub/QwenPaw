@@ -149,14 +149,14 @@ def _normalize_ver(raw: str) -> str:
 
 
 def get_version(manifest: dict[str, Any]) -> dict[str, str] | None:
-    """Return a normalized ``qwenpaw_version`` for CDN metadata.
+    """Return a normalized ``aiarb_version`` for CDN metadata.
 
     Strategy:
       1. If the manifest already provides the structured
-         ``qwenpaw_version`` field, return it directly — the plugin
+         ``aiarb_version`` field, return it directly — the plugin
          explicitly declares its compatibility.
       2. For legacy plugins that only declare ``min_version`` /
-         ``max_version``, synthesize a proper ``qwenpaw_version`` dict
+         ``max_version``, synthesize a proper ``aiarb_version`` dict
          with ``min`` and/or ``max`` keys so downstream consumers
          (e.g. ``_is_entry_compatible``) always see a consistent
          structure.
@@ -165,11 +165,11 @@ def get_version(manifest: dict[str, Any]) -> dict[str, str] | None:
     Returns ``None`` when no version constraint is declared.
     """
     # --- Case 1: structured field available, use directly ---
-    qwenpaw_version = manifest.get("qwenpaw_version")
-    if isinstance(qwenpaw_version, dict):
+    aiarb_version = manifest.get("aiarb_version")
+    if isinstance(aiarb_version, dict):
         return {
             k: _normalize_ver(str(v))
-            for k, v in qwenpaw_version.items()
+            for k, v in aiarb_version.items()
             if k in ("min", "max")
         }
 
@@ -218,7 +218,7 @@ def _build_metadata(
 
     version_constraint = get_version(manifest)
     if version_constraint:
-        metadata["qwenpaw_version"] = version_constraint
+        metadata["aiarb_version"] = version_constraint
 
     return metadata
 

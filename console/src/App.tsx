@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "antd-style";
+﻿import { createGlobalStyle } from "antd-style";
 import {
   ConfigProvider,
   bailianDarkTheme,
@@ -199,8 +199,8 @@ function AppInner() {
       <GlobalStyle />
       <ConfigProvider
         {...selectedTheme}
-        prefix="qwenpaw"
-        prefixCls="qwenpaw"
+        prefix="aiarb"
+        prefixCls="aiarb"
         locale={antdLocale}
         theme={{
           ...(selectedTheme as any)?.theme,

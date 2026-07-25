@@ -1,4 +1,4 @@
-/**
+﻿/**
  * AgentDetailDrawer — Full-width drawer for detailed agent configuration.
  *
  * Replaces the simple AgentModal for "edit" flows. Provides tabs for:
@@ -9,6 +9,7 @@
  * The original AgentModal is kept for quick-create flows.
  */
 import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Drawer,
   Tabs,
@@ -22,6 +23,7 @@ import {
   Spin,
   Checkbox,
   Switch,
+  Modal,
   message as antMessage,
 } from "antd";
 import {
@@ -33,13 +35,15 @@ import {
   HeartOutlined,
   ThunderboltOutlined,
   FolderViewOutlined,
+  ShopOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { browseFolder } from "@/utils/browseFolder";
 import type { AgentSummary } from "@/api/types/agents";
 import type { ProviderInfo } from "@/api/types/provider";
 import { getAgentDisplayName } from "@/utils/agentDisplayName";
-import type { PoolSkillSpec } from "@/api/types/skill";
+import type { PoolSkillSpec, SkillSpec } from "@/api/types/skill";
 import type { WorkDirConfig, MarkdownFile } from "@/api/types/workspace";
 import { skillApi } from "@/api/modules/skill";
 import { providerApi } from "@/api/modules/provider";
@@ -47,6 +51,7 @@ import { agentsApi } from "@/api/modules/agents";
 import { workspaceApi } from "@/api/modules/workspace";
 import { providerIcon } from "../../Models/components/providerIcon";
 import { PersonaVisualEditor } from "@/pages/Agent/Workspace/components/PersonaVisualEditor";
+import { ImportHubModal } from "@/pages/Agent/Skills/components";
 import {
   ModeSwitcher,
   getStoredEditMode,
@@ -56,7 +61,7 @@ import {
 import styles from "../index.module.less";
 import { CoreConfigExpertPanel } from "./CoreConfigExpertPanel";
 
-const DEFAULT_AVATAR = "/ai-arb-avatar.svg";
+const DEFAULT_AVATAR = "/aiarb-avatar.svg";
 const { Text } = Typography;
 
 interface EligibleProvider {
@@ -81,12 +86,16 @@ export function AgentDetailDrawer({
   onUpdated,
 }: AgentDetailDrawerProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const [activeTab, setActiveTab] = useState("basic");
   const [poolSkills, setPoolSkills] = useState<PoolSkillSpec[]>([]);
   const [installedSkills, setInstalledSkills] = useState<string[]>([]);
+  const [installedSkillDetails, setInstalledSkillDetails] = useState<SkillSpec[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [loadingSkills, setLoadingSkills] = useState(false);
+  const [hubImportOpen, setHubImportOpen] = useState(false);
+  const [hubImporting, setHubImporting] = useState(false);
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -175,6 +184,8 @@ export function AgentDetailDrawer({
     Promise.all([fetchPool, fetchInstalled])
       .then(([pool, workspaceSkills]) => {
         const poolSkillNames = new Set(pool.map((skill) => skill.name));
+        // Store ALL installed skills (including those from hub/market, not just pool)
+        setInstalledSkillDetails(workspaceSkills);
         const installed = workspaceSkills
           .filter((skill) => poolSkillNames.has(skill.name))
           .map((skill) => skill.name);
@@ -422,6 +433,118 @@ export function AgentDetailDrawer({
   const onSelectedSkillsChange = useCallback((skills: string[]) => {
     setSelectedSkills(skills);
   }, []);
+
+  // Navigate to the full Agent Skills page for advanced management
+  const handleNavigateToSkillsPage = () => {
+    if (!agent) return;
+    onClose();
+    navigate(`/agent/skills?agent=${encodeURIComponent(agent.id)}`);
+  };
+
+  // Install a skill from the hub/market to this agent
+  const handleHubImport = async (url: string, targetName?: string) => {
+    if (!agent) return;
+    setHubImporting(true);
+    try {
+      const task = await skillApi.startHubSkillInstall(
+        {
+          bundle_url: url,
+          enable: true,
+          target_name: targetName,
+        },
+        agent.id,
+      );
+      // Poll for completion
+      let completed = false;
+      for (let i = 0; i < 60; i++) {
+        await new Promise((r) => setTimeout(r, 1500));
+        const status = await skillApi.getHubSkillInstallStatus(
+          task.task_id,
+          agent.id,
+        );
+        if (status.status === "completed") {
+          completed = true;
+          break;
+        }
+        if (status.status === "failed" || status.status === "cancelled") {
+          throw new Error(
+            status.error || t("skills.importFailed"),
+          );
+        }
+      }
+      if (!completed) {
+        antMessage.warning(t("skills.importTimeout"));
+      } else {
+        antMessage.success(t("skills.importSuccess"));
+        // Refresh installed skills
+        const workspaceSkills = await skillApi.listSkills(agent.id);
+        setInstalledSkillDetails(workspaceSkills);
+        const poolSkillNames = new Set(poolSkills.map((s) => s.name));
+        const installed = workspaceSkills
+          .filter((s) => poolSkillNames.has(s.name))
+          .map((s) => s.name);
+        setInstalledSkills(installed);
+        installedSkillsRef.current = installed;
+        setSelectedSkills(installed);
+      }
+      setHubImportOpen(false);
+    } catch (error: any) {
+      antMessage.error(error.message || t("skills.importFailed"));
+    } finally {
+      setHubImporting(false);
+    }
+  };
+
+  // Toggle an installed skill's enabled state
+  const handleToggleSkillEnabled = async (skillName: string) => {
+    if (!agent) return;
+    const skill = installedSkillDetails.find((s) => s.name === skillName);
+    if (!skill) return;
+    try {
+      if (skill.enabled) {
+        await skillApi.disableSkill(skillName);
+      } else {
+        await skillApi.enableSkill(skillName);
+      }
+      // Update local state
+      setInstalledSkillDetails((prev) =>
+        prev.map((s) =>
+          s.name === skillName ? { ...s, enabled: !s.enabled } : s,
+        ),
+      );
+      antMessage.success(t("common.operationSuccess"));
+    } catch (error: any) {
+      antMessage.error(error.message || t("common.operationFailed"));
+    }
+  };
+
+  // Remove a skill from the agent's workspace
+  const handleRemoveSkill = async (skillName: string) => {
+    if (!agent) return;
+    Modal.confirm({
+      title: t("skills.confirmDelete"),
+      content: t("skills.confirmDeleteDesc", { name: skillName }),
+      okText: t("common.delete"),
+      okButtonProps: { danger: true },
+      cancelText: t("common.cancel"),
+      onOk: async () => {
+        try {
+          await skillApi.deleteSkill(skillName);
+          setInstalledSkillDetails((prev) =>
+            prev.filter((s) => s.name !== skillName),
+          );
+          setInstalledSkills((prev) => prev.filter((n) => n !== skillName));
+          installedSkillsRef.current = installedSkillsRef.current.filter(
+            (n) => n !== skillName,
+          );
+          setSelectedSkills((prev) => prev.filter((n) => n !== skillName));
+          antMessage.success(t("skills.deleteSuccess"));
+        } catch (error: any) {
+          antMessage.error(error.message || t("skills.deleteFailed"));
+        }
+      },
+    });
+  };
 
   const handleWorkDirToggle = async (enabled: boolean) => {
     if (!agent) return;
@@ -819,6 +942,87 @@ export function AgentDetailDrawer({
       ),
       children: (
         <div>
+          {/* Action buttons */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 12,
+            }}
+          >
+            <Text type="secondary" style={{ fontSize: 13 }}>
+              {t("agent.skillsManagementHint")}
+            </Text>
+            <Space size={4}>
+              <Button
+                size="small"
+                icon={<ShopOutlined />}
+                onClick={() => setHubImportOpen(true)}
+              >
+                {t("agent.importFromMarket")}
+              </Button>
+              <Button
+                size="small"
+                icon={<SettingOutlined />}
+                onClick={handleNavigateToSkillsPage}
+              >
+                {t("agent.fullSkillsManagement")}
+              </Button>
+            </Space>
+          </div>
+
+          {/* Installed skills section */}
+          {installedSkillDetails.length > 0 && (
+            <div style={{ marginBottom: 16 }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  marginBottom: 8,
+                  color: "rgba(20,20,19,0.85)",
+                }}
+              >
+                {t("agent.installedSkills")} ({installedSkillDetails.length})
+              </div>
+              <div className={styles.pickerGrid}>
+                {installedSkillDetails.map((skill) => (
+                  <div
+                    key={skill.name}
+                    className={`${styles.pickerCard} ${styles.pickerCardInstalled}`}
+                  >
+                    <div className={styles.pickerCardTitle}>
+                      {skill.emoji} {skill.display_name || skill.name}
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        marginTop: 4,
+                      }}
+                    >
+                      <Switch
+                        size="small"
+                        checked={skill.enabled !== false}
+                        onChange={() => handleToggleSkillEnabled(skill.name)}
+                      />
+                      <DeleteOutlined
+                        style={{
+                          fontSize: 13,
+                          color: "rgba(20,20,19,0.45)",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => handleRemoveSkill(skill.name)}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Pool skills section */}
           <div
             style={{
               display: "flex",
@@ -828,7 +1032,7 @@ export function AgentDetailDrawer({
             }}
           >
             <Text type="secondary" style={{ fontSize: 13 }}>
-              {t("agent.addSkillsToAgent")}
+              {t("agent.addSkillsFromPool")}
             </Text>
             <Space size={4}>
               <Button size="small" type="primary" onClick={handleSelectAll}>
@@ -871,13 +1075,21 @@ export function AgentDetailDrawer({
                       </span>
                     )}
                     <div className={styles.pickerCardTitle}>
-                      {skill.display_name || skill.name}
+                      {skill.emoji} {skill.display_name || skill.name}
                     </div>
                   </div>
                 );
               })}
             </div>
           )}
+
+          {/* Hub import modal */}
+          <ImportHubModal
+            open={hubImportOpen}
+            importing={hubImporting}
+            onCancel={() => setHubImportOpen(false)}
+            onConfirm={handleHubImport}
+          />
         </div>
       ),
     },

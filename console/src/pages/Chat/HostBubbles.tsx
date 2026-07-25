@@ -1,6 +1,6 @@
-/**
+﻿/**
  * pages/Chat/HostBubbles.tsx — host-side wrappers around the vendor's
- * AgentScopeRuntime{Request,Response}Card components.
+ * AIArbRuntime{Request,Response}Card components.
  *
  * Why wrappers:
  * - Plugin extensions (chat.request.render / prepend / append and the

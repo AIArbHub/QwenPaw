@@ -1,10 +1,10 @@
-# Security
+﻿# Security
 
-QwenPaw includes built-in security features to protect your agent from malicious inputs and unsafe skills. These are configured in the Console under **Settings → Security**, or via `config.json`.
+AIArb includes built-in security features to protect your agent from malicious inputs and unsafe skills. These are configured in the Console under **Settings → Security**, or via `config.json`.
 
 ## Overview
 
-QwenPaw's security system consists of five core security layers:
+AIArb's security system consists of five core security layers:
 
 ```
 Security Architecture:
@@ -88,7 +88,7 @@ In `config.json`:
 
 | Field                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`              | Enable or disable Tool Guard entirely. Can also be set via the `QWENPAW_TOOL_GUARD_ENABLED` environment variable (takes precedence).                                                                                                                                                                                                                                                                                                  |
+| `enabled`              | Enable or disable Tool Guard entirely. Can also be set via the `AIARB_TOOL_GUARD_ENABLED` environment variable (takes precedence).                                                                                                                                                                                                                                                                                                  |
 | `guarded_tools`        | Specify guard scope:<br>• `null` (default) — guard all built-in tools<br>• `[]` — guard nothing<br>• `["tool_a", "tool_b"]` — guard only listed tools                                                                                                                                                                                                                                                                                 |
 | `denied_tools`         | Tools that are always blocked regardless of parameters.                                                                                                                                                                                                                                                                                                                                                                               |
 | `custom_rules`         | User-defined regex rules (see format below).                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -295,7 +295,7 @@ File Guard operates as the "File Path Guardian" within the Tool Guard engine, wo
 4. **Recursive directory protection** — Paths ending with `/` are treated as directories; all files and subdirectories within are recursively blocked
 5. **Blocking mechanism** — When a match is found, the tool call is blocked with a HIGH-severity finding
 
-**Default protection**: The `{WORKING_DIR}.secret/` directory (which stores API keys, authentication credentials, and provider configurations) is included in the sensitive-file list by default. By default, `WORKING_DIR` is `~/.qwenpaw/`, making the full path `~/.qwenpaw.secret/`.
+**Default protection**: The `{WORKING_DIR}.secret/` directory (which stores API keys, authentication credentials, and provider configurations) is included in the sensitive-file list by default. By default, `WORKING_DIR` is `~/.aiarb/`, making the full path `~/.aiarb.secret/`.
 
 ### Configuration
 
@@ -306,7 +306,7 @@ In `config.json`:
   "security": {
     "file_guard": {
       "enabled": true,
-      "sensitive_files": ["~/.ssh/", "/etc/passwd", "~/.qwenpaw.secret/"]
+      "sensitive_files": ["~/.ssh/", "/etc/passwd", "~/.aiarb.secret/"]
     }
   }
 }
@@ -371,7 +371,7 @@ Even if a command passes Tool Guard and File Guard checks, the sandbox ensures i
 
 ### Supported platforms
 
-QwenPaw automatically detects the best available sandbox backend on startup:
+AIArb automatically detects the best available sandbox backend on startup:
 
 | Platform | Backend                                      | Mechanism                                              | Detection                                        |
 | -------- | -------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------ |
@@ -434,7 +434,7 @@ Sandbox configuration is compiled automatically by the governance policy engine.
 
 ### Violation detection
 
-When a sandboxed command attempts to access a path outside its allowed view, the OS kernel blocks the operation. QwenPaw detects these violations by matching stderr patterns:
+When a sandboxed command attempts to access a path outside its allowed view, the OS kernel blocks the operation. AIArb detects these violations by matching stderr patterns:
 
 | Platform         | Detection patterns                                                                       |
 | ---------------- | ---------------------------------------------------------------------------------------- |
@@ -483,13 +483,13 @@ cat /proc/sys/kernel/unprivileged_userns_clone
 bwrap --ro-bind / / --dev /dev --unshare-user --unshare-pid --proc /proc -- /bin/echo OK
 ```
 
-If user namespaces are disabled (Docker containers, some hardened kernels), QwenPaw automatically falls back to Landlock.
+If user namespaces are disabled (Docker containers, some hardened kernels), AIArb automatically falls back to Landlock.
 
 **Windows: AppContainer ACL setup failed**
 
 AppContainer (`allow_read_all=False`) requires administrator privileges for `icacls` ACL operations. If you see warnings about failed ACL setup:
 
-1. Run QwenPaw as administrator (right-click → Run as administrator)
+1. Run AIArb as administrator (right-click → Run as administrator)
 2. Verify `icacls.exe` is on your PATH (ships with all Windows editions)
 3. Use `scripts/cleanup_windows_sandbox.py` to remove stale AppContainer profiles and ACLs
 
@@ -497,12 +497,12 @@ AppContainer (`allow_read_all=False`) requires administrator privileges for `ica
 
 Restricted_token (`allow_read_all=True`) requires administrator privileges for creating the dedicated local user account and managing WFP firewall rules. If you see errors about user creation or firewall setup:
 
-1. Run QwenPaw as administrator (right-click → Run as administrator)
+1. Run AIArb as administrator (right-click → Run as administrator)
 2. Use `scripts/cleanup_windows_sandbox.py` to remove stale sandbox users and firewall rules
 
 **Windows: Minimum version not met**
 
-Both Windows sandbox backends require Windows 10 (build 10240) or later. If you see `"AppContainer requires Windows 10+"` in the probe output, you are running an unsupported Windows version. Upgrade to Windows 10 or later to use sandbox isolation. On older systems, QwenPaw falls back to `mode=none` (no kernel isolation).
+Both Windows sandbox backends require Windows 10 (build 10240) or later. If you see `"AppContainer requires Windows 10+"` in the probe output, you are running an unsupported Windows version. Upgrade to Windows 10 or later to use sandbox isolation. On older systems, AIArb falls back to `mode=none` (no kernel isolation).
 
 **Windows: ACL grant fails on system directories (e.g. Program Files)**
 
@@ -510,7 +510,7 @@ If you see `icacls` warnings for paths like `C:\Program Files` or `C:\Windows`, 
 
 **Verifying sandbox is active**
 
-Check the governance log (`qwenpaw.log`) for lines containing:
+Check the governance log (`aiarb.log`) for lines containing:
 
 ```
 governance decision: tool=Bash target="..." action=sandbox_fallback sandbox=bubblewrap ...
@@ -549,7 +549,7 @@ The **Skill Scanner** automatically scans skills for security threats before the
 | **Warn**  | Scan and record findings, but allow the skill to proceed. Shows warning notification and logs to Scan Alerts. (default) |
 | **Off**   | Disable scanning entirely; all skills pass through directly.                                                            |
 
-**Configuration priority**: Environment variable `QWENPAW_SKILL_SCAN_MODE` > Console settings > `config.json`
+**Configuration priority**: Environment variable `AIARB_SKILL_SCAN_MODE` > Console settings > `config.json`
 
 Valid values: `block`, `warn`, `off`
 
@@ -627,11 +627,11 @@ In the Console under **Settings → Security → Skill Scanner** tab, you can:
 
 For scenarios requiring deep customization, the scanner supports programmatic configuration:
 
-The scanner uses YAML rule files in `src/qwenpaw/security/skill_scanner/rules/signatures/`. You can customize the scan policy via a YAML policy file:
+The scanner uses YAML rule files in `src/aiarb/security/skill_scanner/rules/signatures/`. You can customize the scan policy via a YAML policy file:
 
 ```python
-from qwenpaw.security.skill_scanner import SkillScanner
-from qwenpaw.security.skill_scanner.scan_policy import ScanPolicy
+from aiarb.security.skill_scanner import SkillScanner
+from aiarb.security.skill_scanner.scan_policy import ScanPolicy
 
 policy = ScanPolicy.from_yaml("my_org_policy.yaml")
 scanner = SkillScanner(policy=policy)
@@ -886,7 +886,7 @@ Here's a complete `config.json` with all security features configured:
       "enabled": true,
       "sensitive_files": [
         "~/.ssh/",
-        "~/.qwenpaw.secret/",
+        "~/.aiarb.secret/",
         "/etc/passwd",
         "/etc/shadow",
         ".env",
@@ -912,13 +912,13 @@ Here's a complete `config.json` with all security features configured:
 
 ## Web Authentication
 
-QwenPaw supports optional web login authentication to protect the Console from unauthorized access. Authentication is **disabled by default** and must be explicitly enabled via the `QWENPAW_AUTH_ENABLED` environment variable.
+AIArb supports optional web login authentication to protect the Console from unauthorized access. Authentication is **disabled by default** and must be explicitly enabled via the `AIARB_AUTH_ENABLED` environment variable.
 
 ![login](https://img.alicdn.com/imgextra/i1/O1CN01wh3Sv01SxPEXpb6Wj_!!6000000002313-2-tps-3822-2070.png)
 
 ### How it works
 
-1. **Enable authentication** — Set `QWENPAW_AUTH_ENABLED=true` and start QwenPaw
+1. **Enable authentication** — Set `AIARB_AUTH_ENABLED=true` and start AIArb
 2. **Registration flow**:
    - On first visit, the Console shows a **registration page**
    - Create the single admin account (username + password)
@@ -928,10 +928,10 @@ QwenPaw supports optional web login authentication to protect the Console from u
    - After entering credentials, a signed token is generated (valid for 7 days)
    - Token is stored in browser localStorage and automatically attached to all API requests
 4. **Auto-registration** (optional):
-   - Set `QWENPAW_AUTH_USERNAME` and `QWENPAW_AUTH_PASSWORD` environment variables
-   - QwenPaw automatically creates the admin account on startup, skipping web registration
+   - Set `AIARB_AUTH_USERNAME` and `AIARB_AUTH_PASSWORD` environment variables
+   - AIArb automatically creates the admin account on startup, skipping web registration
    - Useful for Docker, Kubernetes, server management panels, and other automated deployments
-5. **Localhost bypass** — Requests from localhost (`127.0.0.1` / `::1`) automatically skip authentication; CLI commands (`qwenpaw app`, `qwenpaw chat`, etc.) work without a token
+5. **Localhost bypass** — Requests from localhost (`127.0.0.1` / `::1`) automatically skip authentication; CLI commands (`aiarb app`, `aiarb chat`, etc.) work without a token
 
 **Security features**:
 
@@ -944,9 +944,9 @@ QwenPaw supports optional web login authentication to protect the Console from u
 
 | Variable                | Description                                  | Required |
 | ----------------------- | -------------------------------------------- | -------- |
-| `QWENPAW_AUTH_ENABLED`  | Set to `true` to enable authentication       | **Yes**  |
-| `QWENPAW_AUTH_USERNAME` | Pre-set admin username for auto-registration | Optional |
-| `QWENPAW_AUTH_PASSWORD` | Pre-set admin password for auto-registration | Optional |
+| `AIARB_AUTH_ENABLED`  | Set to `true` to enable authentication       | **Yes**  |
+| `AIARB_AUTH_USERNAME` | Pre-set admin username for auto-registration | Optional |
+| `AIARB_AUTH_PASSWORD` | Pre-set admin password for auto-registration | Optional |
 
 ### Auth-bypass host whitelist
 
@@ -970,8 +970,8 @@ This can also be managed from the Console under **Settings → Security**.
 
 **Configuration notes**:
 
-- `QWENPAW_AUTH_ENABLED=true` is the only required variable to enable authentication
-- `QWENPAW_AUTH_USERNAME` and `QWENPAW_AUTH_PASSWORD` are used together:
+- `AIARB_AUTH_ENABLED=true` is the only required variable to enable authentication
+- `AIARB_AUTH_USERNAME` and `AIARB_AUTH_PASSWORD` are used together:
   - Both set → Auto-creates admin account on startup (for automated deployments)
   - Not set or only one set → Register via web UI on first visit (interactive deployments)
 - If a user is already registered, auto-registration environment variables are ignored
@@ -986,14 +986,14 @@ Set environment variables before starting:
 
 ```bash
 # Basic enable (web registration)
-export QWENPAW_AUTH_ENABLED=true
-qwenpaw app
+export AIARB_AUTH_ENABLED=true
+aiarb app
 
 # Or: Auto-registration mode
-export QWENPAW_AUTH_ENABLED=true
-export QWENPAW_AUTH_USERNAME=admin
-export QWENPAW_AUTH_PASSWORD=mypassword
-qwenpaw app
+export AIARB_AUTH_ENABLED=true
+export AIARB_AUTH_USERNAME=admin
+export AIARB_AUTH_PASSWORD=mypassword
+aiarb app
 ```
 
 To make it permanent, add the `export` lines to your `~/.bashrc`, `~/.zshrc`, or equivalent.
@@ -1001,21 +1001,21 @@ To make it permanent, add the `export` lines to your `~/.bashrc`, `~/.zshrc`, or
 **Windows (CMD):**
 
 ```cmd
-set QWENPAW_AUTH_ENABLED=true
+set AIARB_AUTH_ENABLED=true
 rem Optional: auto-registration
-rem set QWENPAW_AUTH_USERNAME=admin
-rem set QWENPAW_AUTH_PASSWORD=mypassword
-qwenpaw app
+rem set AIARB_AUTH_USERNAME=admin
+rem set AIARB_AUTH_PASSWORD=mypassword
+aiarb app
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-$env:QWENPAW_AUTH_ENABLED = "true"
+$env:AIARB_AUTH_ENABLED = "true"
 # Optional: auto-registration
-# $env:QWENPAW_AUTH_USERNAME = "admin"
-# $env:QWENPAW_AUTH_PASSWORD = "mypassword"
-qwenpaw app
+# $env:AIARB_AUTH_USERNAME = "admin"
+# $env:AIARB_AUTH_PASSWORD = "mypassword"
+aiarb app
 ```
 
 #### Docker
@@ -1023,34 +1023,34 @@ qwenpaw app
 Pass environment variables with `-e` (recommended with auto-registration):
 
 ```bash
-docker run -e QWENPAW_AUTH_ENABLED=true \
-  -e QWENPAW_AUTH_USERNAME=admin \
-  -e QWENPAW_AUTH_PASSWORD=mypassword \
+docker run -e AIARB_AUTH_ENABLED=true \
+  -e AIARB_AUTH_USERNAME=admin \
+  -e AIARB_AUTH_PASSWORD=mypassword \
   -p 127.0.0.1:8088:8088 \
-  -v qwenpaw-data:/app/working \
-  -v qwenpaw-secrets:/app/working.secret \
-  -v qwenpaw-backups:/app/working.backups \
-  agentscope/qwenpaw:latest
+  -v aiarb-data:/app/working \
+  -v aiarb-secrets:/app/working.secret \
+  -v aiarb-backups:/app/working.backups \
+  aiarb/aiarb:latest
 ```
 
-> **Tip**: To skip auto-registration, remove `QWENPAW_AUTH_USERNAME` and `QWENPAW_AUTH_PASSWORD` and register via browser on first visit.
+> **Tip**: To skip auto-registration, remove `AIARB_AUTH_USERNAME` and `AIARB_AUTH_PASSWORD` and register via browser on first visit.
 
 #### docker-compose.yml
 
 ```yaml
 services:
-  qwenpaw:
-    image: agentscope/qwenpaw:latest
+  aiarb:
+    image: aiarb/aiarb:latest
     ports:
       - "127.0.0.1:8088:8088"
     environment:
-      - QWENPAW_AUTH_ENABLED=true
-      - QWENPAW_AUTH_USERNAME=admin
-      - QWENPAW_AUTH_PASSWORD=mypassword
+      - AIARB_AUTH_ENABLED=true
+      - AIARB_AUTH_USERNAME=admin
+      - AIARB_AUTH_PASSWORD=mypassword
     volumes:
-      - qwenpaw-data:/app/working
-      - qwenpaw-secrets:/app/working.secret
-      - qwenpaw-backups:/app/working.backups
+      - aiarb-data:/app/working
+      - aiarb-secrets:/app/working.secret
+      - aiarb-backups:/app/working.backups
 ```
 
 #### Environment file (.env)
@@ -1058,24 +1058,24 @@ services:
 You can also use a `.env` file:
 
 ```
-QWENPAW_AUTH_ENABLED=true
-QWENPAW_AUTH_USERNAME=admin
-QWENPAW_AUTH_PASSWORD=mypassword
+AIARB_AUTH_ENABLED=true
+AIARB_AUTH_USERNAME=admin
+AIARB_AUTH_PASSWORD=mypassword
 ```
 
-Then pass it to Docker with `--env-file .env`, or source it in your shell before running `qwenpaw app`.
+Then pass it to Docker with `--env-file .env`, or source it in your shell before running `aiarb app`.
 
 ### Disable authentication
 
-Remove or unset the environment variable and restart QwenPaw:
+Remove or unset the environment variable and restart AIArb:
 
 ```bash
 # Linux / macOS
-unset QWENPAW_AUTH_ENABLED
-qwenpaw app
+unset AIARB_AUTH_ENABLED
+aiarb app
 
 # Docker — simply remove the -e flag. The example below includes volumes for persistence.
-docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working -v qwenpaw-secrets:/app/working.secret -v qwenpaw-backups:/app/working.backups agentscope/qwenpaw:latest
+docker run -p 127.0.0.1:8088:8088 -v aiarb-data:/app/working -v aiarb-secrets:/app/working.secret -v aiarb-backups:/app/working.backups aiarb/aiarb:latest
 ```
 
 ### Password reset
@@ -1083,7 +1083,7 @@ docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working -v qwenpaw-secret
 If you forget your password, use the CLI to reset:
 
 ```bash
-qwenpaw auth reset-password
+aiarb auth reset-password
 ```
 
 This command will:
@@ -1095,7 +1095,7 @@ This command will:
 **Docker deployments**:
 
 ```bash
-docker exec -it <container_name> qwenpaw auth reset-password
+docker exec -it <container_name> aiarb auth reset-password
 ```
 
 **Alternative approach**:
@@ -1104,9 +1104,9 @@ To completely reset the authentication system:
 
 ```bash
 # Delete the auth file
-rm ~/.qwenpaw.secret/auth.json  # or $WORKING_DIR.secret/auth.json
-# Restart QwenPaw; re-register on next visit
-qwenpaw app
+rm ~/.aiarb.secret/auth.json  # or $WORKING_DIR.secret/auth.json
+# Restart AIArb; re-register on next visit
+aiarb app
 ```
 
 ### Logout

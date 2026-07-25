@@ -1,16 +1,16 @@
-# Console
+﻿# Console
 
-The **Console** is QwenPaw's built-in web interface. After running `qwenpaw app`,
+The **Console** is AIArb's built-in web interface. After running `aiarb app`,
 open `http://127.0.0.1:8088/` in your browser to enter the Console.
 
 **In the Console, you can:**
 
-- Chat with QwenPaw in real time
+- Chat with AIArb in real time
 - Enable/disable/configure messaging channels
 - View and manage all chat sessions
 - Manage scheduled jobs and heartbeat
-- Edit QwenPaw's persona and behavior files
-- Enable/import skills to extend QwenPaw's capabilities
+- Edit AIArb's persona and behavior files
+- Enable/import skills to extend AIArb's capabilities
 - Toggle tools on or off
 - Manage MCP clients
 - Modify runtime configuration
@@ -34,7 +34,7 @@ walk through each feature in order.
 
 > Sidebar: **Chat → Chat**
 
-This is where you talk to QwenPaw. It is the default page when the Console opens.
+This is where you talk to AIArb. It is the default page when the Console opens.
 
 ![Chat](https://img.alicdn.com/imgextra/i2/O1CN01EP1ra01iOAcBvF0TC_!!6000000004402-2-tps-3822-2070.png)
 
@@ -44,7 +44,7 @@ current agent.
 
 **Send a message:**
 Type in the input box at the bottom, then press **Enter** or click the send
-button (↑). QwenPaw replies in real time.
+button (↑). AIArb replies in real time.
 
 **Voice input:**
 The composer supports **voice input** (browser and OS microphone permission
@@ -149,15 +149,15 @@ Select rows → click **Batch Delete** → confirm.
 
 > Sidebar: **Control → Cron Jobs**
 
-Create and manage scheduled jobs that QwenPaw runs automatically by time.
+Create and manage scheduled jobs that AIArb runs automatically by time.
 
 ![Cron Jobs](https://img.alicdn.com/imgextra/i3/O1CN01WsQvrb1dKthp8QMvd_!!6000000003718-2-tps-3822-2070.png)
 
 **Create a new job:**
 
-> If the cron job fails to be created, please refer to the **Troubleshooting Scheduled (Cron) Tasks** section in the [FAQ](https://qwenpaw.agentscope.io/docs/faq) to identify the cause.
+> If the cron job fails to be created, please refer to the **Troubleshooting Scheduled (Cron) Tasks** section in the [FAQ](https://aiarb.cn/docs/faq) to identify the cause.
 
-The **simplest way to create a cron job is to chat directly with QwenPaw** and let it handle the creation for you. For example, if you want to receive a reminder to drink water on DingTalk, simply message QwenPaw on DingTalk: "Help me create a cron job to remind me to drink water every 5 minutes." Once created, you can view the new task on the Cron Jobs page in the console.
+The **simplest way to create a cron job is to chat directly with AIArb** and let it handle the creation for you. For example, if you want to receive a reminder to drink water on DingTalk, simply message AIArb on DingTalk: "Help me create a cron job to remind me to drink water every 5 minutes." Once created, you can view the new task on the Cron Jobs page in the console.
 
 Alternatively, you can create tasks directly via the Console interface:
 
@@ -169,7 +169,7 @@ Alternatively, you can create tasks directly via the Console interface:
      expression** (five fields, e.g. `0 9 * * *` = 9:00 daily). Timezone defaults
      to the current agent's user timezone; you can change it here.
    - **Task type & content** — **Text**: send fixed text from **Message content**.
-     **Agent**: fill **Request content**; on each run QwenPaw receives the text
+     **Agent**: fill **Request content**; on each run AIArb receives the text
      from `content.text` as the request.
    - **Delivery** — Target channel (Console, DingTalk, etc.), target user,
      target session id, and mode (**Stream** = token stream, **Final** = one
@@ -198,7 +198,7 @@ Click **Execute Now** → confirm.
 ![Heartbeat](https://img.alicdn.com/imgextra/i1/O1CN017fS5GW1jIxj8FuQXl_!!6000000004526-2-tps-3822-2070.png)
 
 Configure periodic "self-check" for the **currently selected agent**: on each
-tick, send the contents of `HEARTBEAT.md` as a user message to QwenPaw, and
+tick, send the contents of `HEARTBEAT.md` as a user message to AIArb, and
 optionally deliver the reply to a chosen target.
 
 **Common options:**
@@ -218,11 +218,11 @@ Click **Save** to apply. See [Heartbeat](./heartbeat) for wording and semantics.
 
 > Sidebar: **Workspace → Files**
 
-Edit files that define QwenPaw's persona and behavior — `SOUL.md`, `AGENTS.md`,
+Edit files that define AIArb's persona and behavior — `SOUL.md`, `AGENTS.md`,
 `HEARTBEAT.md`, etc. — directly in the browser.
 
-> **Multi-agent:** Starting from **v0.1.0**, QwenPaw supports **multi-agent** mode.
-> You can run multiple independent agents in one QwenPaw instance, each with its own
+> **Multi-agent:** Starting from **v0.1.0**, AIArb supports **multi-agent** mode.
+> You can run multiple independent agents in one AIArb instance, each with its own
 > workspace, configuration, memory, and history. Agents can collaborate. Use the
 > switcher at the top of the Console to change the active agent. See
 > [Multi-Agent](./multi-agent).
@@ -252,7 +252,7 @@ replaced. Useful for migration and backup restore.
 
 > Sidebar: **Workspace → Skills**
 
-Manage skills that extend QwenPaw (e.g. read PDF, create Word, fetch news). More
+Manage skills that extend AIArb (e.g. read PDF, create Word, fetch news). More
 detail: [Skills](./skills).
 
 ![Skills](https://img.alicdn.com/imgextra/i4/O1CN017tsPAI27USRjSJLBA_!!6000000007800-2-tps-3822-2070.png)
@@ -403,7 +403,7 @@ On this page you can:
 
 > Sidebar: **Settings → Environments**
 
-Manage runtime environment variables needed by QwenPaw tools and skills (e.g.
+Manage runtime environment variables needed by AIArb tools and skills (e.g.
 `TAVILY_API_KEY`).
 
 ![Environment Variables](https://img.alicdn.com/imgextra/i2/O1CN01TpB5YF22AhHMVydps_!!6000000007080-2-tps-3822-2070.png)
@@ -424,7 +424,7 @@ Click the **🗑** icon on a row → confirm.
 **Batch delete:**
 Select rows → click **Delete** in the toolbar → confirm.
 
-> **Note:** Variable validity is your responsibility. QwenPaw only stores and loads
+> **Note:** Variable validity is your responsibility. AIArb only stores and loads
 > values.
 >
 > See [Config — Environment variables](./config#environment-variables).
@@ -463,8 +463,8 @@ View LLM token usage over a range, by date and model.
 Ask e.g. "How many tokens have I used?" or "Show token usage." The agent calls
 `get_token_usage` and returns stats.
 
-> Data is stored in `~/.qwenpaw/token_usage.json`. Override the filename with
-> `QWENPAW_TOKEN_USAGE_FILE`. See [Config — Environment variables](./config#environment-variables).
+> Data is stored in `~/.aiarb/token_usage.json`. Override the filename with
+> `AIARB_TOKEN_USAGE_FILE`. See [Config — Environment variables](./config#environment-variables).
 
 ---
 
@@ -492,9 +492,9 @@ model (same settings apply to voice input in chat and channel voice messages).
 **Local Whisper setup:**
 
 1. Install `ffmpeg` with your system package manager.
-2. Install the optional Python dependency in the environment that runs QwenPaw:
-   `pip install "qwenpaw[whisper]"`.
-3. Restart QwenPaw, then select **Local Whisper** here.
+2. Install the optional Python dependency in the environment that runs AIArb:
+   `pip install "aiarb[whisper]"`.
+3. Restart AIArb, then select **Local Whisper** here.
 
 Verify the local installation with:
 

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PluginContext.tsx
  *
  * Reactive plugin context for the host application.

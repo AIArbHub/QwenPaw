@@ -1,4 +1,4 @@
-import { Card, Form, InputNumber, Switch } from "@agentscope-ai/design";
+﻿import { Card, Form, InputNumber, Switch } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import styles from "../index.module.less";
 

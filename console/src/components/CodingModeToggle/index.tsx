@@ -15,7 +15,7 @@ import {
 import { useSidebarModeStore } from "../../stores/sidebarModeStore";
 import styles from "./index.module.less";
 
-const CONFIRMED_KEY = "qwenpaw-coding-mode-confirmed";
+const CONFIRMED_KEY = "aiarb-coding-mode-confirmed";
 
 export default function CodingModeToggle() {
   const { t } = useTranslation();

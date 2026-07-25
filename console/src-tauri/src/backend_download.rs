@@ -188,9 +188,9 @@ mod tests {
         )
         .unwrap();
 
-        std::env::set_var("QWENPAW_WORKING_DIR", working_dir);
+        std::env::set_var("AIARB_WORKING_DIR", working_dir);
         let result = get_coding_directory(Some("test-agent")).unwrap();
-        std::env::remove_var("QWENPAW_WORKING_DIR");
+        std::env::remove_var("AIARB_WORKING_DIR");
 
         assert_eq!(result, project_dir);
     }
@@ -222,9 +222,9 @@ mod tests {
         let workspace_dir = working_dir.join("workspaces/test-agent");
         std::fs::create_dir_all(&workspace_dir).unwrap();
 
-        std::env::set_var("QWENPAW_WORKING_DIR", working_dir);
+        std::env::set_var("AIARB_WORKING_DIR", working_dir);
         let result = get_coding_directory(Some("test-agent")).unwrap();
-        std::env::remove_var("QWENPAW_WORKING_DIR");
+        std::env::remove_var("AIARB_WORKING_DIR");
 
         assert_eq!(result, workspace_dir);
     }
@@ -283,7 +283,7 @@ pub(crate) async fn read_workspace_binary_file(
 
 /// Resolve a relative workspace file path to an absolute path.
 ///
-/// Reads the QwenPaw config to determine the coding project directory (or workspace
+/// Reads the AIArb config to determine the coding project directory (or workspace
 /// directory if no custom project is set), then safely joins the relative path to
 /// prevent path traversal attacks.
 ///
@@ -322,12 +322,12 @@ fn resolve_workspace_file_path(
     Ok(canonical_target)
 }
 
-/// Get the coding project directory from QwenPaw configuration.
+/// Get the coding project directory from AIArb configuration.
 ///
 /// Resolution order:
-/// 1. `QWENPAW_WORKING_DIR` / `COPAW_WORKING_DIR` environment variable
+/// 1. `AIARB_WORKING_DIR` / `COPAW_WORKING_DIR` environment variable
 /// 2. `~/.copaw` (legacy installation)
-/// 3. `~/.qwenpaw` (default)
+/// 3. `~/.aiarb` (default)
 ///
 /// Then reads the agent profile reference from root `config.json` to locate the
 /// agent's workspace directory, and loads the full agent configuration from
@@ -337,7 +337,7 @@ fn resolve_workspace_file_path(
 ///
 /// If `agent_id` is None, uses the active agent from config.json.
 fn get_coding_directory(agent_id: Option<&str>) -> Result<PathBuf, String> {
-    let working_dir = if let Ok(dir) = std::env::var("QWENPAW_WORKING_DIR") {
+    let working_dir = if let Ok(dir) = std::env::var("AIARB_WORKING_DIR") {
         PathBuf::from(dir)
     } else if let Ok(dir) = std::env::var("COPAW_WORKING_DIR") {
         PathBuf::from(dir)
@@ -347,7 +347,7 @@ fn get_coding_directory(agent_id: Option<&str>) -> Result<PathBuf, String> {
         if copaw_legacy.exists() {
             copaw_legacy
         } else {
-            home.join(".qwenpaw")
+            home.join(".aiarb")
         }
     };
 

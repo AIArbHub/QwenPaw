@@ -1,4 +1,4 @@
-import { Button, Form } from "@agentscope-ai/design";
+﻿import { Button, Form } from "@agentscope-ai/design";
 import { Spin } from "antd";
 import { useTheme } from "../../../../contexts/ThemeContext";
 import { useChannelQrcode, type ChannelQrcodeConfig } from "./useChannelQrcode";

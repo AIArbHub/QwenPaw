@@ -1,10 +1,10 @@
-# AI Arb Desktop packaging scripts
+﻿# AI Arb Desktop packaging scripts
 
 > ⚠️ **Legacy (rollback-only).** These conda-pack based packaging scripts have
 > been superseded by the **Tauri** desktop build (see `console/src-tauri/` and
 > `scripts/pack-tauri/`). They are kept only for short-term rollback and are no
 > longer used by the release pipeline. For the current desktop app, refer to the
-> [Desktop Application Guide](https://qwenpaw.agentscope.io/docs/desktop).
+> [Desktop Application Guide](https://aiarb.cn/docs/desktop).
 
 One-click build: each script first builds a **wheel** via
 `scripts/wheel_build.sh` (includes the console frontend), then uses a
@@ -41,7 +41,7 @@ CREATE_ZIP=1 bash ./scripts/pack/build_macos.sh   # also create .zip
 **Windows (PowerShell)**
 ```powershell
 ./scripts/pack/build_win.ps1
-# Output: dist/AI-Arb-<version>-Windows.zip
+# Output: dist/AIArb-<version>-Windows.zip
 # Creates two launchers:
 #   - AI Arb Desktop.vbs (silent, no console window)
 #   - AI Arb Desktop (Debug).bat (shows console for troubleshooting)
@@ -55,7 +55,7 @@ If the .app crashes on double-click, run it from Terminal to see the full error 
 ```bash
 # From repo root; force packed env only (no system conda / PYTHONPATH). Adjust path if needed.
 APP_ENV="$(pwd)/dist/AI Arb.app/Contents/Resources/env"
-PYTHONNOUSERSITE=1 PYTHONPATH= PYTHONHOME="$APP_ENV" "$APP_ENV/bin/python" -m qwenpaw desktop
+PYTHONNOUSERSITE=1 PYTHONPATH= PYTHONHOME="$APP_ENV" "$APP_ENV/bin/python" -m aiarb desktop
 ```
 
 The `PYTHONNOUSERSITE=1` prevents Python from loading packages from `~/.local/lib/pythonX.Y/site-packages`, which can conflict with the packaged environment. All stdout/stderr (including Python tracebacks) will appear in the terminal. Use this to debug startup errors or to run with `--log-level debug`.
@@ -90,7 +90,7 @@ When users download the AI Arb macOS app (e.g. from Releases) as a `.app` (in a 
 
 | File | Description |
 |------|-------------|
-| `build_common.py` | Create temporary conda env, install `qwenpaw[full]` from a wheel, conda-pack; produces archive. |
+| `build_common.py` | Create temporary conda env, install `aiarb[full]` from a wheel, conda-pack; produces archive. |
 | `build_macos.sh` | One-click: build wheel → build_common → unpack into AI Arb.app; optional zip. |
 | `build_win.ps1` | One-click: build wheel → build_common → unpack → create VBS/BAT launchers → zip archive. |
 | `desktop.nsi` | NSIS script: pack `dist/win-unpacked`, add icons, and create shortcuts. |

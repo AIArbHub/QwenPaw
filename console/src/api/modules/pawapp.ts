@@ -4,8 +4,10 @@ import { buildAuthHeaders } from "../authHeaders";
 export interface PawAppInfo {
   id: string;
   name: string;
+  name_i18n?: Record<string, string> | null;
   version: string;
   description: string;
+  description_i18n?: Record<string, string> | null;
   author: string;
   category: string;
   icon: string;
@@ -17,6 +19,7 @@ export interface PawAppInfo {
   settings: unknown[];
   permissions: Record<string, unknown>;
   backends: Record<string, unknown>;
+  builtin?: boolean;
 }
 
 export interface PawAppListResponse {

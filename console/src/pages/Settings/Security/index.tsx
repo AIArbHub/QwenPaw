@@ -1,4 +1,4 @@
-import { Button, Tabs } from "@agentscope-ai/design";
+﻿import { Button, Tabs } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import { useSecurityPage } from "./useSecurityPage";
 import {

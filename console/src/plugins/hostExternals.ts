@@ -2,7 +2,7 @@
  * hostExternals.ts
  *
  * Exposes shared host dependencies and a reactive plugin registry on
- * `window.QwenPaw` so plugin bundles can register routes and tool renderers
+ * `window.AIArb` so plugin bundles can register routes and tool renderers
  * without bundling their own copies of React / antd.
  *
  * Call `installHostExternals()` once at application startup (main.tsx).
@@ -18,18 +18,18 @@ import {
   buildMenuNamespace,
   buildRouteNamespace,
   buildSlotNamespace,
-  type QwenPawAuditNamespace,
-  type QwenPawMenuNamespace,
-  type QwenPawRouteNamespace,
-  type QwenPawSlotNamespace,
+  type AIArbAuditNamespace,
+  type AIArbMenuNamespace,
+  type AIArbRouteNamespace,
+  type AIArbSlotNamespace,
 } from "./registry/sdk";
 import { menuRegistry, routeRegistry } from "./registry/store";
 import type {
   HostAgentInfo,
   HostSessionInfo,
   HostThemeMode,
-  QwenPawChatNamespace,
-} from "./types/qwenpaw";
+  AIArbChatNamespace,
+} from "./types/aiarb";
 
 declare const VITE_API_BASE_URL: string;
 
@@ -37,7 +37,7 @@ declare const VITE_API_BASE_URL: string;
 // Public types
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Shared host dependencies exposed to plugin bundles via `window.QwenPaw.host`. */
+/** Shared host dependencies exposed to plugin bundles via `window.AIArb.host`. */
 export interface HostExternals {
   React: typeof React;
   ReactDOM: typeof ReactDOM;
@@ -178,20 +178,20 @@ export interface WindowNamespace {
     renderers: Record<string, React.FC<any>>,
   ) => void;
   /** Console-wide plugin Menu API. Attached by installHostExternals(). */
-  menu?: QwenPawMenuNamespace;
+  menu?: AIArbMenuNamespace;
   /** Console-wide plugin Route API. */
-  route?: QwenPawRouteNamespace;
+  route?: AIArbRouteNamespace;
   /** Console-wide plugin Slot API (header.left, sider.bottom, …). */
-  slot?: QwenPawSlotNamespace;
+  slot?: AIArbSlotNamespace;
   /** Chat-surface customization API. Attached by installHostSdk(). */
-  chat?: QwenPawChatNamespace;
+  chat?: AIArbChatNamespace;
   /** Override audit log (debug). Attached by installHostExternals(). */
-  audit?: QwenPawAuditNamespace;
+  audit?: AIArbAuditNamespace;
 }
 
 declare global {
   interface Window {
-    QwenPaw: WindowNamespace;
+    AIArb: WindowNamespace;
   }
 }
 
@@ -226,12 +226,12 @@ export function installHostExternals(): void {
   const apiBaseUrl =
     typeof VITE_API_BASE_URL !== "undefined" ? VITE_API_BASE_URL : "";
 
-  if (!window.QwenPaw) {
-    (window as any).QwenPaw = {} as WindowNamespace;
+  if (!window.AIArb) {
+    (window as any).AIArb = {} as WindowNamespace;
   }
 
-  if (!window.QwenPaw.host) {
-    window.QwenPaw.host = {
+  if (!window.AIArb.host) {
+    window.AIArb.host = {
       React,
       ReactDOM,
       antd,
@@ -243,10 +243,10 @@ export function installHostExternals(): void {
   }
 
   // ── Console-wide extension API ─────────────────────────────────────────
-  if (!window.QwenPaw.menu) window.QwenPaw.menu = buildMenuNamespace();
-  if (!window.QwenPaw.route) window.QwenPaw.route = buildRouteNamespace();
-  if (!window.QwenPaw.slot) window.QwenPaw.slot = buildSlotNamespace();
-  if (!window.QwenPaw.audit) window.QwenPaw.audit = buildAuditNamespace();
+  if (!window.AIArb.menu) window.AIArb.menu = buildMenuNamespace();
+  if (!window.AIArb.route) window.AIArb.route = buildRouteNamespace();
+  if (!window.AIArb.slot) window.AIArb.slot = buildSlotNamespace();
+  if (!window.AIArb.audit) window.AIArb.audit = buildAuditNamespace();
 
   // ── Back-compat shim ───────────────────────────────────────────────────
   // Legacy registerRoutes(pluginId, routes[]) fans out to:
@@ -257,8 +257,8 @@ export function installHostExternals(): void {
   // EXCEPTION: PawApp routes (path starting with `/apps/`) register the
   // route only — NO sidebar menu entry. PawApps are reachable exclusively
   // through the App Center, which renders them inline via routeRegistry.
-  if (!window.QwenPaw.registerRoutes) {
-    window.QwenPaw.registerRoutes = (pluginId, routes) => {
+  if (!window.AIArb.registerRoutes) {
+    window.AIArb.registerRoutes = (pluginId, routes) => {
       for (const r of routes) {
         const id = `legacy:${pluginId}:${r.path.replace(/^\//, "")}`;
         routeRegistry.add(pluginId, {
@@ -296,8 +296,8 @@ export function installHostExternals(): void {
     };
   }
 
-  if (!window.QwenPaw.registerToolRender) {
-    window.QwenPaw.registerToolRender = (pluginId, renderers) => {
+  if (!window.AIArb.registerToolRender) {
+    window.AIArb.registerToolRender = (pluginId, renderers) => {
       pluginSystem.addToolRenderers(pluginId, renderers);
       console.info(
         `[plugin:${pluginId}] registerToolRender → ${Object.keys(

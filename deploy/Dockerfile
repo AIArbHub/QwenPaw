@@ -1,6 +1,6 @@
-# Base images — override with --build-arg for environments without ACR access.
-ARG NODE_IMAGE=agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/node:slim
-ARG UV_IMAGE=agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/uv:latest
+﻿# Base images — override with --build-arg for environments without ACR access.
+ARG NODE_IMAGE=aiarb-registry.ap-southeast-1.cr.aliyuncs.com/aiarb/node:slim
+ARG UV_IMAGE=aiarb-registry.ap-southeast-1.cr.aliyuncs.com/aiarb/uv:latest
 
 # -----------------------------------------------------------------------------
 # Stage 1: build console frontend (dist not committed in repo).
@@ -21,16 +21,16 @@ FROM ${NODE_IMAGE}
 # ENV variables
 ENV NODE_ENV=production
 ENV WORKSPACE_DIR=/app
-ENV QWENPAW_WORKING_DIR=/app/working
-ENV QWENPAW_SECRET_DIR=/app/working.secret
-ENV QWENPAW_BACKUP_DIR=/app/working.backups
+ENV AIARB_WORKING_DIR=/app/working
+ENV AIARB_SECRET_DIR=/app/working.secret
+ENV AIARB_BACKUP_DIR=/app/working.backups
 
-# Channel filtering: use QWENPAW_DISABLED_CHANNELS (exclusion, recommended)
-# or QWENPAW_ENABLED_CHANNELS (whitelist). Override at runtime with -e.
-ARG QWENPAW_DISABLED_CHANNELS="imessage"
-ENV QWENPAW_DISABLED_CHANNELS=${QWENPAW_DISABLED_CHANNELS}
-ARG QWENPAW_ENABLED_CHANNELS=""
-ENV QWENPAW_ENABLED_CHANNELS=${QWENPAW_ENABLED_CHANNELS}
+# Channel filtering: use AIARB_DISABLED_CHANNELS (exclusion, recommended)
+# or AIARB_ENABLED_CHANNELS (whitelist). Override at runtime with -e.
+ARG AIARB_DISABLED_CHANNELS="imessage"
+ENV AIARB_DISABLED_CHANNELS=${AIARB_DISABLED_CHANNELS}
+ARG AIARB_ENABLED_CHANNELS=""
+ENV AIARB_ENABLED_CHANNELS=${AIARB_ENABLED_CHANNELS}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -83,7 +83,7 @@ ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium
 # Avoid Playwright downloading its own browser when executable_path is used.
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 # Indicate running in container (used e.g. for Chromium --no-sandbox).
-ENV QWENPAW_RUNNING_IN_CONTAINER=1
+ENV AIARB_RUNNING_IN_CONTAINER=1
 
 WORKDIR ${WORKSPACE_DIR}
 
@@ -92,16 +92,16 @@ ENV PATH="/app/venv/bin:$PATH"
 
 COPY pyproject.toml setup.py README.md ./
 COPY src ./src
-COPY website/public/docs/ ./src/qwenpaw/docs/
+COPY website/public/docs/ ./src/aiarb/docs/
 # Inject console dist from build stage (repo does not commit dist).
-COPY --from=console-builder /app/console/dist/ ./src/qwenpaw/console/
+COPY --from=console-builder /app/console/dist/ ./src/aiarb/console/
 # Speed up Python package installation with uv.
 COPY --from=uv-src /uv /bin/uv
 RUN uv pip install --no-cache-dir . && rm -rf ./build
 
 
-# QwenPaw app port (default 8088). Override at runtime with -e QWENPAW_PORT=3000.
-ENV QWENPAW_PORT=8088
+# AIArb app port (default 8088). Override at runtime with -e AIARB_PORT=3000.
+ENV AIARB_PORT=8088
 
 COPY deploy/config/supervisord.conf.template /etc/supervisor/conf.d/supervisord.conf.template
 COPY --chmod=755 deploy/entrypoint.sh /entrypoint.sh

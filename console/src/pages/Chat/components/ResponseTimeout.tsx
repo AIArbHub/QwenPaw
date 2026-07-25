@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ClockCircleOutlined, LoadingOutlined } from "@ant-design/icons";
 import type { IAgentScopeRuntimeWebUIRef } from "@agentscope-ai/chat";

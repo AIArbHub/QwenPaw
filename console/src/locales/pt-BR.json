@@ -34,7 +34,9 @@
     "retry": "Retry",
     "collapse": "Collapse",
     "unknown": "Unknown",
-    "back": "Back"
+    "back": "Back",
+    "operationSuccess": "Operation successful",
+    "operationFailed": "Operation failed"
   },
   "desktop": {
     "closeWindow": {
@@ -218,7 +220,7 @@
     "providerTypeLocalWhisperDesc": "Run transcription locally using the openai-whisper Python library. Requires both ffmpeg and openai-whisper to be installed.",
     "localWhisperReady": "Local Whisper is ready. Both ffmpeg and openai-whisper are installed.",
     "localWhisperMissing": "Local Whisper is not ready. Missing dependencies must be installed.",
-    "localWhisperMissingDesc": "ffmpeg: {{ffmpeg}} | openai-whisper: {{whisper}}. Install missing dependencies: ffmpeg (system package) and openai-whisper (uv pip install openai-whisper, or install QwenPaw with the [whisper] extra).",
+    "localWhisperMissingDesc": "ffmpeg: {{ffmpeg}} | openai-whisper: {{whisper}}. Install missing dependencies: ffmpeg (system package) and openai-whisper (uv pip install openai-whisper, or install AIArb with the [whisper] extra).",
     "providerLabel": "Whisper API Provedor",
     "providerDescription": "Select which provider to use for audio transcription via the Whisper API. Only providers with a Whisper-compatible endpoint are shown.",
     "providerPlaceholder": "Selecionar a provider...",
@@ -530,7 +532,12 @@
     "avatarDeleteFailed": "Avatar delete failed",
     "listView": "List View",
     "gridView": "Card View",
-    "basicInfo": "Basic Info"
+    "basicInfo": "Basic Info",
+    "skillsManagementHint": "Manage skills for this agent — import from skill pool or skill market",
+    "importFromMarket": "Import from Market",
+    "fullSkillsManagement": "Full Skills Management",
+    "installedSkills": "Installed Skills",
+    "addSkillsFromPool": "Add from Skill Pool"
   },
   "skills": {
     "title": "Skills",
@@ -677,7 +684,10 @@
     "aiCreateSkillGenerating": "正在生成技能...",
     "aiCreateSkillSuccess": "技能内容已生成，请检查并保存",
     "aiCreateSkillFailed": "AI 生成技能失败",
-    "useGenerated": "使用此内容"
+    "useGenerated": "使用此内容",
+    "importSuccess": "Skill imported successfully",
+    "confirmDelete": "Confirm Delete Skill",
+    "confirmDeleteDesc": "Are you sure you want to delete skill \"{{name}}\"? This action cannot be undone."
   },
   "skillPool": {
     "description": "Shared local skill pool for built-in skills and workspace uploads. External hub imports such as ClawHub or LobeHub are separate.",
@@ -1213,7 +1223,7 @@
     "welcomeGreeting": "Welcome Greeting",
     "welcomeText": "Welcome Message",
     "welcomeTextTooltip": "Message automatically sent when a user enters a single chat session with the bot for the first time that day",
-    "welcomeTextPlaceholder": "e.g. Hello! I'm QwenPaw. How can I help you?",
+    "welcomeTextPlaceholder": "e.g. Hello! I'm AIArb. How can I help you?",
     "loginWeCom": "Get WeCom QR Code",
     "wecomSetupGuide": "When creating a bot via QR code, please select \"Skip Authorization\" when asked to authorize bot capabilities. If you select \"Confirm Authorization\", users other than the bot creator may not be able to interact with the bot.",
     "wecomScanAuth": "Scan to Authorize",
@@ -1917,7 +1927,7 @@
     "contextManagementTitle": "Context Management",
     "memoryManagerBackend": "Backend de gerenciamento de memória de longo prazo",
     "memoryManagerBackendTooltip": "Backend para o gerenciador de memória. Escolha remelight (arquivos locais) ou adbpg (banco de dados na nuvem).",
-    "memoryManagerBackendRestartWarning": "A troca do backend de gerenciamento de memória de longo prazo não permite recarregamento a quente. Salve e reinicie o QwenPaw para aplicar as alterações.",
+    "memoryManagerBackendRestartWarning": "A troca do backend de gerenciamento de memória de longo prazo não permite recarregamento a quente. Salve e reinicie o AIArb para aplicar as alterações.",
     "maxIters": "Max Iterations",
     "maxItersTooltip": "Maximum number of reasoning-acting iterations for ReAct agent",
     "maxItersPlaceholder": "Enter max iterations",
@@ -1973,7 +1983,7 @@
       "enableRepetitionProtection": "Ativar proteção contra repetição",
       "removeRule": "Remover regra",
       "custom": "Personalizado",
-      "customDescription": "Crie um pipeline salvo com Gates integrados do QwenPaw.",
+      "customDescription": "Crie um pipeline salvo com Gates integrados do AIArb.",
       "duplicate": "Duplicar",
       "delete": "Excluir",
       "displayName": "Nome de exibição",
@@ -2006,9 +2016,9 @@
       "completionRubricDescription": "Verifica o sinal de conclusão em respostas de texto sem chamadas de ferramentas.",
       "completionRubricHelp": "Acionada após respostas de texto sem chamadas de ferramentas. O agente produz o sinal de conclusão quando termina; caso contrário, continua trabalhando até atingir o máximo de rodadas de avaliação.",
       "completionPrompt": "Prompt de verificação da conclusão",
-      "completionPromptHelp": "Descreva quando o resultado está completo. O QwenPaw injeta automaticamente a instrução de saída do sinal de conclusão.",
+      "completionPromptHelp": "Descreva quando o resultado está completo. O AIArb injeta automaticamente a instrução de saída do sinal de conclusão.",
       "completionSignal": "Sinal de conclusão",
-      "completionSignalHelp": "O QwenPaw injeta este sinal e a instrução para produzir somente ele no prompt de verificação. Somente uma correspondência exata, sem diferenciar maiúsculas e após remover espaços, encerra o Loop.",
+      "completionSignalHelp": "O AIArb injeta este sinal e a instrução para produzir somente ele no prompt de verificação. Somente uma correspondência exata, sem diferenciar maiúsculas e após remover espaços, encerra o Loop.",
       "removeCriterion": "Remover critério {{number}}",
       "totalTokensHelp": "Limite combinado de tokens de entrada e saída usados neste turno.",
       "promptTokensHelp": "Inclui instruções do sistema, contexto da conversa, esquemas e resultados de ferramentas.",
@@ -2212,7 +2222,7 @@
     "dreamCronRequired": "Insira uma expressão Cron quando o Dream estiver ativado",
     "dreamCronInvalid": "Insira uma expressão Cron válida de 5 campos",
     "autoMemorySearch": "Busca automática na memória (Beta)",
-    "autoMemorySearchTooltip": "Auto memory search to run on every conversation turn. Each query will automatically invoke memory search capabilities, helping QwenPaw understand you better — but this increases token consumption.",
+    "autoMemorySearchTooltip": "Auto memory search to run on every conversation turn. Each query will automatically invoke memory search capabilities, helping AIArb understand you better — but this increases token consumption.",
     "autoMaxResults": "Automatico Pesquisar Max Results",
     "autoMaxResultsTooltip": "Maximum number of results returned when auto memory search is enabled",
     "autoMaxResultsRequired": "Max results is Obrigatorio",
@@ -2306,10 +2316,10 @@
     "contextManagerBackend": "Context Manager Backend",
     "contextManagerBackendTooltip": "Backend type for the context manager. Currently only Light is supported.",
     "contextStrategy": "Context Strategy",
-    "contextStrategyTooltip": "How the agent manages long context. Scroll (recommended) persists evicted turns to a durable history store and recalls them on demand; Native uses in-place compression. Restart QwenPaw for changes to take effect.",
+    "contextStrategyTooltip": "How the agent manages long context. Scroll (recommended) persists evicted turns to a durable history store and recalls them on demand; Native uses in-place compression. Restart AIArb for changes to take effect.",
     "contextStrategyScroll": "Scroll",
     "contextStrategyNative": "Native",
-    "backendRestartWarning": "Switching backends does not support hot reload. Save and restart QwenPaw for changes to take effect.",
+    "backendRestartWarning": "Switching backends does not support hot reload. Save and restart AIArb for changes to take effect.",
     "autoGenerateSessionTitle": "Auto-generate session titles",
     "autoGenerateSessionTitleTooltip": "After the first user message in a new chat, run a short background LLM call to replace the truncated placeholder with a concise title. Costs one extra short LLM call per new chat. Turn off to keep the placeholder and skip the spend.",
     "embeddingRecommendHint": "Tip: You can use free embedding models like BAAI/bge-m3 (available via SiliconFlow, DashScope, etc.)",
@@ -2850,10 +2860,10 @@
     },
     "sandboxEnabled": "Enable Sandbox Execution",
     "sandboxEnabledTooltip": "When enabled, shell commands with no matching rule run silently inside the sandbox. When disabled, such commands run directly without the sandbox (no approval prompt). Either way, secret-file reads and dangerous commands (e.g. rm -rf /, sudo) are still blocked or require approval.",
-    "sandboxDegradedWarning": "Sandbox is configured as enabled, but QwenPaw is not running as administrator. The sandbox will be inactive for this session. To use the sandbox, restart QwenPaw with administrator privileges."
+    "sandboxDegradedWarning": "Sandbox is configured as enabled, but AIArb is not running as administrator. The sandbox will be inactive for this session. To use the sandbox, restart AIArb with administrator privileges."
   },
   "login": {
-    "title": "Login to QwenPaw",
+    "title": "Login to AIArb",
     "registerTitle": "Criar Account",
     "firstUserHint": "Create your admin account to get started",
     "usernamePlaceholder": "Username",
@@ -3097,7 +3107,7 @@
   "codingMode": {
     "title": "Modo de Codificação",
     "experimental": "Funcionalidade Experimental",
-    "experimentalDesc": "O Modo de Codificação transforma o QwenPaw em uma IDE Web leve com editor de código, árvore de arquivos, integração Git e assistência de codificação por IA.",
+    "experimentalDesc": "O Modo de Codificação transforma o AIArb em uma IDE Web leve com editor de código, árvore de arquivos, integração Git e assistência de codificação por IA.",
     "experimentalNote": "Esta funcionalidade é experimental e ainda está em desenvolvimento ativo. Algumas funcionalidades podem ser limitadas ou mudar em atualizações futuras.",
     "confirmBtn": "Ativar Modo de Codificação",
     "enterTooltip": "Entrar no Modo de Codificação",
@@ -3998,7 +4008,8 @@
     "version": "Version",
     "id": "ID",
     "category": "Category",
-    "description": "Description"
+    "description": "Description",
+    "builtin": "Integrado"
   },
   "cloudBackup": {
     "title": "Cloud Backups",
@@ -4053,9 +4064,9 @@
   },
   "persona": {
     "visualMode": "Visual",
-    "expertMode": "Expert",
+    "expertMode": "Text",
     "visualModeTooltip": "Form-based persona editor for everyday users",
-    "expertModeTooltip": "Edit Markdown files directly, for power users",
+    "expertModeTooltip": "Edit Markdown text files directly",
     "identityTitle": "Identity",
     "agentName": "Name",
     "agentNamePlaceholder": "Give your agent a name",
@@ -4077,7 +4088,7 @@
     "userNotesPlaceholder": "Other info about you",
     "userBackground": "Background",
     "userBackgroundPlaceholder": "What do you care about? What projects are you working on?",
-    "soulTitle": "Soul & Personality",
+    "soulTitle": "Personality",
     "corePrinciples": "Core Principles",
     "addPrinciple": "Add principle",
     "principlePlaceholder": "Enter a new behavioral principle...",
@@ -4092,10 +4103,11 @@
     "heartbeatEnable": "Enable heartbeat check",
     "heartbeatIntervalUnit": "minutes",
     "fileManagementTitle": "File Management",
-    "unparsedWarning": "Some content could not be parsed into structured form. Use Expert mode to edit the full content.",
+    "unparsedWarning": "Some content could not be parsed into structured form. Use Text mode to edit the full content.",
     "loadFailed": "Failed to load persona files",
     "saveSuccess": "Persona saved",
-    "saveFailed": "Failed to save persona"
+    "saveFailed": "Failed to save persona",
+    "roleCustomPlaceholder": "Enter a custom role"
   },
   "moot": {
     "title": "Arbitration Moot",
@@ -4173,7 +4185,7 @@
   },
   "pet": {
     "title": "Desktop Pet",
-    "intro": "Manage QwenPaw desktop pet: start, switch, create and import pets.",
+    "intro": "Manage AIArb desktop pet: start, switch, create and import pets.",
     "control": "Control Panel",
     "installedPets": "Installed Pets",
     "startDesktop": "Start Desktop Pet",
@@ -4272,7 +4284,17 @@
     "spritePreview": "预览（第0行第0帧）",
     "spriteInvalidFormat": "不支持的文件格式，请使用 WebP / PNG / JPG",
     "spriteInvalidSize": "尺寸不正确，必须为 1536×1872 px",
-    "spriteInvalidFile": "无法读取图片文件"
+    "spriteInvalidFile": "无法读取图片文件",
+    "chat": "Chat",
+    "chatWithPet": "Conversar com animal de estimação",
+    "chatTitle": "Conversar com {name}",
+    "chatPlaceholder": "Envie uma mensagem para começar a conversar com o agente vinculado",
+    "chatInputPlaceholder": "Digite uma mensagem, Enter para enviar, Shift+Enter para nova linha",
+    "chatSend": "Enviar",
+    "chatThinking": "Pensando…",
+    "chatNoAgent": "Por favor, vincule um agente primeiro",
+    "chatError": "Erro de chat",
+    "chatToolUsed": "Ferramenta usada"
   },
   "textSelection": {
     "title": "Text Selection",

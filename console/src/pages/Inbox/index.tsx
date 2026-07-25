@@ -24,7 +24,7 @@ import {
   SettingOutlined,
   ToolOutlined,
 } from "@ant-design/icons";
-import { PackageOpen, Bell, BellRing, Filter } from "lucide-react";
+import { PackageOpen, Bell, BellRing, Filter, Sprout } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useTranslation } from "react-i18next";
@@ -39,6 +39,9 @@ import sessionApi from "../Chat/sessionApi";
 import {
   PushMessageCard,
   ApprovalHistoryCard,
+  HarvestCard,
+  CreateHarvestModal,
+  MagazineStackViewer,
 } from "./components";
 import { useInboxData } from "./hooks/useInboxData";
 import type { InboxFilters } from "./hooks/useInboxData";
@@ -56,12 +59,12 @@ import {
 } from "./utils/traceUtils";
 import styles from "./index.module.less";
 
-type TabKey = "approvals" | "messages";
+type TabKey = "approvals" | "messages" | "harvests";
 type ApprovalSubTab = "pending" | "history";
-const INBOX_TAB_STORAGE_KEY = "qwenpaw.inbox.activeTab";
-const APPROVAL_SUB_TAB_KEY = "qwenpaw.inbox.approvalSubTab";
+const INBOX_TAB_STORAGE_KEY = "aiarb.inbox.activeTab";
+const APPROVAL_SUB_TAB_KEY = "aiarb.inbox.approvalSubTab";
 const APPROVAL_HISTORY_PAGE_SIZE = 5;
-const NOTIFICATION_SETTINGS_KEY = "qwenpaw.inbox.notificationSettings";
+const NOTIFICATION_SETTINGS_KEY = "aiarb.inbox.notificationSettings";
 
 const SOURCE_TYPES = ["heartbeat", "cron", "memory", "skill_autoupdate"] as const;
 type SourceType = (typeof SOURCE_TYPES)[number];
@@ -70,7 +73,7 @@ const SOURCE_TYPE_LABEL_KEYS: Record<string, string> = {
   heartbeat: "inbox.sourceType.heartbeat",
   cron: "inbox.sourceType.cron",
   memory: "inbox.sourceType.memory",
-  skill_autoupdate: "inbox.sourceType.skillAutoupdate",
+  skill_autoupdate: "inbox.sourceType.skill_autoupdate",
 };
 
 interface NotificationSettings {
@@ -125,7 +128,7 @@ const resolveInitialTab = (): TabKey => {
     return "messages";
   }
   const stored = window.localStorage.getItem(INBOX_TAB_STORAGE_KEY);
-  if (stored === "approvals" || stored === "messages") {
+  if (stored === "approvals" || stored === "messages" || stored === "harvests") {
     return stored;
   }
   return "messages";
@@ -211,11 +214,19 @@ export default function InboxPage() {
   const {
     summary,
     pushMessages,
+    harvests,
     markMessageAsRead,
     markAllMessagesAsRead,
     deleteMessage,
     deleteMessages,
+    triggerHarvest,
   } = useInboxData(apiFilters);
+  const [createHarvestOpen, setCreateHarvestOpen] = useState(false);
+  const [viewingHarvestId, setViewingHarvestId] = useState<string | null>(null);
+  const viewingHarvest = useMemo(
+    () => (viewingHarvestId ? harvests.find((h) => h.id === viewingHarvestId) : null),
+    [viewingHarvestId, harvests],
+  );
   const agentDisplayNameById = useMemo(
     () =>
       new Map(agents.map((agent) => [agent.id, getAgentDisplayName(agent, t)])),
@@ -923,6 +934,56 @@ const sourceTypeOptions = useMemo(() => {
         </div>
       ),
     },
+    {
+      key: "harvests",
+      label: (
+        <span className={styles.tabLabel}>
+          <Sprout size={16} />
+          {t("inbox.tabHarvests")}
+          {summary.harvests.active > 0 && (
+            <Badge count={summary.harvests.active} color="#4B3FE3" />
+          )}
+        </span>
+      ),
+      children: (
+        <div className={styles.tabContent}>
+          <div className={styles.messagesToolbar}>
+            <div className={styles.messagesSelectionTools}>
+              <Button
+                type="primary"
+                onClick={() => setCreateHarvestOpen(true)}
+              >
+                {t("inbox.createHarvest")}
+              </Button>
+            </div>
+          </div>
+          {harvests.length > 0 ? (
+            <div className={styles.cardList}>
+              {harvests.map((harvest) => (
+                <HarvestCard
+                  key={harvest.id}
+                  harvest={harvest}
+                  onTrigger={triggerHarvest}
+                  onViewAll={(id) => setViewingHarvestId(id)}
+                  onSettings={() => message.info(t("inbox.harvestSettingsComingSoon"))}
+                />
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: "center", padding: "40px 0" }}>
+              <Empty description={t("inbox.emptyHarvests")} />
+              <Button
+                type="primary"
+                style={{ marginTop: 16 }}
+                onClick={() => setCreateHarvestOpen(true)}
+              >
+                {t("inbox.createFirstHarvest")}
+              </Button>
+            </div>
+          )}
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -1213,6 +1274,21 @@ const sourceTypeOptions = useMemo(() => {
           </div>
         ) : null}
       </Modal>
+      <CreateHarvestModal
+        open={createHarvestOpen}
+        onClose={() => setCreateHarvestOpen(false)}
+        onSubmit={(_values) => {
+          setCreateHarvestOpen(false);
+          message.success(t("inbox.createSuccess"));
+        }}
+      />
+      {viewingHarvest && (
+        <MagazineStackViewer
+          open={!!viewingHarvestId}
+          harvest={viewingHarvest}
+          onClose={() => setViewingHarvestId(null)}
+        />
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Switch } from "@agentscope-ai/design";
+﻿import { Switch } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import styles from "../index.module.less";
 

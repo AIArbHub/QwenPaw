@@ -1,4 +1,4 @@
-import { Progress } from "antd";
+﻿import { Progress } from "antd";
 import { type CSSProperties } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { useTranslation } from "react-i18next";
@@ -40,8 +40,8 @@ export default function BackendLoadingPage({
 
   const percent = Math.min(Math.round((elapsed / totalSec) * 100), 100);
   const style = {
-    "--qwenpaw-brand-color": BRAND_COLOR,
-    "--qwenpaw-error-color": ERROR_COLOR,
+    "--aiarb-brand-color": BRAND_COLOR,
+    "--aiarb-error-color": ERROR_COLOR,
   } as CSSProperties;
 
   return (
@@ -52,7 +52,7 @@ export default function BackendLoadingPage({
       style={style}
     >
       <div className={styles.card}>
-        <img src="/ai-arb-avatar.svg" alt="AI Arb" className={styles.logo} />
+        <img src="/aiarb-avatar.svg" alt="AI Arb" className={styles.logo} />
 
         <Progress
           type="dashboard"

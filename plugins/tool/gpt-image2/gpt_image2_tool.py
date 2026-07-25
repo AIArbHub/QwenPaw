@@ -10,11 +10,11 @@ from pathlib import Path
 from typing import List
 
 import httpx
-from agentscope.message import DataBlock, TextBlock, URLSource
-from agentscope.message import ToolResultState
-from agentscope.tool import ToolChunk
-from qwenpaw.constant import DEFAULT_MEDIA_DIR
-from qwenpaw.plugins import get_tool_config
+from aiarb.framework.message import DataBlock, TextBlock, URLSource
+from aiarb.framework.message import ToolResultState
+from aiarb.framework.tool import ToolChunk
+from aiarb.constant import DEFAULT_MEDIA_DIR
+from aiarb.plugins import get_tool_config
 
 logger = logging.getLogger(__name__)
 

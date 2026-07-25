@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Azure Bot Service channel plugin entry point."""
 
 import logging
 
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 
 logger = logging.getLogger(__name__)
 
@@ -31,11 +31,11 @@ class AzureBotChannelPlugin:
             ),
             doc_url={
                 "zh": (
-                    "https://qwenpaw.agentscope.io/docs/channels/"
+                    "https://aiarb.cn/docs/channels/"
                     "?lang=zh#Azure-BotMicrosoft-机器人服务"
                 ),
                 "en": (
-                    "https://qwenpaw.agentscope.io/docs/channels/"
+                    "https://aiarb.cn/docs/channels/"
                     "?lang=en#Azure-Bot-Microsoft-Bot-Service"
                 ),
             },

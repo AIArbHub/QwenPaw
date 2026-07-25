@@ -18,6 +18,7 @@ import { pawappApi } from "../../api/modules/pawapp";
 import { useRoutes } from "../../plugins/registry/hooks";
 import { AppCard, type AppCardData } from "./AppCard";
 import { ChunkErrorBoundary } from "@/components/ChunkErrorBoundary";
+import { pickLocalised } from "@/utils/pluginI18n";
 import styles from "./index.module.less";
 
 // Code-split the market so its bundle + network fetch never block the
@@ -29,7 +30,7 @@ const AppMarket = lazy(() =>
 const { Option } = Select;
 
 export default function AppCenterPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { appId } = useParams();
   const { message } = useAppMessage();
   const routes = useRoutes();
@@ -49,13 +50,16 @@ export default function AppCenterPage() {
         data.apps.map((app) => ({
           id: app.id,
           name: app.name,
+          name_i18n: app.name_i18n,
           version: app.version,
           description: app.description,
+          description_i18n: app.description_i18n,
           category: app.category ?? "",
           icon: app.icon ?? "",
           entry_page: app.entry_page ?? "",
           launch_scope: app.launch_scope ?? "page",
           status: app.status,
+          builtin: app.builtin ?? false,
         })),
       );
     } catch (err) {
@@ -91,10 +95,20 @@ export default function AppCenterPage() {
   // Filter apps
   const filteredApps = useMemo(() => {
     return apps.filter((app) => {
-      const matchesSearch =
-        !searchQuery ||
-        app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        app.description.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      // Search in default name/description and all i18n variants
+      const searchTexts = [
+        app.name,
+        app.description,
+        ...(app.name_i18n ? Object.values(app.name_i18n) : []),
+        ...(app.description_i18n
+          ? Object.values(app.description_i18n)
+          : []),
+      ];
+      const matchesSearch = searchTexts.some((t) =>
+        t.toLowerCase().includes(q),
+      );
       const matchesCategory =
         categoryFilter === "all" || app.category === categoryFilter;
       return matchesSearch && matchesCategory;
@@ -197,7 +211,7 @@ export default function AppCenterPage() {
         label: t("appCenter.aboutApp", "关于应用"),
         onClick: () => {
           Modal.info({
-            title: activeApp.name,
+            title: pickLocalised(activeApp.name_i18n, i18n.language, activeApp.name),
             width: 500,
             content: (
               <div style={{ paddingTop: 16 }}>
@@ -217,7 +231,7 @@ export default function AppCenterPage() {
                 {activeApp.description && (
                   <p>
                     <strong>{t("appCenter.description", "描述")}:</strong>{" "}
-                    {activeApp.description}
+                    {pickLocalised(activeApp.description_i18n, i18n.language, activeApp.description)}
                   </p>
                 )}
               </div>

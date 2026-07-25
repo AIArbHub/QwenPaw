@@ -1,11 +1,11 @@
-# QwenPaw 文档架构开发说明
+# AIArb 文档架构开发说明
 
 ## 一、架构总览
 
-QwenPaw 采用四层文档架构，每层有独立的存储位置和生命周期：
+AIArb 采用四层文档架构，每层有独立的存储位置和生命周期：
 
 ```
-.aiarb/                          ← 工作区根目录（优先于 .qwenpaw / .copaw）
+.aiarb/                          ← 工作区根目录（优先于 .aiarb / .copaw）
 ├── knowledge/                   ← 知识库（全局 + 智能体私有）
 │   ├── _meta.json               ← 文档元数据索引
 │   ├── _enums.json              ← 分类/归属/标签枚举
@@ -44,7 +44,7 @@ QwenPaw 采用四层文档架构，每层有独立的存储位置和生命周期
 
 ### 2.1 文档解析引擎
 
-**文件位置：** `src/qwenpaw/parsers/`
+**文件位置：** `src/aiarb/parsers/`
 
 | 文件 | 职责 |
 |------|------|
@@ -61,7 +61,7 @@ QwenPaw 采用四层文档架构，每层有独立的存储位置和生命周期
 
 ### 2.2 脱敏处理管线
 
-**文件位置：** `src/qwenpaw/knowledge/`
+**文件位置：** `src/aiarb/knowledge/`
 
 处理流程：`原始文件 → 解析为Markdown → 本地正则脱敏 → LLM二次脱敏 → 存储脱敏文本 + 回填映射`
 
@@ -90,7 +90,7 @@ QwenPaw 采用四层文档架构，每层有独立的存储位置和生命周期
 
 ### 2.3 Wiki 知识编译引擎
 
-**文件位置：** `src/qwenpaw/wiki/engine.py`
+**文件位置：** `src/aiarb/wiki/engine.py`
 
 融合 Karpathy LLM Wiki 理念，实现四种操作：
 
@@ -109,7 +109,7 @@ QwenPaw 采用四层文档架构，每层有独立的存储位置和生命周期
 
 ### 2.4 案件卷宗外部引用
 
-**文件位置：** `src/qwenpaw/cases/`
+**文件位置：** `src/aiarb/cases/`
 
 核心设计：**引用不复制**。通过 `_ref.json` 记录外部文件夹路径，仅缓存解析结果。
 
@@ -297,7 +297,7 @@ console/src/
 ## 七、后端模块结构
 
 ```
-src/qwenpaw/
+src/aiarb/
 ├── parsers/
 │   ├── markitdown_parser.py  ← MarkItDown解析器
 │   ├── mineru_parser.py      ← MinerU云端OCR
@@ -341,7 +341,7 @@ src/qwenpaw/
 
 ## 九、开发注意事项
 
-1. **路径兼容**：系统优先使用 `.aiarb` 目录，自动兼容 `.qwenpaw` / `.copaw` 旧路径
+1. **路径兼容**：系统优先使用 `.aiarb` 目录，自动兼容 `.aiarb` / `.copaw` 旧路径
 2. **解析降级**：MarkItDown → Docling → `[Cannot parse]`，确保用户始终能看到结果
 3. **脱敏顺序**：先解析为Markdown → 本地正则脱敏 → LLM二次脱敏，确保最小token消耗
 4. **回填安全**：映射文件加密存储，还原操作需显式授权

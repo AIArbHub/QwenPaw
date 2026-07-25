@@ -1,4 +1,4 @@
-import {
+﻿import {
   Layout,
   Menu,
   Button,
@@ -287,7 +287,7 @@ useEffect(() => {
 
   // Menu + route snapshots from registry (builtin + plugin registrations merged).
   const rawArbitrationMenu = useMenuItems("primary.arbitration");
-  const rawAgentMenu = useMenuItems("primary.agentScoped");
+  const rawAgentMenu = useMenuItems("primary.agentWorkspace");
   const rawSettingsMenu = useMenuItems("primary.settings");
   const routes = useRoutes();
 
@@ -631,9 +631,9 @@ const arbitrationMenuItems = useMemo(
       location.pathname.startsWith("/chat") ||
       location.pathname.startsWith("/coding");
     if (onChatPage) {
-      window.dispatchEvent(new CustomEvent("qwenpaw:sidebar-new-chat"));
+      window.dispatchEvent(new CustomEvent("aiarb:sidebar-new-chat"));
     } else {
-      sessionStorage.setItem("qwenpaw_pending_new_chat", "1");
+      sessionStorage.setItem("aiarb_pending_new_chat", "1");
       const mode = codingMode ? "coding" : "chat";
       navigate(`/${mode}`);
     }

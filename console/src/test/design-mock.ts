@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Global stub for @agentscope-ai/design in tests.
  * The real lib/ is 3MB and causes long hangs when loaded via deps.inline.
  * Tests that need specific behavior can override with vi.mock('@agentscope-ai/design', factory).

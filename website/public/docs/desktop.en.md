@@ -16,7 +16,7 @@
 
 This guide explains how to install and use the AI Arb Desktop application on Windows and macOS.
 
-[releases]: https://qwenpaw.agentscope.io/downloads
+[releases]: https://aiarb.cn/downloads
 
 ## Important Notice
 
@@ -40,7 +40,7 @@ This guide explains how to install and use the AI Arb Desktop application on Win
 ### Installation Steps
 
 1. **Download the installer**
-   Download `AI-Arb-<version>-Windows.zip` from the [Release page][releases]
+   Download `AIArb-<version>-Windows.zip` from the [Release page][releases]
 
 2. **Run the installer**
    Double-click to extract and run
@@ -107,7 +107,7 @@ The code is completely open source, and the build process is transparently verif
 ### Installation Steps
 
 1. **Download the archive**
-   Download `AI-Arb-<version>-macOS.zip` from the [Release page][releases]
+   Download `AIArb-<version>-macOS.zip` from the [Release page][releases]
 
 2. **Extract**
    Double-click the `.zip` file to extract and get `AI Arb.app`
@@ -186,7 +186,7 @@ cd /Applications  # or wherever your AI Arb.app is located
 
 # Set environment variables and launch (isolate packaged env, avoid conflicts)
 APP_ENV="$(pwd)/AI Arb.app/Contents/Resources/env"
-PYTHONNOUSERSITE=1 PYTHONPATH= PYTHONHOME="$APP_ENV" "$APP_ENV/bin/python" -m qwenpaw desktop
+PYTHONNOUSERSITE=1 PYTHONPATH= PYTHONHOME="$APP_ENV" "$APP_ENV/bin/python" -m aiarb desktop
 ```
 
 **Advantages of terminal launch:**
@@ -194,7 +194,7 @@ PYTHONNOUSERSITE=1 PYTHONPATH= PYTHONHOME="$APP_ENV" "$APP_ENV/bin/python" -m qw
 - ✅ View all app and backend log output in real-time
 - ✅ See complete Python error stack traces
 - ✅ Convenient for debugging and reporting issues
-- ✅ `QWENPAW_DESKTOP_DEBUG=1` raises the desktop log level to debug for more detailed information
+- ✅ `AIARB_DESKTOP_DEBUG=1` raises the desktop log level to debug for more detailed information
 
 **View log files:**
 

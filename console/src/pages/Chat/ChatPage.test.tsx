@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Chat/index.tsx behavior tests
  *
  * Strategy (following the openclaw chat.test.ts pattern):

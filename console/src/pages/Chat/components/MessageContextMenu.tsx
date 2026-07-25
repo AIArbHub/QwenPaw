@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+﻿import { useCallback, useRef, useState } from "react";
 import { Dropdown, Modal, message } from "antd";
 import { DeleteOutlined, ShareAltOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
@@ -137,7 +137,7 @@ export default function MessageContextMenu({
     if (!shareImage) return;
     
     const link = document.createElement("a");
-    link.download = `ai-arb-chat-${Date.now()}.png`;
+    link.download = `aiarb-chat-${Date.now()}.png`;
     link.href = shareImage;
     link.click();
     message.success("图片已下载");

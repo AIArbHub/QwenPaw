@@ -30,7 +30,7 @@
 |------|------|
 | `console/src/pages/Desensitize/index.tsx` | 组件名 `DesensitizePage` → `DocForgePage`，i18n命名空间 `desensitize` → `docforge`，新增安全配置面板（4项配置），解析工作区新增安全标识栏，新增代号映射表Tab |
 | `console/src/pages/Desensitize/index.module.less` | 新增 `.securityPanel*`、`.parseSecurityBar*`、`.codenameMapTab`、`.codenameMapHeader` 样式 |
-| `console/src/pages/Desensitize/storage.ts` | IndexedDB名称 `qwenpaw_desensitize` → `qwenpaw_docforge`，新增 `migrateOldDB()` 迁移函数 |
+| `console/src/pages/Desensitize/storage.ts` | IndexedDB名称 `aiarb_desensitize` → `aiarb_docforge`，新增 `migrateOldDB()` 迁移函数 |
 | `console/src/pages/Knowledge/index.tsx` | 页面标题 "AI资料中心" → "材料库"，新增版本标记（原版/脱敏版Tag+关联版本），新增AI使用偏好选择器，文件列表中脱敏版文件名旁显示Tag |
 | `console/src/pages/Wiki/index.tsx` | 页面标题 "AI裁判智库" → "知识卡片" |
 | `console/src/pages/Cases/index.tsx` | 页面标题 "案件档案" → "案件卷宗"，新增AI使用偏好设置行 |
@@ -161,7 +161,7 @@ const [aiValidation, setAiValidation] = useState<AIValidation>("off");
 
 ### 5.4 IndexedDB迁移（✅ 已实现）
 
-数据库从 `qwenpaw_desensitize` 迁移到 `qwenpaw_docforge`：
+数据库从 `aiarb_desensitize` 迁移到 `aiarb_docforge`：
 
 - storage.ts 中添加 `migrateOldDB()` 函数
 - 自动检测旧数据库，复制数据到新数据库后删除旧数据库
@@ -264,7 +264,7 @@ export interface CodenameEntry {
 
 ### 6.1 IndexedDB 数据迁移（✅ 已实现）
 
-数据库从 `qwenpaw_desensitize` 更名为 `qwenpaw_docforge`，已在 storage.ts 中实现自动迁移：
+数据库从 `aiarb_desensitize` 更名为 `aiarb_docforge`，已在 storage.ts 中实现自动迁移：
 
 ```typescript
 async function migrateOldDB(): Promise<void> {

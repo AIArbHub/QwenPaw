@@ -1,4 +1,4 @@
-# QwenPaw 前后端是怎么连接起来的？
+# AIArb 前后端是怎么连接起来的？
 
 ## 一句话总结
 
@@ -68,7 +68,7 @@ server: {
 
 ### 生产环境（正式部署）
 
-打开 `src/qwenpaw/app/_app.py`，找到这段：
+打开 `src/aiarb/app/_app.py`，找到这段：
 
 ```python
 @app.get("/")
@@ -98,7 +98,7 @@ export function getApiUrl(path: string): string {
 
 // 管理登录 Token
 export function getApiToken(): string {
-  const stored = localStorage.getItem("qwenpaw_auth_token");
+  const stored = localStorage.getItem("aiarb_auth_token");
   if (stored) return stored;
   return typeof TOKEN !== "undefined" ? TOKEN : "";
 }
@@ -255,10 +255,10 @@ class DynamicMultiAgentRunner:
 | `console/src/api/request.ts` | 统一 HTTP 请求函数（fetch 封装） |
 | `console/src/api/modules/*.ts` | 各业务模块的 API 调用（chat、agent、skill...） |
 | `console/src/api/types/*.ts` | API 返回数据的 TypeScript 类型定义 |
-| `src/qwenpaw/app/_app.py` | FastAPI 应用创建、中间件、静态文件托管 |
-| `src/qwenpaw/app/auth.py` | Token 验证中间件 |
-| `src/qwenpaw/app/routers/*.py` | API 路由定义（messages、agents、skills...） |
-| `src/qwenpaw/app/runner/session.py` | AI Agent 会话管理 |
+| `src/aiarb/app/_app.py` | FastAPI 应用创建、中间件、静态文件托管 |
+| `src/aiarb/app/auth.py` | Token 验证中间件 |
+| `src/aiarb/app/routers/*.py` | API 路由定义（messages、agents、skills...） |
+| `src/aiarb/app/runner/session.py` | AI Agent 会话管理 |
 
 ---
 
@@ -314,7 +314,7 @@ Chat.tsx 接收并逐字渲染到页面
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                        QwenPaw 功能模块                              │
+│                        AIArb 功能模块                              │
 │                                                                     │
 │  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐            │
 │  │  脱敏工作台   │   │   知识库      │   │  案件卷宗     │            │
@@ -416,10 +416,10 @@ llm_desensitize(text, llm_call_fn=llm_fn)
 | `console/src/pages/Desensitize/index.module.less` | 脱敏页面样式（含模式卡片选择器） |
 | `console/src/api/modules/knowledge.ts` | 知识库/脱敏 API 调用（含 `desensitizeText`） |
 | `console/src/locales/zh.json` | 中文翻译（desensitize 命名空间） |
-| `src/qwenpaw/app/routers/knowledge.py` | 知识库/脱敏 API 路由（含 `/desensitize-text`） |
-| `src/qwenpaw/knowledge/desensitize.py` | 本地正则脱敏引擎（`local_desensitize`） |
-| `src/qwenpaw/knowledge/desensitize_llm.py` | AI 脱敏引擎 + `get_llm_call_fn` 辅助函数 |
-| `src/qwenpaw/knowledge/backfill.py` | 回填映射表管理（加密存储、还原） |
-| `src/qwenpaw/knowledge/models.py` | 数据模型（KnowledgeDoc、DesensitizeRule 等） |
-| `src/qwenpaw/wiki/engine.py` | Wiki 编译引擎（引用知识库/案件卷宗内容） |
-| `src/qwenpaw/providers/provider_manager.py` | 模型提供商管理（`get_active_chat_model`） |
+| `src/aiarb/app/routers/knowledge.py` | 知识库/脱敏 API 路由（含 `/desensitize-text`） |
+| `src/aiarb/knowledge/desensitize.py` | 本地正则脱敏引擎（`local_desensitize`） |
+| `src/aiarb/knowledge/desensitize_llm.py` | AI 脱敏引擎 + `get_llm_call_fn` 辅助函数 |
+| `src/aiarb/knowledge/backfill.py` | 回填映射表管理（加密存储、还原） |
+| `src/aiarb/knowledge/models.py` | 数据模型（KnowledgeDoc、DesensitizeRule 等） |
+| `src/aiarb/wiki/engine.py` | Wiki 编译引擎（引用知识库/案件卷宗内容） |
+| `src/aiarb/providers/provider_manager.py` | 模型提供商管理（`get_active_chat_model`） |

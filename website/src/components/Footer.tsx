@@ -2,7 +2,7 @@ import { useState, type ReactNode, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { QwenpawMascot } from "@/components/QwenpawMascot";
+import { AiarbMascot } from "@/components/AiarbMascot";
 import {
   GitHubIcon,
   XIcon,
@@ -12,10 +12,10 @@ import {
   DingTalkIcon,
 } from "./Icon";
 
-const AGENTSCOPE_ORG = "https://github.com/agentscope-ai";
-const AGENTSCOPE_REPO = "https://github.com/agentscope-ai/agentscope";
-const AGENTSCOPE_RUNTIME =
-  "https://github.com/agentscope-ai/agentscope-runtime";
+const AIARB_ORG = "https://github.com/agentscope-ai";
+const AIARB_REPO = "https://github.com/agentscope-ai/agentscope";
+const AIARB_RUNTIME =
+  "https://github.com/agentscope-ai/QwenPaw";
 const REME_REPO = "https://github.com/agentscope-ai/ReMe";
 
 interface SocialLink {
@@ -32,7 +32,7 @@ interface PoweredByLink {
 
 const socialLinks: SocialLink[] = [
   {
-    href: "https://x.com/agentscope_ai",
+    href: "https://x.com/AIArbHub",
     ariaLabel: "footer.social.x",
     icon: <XIcon className="block" />,
     qrCode:
@@ -91,15 +91,15 @@ const socialLinks: SocialLink[] = [
 
 const poweredByLinks: PoweredByLink[] = [
   {
-    href: AGENTSCOPE_ORG,
+    href: AIARB_ORG,
     labelKey: "footer.poweredBy.team",
   },
   {
-    href: AGENTSCOPE_REPO,
-    labelKey: "footer.poweredBy.agentscope",
+    href: AIARB_REPO,
+    labelKey: "footer.poweredBy.aiarb",
   },
   {
-    href: AGENTSCOPE_RUNTIME,
+    href: AIARB_RUNTIME,
     labelKey: "footer.poweredBy.runtime",
   },
   {
@@ -152,12 +152,12 @@ export function Footer() {
         <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
           <section className="min-w-0 max-w-xl">
             <Link to="/" className="inline-flex items-center mb-4">
-              <QwenpawMascot size={100} />
+              <AiarbMascot size={100} />
             </Link>
             <p className="mb-2 text-[15px] leading-7 text-(--text)">
-              {t("whyQwenpaw.heroLine")}
+              {t("whyAiarb.heroLine")}
               <br />
-              {t("whyQwenpaw.secondPrefix")}
+              {t("whyAiarb.secondPrefix")}
             </p>
             <div className="mt-5 flex items-center gap-4 text-[#f2a25b]">
               {socialLinks.map((link) => (

@@ -148,7 +148,7 @@ const INSTALL_GUIDES: Record<
       },
       {
         title: "重启并验证",
-        description: "重启 QwenPaw 后自动检测，或点击「重新检测」按钮",
+        description: "重启 AIArb 后自动检测，或点击「重新检测」按钮",
       },
     ],
   },
@@ -168,7 +168,7 @@ const INSTALL_GUIDES: Record<
         description: "在终端运行: ollama pull qwen2.5:7b（推荐 7B 参数量模型）",
       },
       {
-        title: "在 QwenPaw 中配置",
+        title: "在 AIArb 中配置",
         description: "进入「设置 → 模型」添加 Ollama 提供商，地址 http://localhost:11434",
       },
       {

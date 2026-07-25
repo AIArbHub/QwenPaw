@@ -79,6 +79,16 @@ const STYLE_PRESETS = [
   { id: "calm", zhLabel: "冷静克制", enLabel: "Calm" },
 ];
 
+// Preset role options — suited for office, daily life, and commercial dispute resolution
+const PRESET_ROLES = [
+  "私人助理",
+  "工作秘书",
+  "法律助理",
+  "仲裁顾问",
+  "研究助手",
+  "生活管家",
+];
+
 export const PersonaVisualEditor: React.FC<PersonaVisualEditorProps> = ({
   onSaved,
 }) => {
@@ -252,7 +262,7 @@ export const PersonaVisualEditor: React.FC<PersonaVisualEditorProps> = ({
         t={t}
       />
 
-      {/* ─── Soul & Personality ─── */}
+      {/* ─── Personality ─── */}
       <SoulSection
         soul={soul}
         onChange={setSoul}
@@ -323,6 +333,24 @@ const IdentityCardSection: React.FC<IdentityCardProps> = ({ profile, onChange, t
         .filter(Boolean)
     : [];
 
+  // Track role select state: preset value, "" (not selected), or "custom"
+  const [roleSelectValue, setRoleSelectValue] = useState(() => {
+    if (PRESET_ROLES.includes(profile.agent.role)) return profile.agent.role;
+    if (profile.agent.role) return "custom";
+    return "";
+  });
+
+  // Sync role select when profile changes externally (e.g., reset)
+  useEffect(() => {
+    if (PRESET_ROLES.includes(profile.agent.role)) {
+      setRoleSelectValue(profile.agent.role);
+    } else if (profile.agent.role) {
+      setRoleSelectValue("custom");
+    }
+  }, [profile.agent.role]);
+
+  const showCustomRoleInput = roleSelectValue === "custom";
+
   const updateField = (field: keyof ParsedProfile["agent"], value: string) => {
     onChange({ ...profile, agent: { ...profile.agent, [field]: value } });
   };
@@ -370,16 +398,32 @@ const IdentityCardSection: React.FC<IdentityCardProps> = ({ profile, onChange, t
                 <label className={styles.fieldLabel}>{t("persona.agentRole")}</label>
                 <select
                   className={styles.selectInput}
-                  value={profile.agent.role}
-                  onChange={(e) => updateField("role", e.target.value)}
+                  value={roleSelectValue}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setRoleSelectValue(val);
+                    if (val === "custom") {
+                      // Keep existing custom value if any, otherwise leave empty for user to type
+                    } else {
+                      updateField("role", val);
+                    }
+                  }}
                 >
                   <option value="">{t("persona.roleSelectDefault")}</option>
-                  <option value="AI助手">AI助手</option>
-                  <option value="机器人">机器人</option>
-                  <option value="使魔">使魔</option>
-                  <option value="机器里的幽灵">机器里的幽灵</option>
+                  {PRESET_ROLES.map((role) => (
+                    <option key={role} value={role}>{role}</option>
+                  ))}
                   <option value="custom">{t("persona.roleCustom")}</option>
                 </select>
+                {showCustomRoleInput && (
+                  <input
+                    className={styles.textInput}
+                    style={{ marginTop: 8 }}
+                    value={profile.agent.role === "custom" ? "" : profile.agent.role}
+                    onChange={(e) => updateField("role", e.target.value)}
+                    placeholder={t("persona.roleCustomPlaceholder")}
+                  />
+                )}
               </div>
             </div>
             <div className={styles.fieldGroup}>

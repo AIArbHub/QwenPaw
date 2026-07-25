@@ -1,4 +1,4 @@
-import { Button, Checkbox } from "@agentscope-ai/design";
+﻿import { Button, Checkbox } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import type { PoolSkillSpec } from "../../../../api/types";

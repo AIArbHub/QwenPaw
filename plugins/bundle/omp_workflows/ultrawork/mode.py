@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
-from qwenpaw.runtime.slash_command_registry import CommandSpec
+from aiarb.runtime.slash_command_registry import CommandSpec
 
 from ..shared.mode_base import OMPModeBase, info_msg, rewrite_user_msg
 from .gate import UltraworkGate
@@ -16,7 +16,7 @@ from .gate import UltraworkGate
 if TYPE_CHECKING:
     from typing import Any
 
-    from agentscope.message import Msg
+    from aiarb.framework.message import Msg
 
 logger = logging.getLogger(__name__)
 

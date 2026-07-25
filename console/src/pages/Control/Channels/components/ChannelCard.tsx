@@ -1,4 +1,4 @@
-import { Card } from "@agentscope-ai/design";
+﻿import { Card } from "@agentscope-ai/design";
 import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
 import { ChannelIcon } from "./ChannelIcon";

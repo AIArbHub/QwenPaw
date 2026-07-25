@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access,unused-argument
 # pylint: disable=use-implicit-booleaness-not-comparison
-"""Unit tests for qwenpaw.app.inbox_trace_store.
+"""Unit tests for aiarb.app.inbox_trace_store.
 
 Real file IO through a monkeypatched ``_TRACE_DIR`` — no over-mocking.
 Covers: create_trace, append_trace_events (normalization, pydantic
@@ -20,7 +20,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.app import inbox_trace_store as trace_store
+from aiarb.app import inbox_trace_store as trace_store
 
 
 @pytest.fixture
@@ -220,7 +220,7 @@ def test_flatten_session_messages_dicts_kept_as_is():
 
 
 def test_flatten_session_messages_nested_list_unwraps_first_dict():
-    # agentscope sometimes returns [[{message}], ...] — unwrap first dict.
+    # the framework sometimes returns [[{message}], ...] — unwrap first dict.
     msgs = [[{"role": "user", "content": "x"}], [{"role": "assistant"}]]
     flat = trace_store.flatten_session_messages(msgs)
     assert flat == [{"role": "user", "content": "x"}, {"role": "assistant"}]

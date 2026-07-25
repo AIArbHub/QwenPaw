@@ -8,13 +8,13 @@ from dataclasses import dataclass, field
 from typing import Any, AsyncGenerator
 
 import pytest
-from agentscope.message import TextBlock, ToolResultBlock
-from agentscope.tool import ToolResponse
+from aiarb.framework.message import TextBlock, ToolResultBlock
+from aiarb.framework.tool import ToolResponse
 
-from qwenpaw.tool_calls import ToolCoordinator, ToolCoordinatorMiddleware
-from qwenpaw.tool_calls._context import ToolCallContext
-from qwenpaw.tool_calls._entry import ToolCallEntry
-from qwenpaw.tool_calls._stream import ToolStream
+from aiarb.tool_calls import ToolCoordinator, ToolCoordinatorMiddleware
+from aiarb.tool_calls._context import ToolCallContext
+from aiarb.tool_calls._entry import ToolCallEntry
+from aiarb.tool_calls._stream import ToolStream
 
 
 @dataclass

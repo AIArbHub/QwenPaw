@@ -11,7 +11,7 @@ import type {
 
 const DEBOUNCE_MS = 350;
 const PER_PROVIDER_LIMIT = 10;
-const PROVIDERS_STORAGE_KEY = "qwenpaw-market-providers";
+const PROVIDERS_STORAGE_KEY = "aiarb-market-providers";
 
 /** Restore the persisted provider selection */
 const resolveInitialProviders = (): Set<string> => {
@@ -88,7 +88,7 @@ export function useMarketSearch(): MarketSearchState {
     setAutoLoadBlockedState(blocked);
   }, []);
 
-  // Keep server-provided provider order (QwenPaw first) for ranking.
+  // Keep server-provided provider order (AIArb first) for ranking.
   const providerKeyList = useMemo(() => {
     const browseCapable = new Set(
       providers
@@ -130,8 +130,8 @@ export function useMarketSearch(): MarketSearchState {
         setSelectedProviderKeys((prev) => {
           const valid = [...prev].filter((k) => enabled.includes(k));
           if (valid.length > 0) return new Set(valid);
-          const fallback = enabled.includes("qwenpaw")
-            ? ["qwenpaw"]
+          const fallback = enabled.includes("aiarb")
+            ? ["aiarb"]
             : enabled.slice(0, 1);
           return new Set(fallback);
         });

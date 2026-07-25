@@ -22,17 +22,17 @@ from agentscope.message import (
 )
 from agentscope.model import ChatResponse
 
-from qwenpaw.agents.context.scroll import manager as scroll_manager_module
-from qwenpaw.agents.context.scroll.history import HistoryStore
-from qwenpaw.agents.context.scroll.manager import ScrollContextManager
-from qwenpaw.agents.context.scroll.recall_tool import (
+from aiarb.agents.context.scroll import manager as scroll_manager_module
+from aiarb.agents.context.scroll.history import HistoryStore
+from aiarb.agents.context.scroll.manager import ScrollContextManager
+from aiarb.agents.context.scroll.recall_tool import (
     RECALL_PAGE_METADATA_KEY,
     RecallLoopGuard,
 )
-from qwenpaw.agents.context.types import ContextWindowUnfitError, LogEntry
-from qwenpaw.agents.memory.base_memory_manager import BaseMemoryManager
-from qwenpaw.agents.tools.utils import truncate_text_output
-from qwenpaw.constant import (
+from aiarb.agents.context.types import ContextWindowUnfitError, LogEntry
+from aiarb.agents.memory.base_memory_manager import BaseMemoryManager
+from aiarb.agents.tools.utils import truncate_text_output
+from aiarb.constant import (
     AUTO_MEMORY_SEARCH_BLOCK_IDS_KEY,
     LOOP_CONTINUATION_MESSAGE_TAG,
     QWENPAW_MESSAGE_TAG_KEY,
@@ -258,7 +258,7 @@ def test_tool_result_persisted_under_tool_call_id(store: HistoryStore):
     msg = assistant_with_tool("call-1", "big output")
     msg.content[2].metadata.update(
         {
-            "qwenpaw_truncation": {
+            "aiarb_truncation": {
                 "0": {
                     "file_path": "/tmp/artifact.txt",
                 },
@@ -273,7 +273,7 @@ def test_tool_result_persisted_under_tool_call_id(store: HistoryStore):
     ).fetchall()
     assert len(rows) == 1
     assert rows[0]["content"] == "big output"
-    assert json.loads(rows[0]["metadata"])["qwenpaw_truncation"]["0"] == {
+    assert json.loads(rows[0]["metadata"])["aiarb_truncation"]["0"] == {
         "file_path": "/tmp/artifact.txt",
     }
 
@@ -512,7 +512,7 @@ async def test_compress_does_not_index_boundary_msg_still_in_tail(
     ctx = [old_task, a, current, boundary]
     mgr = make_manager(store)
     agent = FakeAgent(ctx, tokens=200)
-    # Mimic AgentScope: boundary id appears in BOTH halves (same id).
+    # Mimic the framework: boundary id appears in BOTH halves (same id).
     compress_half = boundary
     reserve_half = Msg(
         name="a",
@@ -545,7 +545,7 @@ async def test_compress_restores_complete_non_active_tool_boundary(
 ):
     """A retained non-active boundary Msg must not remain a block fragment.
 
-    AgentScope's splitter can reserve only the tool_result half of a Msg.  The
+    the framework's splitter can reserve only the tool_result half of a Msg.  The
     orphan sanitizer used to drop that fragment, silently losing the retained
     boundary.  Restore the full live Msg before sanitizing instead.
     """
@@ -633,11 +633,16 @@ async def test_compress_does_not_evict_user_only_exchange_boundary(
 
 def continuation_stub(text: str = "Continue working on the task.") -> Msg:
     """The user-role stub loop gates / stop handlers inject mid-turn."""
+    from aiarb.constant import (
+            LOOP_CONTINUATION_MESSAGE_TAG,
+        AIARB_MESSAGE_TAG_KEY,  
+    )
+
     return Msg(
         name="user",
         role="user",
         content=[TextBlock(type="text", text=text)],
-        metadata={QWENPAW_MESSAGE_TAG_KEY: LOOP_CONTINUATION_MESSAGE_TAG},
+        metadata={AIARB_MESSAGE_TAG_KEY: LOOP_CONTINUATION_MESSAGE_TAG},
     )
 
 
@@ -1848,7 +1853,7 @@ async def test_pressure_does_not_compact_index_before_tier_cap(
     store: HistoryStore,
 ):
     """Context pressure must not roll up index blocks before the tier cap."""
-    from qwenpaw.agents.context.scroll.eviction_index import Leaf
+    from aiarb.agents.context.scroll.eviction_index import Leaf
 
     mgr = make_manager(store)
     for i in range(3):  # a multi-block Tier 0 from earlier evictions
@@ -2071,13 +2076,17 @@ def test_purge_old_drops_rows_past_window(store: HistoryStore):
 
 
 def test_serialize_persists_runtime_tag():
-    """The qwenpaw_tag survives into the durable row's metadata, so the
+    """The aiarb_tag survives into the durable row's metadata, so the
     recall layer's SQL floor can tell continuation stubs from requests."""
-    from qwenpaw.agents.context.scroll.serialize import msg_to_entries
+    from aiarb.agents.context.scroll.serialize import msg_to_entries
+    from aiarb.constant import (
+        LOOP_CONTINUATION_MESSAGE_TAG,
+        AIARB_MESSAGE_TAG_KEY,
+    )
 
     (entry,) = msg_to_entries(continuation_stub())
     assert entry.metadata == {
-        QWENPAW_MESSAGE_TAG_KEY: LOOP_CONTINUATION_MESSAGE_TAG,
+        AIARB_MESSAGE_TAG_KEY: LOOP_CONTINUATION_MESSAGE_TAG,
     }
     (plain,) = msg_to_entries(user("hello"))
     assert not plain.metadata
@@ -2087,7 +2096,7 @@ def test_serialize_captures_tool_input():
     """A tool call's arguments land in the ``tool_input`` column (it used to be
     dropped — only ``blocks`` carried them — so ``recall_tool`` returned None).
     """
-    from qwenpaw.agents.context.scroll.serialize import msg_to_entries
+    from aiarb.agents.context.scroll.serialize import msg_to_entries
 
     msg = Msg(
         name="a",
@@ -2111,7 +2120,7 @@ def test_serialize_captures_tool_input():
 
 def test_tool_input_round_trips_to_db(store: HistoryStore):
     """End-to-end: the persisted row's ``tool_input`` column is populated."""
-    from qwenpaw.agents.context.scroll.serialize import msg_to_entries
+    from aiarb.agents.context.scroll.serialize import msg_to_entries
 
     msg = Msg(
         name="a",

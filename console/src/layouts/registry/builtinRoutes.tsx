@@ -3,7 +3,7 @@
  *
  * Importing self-registers all builtins into routeRegistry. MainLayout's
  * `useRoutes()` snapshot returns them. Plugin routes are registered via
- * `QwenPaw.route.add(...)` into the same registry and treated uniformly.
+ * `AIArb.route.add(...)` into the same registry and treated uniformly.
  *
  * Lazy components use `lazyImportWithRetry` inline; eager pages (Chat,
  * CodingPage) are passed as ComponentType directly. The `/` redirect is a
@@ -75,6 +75,10 @@ const KnowledgePage = lazyImportWithRetry("../../pages/Knowledge");
 const CasesPage = lazyImportWithRetry("../../pages/Cases");
 const DocumentsPage = lazyImportWithRetry("../../pages/Documents");
 const MemoryPage = lazyImportWithRetry("../../pages/Memory");
+const SopPage = lazyWithRetry(
+  () => import("../../pages/Settings/Sop"),
+  "../../pages/Settings/Sop",
+);
 const ArbitrationDeskPage = lazyImportWithRetry("../../pages/ArbitrationDesk");
 const KnowledgeDeskPage = lazyImportWithRetry("../../pages/KnowledgeDesk");
 const ArbitrationKBPage = lazyImportWithRetry("../../pages/ArbitrationKB");
@@ -164,6 +168,7 @@ export const BUILTIN_ROUTES: Route[] = [
     path: "/memory",
     component: MemoryPage,
   },
+  { id: "core.sop", path: "/sop", component: SopPage },
   // Redirect old desk paths to new desk pages
   {
     id: "core.moot-desk-redirect",

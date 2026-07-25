@@ -12,8 +12,8 @@ import json
 from types import SimpleNamespace
 
 import pytest
-from agentscope.formatter import OpenAIChatFormatter
-from agentscope.message import (
+from aiarb.framework.formatter import OpenAIChatFormatter
+from aiarb.framework.message import (
     Msg,
     TextBlock,
     ThinkingBlock,
@@ -22,16 +22,16 @@ from agentscope.message import (
 )
 
 try:
-    from agentscope.formatter import AnthropicChatFormatter
+    from aiarb.framework.formatter import AnthropicChatFormatter
 except ImportError:
     AnthropicChatFormatter = None
 
 try:
-    from agentscope.formatter import GeminiChatFormatter
+    from aiarb.framework.formatter import GeminiChatFormatter
 except ImportError:
     GeminiChatFormatter = None
 
-from qwenpaw.agents import model_factory
+from aiarb.agents import model_factory
 
 
 def _gemini_session_history() -> list[Msg]:

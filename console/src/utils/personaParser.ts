@@ -412,7 +412,7 @@ export function serializeProfile(data: ParsedProfile): string {
   lines.push("");
   lines.push(`- **名字：** ${data.agent.name || "*（挑个你喜欢的）*"}`);
   lines.push(
-    `- **定位：** ${data.agent.role || "*（AI？机器人？使魔？机器里的幽灵？还是更怪的？）*"}`,
+    `- **定位：** ${data.agent.role || "*（私人助理？工作秘书？法律助理？仲裁顾问？还是自定义？）*"}`,
   );
   lines.push(
     `- **风格：** ${data.agent.style || "*（你给人什么感觉？犀利？温暖？混乱？冷静？）*"}`,

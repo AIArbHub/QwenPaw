@@ -7,10 +7,10 @@ import logging
 import weakref
 from typing import Any, ClassVar
 
-from agentscope.message import Msg, TextBlock
+from aiarb.framework.message import Msg, TextBlock
 
-from qwenpaw.modes.base import AgentMode
-from qwenpaw.runtime.hooks import HookContext
+from aiarb.modes.base import AgentMode
+from aiarb.runtime.hooks import HookContext
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class OMPModeBase(AgentMode):
     def setup(self, workspace: object) -> None:
         super().setup(workspace)
         self._workspace_ref = weakref.ref(workspace)
-        from qwenpaw.loop.gates import StopHandler, StopHandlerRegistration
+        from aiarb.loop.gates import StopHandler, StopHandlerRegistration
 
         handler = StopHandler()
         gate = self.gate_cls()

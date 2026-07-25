@@ -17,7 +17,11 @@ import { getApiUrl, getApiToken } from "../api/config";
 interface PluginInfo {
   id: string;
   name: string;
+  name_i18n?: Record<string, string> | null;
+  description?: string;
+  description_i18n?: Record<string, string> | null;
   frontend_entry?: string;
+  builtin?: boolean;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

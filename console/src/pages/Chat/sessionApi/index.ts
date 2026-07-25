@@ -1,4 +1,4 @@
-import {
+﻿import {
   IAgentScopeRuntimeWebUISession,
   IAgentScopeRuntimeWebUISessionAPI,
   IAgentScopeRuntimeWebUIMessage,
@@ -27,7 +27,7 @@ const ROLE_TOOL = "tool";
 const ROLE_USER = "user";
 const ROLE_ASSISTANT = "assistant";
 const TYPE_PLUGIN_CALL_OUTPUT = "plugin_call_output";
-const CARD_RESPONSE = "AgentScopeRuntimeResponseCard";
+const CARD_RESPONSE = "AIArbRuntimeResponseCard";
 
 function hydrateTurnUsageFromMessages(
   messages: IAgentScopeRuntimeWebUIMessage[],
@@ -216,7 +216,7 @@ const toOutputMessage = (msg: Message): OutputMessage => ({
   metadata: msg.metadata ?? null,
 });
 
-/** Build a user card (AgentScopeRuntimeRequestCard) from a user message. */
+/** Build a user card (AIArbRuntimeRequestCard) from a user message. */
 function buildUserCard(msg: Message): IAgentScopeRuntimeWebUIMessage {
   const contentParts = contentToRequestParts(msg.content);
   return {
@@ -224,7 +224,7 @@ function buildUserCard(msg: Message): IAgentScopeRuntimeWebUIMessage {
     role: "user",
     cards: [
       {
-        code: "AgentScopeRuntimeRequestCard",
+        code: "AIArbRuntimeRequestCard",
         data: {
           created_at: parseTimestamp(msg),
           input: [
@@ -241,7 +241,7 @@ function buildUserCard(msg: Message): IAgentScopeRuntimeWebUIMessage {
 }
 
 /**
- * Build an assistant response card (AgentScopeRuntimeResponseCard)
+ * Build an assistant response card (AIArbRuntimeResponseCard)
  * wrapping a group of consecutive non-user output messages.
  */
 const buildResponseCard = (
@@ -291,9 +291,9 @@ const buildResponseCard = (
  * Convert flat backend messages into the card-based format expected by
  * the @agentscope-ai/chat component.
  *
- * - User messages → AgentScopeRuntimeRequestCard
+ * - User messages → AIArbRuntimeRequestCard
  * - Consecutive non-user messages (assistant / system / tool) → grouped
- *   into a single AgentScopeRuntimeResponseCard with all output messages.
+ *   into a single AIArbRuntimeResponseCard with all output messages.
  */
 const convertMessages = (
   messages: Message[],
@@ -401,7 +401,7 @@ const resolveRealId = (
 // Per-session user message persistence (survives page refresh)
 // ---------------------------------------------------------------------------
 
-const STORAGE_PREFIX = "qwenpaw_pending_user_msg_";
+const STORAGE_PREFIX = "aiarb_pending_user_msg_";
 
 /** Shape stored in sessionStorage. Backward compat: old format was plain text. */
 interface PendingUserMsg {

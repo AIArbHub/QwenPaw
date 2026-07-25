@@ -1,4 +1,4 @@
-import { Card } from "@agentscope-ai/design";
+﻿import { Card } from "@agentscope-ai/design";
 import { Tooltip } from "antd";
 import { formatCompact } from "../../../utils/formatNumber";
 import styles from "./index.module.less";

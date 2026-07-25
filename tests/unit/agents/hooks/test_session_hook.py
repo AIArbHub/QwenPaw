@@ -7,8 +7,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.agents.acp.meta import ACP_EPHEMERAL_META_KEY
-from qwenpaw.hooks.session.session_hook import (
+from aiarb.agents.acp.meta import ACP_EPHEMERAL_META_KEY
+from aiarb.hooks.session.session_hook import (
     SessionLoadHook,
     SessionSaveHook,
 )

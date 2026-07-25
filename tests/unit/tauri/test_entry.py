@@ -10,8 +10,8 @@ import types
 import click
 import pytest
 
-from qwenpaw.tauri import entry
-from qwenpaw.tauri.env import DESKTOP_CORS_ORIGINS_ENV, DESKTOP_READY_PREFIX
+from aiarb.tauri import entry
+from aiarb.tauri.env import DESKTOP_CORS_ORIGINS_ENV, DESKTOP_READY_PREFIX
 
 
 def test_install_desktop_runtime_preserves_existing_cors_values(monkeypatch):
@@ -28,19 +28,19 @@ def test_install_desktop_runtime_preserves_existing_cors_values(monkeypatch):
     assert "http://127.0.0.1:5173" not in origins
 
 
-def test_ensure_qwenpaw_app_not_loaded_rejects_late_cors(monkeypatch):
-    monkeypatch.setitem(sys.modules, "qwenpaw.app._app", object())
+def test_ensure_aiarb_app_not_loaded_rejects_late_cors(monkeypatch):
+    monkeypatch.setitem(sys.modules, "aiarb.app._app", object())
 
     with pytest.raises(RuntimeError, match="desktop CORS origins"):
-        entry._ensure_qwenpaw_app_not_loaded()
+        entry._ensure_aiarb_app_not_loaded()
 
 
-def test_sync_loaded_qwenpaw_constant_cors_origins(monkeypatch):
+def test_sync_loaded_aiarb_constant_cors_origins(monkeypatch):
     constant_module = types.SimpleNamespace(CORS_ORIGINS="")
-    monkeypatch.setitem(sys.modules, "qwenpaw.constant", constant_module)
+    monkeypatch.setitem(sys.modules, "aiarb.constant", constant_module)
     monkeypatch.setenv(DESKTOP_CORS_ORIGINS_ENV, "tauri://localhost")
 
-    entry._sync_loaded_qwenpaw_constant_cors_origins()
+    entry._sync_loaded_aiarb_constant_cors_origins()
 
     assert constant_module.CORS_ORIGINS == "tauri://localhost"
 
@@ -155,12 +155,12 @@ def test_main_supports_frozen_entry_without_package_context(
     monkeypatch.setattr(entry, "install_sidecar_logging", lambda path: None)
     monkeypatch.setattr(entry, "_install_certifi_env", lambda: None)
     monkeypatch.setattr(entry, "_run_backend_server", calls.append)
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path)
     monkeypatch.setattr(
-        "qwenpaw.utils.platform.auto_disable_sandbox_on_windows",
+        "aiarb.utils.platform.auto_disable_sandbox_on_windows",
         lambda: calls.append("sandbox-check"),
     )
-    monkeypatch.delenv("QWENPAW_LOG_LEVEL", raising=False)
+    monkeypatch.delenv("AIARB_LOG_LEVEL", raising=False)
 
     entry.main()
 

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Global stub for @agentscope-ai/chat in tests.
  * The real package is 2.3MB and causes OOM when loaded in vitest workers.
  * Individual tests that need specific behavior override this with vi.mock(..., factory).

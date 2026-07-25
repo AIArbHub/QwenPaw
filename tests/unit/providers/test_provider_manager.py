@@ -7,23 +7,23 @@ from types import SimpleNamespace
 
 import pytest
 
-import qwenpaw.providers.provider_manager as provider_manager_module
-from qwenpaw.config.config import ModelSlotConfig
-from qwenpaw.exceptions import ModelNotFoundException, ProviderError
-from qwenpaw.local_models.llamacpp import LlamaCppServerSetupResult
-from qwenpaw.providers.anthropic_provider import AnthropicProvider
-from qwenpaw.providers.capping_formatter import (
+import aiarb.providers.provider_manager as provider_manager_module
+from aiarb.config.config import ModelSlotConfig
+from aiarb.exceptions import ModelNotFoundException, ProviderError
+from aiarb.local_models.llamacpp import LlamaCppServerSetupResult
+from aiarb.providers.anthropic_provider import AnthropicProvider
+from aiarb.providers.capping_formatter import (
     _CappingAnthropicFormatter,
     _CappingGeminiFormatter,
     _CappingOpenAIFormatter,
 )
-from qwenpaw.providers.context_windows import DEFAULT_CONTEXT_WINDOW
-from qwenpaw.providers.openai_provider import (
+from aiarb.providers.context_windows import DEFAULT_CONTEXT_WINDOW
+from aiarb.providers.openai_provider import (
     GitHubModelsProvider,
     OpenAIProvider,
 )
-from qwenpaw.providers.provider import ModelInfo, ProviderInfo
-from qwenpaw.providers.provider_manager import ProviderManager
+from aiarb.providers.provider import ModelInfo, ProviderInfo
+from aiarb.providers.provider_manager import ProviderManager
 
 LEGACY_PROVIDER = {
     "providers": {
@@ -88,7 +88,7 @@ LEGACY_PROVIDER = {
 
 @pytest.fixture
 def isolated_secret_dir(monkeypatch, tmp_path):
-    secret_dir = tmp_path / ".qwenpaw.secret"
+    secret_dir = tmp_path / ".aiarb.secret"
     monkeypatch.setattr(provider_manager_module, "SECRET_DIR", secret_dir)
     return secret_dir
 
@@ -240,9 +240,9 @@ async def test_resume_local_model_restores_server_and_runtime_state(
     isolated_secret_dir,
 ) -> None:
     manager = ProviderManager()
-    model_id = "AgentScope/QwenPaw-Flash-2B-Q4_K_M"
+    model_id = "the framework/AIArb-Flash-2B-Q4_K_M"
     manager.update_provider(
-        "qwenpaw-local",
+        "aiarb-local",
         {
             "base_url": "http://127.0.0.1:9000/v1",
             "extra_models": [
@@ -254,7 +254,7 @@ async def test_resume_local_model_restores_server_and_runtime_state(
         },
     )
     manager.active_model = ModelSlotConfig(
-        provider_id="qwenpaw-local",
+        provider_id="aiarb-local",
         model=model_id,
     )
     manager.save_active_model(manager.active_model)
@@ -290,7 +290,7 @@ async def test_resume_local_model_restores_server_and_runtime_state(
 
     await manager._resume_local_model(local_manager)
 
-    provider = manager.get_provider("qwenpaw-local")
+    provider = manager.get_provider("aiarb-local")
 
     assert local_manager.restored_model_id == model_id
     assert provider is not None
@@ -633,7 +633,7 @@ def test_init_from_storage_migrates_with_different_provider(
     # api key should be preserved
     assert provider.api_key == "sk-legacy-minimax"
 
-    from agentscope.model import AnthropicChatModel
+    from aiarb.framework.model import AnthropicChatModel
 
     assert provider.get_chat_model_cls() == AnthropicChatModel
 
@@ -773,7 +773,7 @@ def test_dashscope_max_inline_media_bytes_defaults_when_absent(
 
 # ---------------------------------------------------------------------------
 # Inline-media capping for the other providers (OpenAI / Anthropic / Gemini).
-# Same oversized-request bug as DashScope: their agentscope formatters read
+# Same oversized-request bug as DashScope: their the framework formatters read
 # every file:// media off disk and base64-inline the whole file on every
 # call. Each provider now wires a shared capping formatter and exposes the
 # same configurable ``max_inline_media_bytes`` field, restored by

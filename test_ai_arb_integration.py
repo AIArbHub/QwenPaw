@@ -4,10 +4,10 @@ import sys
 import asyncio
 sys.path.insert(0, 'src')
 
-from qwenpaw.doc_processing.components.redaction_editor import redaction_editor
-from qwenpaw.doc_processing.components.cloud_providers import all_cloud_providers
-from qwenpaw.doc_processing.arbitration import ArbitrationKnowledgeBase, AwardReviewer
-from qwenpaw.doc_processing.batch_processor import BatchProcessor
+from aiarb.doc_processing.components.redaction_editor import redaction_editor
+from aiarb.doc_processing.components.cloud_providers import all_cloud_providers
+from aiarb.doc_processing.arbitration import ArbitrationKnowledgeBase, AwardReviewer
+from aiarb.doc_processing.batch_processor import BatchProcessor
 
 
 async def test_redaction_editor():
@@ -90,7 +90,7 @@ async def test_batch_processor():
     """测试批量处理器"""
     print("\n=== 批量处理器测试 ===")
     
-    from qwenpaw.doc_processing.batch_processor import batch_processor
+    from aiarb.doc_processing.batch_processor import batch_processor
     
     # 创建批量任务
     task_id = await batch_processor.create_batch_task(
@@ -115,11 +115,11 @@ async def test_api_routes():
     """测试 API 路由"""
     print("\n=== API 路由测试 ===")
     
-    from qwenpaw.doc_processing.api.routes import create_doc_processing_router
+    from aiarb.doc_processing.api.routes import create_doc_processing_router
     router = create_doc_processing_router()
     print(f"文档处理路由: {len(router.routes)} 个端点")
     
-    from qwenpaw.doc_processing.frontend.routes import create_frontend_router
+    from aiarb.doc_processing.frontend.routes import create_frontend_router
     frouter = create_frontend_router()
     print(f"前端路由: {len(frouter.routes)} 个端点")
     

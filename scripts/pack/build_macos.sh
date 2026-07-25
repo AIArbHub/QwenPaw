@@ -7,13 +7,13 @@ REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$REPO_ROOT"
 PACK_DIR="$(cd "$(dirname "$0")" && pwd)"
 DIST="${DIST:-dist}"
-ARCHIVE="${DIST}/qwenpaw-env.tar.gz"
+ARCHIVE="${DIST}/aiarb-env.tar.gz"
 APP_NAME="AI Arb"
 APP_DIR="${DIST}/${APP_NAME}.app"
 
 echo "== Building wheel (includes console frontend) =="
 # Skip wheel_build if dist already has a wheel for current version
-VERSION_FILE="${REPO_ROOT}/src/qwenpaw/__version__.py"
+VERSION_FILE="${REPO_ROOT}/src/aiarb/__version__.py"
 CURRENT_VERSION=""
 if [[ -f "${VERSION_FILE}" ]]; then
   CURRENT_VERSION="$(
@@ -23,12 +23,12 @@ if [[ -f "${VERSION_FILE}" ]]; then
 fi
 if [[ -n "${CURRENT_VERSION}" ]]; then
   shopt -s nullglob
-  whls=("${REPO_ROOT}/dist/qwenpaw-${CURRENT_VERSION}-"*.whl)
+  whls=("${REPO_ROOT}/dist/aiarb-${CURRENT_VERSION}-"*.whl)
   if [[ ${#whls[@]} -gt 0 ]]; then
     echo "dist/ already has wheel for version ${CURRENT_VERSION}, skipping."
   else
     # Clean up old wheels to avoid confusion
-    old_whls=("${REPO_ROOT}/dist/qwenpaw-"*.whl)
+    old_whls=("${REPO_ROOT}/dist/aiarb-"*.whl)
     if [[ ${#old_whls[@]} -gt 0 ]]; then
       echo "Removing old wheel files: ${old_whls[*]}"
       rm -f "${old_whls[@]}"
@@ -64,7 +64,7 @@ LOG="$HOME/.aiarb/desktop.log"
 unset PYTHONPATH
 export PYTHONHOME="$ENV_DIR"
 export PYTHONNOUSERSITE=1
-export QWENPAW_DESKTOP_APP=1
+export AIARB_DESKTOP_APP=1
 
 # Preserve system PATH for accessing system commands (e.g. imsg, brew)
 # Prepend packaged env/bin so packaged Python takes precedence
@@ -84,8 +84,8 @@ fi
 
 cd "$HOME" || true
 
-# Log level: env var QWENPAW_LOG_LEVEL or default to "info"
-LOG_LEVEL="${QWENPAW_LOG_LEVEL:-info}"
+# Log level: env var AIARB_LOG_LEVEL or default to "info"
+LOG_LEVEL="${AIARB_LOG_LEVEL:-info}"
 
 if [ ! -t 2 ]; then
   mkdir -p "$HOME/.aiarb"
@@ -110,10 +110,10 @@ if [ ! -t 2 ]; then
     exit 1
   fi
   if [ ! -f "$HOME/.aiarb/config.json" ]; then
-    "$ENV_DIR/bin/python" -u -m qwenpaw init --defaults --accept-security
+    "$ENV_DIR/bin/python" -u -m aiarb init --defaults --accept-security
   fi
   echo "Launching python with log-level=$LOG_LEVEL..."
-  "$ENV_DIR/bin/python" -u -m qwenpaw desktop --log-level "$LOG_LEVEL"
+  "$ENV_DIR/bin/python" -u -m aiarb desktop --log-level "$LOG_LEVEL"
   EXIT=$?
   if [ $EXIT -ge 128 ]; then
     SIG=$((EXIT - 128))
@@ -125,9 +125,9 @@ if [ ! -t 2 ]; then
   exit $EXIT
 fi
 if [ ! -f "$HOME/.aiarb/config.json" ]; then
-  "$ENV_DIR/bin/python" -u -m qwenpaw init --defaults --accept-security
+  "$ENV_DIR/bin/python" -u -m aiarb init --defaults --accept-security
 fi
-exec "$ENV_DIR/bin/python" -u -m qwenpaw desktop --log-level "$LOG_LEVEL"
+exec "$ENV_DIR/bin/python" -u -m aiarb desktop --log-level "$LOG_LEVEL"
 LAUNCHER
 chmod +x "${APP_DIR}/Contents/MacOS/${APP_NAME}"
 
@@ -147,7 +147,7 @@ VERSION="${CURRENT_VERSION}"
 if [[ -z "${VERSION}" ]]; then
   # Fallback: try to get version from packed env metadata
   VERSION="$("${APP_DIR}/Contents/Resources/env/bin/python" -c \
-    "from importlib.metadata import version; print(version('qwenpaw'))" 2>/dev/null \
+    "from importlib.metadata import version; print(version('aiarb'))" 2>/dev/null \
     || echo "0.0.0")"
   echo "Using version from packed env metadata: ${VERSION}"
 else
@@ -180,7 +180,7 @@ INFOPLIST
 echo "== Built ${APP_DIR} =="
 # Optional: create zip for distribution (set CREATE_ZIP=1)
 if [[ -n "${CREATE_ZIP}" ]]; then
-  ZIP_NAME="${DIST}/AI-Arb-${VERSION}-macOS.zip"
+  ZIP_NAME="${DIST}/AIArb-${VERSION}-macOS.zip"
   ditto -c -k --sequesterRsrc --keepParent "${APP_DIR}" "${ZIP_NAME}"
   echo "== Created ${ZIP_NAME} =="
 fi

@@ -1,17 +1,17 @@
 # 插件系统
 
-QwenPaw 提供了插件系统，允许用户扩展 QwenPaw 的功能。
+AIArb 提供了插件系统，允许用户扩展 AIArb 的功能。
 
 ## 概述
 
 插件系统支持以下扩展能力：
 
 - **Provider 插件**：添加新的 LLM Provider 和模型
-- **Middleware 插件**：注册 AgentScope `MiddlewareBase` 工厂，在 agent 推理循环中包裹 `on_acting` / `on_reasoning` 等钩子
+- **Middleware 插件**：注册 AIArb `MiddlewareBase` 工厂，在 agent 推理循环中包裹 `on_acting` / `on_reasoning` 等钩子
 - **Hook 插件**：在应用启动/关闭时执行自定义代码（app 生命周期级别，仅执行一次）
 - **Command 插件**：注册自定义的 `/command` 魔法命令
 - **HTTP API 插件**：通过 FastAPI `APIRouter` 在 `/api` 下暴露自定义 REST 接口
-- **前端扩展插件**：在浏览器中运行的 JS 插件，共享宿主的 React / Ant Design 运行时，通过声明式 `window.QwenPaw.*` API 扩展界面——注册侧边栏菜单、页面路由、UI 插槽、聊天定制等，无需修改宿主代码
+- **前端扩展插件**：在浏览器中运行的 JS 插件，共享宿主的 React / Ant Design 运行时，通过声明式 `window.AIArb.*` API 扩展界面——注册侧边栏菜单、页面路由、UI 插槽、聊天定制等，无需修改宿主代码
 - **Channel 插件**：注册自定义消息频道（如 Slack、LINE）
 
 ## 插件管理
@@ -21,27 +21,27 @@ QwenPaw 提供了插件系统，允许用户扩展 QwenPaw 的功能。
 从本地目录安装：
 
 ```bash
-qwenpaw plugin install /path/to/plugin
+aiarb plugin install /path/to/plugin
 ```
 
 从 URL 安装（支持 ZIP 文件）：
 
 ```bash
-qwenpaw plugin install https://example.com/plugin.zip
+aiarb plugin install https://example.com/plugin.zip
 ```
 
 强制重新安装：
 
 ```bash
-qwenpaw plugin install /path/to/plugin --force
+aiarb plugin install /path/to/plugin --force
 ```
 
-**注意**：插件操作只能在 QwenPaw 离线时执行。
+**注意**：插件操作只能在 AIArb 离线时执行。
 
 ### 列出已安装插件
 
 ```bash
-qwenpaw plugin list
+aiarb plugin list
 ```
 
 输出示例：
@@ -53,19 +53,19 @@ Installed Plugins:
 my-provider (v1.0.0)
   Custom LLM provider integration
   Author: Developer Name
-  Path: /Users/user/.qwenpaw/plugins/my-provider
+  Path: /Users/user/.aiarb/plugins/my-provider
 ```
 
 ### 查看插件详情
 
 ```bash
-qwenpaw plugin info <plugin-id>
+aiarb plugin info <plugin-id>
 ```
 
 ### 卸载插件
 
 ```bash
-qwenpaw plugin uninstall <plugin-id>
+aiarb plugin uninstall <plugin-id>
 ```
 
 ## 插件开发
@@ -97,7 +97,7 @@ my-plugin/
     "backend": "plugin.py"
   },
   "dependencies": [],
-  "qwenpaw_version": {
+  "aiarb_version": {
     "min": "1.0.0",
     "max": "2.1.0"
   },
@@ -118,9 +118,9 @@ my-plugin/
 | `entry.backend`   | `string`        | 否\* | 相对插件目录的 Python 入口文件路径，需在其中导出 `plugin`。                                                                                       |
 | `entry.frontend`  | `string`        | 否\* | 已构建的前端 bundle 路径（如 `dist/index.js`）。                                                                                                  |
 | `dependencies`    | `string[]`      | 否   | Python 依赖列表，安装时通过 pip / uv 自动安装。                                                                                                   |
-| `qwenpaw_version` | `object`        | 否   | QwenPaw 版本约束（推荐）。包含 `min`（包含）和 `max`（不包含，可选）两个子字段，语义为 `>=min, <max`。省略 `max` 时默认取 `{major}.{minor+1}.0`。 |
-| `min_version`     | `string`        | 否   | **遗留字段。** 需要的最低 QwenPaw 版本。当 `qwenpaw_version` 存在时被忽略，仅为兼容第三方旧插件保留。                                             |
-| `max_version`     | `string`        | 否   | **遗留字段。** 不兼容的第一个 QwenPaw 版本（不包含）。配合 `min_version` 使用；省略时从 `min_version` 推导。                                      |
+| `aiarb_version` | `object`        | 否   | AIArb 版本约束（推荐）。包含 `min`（包含）和 `max`（不包含，可选）两个子字段，语义为 `>=min, <max`。省略 `max` 时默认取 `{major}.{minor+1}.0`。 |
+| `min_version`     | `string`        | 否   | **遗留字段。** 需要的最低 AIArb 版本。当 `aiarb_version` 存在时被忽略，仅为兼容第三方旧插件保留。                                             |
+| `max_version`     | `string`        | 否   | **遗留字段。** 不兼容的第一个 AIArb 版本（不包含）。配合 `min_version` 使用；省略时从 `min_version` 推导。                                      |
 | `meta`            | `object`        | 否   | 自由元数据。前端 UI 与 `type` 推断都会读取（如 `meta.tools[]`、`meta.hook_type`、`meta.provider_id`）。                                           |
 | `entry_point`     | `string`        | 否   | **遗留字段。** 等价于 `entry.backend`，仅为兼容老插件保留，新插件请使用 `entry.backend`。                                                         |
 
@@ -144,7 +144,7 @@ my-plugin/
 # -*- coding: utf-8 -*-
 """My Plugin Entry Point."""
 
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 import logging
 
 logger = logging.getLogger(__name__)
@@ -175,14 +175,14 @@ plugin = MyPlugin()
 
 ### 前端插件
 
-前端插件是运行在浏览器端的 JavaScript 扩展。与后端插件通过 Python `PluginApi` 注册能力不同，前端插件通过全局 `window.QwenPaw.*` API 声明式地扩展 Console 界面。
+前端插件是运行在浏览器端的 JavaScript 扩展。与后端插件通过 Python `PluginApi` 注册能力不同，前端插件通过全局 `window.AIArb.*` API 声明式地扩展 Console 界面。
 
 **加载生命周期：**
 
-1. Console 启动，在 `window.QwenPaw` 上挂载 Host SDK（React、antd 等共享依赖）和注册 API（menu、route、slot、chat 等命名空间）
+1. Console 启动，在 `window.AIArb` 上挂载 Host SDK（React、antd 等共享依赖）和注册 API（menu、route、slot、chat 等命名空间）
 2. Console 请求 `/frontend_plugin` 获取已启用的前端插件列表
 3. 逐一下载各插件的 JS bundle，通过 Blob URL 动态导入执行
-4. 插件代码执行，调用 `window.QwenPaw.*` 注册菜单、路由、聊天定制等 UI 扩展
+4. 插件代码执行，调用 `window.AIArb.*` 注册菜单、路由、聊天定制等 UI 扩展
 5. 注册立即生效——菜单出现在侧边栏、路由可导航、聊天区域呈现定制内容
 
 插件无需声明使用了哪些扩展点；系统通过 `pluginId` 自动追踪所有注册。卸载或禁用插件时，通过 `dispose()` 或 `chat.disposeAll(pluginId)` 清理全部注册。
@@ -222,7 +222,7 @@ plugin = MyPlugin()
 my-plugin/
 ├── plugin.json      # 插件清单（必需）
 ├── src/
-│   └── index.tsx    # 入口点，调用 window.QwenPaw.* API
+│   └── index.tsx    # 入口点，调用 window.AIArb.* API
 ├── package.json     # 依赖声明
 ├── tsconfig.json    # TypeScript 配置
 └── vite.config.ts   # 构建配置
@@ -243,13 +243,13 @@ my-plugin/
 
 #### src/index.tsx
 
-插件入口文件在加载时执行，通过 `window.QwenPaw.*` API 注册扩展：
+插件入口文件在加载时执行，通过 `window.AIArb.*` API 注册扩展：
 
 ```tsx
-const { React, antd } = window.QwenPaw.host;
+const { React, antd } = window.AIArb.host;
 const pluginId = "my-plugin";
 
-// 调用 window.QwenPaw.* API 注册菜单、路由、聊天定制等
+// 调用 window.AIArb.* API 注册菜单、路由、聊天定制等
 // 详见下方「前端扩展 API」
 ```
 
@@ -310,17 +310,17 @@ export default defineConfig({
 
 ```bash
 npm install && npm run build
-cp -r . ~/.qwenpaw/plugins/my-plugin/
-qwenpaw app
+cp -r . ~/.aiarb/plugins/my-plugin/
+aiarb app
 ```
 
-可将 `console/src/plugins/types/qwenpaw.d.ts` 复制到插件项目中作为 `qwenpaw-host.d.ts`，获得完整的类型提示。
+可将 `console/src/plugins/types/aiarb.d.ts` 复制到插件项目中作为 `aiarb-host.d.ts`，获得完整的类型提示。
 
 ## 前端扩展 API
 
-前端插件通过 `window.QwenPaw.*` API 扩展 Console 界面，无需修改宿主代码。所有注册方法第一个参数是 `pluginId`，每个注册返回 `{ dispose() }` 对象用于撤销。
+前端插件通过 `window.AIArb.*` API 扩展 Console 界面，无需修改宿主代码。所有注册方法第一个参数是 `pluginId`，每个注册返回 `{ dispose() }` 对象用于撤销。
 
-### Host SDK — `window.QwenPaw.host`
+### Host SDK — `window.AIArb.host`
 
 宿主共享依赖，插件无需打包这些库：
 
@@ -337,23 +337,23 @@ host.getApiToken(): string | null // 获取当前认证 Token
 **React Hooks（在 React 组件内使用）：**
 
 ```ts
-const theme = window.QwenPaw.host.useTheme(); // "light" | "dark"
-const locale = window.QwenPaw.host.useLocale(); // "zh" | "en"
-const agent = window.QwenPaw.host.useSelectedAgent(); // { id: string }
-const session = window.QwenPaw.host.useCurrentSession(); // { id: string } | null
+const theme = window.AIArb.host.useTheme(); // "light" | "dark"
+const locale = window.AIArb.host.useLocale(); // "zh" | "en"
+const agent = window.AIArb.host.useSelectedAgent(); // { id: string }
+const session = window.AIArb.host.useCurrentSession(); // { id: string } | null
 ```
 
 **命令式获取（可在任意位置调用）：**
 
 ```ts
-const agentId = window.QwenPaw.host.getSelectedAgentId();
-const sessionId = window.QwenPaw.host.getCurrentSessionId();
+const agentId = window.AIArb.host.getSelectedAgentId();
+const sessionId = window.AIArb.host.getCurrentSessionId();
 ```
 
 **认证代理请求（自动注入 Authorization 和 X-Agent-Id 请求头）：**
 
 ```ts
-const resp = await window.QwenPaw.host.fetch("/api/v1/my-endpoint", {
+const resp = await window.AIArb.host.fetch("/api/v1/my-endpoint", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ query: "test" }),
@@ -361,7 +361,7 @@ const resp = await window.QwenPaw.host.fetch("/api/v1/my-endpoint", {
 const data = await resp.json();
 ```
 
-### 侧边栏菜单 — `window.QwenPaw.menu`
+### 侧边栏菜单 — `window.AIArb.menu`
 
 | 方法       | 签名                                     | 说明             |
 | ---------- | ---------------------------------------- | ---------------- |
@@ -379,7 +379,7 @@ const data = await resp.json();
   icon?: ReactComponent | ReactNode;
   route?: string;                // 点击时导航到的路由 id
   parentId?: string;             // 挂在哪个分组下
-  location?: "primary.agentScoped" | "primary.settings" | "userMenu";
+  location?: "primary.the frameworkd" | "primary.settings" | "userMenu";
   before?: string;               // 排在某个 id 之前
   after?: string;                // 排在某个 id 之后
   order?: number;                // 数值越小越靠前
@@ -389,7 +389,7 @@ const data = await resp.json();
 }
 ```
 
-### 页面路由 — `window.QwenPaw.route`
+### 页面路由 — `window.AIArb.route`
 
 | 方法      | 签名                                          | 说明                     |
 | --------- | --------------------------------------------- | ------------------------ |
@@ -411,7 +411,7 @@ const data = await resp.json();
 **wrap 示例（为已有页面加顶部 banner）：**
 
 ```tsx
-window.QwenPaw.route.wrap("my-plugin", "core.chat", (Inner) => {
+window.AIArb.route.wrap("my-plugin", "core.chat", (Inner) => {
   return () => (
     <div>
       <div style={{ background: "#fff3cd", padding: 8, textAlign: "center" }}>
@@ -423,7 +423,7 @@ window.QwenPaw.route.wrap("my-plugin", "core.chat", (Inner) => {
 });
 ```
 
-### 通用 UI 插槽 — `window.QwenPaw.slot`
+### 通用 UI 插槽 — `window.AIArb.slot`
 
 | 方法       | 签名                                          | 说明                                          |
 | ---------- | --------------------------------------------- | --------------------------------------------- |
@@ -447,7 +447,7 @@ window.QwenPaw.route.wrap("my-plugin", "core.chat", (Inner) => {
 
 ```tsx
 // 替换 Header Logo
-window.QwenPaw.slot.replace("my-plugin", "header.logo", (defaultLogo) => {
+window.AIArb.slot.replace("my-plugin", "header.logo", (defaultLogo) => {
   return <img src="https://example.com/logo.svg" style={{ height: 24 }} />;
 });
 ```
@@ -455,7 +455,7 @@ window.QwenPaw.slot.replace("my-plugin", "header.logo", (defaultLogo) => {
 ### 聊天欢迎界面 — `chat.welcome`
 
 ```tsx
-window.QwenPaw.chat.welcome.set("my-plugin", {
+window.AIArb.chat.welcome.set("my-plugin", {
   greeting: (locale) => (locale.startsWith("zh") ? "你好！" : "Hello!"),
   description: "I specialize in data analysis.",
   avatar: "https://example.com/avatar.png",
@@ -467,7 +467,7 @@ window.QwenPaw.chat.welcome.set("my-plugin", {
 });
 
 // 或完全替换欢迎界面
-window.QwenPaw.chat.welcome.render("my-plugin", (props) => {
+window.AIArb.chat.welcome.render("my-plugin", (props) => {
   return <div>Custom Welcome</div>;
 });
 ```
@@ -475,7 +475,7 @@ window.QwenPaw.chat.welcome.render("my-plugin", (props) => {
 ### 聊天主题 — `chat.theme`
 
 ```ts
-window.QwenPaw.chat.theme.set("my-plugin", {
+window.AIArb.chat.theme.set("my-plugin", {
   colorPrimary: "#1890ff",
 });
 ```
@@ -484,13 +484,13 @@ window.QwenPaw.chat.theme.set("my-plugin", {
 
 ```tsx
 // 设置左上角标题
-window.QwenPaw.chat.leftHeader.set("my-plugin", {
+window.AIArb.chat.leftHeader.set("my-plugin", {
   title: "My Brand",
   logo: <img src="logo.svg" style={{ height: 20 }} />,
 });
 
 // 在右上角添加按钮
-window.QwenPaw.chat.rightHeader.add(
+window.AIArb.chat.rightHeader.add(
   "my-plugin",
   <button
     onClick={() => alert("Plugin action!")}
@@ -506,13 +506,13 @@ window.QwenPaw.chat.rightHeader.add(
 
 ```ts
 // 自定义 placeholder
-window.QwenPaw.chat.sender.set("my-plugin", {
+window.AIArb.chat.sender.set("my-plugin", {
   placeholder: "Ask me anything...",
   disclaimer: "Responses may not be accurate.",
 });
 
 // 添加输入建议
-window.QwenPaw.chat.sender.addSuggestion("my-plugin", {
+window.AIArb.chat.sender.addSuggestion("my-plugin", {
   id: "my-plugin.suggestions",
   items: [
     { label: "/analyze", value: "analyze" },
@@ -525,14 +525,14 @@ window.QwenPaw.chat.sender.addSuggestion("my-plugin", {
 
 ```tsx
 // AI 回复消息下方添加操作按钮
-window.QwenPaw.chat.actions.add("my-plugin", {
+window.AIArb.chat.actions.add("my-plugin", {
   id: "my-plugin.star",
   icon: <span>⭐</span>,
   onClick: ({ data }) => console.log("Starred:", data),
 });
 
 // 用户消息下方添加操作按钮
-window.QwenPaw.chat.requestActions.add("my-plugin", {
+window.AIArb.chat.requestActions.add("my-plugin", {
   id: "my-plugin.edit",
   icon: <span>✏️</span>,
   onClick: ({ data }) => console.log("Edit:", data),
@@ -544,7 +544,7 @@ window.QwenPaw.chat.requestActions.add("my-plugin", {
 使用 `chat.requestPayload.add` 可以在 Console 将聊天请求发送到后端前改写 `requestBody`。多个转换函数会按 `order` 从小到大执行，入参包含当前 `payload`、解析后的 `sessionId` 和 `selectedAgent`。
 
 ```ts
-window.QwenPaw.chat.requestPayload.add(
+window.AIArb.chat.requestPayload.add(
   "my-plugin",
   ({ payload, sessionId, selectedAgent }) => ({
     ...payload,
@@ -565,18 +565,18 @@ window.QwenPaw.chat.requestPayload.add(
 ```tsx
 // 设置默认 AI 回复的头像和昵称
 // 当前会复用 welcome.avatar / welcome.nick，因为默认 ResponseCard 读取这两个字段
-window.QwenPaw.chat.response.set("my-plugin", {
+window.AIArb.chat.response.set("my-plugin", {
   avatar: "https://example.com/bot-avatar.png",
   nick: "My Bot",
 });
 
 // 在用户消息前方追加内容
-window.QwenPaw.chat.request.prepend("my-plugin", ({ data }) => {
+window.AIArb.chat.request.prepend("my-plugin", ({ data }) => {
   return <div style={{ fontSize: 10, color: "#999" }}>User</div>;
 });
 
 // 在最新 AI 回复下方追加信息条
-window.QwenPaw.chat.response.append("my-plugin", ({ data, isLast }) => {
+window.AIArb.chat.response.append("my-plugin", ({ data, isLast }) => {
   if (!isLast) return null;
   return (
     <div
@@ -593,7 +593,7 @@ window.QwenPaw.chat.response.append("my-plugin", ({ data, isLast }) => {
 });
 
 // 完全替换用户消息渲染（可调用 fallback() 保留默认渲染）
-window.QwenPaw.chat.request.render("my-plugin", ({ data, fallback }) => {
+window.AIArb.chat.request.render("my-plugin", ({ data, fallback }) => {
   return (
     <div style={{ border: "1px dashed #ccc", borderRadius: 8, padding: 4 }}>
       {fallback()}
@@ -606,7 +606,7 @@ window.QwenPaw.chat.request.render("my-plugin", ({ data, fallback }) => {
 
 ```tsx
 // 注册自定义工具结果渲染组件（props 包含 result, sessionId, messageId）
-window.QwenPaw.chat.toolRender("my-plugin", "get_weather", ({ result }) => {
+window.AIArb.chat.toolRender("my-plugin", "get_weather", ({ result }) => {
   const data = typeof result === "string" ? JSON.parse(result) : result;
   return (
     <div style={{ padding: 12, border: "1px solid #e8e8e8", borderRadius: 8 }}>
@@ -619,17 +619,17 @@ window.QwenPaw.chat.toolRender("my-plugin", "get_weather", ({ result }) => {
 ### 自定义卡片 — `chat.card`
 
 ```ts
-window.QwenPaw.chat.card("my-plugin", "my-card", MyCardComponent);
+window.AIArb.chat.card("my-plugin", "my-card", MyCardComponent);
 ```
 
 ### 审计与调试
 
 ```ts
 // 查看扩展注册记录
-console.table(window.QwenPaw.audit.overrides());
+console.table(window.AIArb.audit.overrides());
 
 // 清理插件的所有 Chat 扩展注册
-window.QwenPaw.chat.disposeAll("my-plugin");
+window.AIArb.chat.disposeAll("my-plugin");
 ```
 
 ### 国际化支持
@@ -637,7 +637,7 @@ window.QwenPaw.chat.disposeAll("my-plugin");
 所有支持 `Localized<T>` 类型的字段可传入函数，按语言返回不同值：
 
 ```ts
-window.QwenPaw.chat.welcome.set("my-plugin", {
+window.AIArb.chat.welcome.set("my-plugin", {
   greeting: (locale) => (locale.startsWith("zh") ? "你好！" : "Hello!"),
 });
 ```
@@ -677,7 +677,7 @@ cd my-llm-provider
     "backend": "plugin.py"
   },
   "dependencies": ["httpx>=0.24.0"],
-  "qwenpaw_version": {
+  "aiarb_version": {
     "min": "1.0.0",
     "max": "2.1.0"
   },
@@ -694,8 +694,8 @@ cd my-llm-provider
 # -*- coding: utf-8 -*-
 """My LLM Provider Implementation."""
 
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.provider import ModelInfo
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.provider import ModelInfo
 from typing import List
 
 
@@ -737,7 +737,7 @@ import importlib.util
 import logging
 import os
 
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 
 logger = logging.getLogger(__name__)
 
@@ -784,10 +784,10 @@ plugin = MyLLMProviderPlugin()
 
 ```bash
 # 安装插件
-qwenpaw plugin install my-llm-provider
+aiarb plugin install my-llm-provider
 
-# 启动 QwenPaw
-qwenpaw app
+# 启动 AIArb
+aiarb app
 
 # 在 Web UI 中配置 API Key
 # 然后就可以使用新的 Provider 了
@@ -795,7 +795,7 @@ qwenpaw app
 
 ### 示例 2：添加启动钩子
 
-假设你想在 QwenPaw 启动时初始化一个监控服务。
+假设你想在 AIArb 启动时初始化一个监控服务。
 
 #### 1. 创建插件
 
@@ -818,7 +818,7 @@ cd monitoring-hook
     "backend": "plugin.py"
   },
   "dependencies": [],
-  "qwenpaw_version": {
+  "aiarb_version": {
     "min": "1.0.0",
     "max": "2.1.0"
   }
@@ -831,7 +831,7 @@ cd monitoring-hook
 # -*- coding: utf-8 -*-
 """Monitoring Hook Plugin Entry Point."""
 
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 import logging
 
 logger = logging.getLogger(__name__)
@@ -855,7 +855,7 @@ class MonitoringHookPlugin:
 
                 # 初始化你的监控服务
                 # from my_monitoring import init_monitoring
-                # init_monitoring(app_name="QwenPaw")
+                # init_monitoring(app_name="AIArb")
 
                 logger.info("✓ Monitoring initialized successfully")
 
@@ -882,8 +882,8 @@ plugin = MonitoringHookPlugin()
 #### 4. 安装
 
 ```bash
-qwenpaw plugin install monitoring-hook
-qwenpaw app
+aiarb plugin install monitoring-hook
+aiarb app
 ```
 
 ### 示例 3：添加自定义命令
@@ -911,7 +911,7 @@ cd status-command
     "backend": "plugin.py"
   },
   "dependencies": [],
-  "qwenpaw_version": {
+  "aiarb_version": {
     "min": "1.0.0",
     "max": "2.1.0"
   }
@@ -926,7 +926,7 @@ cd status-command
 
 import logging
 
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 
 logger = logging.getLogger(__name__)
 
@@ -936,7 +936,7 @@ class StatusCommandPlugin:
 
     def register(self, api: PluginApi):
         """Register the status command."""
-        from qwenpaw.runtime.commands.control.base import (
+        from aiarb.runtime.commands.control.base import (
             BaseControlCommandHandler,
         )
 
@@ -945,7 +945,7 @@ class StatusCommandPlugin:
             help_text = "Check system status"
 
             async def handle(self, ctx, args: str):
-                from agentscope.message import Msg
+                from aiarb.message import Msg
                 return Msg(
                     name="system",
                     role="assistant",
@@ -966,8 +966,8 @@ plugin = StatusCommandPlugin()
 #### 4. 安装和使用
 
 ```bash
-qwenpaw plugin install status-command
-qwenpaw app
+aiarb plugin install status-command
+aiarb app
 
 # 使用命令
 /status
@@ -994,12 +994,12 @@ qwenpaw app
 **src/index.tsx**：
 
 ```tsx
-const { React, antd } = window.QwenPaw.host;
+const { React, antd } = window.AIArb.host;
 const { Typography, Card } = antd;
 const pluginId = "welcome-plugin";
 
 const WelcomePage = () => {
-  const theme = window.QwenPaw.host.useTheme();
+  const theme = window.AIArb.host.useTheme();
   return (
     <Card
       style={{
@@ -1008,20 +1008,20 @@ const WelcomePage = () => {
         background: theme === "dark" ? "#1f1f1f" : "#fff",
       }}
     >
-      <Typography.Title level={2}>Welcome to QwenPaw</Typography.Title>
+      <Typography.Title level={2}>Welcome to AIArb</Typography.Title>
       <Typography.Paragraph>插件系统运行正常！</Typography.Paragraph>
     </Card>
   );
 };
 
-window.QwenPaw.menu.add(pluginId, {
+window.AIArb.menu.add(pluginId, {
   id: "welcome-plugin.home",
   label: "Welcome",
   icon: "spark-home-line",
   route: "welcome-plugin.home",
 });
 
-window.QwenPaw.route.add(pluginId, {
+window.AIArb.route.add(pluginId, {
   id: "welcome-plugin.home",
   path: "/welcome-plugin/home",
   component: WelcomePage,
@@ -1030,8 +1030,8 @@ window.QwenPaw.route.add(pluginId, {
 
 ```bash
 npm install && npm run build
-cp -r . ~/.qwenpaw/plugins/welcome-plugin/
-qwenpaw app
+cp -r . ~/.aiarb/plugins/welcome-plugin/
+aiarb app
 ```
 
 ### 示例 5：自定义工具调用渲染
@@ -1041,11 +1041,11 @@ qwenpaw app
 **src/index.tsx**：
 
 ```tsx
-const { React, antd } = window.QwenPaw.host;
+const { React, antd } = window.AIArb.host;
 const { Card, Descriptions } = antd;
 const pluginId = "tool-render-plugin";
 
-window.QwenPaw.chat.toolRender(pluginId, "get_weather", ({ result }) => {
+window.AIArb.chat.toolRender(pluginId, "get_weather", ({ result }) => {
   const data = typeof result === "string" ? JSON.parse(result) : result;
   return (
     <Card title="天气信息" size="small" style={{ marginTop: 8, maxWidth: 400 }}>
@@ -1068,11 +1068,11 @@ window.QwenPaw.chat.toolRender(pluginId, "get_weather", ({ result }) => {
 ```tsx
 const pluginId = "custom-greeting-plugin";
 
-window.QwenPaw.chat.welcome.set(pluginId, {
+window.AIArb.chat.welcome.set(pluginId, {
   greeting: (locale) =>
     locale.startsWith("zh")
-      ? "你好！我是定制版 QwenPaw"
-      : "Hello! I'm customized QwenPaw",
+      ? "你好！我是定制版 AIArb"
+      : "Hello! I'm customized AIArb",
   description: "这是一个定制化的聊天助手",
   prompts: [
     { label: "分析代码", value: "帮我分析这段代码" },
@@ -1085,7 +1085,7 @@ window.QwenPaw.chat.welcome.set(pluginId, {
 ### 示例 7：暴露 FastAPI 接口
 
 后端插件可以通过注册 `fastapi.APIRouter` 暴露自己的 HTTP 接口。路由会挂载在
-`/api` 加上你指定的前缀下，与 QwenPaw 核心 API 使用同一个 FastAPI 应用，因此
+`/api` 加上你指定的前缀下，与 AIArb 核心 API 使用同一个 FastAPI 应用，因此
 共享 CORS、鉴权等设置，并会出现在 `/openapi.json` 与 `/docs` 中。
 
 下面示例增加一个简单的 `/api/pets` 接口：列出宠物，并支持新增。
@@ -1110,7 +1110,7 @@ mkdir pet-api-plugin && cd pet-api-plugin
     "backend": "plugin.py"
   },
   "dependencies": [],
-  "qwenpaw_version": {
+  "aiarb_version": {
     "min": "1.1.5",
     "max": "2.1.0"
   }
@@ -1129,7 +1129,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 
 logger = logging.getLogger(__name__)
 
@@ -1215,10 +1215,10 @@ plugin = PetApiPlugin()
 #### 4. 安装并试用
 
 ```bash
-qwenpaw plugin install pet-api-plugin
+aiarb plugin install pet-api-plugin
 ```
 
-启动 QwenPaw 后，可在终端用 `curl` 测试（端口请按你本地实际为准，例如 `8088`）：
+启动 AIArb 后，可在终端用 `curl` 测试（端口请按你本地实际为准，例如 `8088`）：
 
 ```bash
 # 列出全部宠物
@@ -1242,7 +1242,7 @@ curl -X POST http://127.0.0.1:8088/api/pets \
 
 ### 示例 8：Tracing Middleware（工具调用追踪）
 
-本示例展示如何注册一个 `on_acting` middleware，当设置环境变量 `QWENPAW_TRACE` 时记录每次 tool call 的名称、参数和执行耗时。
+本示例展示如何注册一个 `on_acting` middleware，当设置环境变量 `AIARB_TRACE` 时记录每次 tool call 的名称、参数和执行耗时。
 
 **plugin.json：**
 
@@ -1252,13 +1252,13 @@ curl -X POST http://127.0.0.1:8088/api/pets \
   "name": "Tracing Middleware Demo",
   "version": "1.0.0",
   "description": "Demo: logs tool calls with execution timing to a trace file",
-  "author": "QwenPaw Team",
+  "author": "AIArb Team",
   "type": "general",
   "entry": {
     "backend": "tracing_plugin.py"
   },
   "dependencies": [],
-  "qwenpaw_version": {
+  "aiarb_version": {
     "min": "1.0.0",
     "max": "2.1.0"
   }
@@ -1273,8 +1273,8 @@ import time
 from pathlib import Path
 from typing import Any, AsyncGenerator, Callable
 
-from agentscope.middleware import MiddlewareBase
-from qwenpaw.plugins.api import PluginApi
+from aiarb.middleware import MiddlewareBase
+from aiarb.plugins.api import PluginApi
 
 
 class TracingMiddleware(MiddlewareBase):
@@ -1306,13 +1306,13 @@ class TracingMiddleware(MiddlewareBase):
 
 
 def _tracing_factory(ctx: Any, agent_config: Any) -> TracingMiddleware | None:
-    """Create TracingMiddleware when QWENPAW_TRACE env var is set."""
-    if not os.environ.get("QWENPAW_TRACE"):
+    """Create TracingMiddleware when AIARB_TRACE env var is set."""
+    if not os.environ.get("AIARB_TRACE"):
         return None
     workspace_dir = getattr(ctx, "workspace_dir", None)
     if workspace_dir is None:
         return None
-    trace_file = Path(workspace_dir) / ".qwenpaw" / "trace.log"
+    trace_file = Path(workspace_dir) / ".aiarb" / "trace.log"
     return TracingMiddleware(trace_file=trace_file)
 
 
@@ -1326,7 +1326,7 @@ plugin = TracingPlugin()
 
 **要点：**
 
-- **条件激活**：工厂函数检测环境变量 `QWENPAW_TRACE`，仅设置时启用
+- **条件激活**：工厂函数检测环境变量 `AIARB_TRACE`，仅设置时启用
 - **`priority=50`**：比默认优先级更高（数值更小 = 更靠外层），确保 tracing 包裹其他 middleware
 - **`on_acting` 钩子**：在 tool call 执行前/后测量耗时
 - 完整源码参见 `plugins/middleware-demo/tracing-middleware/tracing_plugin.py`
@@ -1345,13 +1345,13 @@ plugin = TracingPlugin()
   "name": "Thinking Log Middleware Demo",
   "version": "1.0.0",
   "description": "Demo: prints model reasoning steps to stdout",
-  "author": "QwenPaw Team",
+  "author": "AIArb Team",
   "type": "general",
   "entry": {
     "backend": "thinking_log_plugin.py"
   },
   "dependencies": [],
-  "qwenpaw_version": {
+  "aiarb_version": {
     "min": "1.0.0",
     "max": "2.1.0"
   }
@@ -1364,9 +1364,9 @@ plugin = TracingPlugin()
 import sys
 from typing import Any, AsyncGenerator, Callable
 
-from agentscope.middleware import MiddlewareBase
-from agentscope.event import ThinkingBlockDeltaEvent, TextBlockDeltaEvent
-from qwenpaw.plugins.api import PluginApi
+from aiarb.middleware import MiddlewareBase
+from aiarb.event import ThinkingBlockDeltaEvent, TextBlockDeltaEvent
+from aiarb.plugins.api import PluginApi
 
 
 class ThinkingLogMiddleware(MiddlewareBase):
@@ -1410,7 +1410,7 @@ plugin = ThinkingLogPlugin()
 
 ### 示例 10：注册自定义消息频道
 
-Channel 插件可以为 QwenPaw 添加新的消息平台。注册后的频道会在控制台 UI 中与内置
+Channel 插件可以为 AIArb 添加新的消息平台。注册后的频道会在控制台 UI 中与内置
 频道（钉钉、Telegram 等）一起显示，支持同样的启用/禁用和配置方式。
 
 #### 1. 创建插件目录
@@ -1427,13 +1427,13 @@ mkdir sample-channel-plugin && cd sample-channel-plugin
   "name": "Sample Channel",
   "version": "1.0.0",
   "type": "channel",
-  "description": "Sample messaging channel integration for QwenPaw",
+  "description": "Sample messaging channel integration for AIArb",
   "author": "Your Name",
   "entry": {
     "backend": "plugin.py"
   },
   "dependencies": ["sample-sdk>=1.0.0"],
-  "qwenpaw_version": {
+  "aiarb_version": {
     "min": "1.1.5",
     "max": "2.1.0"
   }
@@ -1457,12 +1457,12 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from qwenpaw.app.channels.base import (
+from aiarb.app.channels.base import (
     BaseChannel,
     OnReplySent,
     ProcessHandler,
 )
-from qwenpaw.app.channels.renderer import ChannelDisplayConfig
+from aiarb.app.channels.renderer import ChannelDisplayConfig
 
 logger = logging.getLogger(__name__)
 
@@ -1546,7 +1546,7 @@ class SampleChannel(BaseChannel):
 """Sample Channel 插件入口。"""
 
 import logging
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 
 logger = logging.getLogger(__name__)
 
@@ -1604,8 +1604,8 @@ plugin = SampleChannelPlugin()
 #### 5. 安装和使用
 
 ```bash
-qwenpaw plugin install sample-channel-plugin
-qwenpaw app
+aiarb plugin install sample-channel-plugin
+aiarb app
 ```
 
 启动后，在控制台的 **Control → Channels** 中可以看到 Sample 频道卡片，点击即可
@@ -1756,18 +1756,18 @@ api.register_startup_hook("late", callback, priority=200)
 1. 检查插件是否已安装：
 
    ```bash
-   qwenpaw plugin list
+   aiarb plugin list
    ```
 
-2. 查看 QwenPaw 日志：
+2. 查看 AIArb 日志：
 
    ```bash
-   tail -f ~/.qwenpaw/logs/qwenpaw.log | grep -i plugin
+   tail -f ~/.aiarb/logs/aiarb.log | grep -i plugin
    ```
 
 3. 验证插件清单格式：
    ```bash
-   qwenpaw plugin info <plugin-id>
+   aiarb plugin info <plugin-id>
    ```
 
 ### 依赖安装失败
@@ -1781,7 +1781,7 @@ api.register_startup_hook("late", callback, priority=200)
 
 ### Provider 未显示
 
-1. 确认插件已安装并重启 QwenPaw
+1. 确认插件已安装并重启 AIArb
 2. 检查 Web UI 的模型管理页面
 3. 查看日志中的 provider 注册信息
 
@@ -1793,7 +1793,7 @@ api.register_startup_hook("late", callback, priority=200)
 
 ## 安全注意事项
 
-1. **只安装可信插件**：插件代码会在 QwenPaw 进程中执行
+1. **只安装可信插件**：插件代码会在 AIArb 进程中执行
 2. **检查依赖**：确保插件依赖来自可信源
 3. **审查代码**：安装前审查插件源代码
 4. **热加载注意**：当前版本支持运行中通过 API 热安装/热卸载插件，无需重启。请注意热加载时的状态一致性
@@ -1864,7 +1864,7 @@ api.register_control_command(
 )
 ```
 
-handler 必须继承 `qwenpaw.runtime.commands.control.base.BaseControlCommandHandler`，并实现 `command_name`、`help_text` 和 `async handle(self, ctx, args)` 方法。
+handler 必须继承 `aiarb.runtime.commands.control.base.BaseControlCommandHandler`，并实现 `command_name`、`help_text` 和 `async handle(self, ctx, args)` 方法。
 
 ### register_tool
 
@@ -1915,7 +1915,7 @@ api.set_tool_config(tool_name: str, agent_id: str, config: dict)
 
 ### register_middleware
 
-注册 AgentScope `MiddlewareBase` 工厂。
+注册 AIArb `MiddlewareBase` 工厂。
 
 ```python
 api.register_middleware(
@@ -1941,7 +1941,7 @@ api.register_middleware(
 
 如需拦截或增强 agent 的请求处理，推荐以下方式：
 
-- **增强 agent 推理循环**：使用 `register_middleware` 注册 AgentScope middleware（`on_acting` / `on_reasoning` 钩子）
+- **增强 agent 推理循环**：使用 `register_middleware` 注册 AIArb middleware（`on_acting` / `on_reasoning` 钩子）
 - **拦截特定命令**：使用 `register_control_command` 注册自定义命令处理器
 - **在请求生命周期中注入逻辑**：使用 `HookRegistry`（8 阶段 hook）
 
@@ -1972,12 +1972,12 @@ zip -r my-plugin-1.0.0.zip my-plugin/
 用户可以通过 URL 安装：
 
 ```bash
-qwenpaw plugin install https://example.com/my-plugin-1.0.0.zip
+aiarb plugin install https://example.com/my-plugin-1.0.0.zip
 ```
 
 ## 常见问题
 
-### Q: 插件可以访问哪些 QwenPaw API？
+### Q: 插件可以访问哪些 AIArb API？
 
 A: 插件通过 `PluginApi` 访问核心功能，包括：
 
@@ -1988,9 +1988,9 @@ A: 插件通过 `PluginApi` 访问核心功能，包括：
 - HTTP 路由注册（`register_http_router`）
 - Runtime helpers（provider_manager 等）
 
-### Q: 插件可以修改 QwenPaw 的核心行为吗？
+### Q: 插件可以修改 AIArb 的核心行为吗？
 
-A: 可以，通过 `register_middleware`（注入 AgentScope middleware）、`register_control_command`、`register_tool`、runtime hooks 和其他 PluginApi 方法。请谨慎使用，确保不会破坏核心功能。
+A: 可以，通过 `register_middleware`（注入 AIArb middleware）、`register_control_command`、`register_tool`、runtime hooks 和其他 PluginApi 方法。请谨慎使用，确保不会破坏核心功能。
 
 ### Q: 插件之间会冲突吗？
 
@@ -2000,26 +2000,26 @@ A: 如果多个插件注册相同的 provider_id 或 command_name，后注册的
 
 ### GPT Image 2 工具插件
 
-一个为 QwenPaw agents 添加 OpenAI GPT Image 2 图片生成能力的工具插件。
+一个为 AIArb agents 添加 OpenAI GPT Image 2 图片生成能力的工具插件。
 
 **系统要求：**
 
-- QwenPaw 最低版本：`1.1.5`
+- AIArb 最低版本：`1.1.5`
 
 **安装方法：**
 
 ```bash
-# 克隆 QwenPaw 仓库（如果尚未克隆）
+# 克隆 AIArb 仓库（如果尚未克隆）
 git clone https://github.com/agentscope-ai/QwenPaw.git
-cd QwenPaw
+cd AIArb
 
 # 安装插件
-qwenpaw plugin install plugins/tool/gpt-image2
+aiarb plugin install plugins/tool/gpt-image2
 ```
 
 **配置步骤：**
 
-1. 安装完成后，重启 QwenPaw
+1. 安装完成后，重启 AIArb
 2. 进入 Agent 设置 → 工具管理
 3. 找到 "generate_image_gpt" 工具
 4. 点击"配置"按钮，输入你的 OpenAI API Key
