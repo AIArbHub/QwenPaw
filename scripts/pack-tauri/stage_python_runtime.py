@@ -119,9 +119,6 @@ def _http_get(url: str, max_retries: int | None = None, retry_delay: float = 30.
             else:
                 raise
 
-            else:
-                raise
-
         time.sleep(wait)
     raise RuntimeError(f"failed to fetch {url} after {max_retries} retries")
 

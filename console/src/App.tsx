@@ -1,4 +1,4 @@
-﻿﻿import { createGlobalStyle } from "antd-style";
+﻿import { createGlobalStyle } from "antd-style";
 import {
   ConfigProvider,
   bailianDarkTheme,
@@ -204,7 +204,7 @@ function AppInner() {
         prefixCls="aiarb"
         locale={antdLocale}
         theme={{
-          ...(selectedTheme as any)?.theme,
+          ...((selectedTheme as Record<string, unknown> | undefined)?.theme as Record<string, unknown> | undefined),
           algorithm: isDark
             ? antdTheme.darkAlgorithm
             : antdTheme.defaultAlgorithm,

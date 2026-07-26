@@ -7,10 +7,9 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -177,7 +176,7 @@ def _generate_tool_suggestion(
     """生成工具建议。"""
     keywords_str = ", ".join(k["keyword"] for k in tool_keywords[:5])
     description = f"文档「{title}」中检测到工具相关操作：{keywords_str}"
-    content = f"建议为以下操作注册工具：\n" + "\n".join(
+    content = "建议为以下操作注册工具：\n" + "\n".join(
         f"  - {k['keyword']}" for k in tool_keywords
     )
 

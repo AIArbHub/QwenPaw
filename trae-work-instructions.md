@@ -139,6 +139,49 @@
 **目标**：把知识库从"文本仓库"升级为"知识图谱 + 可追溯引用"
 **工期**：2-3 周
 
+#### 3.1.0 doc_processing 模块评估与决策
+
+**评估结论**：`doc_processing/` 有完整 `.py` 源码且被 git 跟踪（28 个文件），但**不推荐使用**。
+
+**质量问题**：
+
+| 问题 | 详情 |
+|------|------|
+| 过度设计 | RoutingScheduler + ComponentManager + EngineStrategy 三层抽象，约2000行代码，实际只需"提取文本" |
+| 单例实现缺陷 | `__new__` + `__init__` 模式，`_initialized` 类变量保护不严谨 |
+| 空实现 | `_cache_result` 是 `pass` + TODO |
+| 从未使用 | 未在 `_app.py` 注册，从未真正运行 |
+| vibecoding 产物 | 技术债高，代码质量不可控 |
+
+**验证证据**：
+- `git ls-files src/aiarb/doc_processing/` 返回 28 个被跟踪的 `.py` 文件
+- `grep "doc_processing" src/aiarb/app/_app.py` 无匹配
+- `grep "doc_processing" src/aiarb/app/` 无匹配
+- 知识库插件 `service.py` 第 68 行 `from aiarb.doc_processing import DocParser` 是唯一引用点
+
+**决策：不使用 doc_processing，改为借鉴 StaffDeck `knowledge/parser.py` 的轻量方案**
+
+StaffDeck 的 `parser.py` 仅约120行单文件，支持 txt/md/html/pdf/docx，有完善的降级策略和编码检测。知识库插件内嵌此方案，完全不依赖 doc_processing。
+
+**对比**：
+
+| 维度 | doc_processing | StaffDeck parser.py |
+|------|---------------|-------------------|
+| 代码量 | 约2000行 | 约120行 |
+| 抽象层级 | 3 层（路由+组件+引擎） | 0 层（单函数） |
+| 依赖 | fitz/pdfplumber/docx/openpyxl/xlrd/pptx | pypdf/python-docx |
+| 降级策略 | 无 | docx->zip 降级，html->标准库降级 |
+| 编码检测 | 无 | utf-8 -> utf-8-sig -> gb18030 -> latin-1 |
+| 可靠性 | 从未运行 | 已验证 |
+| 维护成本 | 高 | 低 |
+
+**处理策略**：
+1. 知识库插件 `service.py` 移除 `from aiarb.doc_processing import DocParser`，改用内嵌 `parser.py`
+2. `doc_processing/` 目录本次不删除（避免影响 git 历史），但在文档中标记为废弃
+3. 后续可独立清理 `doc_processing/` 目录
+
+---
+
 #### 3.1.1 新增轻量解析器
 
 **创建文件**：`src/aiarb/builtin_plugins/knowledge-base/backend/parser.py`

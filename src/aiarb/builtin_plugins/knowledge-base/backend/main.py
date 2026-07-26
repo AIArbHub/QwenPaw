@@ -17,7 +17,7 @@ class KnowledgeBasePlugin:
 
     def register(self, api: Any) -> None:
         """注册插件能力。"""
-        from .routes import create_kb_router
+        from .backend.routes import create_kb_router
 
         # 注册 HTTP 路由
         router = create_kb_router()
@@ -28,7 +28,7 @@ class KnowledgeBasePlugin:
         )
 
         # 注册工具（供 Agent 调用）
-        from .service import kb_search_tool
+        from .backend.service import kb_search_tool
 
         api.register_tool(
             tool_name="kb_search",
@@ -41,7 +41,7 @@ class KnowledgeBasePlugin:
 
         # 注册启动钩子
         async def _on_startup() -> None:
-            from .service import KnowledgeBaseService
+            from .backend.service import KnowledgeBaseService
 
             svc = KnowledgeBaseService()
             await svc.initialize()

@@ -561,6 +561,7 @@ class DocFillComponent(LocalComponent):
         try:
             if output_format == 'html':
                 # 转换为HTML格式
+                content_html = content.replace('\n', '<br>')
                 html_content = f"""
 <!DOCTYPE html>
 <html>
@@ -574,7 +575,7 @@ class DocFillComponent(LocalComponent):
 </head>
 <body>
     <div class="document">
-        {content.replace('\n', '<br>')}
+        {content_html}
     </div>
 </body>
 </html>

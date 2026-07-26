@@ -6,6 +6,7 @@ import {
   Modal,
   Rate,
   Spin,
+  Tag,
   message,
 } from "antd";
 import {
@@ -255,6 +256,7 @@ export default function FeedbackPage() {
                         </div>
                       ))}
                     </div>
+                  )}
                 {summary.buckets && Object.keys(summary.buckets).length > 0 && (
                   <div className={styles.attributionSection}>
                     <div className={styles.attributionTitle}>

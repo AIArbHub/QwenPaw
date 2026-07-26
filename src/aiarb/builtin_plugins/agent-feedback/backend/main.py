@@ -14,7 +14,7 @@ class AgentFeedbackPlugin:
 
     def register(self, api: Any) -> None:
         """注册插件能力。"""
-        from .routes import create_feedback_router
+        from .backend.routes import create_feedback_router
 
         router = create_feedback_router()
         api.register_http_router(
@@ -25,7 +25,7 @@ class AgentFeedbackPlugin:
 
         # 注册启动钩子
         async def _on_startup() -> None:
-            from .service import FeedbackService
+            from .backend.service import FeedbackService
 
             svc = FeedbackService()
             await svc.initialize()

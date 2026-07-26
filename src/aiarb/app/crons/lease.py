@@ -222,7 +222,6 @@ class LeaseGuard:
         Returns:
             清理的租约数量。
         """
-        now = datetime.now(timezone.utc)
         expired_keys = [
             job_id
             for job_id, lease in self._leases.items()

@@ -246,7 +246,6 @@ def _build_buckets(sections: list[dict[str, str]]) -> dict[str, list[dict[str, s
 
     for section in sections:
         title_lower = section["title"].lower()
-        content_lower = section["content"].lower()
 
         # 规则类
         if any(kw in title_lower for kw in ("规则", "要求", "必须", "禁止", "不得")):

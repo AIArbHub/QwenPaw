@@ -570,7 +570,7 @@ def test_builder_adds_pruning_for_scroll_strategy(tmp_path):
     )
 
 
-def test_context_config_disables_the framework_duplicate_tool_result_cap():
+def test_context_config_disables_the_framework_duplicate_tool_result_cap():
     agent_config = types.SimpleNamespace(
         running=types.SimpleNamespace(
             light_context_config=LightContextConfig(
@@ -589,7 +589,7 @@ def test_context_config_disables_the framework_duplicate_tool_result_cap():
 
 
 @pytest.mark.asyncio
-async def test_the framework_does_not_resplit_pruned_tool_result():
+async def test_the_framework_does_not_resplit_pruned_tool_result():
     from aiarb.framework.agent import Agent
 
     agent_config = types.SimpleNamespace(
@@ -630,7 +630,7 @@ async def test_the framework_does_not_resplit_pruned_tool_result():
     assert reserved.metadata == result.metadata
 
 
-def test_context_config_keeps_the framework_cap_when_pruning_is_disabled():
+def test_context_config_keeps_the_framework_cap_when_pruning_is_disabled():
     from aiarb.framework.agent import ContextConfig
 
     agent_config = types.SimpleNamespace(
