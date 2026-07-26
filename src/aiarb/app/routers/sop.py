@@ -40,6 +40,7 @@ from ...sop.store import (
 from ...sop.step_agent import StepAgent
 from ...sop.runtime import SkillRuntime
 from ...sop.distiller import SkillDistiller
+from ...sop.reflection import get_reflection_engine
 
 logger = logging.getLogger(__name__)
 
@@ -277,7 +278,7 @@ async def api_runtime_step(req: RuntimeStepRequest):
     )
 
     # Runtime applies
-    status = runtime.apply_decision(state, decision, card)
+    status = await runtime.apply_decision(state, decision, card)
 
     # Determine reply text
     reply_text = decision.content
@@ -326,3 +327,61 @@ async def api_runtime_restore(req: RuntimeStateRequest):
 async def api_runtime_get_state(req: RuntimeStateRequest):
     """Get the current runtime state (pass-through for verification)."""
     return RuntimeStateResponse(state=req.state)
+
+
+# ---------------------------------------------------------------------------
+# Reflection & Leaderboard
+# ---------------------------------------------------------------------------
+
+class ReflectRequest(BaseModel):
+    """反思请求。"""
+    agent_id: str = ""
+    skill_id: str = ""
+
+
+@router.post("/reflect")
+async def api_reflect(req: ReflectRequest):
+    """执行 7 维反思。"""
+    engine = get_reflection_engine()
+
+    # 获取技能信息
+    skill_info: dict[str, Any] | None = None
+    if req.skill_id:
+        card = load_skill(req.skill_id)
+        if card:
+            skill_info = {
+                "id": card.id,
+                "name": card.name,
+                "description": card.description,
+                "nodes": len(card.nodes),
+                "edges": len(card.edges),
+            }
+
+    result = await engine.reflect(
+        agent_id=req.agent_id,
+        skill_id=req.skill_id,
+        skill_info=skill_info,
+    )
+    return result.to_dict()
+
+
+@router.get("/leaderboard")
+async def api_leaderboard():
+    """获取技能排行榜。"""
+    skills = list_skills()
+    leaderboard = [
+        {
+            "id": s.id,
+            "name": s.name,
+            "call_count": s.call_count,
+            "positive_feedback_count": s.positive_feedback_count,
+            "negative_feedback_count": s.negative_feedback_count,
+        }
+        for s in skills
+    ]
+    # 按调用次数排序
+    leaderboard.sort(
+        key=lambda x: x["call_count"],
+        reverse=True,
+    )
+    return {"skills": leaderboard}

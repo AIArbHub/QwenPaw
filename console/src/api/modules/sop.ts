@@ -23,6 +23,9 @@ export interface SkillGraphNode {
   tool_name: string;
   knowledge_scope: string;
   metadata: Record<string, unknown>;
+  expected_user_info?: string[];
+  allowed_actions?: string[];
+  retry_policy?: Record<string, unknown>;
 }
 
 export interface SkillGraphEdge {
@@ -48,6 +51,15 @@ export interface SkillCard {
   updated_at: string;
   tags: string[];
   metadata: Record<string, unknown>;
+  // ── 新增字段 ──
+  terminal_node_ids?: string[];
+  trigger_intents?: string[];
+  required_info?: string[];
+  interruption_policy?: Record<string, string>;
+  response_rules?: string[];
+  call_count?: number;
+  positive_feedback_count?: number;
+  negative_feedback_count?: number;
 }
 
 export interface SkillListResponse {
@@ -143,6 +155,38 @@ export interface RuntimeStateResponse {
   state: RuntimeState;
 }
 
+export interface ReflectionResult {
+  agent_id: string;
+  skill_id: string;
+  summary: string;
+  strengths: string[];
+  weaknesses: string[];
+  suggestions: string[];
+  rubric_scores: Record<string, {
+    label: string;
+    score: number;
+    issues: string[];
+    suggestion: string;
+  }>;
+  metrics: Record<string, unknown>;
+  rounds: number;
+}
+
+export interface ReflectionRequest {
+  agent_id?: string;
+  skill_id?: string;
+}
+
+export interface LeaderboardResponse {
+  skills: Array<{
+    id: string;
+    name: string;
+    call_count: number;
+    positive_feedback_count: number;
+    negative_feedback_count: number;
+  }>;
+}
+
 // ── API ──────────────────────────────────────────────────────────────────
 
 export const sopApi = {
@@ -216,6 +260,19 @@ export const sopApi = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+
+  // ── Reflection ───────────────────────────────────────────────────────────
+
+  reflect: (payload: ReflectionRequest) =>
+    request<ReflectionResult>("/sop/reflect", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  // ── Leaderboard ──────────────────────────────────────────────────────────
+
+  getLeaderboard: () =>
+    request<LeaderboardResponse>("/sop/leaderboard"),
 };
 
 export default sopApi;

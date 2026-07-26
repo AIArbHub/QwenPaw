@@ -1,0 +1,28 @@
+.workbench {
+  height: 100%;
+  overflow-y: auto;
+  padding: 0 16px 16px;
+}
+
+.tabsRow {
+  padding: 0 4px;
+  margin-bottom: 16px;
+}
+
+.tabContent {
+  min-height: 400px;
+}
+
+.skeletonFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+/* ─── Dark mode ─── */
+html.dark-mode {
+  .workbench {
+    background: transparent;
+  }
+}

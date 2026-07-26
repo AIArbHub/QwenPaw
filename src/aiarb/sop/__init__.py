@@ -31,6 +31,8 @@ from .schema import (
     SkillRuntimeState,
     validate_graph,
 )
+from .reflection import ReflectionEngine, ReflectionResult, get_reflection_engine
+from .router import Router, RouterDecision, RouterDecisionValue, get_router
 
 __all__ = [
     "SkillCard",
@@ -42,4 +44,11 @@ __all__ = [
     "TaskFrame",
     "SkillRuntimeState",
     "validate_graph",
+    "ReflectionEngine",
+    "ReflectionResult",
+    "get_reflection_engine",
+    "Router",
+    "RouterDecision",
+    "RouterDecisionValue",
+    "get_router",
 ]

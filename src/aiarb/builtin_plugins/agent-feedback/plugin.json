@@ -1,0 +1,23 @@
+{
+  "id": "agent-feedback",
+  "name": {
+    "zh-CN": "评分反馈",
+    "en-US": "Agent Feedback"
+  },
+  "version": "1.0.0",
+  "description": {
+    "zh-CN": "用户对智能体回复进行评分反馈，汇总统计",
+    "en-US": "User rating and feedback for agent responses"
+  },
+  "author": "QwenPaw",
+  "type": "general",
+  "entry": {
+    "backend": "backend/main.py"
+  },
+  "aiarb_version": {
+    "min": "2.0.1"
+  },
+  "meta": {
+    "permissions": ["network:internal"]
+  }
+}

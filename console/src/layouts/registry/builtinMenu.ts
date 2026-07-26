@@ -1,4 +1,4 @@
-﻿/**
+﻿﻿/**
  * builtinMenu.ts — host's built-in sidebar menu entries as data.
  *
  * Importing this module self-registers all builtins into menuRegistry, so the
@@ -54,7 +54,7 @@ import {
   SparkUserGroupLine,
   SparkWifiLine,
 } from "@agentscope-ai/icons";
-import { Package, Brain, Clock, Activity, PawPrint, ScanText, Cloud, Workflow } from "lucide-react";
+import { Package, Brain, Clock, Activity, PawPrint, ScanText, Cloud, Workflow, LayoutDashboard, BookOpen, Star, TrendingUp, Search } from "lucide-react";
 import i18next from "i18next";
 import { menuRegistry } from "../../plugins/registry/store";
 import type { MenuItem } from "../../plugins/registry/types";
@@ -76,6 +76,14 @@ export const BUILTIN_MENU: MenuItem[] = [
     order: 10,
   },
   {
+    id: "core.global-search",
+    location: "primary.agentWorkspace",
+    label: navLabel("nav.search", "全局搜索"),
+    icon: Search,
+    route: "core.search",
+    order: 12,
+  },
+  {
     id: "core.app-center",
     location: "primary.agentWorkspace",
     label: navLabel("nav.apps", "Apps"),
@@ -91,6 +99,15 @@ export const BUILTIN_MENU: MenuItem[] = [
     label: navLabel("nav.agentWorkspace", "智能体工作区"),
     isGroup: true,
     order: 20,
+  },
+  {
+    id: "core.workbench",
+    location: "primary.agentWorkspace",
+    parentId: "core.agent-workspace-group",
+    label: navLabel("nav.workbench", "工作台"),
+    icon: LayoutDashboard,
+    route: "core.workbench",
+    order: 5,
   },
   {
     id: "core.workspace",
@@ -219,6 +236,33 @@ export const BUILTIN_MENU: MenuItem[] = [
     icon: Brain,
     route: "core.memory",
     order: 80,
+  },
+  {
+    id: "core.knowledge-base",
+    location: "primary.settings",
+    parentId: "core.system-settings-group",
+    label: navLabel("nav.knowledgeBase", "知识库"),
+    icon: BookOpen,
+    route: "core.knowledge-base",
+    order: 82,
+  },
+  {
+    id: "core.feedback",
+    location: "primary.settings",
+    parentId: "core.system-settings-group",
+    label: navLabel("nav.feedback", "评分反馈"),
+    icon: Star,
+    route: "core.feedback",
+    order: 83,
+  },
+  {
+    id: "core.growth",
+    location: "primary.settings",
+    parentId: "core.system-settings-group",
+    label: navLabel("nav.growth", "成长时间轴"),
+    icon: TrendingUp,
+    route: "core.growth",
+    order: 84,
   },
   {
     id: "core.sop",

@@ -96,9 +96,7 @@ export async function request<T = unknown>(
   for (let attempt = 0; attempt <= retries; attempt++) {
     // Create AbortController for timeout handling
     const controller = new AbortController();
-    let timedOut = false;
     const timeoutId = setTimeout(() => {
-      timedOut = true;
       controller.abort();
     }, timeout);
 
@@ -160,7 +158,7 @@ export async function request<T = unknown>(
         const abortErr = lastError instanceof DOMException
           ? lastError
           : new DOMException("The operation was aborted", "AbortError");
-        abortErr.name = "AbortError";
+        (abortErr as Error & { name: string }).name = "AbortError";
         (abortErr as Error & { _silent?: boolean })._silent = true;
         throw abortErr;
       }

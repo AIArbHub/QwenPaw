@@ -117,8 +117,66 @@ def build_step_agent_prompt(
     # Add context if available
     context_text = ""
     if context:
-        context_items = [f"  - {k}: {v}" for k, v in context.items()]
-        context_text = f"\n## Execution Context\n" + "\n".join(context_items)
+        # 提取知识检索结果并格式化
+        knowledge_results = context.get("_knowledge_results", [])
+        # 过滤掉内部使用的 key
+        public_context = {
+            k: v for k, v in context.items()
+            if not k.startswith("_")
+        }
+
+        context_items = [f"  - {k}: {v}" for k, v in public_context.items()]
+
+        # 注入知识检索结果
+        if knowledge_results:
+            kb_lines = ["\n## Knowledge Base Results"]
+            for kr in knowledge_results[-3:]:  # 最近的 3 次检索
+                query = kr.get("query", "")
+                results = kr.get("results", [])
+                concepts = kr.get("concepts", [])
+                citations = kr.get("citations", [])
+                kb_lines.append(f"\n### Query: {query}")
+                if not results and not concepts:
+                    kb_lines.append("  (无结果)")
+                for r in results:
+                    kb_lines.append(
+                        f"  - [{r.get('document_title', '')}] "
+                        f"(score: {r.get('score', 0):.2f}): "
+                        f"{r.get('chunk_content', '')}"
+                    )
+                # 注入概念搜索结果
+                if concepts:
+                    kb_lines.append("\n  Concepts:")
+                    for c_info in concepts:
+                        c = c_info.get("concept", c_info)
+                        kb_lines.append(
+                            f"  - [{c.get('concept_id', '')}] "
+                            f"{c.get('title', '')} "
+                            f"(score: {c_info.get('score', 0):.2f}): "
+                            f"{c.get('description', '')}"
+                        )
+                # 注入引用来源
+                if citations:
+                    kb_lines.append("\n  Citations:")
+                    for cite in citations:
+                        kb_lines.append(
+                            f"  - {cite.get('label', '')} "
+                            f"[{cite.get('kind', '')}] "
+                            f"{cite.get('title', '')}"
+                        )
+            kb_lines.append("\n")
+            context_text = (
+                f"\n## Execution Context\n" + "\n".join(context_items)
+                if context_items
+                else ""
+            )
+            context_text += "\n".join(kb_lines)
+        else:
+            context_text = (
+                f"\n## Execution Context\n" + "\n".join(context_items)
+                if context_items
+                else ""
+            )
 
     return STEP_AGENT_SYSTEM_PROMPT.format(
         skill_name=card.name,

@@ -1,4 +1,4 @@
-﻿import React from "react";
+﻿﻿import React from "react";
 import { Button, Card } from "@agentscope-ai/design";
 import {
   CaretDownOutlined,
@@ -29,11 +29,9 @@ export const FileListPanel: React.FC<FileListPanelProps> = ({
   files,
   selectedFile,
   dailyMemories,
-  expandedMemory,
   onRefresh,
   onFileClick,
   onDailyMemoryClick,
-  onMemoryExpand,
 }) => {
   const { t } = useTranslation();
   const [expandedDigestNodes, setExpandedDigestNodes] = React.useState<

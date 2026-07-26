@@ -1,0 +1,83 @@
+.searchPage {
+  max-width: 900px;
+  padding: 20px 0;
+}
+
+.searchInputRow {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--sd-surface, #ffffff);
+  border: 1px solid var(--sd-border, #e3e7f1);
+  border-radius: var(--sd-radius-card, 20px);
+  box-shadow: var(--sd-shadow-soft, 0 4px 10px rgba(0, 0, 0, 0.05));
+}
+
+.resultsSection {
+  background: var(--sd-surface, #ffffff);
+  border: 1px solid var(--sd-border, #e3e7f1);
+  border-radius: var(--sd-radius-md, 14px);
+  box-shadow: var(--sd-shadow-soft, 0 4px 10px rgba(0, 0, 0, 0.05));
+  padding: 20px;
+}
+
+.resultGroup {
+  margin-bottom: 20px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.resultGroupTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sd-ink, #18181a);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.resultCount {
+  font-size: 12px;
+  color: var(--sd-muted, #757f9c);
+  font-weight: 400;
+}
+
+.resultItem {
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  background: var(--sd-surface-muted, #f6f6f6);
+  border-radius: var(--sd-radius-sm, 10px);
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+
+  &:hover {
+    border-left-color: var(--sd-accent, #615ced);
+    background: var(--sd-accent-soft, #eeeefc);
+  }
+}
+
+.resultItemTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sd-ink, #18181a);
+  margin-bottom: 4px;
+}
+
+.resultItemDesc {
+  font-size: 12px;
+  color: var(--sd-muted, #757f9c);
+  line-height: 1.5;
+}
+
+.resultItemMeta {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--sd-muted-2, #858b9c);
+}

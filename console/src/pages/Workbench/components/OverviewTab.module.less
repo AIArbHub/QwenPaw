@@ -1,0 +1,356 @@
+/* OverviewTab.module.less — Workbench 工作记录 Tab */
+
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 24px;
+}
+
+.loadingWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+/* ─── ClickableMetrics ─── */
+.metricsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 16px 20px;
+  border-radius: var(--sd-radius-md);
+  background: var(--sd-surface);
+  border: 1px solid var(--sd-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  font-family: inherit;
+
+  &:hover {
+    box-shadow: var(--sd-shadow-soft);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.metricValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--sd-ink);
+  line-height: 1.2;
+}
+
+.metricLabel {
+  font-size: 12px;
+  color: var(--sd-muted);
+}
+
+.metricPositive {
+  background: #e9f7ef;
+  border-color: transparent;
+  cursor: default;
+
+  &:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.metricNegative {
+  background: #fce7e7;
+  border-color: transparent;
+  cursor: default;
+
+  &:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* ─── Section ─── */
+.section {
+  background: var(--sd-surface);
+  border-radius: var(--sd-radius-card);
+  padding: 20px;
+  border: 1px solid var(--sd-border-light);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.sectionIcon {
+  font-size: 16px;
+  color: var(--sd-muted);
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--sd-ink);
+  margin: 0;
+}
+
+.sectionDate {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--sd-muted);
+}
+
+/* ─── Timeline ─── */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.timelineHours {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.timelineHourLabel {
+  flex: 1;
+  font-size: 10px;
+  color: var(--sd-muted-2);
+  text-align: left;
+  padding-left: 2px;
+}
+
+.timelineRow {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 26px;
+}
+
+.timelineTrackLabel {
+  flex-shrink: 0;
+  width: 80px;
+  font-size: 12px;
+  color: var(--sd-muted);
+  text-align: right;
+  padding-right: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 768px) {
+    width: 50px;
+    font-size: 11px;
+  }
+}
+
+.timelineBucket {
+  flex: 1;
+  height: 18px;
+  border-radius: 4px;
+  background: var(--sd-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  transition: background 0.15s ease;
+  min-width: 0;
+}
+
+.timelineBucketActive {
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+}
+
+.bucketCount {
+  font-size: 10px;
+  color: #fff;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.timelineEmpty {
+  text-align: center;
+  color: var(--sd-muted);
+  font-size: 13px;
+  padding: 16px 0;
+}
+
+/* ─── Popover content ─── */
+.popoverContent {
+  max-width: 260px;
+}
+
+.popoverItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  font-size: 12px;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--sd-border-light);
+  }
+}
+
+.popoverDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.popoverTime {
+  color: var(--sd-muted);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.popoverLabel {
+  color: var(--sd-ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Capability Grid ─── */
+.capGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.capCard {
+  padding: 16px;
+  border-radius: var(--sd-radius-md);
+  border: 1px solid var(--sd-border);
+  background: var(--sd-surface);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sd-shadow-hover);
+  }
+}
+
+.capDark {
+  background: #29282d;
+  border-color: #29282d;
+  color: #fff;
+
+  .capIcon,
+  .capTitle {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .capValue {
+    color: #fff;
+  }
+
+  .capSub {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .capBar {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+.capIconRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.capIcon {
+  font-size: 18px;
+  color: var(--sd-muted);
+}
+
+.capTitle {
+  font-size: 14px;
+  color: var(--sd-muted);
+  font-weight: 500;
+}
+
+.capValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--sd-ink);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.capSub {
+  font-size: 11px;
+  color: var(--sd-muted-2);
+  margin-bottom: 8px;
+}
+
+.capBar {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--sd-border-light);
+  margin-top: 8px;
+  width: 60%;
+}
+
+/* ─── Footer stats ─── */
+.footerStats {
+  display: flex;
+  gap: 16px;
+  padding: 12px 4px;
+  font-size: 12px;
+  color: var(--sd-muted);
+}
+
+.footerItem {
+  strong {
+    color: var(--sd-ink-soft);
+    font-weight: 600;
+  }
+}
+
+/* ─── Dark mode ─── */
+html.dark-mode {
+  .metricPositive {
+    background: rgba(34, 197, 94, 0.12);
+  }
+
+  .metricNegative {
+    background: rgba(210, 11, 11, 0.15);
+  }
+
+  .capDark {
+    background: #1a1a1a;
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+}

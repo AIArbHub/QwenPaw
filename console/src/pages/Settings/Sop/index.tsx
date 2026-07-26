@@ -42,7 +42,10 @@ import sopApi, {
   type SkillGraphNode,
   type SkillNodeType,
   type SkillStatus,
+  type ReflectionResult,
 } from "@/api/modules/sop";
+import GraphEditor from "./GraphEditor";
+import TracePanel from "./TracePanel";
 import styles from "./index.module.less";
 
 // ---------------------------------------------------------------------------
@@ -323,7 +326,6 @@ function DetailDrawer({ open, skill, onClose, onValidated }: DetailDrawerProps) 
         </div>
         {skill.nodes.length === 0 ? (
           <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={t("sop.noNodes", "暂无节点")}
           />
         ) : (
@@ -354,7 +356,6 @@ function DetailDrawer({ open, skill, onClose, onValidated }: DetailDrawerProps) 
         </div>
         {skill.edges.length === 0 ? (
           <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={t("sop.noEdges", "暂无连接")}
           />
         ) : (
@@ -622,6 +623,226 @@ function DistillPanel({ onDistilled }: { onDistilled: () => void }) {
 }
 
 // ---------------------------------------------------------------------------
+// Leaderboard Panel — SOP skills sorted by calls / positive / negative.
+// ---------------------------------------------------------------------------
+
+type SortField = "calls" | "positive" | "negative";
+
+function LeaderboardPanel({ skills }: { skills: SkillCard[] }) {
+  const { t } = useTranslation();
+  const [sortField, setSortField] = useState<SortField>("calls");
+
+  const sorted = useMemo(() => {
+    return [...skills].sort((a, b) => {
+      const getVal = (s: SkillCard, f: SortField) => {
+        if (f === "calls") return s.call_count ?? 0;
+        if (f === "positive") return s.positive_feedback_count ?? 0;
+        return s.negative_feedback_count ?? 0;
+      };
+      return getVal(b, sortField) - getVal(a, sortField);
+    });
+  }, [skills, sortField]);
+
+  const sortOptions: Array<{ key: SortField; label: string }> = [
+    { key: "calls", label: t("sop.sortCalls", "调用次数") },
+    { key: "positive", label: t("sop.sortPositive", "正向反馈") },
+    { key: "negative", label: t("sop.sortNegative", "负向反馈") },
+  ];
+
+  return (
+    <Card
+      title={
+        <Space>
+          <ThunderboltOutlined />
+          {t("sop.leaderboard", "技能排行榜")}
+        </Space>
+      }
+      className={styles.card}
+    >
+      <div className={styles.leaderboardTabs}>
+        {sortOptions.map((opt) => (
+          <button
+            key={opt.key}
+            className={`${styles.leaderboardTab} ${sortField === opt.key ? styles.leaderboardTabActive : ""}`}
+            onClick={() => setSortField(opt.key)}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+      <div className={styles.leaderboardList}>
+        {sorted.slice(0, 10).map((skill, idx) => {
+          const calls = skill.call_count ?? 0;
+          const positive = skill.positive_feedback_count ?? 0;
+          const negative = skill.negative_feedback_count ?? 0;
+          const score = calls > 0 ? ((positive - negative) / calls * 100).toFixed(0) : "--";
+          return (
+            <div key={skill.id} className={styles.leaderboardItem}>
+              <span className={styles.leaderboardRank}>#{idx + 1}</span>
+              <div className={styles.leaderboardInfo}>
+                <span className={styles.leaderboardName}>{skill.name || skill.id}</span>
+                <code className={styles.leaderboardId}>{skill.id}</code>
+              </div>
+              <div className={styles.leaderboardStats}>
+                <span className={styles.leaderboardStat}>
+                  {t("sop.calls", "调用")}: <strong>{calls}</strong>
+                </span>
+                <span className={styles.leaderboardStat} style={{ color: "var(--sd-online)" }}>
+                  +{positive}
+                </span>
+                <span className={styles.leaderboardStat} style={{ color: "var(--sd-danger)" }}>
+                  -{negative}
+                </span>
+                <span className={styles.leaderboardStat} style={{ color: "var(--sd-accent)" }}>
+                  {score}%
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Reflection Panel — 7-dimension RUBRIC scores.
+// ---------------------------------------------------------------------------
+
+function ReflectionPanel({ skillId }: { skillId: string }) {
+  const { t } = useTranslation();
+  const [result, setResult] = useState<ReflectionResult | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleReflect = async () => {
+    if (!skillId) return;
+    setLoading(true);
+    try {
+      const res = await sopApi.reflect({ skill_id: skillId });
+      setResult(res);
+    } catch (err) {
+      message.error(
+        err instanceof Error ? err.message : t("sop.reflectError", "反思失败"),
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card
+      title={
+        <Space>
+          <ExperimentOutlined />
+          {t("sop.reflectionTitle", "7 维反思")}
+        </Space>
+      }
+      extra={
+        <Button
+          type="primary"
+          icon={<ExperimentOutlined />}
+          loading={loading}
+          onClick={handleReflect}
+        >
+          {t("sop.runReflection", "执行反思")}
+        </Button>
+      }
+      className={styles.card}
+    >
+      {result ? (
+        <div>
+          {/* 7 维评分进度条 */}
+          <div className={styles.rubricGrid}>
+            {Object.entries(result.rubric_scores).map(([key, dim]) => (
+              <div key={key} className={styles.rubricItem}>
+                <div className={styles.rubricHeader}>
+                  <span className={styles.rubricLabel}>{dim.label}</span>
+                  <span
+                    className={styles.rubricScore}
+                    style={{
+                      color: dim.score >= 0.6 ? "var(--sd-online)" : "var(--sd-danger)",
+                    }}
+                  >
+                    {dim.score.toFixed(2)}
+                  </span>
+                </div>
+                <div className={styles.rubricBar}>
+                  <div
+                    className={styles.rubricBarFill}
+                    style={{
+                      width: `${dim.score * 100}%`,
+                      background: dim.score >= 0.6 ? "var(--sd-accent)" : "var(--sd-danger)",
+                    }}
+                  />
+                </div>
+                {dim.issues && dim.issues.length > 0 && (
+                  <div className={styles.rubricIssues}>
+                    {dim.issues.map((issue, i) => (
+                      <div key={i} className={styles.rubricIssue}>• {issue}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* 优势与短板 */}
+          <div className={styles.reflectionSections}>
+            {result.strengths.length > 0 && (
+              <div className={styles.reflectionSection}>
+                <div className={styles.reflectionSectionTitle} style={{ color: "var(--sd-online)" }}>
+                  {t("sop.strengths", "优势")}
+                </div>
+                <ul className={styles.reflectionList}>
+                  {result.strengths.map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {result.weaknesses.length > 0 && (
+              <div className={styles.reflectionSection}>
+                <div className={styles.reflectionSectionTitle} style={{ color: "var(--sd-danger)" }}>
+                  {t("sop.weaknesses", "短板")}
+                </div>
+                <ul className={styles.reflectionList}>
+                  {result.weaknesses.map((w, i) => (
+                    <li key={i}>{w}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {result.suggestions.length > 0 && (
+              <div className={styles.reflectionSection}>
+                <div className={styles.reflectionSectionTitle} style={{ color: "var(--sd-accent)" }}>
+                  {t("sop.suggestions", "建议")}
+                </div>
+                <ul className={styles.reflectionList}>
+                  {result.suggestions.map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {result.summary && (
+            <div className={styles.reflectionSummary}>
+              <strong>{t("sop.summary", "汇总")}：</strong>
+              {result.summary}
+            </div>
+          )}
+        </div>
+      ) : (
+        <Empty
+          description={t("sop.noReflection", "点击「执行反思」生成 7 维评分")}
+        />
+      )}
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 
@@ -630,6 +851,8 @@ export default function SopPage() {
   const [skills, setSkills] = useState<SkillCard[]>([]);
   const [loading, setLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [graphEditorOpen, setGraphEditorOpen] = useState(false);
+  const [tracePanelOpen, setTracePanelOpen] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState<SkillCard | null>(null);
   const [ensuringBuiltin, setEnsuringBuiltin] = useState(false);
 
@@ -664,6 +887,21 @@ export default function SopPage() {
       setSelectedSkill(record);
     }
     setDrawerOpen(true);
+  }, []);
+
+  const handleEditGraph = useCallback(async (record: SkillCard) => {
+    try {
+      const detail = await sopApi.getSkill(record.id);
+      setSelectedSkill(detail);
+    } catch {
+      setSelectedSkill(record);
+    }
+    setGraphEditorOpen(true);
+  }, []);
+
+  const handleTrace = useCallback(async (record: SkillCard) => {
+    setSelectedSkill(record);
+    setTracePanelOpen(true);
   }, []);
 
   const handleValidate = useCallback(
@@ -832,7 +1070,7 @@ export default function SopPage() {
       {
         title: t("sop.colAction", "操作"),
         key: "action",
-        width: 220,
+        width: 320,
         render: (_: unknown, record: SkillCard) => (
           <Space>
             <Button
@@ -844,6 +1082,20 @@ export default function SopPage() {
             >
               {t("sop.view", "查看")}
             </Button>
+            <Tooltip title="图编辑器">
+              <Button
+                size="small"
+                icon={<BranchesOutlined />}
+                onClick={() => handleEditGraph(record)}
+              />
+            </Tooltip>
+            <Tooltip title="执行追踪">
+              <Button
+                size="small"
+                icon={<PlayCircleOutlined />}
+                onClick={() => handleTrace(record)}
+              />
+            </Tooltip>
             <Tooltip title={t("sop.validate", "校验")}>
               <Button
                 size="small"
@@ -863,7 +1115,7 @@ export default function SopPage() {
         ),
       },
     ],
-    [t, handleView, handleValidate, handleDelete],
+    [t, handleView, handleEditGraph, handleTrace, handleValidate, handleDelete],
   );
 
   return (
@@ -922,11 +1174,32 @@ export default function SopPage() {
 
       <DistillPanel onDistilled={fetchSkills} />
 
+      {/* ── 排行榜 ── */}
+      <LeaderboardPanel skills={skills} />
+
+      {/* ── 7 维反思 ── */}
+      {selectedSkill && (
+        <ReflectionPanel skillId={selectedSkill.id} />
+      )}
+
       <DetailDrawer
         open={drawerOpen}
         skill={selectedSkill}
         onClose={() => setDrawerOpen(false)}
         onValidated={fetchSkills}
+      />
+
+      <GraphEditor
+        open={graphEditorOpen}
+        skill={selectedSkill}
+        onClose={() => setGraphEditorOpen(false)}
+        onSaved={fetchSkills}
+      />
+
+      <TracePanel
+        open={tracePanelOpen}
+        skill={selectedSkill}
+        onClose={() => setTracePanelOpen(false)}
       />
     </div>
   );

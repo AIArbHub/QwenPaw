@@ -37,6 +37,10 @@ const data: CreateBackupRequest = {
     include_global_config: false,
     include_secrets: false,
     include_skill_pool: false,
+    include_jobs: false,
+    include_chats: false,
+    include_plugins: false,
+    include_browser_data: false,
   },
   agents: [],
 };

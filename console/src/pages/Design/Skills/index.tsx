@@ -128,7 +128,7 @@ export default function DesignSkillsPage() {
             label: t("nav.skillPool"),
             children: <SkillPoolPage />,
           },
-          { key: "market", label: t("nav.market"), children: <MarketPage /> },
+          { key: "market", label: t("nav.market"), children: <MarketPage installTarget="workspace" /> },
         ]}
       />
     </div>

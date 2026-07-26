@@ -323,7 +323,6 @@ export const docProcessingApi = {
   downloadResult: (taskId: string, format: string) =>
     request<Blob>(`/doc/download/${encodeURIComponent(taskId)}/${format}`, {
       method: "GET",
-      responseType: "blob",
     }),
 
   // ── Redaction Templates & Stats ──────────────────────────────────
@@ -342,7 +341,7 @@ export const docProcessingApi = {
       body: JSON.stringify({ files, ...options }),
     }),
 
-  startBatchTask: (batchId: string, taskId: string) =>
+  startBatchTask: (_batchId: string, taskId: string) =>
     request<{ success: boolean }>(`/doc/batch/${encodeURIComponent(taskId)}/start`, {
       method: "POST",
     }),

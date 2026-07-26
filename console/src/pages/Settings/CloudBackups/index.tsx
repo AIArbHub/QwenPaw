@@ -10,17 +10,13 @@ import {
   Table,
   Space,
   Popconfirm,
-  Typography,
   message,
-  Tabs,
   Tag,
   InputNumber,
-  Badge,
 } from "antd";
 import {
   CloudOutlined,
   SyncOutlined,
-  UploadOutlined,
   DownloadOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
@@ -36,22 +32,6 @@ import type {
   CloudProviderType,
 } from "@/api/types/cloudBackup";
 import styles from "./index.module.less";
-
-const { Text, Paragraph } = Typography;
-
-const defaultS3Config = {
-  endpoint_url: "",
-  region: "us-east-1",
-  bucket: "",
-  access_key_id: "",
-  secret_access_key: "",
-};
-
-const defaultWebDAVConfig = {
-  url: "",
-  username: "",
-  password: "",
-};
 
 const providerOptions: { value: CloudProviderType; label: string }[] = [
   { value: "s3", label: "S3 Compatible (AWS / R2 / MinIO / B2)" },

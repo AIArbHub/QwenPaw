@@ -1,4 +1,4 @@
-﻿import React, { useState, useCallback, useRef } from "react";
+﻿﻿import React, { useState, useCallback, useRef } from "react";
 import { Modal, message, Button } from "antd";
 import { DeleteOutlined, ShareAltOutlined, DownloadOutlined } from "@ant-design/icons";
 
@@ -62,7 +62,7 @@ export const MessageShareAction: React.FC<{
   content?: string;
   sender?: string;
   timestamp?: number;
-}> = ({ content, sender, timestamp }) => {
+}> = ({ content, sender }) => {
   const [showModal, setShowModal] = useState(false);
   const [imageData, setImageData] = useState<string>("");
   const btnRef = useRef<HTMLSpanElement>(null);
@@ -93,7 +93,6 @@ export const MessageShareAction: React.FC<{
     const headerHeight = 80;
     const footerHeight = 60;
     const lineHeight = 24;
-    const textStartX = padding + 10;
     const maxLineWidth = canvasWidth - padding * 2 - 20; // = 500
 
     // 设置字体后再计算换行

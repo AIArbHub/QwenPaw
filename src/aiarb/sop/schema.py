@@ -86,6 +86,9 @@ class SkillGraphNode(BaseModel):
         knowledge_scope: Required when type is KNOWLEDGE_QUERY — filter
                          expression to narrow the knowledge search.
         metadata: Free-form extra data (e.g., expected_duration, required_role).
+        expected_user_info: Information expected to be collected at this node.
+        allowed_actions: List of allowed actions at this node.
+        retry_policy: Retry policy for this node (e.g., max_retries, backoff).
     """
 
     id: str = Field(..., description="Unique node ID within this SkillCard")
@@ -96,6 +99,10 @@ class SkillGraphNode(BaseModel):
     tool_name: str = Field(default="", description="Tool name (for tool_call nodes)")
     knowledge_scope: str = Field(default="", description="Knowledge filter (for knowledge_query nodes)")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Extra metadata")
+    # ── 新增字段（借鉴 StaffDeck skill_schema.py）──
+    expected_user_info: list[str] = Field(default_factory=list, description="期望收集的信息")
+    allowed_actions: list[str] = Field(default_factory=list, description="允许的动作列表")
+    retry_policy: dict[str, Any] = Field(default_factory=dict, description="重试策略")
 
 
 # ---------------------------------------------------------------------------
@@ -121,6 +128,15 @@ class SkillCard(BaseModel):
         status: ``draft`` / ``active`` / ``archived``.
         created_at / updated_at: ISO 8601 timestamps.
         tags: Free-form tags for search and filtering.
+        # ── 新增字段（借鉴 StaffDeck skill_schema.py）──
+        terminal_node_ids: Terminal node IDs (for explicit closure points).
+        trigger_intents: Intents that trigger this skill.
+        required_info: Required info slots for this skill.
+        interruption_policy: Interruption handling policy.
+        response_rules: Response rules for this skill.
+        call_count: Number of times this skill has been called.
+        positive_feedback_count: Positive feedback count.
+        negative_feedback_count: Negative feedback count.
     """
 
     id: str = Field(..., description="Unique skill ID")
@@ -138,6 +154,15 @@ class SkillCard(BaseModel):
     updated_at: str = Field(default="", description="ISO 8601 update timestamp")
     tags: list[str] = Field(default_factory=list, description="Search tags")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Extra metadata (e.g., rubric reflection results)")
+    # ── 新增字段（借鉴 StaffDeck skill_schema.py）──
+    terminal_node_ids: list[str] = Field(default_factory=list, description="终止节点 ID 列表")
+    trigger_intents: list[str] = Field(default_factory=list, description="触发意图列表")
+    required_info: list[str] = Field(default_factory=list, description="必填槽位列表")
+    interruption_policy: dict[str, str] = Field(default_factory=dict, description="中断策略")
+    response_rules: list[str] = Field(default_factory=list, description="响应规则")
+    call_count: int = Field(default=0, description="调用次数")
+    positive_feedback_count: int = Field(default=0, description="正向反馈数")
+    negative_feedback_count: int = Field(default=0, description="负向反馈数")
 
     @field_validator("status")
     @classmethod

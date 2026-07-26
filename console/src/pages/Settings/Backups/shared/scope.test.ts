@@ -10,6 +10,10 @@ describe("defaultCreateScope", () => {
       globalConfig: true,
       includeSkillPool: true,
       includeSecrets: false,
+      includeJobs: true,
+      includeChats: true,
+      includePlugins: true,
+      includeBrowserData: true,
     });
   });
 
@@ -29,6 +33,10 @@ describe("buildPreRestoreScope", () => {
       include_global_config: true,
       include_secrets: false,
       include_skill_pool: true,
+      include_jobs: true,
+      include_chats: true,
+      include_plugins: true,
+      include_browser_data: true,
     });
     expect(result.agents).toEqual(["a1", "a2"]);
   });
@@ -36,12 +44,16 @@ describe("buildPreRestoreScope", () => {
 
 describe("buildScope — full mode", () => {
   it("forces every include_* flag true and keeps the selected agents", () => {
-    const { scope, agents } = buildScope("full", ["a1"], false, false, false);
+    const { scope, agents } = buildScope("full", ["a1"], false, false, false, false, false, false, false);
     expect(scope).toEqual({
       include_agents: true,
       include_global_config: true,
       include_secrets: true,
       include_skill_pool: true,
+      include_jobs: true,
+      include_chats: true,
+      include_plugins: true,
+      include_browser_data: true,
     });
     expect(agents).toEqual(["a1"]);
   });
@@ -55,23 +67,35 @@ describe("buildScope — partial mode", () => {
       true,
       true,
       true,
+      true,
+      true,
+      true,
+      true,
     );
     expect(scope).toEqual({
       include_agents: true,
       include_global_config: true,
       include_secrets: true,
       include_skill_pool: true,
+      include_jobs: true,
+      include_chats: true,
+      include_plugins: true,
+      include_browser_data: true,
     });
     expect(agents).toEqual(["a1", "a2"]);
   });
 
   it("sets include_agents=false and agents=[] when no agents selected", () => {
-    const { scope, agents } = buildScope("partial", [], true, false, false);
+    const { scope, agents } = buildScope("partial", [], true, false, false, false, false, false, false);
     expect(scope).toEqual({
       include_agents: false,
       include_global_config: true,
       include_secrets: false,
       include_skill_pool: false,
+      include_jobs: false,
+      include_chats: false,
+      include_plugins: false,
+      include_browser_data: false,
     });
     expect(agents).toEqual([]);
   });

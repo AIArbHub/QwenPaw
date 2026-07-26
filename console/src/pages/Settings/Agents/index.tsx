@@ -1,24 +1,31 @@
-import { useState, useRef, useCallback } from "react";
-import { Card, Button, Form } from "antd";
+import { useState, useRef, useCallback, useMemo } from "react";
+import { Card, Button, Form, Input } from "antd";
 import { useAppMessage } from "../../../hooks/useAppMessage";
 import {
   PlusOutlined,
   AppstoreOutlined,
   UnorderedListOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { agentsApi } from "../../../api/modules/agents";
 import { invalidateSkillCache, skillApi } from "../../../api/modules/skill";
 import type { AgentSummary, CopyAgentRequest } from "../../../api/types/agents";
 import { useAgentStore } from "../../../stores/agentStore";
 import { useAgents } from "./useAgents";
+import { useAgentStatsBatch } from "./hooks/useAgentStatsBatch";
 import { AgentTable, AgentCard, AgentModal, CopyAgentModal, AgentDetailDrawer } from "./components";
 import { PageHeader } from "@/components/PageHeader";
+import { UnderlineTabs } from "@/components/UnderlineTabs";
 import { reorderAgents } from "./reorder";
 import styles from "./index.module.less";
 
+type FilterMode = "all" | "enabled" | "disabled";
+
 export default function AgentsPage() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const {
     agents,
     loading,
@@ -29,6 +36,7 @@ export default function AgentsPage() {
     setAgents,
   } = useAgents();
   const { selectedAgent, setSelectedAgent } = useAgentStore();
+  const { statsMap } = useAgentStatsBatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingAgent, setEditingAgent] = useState<AgentSummary | null>(null);
   const [copyModalVisible, setCopyModalVisible] = useState(false);
@@ -46,7 +54,39 @@ export default function AgentsPage() {
 
   // View mode: card or list
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  // Filter + search state (Phase 3)
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
+  // ─── Derived data ──────────────────────────────────────────────
+  const enabledCount = useMemo(
+    () => agents.filter((a) => a.enabled).length,
+    [agents],
+  );
+  const disabledCount = agents.length - enabledCount;
+
+  const filteredAgents = useMemo(() => {
+    let result = agents;
+    // Filter by mode
+    if (filterMode === "enabled") {
+      result = result.filter((a) => a.enabled);
+    } else if (filterMode === "disabled") {
+      result = result.filter((a) => !a.enabled);
+    }
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter(
+        (a) =>
+          a.name?.toLowerCase().includes(q) ||
+          a.id.toLowerCase().includes(q) ||
+          a.description?.toLowerCase().includes(q),
+      );
+    }
+    return result;
+  }, [agents, filterMode, searchQuery]);
+
+  // ─── Handlers ──────────────────────────────────────────────────
   const handleCreate = () => {
     setEditingAgent(null);
     form.resetFields();
@@ -132,6 +172,11 @@ export default function AgentsPage() {
     } catch {
       // Error already handled in hook
     }
+  };
+
+  const handleChat = (agentId: string) => {
+    setSelectedAgent(agentId);
+    navigate("/chat");
   };
 
   const handleInstalledSkillsLoaded = useCallback((skills: string[]) => {
@@ -236,6 +281,7 @@ export default function AgentsPage() {
     }
   };
 
+  // ─── Render ────────────────────────────────────────────────────
   return (
     <div className={styles.agentsPage}>
       <PageHeader
@@ -243,26 +289,15 @@ export default function AgentsPage() {
         current={t("agent.agents")}
         extra={
           <div className={styles.headerRight}>
-            <div className={styles.viewToggle}>
-              <button
-                className={`${styles.viewToggleBtn} ${
-                  viewMode === "list" ? styles.viewToggleBtnActive : ""
-                }`}
-                onClick={() => setViewMode("list")}
-                title={t("agent.listView")}
-              >
-                <UnorderedListOutlined />
-              </button>
-              <button
-                className={`${styles.viewToggleBtn} ${
-                  viewMode === "card" ? styles.viewToggleBtnActive : ""
-                }`}
-                onClick={() => setViewMode("card")}
-                title={t("agent.gridView")}
-              >
-                <AppstoreOutlined />
-              </button>
-            </div>
+            {/* Search box — capsule style */}
+            <Input
+              className={styles.searchBox}
+              placeholder={t("agent.searchPlaceholder")}
+              prefix={<SearchOutlined style={{ color: "var(--sd-muted)" }} />}
+              allowClear
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -274,13 +309,83 @@ export default function AgentsPage() {
         }
       />
 
-{viewMode === "card" ? (
+      {/* ─── Stats Cards (Task 3.1) ─────────────────────────────── */}
+      <div className={styles.statsRow}>
+        <div className={styles.statCard}>
+          <span className={styles.statNum}>{agents.length}</span>
+          <span className={styles.statLbl}>{t("agent.statsTotal")}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statNum}>{enabledCount}</span>
+          <span className={styles.statLbl}>{t("agent.online")}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statNum}>{disabledCount}</span>
+          <span className={styles.statLbl}>{t("agent.offline")}</span>
+        </div>
+        <div
+          className={`${styles.statCard} ${styles.statCardCreate}`}
+          onClick={handleCreate}
+        >
+          <PlusOutlined style={{ fontSize: 20 }} />
+          <span className={styles.statLbl}>{t("agent.create")}</span>
+        </div>
+      </div>
+
+      {/* ─── UnderlineTabs + ViewToggle (Task 3.2 + 3.5) ────────── */}
+      <div className={styles.tabsRow}>
+        <UnderlineTabs
+          items={[
+            { key: "all", label: t("agent.filterAll"), count: agents.length },
+            {
+              key: "enabled",
+              label: t("agent.filterEnabled"),
+              count: enabledCount,
+            },
+            {
+              key: "disabled",
+              label: t("agent.filterDisabled"),
+              count: disabledCount,
+            },
+          ]}
+          active={filterMode}
+          onChange={(key) => setFilterMode(key as FilterMode)}
+        />
+        {/* ViewToggle moved here from PageHeader extra (Task 3.5) */}
+        <div className={styles.viewToggle}>
+          <button
+            className={`${styles.viewToggleBtn} ${
+              viewMode === "list" ? styles.viewToggleBtnActive : ""
+            }`}
+            onClick={() => setViewMode("list")}
+            title={t("agent.listView")}
+          >
+            <UnorderedListOutlined />
+          </button>
+          <button
+            className={`${styles.viewToggleBtn} ${
+              viewMode === "card" ? styles.viewToggleBtnActive : ""
+            }`}
+            onClick={() => setViewMode("card")}
+            title={t("agent.gridView")}
+          >
+            <AppstoreOutlined />
+          </button>
+        </div>
+      </div>
+
+      {/* ─── Card Grid / Table ──────────────────────────────────── */}
+      {viewMode === "card" ? (
         <div className={styles.agentsGrid}>
-          {agents.map((agent) => (
+          {filteredAgents.map((agent) => (
             <AgentCard
               key={agent.id}
               agent={agent}
+              stats={statsMap[agent.id]}
+              isSelected={selectedAgent === agent.id}
+              onSelect={setSelectedAgent}
               onEdit={handleEdit}
+              onChat={handleChat}
               onDelete={handleDelete}
               onToggle={handleToggle}
               onConfigurePersona={handleConfigurePersona}
@@ -290,7 +395,7 @@ export default function AgentsPage() {
       ) : (
         <Card className={styles.tableCard}>
           <AgentTable
-            agents={agents}
+            agents={filteredAgents}
             loading={loading || reordering}
             reordering={reordering}
             onEdit={handleEdit}

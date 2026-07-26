@@ -1,0 +1,83 @@
+/* UnderlineTabs — StaffDeck 风格下划线选项卡 */
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 1px solid var(--sd-border);
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 2px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--sd-muted-2);
+  transition: color 0.2s ease, font-weight 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--sd-ink-soft);
+  }
+
+  /* Active underline */
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: transparent;
+    transition: background 0.2s ease;
+  }
+}
+
+.active {
+  color: var(--sd-ink);
+  font-weight: 600;
+
+  &::after {
+    background: var(--sd-ink);
+  }
+}
+
+.label {
+  line-height: 1;
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--sd-radius-full);
+  background: var(--sd-surface-muted);
+  color: var(--sd-muted);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.countDot {
+  min-width: 6px;
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  background: var(--sd-accent);
+}
+
+/* Dark mode — variables auto-adapt, but ensure tab bar border visibility */
+html.dark-mode {
+  .tabs {
+    border-bottom-color: var(--sd-border);
+  }
+}

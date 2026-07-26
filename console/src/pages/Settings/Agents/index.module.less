@@ -70,6 +70,91 @@
   gap: 12px;
 }
 
+/* ---- Search Box (Task 3.3) ---- */
+
+.searchBox {
+  width: 240px;
+  height: 36px;
+  border-radius: var(--sd-radius-full) !important;
+  border-color: var(--sd-border) !important;
+  box-shadow: var(--sd-shadow-xs);
+  background: var(--sd-surface) !important;
+
+  &:hover,
+  &:focus,
+  &.aiarb-input-focused {
+    border-color: var(--sd-ink-soft) !important;
+    box-shadow: var(--sd-shadow-xs);
+  }
+}
+
+/* ---- Stats Cards (Task 3.1) ---- */
+
+.statsRow {
+  display: flex;
+  gap: 16px;
+  padding: 0 16px 16px;
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+.statCard {
+  flex: 1;
+  min-height: 100px;
+  border-radius: var(--sd-radius-card);
+  background: var(--sd-surface-muted);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  transition: box-shadow 0.2s ease;
+}
+
+.statNum {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--sd-ink);
+  line-height: 1.2;
+}
+
+.statLbl {
+  font-size: 13px;
+  color: var(--sd-muted);
+}
+
+.statCardCreate {
+  background: var(--sd-ink);
+  color: var(--sd-surface);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: 8px;
+
+  &:hover {
+    box-shadow: var(--sd-shadow-hover);
+  }
+
+  .statLbl {
+    color: var(--sd-surface);
+  }
+}
+
+/* ---- Tabs Row (Task 3.2 + 3.5) ---- */
+
+.tabsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  margin-bottom: 4px;
+  gap: 16px;
+}
+
 /* ---- View Toggle ---- */
 
 .viewToggle {
@@ -108,8 +193,13 @@
 .agentsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 16px;
+  auto-rows: minmax(262px, auto); /* 等高优化 (Task 3.4) */
+  gap: var(--sd-card-gap); /* 32px */
   padding: 16px;
+
+  @media (max-width: 768px) {
+    gap: var(--sd-card-gap-mobile); /* 18px */
+  }
 }
 
 .agentCard {

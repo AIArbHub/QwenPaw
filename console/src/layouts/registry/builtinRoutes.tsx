@@ -32,8 +32,6 @@ const InboxPage = lazyImportWithRetry("../../pages/Inbox");
 const CronJobsPage = lazyImportWithRetry("../../pages/Control/CronJobs");
 const HeartbeatPage = lazyImportWithRetry("../../pages/Control/Heartbeat");
 const AgentConfigPage = lazyImportWithRetry("../../pages/Agent/Config");
-const SkillsPage = lazyImportWithRetry("../../pages/Agent/Skills");
-const SkillPoolPage = lazyImportWithRetry("../../pages/Settings/SkillPool");
 // Unified skills page (tabs: skills / skill-pool / market) — reused across all sidebar modes
 const UnifiedSkillsPage = lazyImportWithRetry("../../pages/Design/Skills");
 const PetPage = lazyWithRetry(
@@ -59,6 +57,7 @@ const VoiceTranscriptionPage = lazyImportWithRetry(
   "../../pages/Settings/VoiceTranscription",
 );
 const AgentsPage = lazyImportWithRetry("../../pages/Settings/Agents");
+const WorkbenchPage = lazyImportWithRetry("../../pages/Workbench");
 const DebugPage = lazyImportWithRetry("../../pages/Settings/Debug");
 const BackupsPage = lazyImportWithRetry("../../pages/Settings/Backups");
 const CloudBackupsPage = lazyWithRetry(
@@ -70,6 +69,10 @@ const PluginManagerPage = lazyImportWithRetry(
 );
 const AppCenterPage = lazyImportWithRetry("../../pages/AppCenter");
 const MemoryPage = lazyImportWithRetry("../../pages/Memory");
+const KnowledgeBasePage = lazyImportWithRetry("../../pages/KnowledgeBase");
+const FeedbackPage = lazyImportWithRetry("../../pages/Feedback");
+const GrowthTimelinePage = lazyImportWithRetry("../../pages/GrowthTimeline");
+const GlobalSearchPage = lazyImportWithRetry("../../pages/GlobalSearch");
 const SopPage = lazyWithRetry(
   () => import("../../pages/Settings/Sop"),
   "../../pages/Settings/Sop",
@@ -112,6 +115,10 @@ export const BUILTIN_ROUTES: Route[] = [
     path: "/memory",
     component: MemoryPage,
   },
+  { id: "core.knowledge-base", path: "/kb", component: KnowledgeBasePage },
+  { id: "core.feedback", path: "/feedback", component: FeedbackPage },
+  { id: "core.growth", path: "/growth", component: GrowthTimelinePage },
+  { id: "core.search", path: "/search", component: GlobalSearchPage },
   { id: "core.sop", path: "/sop", component: SopPage },
   { id: "core.cron-jobs", path: "/cron-jobs", component: CronJobsPage },
   { id: "core.heartbeat", path: "/heartbeat", component: HeartbeatPage },
@@ -135,6 +142,7 @@ export const BUILTIN_ROUTES: Route[] = [
   { id: "core.acp-alias", path: "/ACP", component: ACPRedirect },
   { id: "core.workspace", path: "/workspace", component: WorkspacePage },
   { id: "core.agents", path: "/agents", component: AgentsPage },
+  { id: "core.workbench", path: "/workbench", component: WorkbenchPage },
   { id: "core.models", path: "/models", component: ModelsPage },
   {
     id: "core.environments",

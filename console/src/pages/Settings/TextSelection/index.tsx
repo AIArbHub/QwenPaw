@@ -343,8 +343,7 @@ export default function TextSelectionPage() {
   return (
     <div className={styles.page}>
       <PageHeader
-        title={t("textSelection.title")}
-        description={t("textSelection.intro")}
+        current={t("textSelection.title")}
       />
 
       {/* Status Card */}

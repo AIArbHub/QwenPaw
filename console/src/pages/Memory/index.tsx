@@ -1,4 +1,4 @@
-﻿import {
+﻿﻿import {
   useState,
   useEffect,
   useCallback,
@@ -239,7 +239,7 @@ export default function MemoryPage() {
           total_size: totalSize,
           latest_modified: latestMod || "",
         } as MemoryStats);
-        setStatus({ initialized: true, started: true, error: null });
+        setStatus({ initialized: true, started: true, backend: "unknown", error: null });
       } else {
         const agentId = selectedAgentId === ALL_AGENTS ? undefined : selectedAgentId;
         const [fileList, workingList, statsData, statusData] = await Promise.all([
@@ -535,7 +535,7 @@ export default function MemoryPage() {
     try {
       if (selectedAgentId === ALL_AGENTS && agents.length > 0) {
         // Reindex all agents
-        const results = await Promise.allSettled(
+        await Promise.allSettled(
           agents.map((a) => api.reindexMemory(a.id).catch(() => ({ success: false, error: "Failed" }))),
         );
         message.success(t("memory.reindexSuccess"));
@@ -761,7 +761,7 @@ export default function MemoryPage() {
                 <Tree
                   treeData={treeData}
                   expandedKeys={expandedKeys}
-                  onExpand={setExpandedKeys}
+                  onExpand={(keys: React.Key[]) => setExpandedKeys(keys as string[])}
                   onSelect={(keys) => {
                     const key = keys[0] as string;
                     if (!key || isGroupKey(key)) return;

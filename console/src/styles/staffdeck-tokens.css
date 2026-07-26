@@ -1,0 +1,58 @@
+/* console/src/styles/staffdeck-tokens.css
+ * StaffDeck 设计令牌 — 将 StaffDeck 的冷调中性色板、大圆角、柔和阴影体系注入 QwenPaw。
+ * 所有 --sd-* 变量在 :root 定义亮色值，在 html.dark-mode 中覆盖暗色值。
+ * 组件通过 var(--sd-*) 引用，实现统一的设计语言与暗色模式自适应。
+ */
+:root {
+  /* === Colors === */
+  --sd-bg: #f7f5ef;
+  --sd-surface: #ffffff;
+  --sd-surface-muted: #f6f6f6;
+  --sd-ink: #18181a;
+  --sd-ink-soft: #464c5e;
+  --sd-muted: #757f9c;
+  --sd-muted-2: #858b9c;
+  --sd-border: #e3e7f1;
+  --sd-border-light: #eef1f5;
+  --sd-accent: #615ced;
+  --sd-accent-soft: #eeeefc;
+  --sd-btn-primary: #18181a;
+  --sd-online: #22c55e;
+  --sd-offline: #9ca3af;
+  --sd-danger: #d20b0b;
+  --sd-warning: #ff9138;
+
+  /* === Radius === */
+  --sd-radius-card: 20px;
+  --sd-radius-md: 14px;
+  --sd-radius-sm: 10px;
+  --sd-radius-full: 999px;
+
+  /* === Shadows === */
+  --sd-shadow-xs: 0 0 6px rgba(0, 0, 0, 0.05);
+  --sd-shadow-soft: 0 4px 10px rgba(0, 0, 0, 0.05);
+  --sd-shadow-hover: 0 12px 26px rgba(0, 0, 0, 0.08);
+  --sd-shadow-float: 0 16px 30px rgba(0, 0, 0, 0.1);
+
+  /* === Spacing === */
+  --sd-page-px: 48px;
+  --sd-page-pt: 32px;
+  --sd-card-gap: 32px;
+  --sd-card-gap-mobile: 18px;
+}
+
+/* Dark mode overrides — matches project convention: html.dark-mode */
+html.dark-mode {
+  --sd-bg: #1a1a1a;
+  --sd-surface: #2a2a2a;
+  --sd-surface-muted: #333333;
+  --sd-ink: rgba(255, 255, 255, 0.88);
+  --sd-ink-soft: rgba(255, 255, 255, 0.55);
+  --sd-muted: rgba(255, 255, 255, 0.45);
+  --sd-muted-2: rgba(255, 255, 255, 0.35);
+  --sd-border: rgba(255, 255, 255, 0.08);
+  --sd-border-light: rgba(255, 255, 255, 0.04);
+  --sd-accent: #a29bfe;
+  --sd-accent-soft: rgba(162, 155, 254, 0.12);
+  --sd-btn-primary: #f0f0f0;
+}

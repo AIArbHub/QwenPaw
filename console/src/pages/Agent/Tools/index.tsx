@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿﻿import { useEffect, useMemo, useState } from "react";
 import { Spin } from "antd";
 import {
   Card,
@@ -465,7 +465,7 @@ export default function ToolsPage() {
         <ToolConfigModal
           key={currentTool.name}
           tool={currentTool}
-          open={configModalVisible}
+          visible={configModalVisible}
           onClose={() => setConfigModalVisible(false)}
           onSave={handleSaveConfig}
         />

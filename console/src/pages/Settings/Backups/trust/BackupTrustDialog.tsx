@@ -6,9 +6,11 @@ import { useTranslation } from "react-i18next";
  * key. Import and restore both use this dialog so the trust decision is
  * explicit before the backend accepts or signs a foreign/legacy archive.
  */
+import type { BackupTrustMode } from "@/api/types/backup";
+
 interface Props {
   open: boolean;
-  mode: "foreign" | "legacy";
+  mode: BackupTrustMode;
   backupName?: string;
   confirmLoading?: boolean;
   onConfirm: () => void;

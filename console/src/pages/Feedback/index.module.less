@@ -1,0 +1,235 @@
+.feedbackPage {
+  max-width: 1200px;
+}
+
+.ratingCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--sd-card-gap, 24px);
+}
+
+.ratingCard {
+  background: var(--sd-surface, #ffffff);
+  border: 1px solid var(--sd-border, #e3e7f1);
+  border-radius: var(--sd-radius-card, 20px);
+  box-shadow: var(--sd-shadow-soft, 0 4px 10px rgba(0, 0, 0, 0.05));
+  transition: all 0.2s ease;
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: var(--sd-shadow-hover, 0 12px 26px rgba(0, 0, 0, 0.08));
+  }
+}
+
+.ratingHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--sd-border-light, #eef1f5);
+}
+
+.agentName {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--sd-ink, #18181a);
+}
+
+.avgRating {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--sd-accent, #615ced);
+}
+
+.ratingBody {
+  padding: 12px 20px 16px;
+}
+
+.ratingBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+
+  &Label {
+    width: 24px;
+    font-size: 12px;
+    color: var(--sd-muted, #757f9c);
+    text-align: right;
+  }
+
+  &Bar {
+    flex: 1;
+    height: 8px;
+    background: var(--sd-surface-muted, #f6f6f6);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  &Fill {
+    height: 100%;
+    background: var(--sd-accent, #615ced);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  &Count {
+    width: 32px;
+    font-size: 12px;
+    color: var(--sd-muted-2, #858b9c);
+    text-align: right;
+  }
+}
+
+.ratingFooter {
+  padding: 12px 20px;
+  border-top: 1px solid var(--sd-border-light, #eef1f5);
+}
+
+.commentItem {
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--sd-border-light, #eef1f5);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.commentText {
+  font-size: 13px;
+  color: var(--sd-ink-soft, #464c5e);
+  line-height: 1.5;
+}
+
+.commentMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--sd-muted-2, #858b9c);
+}
+
+.feedbackModal {
+  :global(.ant-modal-body) {
+    padding: 24px;
+  }
+}
+
+.starRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.starButton {
+  cursor: pointer;
+  font-size: 28px;
+  color: var(--sd-muted-2, #858b9c);
+  transition: color 0.15s;
+
+  &:hover {
+    color: var(--sd-warning, #ff9138);
+  }
+}
+
+.starActive {
+  color: var(--sd-warning, #ff9138);
+}
+
+// ---------------------------------------------------------------------------
+// Attribution distribution
+// ---------------------------------------------------------------------------
+
+.attributionSection {
+  padding: 10px 20px 12px;
+  border-top: 1px solid var(--sd-border-light, #eef1f5);
+}
+
+.attributionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sd-ink, #18181a);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.attributionItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.attributionLabel {
+  flex: 0 0 auto;
+  width: 140px;
+  font-size: 12px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attributionBar {
+  flex: 1;
+  height: 8px;
+  background: var(--sd-surface-muted, #f6f6f6);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.attributionBarFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.attributionCount {
+  flex: 0 0 auto;
+  width: 60px;
+  font-size: 12px;
+  color: var(--sd-muted-2, #858b9c);
+  text-align: right;
+}
+
+.downSummaries {
+  padding: 10px 20px 12px;
+  border-top: 1px solid var(--sd-border-light, #eef1f5);
+}
+
+.downSummaryItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--sd-border-light, #eef1f5);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.downSummaryText {
+  flex: 1;
+  font-size: 12px;
+  color: var(--sd-ink-soft, #464c5e);
+  line-height: 1.5;
+}
+
+.downSummaryRating {
+  flex: 0 0 auto;
+  font-size: 11px;
+  color: var(--sd-danger, #d20b0b);
+  font-weight: 600;
+}
+
+.summaryText {
+  padding: 8px 20px 12px;
+  font-size: 12px;
+  color: var(--sd-muted, #757f9c);
+  line-height: 1.5;
+  border-top: 1px solid var(--sd-border-light, #eef1f5);
+}

@@ -36,7 +36,8 @@
     "yes": "Yes",
     "no": "No",
     "operationSuccess": "Operation successful",
-    "operationFailed": "Operation failed"
+    "operationFailed": "Operation failed",
+    "noData": "No data"
   },
   "desktop": {
     "closeWindow": {
@@ -142,13 +143,18 @@
     "userPrefs": "Preferences",
     "opsDebug": "Ops & Debug",
     "agentWorkspace": "Agent Workspace",
+    "workbench": "Workbench",
     "pet": "Desktop Pet",
     "textSelection": "Text Selection",
     "docSdk": "AI Arb Document",
     "docSdkIframe": "Doc Processing (iframe)",
     "arbKb": "Arbitration KB",
-    "awardReview": "Award Review"
-  },
+    "awardReview": "Award Review",
+    "knowledgeBase": "Knowledge Base",
+    "feedback": "Feedback",
+"growth": "Growth Timeline",
+"search": "Global Search"
+},
   "sidebar": {
     "tab": {
       "agent": "Agent",
@@ -753,7 +759,48 @@
     "avatarDeleteFailed": "Avatar delete failed",
     "listView": "List View",
     "gridView": "Card View",
-    "basicInfo": "Basic Info"
+    "basicInfo": "Basic Info",
+    "default": "Default",
+    "online": "Online",
+    "offline": "Offline",
+    "chat": "Chat",
+    "moreActions": "More Actions",
+    "statsSessions": "Sessions",
+    "statsMessages": "Messages",
+    "statsLastActive": "Last Active",
+    "statsTotal": "Total Agents",
+    "filterAll": "All",
+    "filterEnabled": "Enabled",
+    "filterDisabled": "Disabled",
+    "searchPlaceholder": "Search agents..."
+  },
+  "workbench": {
+    "overview": "Overview",
+    "sessions": "Chat Logs",
+    "cronjobs": "Cron Jobs",
+    "memory": "Memory",
+    "events": "Events",
+    "noAgent": "Please select an agent from the sidebar",
+    "chat": "Chat",
+    "editProfile": "Edit Profile",
+    "creator": "Creator",
+    "joinDate": "Joined",
+    "metricDocs": "Docs",
+    "metricSkills": "Skills",
+    "metricSop": "SOP",
+    "metricJobs": "Jobs",
+    "todayChats": "Today's Chats",
+    "totalChats": "Total Chats",
+    "positiveRate": "Positive Rate",
+    "negativeRate": "Negative Rate",
+    "activityTimeline": "Activity Timeline",
+    "capabilityGrid": "Capabilities",
+    "capKnowledge": "Knowledge Base",
+    "capSkills": "Skills",
+    "capSop": "SOP",
+    "capTools": "Tools",
+    "capJobs": "Cron Jobs",
+    "capChats": "Chat Logs"
   },
   "persona": {
     "visualMode": "Visual",

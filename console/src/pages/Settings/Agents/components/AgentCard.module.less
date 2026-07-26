@@ -1,0 +1,246 @@
+/* AgentCard.module.less — StaffDeck 风格智能体卡片（改造后）
+ * 基于方案文档第 7.6 节，使用 --sd-* CSS 变量实现暗色模式自适应。
+ */
+
+.agentCard {
+  display: flex;
+  flex-direction: column;
+  min-height: 262px;
+  padding: 12px 10px;
+  border-radius: var(--sd-radius-card);
+  border: 1px solid var(--sd-border);
+  background: var(--sd-surface);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    box-shadow: var(--sd-shadow-soft);
+    transform: translateY(-2px);
+  }
+}
+
+.selected {
+  box-shadow: var(--sd-shadow-float);
+  border-color: var(--sd-accent);
+}
+
+/* ─── Header Bar with overflow avatar ─── */
+
+.headerBar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 68px;
+  padding: 8px 10px;
+  margin-top: 34px; /* 为头像溢出留空间 */
+  margin-bottom: 12px;
+  border-radius: 18px;
+  background: var(--sd-surface-muted);
+}
+
+.avatarOverflow {
+  position: absolute;
+  top: -42px; /* 头像溢出灰条顶部 */
+  left: 4px;
+  width: 80px;
+  height: 94px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 12px;
+  background: linear-gradient(145deg, var(--sd-accent), #8b5cf6);
+  color: #fff;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+  }
+
+  .avatarFallback {
+    font-size: 28px;
+    line-height: 1;
+    opacity: 0.9;
+    padding-bottom: 8px;
+  }
+}
+
+.headerInfo {
+  margin-left: 90px; /* 避开溢出头像 */
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--sd-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.defaultBadge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: var(--sd-radius-full);
+  font-size: 10px;
+  font-weight: 500;
+  background: var(--sd-accent-soft);
+  color: var(--sd-accent);
+  vertical-align: middle;
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.online {
+  background: var(--sd-online);
+}
+
+.offline {
+  background: var(--sd-offline);
+}
+
+.statusText {
+  font-size: 10px;
+  color: var(--sd-muted);
+}
+
+.chatBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--sd-radius-sm);
+  background: var(--sd-surface);
+  border: 1px solid var(--sd-border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sd-muted);
+  transition: color 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--sd-ink);
+    border-color: var(--sd-ink-soft);
+  }
+}
+
+/* ─── Description ─── */
+
+.desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--sd-ink-soft);
+  margin: 8px 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ─── Work style tags (agent.tags) ─── */
+
+.tags {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+
+.tagChip {
+  padding: 2px 8px;
+  border-radius: var(--sd-radius-full);
+  border: 0.5px solid var(--sd-border);
+  font-size: 10px;
+  color: var(--sd-ink-soft);
+}
+
+/* ─── Stats tri-grid ─── */
+
+.statsTri {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border: 1px solid var(--sd-border);
+  border-radius: var(--sd-radius-md);
+  margin-top: auto; /* 钉到底部 */
+
+  .stat {
+    padding: 6px 12px;
+    text-align: center;
+
+    &:not(:last-child) {
+      border-right: 1px solid var(--sd-border-light);
+    }
+
+    strong {
+      display: block;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--sd-ink);
+      line-height: 24px;
+    }
+
+    em {
+      display: block;
+      font-size: 9px;
+      font-style: normal;
+      color: var(--sd-ink-soft);
+    }
+  }
+}
+
+/* ─── Dropdown trigger ─── */
+
+.moreBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--sd-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--sd-radius-sm);
+  z-index: 2;
+
+  &:hover {
+    color: var(--sd-ink);
+    background: var(--sd-surface-muted);
+  }
+}
+
+/* ─── Dark mode ─── */
+html.dark-mode {
+  .agentCard {
+    background: var(--sd-surface);
+    border-color: var(--sd-border);
+  }
+
+  .headerBar {
+    background: var(--sd-surface-muted);
+  }
+
+  /* 其他变量已通过 CSS 变量自动适配 */
+}

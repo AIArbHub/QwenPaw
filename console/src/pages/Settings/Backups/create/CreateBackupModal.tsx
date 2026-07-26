@@ -71,7 +71,7 @@ export default function CreateBackupModal({
       description: description.trim() || undefined,
       scope: backupScope,
       agents,
-      browser_data: browserData,
+      browser_data: browserData as unknown as Record<string, unknown> | null,
     });
   };
 

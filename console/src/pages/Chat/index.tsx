@@ -1,4 +1,4 @@
-﻿import {
+﻿﻿import {
   AgentScopeRuntimeWebUI,
   IAgentScopeRuntimeWebUIOptions,
   type IAgentScopeRuntimeWebUIRef,
@@ -8,7 +8,7 @@ import { Alert, Button, Modal, Result, Tooltip, message as antMessage, Spin } fr
 import { useAppMessage } from "../../hooks/useAppMessage";
 import { ExclamationCircleOutlined, SettingOutlined } from "@ant-design/icons";
 import { SparkCopyLine, SparkAttachmentLine } from "@agentscope-ai/icons";
-import { MessageDeleteAction, MessageShareAction, MessageMultiSelectBar, extractContent } from "./components/MessageActions";
+import { MessageDeleteAction, MessageShareAction, extractContent } from "./components/MessageActions";
 import { usePlugins } from "../../plugins/PluginContext";
 import { useTranslation } from "react-i18next";
 import i18n from "../../i18n";

@@ -234,13 +234,8 @@ export function parseProfile(mdContent: string): ParsedProfile {
     customSections: [],
   };
 
-  let inIdentity = false;
-  let inUserProfile = false;
-
   for (const section of sections) {
     if (matchSection(section.title, PROFILE_SECTIONS.identity)) {
-      inIdentity = true;
-      inUserProfile = false;
       result.agent.name = extractLabeledValue(section.content, [
         "名字",
         "Name",
@@ -259,8 +254,6 @@ export function parseProfile(mdContent: string): ParsedProfile {
         "Other",
       ]);
     } else if (matchSection(section.title, PROFILE_SECTIONS.userProfile)) {
-      inIdentity = false;
-      inUserProfile = true;
       result.user.name = extractLabeledValue(section.content, [
         "名字",
         "Name",
@@ -279,8 +272,6 @@ export function parseProfile(mdContent: string): ParsedProfile {
         "Notes",
       ]);
     } else if (matchSection(section.title, PROFILE_SECTIONS.background)) {
-      inIdentity = false;
-      inUserProfile = false;
       result.user.background = extractRawText(section.content);
     } else if (section.title) {
       result.customSections.push({

@@ -186,7 +186,6 @@ export default function InboxPage() {
   const [wobbleEnabled, toggleWobble] = useInboxWobble();
   const {
     approvals: pendingApprovals,
-    setApprovals,
     approvalHistory,
     moveToHistory,
     clearHistory,

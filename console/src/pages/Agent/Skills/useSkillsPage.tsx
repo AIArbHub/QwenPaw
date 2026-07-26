@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+﻿﻿import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Form, Modal } from "@agentscope-ai/design";
 import type { PoolSkillSpec, SkillSpec } from "../../../api/types";
 import type { SkillDrawerFormValues } from "./components";
@@ -224,14 +224,11 @@ export function useSkillsPage() {
     setEditingSkill(null);
     // Parse name from frontmatter if present, otherwise use placeholder
     let name = "";
-    let description = "";
     const fmMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
     if (fmMatch) {
       const fm = fmMatch[1];
       const nameMatch = fm.match(/^name:\s*(.+)$/m);
-      const descMatch = fm.match(/^description:\s*(.+)$/m);
       if (nameMatch) name = nameMatch[1].trim();
-      if (descMatch) description = descMatch[1].trim();
     }
     form.resetFields();
     form.setFieldsValue({

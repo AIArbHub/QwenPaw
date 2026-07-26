@@ -99,7 +99,7 @@ class SkillRuntime:
         )
         return card
 
-    def apply_decision(
+    async def apply_decision(
         self,
         state: SkillRuntimeState,
         decision: StepDecision,
@@ -147,6 +147,52 @@ class SkillRuntime:
             return "tool_called"
 
         elif decision.action == StepAction.QUERY_KNOWLEDGE:
+            # 获取当前节点的 knowledge_scope 或 SkillCard 的全局 scope
+            current_node = self._get_node(card, state.active_node_id)
+            scope = ""
+            if current_node and current_node.knowledge_scope:
+                scope = current_node.knowledge_scope
+            elif card.knowledge_scope:
+                scope = card.knowledge_scope
+
+            # 延迟导入知识库服务，避免循环依赖
+            try:
+                from aiarb.builtin_plugins.knowledge_base.backend.service import (
+                    KnowledgeBaseService,
+                )
+
+                kb_svc = KnowledgeBaseService()
+                await kb_svc.initialize()
+                search_result = await kb_svc.search(
+                    query=decision.knowledge_query,
+                    top_k=5,
+                    knowledge_scope=scope,
+                )
+                # 兼容旧格式：提取 chunks 列表
+                results = search_result.get("chunks", [])
+                concepts = search_result.get("concepts", [])
+                citations = search_result.get("citations", [])
+            except Exception as e:
+                logger.warning(
+                    "知识库检索失败，回退为空结果: %s",
+                    e,
+                )
+                results = []
+                concepts = []
+                citations = []
+
+            # 将检索结果存入 active_context（含概念和引用）
+            state.active_context.setdefault("_knowledge_results", []).append(
+                {
+                    "query": decision.knowledge_query,
+                    "node": state.active_node_id,
+                    "results": results,
+                    "concepts": concepts,
+                    "citations": citations,
+                    "timestamp": _now_iso(),
+                }
+            )
+            # 同时保留 _pending_queries 以兼容旧逻辑
             state.active_context.setdefault("_pending_queries", []).append(
                 {
                     "query": decision.knowledge_query,

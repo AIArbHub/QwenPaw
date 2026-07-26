@@ -1,4 +1,4 @@
-﻿import { createGlobalStyle } from "antd-style";
+﻿﻿import { createGlobalStyle } from "antd-style";
 import {
   ConfigProvider,
   bailianDarkTheme,
@@ -42,6 +42,7 @@ import { isDesktopTauriRuntime } from "./utils/openExternalLink";
 import { interceptBlankLinkClicks } from "./utils/interceptBlankLinkClicks";
 import "./styles/layout.css";
 import "./styles/form-override.css";
+import "./styles/staffdeck-tokens.css";
 
 const antdLocaleMap: Record<string, Locale> = {
   zh: zhCN,

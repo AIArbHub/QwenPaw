@@ -32,6 +32,7 @@ from .heartbeat import (
     parse_heartbeat_every,
     run_heartbeat_once,
 )
+from .lease import get_lease_guard
 from .models import CronExecutionRecord, CronJobSpec, CronJobState
 from .repo.base import BaseJobRepository
 from ...api_action import ManagerBase, api_action
@@ -665,6 +666,49 @@ class CronManager(ManagerBase):
         trigger: Literal["scheduled", "manual"] = "scheduled",
     ) -> None:
         assert job.id is not None, "Job must have an id"
+
+        # 租约机制：确保同一 job 不会被多实例同时执行
+        lease_guard = get_lease_guard()
+        if trigger == "scheduled":
+            if not lease_guard.try_acquire(
+                job.id,
+                ttl_seconds=max(job.runtime.timeout_seconds + 60, 300),
+            ):
+                logger.info(
+                    "cron _execute_once: job_id=%s 跳过执行（租约被持有）",
+                    job.id,
+                )
+                st = self._states.get(job.id, CronJobState())
+                st.last_status = "skipped"
+                st.last_error = "lease held by another instance"
+                st.last_run_at = self._now_in_job_timezone(job)
+                self._states[job.id] = st
+                record = CronExecutionRecord(
+                    run_at=st.last_run_at,
+                    status="skipped",
+                    error="lease held by another instance",
+                    trigger=trigger,
+                )
+                records = await self._repo.append_history(
+                    job.id,
+                    record,
+                    limit=CRON_HISTORY_LIMIT,
+                )
+                self._history[job.id] = records
+                return
+
+        try:
+            await self._execute_job_internal(job, trigger=trigger)
+        finally:
+            if trigger == "scheduled":
+                lease_guard.release(job.id)
+
+    async def _execute_job_internal(
+        self,
+        job: CronJobSpec,
+        *,
+        trigger: Literal["scheduled", "manual"] = "scheduled",
+    ) -> None:
         rt = self._rt.get(job.id)
         if not rt:
             rt = _Runtime(sem=asyncio.Semaphore(job.runtime.max_concurrency))

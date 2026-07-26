@@ -49,6 +49,10 @@ describe("isFullBackup", () => {
     include_global_config: true,
     include_secrets: true,
     include_skill_pool: true,
+    include_jobs: true,
+    include_chats: true,
+    include_plugins: true,
+    include_browser_data: true,
   };
 
   it("returns true when all scope flags are true", () => {
@@ -82,6 +86,10 @@ describe("isFullBackup", () => {
         include_global_config: false,
         include_secrets: false,
         include_skill_pool: false,
+        include_jobs: false,
+        include_chats: false,
+        include_plugins: false,
+        include_browser_data: false,
       }),
     ).toBe(false);
   });

@@ -1,4 +1,4 @@
-﻿import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+﻿﻿import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   Input,
@@ -327,7 +327,6 @@ function LoadMoreSentinel({ onVisible }: { onVisible: () => void }) {
  * imports into the pool.
  */
 export function MarketPanel({
-  installTarget,
   onInstalled,
 }: {
   installTarget: InstallTarget;
@@ -386,12 +385,6 @@ export function MarketPanel({
   const handleDetailClose = useCallback(() => {
     setDetailItem(null);
   }, []);
-
-  // Memoize breadcrumb items to avoid re-creating each render
-  const headerItems = useMemo(
-    () => [{ title: t("nav.settings") }, { title: t("nav.market") }],
-    [t],
-  );
 
   const nonBrowseLabel = useMemo(() => {
     return market.providers

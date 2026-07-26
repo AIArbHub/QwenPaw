@@ -1,0 +1,23 @@
+{
+  "id": "knowledge-base",
+  "name": {
+    "zh-CN": "知识库",
+    "en-US": "Knowledge Base"
+  },
+  "version": "1.0.0",
+  "description": {
+    "zh-CN": "文档入库、向量化、检索，与 SOP 联动",
+    "en-US": "Document ingestion, vectorization, retrieval, integrated with SOP"
+  },
+  "author": "QwenPaw",
+  "type": "general",
+  "entry": {
+    "backend": "backend/main.py"
+  },
+  "aiarb_version": {
+    "min": "2.0.1"
+  },
+  "meta": {
+    "permissions": ["file:read", "network:internal"]
+  }
+}
