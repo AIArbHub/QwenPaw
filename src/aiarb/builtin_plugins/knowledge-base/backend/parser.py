@@ -57,18 +57,43 @@ def _decode_text(content: bytes) -> str:
 
 
 def _extract_pdf(content: bytes) -> str:
-    """提取 PDF 文本（依赖 pypdf）。"""
+    """提取 PDF 文本。
+
+    优先使用 pymupdf（项目已声明依赖），回退到 pypdf。
+    """
+    # 优先尝试 pymupdf（fitz）— 项目 pyproject.toml 已声明 pymupdf>=1.24.0
+    try:
+        import fitz  # pymupdf
+
+        doc = fitz.open(stream=content, filetype="pdf")
+        pages: list[str] = []
+        for index, page in enumerate(doc):
+            page_text = page.get_text() or ""
+            if page_text.strip():
+                pages.append(f"[Page {index + 1}]\n{page_text}")
+        doc.close()
+        if pages:
+            return "\n\n".join(pages)
+        # 文本层为空，返回提示
+        return "(PDF 无可提取的文本层，可能是扫描件)"
+    except Exception:
+        pass
+
+    # 回退：尝试 pypdf
     try:
         from pypdf import PdfReader
+
+        reader = PdfReader(BytesIO(content))
+        pages = []
+        for index, page in enumerate(reader.pages):
+            page_text = page.extract_text() or ""
+            if page_text.strip():
+                pages.append(f"[Page {index + 1}]\n{page_text}")
+        return "\n\n".join(pages) if pages else "(PDF 无可提取的文本层)"
     except Exception as exc:
-        raise KnowledgeParseError("缺少 pypdf，无法解析 PDF。") from exc
-    reader = PdfReader(BytesIO(content))
-    pages: list[str] = []
-    for index, page in enumerate(reader.pages):
-        page_text = page.extract_text() or ""
-        if page_text.strip():
-            pages.append(f"[Page {index + 1}]\n{page_text}")
-    return "\n\n".join(pages)
+        raise KnowledgeParseError(
+            "PDF 解析失败：pymupdf 和 pypdf 均不可用。请安装 pymupdf (pip install pymupdf)。",
+        ) from exc
 
 
 def _extract_docx(content: bytes) -> str:
