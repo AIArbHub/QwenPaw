@@ -138,10 +138,14 @@ class KnowledgeBaseService:
         步骤：
         1. 轻量解析（不依赖 doc_processing）
         2. 分块
-        3. 构建 OKF 概念图
+        3. 构建 OKF 概念图（v5.0: LLM 分桶 + 规则回退）
         4. 存储到向量库 + OKF 存储
+        5. 知识自发现（v5.0: LLM 发现 + 规则回退）
         """
         await self.initialize()
+
+        # 获取 agent_id（用于 LLM 调用）
+        agent_id = getattr(request, "agent_id", None) or None
 
         # Step 1: 轻量解析
         try:
@@ -179,18 +183,20 @@ class KnowledgeBaseService:
             content_hash=content_hash,
         )
 
-        # Step 4: 构建 OKF 概念图
+        # Step 4: 构建 OKF 概念图（v5.0: LLM 分桶）
         sections = build_sections_from_text(text)
-        buckets = build_buckets_from_sections(sections)
+        buckets = await _build_buckets_with_llm_fallback(sections, agent_id)
         concepts = build_okf_for_document(doc_id, title, sections, buckets)
         await self._store_okf_concepts(doc_id, concepts)
 
-        # Step 5: 知识自发现
+        # Step 5: 知识自发现（v5.0: LLM 发现）
         try:
-            suggestions = discover_suggestions(doc_id, title, text)
+            discovery_mgr = DiscoveryManager()
+            await discovery_mgr.initialize()
+            suggestions = await discovery_mgr.discover_with_llm(
+                doc_id, title, sections, buckets, agent_id,
+            )
             if suggestions:
-                discovery_mgr = DiscoveryManager()
-                await discovery_mgr.initialize()
                 await discovery_mgr.add_suggestions(suggestions)
                 logger.info(
                     "文档 %s 发现 %d 条建议",
@@ -212,6 +218,9 @@ class KnowledgeBaseService:
     async def ingest_text(self, request: Any) -> dict[str, Any]:
         """直接文本入库。"""
         await self.initialize()
+
+        # 获取 agent_id（用于 LLM 调用）
+        agent_id = getattr(request, "agent_id", None) or None
 
         text = request.text
         if not text.strip():
@@ -238,18 +247,20 @@ class KnowledgeBaseService:
             content_hash=content_hash,
         )
 
-        # Step 3: 构建 OKF 概念图
+        # Step 3: 构建 OKF 概念图（v5.0: LLM 分桶）
         sections = build_sections_from_text(text)
-        buckets = build_buckets_from_sections(sections)
+        buckets = await _build_buckets_with_llm_fallback(sections, agent_id)
         concepts = build_okf_for_document(doc_id, title, sections, buckets)
         await self._store_okf_concepts(doc_id, concepts)
 
-        # Step 4: 知识自发现
+        # Step 4: 知识自发现（v5.0: LLM 发现）
         try:
-            suggestions = discover_suggestions(doc_id, title, text)
+            discovery_mgr = DiscoveryManager()
+            await discovery_mgr.initialize()
+            suggestions = await discovery_mgr.discover_with_llm(
+                doc_id, title, sections, buckets, agent_id,
+            )
             if suggestions:
-                discovery_mgr = DiscoveryManager()
-                await discovery_mgr.initialize()
                 await discovery_mgr.add_suggestions(suggestions)
                 logger.info(
                     "文档 %s 发现 %d 条建议",
@@ -296,34 +307,60 @@ class KnowledgeBaseService:
         top_k: int = 5,
         knowledge_scope: str = "",
         filter_tags: list[str] | None = None,
+        agent_id: str | None = None,
     ) -> dict[str, Any]:
-        """检索知识库，返回概念 + 证据 + 引用。
+        """多级漏斗检索，借鉴 StaffDeck _search。
+
+        Level 1: OKF 概念搜索（已有，保留）
+        Level 2: 文档级筛选（新增：LLM 路由或词法评分）
+        Level 3: chunk 排序（已有，改用 _score_text）
 
         Returns:
             {
                 "chunks": [...],       # 向量检索结果
                 "concepts": [...],     # OKF 概念搜索结果
                 "citations": [...],    # 引用列表
+                "trace": [...],        # v5.0: 检索路由追踪
             }
         """
         await self.initialize()
         if self._vector_store is None:
-            return {"chunks": [], "concepts": [], "citations": []}
+            return {"chunks": [], "concepts": [], "citations": [], "trace": []}
 
-        # 向量检索（保留现有逻辑）
-        chunks = await self._vector_store.search(
-            query=query,
-            top_k=top_k,
-            filter_scope=knowledge_scope,
-            filter_tags=filter_tags,
-        )
+        trace: list[dict] = []  # v5.0: 检索路由追踪
 
-        # OKF 概念搜索
+        # Level 1: OKF 概念搜索（保留现有逻辑）
         all_concepts = await self._load_okf_concepts()
         concept_results = search_concepts(all_concepts, query, top_k=3)
         selected_concepts = [c for c, _ in concept_results]
+        trace.append({"phase": "concept_search", "hit_count": len(concept_results)})
 
-        # 生成引用
+        # Level 2: 文档级筛选
+        all_docs = await self._vector_store.list_documents()
+        trace.append({"phase": "document_load", "candidate_count": len(all_docs)})
+
+        # 尝试 LLM 文档路由
+        selected_doc_ids = await _route_documents(
+            query, all_docs, concept_results, agent_id, trace,
+        )
+
+        # Level 3: chunk 检索（在选中文档范围内）
+        if selected_doc_ids:
+            chunks = await self._vector_store.search_in_documents(
+                query, selected_doc_ids, top_k=top_k,
+                filter_scope=knowledge_scope, filter_tags=filter_tags,
+            )
+        else:
+            # 回退：全量检索
+            chunks = await self._vector_store.search(
+                query=query,
+                top_k=top_k,
+                filter_scope=knowledge_scope,
+                filter_tags=filter_tags,
+            )
+        trace.append({"phase": "chunk_rank", "result_count": len(chunks)})
+
+        # 生成引用（保留现有逻辑）
         citations = knowledge_citations_from_results(
             {
                 "selected_concepts": [c.to_dict() for c in selected_concepts],
@@ -339,6 +376,7 @@ class KnowledgeBaseService:
                 for c, s in concept_results
             ],
             "citations": citations,
+            "trace": trace,  # v5.0: 检索路由追踪
         }
 
     # ── 文档管理 ────────────────────────────────────────────────────────
@@ -459,3 +497,171 @@ async def kb_search_tool(query: str, top_k: int = 5) -> str:
             )
 
     return "\n---\n".join(parts)
+
+
+# ── v5.0: LLM 分桶 + 文档路由辅助函数 ─────────────────────────────────────
+
+
+async def _build_buckets_with_llm_fallback(
+    sections: list[dict[str, str]],
+    agent_id: str | None = None,
+) -> dict[str, list[dict[str, str]]]:
+    """LLM 分桶 + 规则回退。
+
+    借鉴 StaffDeck _build_buckets：先取 model_config，有则 LLM 分桶，无则/失败则规则分桶。
+    """
+    # 先尝试 LLM 分桶
+    try:
+        from .kb_llm import kb_generate_json, BUCKET_PROMPT
+
+        if not BUCKET_PROMPT.exists():
+            logger.warning("Bucket prompt file not found, falling back to rule-based bucketing")
+            return build_buckets_from_sections(sections)
+
+        # 构造 StaffDeck 格式的 section_nodes
+        section_nodes = []
+        for i, s in enumerate(sections[:60]):  # StaffDeck 限制最多 60 个 section
+            content = s.get("content", "")
+            section_nodes.append({
+                "section_id": str(i),
+                "path": s.get("title", ""),
+                "title": s.get("title", ""),
+                "summary": content[:180],
+                "excerpt": content[:1800],
+            })
+
+        payload = {"sections": section_nodes}
+        raw = await kb_generate_json(BUCKET_PROMPT, payload, agent_id)
+
+        # StaffDeck LLM 返回: {buckets: [{bucket_key, title, summary, bucket_type, concept_type, section_ids, applicable_query_types}]}
+        llm_buckets = raw.get("buckets", [])
+        if not isinstance(llm_buckets, list) or not llm_buckets:
+            logger.info("LLM bucketing returned empty, falling back to rules")
+            return build_buckets_from_sections(sections)
+
+        # 转换 LLM 桶为 QwenPaw 的 OKF bucket 格式 {topics: [], playbooks: [], rules: []}
+        return _convert_llm_buckets_to_okf_format(llm_buckets, sections)
+
+    except Exception as e:
+        logger.warning("LLM bucketing failed: %s, falling back to rule-based bucketing", e)
+        return build_buckets_from_sections(sections)
+
+
+def _convert_llm_buckets_to_okf_format(
+    llm_buckets: list[dict],
+    sections: list[dict[str, str]],
+) -> dict[str, list[dict[str, str]]]:
+    """把 StaffDeck LLM 桶格式转换为 QwenPaw OKF bucket 格式。
+
+    StaffDeck LLM 桶: {bucket_key, title, summary, bucket_type, concept_type, section_ids}
+    QwenPaw OKF 桶: {topics: [{title, content}], playbooks: [...], rules: [...]}
+
+    concept_type 映射: Topic -> topics, Playbook -> playbooks, Business Rule -> rules
+    """
+    buckets: dict[str, list[dict[str, str]]] = {"topics": [], "playbooks": [], "rules": []}
+
+    # section_id -> section 映射
+    section_map = {str(i): s for i, s in enumerate(sections)}
+
+    for lb in llm_buckets:
+        if not isinstance(lb, dict):
+            continue
+        concept_type = str(lb.get("concept_type", "Topic")).strip()
+        title = str(lb.get("title", lb.get("bucket_key", "未命名")))
+        summary = str(lb.get("summary", ""))
+
+        # 根据 section_ids 收集内容
+        section_ids = lb.get("section_ids", [])
+        if isinstance(section_ids, list):
+            content_parts = []
+            for sid in section_ids:
+                s = section_map.get(str(sid))
+                if s:
+                    content_parts.append(f"## {s.get('title', '')}\n{s.get('content', '')}")
+            content = "\n\n".join(content_parts) if content_parts else summary
+        else:
+            content = summary
+
+        bucket_item = {"title": title, "content": content}
+
+        if concept_type == "Playbook":
+            buckets["playbooks"].append(bucket_item)
+        elif concept_type == "Business Rule":
+            buckets["rules"].append(bucket_item)
+        else:
+            buckets["topics"].append(bucket_item)
+
+    # 若 LLM 桶为空，回退
+    if not any(buckets.values()):
+        return build_buckets_from_sections(sections)
+
+    return buckets
+
+
+async def _route_documents(
+    query: str,
+    documents: list[dict],
+    concept_results: list,
+    agent_id: str | None,
+    trace: list[dict],
+) -> list[str]:
+    """文档级路由：LLM 路由或词法评分。
+
+    借鉴 StaffDeck _select_documents_with_llm / _score_documents。
+    """
+    # 合并概念关联的 document_id
+    concept_doc_ids = set()
+    for concept, _ in concept_results:
+        if isinstance(concept, dict):
+            doc_id = concept.get("document_id", "")
+        else:
+            doc_id = getattr(concept, "document_id", "")
+        if doc_id:
+            concept_doc_ids.add(doc_id)
+
+    # 尝试 LLM 路由
+    try:
+        from .kb_llm import kb_generate_json, DOCUMENT_ROUTE_PROMPT
+
+        if DOCUMENT_ROUTE_PROMPT.exists() and documents:
+            # 构造文档卡片（借鉴 StaffDeck _document_card_for_route）
+            doc_cards = []
+            for doc in documents[:40]:  # 最多 40 个候选
+                doc_cards.append({
+                    "id": doc.get("id", ""),
+                    "title": (doc.get("title", "") or "")[:120],
+                    "filename": (doc.get("source_path", "") or "")[:120],
+                    "summary": (doc.get("title", "") or "")[:160],
+                    "chunk_count": doc.get("chunk_count", 0),
+                })
+
+            payload = {
+                "query": query,
+                "max_documents": 5,
+                "documents": doc_cards,
+            }
+            raw = await kb_generate_json(DOCUMENT_ROUTE_PROMPT, payload, agent_id)
+            selected = raw.get("selected_document_ids", [])
+            if isinstance(selected, list) and selected:
+                # 合并概念关联文档
+                selected_set = set(str(s) for s in selected) | concept_doc_ids
+                trace.append({"phase": "document_route_llm", "selected": list(selected_set)})
+                return list(selected_set)[:5]
+    except Exception as e:
+        trace.append({"phase": "document_route_llm_failed", "message": str(e)})
+
+    # 回退：词法评分（借鉴 StaffDeck _score_documents）
+    from .vector_store import _score_text
+
+    scored = []
+    for doc in documents:
+        score = _score_text(query, doc.get("title", ""))
+        if score > 0:
+            scored.append((doc.get("id", ""), score))
+    scored.sort(key=lambda x: x[1], reverse=True)
+
+    selected = [doc_id for doc_id, _ in scored[:5]]
+    # 合并概念关联文档
+    selected_set = set(selected) | concept_doc_ids
+    trace.append({"phase": "document_route_lexical", "selected": list(selected_set)})
+    return list(selected_set)[:5]

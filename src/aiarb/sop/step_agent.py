@@ -260,4 +260,24 @@ class StepAgent:
                 decision.action = StepAction.REPLY
                 decision.is_step_completed = True
 
+        # v5.0: 校验 allowed_actions
+        allowed = getattr(current_node, "allowed_actions", None) or []
+        if allowed:
+            action_str = decision.action.value
+            simple_allowed = set()
+            for a in allowed:
+                if isinstance(a, str) and ":" in a:
+                    simple_allowed.add(a.split(":")[0])
+                elif isinstance(a, str):
+                    simple_allowed.add(a)
+
+            if action_str not in simple_allowed:
+                logger.warning(
+                    "Action '%s' not allowed at node '%s' (allowed: %s), downgrading to reply",
+                    action_str, current_node.id, allowed,
+                )
+                decision.action = StepAction.REPLY
+                if not decision.content:
+                    decision.content = "当前步骤不支持此操作。"
+
         return decision

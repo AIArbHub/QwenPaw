@@ -178,6 +178,44 @@ def build_step_agent_prompt(
                 else ""
             )
 
+    # v5.0: 动态规则组装
+    dynamic_parts: list[str] = []
+
+    # 动态：节点 allowed_actions 裁剪可用动作
+    allowed = getattr(current_node, "allowed_actions", None) or []
+    if allowed:
+        dynamic_parts.append(
+            f"\n## 当前节点允许的动作\n你只能选择以下动作：{', '.join(allowed)}\n"
+        )
+    else:
+        dynamic_parts.append("\n## 当前节点允许的动作\n无限制，所有动作可用。\n")
+
+    # 动态：知识检索结果存在时，追加知识规则
+    knowledge_results = context.get("_knowledge_results", []) if context else []
+    if knowledge_results:
+        dynamic_parts.append(_knowledge_rules())
+
+    # 动态：工具结果存在时，追加工具规则
+    tool_results = context.get("_tool_results", []) if context else []
+    if tool_results:
+        dynamic_parts.append(_tool_continuation_rules())
+        dynamic_parts.append(_format_tool_results(tool_results[-3:]))
+
+    # 动态：技能级 response_rules
+    response_rules = getattr(card, "response_rules", None) or []
+    if response_rules:
+        rules_text = "\n## 响应规则\n"
+        for rule in response_rules:
+            rules_text += f"- {rule}\n"
+        dynamic_parts.append(rules_text)
+
+    # 动态：等待输入状态
+    awaiting = context.get("_awaiting_input", False) if context else False
+    if awaiting:
+        dynamic_parts.append(_awaiting_input_rules())
+
+    dynamic_text = "".join(dynamic_parts)
+
     return STEP_AGENT_SYSTEM_PROMPT.format(
         skill_name=card.name,
         skill_description=card.description,
@@ -187,7 +225,56 @@ def build_step_agent_prompt(
         node_description=current_node.description,
         node_prompt_hint=current_node.prompt_hint or "(none)",
         next_steps_text=next_steps_text,
-    ) + context_text
+    ) + context_text + dynamic_text
+
+
+# ---------------------------------------------------------------------------
+# v5.0: 动态规则段
+# ---------------------------------------------------------------------------
+
+def _knowledge_rules() -> str:
+    """知识检索结果规则段。"""
+    return """
+## 知识检索结果规则
+上方已注入知识库检索结果。请基于检索结果回答用户问题：
+- 引用知识时使用 [N] 编号标注来源
+- 若检索结果不足以回答，明确告知用户
+- 不要编造检索结果中不存在的信息
+"""
+
+
+def _tool_continuation_rules() -> str:
+    """工具执行结果规则段。"""
+    return """
+## 工具执行结果规则
+上方已注入工具执行结果。请基于工具结果继续判断下一步动作：
+- 若工具结果已满足需求，生成 reply 回复用户
+- 若需要进一步操作，继续输出相应 action
+"""
+
+
+def _awaiting_input_rules() -> str:
+    """等待输入规则段。"""
+    return """
+## 等待输入规则
+当前正在等待用户提供信息。请：
+- 检查用户是否已提供所需信息
+- 若信息完整，继续推进流程
+- 若信息不完整，再次询问
+"""
+
+
+def _format_tool_results(results: list) -> str:
+    """格式化工具执行结果注入 prompt。"""
+    if not results:
+        return ""
+    parts = ["\n## 工具执行结果\n"]
+    for i, tr in enumerate(results, 1):
+        parts.append(f"\n### 工具 {i}: {tr.get('tool_name', '')}\n")
+        parts.append(f"参数: {tr.get('tool_args', {})}\n")
+        result_str = str(tr.get("result", ""))
+        parts.append(f"结果: {result_str[:1000]}\n")
+    return "".join(parts)
 
 
 # ---------------------------------------------------------------------------

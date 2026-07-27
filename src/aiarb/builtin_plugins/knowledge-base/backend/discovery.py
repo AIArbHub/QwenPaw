@@ -329,6 +329,112 @@ class DiscoveryManager:
                 existing_keys.add(key)
         await self._save_suggestions()
 
+    async def discover_with_llm(
+        self,
+        doc_id: str,
+        title: str,
+        sections: list[dict[str, str]],
+        buckets: dict[str, list[dict[str, str]]],
+        agent_id: str | None = None,
+    ) -> list[DiscoverySuggestion]:
+        """LLM 知识发现，借鉴 StaffDeck _discover_from_document。
+
+        StaffDeck 用 DISCOVERY_PROMPT 调 LLM，产出 skill/tool/warning 三类建议。
+        QwenPaw 适配：保留现有规则发现作为回退，新增 LLM 发现分支。
+        """
+        try:
+            from .kb_llm import kb_generate_json, DISCOVERY_PROMPT
+
+            if not DISCOVERY_PROMPT.exists():
+                # 回退到规则发现
+                text = "\n".join(
+                    f"## {s.get('title', '')}\n{s.get('content', '')}"
+                    for s in sections
+                )
+                return discover_suggestions(doc_id, title, text)
+
+            # 构造 StaffDeck 格式的 payload
+            # 展平 buckets 为列表
+            bucket_list = []
+            for category, items in buckets.items():
+                for i, item in enumerate(items):
+                    bucket_list.append({
+                        "id": f"{category}_{i}",
+                        "title": item.get("title", ""),
+                        "summary": (item.get("content", "") or "")[:200],
+                        "excerpt": (item.get("content", "") or "")[:2400],
+                    })
+
+            payload = {
+                "document": {
+                    "id": doc_id,
+                    "filename": title,
+                    "title": title,
+                    "file_type": "txt",
+                },
+                "buckets": bucket_list,
+            }
+
+            raw = await kb_generate_json(DISCOVERY_PROMPT, payload, agent_id)
+            discoveries = raw.get("discoveries", [])
+
+            if not isinstance(discoveries, list):
+                return []
+
+            # 转换为 DiscoverySuggestion 格式
+            from datetime import datetime, timezone
+            now = datetime.now(timezone.utc).isoformat()
+
+            suggestions: list[DiscoverySuggestion] = []
+            for item in discoveries:
+                if not isinstance(item, dict):
+                    continue
+                suggestion_type = str(item.get("suggestion_type", "warning"))
+                # 映射类型
+                if suggestion_type not in ("sop", "tool", "knowledge_gap"):
+                    if suggestion_type == "skill":
+                        suggestion_type = SUGGESTION_TYPE_SOP
+                    elif suggestion_type == "tool":
+                        suggestion_type = SUGGESTION_TYPE_TOOL
+                    else:
+                        suggestion_type = SUGGESTION_TYPE_KNOWLEDGE_GAP
+
+                item_title = str(item.get("title", ""))
+                item_reason = str(item.get("reason", ""))
+                payload_data = item.get("payload", {})
+
+                # 从 payload 提取内容
+                content_str = ""
+                if isinstance(payload_data, dict):
+                    if "draft_skill" in payload_data:
+                        content_str = str(payload_data["draft_skill"])
+                    elif "name" in payload_data:
+                        content_str = str(payload_data)
+                    else:
+                        content_str = str(payload_data)
+
+                suggestions.append(DiscoverySuggestion(
+                    suggestion_id=f"llm_{doc_id[:8]}_{len(suggestions)}",
+                    suggestion_type=suggestion_type,
+                    title=item_title or f"LLM 发现：{title}",
+                    description=item_reason,
+                    content=content_str,
+                    confidence=0.7,
+                    document_id=doc_id,
+                    created_at=now,
+                ))
+
+            return suggestions
+
+        except Exception as e:
+            logger.warning("LLM discovery failed: %s, falling back to rules", e)
+            # 回退到规则发现
+            text = "\n".join(
+                f"## {s.get('title', '')}\n{s.get('content', '')}"
+                for s in sections
+            )
+            return discover_suggestions(doc_id, title, text)
+
     async def list_suggestions(
         self,
         status: str | None = None,

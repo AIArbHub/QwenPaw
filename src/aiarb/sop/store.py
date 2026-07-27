@@ -124,6 +124,19 @@ def skill_exists(skill_id: str) -> bool:
     return _skill_path(skill_id).exists()
 
 
+def increment_call_count(skill_id: str) -> None:
+    """自增技能调用次数。
+
+    v5.0: 在 start_skill 时调用，激活 call_count 字段。
+    """
+    card = load_skill(skill_id)
+    if card:
+        card.call_count = (card.call_count or 0) + 1
+        save_skill(card)
+    else:
+        logger.warning("Cannot increment call_count: skill '%s' not found", skill_id)
+
+
 # ---------------------------------------------------------------------------
 # Validation helper
 # ---------------------------------------------------------------------------

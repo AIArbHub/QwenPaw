@@ -92,6 +92,13 @@ class SkillRuntime:
         state.active_context = initial_context or {}
         state.awaiting_input = False
 
+        # v5.0: 自增 call_count
+        try:
+            from .store import increment_call_count
+            increment_call_count(skill_id)
+        except Exception as e:
+            logger.warning("Failed to increment call_count: %s", e)
+
         logger.info(
             "Started skill '%s' at node '%s'",
             skill_id,
@@ -104,6 +111,7 @@ class SkillRuntime:
         state: SkillRuntimeState,
         decision: StepDecision,
         card: SkillCard,
+        agent_id: str | None = None,
     ) -> str:
         """Apply a StepDecision to the runtime state.
 
@@ -167,6 +175,7 @@ class SkillRuntime:
                     query=decision.knowledge_query,
                     top_k=5,
                     knowledge_scope=scope,
+                    agent_id=agent_id,
                 )
                 # 兼容旧格式：提取 chunks 列表
                 results = search_result.get("chunks", [])
@@ -283,8 +292,11 @@ class SkillRuntime:
             return outgoing[0].to_node
         return None
 
-    def _complete_skill(self, state: SkillRuntimeState) -> None:
-        """Mark the current skill as complete and restore from stack if available."""
+    def _complete_skill(self, state: SkillRuntimeState) -> str:
+        """Mark the current skill as complete and restore from stack if available.
+
+        v5.0: 自动消费 pending_tasks 队列，激活下一个待办任务。
+        """
         completed_skill = state.active_skill_id
         logger.info("Skill '%s' completed", completed_skill)
 
@@ -296,6 +308,26 @@ class SkillRuntime:
         # If there are suspended skills on the stack, restore the top one
         if state.skill_stack:
             self.restore_task_frame(state)
+            return "completed_and_restored"
+
+        # v5.0: 消费 pending_tasks 队列
+        if state.pending_tasks:
+            next_task = state.pending_tasks[0]
+            state.pending_tasks = state.pending_tasks[1:]
+            if next_task.skill_id:
+                next_card = load_skill(next_task.skill_id)
+                if next_card:
+                    state.active_skill_id = next_card.id
+                    state.active_node_id = next_card.start_node_id
+                    state.active_context = next_task.context or {}
+                    state.awaiting_input = False
+                    logger.info(
+                        "Auto-activated pending task: skill '%s'",
+                        next_task.skill_id,
+                    )
+                    return "completed_and_activated_pending"
+
+        return "completed"
 
     def suspend_current(
         self,

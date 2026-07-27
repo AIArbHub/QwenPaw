@@ -26,6 +26,7 @@ from pydantic import BaseModel, Field
 
 from ...sop.schema import (
     SkillCard,
+    StepAction,
     StepDecision,
     SkillRuntimeState,
     validate_graph,
@@ -244,7 +245,10 @@ async def api_runtime_start(req: RuntimeStartRequest):
 
 @router.post("/runtime/step", response_model=RuntimeStepResponse)
 async def api_runtime_step(req: RuntimeStepRequest):
-    """Execute one conversation turn: StepAgent decides, Runtime applies."""
+    """Execute one conversation turn with auto-closure.
+
+    v5.0: 使用编排器自动闭环知识检索和工具执行。
+    """
     state = req.state
     if not state.active_skill_id:
         raise HTTPException(
@@ -259,45 +263,29 @@ async def api_runtime_step(req: RuntimeStepRequest):
             detail=f"Active skill '{state.active_skill_id}' not found",
         )
 
-    runtime = SkillRuntime()
-    current_node = runtime.get_current_node(card, state)
-    if current_node is None:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Current node '{state.active_node_id}' not found in skill",
-        )
+    from ...sop.orchestrator import run_turn
 
-    # StepAgent decides
-    agent = StepAgent(agent_id=req.agent_id or None)
-    decision = await agent.run(
+    result = await run_turn(
+        state=state,
         card=card,
-        current_node=current_node,
         user_message=req.user_message,
-        context=state.active_context,
         history=req.history,
+        agent_id=req.agent_id or None,
     )
 
-    # Runtime applies
-    status = await runtime.apply_decision(state, decision, card)
-
-    # Determine reply text
-    reply_text = decision.content
-    if decision.action.value == "call_tool":
-        reply_text = f"[工具调用] {decision.tool_name}({decision.tool_args})"
-    elif decision.action.value == "query_knowledge":
-        reply_text = f"[知识检索] {decision.knowledge_query}"
-    elif decision.action.value == "advance" and not reply_text:
-        next_node = runtime.get_current_node(card, state)
-        if next_node:
-            reply_text = f"已进入：{next_node.title}"
-        else:
-            reply_text = "已推进到下一步"
+    decision = result["decision"]
+    if decision is None:
+        decision = StepDecision(
+            action=StepAction.REPLY,
+            content=result["reply_text"],
+            reasoning="Orchestrator returned no decision",
+        )
 
     return RuntimeStepResponse(
         decision=decision,
-        state=state,
-        status=status,
-        reply_text=reply_text,
+        state=result["state"],
+        status=result["status"],
+        reply_text=result["reply_text"],
     )
 
 

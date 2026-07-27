@@ -17,6 +17,73 @@ import orjson
 logger = logging.getLogger(__name__)
 
 
+# ── v5.0: 中文 n-gram 分词和评分（借鉴 StaffDeck _query_terms / _score_text）──
+
+
+def _query_terms(query: str) -> list[str]:
+    """中文 n-gram 分词，借鉴 StaffDeck _query_terms。
+
+    对中文做 4/3/2 字滑动窗口扩展，解决中文无空格问题。
+    """
+    query = query.strip().lower()
+    if not query:
+        return []
+
+    terms: list[str] = []
+    parts = query.split()
+    for part in parts:
+        if part.isascii():
+            terms.append(part)
+        else:
+            n = len(part)
+            for size in (4, 3, 2):
+                if n >= size:
+                    for i in range(n - size + 1):
+                        gram = part[i : i + size]
+                        if gram not in terms:
+                            terms.append(gram)
+            if part not in terms:
+                terms.append(part)
+    return terms
+
+
+def _score_text(query: str, content: str) -> float:
+    """改进的词法评分，借鉴 StaffDeck _score_text。
+
+    - 整句命中 +5.0
+    - 中文 n-gram 按词长加权（4字 +3.0，3字 +2.5，2字 +2.0）
+    - 英文按词长加权（>=5字 +3.4，3-4字 +2.0）
+    - 上限 8.0
+    """
+    query_lower = query.lower().strip()
+    content_lower = content.lower()
+
+    if not query_lower or not content_lower:
+        return 0.0
+
+    score = 0.0
+
+    if query_lower in content_lower:
+        score += 5.0
+
+    terms = _query_terms(query_lower)
+    for term in terms:
+        if term in content_lower:
+            tlen = len(term)
+            if tlen >= 5:
+                score += 3.4
+            elif tlen >= 4:
+                score += 3.0
+            elif tlen >= 3:
+                score += 2.5
+            elif tlen >= 2:
+                score += 2.0
+            else:
+                score += 1.0
+
+    return min(score, 8.0)
+
+
 class KnowledgeVectorStore:
     """知识库向量存储。
 
@@ -161,8 +228,6 @@ class KnowledgeVectorStore:
             await self.initialize()
 
         results: list[dict[str, Any]] = []
-        query_lower = query.lower()
-        query_terms = [t for t in query_lower.split() if t]
 
         # 遍历所有文档
         index = await self._read_index()
@@ -188,17 +253,8 @@ class KnowledgeVectorStore:
 
             for chunk in doc.get("chunks", []):
                 content = chunk.get("content", "")
-                content_lower = content.lower()
-                # 计算匹配分数
-                score = 0.0
-                if query_lower in content_lower:
-                    score = 0.8
-                elif query_terms:
-                    matched = sum(
-                        1 for t in query_terms if t in content_lower
-                    )
-                    if matched > 0:
-                        score = 0.3 + 0.1 * matched
+                # v5.0: 使用改进的 _score_text 替换硬编码评分
+                score = _score_text(query, content)
 
                 if score > 0:
                     results.append(
@@ -208,7 +264,7 @@ class KnowledgeVectorStore:
                                 "title", ""
                             ),
                             "chunk_content": content,
-                            "score": score,
+                            "score": round(score, 4),
                             "metadata": {
                                 "tags": doc_tags,
                                 "chunk_index": chunk.get("index", 0),
@@ -266,3 +322,67 @@ class KnowledgeVectorStore:
         await self._write_index(index)
 
         return len(docs_list) < original_len
+
+    async def search_in_documents(
+        self,
+        query: str,
+        doc_ids: list[str],
+        top_k: int = 5,
+        filter_scope: str = "",
+        filter_tags: list[str] | None = None,
+    ) -> list[dict[str, Any]]:
+        """在指定文档范围内检索（多级漏斗用）。
+
+        v5.0: 借鉴 StaffDeck 多级漏斗检索，缩小搜索范围。
+        """
+        if not self._initialized:
+            await self.initialize()
+
+        doc_id_set = set(doc_ids)
+        results: list[dict[str, Any]] = []
+
+        index = await self._read_index()
+        for doc_summary in index.get("documents", []):
+            if doc_summary.get("id", "") not in doc_id_set:
+                continue
+
+            # 标签过滤
+            doc_tags = doc_summary.get("tags", [])
+            if filter_tags:
+                if not any(t in doc_tags for t in filter_tags):
+                    continue
+            if filter_scope and filter_scope not in doc_tags:
+                continue
+
+            doc_id = doc_summary.get("id", "")
+            doc_file = self._docs_dir / f"{doc_id}.json"
+            if not doc_file.exists():
+                continue
+
+            try:
+                async with aiofiles.open(doc_file, "rb") as f:
+                    doc = orjson.loads(await f.read())
+            except Exception:
+                continue
+
+            for chunk in doc.get("chunks", []):
+                content = chunk.get("content", "")
+                score = _score_text(query, content)
+
+                if score > 0:
+                    results.append(
+                        {
+                            "document_id": doc_id,
+                            "document_title": doc_summary.get("title", ""),
+                            "chunk_content": content,
+                            "score": round(score, 4),
+                            "metadata": {
+                                "tags": doc_tags,
+                                "chunk_index": chunk.get("index", 0),
+                                "source_path": doc_summary.get("source_path", ""),
+                            },
+                        }
+                    )
+
+        results.sort(key=lambda x: x["score"], reverse=True)
+        return results[:top_k]

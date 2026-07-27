@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 
 from .models import (
     IngestRequest,
@@ -45,12 +45,13 @@ def create_kb_router() -> APIRouter:
     async def search(
         request: SearchRequest,
     ) -> dict:
-        """知识库检索，返回 chunks + concepts + citations。"""
+        """知识库检索，返回 chunks + concepts + citations + trace。"""
         result = await _svc.search(
             query=request.query,
             top_k=request.top_k,
             knowledge_scope=request.knowledge_scope,
             filter_tags=request.filter_tags,
+            agent_id=request.agent_id or None,
         )
         return result
 
@@ -135,5 +136,67 @@ def create_kb_router() -> APIRouter:
                 detail="建议不存在",
             )
         return {"success": True, "status": "rejected"}
+
+    # ── v5.0: 文件上传 ──
+
+    @router.post("/upload")
+    async def upload_document(
+        file: UploadFile = File(...),
+        title: str = Form(""),
+        tags: str = Form(""),
+        agent_id: str = Form(""),
+    ) -> dict:
+        """文件上传入库（FormData 方式）。
+
+        v5.0: 新增文件上传端点，前端用 antd Upload.Dragger 调用。
+        保存文件到临时路径后调用 ingest_document。
+        """
+        import tempfile
+        import os
+        import pathlib
+
+        # 保存上传文件到临时路径
+        suffix = pathlib.Path(file.filename or "upload").suffix
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            content = await file.read()
+            tmp.write(content)
+            tmp_path = tmp.name
+
+        final_path = tmp_path
+        try:
+            # 重命名为原始文件名
+            if file.filename:
+                final_path = os.path.join(
+                    os.path.dirname(tmp_path),
+                    file.filename,
+                )
+                os.rename(tmp_path, final_path)
+
+            # 调用入库
+            tag_list = (
+                [t.strip() for t in tags.split(",") if t.strip()]
+                if tags
+                else []
+            )
+            request = IngestRequest(
+                file_path=final_path,
+                title=title or pathlib.Path(file.filename or "").stem,
+                tags=tag_list,
+                agent_id=agent_id,
+            )
+            result = await _svc.ingest_document(request)
+            if not result.get("success"):
+                raise HTTPException(
+                    status_code=400,
+                    detail=result.get("error", "入库失败"),
+                )
+            return result
+        finally:
+            # 清理临时文件
+            if os.path.exists(final_path):
+                try:
+                    os.unlink(final_path)
+                except Exception:
+                    pass
 
     return router

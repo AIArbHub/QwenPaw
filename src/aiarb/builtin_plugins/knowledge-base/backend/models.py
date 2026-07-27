@@ -42,6 +42,7 @@ class IngestRequest(BaseModel):
     tags: list[str] = Field(default_factory=list)
     chunk_size: int = 512
     chunk_overlap: int = 50
+    agent_id: str = ""
 
 
 class IngestTextRequest(BaseModel):
@@ -52,6 +53,7 @@ class IngestTextRequest(BaseModel):
     tags: list[str] = Field(default_factory=list)
     chunk_size: int = 512
     chunk_overlap: int = 50
+    agent_id: str = ""
 
 
 class SearchRequest(BaseModel):
@@ -61,6 +63,7 @@ class SearchRequest(BaseModel):
     top_k: int = 5
     knowledge_scope: str = ""
     filter_tags: list[str] = Field(default_factory=list)
+    agent_id: str = ""
 
 
 class SearchResult(BaseModel):

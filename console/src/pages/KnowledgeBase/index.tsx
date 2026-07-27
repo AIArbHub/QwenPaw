@@ -7,7 +7,9 @@ import {
   Modal,
   Space,
   Spin,
+  Tabs,
   Tag,
+  Upload,
   message,
 } from "antd";
 import {
@@ -33,6 +35,7 @@ import kbApi, {
   type OKFConcept,
   type DiscoverySuggestion,
 } from "@/api/modules/kb";
+import SearchDebugPanel from "./components/SearchDebugPanel";
 import styles from "./index.module.less";
 
 // ── OKF 概念类型标签颜色映射 ──
@@ -63,13 +66,16 @@ interface IngestModalProps {
   onIngested: () => void;
 }
 
+const { Dragger } = Upload;
+
 function IngestModal({ open, onClose, onIngested }: IngestModalProps) {
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState("");
   const [ingesting, setIngesting] = useState(false);
+  const [activeTab, setActiveTab] = useState("file");
 
-  const handleIngest = async () => {
+  const handleIngestText = async () => {
     if (!text.trim()) {
       message.warning("请输入文本内容");
       return;
@@ -103,26 +109,69 @@ function IngestModal({ open, onClose, onIngested }: IngestModalProps) {
     }
   };
 
+  const uploadProps = {
+    name: "file",
+    action: undefined, // 使用自定义上传
+    multiple: true,
+    accept: ".txt,.md,.markdown,.html,.htm,.pdf,.docx",
+    showUploadList: true,
+    customRequest: async (options: any) => {
+      const { file, onSuccess, onError } = options;
+      setIngesting(true);
+      try {
+        const tagList = tags
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const res = await kbApi.uploadDocument(file as File, {
+          title: title || undefined,
+          tags: tagList.length > 0 ? tagList.join(",") : undefined,
+        });
+        const okfCount = res.okf_concept_count ?? 0;
+        message.success(
+          `上传成功：${res.title}（${res.chunk_count} 个分块，${okfCount} 个概念）`,
+        );
+        onSuccess?.(res);
+        onIngested();
+      } catch (err) {
+        message.error(
+          err instanceof Error ? err.message : "上传失败",
+        );
+        onError?.(err);
+      } finally {
+        setIngesting(false);
+      }
+    },
+  };
+
   return (
     <Modal
       open={open}
       title="文档入库"
       onCancel={onClose}
       width={640}
-      footer={[
-        <Button key="cancel" onClick={onClose}>
-          取消
-        </Button>,
-        <Button
-          key="ingest"
-          type="primary"
-          icon={<InboxOutlined />}
-          loading={ingesting}
-          onClick={handleIngest}
-        >
-          入库
-        </Button>,
-      ]}
+      footer={
+        activeTab === "text"
+          ? [
+              <Button key="cancel" onClick={onClose}>
+                取消
+              </Button>,
+              <Button
+                key="ingest"
+                type="primary"
+                icon={<InboxOutlined />}
+                loading={ingesting}
+                onClick={handleIngestText}
+              >
+                入库
+              </Button>,
+            ]
+          : [
+              <Button key="close" onClick={onClose}>
+                关闭
+              </Button>,
+            ]
+      }
     >
       <div style={{ marginBottom: 12 }}>
         <label style={{ display: "block", marginBottom: 6, fontWeight: 500 }}>
@@ -144,18 +193,71 @@ function IngestModal({ open, onClose, onIngested }: IngestModalProps) {
           placeholder="如：仲裁,规则,程序"
         />
       </div>
-      <div style={{ marginBottom: 12 }}>
-        <label style={{ display: "block", marginBottom: 6, fontWeight: 500 }}>
-          <span style={{ color: "var(--sd-danger)", marginRight: 4 }}>*</span>
-          文本内容
-        </label>
-        <ResizableTextArea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          defaultHeight={200}
-          placeholder="粘贴需要入库的文档文本..."
-        />
-      </div>
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        size="small"
+        items={[
+          {
+            key: "file",
+            label: "文件上传",
+            children: (
+              <Dragger
+                {...uploadProps}
+                style={{
+                  background: "var(--sd-surface-muted)",
+                  borderRadius: "var(--sd-radius-md)",
+                  border: "1px dashed var(--sd-border)",
+                }}
+              >
+                <p className="ant-upload-drag-icon">
+                  <InboxOutlined />
+                </p>
+                <p
+                  className="ant-upload-text"
+                  style={{ color: "var(--sd-ink)" }}
+                >
+                  点击或拖拽文件到此区域上传
+                </p>
+                <p
+                  className="ant-upload-hint"
+                  style={{ color: "var(--sd-muted)" }}
+                >
+                  支持 txt / md / html / pdf / docx 格式
+                </p>
+              </Dragger>
+            ),
+          },
+          {
+            key: "text",
+            label: "文本入库",
+            children: (
+              <div style={{ marginBottom: 12 }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: 6,
+                    fontWeight: 500,
+                  }}
+                >
+                  <span
+                    style={{ color: "var(--sd-danger)", marginRight: 4 }}
+                  >
+                    *
+                  </span>
+                  文本内容
+                </label>
+                <ResizableTextArea
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  defaultHeight={200}
+                  placeholder="粘贴需要入库的文档文本..."
+                />
+              </div>
+            ),
+          },
+        ]}
+      />
     </Modal>
   );
 }
@@ -835,6 +937,9 @@ export default function KnowledgeBasePage() {
                 {searchResult.citations && searchResult.citations.length > 0 && (
                   <CitationPanel citations={searchResult.citations} />
                 )}
+
+                {/* v5.0: 检索调试面板 */}
+                <SearchDebugPanel trace={searchResult.trace} />
               </>
             )}
           </Spin>

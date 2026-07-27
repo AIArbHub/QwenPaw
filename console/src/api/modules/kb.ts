@@ -51,6 +51,7 @@ export interface IngestTextRequest {
   tags?: string[];
   chunk_size?: number;
   chunk_overlap?: number;
+  agent_id?: string;
 }
 
 export interface IngestResponse {
@@ -88,10 +89,20 @@ export interface Citation {
   };
 }
 
+export interface TraceStep {
+  phase: string;
+  hit_count?: number;
+  candidate_count?: number;
+  result_count?: number;
+  selected?: string[];
+  message?: string;
+}
+
 export interface SearchResponse {
   chunks: SearchResultItem[];
   concepts: SearchConceptResult[];
   citations: Citation[];
+  trace?: TraceStep[];
 }
 
 export interface DiscoverySuggestion {
@@ -111,6 +122,7 @@ export interface SearchRequest {
   top_k?: number;
   knowledge_scope?: string;
   filter_tags?: string[];
+  agent_id?: string;
 }
 
 // ── API ──────────────────────────────────────────────────────────────────
@@ -183,6 +195,20 @@ export const kbApi = {
       `/kb/discovery/suggestions/${encodeURIComponent(suggestionId)}/reject`,
       { method: "POST" },
     ),
+
+  // ── v5.0: 文件上传 ──
+
+  uploadDocument: (file: File, opts?: { title?: string; tags?: string; agent_id?: string }) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (opts?.title) formData.append("title", opts.title);
+    if (opts?.tags) formData.append("tags", opts.tags);
+    if (opts?.agent_id) formData.append("agent_id", opts.agent_id);
+    return request<IngestResponse>("/kb/upload", {
+      method: "POST",
+      body: formData,
+    });
+  },
 };
 
 export default kbApi;
