@@ -31,9 +31,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 68px;
+  height: 60px;
   padding: 8px 10px;
-  margin-top: 34px; /* 为头像溢出留空间 */
+  margin-top: 28px; /* 为头像溢出留空间 */
   margin-bottom: 12px;
   border-radius: 18px;
   background: var(--sd-surface-muted);
@@ -41,12 +41,12 @@
 
 .avatarOverflow {
   position: absolute;
-  top: -42px; /* 头像溢出灰条顶部 */
+  top: -34px; /* 头像溢出灰条顶部 */
   left: 4px;
-  width: 80px;
-  height: 94px;
+  width: 64px;
+  height: 64px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   overflow: hidden;
   border-radius: 12px;
@@ -57,20 +57,19 @@
   img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    object-position: center bottom;
+    object-fit: cover;
+    object-position: center;
   }
 
   .avatarFallback {
-    font-size: 28px;
+    font-size: 24px;
     line-height: 1;
     opacity: 0.9;
-    padding-bottom: 8px;
   }
 }
 
 .headerInfo {
-  margin-left: 90px; /* 避开溢出头像 */
+  margin-left: 74px; /* 避开溢出头像 */
   flex: 1;
   min-width: 0;
 }

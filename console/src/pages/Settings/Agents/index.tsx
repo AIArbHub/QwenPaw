@@ -309,7 +309,7 @@ export default function AgentsPage() {
         }
       />
 
-      {/* ─── Stats Cards (Task 3.1) ─────────────────────────────── */}
+      {/* ─── Stats Cards ─────────────────────────────────────────── */}
       <div className={styles.statsRow}>
         <div className={styles.statCard}>
           <span className={styles.statNum}>{agents.length}</span>
@@ -317,18 +317,11 @@ export default function AgentsPage() {
         </div>
         <div className={styles.statCard}>
           <span className={styles.statNum}>{enabledCount}</span>
-          <span className={styles.statLbl}>{t("agent.online")}</span>
+          <span className={styles.statLbl}>{t("agent.filterEnabled")}</span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statNum}>{disabledCount}</span>
-          <span className={styles.statLbl}>{t("agent.offline")}</span>
-        </div>
-        <div
-          className={`${styles.statCard} ${styles.statCardCreate}`}
-          onClick={handleCreate}
-        >
-          <PlusOutlined style={{ fontSize: 20 }} />
-          <span className={styles.statLbl}>{t("agent.create")}</span>
+          <span className={styles.statLbl}>{t("agent.filterDisabled")}</span>
         </div>
       </div>
 

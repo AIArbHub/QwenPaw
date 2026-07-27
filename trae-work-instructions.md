@@ -1,9 +1,9 @@
-# TRAE Work 实施指示文档：QwenPaw 借鉴 StaffDeck 功能二次开发（v3.0）
+# TRAE Work 实施指示文档：QwenPaw 借鉴 StaffDeck 功能二次开发（v4.0）
 
-> **文档版本**：3.0
+> **文档版本**：4.0
 > **更新日期**：2026-07-26
 > **适用项目**：QwenPaw（moot5 分支）
-> **前置条件**：QwenPaw 已完成 SOP 引擎、知识库插件基础版、StaffDeck 设计 token 注入、AgentCard 重设计、Workbench 聚合页
+> **前置条件**：已按 v3.0 完成知识库 OKF/引用/解析器、SOP 引擎、StaffDeck 设计 token 注入
 
 ---
 
@@ -12,1038 +12,854 @@
 | 版本 | 日期 | 变更 |
 |------|------|------|
 | 2.1 | 2026-07-26 | 移除 doc_processing 依赖，改为内嵌轻量解析器 |
-| **3.0** | **2026-07-26** | **基于 QwenPaw 最新代码状态全面重写；确认 SOP/知识库/前端已实现的部分；聚焦真正缺失的 OKF/引用/Router/7维反思/LLM归因/自发现** |
+| 3.0 | 2026-07-26 | 确认 SOP/知识库已实现部分；聚焦 OKF/引用/Router/反思/归因 |
+| **4.0** | **2026-07-26** | **函数级代码审计后发现：组件齐全但"未拼装通电"；核心修复从"添加新组件"转向"打通已有组件闭环"** |
 
 ---
 
-## 1. 项目现状确认（2026-07-26 最新代码）
+## 1. 为什么 v3.0 方案"还是不行"——根因诊断
 
-### 1.1 QwenPaw 已实现功能（不需要重做）
+v3.0 方案指导实现了 OKF 概念图、知识引用、轻量解析器、Router、7 维反思等组件。函数级代码审计确认这些组件**都有真实实现（非骨架）**，但系统仍然不工作，根因是**三处断裂**：
 
-| 功能 | 实现路径 | 完成度 |
-|------|----------|--------|
-| SOP 流程引擎 | `src/aiarb/sop/`（schema + runtime + step_agent + distiller + store + reflection） | 完整 |
-| SOP 前端 | `console/src/pages/Settings/Sop/`（GraphEditor + TracePanel + DistillPanel） | 完整 |
-| 知识库插件 | `src/aiarb/builtin_plugins/knowledge-base/`（service + vector_store + routes） | 基础可用 |
-| StaffDeck 设计 token | `console/src/styles/staffdeck-tokens.css`（58 个 CSS 变量） | 已注入 |
-| AgentCard 重设计 | `console/src/pages/Settings/Agents/components/AgentCard.tsx` | 已完成 |
-| Workbench 聚合页 | `console/src/pages/Workbench/index.tsx`（Hero + 5 Tab） | 已完成 |
-| 菜单系统重构 | `console/src/layouts/registry/builtinMenu.ts`（2026-07-24 redesign） | 已完成 |
-| 评分反馈插件 | `src/aiarb/builtin_plugins/agent-feedback/` | 基础可用 |
-| 反思引擎骨架 | `src/aiarb/sop/reflection.py` | 骨架 |
-| 记忆系统 | `src/aiarb/agents/memory/`（ADBPG + ReMe + proactive） | 完整 |
-| 可观测性 | `src/aiarb/hooks/observability/` + Langfuse + governance | 完整 |
-| 智能体统计 | `src/aiarb/agent_stats/` | 完整 |
-| 插件系统 | `src/aiarb/plugins/`（loader + registry + api + governance） | 完整 |
+### 1.1 断裂一：QUERY_KNOWLEDGE 不闭环（最致命）
 
-### 1.2 StaffDeck 可借鉴功能（本次实施目标）
+**现象**：用户提问后，系统只回复 `[知识检索] xxx`，不返回知识内容。
 
-| 功能 | StaffDeck 路径 | QwenPaw 现状 | 优先级 |
-|------|---------------|-------------|--------|
-| OKF 概念图 | `knowledge/okf.py` | 无 | P0 |
-| 知识引用机制 | `knowledge/citations.py` | 无 | P0 |
-| 轻量解析器 | `knowledge/parser.py` | 仍依赖 doc_processing | P0 |
-| Router 决策层 | `core/router.py` | 无 | P1 |
-| 7 维反思 RUBRIC | `skills/skill_reflection.py` | 骨架级 reflection.py | P1 |
-| LLM 反馈归因 | `feedback/service.py` | 仅记录 rating | P1 |
-| 知识自发现 | `knowledge/service.py` `_discover_from_document` | 无 | P1 |
-| SOP 排行榜 | `frontend/.../SkillsPage.tsx` | 无 | P2 |
-| 定时任务租约 | `scheduled_tasks/` | 无租约机制 | P2 |
-| 前端风格统一 | - | SOP/知识库/反馈页未用 sd-* token | P2 |
+**根因**：`runtime.py:apply_decision` 的 QUERY_KNOWLEDGE 分支（L149-203）只做两件事：
+1. 调用 `kb_svc.search()` 检索知识
+2. 把结果存入 `active_context["_knowledge_results"]`
+3. 返回 `"knowledge_queried"`
 
-### 1.3 不借鉴的功能（QwenPaw 已有或不需要）
+**但从未自动重新调用 StepAgent 来基于检索结果生成回复。**
 
-| StaffDeck 功能 | 不借鉴原因 |
-|---------------|-----------|
-| 向量检索（StaffDeck 无向量库） | QwenPaw 已有 vector_store，更优 |
-| Span 可观测性 | QwenPaw 已有 Langfuse + governance，更完善 |
-| 记忆系统 | QwenPaw 已有 ADBPG + ReMe + proactive，更丰富 |
-| 渠道接入 | QwenPaw 已有自己的渠道系统 |
-| 通用技能（General Skills） | QwenPaw 已有 skill_system |
-
----
-
-## 2. 设计原则
-
-### 2.1 增强不替换
-
-- 所有借鉴都落入 QwenPaw 现有目录结构，不新建平行系统
-- 知识库增强 `builtin_plugins/knowledge-base/`，不新建模块
-- SOP 增强在 `sop/` 内扩展，不新建 `core/` 目录
-- 反馈增强在 `builtin_plugins/agent-feedback/` 内扩展
-
-### 2.2 前端统一策略
-
-**所有新/改页面必须引用 `--sd-*` token**，避免之前"复刻功能但风格诡异"的问题。
-
-改造规则（适用于所有新/改页面）：
-
-```css
-/* 卡片 */
-.sd-card {
-  background: var(--sd-surface);
-  border-radius: var(--sd-radius-card);  /* 20px */
-  box-shadow: var(--sd-shadow-soft);
-  border: 1px solid var(--sd-border);
-}
-
-/* 主按钮 */
-.sd-btn-primary {
-  background: var(--sd-accent);
-  color: white;
-  border-radius: var(--sd-radius-md);  /* 14px */
-}
-
-/* 页面间距 */
-.sd-page {
-  padding: var(--sd-page-px);  /* 48px */
-}
-
-/* 卡片间距 */
-.sd-card-gap {
-  gap: var(--sd-card-gap);  /* 32px */
-}
-
-/* 状态圆点 */
-.sd-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--sd-radius-full);  /* 999px */
-}
+`sop.py:api_runtime_step`（L287-288）收到 `"knowledge_queried"` 后只返回：
+```python
+reply_text = f"[知识检索] {decision.knowledge_query}"
 ```
 
-### 2.3 功能联动闭环
+知识结果只有在**用户下一轮再次发消息时**，才通过 `build_step_agent_prompt` 注入 prompt。即用户问"仲裁证据规则是什么" → 系统检索后只回"[知识检索] 仲裁证据规则" → 要等用户再发一条消息才基于检索结果回答。
 
-```
-文档入库 -> [自发现] -> SOP 草稿 -> 用户确认 -> SOP 执行
-    |                                        |
-  [OKF 概念图] <---- [知识引用] <---- [KNOWLEDGE_QUERY]
-                                           |
-                                    用户反馈 -> [LLM 归因] -> [7 维反思] -> 改进 SkillCard
-```
+**StaffDeck 对照**：StaffDeck `agent_loop.py:_execute_knowledge_query_cycle`（L3969）检索后，`_continue_after_knowledge_query`（L4108）用 `current_knowledge` 参数**二次调用 StepAgent**，让 LLM 基于知识重新决策并生成回复——**同轮闭环**。
 
-### 2.4 不引入新技术栈
+### 1.2 断裂二：CALL_TOOL 不执行
 
-- 后端：继续 FastAPI + Pydantic + aiofiles + orjson
-- 前端：继续 Ant Design 5 + Less + sd-* token 叠加
-- 不引入 TailwindCSS、shadcn/ui、SQLModel
-- 解析器依赖：仅 `pypdf` + `python-docx`（已有降级方案）
+**现象**：系统回复 `[工具调用] tool_name(args)` 但不执行工具。
 
----
+**根因**：`runtime.py:apply_decision` 的 CALL_TOOL 分支（L136-147）只把工具调用记录到 `active_context["_pending_tool_calls"]`，注释写"actual execution is the caller's responsibility"。但调用方 `sop.py:api_runtime_step` 也**没有执行工具**，只返回字符串。
 
+**StaffDeck 对照**：StaffDeck `agent_loop.py:_execute_tool_action_cycle` 真正调度 `ToolExecutor` 执行工具并回填结果。
 
-## 3. 实施阶段
+### 1.3 断裂三：Router 是死代码
 
-### 阶段 1：知识库升级（OKF + 引用 + 解析器替换）
+**现象**：Router 完整实现了 9 种决策类型，但从未影响任何对话流程。
 
-**目标**：把知识库从"文本仓库"升级为"知识图谱 + 可追溯引用"
-**工期**：2-3 周
+**根因**：`router.py:Router.decide()` 在整个项目中**零调用**。`sop.py:api_runtime_step` 直接从 StepAgent 开始，跳过了 Router 的场景路由层。主聊天流程 `chats/api.py` 完全不接 SOP。
 
-#### 3.1.0 doc_processing 模块评估与决策
+**StaffDeck 对照**：StaffDeck `agent_loop.py:_prepare_turn`（L2402）每轮对话首步调用 `router.decide()`，结果经 `runtime.apply_decision()` 落地，决定走 skill 还是直答。
 
-**评估结论**：`doc_processing/` 有完整 `.py` 源码且被 git 跟踪（28 个文件），但**不推荐使用**。
+### 1.4 次要问题：字段"定义即废弃"
 
-**质量问题**：
+| 字段 | 定义位置 | 废弃状态 |
+|------|---------|---------|
+| `node.allowed_actions` | schema.py L104 | `_validate_decision` 完全不校验 |
+| `node.expected_user_info` | schema.py L103 | 无任何逻辑读取 |
+| `node.retry_policy` | schema.py L105 | 无重试逻辑 |
+| `card.terminal_node_ids` | schema.py | 靠 `node.type==TERMINAL` 判断，未用此字段 |
+| `card.response_rules` | schema.py | prompt 构造中未注入 |
+| `card.call_count` | schema.py | `start_skill` 不自增，排行榜恒为 0 |
+| `pending_tasks` 队列 | runtime.py | 可 add/pop 但 `_complete_skill` 不自动消费 |
 
-| 问题 | 详情 |
-|------|------|
-| 过度设计 | RoutingScheduler + ComponentManager + EngineStrategy 三层抽象，约2000行代码，实际只需"提取文本" |
-| 单例实现缺陷 | `__new__` + `__init__` 模式，`_initialized` 类变量保护不严谨 |
-| 空实现 | `_cache_result` 是 `pass` + TODO |
-| 从未使用 | 未在 `_app.py` 注册，从未真正运行 |
-| vibecoding 产物 | 技术债高，代码质量不可控 |
+### 1.5 知识库检索质量问题
 
-**验证证据**：
-- `git ls-files src/aiarb/doc_processing/` 返回 28 个被跟踪的 `.py` 文件
-- `grep "doc_processing" src/aiarb/app/_app.py` 无匹配
-- `grep "doc_processing" src/aiarb/app/` 无匹配
-- 知识库插件 `service.py` 第 68 行 `from aiarb.doc_processing import DocParser` 是唯一引用点
+**vector_store.py 是伪向量存储**：名为 VectorStore，实为关键词子串匹配。`search` 函数用 `query_lower.split()` 分词——**按空格切分，中文几乎无效**。评分是硬编码：全匹配 0.8，词匹配 `0.3 + 0.1 * matched`。
 
-**决策：不使用 doc_processing，改为借鉴 StaffDeck `knowledge/parser.py` 的轻量方案**
+**StaffDeck 对照**：StaffDeck `_score_text`（service.py L1962）有中文 n-gram（4/3/2 字滑动窗口）、词长加权（中文 4 字 +3.0，5 字 +3.4）、多级漏斗路由（concept→document→bucket→section→chunk）。
 
-StaffDeck 的 `parser.py` 仅约120行单文件，支持 txt/md/html/pdf/docx，有完善的降级策略和编码检测。知识库插件内嵌此方案，完全不依赖 doc_processing。
-
-**对比**：
-
-| 维度 | doc_processing | StaffDeck parser.py |
-|------|---------------|-------------------|
-| 代码量 | 约2000行 | 约120行 |
-| 抽象层级 | 3 层（路由+组件+引擎） | 0 层（单函数） |
-| 依赖 | fitz/pdfplumber/docx/openpyxl/xlrd/pptx | pypdf/python-docx |
-| 降级策略 | 无 | docx->zip 降级，html->标准库降级 |
-| 编码检测 | 无 | utf-8 -> utf-8-sig -> gb18030 -> latin-1 |
-| 可靠性 | 从未运行 | 已验证 |
-| 维护成本 | 高 | 低 |
-
-**处理策略**：
-1. 知识库插件 `service.py` 移除 `from aiarb.doc_processing import DocParser`，改用内嵌 `parser.py`
-2. `doc_processing/` 目录本次不删除（避免影响 git 历史），但在文档中标记为废弃
-3. 后续可独立清理 `doc_processing/` 目录
+**注意**：StaffDeck 自己也没有真正的向量嵌入（无 sentence-transformers），但其词法评分算法比 QwenPaw 精细得多，且有多级路由缩小搜索范围。
 
 ---
 
-#### 3.1.1 新增轻量解析器
+## 2. v4.0 修复方案总览
 
-**创建文件**：`src/aiarb/builtin_plugins/knowledge-base/backend/parser.py`
+核心思路：**不是添加新组件，而是"拼装通电"**——把已有组件用 AgentLoop 模式编排起来，打通闭环。
 
-借鉴 StaffDeck `knowledge/parser.py`（约120行单文件），不依赖 doc_processing：
+| 修复点 | 优先级 | 核心改动 | 影响文件 |
+|--------|--------|---------|---------|
+| 创建 SOP 编排器 | P0 | 实现 run_turn 循环：检索→回灌→生成 | 新建 `sop/orchestrator.py` |
+| 修复 api_runtime_step | P0 | 单步逻辑改为调用编排器 | `app/routers/sop.py` |
+| 修复中文检索 | P0 | n-gram 分词 + 改进评分 | `builtin_plugins/knowledge-base/backend/vector_store.py` |
+| 激活 allowed_actions | P1 | 校验 + 动态裁剪可用动作 | `sop/step_agent.py` + `sop/prompts.py` |
+| 激活动态规则组装 | P1 | 按运行时状态条件拼接规则 | `sop/prompts.py` |
+| 集成 Router | P1 | 编排器首步调用 Router | `sop/orchestrator.py` |
+| 修复 pending_tasks 消费 | P2 | 完成后自动 pop | `sop/runtime.py` |
+| 修复 call_count 自增 | P2 | start_skill 时计数 | `sop/runtime.py` + `sop/store.py` |
+
+---
+
+## 3. P0 修复：打通 SOP 主流程闭环
+
+### 3.1 创建 SOP 编排器 `sop/orchestrator.py`
+
+**这是 v4.0 最核心的新增文件。** 借鉴 StaffDeck `agent_loop.py` 的编排模式，实现知识检索和工具执行的自动闭环。
+
+**创建文件**：`src/aiarb/sop/orchestrator.py`
 
 ```python
-"""轻量文档解析器 - 借鉴 StaffDeck knowledge/parser.py。
+"""SOP 编排器 - 借鉴 StaffDeck agent_loop.py 的编排模式。
 
-支持 txt/md/html/pdf/docx，有降级策略和编码检测。
-不依赖 doc_processing 模块。
+核心职责：把 StepAgent + Runtime + 知识检索 + 工具执行编排成闭环。
+解决 v3.0 的"三处断裂"：QUERY_KNOWLEDGE 不闭环、CALL_TOOL 不执行、Router 死代码。
 """
 from __future__ import annotations
-from html.parser import HTMLParser
-from io import BytesIO
-from pathlib import Path
-from zipfile import ZipFile
+import logging
+from typing import Any
 
-SUPPORTED_EXTENSIONS = {".txt", ".md", ".markdown", ".html", ".htm", ".pdf", ".docx"}
+from .schema import SkillCard, SkillGraphNode, StepDecision, StepAction
+from .runtime import SkillRuntime, SkillRuntimeState
+from .step_agent import StepAgent
+from .prompts import build_step_agent_prompt
 
-class KnowledgeParseError(ValueError):
-    pass
+logger = logging.getLogger(__name__)
 
-def extract_text(filename: str, content: bytes) -> tuple[str, str]:
-    """提取文档文本。返回 (text, format)。"""
-    suffix = Path(filename).suffix.lower()
-    if suffix not in SUPPORTED_EXTENSIONS:
-        raise KnowledgeParseError(f"暂不支持 {suffix} 文件格式。")
-    if suffix in {".txt", ".md", ".markdown"}:
-        return _decode_text(content), suffix.lstrip(".")
-    if suffix in {".html", ".htm"}:
-        return _extract_html(content), "html"
-    if suffix == ".pdf":
-        return _extract_pdf(content), "pdf"
-    if suffix == ".docx":
-        return _extract_docx(content), "docx"
-    raise KnowledgeParseError(f"暂不支持 {suffix} 文件格式。")
+MAX_TURN_ITERATIONS = 5  # 单轮最多循环 5 次（检索→工具→检索→工具→回复）
 
-def _decode_text(content: bytes) -> str:
-    for encoding in ("utf-8", "utf-8-sig", "gb18030", "latin-1"):
-        try:
-            return content.decode(encoding)
-        except UnicodeDecodeError:
+
+async def run_turn(
+    *,
+    state: SkillRuntimeState,
+    card: SkillCard,
+    user_message: str,
+    history: list[dict[str, Any]] | None = None,
+    agent_id: str | None = None,
+    enable_router: bool = True,
+) -> dict[str, Any]:
+    """执行一轮对话，自动闭环知识检索和工具执行。
+
+    流程（借鉴 StaffDeck agent_loop._prepare_turn）：
+    1. [可选] Router 决策场景路由
+    2. StepAgent 生成 decision
+    3. Runtime.apply_decision 应用决策
+    4. 若 action == query_knowledge -> 检索 -> 注入 context -> 回到步骤 2
+    5. 若 action == call_tool -> 执行工具 -> 注入 context -> 回到步骤 2
+    6. 若 action == reply/ask_user/clarify/advance/handoff -> 返回最终回复
+
+    Returns:
+        {
+            "reply_text": str,           # 用户可见回复
+            "decision": StepDecision,     # 最终决策
+            "state": SkillRuntimeState,   # 更新后的状态
+            "status": str,                # runtime 返回的状态
+            "iterations": int,            # 实际循环次数
+            "knowledge_used": bool,       # 是否使用了知识检索
+            "tools_used": list[str],      # 使用的工具列表
+        }
+    """
+    runtime = SkillRuntime()
+    agent = StepAgent(agent_id=agent_id)
+    tools_used: list[str] = []
+    knowledge_used = False
+
+    # ---- Router 场景路由（可选，仅在没有活跃 skill 时）----
+    if enable_router and not state.active_skill_id:
+        router_result = await _try_router_decision(
+            user_message=user_message,
+            state=state,
+            history=history,
+        )
+        if router_result and router_result.get("skill_id"):
+            from .store import load_skill
+            new_card = load_skill(router_result["skill_id"])
+            if new_card:
+                card = new_card
+                await runtime.start_skill(state, card, user_message)
+                logger.info("Router started skill '%s'", router_result["skill_id"])
+
+    # ---- 主循环 ----
+    for iteration in range(1, MAX_TURN_ITERATIONS + 1):
+        current_node = runtime.get_current_node(card, state)
+        if current_node is None:
+            return _result(
+                reply_text="当前无活跃节点",
+                decision=None, state=state, status="no_node",
+                iterations=iteration, knowledge_used=knowledge_used, tools_used=tools_used,
+            )
+
+        # StepAgent 决策
+        decision = await agent.run(
+            card=card,
+            current_node=current_node,
+            user_message=user_message if iteration == 1 else "",
+            context=state.active_context,
+            history=history if iteration == 1 else None,
+        )
+
+        # 校验 allowed_actions
+        decision = _validate_against_node_actions(decision, current_node)
+
+        # Runtime 应用决策
+        status = await runtime.apply_decision(state, decision, card)
+
+        action = decision.action.value
+
+        # ---- 闭环：QUERY_KNOWLEDGE ----
+        if action == "query_knowledge":
+            knowledge_used = True
+            # 检索结果已由 runtime 存入 context["_knowledge_results"]
+            # 关键：不返回，而是继续循环，让 StepAgent 基于知识结果生成回复
+            logger.info(
+                "Turn iteration %d: knowledge queried '%s', re-invoking StepAgent",
+                iteration, decision.knowledge_query,
+            )
             continue
-    return content.decode("utf-8", errors="ignore")
 
-def _extract_pdf(content: bytes) -> str:
+        # ---- 闭环：CALL_TOOL ----
+        if action == "call_tool":
+            tool_name = decision.tool_name or "unknown"
+            tools_used.append(tool_name)
+            # 执行工具
+            tool_result = await _execute_tool(decision, state, card)
+            # 把工具结果注入 context
+            if "_tool_results" not in state.active_context:
+                state.active_context["_tool_results"] = []
+            state.active_context["_tool_results"].append({
+                "tool_name": tool_name,
+                "tool_args": decision.tool_args,
+                "result": tool_result,
+                "timestamp": _now_iso(),
+            })
+            logger.info(
+                "Turn iteration %d: tool '%s' executed, re-invoking StepAgent",
+                iteration, tool_name,
+            )
+            continue
+
+        # ---- 终态动作：返回回复 ----
+        reply_text = _build_reply_text(decision, status, runtime, card, state)
+        return _result(
+            reply_text=reply_text,
+            decision=decision, state=state, status=status,
+            iterations=iteration, knowledge_used=knowledge_used, tools_used=tools_used,
+        )
+
+    # 超过最大循环次数，强制返回
+    logger.warning("Turn exceeded %d iterations, forcing reply", MAX_TURN_ITERATIONS)
+    return _result(
+        reply_text="处理超时，请重试或换一种问法。",
+        decision=None, state=state, status="max_iterations",
+        iterations=MAX_TURN_ITERATIONS, knowledge_used=knowledge_used, tools_used=tools_used,
+    )
+
+
+async def _try_router_decision(
+    *,
+    user_message: str,
+    state: SkillRuntimeState,
+    history: list[dict] | None,
+) -> dict | None:
+    """调用 Router 进行场景路由。
+
+    借鉴 StaffDeck agent_loop._prepare_turn 中的 router.decide 调用。
+    """
     try:
-        from pypdf import PdfReader
-    except Exception as exc:
-        raise KnowledgeParseError("缺少 pypdf，无法解析 PDF。") from exc
-    reader = PdfReader(BytesIO(content))
-    pages = []
-    for index, page in enumerate(reader.pages):
-        page_text = page.extract_text() or ""
-        if page_text.strip():
-            pages.append(f"[Page {index + 1}]\n{page_text}")
-    return "\n\n".join(pages)
+        from .router import get_router
+        from .store import list_skills
 
-def _extract_docx(content: bytes) -> str:
+        router = get_router()
+        if router is None:
+            return None
+
+        skills = list_skills(status="active")
+        if not skills:
+            return None
+
+        decision = await router.decide(
+            user_input=user_message,
+            session_state=state,
+            available_skills=[
+                {"id": s.id, "name": s.name, "description": s.description,
+                 "trigger_intents": s.trigger_intents or []}
+                for s in skills
+            ],
+            pending_tasks=state.pending_tasks or [],
+        )
+
+        if decision and decision.decision == "start_new_task" and decision.target_skill_id:
+            return {"skill_id": decision.target_skill_id}
+
+        return None
+    except Exception as e:
+        logger.warning("Router decision failed: %s, continuing without router", e)
+        return None
+
+
+def _validate_against_node_actions(
+    decision: StepDecision,
+    node: SkillGraphNode,
+) -> StepDecision:
+    """校验 decision 是否在节点 allowed_actions 范围内。
+
+    借鉴 StaffDeck step_agent._available_tools_for_step。
+    若节点定义了 allowed_actions 且 decision.action 不在其中，降级为 reply。
+    """
+    allowed = node.allowed_actions or []
+    if not allowed:
+        return decision
+
+    action_str = decision.action.value
+    simple_allowed = set()
+    for a in allowed:
+        if isinstance(a, str) and ":" in a:
+            simple_allowed.add(a.split(":")[0])
+        elif isinstance(a, str):
+            simple_allowed.add(a)
+
+    if action_str in simple_allowed:
+        return decision
+
+    logger.warning(
+        "Action '%s' not in node '%s' allowed_actions %s, downgrading to reply",
+        action_str, node.id, allowed,
+    )
+    decision.action = StepAction.REPLY
+    if not decision.content:
+        decision.content = "当前步骤不支持此操作。"
+    return decision
+
+
+def _build_reply_text(
+    decision: StepDecision,
+    status: str,
+    runtime: SkillRuntime,
+    card: SkillCard,
+    state: SkillRuntimeState,
+) -> str:
+    """构建用户可见回复。"""
+    if decision.content:
+        return decision.content
+
+    if status == "completed":
+        return "流程已完成。"
+
+    if decision.action.value == "advance":
+        next_node = runtime.get_current_node(card, state)
+        if next_node:
+            return f"已进入：{next_node.title}"
+        return "已推进到下一步"
+
+    if decision.action.value == "ask_user":
+        return decision.content or "请提供更多信息。"
+
+    if decision.action.value == "clarify":
+        return decision.content or "让我确认一下您的需求。"
+
+    return decision.content or ""
+
+
+async def _execute_tool(
+    decision: StepDecision,
+    state: SkillRuntimeState,
+    card: SkillCard,
+) -> str:
+    """执行工具调用。
+
+    借鉴 StaffDeck agent_loop._execute_tool_action_cycle。
+    通过插件系统的工具注册表查找并执行工具。
+    """
+    tool_name = decision.tool_name or ""
+    tool_args = decision.tool_args or {}
+
     try:
-        from docx import Document
-        document = Document(BytesIO(content))
-        rows = [p.text for p in document.paragraphs if p.text.strip()]
-        for table in document.tables:
-            for row in table.rows:
-                cells = [c.text.strip() for c in row.cells if c.text.strip()]
-                if cells:
-                    rows.append(" | ".join(cells))
-        return "\n".join(rows)
-    except Exception:
-        return _extract_docx_with_zip(content)
+        from aiarb.plugins import get_plugin_registry
+        registry = get_plugin_registry()
+        tool = registry.get_tool(tool_name)
+        if tool is None:
+            return f"工具 '{tool_name}' 未找到"
 
-def _extract_docx_with_zip(content: bytes) -> str:
-    with ZipFile(BytesIO(content)) as archive:
-        xml = archive.read("word/document.xml").decode("utf-8", errors="ignore")
-    parser = _DocxTextExtractor()
-    parser.feed(xml)
-    return parser.text
+        result = await tool.execute(**tool_args) if hasattr(tool, "execute") else str(tool)
+        return str(result)
+    except Exception as e:
+        logger.error("Tool execution failed: %s(%s) -> %s", tool_name, tool_args, e)
+        return f"工具执行失败: {e}"
 
-def _extract_html(content: bytes) -> str:
-    text = _decode_text(content)
-    try:
-        from bs4 import BeautifulSoup
-        soup = BeautifulSoup(text, "html.parser")
-        for item in soup(["script", "style", "noscript"]):
-            item.decompose()
-        return soup.get_text("\n")
-    except Exception:
-        parser = _HTMLTextExtractor()
-        parser.feed(text)
-        return parser.text
 
-class _HTMLTextExtractor(HTMLParser):
-    def __init__(self):
-        super().__init__()
-        self._parts = []
-    @property
-    def text(self):
-        return "\n".join(p.strip() for p in self._parts if p.strip())
-    def handle_data(self, data):
-        if data.strip():
-            self._parts.append(data)
+def _result(
+    reply_text: str,
+    decision: StepDecision | None,
+    state: SkillRuntimeState,
+    status: str,
+    iterations: int,
+    knowledge_used: bool,
+    tools_used: list[str],
+) -> dict[str, Any]:
+    return {
+        "reply_text": reply_text,
+        "decision": decision,
+        "state": state,
+        "status": status,
+        "iterations": iterations,
+        "knowledge_used": knowledge_used,
+        "tools_used": tools_used,
+    }
 
-class _DocxTextExtractor(HTMLParser):
-    def __init__(self):
-        super().__init__()
-        self._parts = []
-    @property
-    def text(self):
-        return "\n".join(p.strip() for p in self._parts if p.strip())
-    def handle_data(self, data):
-        if data.strip():
-            self._parts.append(data)
+
+def _now_iso() -> str:
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc).isoformat()
 ```
 
-#### 3.1.2 新增 OKF 概念图
+**关键设计说明**：
 
-**创建文件**：`src/aiarb/builtin_plugins/knowledge-base/backend/okf.py`
+1. **`run_turn` 是一个循环**，不是单步。StepAgent 输出 `query_knowledge` 后不返回，而是 `continue` 重新循环。下一轮循环时，`build_step_agent_prompt` 会从 `context["_knowledge_results"]` 读取检索结果注入 prompt，StepAgent 基于知识生成 `reply`。
 
-借鉴 StaffDeck `knowledge/okf.py`，适配 QwenPaw 的 JSON 文件存储（不用 SQLModel）。
+2. **工具执行后也是 `continue`**，工具结果存入 `context["_tool_results"]`，下一轮 StepAgent 能看到。
 
-**核心概念**：
-- 6 种概念类型：Source Document / Source Section / Topic / Playbook / Business Rule / Query Analysis
-- 层级路径 ID：如 `sources/order-doc/sections/cancel-policy`
-- 概念间链接关系（有向图边）
-- OKF Lint 健康检查：missing_type / broken_link / orphan_concept / duplicate_title
+3. **`MAX_TURN_ITERATIONS = 5`** 防止无限循环：最多 检索→工具→检索→工具→回复。
 
-**核心函数**：
-- `build_okf_for_document(doc_id, title, sections, buckets) -> list[OKFConcept]` — 为文档构建概念列表
-- `search_concepts(concepts, query) -> list[(concept, score)]` — 概念搜索（标题权重6.0，正文权重3.0，完整查询+10）
-- `lint_concepts(concepts) -> list[issues]` — 健康检查
+4. **`_validate_against_node_actions`** 激活了 `allowed_actions` 字段校验。
 
-**OKFConcept 数据结构**：
+5. **Router 集成**：仅在没有活跃 skill 时调用，决定是否启动新 skill。
+
+### 3.2 修复 `app/routers/sop.py:api_runtime_step`
+
+**修改文件**：`src/aiarb/app/routers/sop.py`
+
+把单步逻辑替换为编排器调用。将 `api_runtime_step` 函数（L246-301）替换为：
 
 ```python
-@dataclass
-class OKFConcept:
-    concept_id: str          # 层级路径 ID
-    concept_type: str        # 6 种类型之一
-    title: str
-    description: str = ""
-    content_md: str = ""     # 带 YAML frontmatter 的 Markdown
-    frontmatter: dict = field(default_factory=dict)
-    links: list[dict] = field(default_factory=list)      # 概念间链接
-    citations: list[dict] = field(default_factory=list)  # 引用来源
-    source_refs: list[dict] = field(default_factory=list)  # 回溯原始文档
-    document_id: str = ""
+@router.post("/runtime/step", response_model=RuntimeStepResponse)
+async def api_runtime_step(req: RuntimeStepRequest):
+    """Execute one conversation turn with auto-closure.
+
+    v4.0: 使用编排器自动闭环知识检索和工具执行。
+    """
+    state = req.state
+    if not state.active_skill_id:
+        raise HTTPException(
+            status_code=400,
+            detail="No active skill. Call /runtime/start first.",
+        )
+
+    card = load_skill(state.active_skill_id)
+    if card is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Active skill '{state.active_skill_id}' not found",
+        )
+
+    from aiarb.sop.orchestrator import run_turn
+    result = await run_turn(
+        state=state,
+        card=card,
+        user_message=req.user_message,
+        history=req.history,
+        agent_id=req.agent_id or None,
+    )
+
+    return RuntimeStepResponse(
+        decision=result["decision"],
+        state=result["state"],
+        status=result["status"],
+        reply_text=result["reply_text"],
+    )
 ```
 
-**搜索评分规则**（借鉴 StaffDeck okf.py）：
-- 标题匹配：权重 6.0
-- 类型匹配：权重 2.0
-- 正文匹配：权重 3.0
-- 完整查询命中描述：额外 +10.0
-- 中文 n-gram（2/3/4字）支持无空格匹配
-- 最低分阈值：4.0
+### 3.3 修复知识库中文检索
 
-#### 3.1.3 新增知识引用机制
+**修改文件**：`src/aiarb/builtin_plugins/knowledge-base/backend/vector_store.py`
 
-**创建文件**：`src/aiarb/builtin_plugins/knowledge-base/backend/citations.py`
+**问题**：`search` 函数用 `query_lower.split()` 分词——按空格切分，中文几乎无效。评分是硬编码：全匹配 0.8，词匹配 `0.3 + 0.1 * matched`。
 
-借鉴 StaffDeck `knowledge/citations.py`：
+**修复**：添加中文 n-gram 分词 + 改进评分算法（借鉴 StaffDeck `_score_text` 和 `_query_terms`）。
 
-**核心功能**：
-- `knowledge_citations_from_results(results, limit=4) -> list[citation]` — 从检索结果生成引用
-- `compact_knowledge_citation_labels(content, citations) -> (content, citations)` — 压缩引用标签
-
-**引用类型**：concept / evidence / okf
-
-**字符限制**：
-- `CITATION_EXCERPT_CHAR_LIMIT = 6000`
-- `CITATION_SUMMARY_CHAR_LIMIT = 800`
-- `CONCEPT_EXCERPT_CHAR_LIMIT = 2400`
-
-**引用结构**：
+在文件头部添加以下两个函数：
 
 ```python
-{
-    "label": "[1]",
-    "kind": "concept",  # 或 "evidence"
-    "title": "文档标题",
-    "excerpt": "引用摘录...",
-    "source": {"doc_id": "...", "section_id": "..."}
-}
+def _query_terms(query: str) -> list[str]:
+    """中文 n-gram 分词，借鉴 StaffDeck _query_terms。
+
+    对中文做 4/3/2 字滑动窗口扩展，解决中文无空格问题。
+    """
+    query = query.strip().lower()
+    if not query:
+        return []
+
+    terms: list[str] = []
+    parts = query.split()
+    for part in parts:
+        if part.isascii():
+            terms.append(part)
+        else:
+            n = len(part)
+            for size in (4, 3, 2):
+                if n >= size:
+                    for i in range(n - size + 1):
+                        gram = part[i : i + size]
+                        if gram not in terms:
+                            terms.append(gram)
+            if part not in terms:
+                terms.append(part)
+    return terms
+
+
+def _score_text(query: str, content: str) -> float:
+    """改进的词法评分，借鉴 StaffDeck _score_text。
+
+    - 整句命中 +5.0
+    - 中文 n-gram 按词长加权（4字 +3.0，3字 +2.5，2字 +2.0）
+    - 英文按词长加权（>=5字 +3.4，3-4字 +2.0）
+    - 上限 8.0
+    """
+    query_lower = query.lower().strip()
+    content_lower = content.lower()
+
+    if not query_lower or not content_lower:
+        return 0.0
+
+    score = 0.0
+
+    if query_lower in content_lower:
+        score += 5.0
+
+    terms = _query_terms(query_lower)
+    for term in terms:
+        if term in content_lower:
+            tlen = len(term)
+            if tlen >= 5:
+                score += 3.4
+            elif tlen >= 4:
+                score += 3.0
+            elif tlen >= 3:
+                score += 2.5
+            elif tlen >= 2:
+                score += 2.0
+            else:
+                score += 1.0
+
+    return min(score, 8.0)
 ```
 
-**压缩逻辑**：按回复中 `[N]` 首次出现顺序重新编号，移除未引用的来源，保持编号连续。
+然后修改 `search` 方法，用 `_score_text` 替换硬编码评分。将原有评分逻辑：
+```python
+# 原代码（删除）：
+score = 0.0
+if query_lower in content_lower:
+    score = 0.8
+elif query_terms:
+    matched_terms = sum(1 for t in query_terms if t in content_lower)
+    score = 0.3 + 0.1 * matched_terms
+```
 
-#### 3.1.4 重构 service.py
+替换为：
+```python
+# 新代码：
+score = _score_text(query, chunk["content"])
+```
 
-**修改文件**：`src/aiarb/builtin_plugins/knowledge-base/backend/service.py`
+---
 
-**关键改动**：
+## 4. P1 修复：激活"定义即废弃"的字段
 
-1. 移除 `from aiarb.doc_processing import DocParser`，改用 `from .parser import extract_text`
-2. 入库时构建 OKF 概念图并存储到 `okf_concepts.json`
-3. 检索时返回概念 + 证据 + 引用
+### 4.1 激活 allowed_actions 校验
 
-**入库流程**（改造后）：
+**修改文件**：`src/aiarb/sop/step_agent.py`
+
+在 `_validate_decision` 函数中（现有校验之后、`return decision` 之前）添加 allowed_actions 校验：
 
 ```python
-async def ingest_document(self, request):
-    # Step 1: 轻量解析（不依赖 doc_processing）
-    from .parser import extract_text, KnowledgeParseError
-    with open(request.file_path, "rb") as f:
-        content = f.read()
-    text, fmt = extract_text(request.file_path, content)
+# 在 _validate_decision 函数末尾添加：
 
-    # Step 2: 分块（保留现有 vector_store 逻辑）
-    chunks = self._split_chunks(text)
-    doc_id = hashlib.sha256(text.encode()).hexdigest()[:16]
+    # v4.0: 校验 allowed_actions
+    allowed = getattr(current_node, "allowed_actions", None) or []
+    if allowed:
+        action_str = decision.action.value
+        simple_allowed = set()
+        for a in allowed:
+            if isinstance(a, str) and ":" in a:
+                simple_allowed.add(a.split(":")[0])
+            elif isinstance(a, str):
+                simple_allowed.add(a)
 
-    # Step 3: 构建 OKF 概念图
-    from .okf import build_okf_for_document
-    sections = self._build_sections(text)
-    buckets = self._build_buckets(sections)
-    concepts = build_okf_for_document(doc_id, request.title, sections, buckets)
+        if action_str not in simple_allowed:
+            logger.warning(
+                "Action '%s' not allowed at node '%s' (allowed: %s), downgrading to reply",
+                action_str, current_node.id, allowed,
+            )
+            decision.action = StepAction.REPLY
+            if not decision.content:
+                decision.content = "当前步骤不支持此操作。"
 
-    # Step 4: 存储到向量库 + OKF 存储
-    await self._vector_store.store_chunks(doc_id, chunks)
-    await self._store_okf_concepts(doc_id, concepts)
+    return decision
 ```
 
-**检索流程**（改造后）：
+注意：编排器 `orchestrator.py` 中的 `_validate_against_node_actions` 是运行时双重校验，`step_agent._validate_decision` 是决策时校验。两处校验确保越界动作被拦截。
+
+### 4.2 激活动态规则组装
+
+**修改文件**：`src/aiarb/sop/prompts.py`
+
+在 `build_step_agent_prompt` 函数中根据运行时状态动态组装规则段。在现有 prompt 构造逻辑的基础上，添加以下动态段：
 
 ```python
-async def search(self, query, top_k=5):
-    # 向量检索（保留现有逻辑）
-    chunks = await self._vector_store.search(query, top_k=top_k)
+def build_step_agent_prompt(card, current_node, context):
+    """构建 StepAgent 系统提示词。
 
-    # OKF 概念搜索
-    from .okf import search_concepts
-    concepts = await self._load_okf_concepts()
-    concept_results = search_concepts(concepts, query)
+    v4.0: 动态规则组装，借鉴 StaffDeck step_agent._step_instructions。
+    按运行时状态条件拼接规则段。
+    """
+    parts = []
 
-    # 生成引用
-    from .citations import knowledge_citations_from_results
-    citations = knowledge_citations_from_results([{
-        "selected_concepts": [c for c, _ in concept_results[:3]],
-        "evidence_pack": chunks[:top_k],
-    }])
+    # 基础规则（保留现有 7 条静态规则）
+    parts.append(_base_rules())  # 现有函数
 
-    return {"chunks": chunks, "concepts": [...], "citations": citations}
+    # 动态：节点 allowed_actions 裁剪可用动作
+    allowed = getattr(current_node, "allowed_actions", None) or []
+    if allowed:
+        parts.append(f"\n## 当前节点允许的动作\n你只能选择以下动作：{', '.join(allowed)}\n")
+    else:
+        parts.append("\n## 当前节点允许的动作\n无限制，所有动作可用。\n")
+
+    # 动态：知识检索结果存在时，追加知识规则
+    knowledge_results = context.get("_knowledge_results", []) if context else []
+    if knowledge_results:
+        parts.append(_knowledge_rules())
+        parts.append(_format_knowledge_results(knowledge_results[-3:]))
+
+    # 动态：工具结果存在时，追加工具规则
+    tool_results = context.get("_tool_results", []) if context else []
+    if tool_results:
+        parts.append(_tool_continuation_rules())
+        parts.append(_format_tool_results(tool_results[-3:]))
+
+    # 动态：技能级 response_rules
+    response_rules = getattr(card, "response_rules", None) or []
+    if response_rules:
+        parts.append("\n## 响应规则\n")
+        for rule in response_rules:
+            parts.append(f"- {rule}\n")
+
+    # 动态：等待输入状态
+    awaiting = context.get("_awaiting_input", False) if context else False
+    if awaiting:
+        parts.append(_awaiting_input_rules())
+
+    return "".join(parts)
+
+
+def _knowledge_rules() -> str:
+    return """
+## 知识检索结果规则
+上方已注入知识库检索结果。请基于检索结果回答用户问题：
+- 引用知识时使用 [N] 编号标注来源
+- 若检索结果不足以回答，明确告知用户
+- 不要编造检索结果中不存在的信息
+"""
+
+
+def _tool_continuation_rules() -> str:
+    return """
+## 工具执行结果规则
+上方已注入工具执行结果。请基于工具结果继续判断下一步动作：
+- 若工具结果已满足需求，生成 reply 回复用户
+- 若需要进一步操作，继续输出相应 action
+"""
+
+
+def _awaiting_input_rules() -> str:
+    return """
+## 等待输入规则
+当前正在等待用户提供信息。请：
+- 检查用户是否已提供所需信息
+- 若信息完整，继续推进流程
+- 若信息不完整，再次询问
+"""
+
+
+def _format_knowledge_results(results: list) -> str:
+    """格式化知识检索结果注入 prompt。"""
+    if not results:
+        return ""
+    parts = ["\n## 知识检索结果\n"]
+    for i, kr in enumerate(results, 1):
+        parts.append(f"\n### 检索 {i}: {kr.get('query', '')}\n")
+        for j, chunk in enumerate(kr.get("results", [])[:3], 1):
+            parts.append(f"[{j}] {chunk.get('document_title', '')}: {chunk.get('chunk_content', '')[:500]}\n")
+        for concept in kr.get("concepts", [])[:2]:
+            parts.append(f"  概念: {concept.get('title', '')} - {concept.get('description', '')[:200]}\n")
+    return "".join(parts)
+
+
+def _format_tool_results(results: list) -> str:
+    """格式化工具执行结果注入 prompt。"""
+    if not results:
+        return ""
+    parts = ["\n## 工具执行结果\n"]
+    for i, tr in enumerate(results, 1):
+        parts.append(f"\n### 工具 {i}: {tr.get('tool_name', '')}\n")
+        parts.append(f"参数: {tr.get('tool_args', {})}\n")
+        result_str = str(tr.get("result", ""))
+        parts.append(f"结果: {result_str[:1000]}\n")
+    return "".join(parts)
 ```
 
-**OKF 存储方法**：
+### 4.3 Router 集成说明
 
-```python
-async def _store_okf_concepts(self, doc_id, concepts):
-    """存储 OKF 概念到 JSON 文件。"""
-    okf_file = self._storage_dir / "okf_concepts.json"
-    # 读取现有 -> 追加 -> 写回
-    existing = await self._read_json(okf_file)
-    existing[doc_id] = [c.__dict__ for c in concepts]
-    await self._write_json(okf_file, existing)
-```
+Router 集成已在 `orchestrator.py:run_turn` 中实现（见 3.1 代码的 Router 部分）。无需额外修改 `router.py` 本身。
 
-#### 3.1.5 SOP runtime 联动改造
+集成逻辑：
+- 仅在没有活跃 skill 时调用 Router
+- Router 返回 `start_new_task` 且有 `target_skill_id` 时自动启动 skill
+- Router 失败时静默降级（不阻断主流程）
+
+---
+
+## 5. P2 修复：次要问题
+
+### 5.1 修复 pending_tasks 自动消费
 
 **修改文件**：`src/aiarb/sop/runtime.py`
 
-第 160 行已有知识库联动，修改返回值携带 citations：
+在 `_complete_skill` 函数中添加 pending_tasks 消费。在现有 `restore_task_frame` 调用之后添加：
 
 ```python
-# 修改前（现有）：
-# result = await kb_service.search(query)
-# return KnowledgeQueryResult(chunks=result.get("chunks", []))
+def _complete_skill(self, state, card):
+    """完成当前 skill，自动恢复挂起的任务或消费 pending_tasks。"""
+    completed_skill_id = state.active_skill_id
+    state.active_skill_id = None
+    state.active_node_id = None
+    state.active_context = {}
 
-# 修改后：
-result = await kb_service.search(query)
-return KnowledgeQueryResult(
-    chunks=result.get("chunks", []),
-    concepts=result.get("concepts", []),
-    citations=result.get("citations", []),
-)
+    # 先尝试恢复挂起的 task frame
+    restored = self.restore_task_frame(state)
+    if restored:
+        return "completed_and_restored"
+
+    # v4.0: 消费 pending_tasks 队列
+    if state.pending_tasks:
+        next_task = state.pending_tasks[0]
+        state.pending_tasks = state.pending_tasks[1:]
+        if next_task.get("skill_id"):
+            from .store import load_skill
+            next_card = load_skill(next_task["skill_id"])
+            if next_card:
+                state.active_skill_id = next_card.id
+                state.active_node_id = next_card.start_node_id
+                state.active_context = next_task.get("context", {})
+                logger.info("Auto-activated pending task: skill '%s'", next_task["skill_id"])
+                return "completed_and_activated_pending"
+
+    return "completed"
 ```
 
-#### 3.1.6 前端知识库页改造
+### 5.2 修复 call_count 自增
 
-**修改文件**：`console/src/pages/KnowledgeBase/index.tsx`
+**修改文件**：`src/aiarb/sop/runtime.py` + `src/aiarb/sop/store.py`
 
-- 所有卡片/按钮引用 `var(--sd-*)` token
-- 新增 OKF 概念浏览面板（Accordion 折叠）
-- 新增引用追溯展示
-
-**验收标准**：
-- [ ] `doc_processing` 不再被知识库插件引用
-- [ ] 文档入库后可查看 OKF 概念列表
-- [ ] 检索结果带 `[N]` 引用编号
-- [ ] 前端页面使用 sd-* token
-
----
-
-
-### 阶段 2：SOP 增强（Router + 7 维反思）
-
-**目标**：补齐多任务管理和质量评估
-**工期**：2-3 周
-
-#### 3.2.1 新增 Router 决策层
-
-**创建文件**：`src/aiarb/sop/router.py`
-
-借鉴 StaffDeck `core/router.py`（9 种决策）：
-
-**9 种决策类型**：
-
-| 决策 | 说明 |
-|------|------|
-| continue_active | 继续当前任务 |
-| switch_to_pending | 切换到待处理任务（需指定 selected_task_id） |
-| create_pending | 创建新待处理任务（当前任务挂起） |
-| update_pending | 更新待处理任务 |
-| complete_task | 完成当前任务 |
-| start_new_task | 开始新任务（需指定 target_skill_id） |
-| answer_only | 仅回答（无需技能） |
-| handoff_human | 转人工 |
-| clarify | 需要澄清（需指定 clarification_question） |
-
-**RouterDecision 数据结构**：
+在 `runtime.py:start_skill` 中添加 call_count 自增（在设置 active_skill_id 之后）：
 
 ```python
-class RouterDecision(BaseModel):
-    decision: RouterDecisionValue = "answer_only"
-    target_skill_id: str = ""
-    target_step_id: str = ""
-    user_intent: str = ""
-    general_intent: str = ""
-    clarification_question: str = ""
-    selected_task_id: str = ""
-    slot_hints: dict[str, str] = Field(default_factory=dict)
-    task_frames: list[dict] = Field(default_factory=list)
-    pending_tasks: list[dict] = Field(default_factory=list)
-    created_tasks: list[dict] = Field(default_factory=list)
+# 在 start_skill 函数中，设置 state.active_skill_id = card.id 之后添加：
+
+    # v4.0: 自增 call_count
+    try:
+        from .store import increment_call_count
+        increment_call_count(card.id)
+    except Exception as e:
+        logger.warning("Failed to increment call_count: %s", e)
 ```
 
-**Router 核心方法**：
-- `decide(user_input, session_state, available_skills, pending_tasks) -> RouterDecision`
-- `_normalize_decision(decision, skills, pending_tasks)` — 校正 LLM 输出：
-  - target_skill_id 不在可用技能中则清空
-  - start_new_task 无有效 skill_id 则降级为 clarify
-  - switch_to_pending 无有效 task_id 则降级为 clarify
-
-**Router prompt 要点**：
-- 列出可用技能（id + name + description）
-- 列出待处理任务（task_id + user_intent + skill_id）
-- 要求返回 JSON 格式决策
-
-#### 3.2.2 扩展 schema.py
-
-**修改文件**：`src/aiarb/sop/schema.py`
-
-在 `SkillCard` 中增加字段（借鉴 StaffDeck skill_schema.py）：
+在 `store.py` 中新增函数：
 
 ```python
-# 新增字段
-terminal_node_ids: list[str] = Field(default_factory=list, description="终止节点 ID 列表")
-trigger_intents: list[str] = Field(default_factory=list, description="触发意图列表")
-required_info: list[str] = Field(default_factory=list, description="必填槽位列表")
-interruption_policy: dict[str, str] = Field(default_factory=dict, description="中断策略")
-response_rules: list[str] = Field(default_factory=list, description="响应规则")
-```
-
-在 `SkillGraphNode` 中增加字段：
-
-```python
-# 新增字段
-expected_user_info: list[str] = Field(default_factory=list, description="期望收集的信息")
-allowed_actions: list[str] = Field(default_factory=list, description="允许的动作列表")
-retry_policy: dict[str, Any] = Field(default_factory=dict, description="重试策略")
-```
-
-#### 3.2.3 重写 7 维反思 RUBRIC
-
-**修改文件**：`src/aiarb/sop/reflection.py`
-
-替换骨架实现，借鉴 StaffDeck `skill_reflection.py`（7 维度 + 最多 3 轮）：
-
-**7 个评分维度**：
-
-| 维度 | key | 说明 |
-|------|-----|------|
-| 来源一致性 | source_alignment | 回复是否基于知识库/文档 |
-| 闭环能力 | closed_loop | 是否有明确的终止条件 |
-| 自适应推进 | adaptive_progression | 能否根据用户输入调整流程 |
-| 工具依据 | tool_grounding | 工具调用是否有充分理由 |
-| 工具调用格式 | tool_call_format | 参数是否正确 |
-| 副作用确认 | side_effect_confirmation | 有副作用的操作是否确认 |
-| 中断恢复 | interruption_and_recovery | 中断后能否恢复 |
-
-**反思流程**：
-1. 最多 3 轮反思（`MAX_REFLECTION_ROUNDS = 3`）
-2. 每轮 LLM 评估 7 个维度，返回 score(0-1) + issues + suggestion
-3. 提取 strengths / weaknesses / suggestions / summary
-4. 如果没有失败项（score < 0.6），提前结束
-5. 无 LLM 时用规则评分（闭环率、工具错误率、反馈率）
-
-**ReflectionResult 数据结构**：
-
-```python
-@dataclass
-class ReflectionResult:
-    agent_id: str = ""
-    skill_id: str = ""
-    summary: str = ""
-    strengths: list[str] = field(default_factory=list)
-    weaknesses: list[str] = field(default_factory=list)
-    suggestions: list[str] = field(default_factory=list)
-    rubric_scores: dict[str, dict] = field(default_factory=dict)
-    # rubric_scores 示例:
-    # {"source_alignment": {"label": "来源一致性", "score": 0.8, "issues": [], "suggestion": ""}}
-    metrics: dict[str, Any] = field(default_factory=dict)
-    rounds: int = 0
-```
-
-**规则评分逻辑**（无 LLM 时）：
-- 闭环能力 = completed_sessions / total_sessions
-- 工具调用格式 = 1 - tool_errors / tool_calls
-- 来源一致性 = positive / (positive + negative)
-
-#### 3.2.4 前端 SOP 页改造
-
-**修改文件**：`console/src/pages/Settings/Sop/index.tsx`
-
-- 所有卡片/按钮引用 `var(--sd-*)` token
-- 新增排行榜模式（调用次数/正向/负向排序）
-- 新增 7 维反思评分展示（雷达图或进度条）
-
-**验收标准**：
-- [ ] Router 能处理多任务场景（挂起/恢复/切换）
-- [ ] SkillCard 支持 terminal_node_ids/trigger_intents/allowed_actions
-- [ ] 反思引擎输出 7 维评分
-- [ ] 前端 SOP 页使用 sd-* token
-
----
-
-
-### 阶段 3：评分反馈升级（LLM 归因 + 排行榜）
-
-**目标**：从"记录反馈"升级为"归因 + 统计 + 排行"
-**工期**：2 周
-
-#### 3.3.1 新增 LLM 归因
-
-**创建文件**：`src/aiarb/builtin_plugins/agent-feedback/backend/attribution.py`
-
-借鉴 StaffDeck `feedback/service.py`（7 类归因）：
-
-**7 类归因分类**：
-
-| 分类 key | 标签 | 说明 |
-|---------|------|------|
-| model_issue | 模型问题 | 模型理解/推理/回复有问题 |
-| skill_issue | 技能问题 | SOP 定义/步骤/槽位有问题 |
-| tool_or_system_issue | 工具/系统问题 | 工具未配置/调用失败 |
-| user_random_or_unclear | 用户随意或上下文不足 | 用户随意点踩 |
-| positive_or_resolved | 正向反馈 | 点赞 |
-| needs_model_analysis | 待模型分析 | 无可用模型 |
-| unknown | 未知 | 无法分类 |
-
-**归因流程**：
-1. 收集反馈上下文：目标消息 + 附近 8 条消息 + 最近 30 条 AgentEvent
-2. 调用 LLM 生成 JSON 分析（bucket, confidence, reason, summary）
-3. 最多重试 3 次，退避延迟递增（2^attempt 秒）
-4. 无模型时标记 `needs_model_analysis`
-
-**归因结果结构**：
-
-```python
-{
-    "analysis_status": "analyzed",  # pending/analyzed/needs_model_analysis/failed
-    "analysis_bucket": "model_issue",
-    "analysis_reason": "模型未理解用户意图...",
-    "analysis_summary": "用户对回复不满意，主要原因是...",
-    "analysis_confidence": 0.85,
-}
-```
-
-#### 3.3.2 扩展反馈模型
-
-**修改文件**：`src/aiarb/builtin_plugins/agent-feedback/backend/models.py`
-
-增加归因字段和技能级反馈（借鉴 StaffDeck MessageFeedback + SkillFeedback）：
-
-```python
-class FeedbackModel(BaseModel):
-    # ... 保留现有字段 ...
-
-    # 新增归因字段
-    analysis_status: str = "pending"
-    analysis_bucket: str = ""
-    analysis_reason: str = ""
-    analysis_summary: str = ""
-    analysis_confidence: float = 0.0
-    analyzed_at: str = ""
-
-    # 新增技能级反馈字段
-    skill_id: str = ""
-    skill_version: str = ""
-    step_id: str = ""  # 关联到具体 SOP 步骤
-```
-
-#### 3.3.3 扩展 service.py
-
-**修改文件**：`src/aiarb/builtin_plugins/agent-feedback/backend/service.py`
-
-增加归因触发和汇总：
-
-**异步归因触发**：
-- `add_feedback()` 入库后用 `asyncio.create_task()` 异步触发归因
-- 归因不阻塞响应，失败不影响主流程
-- 归因完成后更新反馈记录的 analysis_* 字段
-
-**反馈汇总**（借鉴 StaffDeck feedback_summary）：
-- `get_summary(agent_id, date_range) -> dict`
-- 统计 total/up/down 数量
-- 按归因分类计数
-- 提取 Top 5 点踩摘要
-- 生成总体摘要文本："当前点踩主要集中在「{label}」（{count} 次）"
-
-**汇总返回结构**：
-
-```python
-{
-    "total": 100,
-    "up": 80,
-    "down": 20,
-    "buckets": {"model_issue": 8, "skill_issue": 7, "tool_or_system_issue": 5},
-    "top_down_summaries": [
-        {"summary": "...", "bucket": "model_issue"},
-        ...
-    ],
-    "summary_text": "当前点踩主要集中在「模型问题」（8 次）"
-}
-```
-
-#### 3.3.4 前端反馈页 + SOP 排行榜改造
-
-**修改文件**：
-- `console/src/pages/Feedback/index.tsx` — 引用 sd-* token，展示归因分类饼图
-- `console/src/pages/Settings/Sop/index.tsx` — 新增排行榜模式
-
-**排行榜模式**（借鉴 StaffDeck SkillsPage）：
-- 排序维度：calls（调用次数）、positive（正向）、negative（负向）
-- 统计范围：current（当前版本）、total（全版本）
-- 需要在 SkillCard 存储中维护 call_count + positive/negative_feedback_count
-
-**验收标准**：
-- [ ] 反馈入库后自动触发 LLM 归因
-- [ ] 反馈汇总页展示 7 类归因分布
-- [ ] SOP 页支持按调用次数/正向/负向排序
-- [ ] 前端页面使用 sd-* token
-
----
-
-
-### 阶段 4：知识自发现 + 闭环
-
-**目标**：知识入库自动发现 SOP，反馈驱动 SOP 进化
-**工期**：2-3 周
-
-#### 3.4.1 新增知识自发现
-
-**创建文件**：`src/aiarb/builtin_plugins/knowledge-base/backend/discovery.py`
-
-借鉴 StaffDeck `knowledge/service.py` `_discover_from_document`：
-
-**发现流程**：
-1. 文档入库完成后，将文档 + 知识桶发给 LLM
-2. LLM 返回 discoveries 列表（skill/tool/warning 三类建议）
-3. skill 建议经过 `_validate_skill_graph` 严格校验（字段完整性 + 图可达性）
-4. 存入 JSON 文件，状态为 `pending`
-5. 用户可在前端确认或拒绝
-
-**发现结果结构**：
-
-```python
-[
-    {
-        "type": "skill",
-        "name": "订单取消流程",
-        "description": "处理用户取消订单的请求",
-        "skill_card": {"name": "...", "nodes": [...], "edges": [...], ...},
-        "status": "pending"
-    },
-    {
-        "type": "tool",
-        "name": "订单查询工具",
-        "description": "查询订单状态",
-        "tool_config": {},
-        "status": "pending"
-    },
-    {
-        "type": "warning",
-        "message": "该文档包含过时信息，建议更新",
-        "status": "pending"
-    }
-]
-```
-
-**技能图校验规则**（借鉴 StaffDeck validate_graph）：
-- nodes 非空
-- start_node_id 存在
-- terminal_node_ids 都存在（可为空）
-- 所有边的 source/target 引用已有节点
-
-#### 3.4.2 知识库 service 集成自发现
-
-**修改文件**：`src/aiarb/builtin_plugins/knowledge-base/backend/service.py`
-
-在 `ingest_document` 末尾调用自发现：
-
-```python
-# Step 5: 知识自发现（不影响入库主流程）
-from .discovery import discover_from_document
-try:
-    from aiarb.model_factory import get_model_factory
-    model_factory = get_model_factory()
-    discoveries = await discover_from_document(doc_id, request.title, text, model_factory)
-    if discoveries:
-        await self._store_discoveries(doc_id, discoveries)
-except Exception as e:
-    logger.warning("知识自发现失败（不影响入库）: %s", e)
-```
-
-#### 3.4.3 新增发现建议路由
-
-**修改文件**：`src/aiarb/builtin_plugins/knowledge-base/backend/routes.py`
-
-新增 3 个路由：
-- `GET /discoveries` — 列出待确认的发现建议
-- `POST /discoveries/{id}/confirm` — 确认建议（创建 SOP 或工具）
-- `POST /discoveries/{id}/reject` — 拒绝建议
-
-确认 skill 时调用 `sop/store.py` 的创建 API 自动生成 SkillCard。
-
-#### 3.4.4 前端发现确认面板
-
-**修改文件**：`console/src/pages/KnowledgeBase/index.tsx`
-
-新增发现建议面板：
-- 待确认列表（pending 状态）
-- 确认/拒绝按钮
-- 确认 skill 时调用 SOP 创建 API
-- 使用 sd-* token 统一风格
-
-#### 3.4.5 定时任务租约机制
-
-**修改文件**：`src/aiarb/app/crons/`（现有定时任务模块）
-
-借鉴 StaffDeck `scheduled_tasks/` 租约机制：
-
-**LeaseGuard 类**：
-- `acquire(task_id, ttl_seconds=300) -> bool` — 尝试获取租约
-- `release(task_id)` — 释放租约
-- 存储到 `cron_leases.json`
-- 租约包含 `lease_owner` + `lease_until`（时间戳）
-- 获取前检查现有租约是否过期
-
-**在现有 cron executor 中集成**：
-```python
-# 执行前获取租约
-lease = LeaseGuard(storage_dir)
-if not await lease.acquire(task_id):
-    logger.info("任务 %s 租约被占用，跳过", task_id)
-    return
-try:
-    await execute_task(task_id)
-finally:
-    await lease.release(task_id)
-```
-
-#### 3.4.6 闭环集成
-
-**修改文件**：`src/aiarb/sop/reflection.py`
-
-反思引擎接入反馈归因数据：
-
-```python
-# 在 reflect 方法中，从 feedback 参数提取归因分类
-if feedback:
-    buckets = feedback.get("buckets", {})
-    skill_issues = buckets.get("skill_issue", 0)
-    tool_issues = buckets.get("tool_or_system_issue", 0)
-    model_issues = buckets.get("model_issue", 0)
-
-    # 技能问题 -> 影响 source_alignment 和 adaptive_progression
-    # 工具问题 -> 影响 tool_grounding 和 tool_call_format
-    # 模型问题 -> 影响 source_alignment
-```
-
-**完整闭环**：
-```
-文档入库 -> [自发现] -> SOP 草稿 -> 用户确认 -> SOP 执行
-    |                                        |
-  [OKF 概念图] <- [知识引用] <- [KNOWLEDGE_QUERY]
-                                         |
-                                  用户反馈 -> [LLM 归因] -> [7 维反思] -> 改进 SkillCard -> 重新执行
-```
-
-**验收标准**：
-- [ ] 文档入库后自动发现 SOP 草稿
-- [ ] 前端可确认/拒绝发现建议
-- [ ] 确认 skill 时自动创建 SkillCard
-- [ ] 定时任务有租约保护
-- [ ] 反思引擎接入反馈归因数据
-
----
-
-
-## 4. 功能保留对照表
-
-| 功能 | QwenPaw 现状 | 改造后 | 是否保留 |
-|------|-------------|--------|---------|
-| SOP 图编辑器 | `Sop/GraphEditor.tsx` | 引用 sd-* token | 保留 |
-| SOP 执行追踪 | `Sop/TracePanel.tsx` | 引用 sd-* token | 保留 |
-| SOP 文档蒸馏 | `Sop/DistillPanel` | 保留，增加 OKF 联动 | 保留 |
-| 知识库向量存储 | `vector_store.py` | 保留，增加 OKF 并行 | 保留 |
-| AgentCard | 已用 sd-* token | 无需改动 | 保留 |
-| Workbench | 已用 sd-* token | 无需改动 | 保留 |
-| 记忆系统 | `agents/memory/` | 无需改动 | 保留 |
-| 可观测性 | Langfuse + governance | 无需改动 | 保留 |
-| 智能体统计 | `agent_stats/` | 无需改动 | 保留 |
-| 菜单系统 | 2026-07-24 redesign | 无需改动 | 保留 |
-| 日历视图（定时任务） | `Control/CronJobs/` | 增加租约机制 | 保留 |
-| 人设编辑（可视化/文本） | AgentConfig | 无需改动 | 保留 |
-| 成长时间轴 | `GrowthTimeline/` | 无需改动 | 保留 |
-| 收件箱 | `Inbox/` | 无需改动 | 保留 |
-| 全局搜索 | `GlobalSearch/` | 无需改动 | 保留 |
-
----
-
-## 5. 新建文件清单
-
-| 文件路径 | 阶段 | 作用 |
-|----------|------|------|
-| `src/aiarb/builtin_plugins/knowledge-base/backend/parser.py` | 1 | 轻量文档解析（约120行，借鉴 StaffDeck） |
-| `src/aiarb/builtin_plugins/knowledge-base/backend/okf.py` | 1 | OKF 概念图（6种类型 + Lint + 搜索） |
-| `src/aiarb/builtin_plugins/knowledge-base/backend/citations.py` | 1 | 知识引用（编号 + 压缩 + 追溯） |
-| `src/aiarb/sop/router.py` | 2 | Router 决策层（9种决策） |
-| `src/aiarb/builtin_plugins/agent-feedback/backend/attribution.py` | 3 | LLM 反馈归因（7类分类） |
-| `src/aiarb/builtin_plugins/knowledge-base/backend/discovery.py` | 4 | 知识自发现（SOP/工具建议） |
-
-## 6. 修改文件清单
-
-| 文件路径 | 阶段 | 改动 |
-|----------|------|------|
-| `src/aiarb/builtin_plugins/knowledge-base/backend/service.py` | 1 | 移除 doc_processing，接入 parser+OKF+引用 |
-| `src/aiarb/sop/runtime.py` | 1 | 检索结果增加 citations |
-| `src/aiarb/sop/schema.py` | 2 | 增加 terminal_node_ids/trigger_intents/allowed_actions |
-| `src/aiarb/sop/reflection.py` | 2 | 7 维 RUBRIC 替换骨架 |
-| `src/aiarb/builtin_plugins/agent-feedback/backend/models.py` | 3 | 增加归因字段+技能级反馈 |
-| `src/aiarb/builtin_plugins/agent-feedback/backend/service.py` | 3 | 增加归因触发+汇总 |
-| `src/aiarb/builtin_plugins/knowledge-base/backend/routes.py` | 4 | 增加发现建议路由 |
-| `console/src/pages/KnowledgeBase/index.tsx` | 1,4 | sd-* token + OKF 浏览 + 发现确认 |
-| `console/src/pages/Settings/Sop/index.tsx` | 2,3 | sd-* token + 排行榜 + 7维展示 |
-| `console/src/pages/Feedback/index.tsx` | 3 | sd-* token + 归因分布 |
-| `src/aiarb/app/crons/` | 4 | 租约机制 |
-
----
-
-## 7. 风险与对策
-
-| 风险 | 概率 | 影响 | 对策 |
-|------|------|------|------|
-| pypdf/python-docx 未安装 | 低 | 中 | parser.py 有降级方案（docx->zip，html->标准库） |
-| LLM 归因延迟影响响应 | 中 | 中 | 异步触发，不阻塞反馈入库 |
-| OKF 概念图存储膨胀 | 低 | 低 | JSON 文件按 doc_id 分片，定期清理 |
-| Router 决策不准确 | 中 | 中 | _normalize_decision 校正 + clarify 兜底 |
-| 前端风格不统一 | 中 | 高 | 严格使用 sd-* token，验收检查 |
-| 知识自发现产生垃圾建议 | 中 | 低 | _validate_skill_graph 校验 + 用户确认 |
-
----
-
-## 8. 验收标准（整体）
-
-### 8.1 功能闭环验证
-
-```
-1. 上传一份文档到知识库
-   -> 解析成功（不依赖 doc_processing）
-   -> 生成 OKF 概念图
-   -> 自发现 SOP 草稿
-
-2. 确认发现的 SOP 草稿
-   -> SkillCard 创建成功
-   -> 在 SOP 列表可见
-
-3. 执行 SOP
-   -> KNOWLEDGE_QUERY 节点检索知识库
-   -> 回复中带 [N] 引用
-   -> 引用可追溯原始文档
-
-4. 用户对回复点踩
-   -> LLM 自动归因（7 类）
-   -> 反馈汇总页展示归因分布
-
-5. 触发反思
-   -> 7 维 RUBRIC 评分
-   -> 生成改进建议
-   -> 建议写入 SkillCard.metadata
-
-6. 定时任务执行
-   -> 租约保护防止重复
-```
-
-### 8.2 前端风格验证
-
-```
-所有新/改页面：
-- 卡片使用 var(--sd-radius-card) 和 var(--sd-shadow-soft)
-- 按钮使用 var(--sd-accent)
-- 间距使用 var(--sd-page-px) 和 var(--sd-card-gap)
-- 状态用圆点 + 文字
-- 无硬编码颜色值
-```
-
-### 8.3 不依赖验证
-
-```
-- grep -r "doc_processing" src/aiarb/builtin_plugins/knowledge-base/ -> 无匹配
-- grep -r "from aiarb.doc_processing" src/aiarb/ -> 无匹配（除 doc_processing 自身）
-- 前端无 TailwindCSS/shadcn 依赖
-- 后端无 SQLModel 依赖
+def increment_call_count(skill_id: str) -> None:
+    """自增技能调用次数。"""
+    card = load_skill(skill_id)
+    if card:
+        card.call_count = (card.call_count or 0) + 1
+        save_skill(card)
 ```
 
 ---
 
-## 9. 注意事项
+## 6. 实施顺序与验收标准
 
-1. **不使用 doc_processing**：该模块是 vibecoding 产物（过度设计、空实现、从未运行）。知识库插件内嵌轻量解析器 `parser.py`（约120行，借鉴 StaffDeck），只需 `pypdf` + `python-docx` 两个依赖。
+### 6.1 实施顺序
 
-2. **保留向量存储**：QwenPaw 已有 `vector_store.py` 基于 ReMe 的向量存储，比 StaffDeck 的纯词法评分更优。OKF 概念搜索作为向量检索的补充，不替换。
+```
+Phase 1 (P0, 1 周):
+  1. 创建 sop/orchestrator.py（3.1）
+  2. 修改 sop.py:api_runtime_step 调用编排器（3.2）
+  3. 修复 vector_store.py 中文检索（3.3）
+  -> 验收：知识检索后能自动生成回复，不再返回 [知识检索] xxx
 
-3. **前端不换技术栈**：继续用 Ant Design 5 + Less，通过 sd-* token 叠加实现 StaffDeck 视觉风格。不引入 TailwindCSS 或 shadcn/ui。
+Phase 2 (P1, 1 周):
+  4. 激活 allowed_actions 校验（4.1）
+  5. 激活动态规则组装（4.2）
+  6. 确认 Router 集成（4.3，已在编排器中实现）
+  -> 验收：节点动作受限、知识/工具有专用规则、Router 影响流程
 
-4. **知识库 JSON 存储**：OKF 概念图用 JSON 文件存储（与现有 vector_store 一致），不引入 SQLModel 或数据库。
+Phase 3 (P2, 0.5 周):
+  7. 修复 pending_tasks 消费（5.1）
+  8. 修复 call_count 自增（5.2）
+  -> 验收：排行榜有数据、任务队列自动消费
+```
 
-5. **异步归因**：LLM 归因异步触发，不阻塞用户反馈入库响应。归因失败不影响主流程。
+### 6.2 验收标准
 
-6. **渐进式改造**：每个阶段独立可验收，不依赖后续阶段。阶段 1 完成后知识库即可独立使用 OKF + 引用。
+| 验收项 | 验证方法 | 预期结果 |
+|--------|---------|---------|
+| 知识检索闭环 | 启动 SOP -> 提问 -> 单次 API 调用返回知识回复 | 回复含知识内容 + [N] 引用，不是 [知识检索] xxx |
+| 工具执行闭环 | StepAgent 输出 call_tool -> 单次 API 调用返回工具结果 | 回复含工具执行结果，不是 [工具调用] xxx |
+| 中文检索 | 上传中文文档 -> 搜索中文关键词 | 能检索到结果（不再因空格分词失效） |
+| allowed_actions | 节点设 allowed_actions=["reply"] -> StepAgent 输出 advance | 降级为 reply，不越界 |
+| 动态规则 | 知识检索后检查 prompt | prompt 含知识规则段 + 检索结果 |
+| Router | 无活跃 skill 时发消息 | Router 决定是否启动 skill |
+| pending_tasks | 完成 skill 后有待办任务 | 自动激活下一个待办 |
+| call_count | 多次启动同一 skill | 排行榜 call_count 递增 |
 
-7. **knowledge/ 遗留目录**：`src/aiarb/knowledge/` 下只有 `.pyc` 文件（无源码），是遗留死代码。实际功能在 `builtin_plugins/knowledge-base/`。清理时应删除该目录。
+### 6.3 回归检查
 
-8. **doc_processing/ 处理**：`src/aiarb/doc_processing/` 有完整源码但从未在 `_app.py` 注册，是 vibecoding 产物。本次改造移除知识库对其的依赖后，可考虑删除或标记为废弃。
+每个 Phase 完成后验证以下功能不受影响：
+- SOP 图编辑器正常保存/加载
+- 知识库文档上传/检索/删除
+- 技能蒸馏功能
+- 反思引擎手动触发
+- 前端 Workbench 5 Tab 展示
 
 ---
 
-## 10. 工期估算
+## 7. 关键注意事项
 
-| 阶段 | 内容 | 工期 | 优先级 |
-|------|------|------|--------|
-| 阶段 1 | 知识库升级（OKF + 引用 + 解析器） | 2-3 周 | P0 |
-| 阶段 2 | SOP 增强（Router + 7 维反思） | 2-3 周 | P1 |
-| 阶段 3 | 评分反馈升级（归因 + 排行榜） | 2 周 | P1 |
-| 阶段 4 | 知识自发现 + 闭环 | 2-3 周 | P1 |
-| **总计** | | **8-11 周** | |
+### 7.1 不要删除现有代码
 
-各阶段可并行推进（阶段 2 和阶段 3 独立），但阶段 4 依赖阶段 1-3 完成。
+v4.0 是**增强**不是重写。所有修改都是在现有函数内添加逻辑或替换实现，不删除现有文件。`runtime.py`、`step_agent.py`、`router.py`、`reflection.py` 的现有实现保留。
+
+### 7.2 编排器是新增文件
+
+`orchestrator.py` 是唯一的新增文件。它不替代 `runtime.py`（状态管理）和 `step_agent.py`（决策生成），而是在它们之上编排闭环。
+
+### 7.3 前端无需改动
+
+v4.0 的修复都在后端。前端调用 `/sop/runtime/step` 的接口不变（请求/响应结构不变），只是响应内容从 `[知识检索] xxx` 变为真正的知识回复。
+
+### 7.4 向量嵌入不是当务之急
+
+函数级审计确认 **StaffDeck 自己也没有真正的向量嵌入**（无 sentence-transformers）。两者的差距在评分算法精细度和检索路由深度，不在向量嵌入。v4.0 的中文 n-gram 修复已能显著改善检索质量。后续如需真正的向量嵌入，可单独引入 `sentence-transformers`，但不在 v4.0 范围内。
+
+### 7.5 doc_processing 废弃状态不变
+
+v3.0 已决策不使用 `doc_processing`，v4.0 维持此决策。知识库插件继续使用内嵌 `parser.py`。
 
 ---
 
-*文档版本：3.0 | 更新日期：2026-07-26 | 适用项目：QwenPaw (moot5 分支)*
-*v3.0 变更：基于最新代码状态全面重写；确认已实现功能；聚焦 OKF/引用/Router/7维反思/LLM归因/自发现*
+## 8. v3.0 与 v4.0 差异对照
+
+| 维度 | v3.0 方案 | v4.0 修正 |
+|------|----------|----------|
+| 核心思路 | 添加新组件（OKF/引用/Router/反思） | 打通已有组件闭环（编排器） |
+| 知识检索 | 假设检索后自动生成回复 | 发现检索后不闭环，需编排器 |
+| Router | 假设会被集成 | 发现是死代码，需在编排器中调用 |
+| 工具执行 | 未提及 | 发现不执行，需在编排器中执行 |
+| allowed_actions | 假设会被校验 | 发现不校验，需激活 |
+| 中文检索 | 未提及 | 发现空格分词失效，需 n-gram |
+| 动态规则 | 未提及 | 发现静态 7 条规则，需动态组装 |
+| 代码分析粒度 | 文件级 | 函数级（逐行分析关键逻辑） |

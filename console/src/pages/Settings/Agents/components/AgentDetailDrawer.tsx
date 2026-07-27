@@ -5,6 +5,8 @@
  * - Basic info (name, description, avatar, model, workspace)
  * - Persona config (embedded PersonaVisualEditor)
  * - Skills (skill picker)
+ * - SOP (流程引擎/状态机 SkillCard list + navigation)
+ * - Knowledge Base (文档列表 + navigation)
  *
  * The original AgentModal is kept for quick-create flows.
  */
@@ -37,6 +39,11 @@ import {
   FolderViewOutlined,
   ShopOutlined,
   SettingOutlined,
+  ApartmentOutlined,
+  BookOutlined,
+  ArrowRightOutlined,
+  PlayCircleOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { browseFolder } from "@/utils/browseFolder";
@@ -45,10 +52,12 @@ import type { ProviderInfo } from "@/api/types/provider";
 import { getAgentDisplayName } from "@/utils/agentDisplayName";
 import type { PoolSkillSpec, SkillSpec } from "@/api/types/skill";
 import type { WorkDirConfig, MarkdownFile } from "@/api/types/workspace";
-import { skillApi } from "@/api/modules/skill";
+import { invalidateSkillCache, skillApi } from "@/api/modules/skill";
 import { providerApi } from "@/api/modules/provider";
 import { agentsApi } from "@/api/modules/agents";
 import { workspaceApi } from "@/api/modules/workspace";
+import sopApi, { type SkillCard as SopSkillCard } from "@/api/modules/sop";
+import kbApi, { type KnowledgeDocumentSummary } from "@/api/modules/kb";
 import { providerIcon } from "../../Models/components/providerIcon";
 import { PersonaVisualEditor } from "@/pages/Agent/Workspace/components/PersonaVisualEditor";
 import { ImportHubModal } from "@/pages/Agent/Skills/components";
@@ -107,6 +116,14 @@ export function AgentDetailDrawer({
   // Work directory state
   const [workDirConfig, setWorkDirConfig] = useState<WorkDirConfig | null>(null);
   const [workDirSaving, setWorkDirSaving] = useState(false);
+
+  // SOP state
+  const [sopSkills, setSopSkills] = useState<SopSkillCard[]>([]);
+  const [sopLoading, setSopLoading] = useState(false);
+
+  // Knowledge base state
+  const [kbDocuments, setKbDocuments] = useState<KnowledgeDocumentSummary[]>([]);
+  const [kbLoading, setKbLoading] = useState(false);
 
   // Persona edit mode (visual / expert) and core config files state
   const [personaMode, setPersonaMode] = useState<EditMode>(getStoredEditMode());
@@ -207,6 +224,22 @@ export function AgentDetailDrawer({
 
     // Load core config files
     loadCoreConfigFiles();
+
+    // Load SOP skills
+    setSopLoading(true);
+    sopApi
+      .listSkills()
+      .then((res) => setSopSkills(res.skills || []))
+      .catch((err) => console.error("Failed to load SOP skills:", err))
+      .finally(() => setSopLoading(false));
+
+    // Load KB documents
+    setKbLoading(true);
+    kbApi
+      .listDocuments()
+      .then((res) => setKbDocuments(res.documents || []))
+      .catch((err) => console.error("Failed to load KB documents:", err))
+      .finally(() => setKbLoading(false));
   }, [open, agent, form, t, initialTab]);
 
   // Load core config files (SOUL.md, PROFILE.md, etc.) for expert mode
@@ -402,11 +435,19 @@ export function AgentDetailDrawer({
       }
 
       await agentsApi.updateAgent(agent.id, payload);
+
+      // Invalidate skill cache so the installed skills reflect correctly on re-open
+      if (newSkills.length > 0) {
+        invalidateSkillCache({ agentId: agent.id });
+      }
+
       antMessage.success(t("agent.updateSuccess"));
       onUpdated();
       onClose();
     } catch (error: any) {
       console.error("Failed to save agent:", error);
+      // Invalidate cache on error too, in case partial installs occurred
+      invalidateSkillCache({ agentId: agent.id });
       antMessage.error(error.message || t("agent.saveFailed"));
     } finally {
       setSaving(false);
@@ -438,7 +479,7 @@ export function AgentDetailDrawer({
   const handleNavigateToSkillsPage = () => {
     if (!agent) return;
     onClose();
-    navigate(`/agent/skills?agent=${encodeURIComponent(agent.id)}`);
+    navigate(`/skills?tab=installed&agent=${encodeURIComponent(agent.id)}`);
   };
 
   // Install a skill from the hub/market to this agent
@@ -964,6 +1005,16 @@ export function AgentDetailDrawer({
               </Button>
               <Button
                 size="small"
+                type="default"
+                onClick={() => {
+                  onClose();
+                  navigate(`/skills?tab=market&agent=${encodeURIComponent(agent.id)}`);
+                }}
+              >
+                {t("agent.goToMarket")}
+              </Button>
+              <Button
+                size="small"
                 icon={<SettingOutlined />}
                 onClick={handleNavigateToSkillsPage}
               >
@@ -1090,6 +1141,148 @@ export function AgentDetailDrawer({
             onCancel={() => setHubImportOpen(false)}
             onConfirm={handleHubImport}
           />
+        </div>
+      ),
+    },
+    {
+      key: "sop",
+      label: (
+        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <ApartmentOutlined />
+          {t("agent.sopTab")}
+        </span>
+      ),
+      children: (
+        <div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 12,
+            }}
+          >
+            <Text type="secondary" style={{ fontSize: 13 }}>
+              {t("agent.sopHint")}
+            </Text>
+            <Button
+              size="small"
+              icon={<ArrowRightOutlined />}
+              onClick={() => {
+                onClose();
+                navigate("/sop");
+              }}
+            >
+              {t("agent.goToSop")}
+            </Button>
+          </div>
+          {sopLoading ? (
+            <div style={{ textAlign: "center", padding: "16px 0" }}>
+              <Spin size="small" />
+            </div>
+          ) : sopSkills.length === 0 ? (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={t("agent.noSopSkills")}
+            />
+          ) : (
+            <div className={styles.pickerGrid}>
+              {sopSkills.map((skill) => (
+                <div
+                  key={skill.id}
+                  className={`${styles.pickerCard} ${styles.pickerCardInstalled}`}
+                >
+                  <div className={styles.pickerCardTitle}>
+                    <PlayCircleOutlined style={{ marginRight: 4, color: "#52c41a" }} />
+                    {skill.name}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: "rgba(20,20,19,0.45)",
+                      marginTop: 4,
+                    }}
+                  >
+                    {skill.status === "active"
+                      ? t("agent.sopStatusActive")
+                      : skill.status === "draft"
+                        ? t("agent.sopStatusDraft")
+                        : t("agent.sopStatusArchived")}
+                    {" · "}
+                    {skill.nodes?.length || 0} {t("agent.sopNodes")}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "kb",
+      label: (
+        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <BookOutlined />
+          {t("agent.kbTab")}
+        </span>
+      ),
+      children: (
+        <div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 12,
+            }}
+          >
+            <Text type="secondary" style={{ fontSize: 13 }}>
+              {t("agent.kbHint")}
+            </Text>
+            <Button
+              size="small"
+              icon={<ArrowRightOutlined />}
+              onClick={() => {
+                onClose();
+                navigate("/kb");
+              }}
+            >
+              {t("agent.goToKb")}
+            </Button>
+          </div>
+          {kbLoading ? (
+            <div style={{ textAlign: "center", padding: "16px 0" }}>
+              <Spin size="small" />
+            </div>
+          ) : kbDocuments.length === 0 ? (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={t("agent.noKbDocs")}
+            />
+          ) : (
+            <div className={styles.pickerGrid}>
+              {kbDocuments.slice(0, 12).map((doc) => (
+                <div
+                  key={doc.id}
+                  className={`${styles.pickerCard} ${styles.pickerCardInstalled}`}
+                >
+                  <div className={styles.pickerCardTitle}>
+                    <FileTextOutlined style={{ marginRight: 4, color: "#1677ff" }} />
+                    {doc.title || doc.id}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: "rgba(20,20,19,0.45)",
+                      marginTop: 4,
+                    }}
+                  >
+                    {doc.chunk_count ?? 0} {t("agent.kbChunks")}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       ),
     },
