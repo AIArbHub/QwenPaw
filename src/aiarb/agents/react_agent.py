@@ -24,7 +24,6 @@ from aiarb.framework.event import (
     TextBlockStartEvent,
 )
 from aiarb.framework.message import HintBlock, Msg, TextBlock
-from agentscope.model import FinishedReason
 from aiarb.framework.state import AgentState
 from aiarb.framework.tool import Toolkit
 
@@ -216,10 +215,10 @@ class AIArbAgent(CodingModeMixin, Agent):
                 return
         except Exception:
             pass
-        await super().compress_context(
-            context_config,
-            instructions=instructions,
-        )
+        # Framework's compress_context only accepts context_config;
+        # ``instructions`` is our extension used by the scroll context
+        # manager path above. Drop it for the native fallback.
+        await super().compress_context(context_config)
 
     def _save_to_context(self, blocks: Any, usage: Any = None) -> None:
         """Append blocks, then let the context manager write them through."""
@@ -523,19 +522,35 @@ class AIArbAgent(CodingModeMixin, Agent):
             )
 
         def acknowledge_seen_results(evt: Any) -> None:
-            """Acknowledge inputs only after a completed model request."""
+            """Acknowledge inputs only after a completed model request.
+
+            ``ModelCallEndEvent`` no longer carries ``finished_reason``
+            (removed in newer agentscope). We simply acknowledge on every
+            model-call-end — the context manager's acknowledge method is
+            a no-op when there are no pending tool-result ids.
+
+            Wrapped in try/except so a context-manager error can never
+            interrupt the streaming pipeline (which would silently drop
+            the final ``AssistantMsg`` and leave the user with only the
+            thinking trace).
+            """
             if (
                 isinstance(evt, ModelCallEndEvent)
-                and evt.finished_reason != FinishedReason.INTERRUPTED
                 and context_manager is not None
                 and hasattr(
                     context_manager,
                     "acknowledge_model_input_tool_results",
                 )
             ):
-                context_manager.acknowledge_model_input_tool_results(
-                    pending_seen_ids,
-                )
+                try:
+                    context_manager.acknowledge_model_input_tool_results(
+                        pending_seen_ids,
+                    )
+                except Exception:
+                    logger.debug(
+                        "acknowledge_model_input_tool_results failed",
+                        exc_info=True,
+                    )
 
         try:
             async for evt in super()._reasoning(tool_choice=tool_choice):

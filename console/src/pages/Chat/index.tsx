@@ -118,6 +118,7 @@ import {
   type SessionRouteMode,
 } from "../../utils/sessionRoute";
 import { openExternalLink } from "../../utils/openExternalLink";
+import { isDesktopApp } from "../../tauri/backendRuntime";
 import { getLastEditorCopy } from "../Coding/lastEditorCopy";
 import { useUploadLimitStore } from "../../stores/uploadLimitStore";
 import MessageQueuePanel from "./components/MessageQueuePanel";
@@ -1335,6 +1336,13 @@ export default function ChatPage() {
   const isOwnerRef = useRef(false);
   isOwnerRef.current = isOwner;
   useEffect(() => {
+    // Desktop app (Tauri) has only one window — no multi-tab coordination
+    // needed. Skip the Web Locks entirely and assume ownership immediately.
+    if (isDesktopApp()) {
+      setIsOwner(true);
+      setOwnershipResolved(true);
+      return;
+    }
     setIsOwner(false);
     setOwnershipResolved(false);
     const ctrl = new AbortController();
@@ -1348,6 +1356,8 @@ export default function ChatPage() {
     );
     // If the lock callback never fires (e.g. another tab holds it), resolve
     // after a short delay so the non-owner Alert appears without flashing.
+    // holdOwnershipLock has its own internal fallback (retry + assume
+    // ownership after 1.5s), so this timer is just for UI display.
     const fallbackTimer = setTimeout(() => {
       setOwnershipResolved(true);
     }, 300);
@@ -1392,6 +1402,13 @@ export default function ChatPage() {
   const showSenderBeforeUI = isQueueOnlyTab || hasQueueItems;
 
   const scheduleNextSend = useCallback(() => {
+    // Skip scheduling when the queue is empty — there's nothing to send.
+    // This prevents a 500ms "queueBusy" window after every response
+    // completion that would force direct messages into the queue.
+    const currentQueue = useMessageQueueStore.getState().getQueue(
+      queueSessionId,
+    );
+    if (currentQueue.length === 0) return;
     if (autoSendTimerRef.current) clearTimeout(autoSendTimerRef.current);
     autoSendTimerRef.current = setTimeout(() => {
       autoSendTimerRef.current = null;
@@ -1838,6 +1855,13 @@ export default function ChatPage() {
       // The currently-sending item finished. Clear the marker so the next
       // Enter handler decision and lock acquisition see a clean state.
       useMessageQueueStore.getState().setCurrentSendingId(null);
+      // Clear any pending auto-send timer immediately so the 500ms
+      // queueBusy window doesn't block direct sends while
+      // syncLoopModeStatus is in flight.
+      if (autoSendTimerRef.current) {
+        clearTimeout(autoSendTimerRef.current);
+        autoSendTimerRef.current = null;
+      }
       void syncLoopModeStatus().finally(scheduleNextSend);
     } else if (itemsJustQueued) {
       scheduleNextSend();
@@ -1943,7 +1967,9 @@ export default function ChatPage() {
 
   const handleQueueInterruptAndSend = useCallback(
     (item: QueueItem) => {
-      if (!isOwnerRef.current) return;
+      // "Interrupt and Send" is an explicit user override action — it
+      // should work regardless of tab ownership. The per-send lock
+      // (withSendLock) prevents duplicate sends in multi-tab scenarios.
       if (runtimeLoadingBridgeRef.current?.getLoading?.()) {
         const sessionId = window.currentSessionId || chatIdRef.current;
         if (sessionId) {
@@ -1953,6 +1979,12 @@ export default function ChatPage() {
         }
       }
       useMessageQueueStore.getState().remove(queueSessionId, item.id);
+      // Clear any pending auto-send timer so it doesn't race with this
+      // manual send.
+      if (autoSendTimerRef.current) {
+        clearTimeout(autoSendTimerRef.current);
+        autoSendTimerRef.current = null;
+      }
       setTimeout(() => {
         void withSendLock(queueSessionId, () => {
           useMessageQueueStore.getState().setCurrentSendingId(item.id);

@@ -244,9 +244,12 @@ export async function withSendLock<T>(
  *   owner / active sender).
  * - Holds the lock until `abortSignal` is aborted (e.g. on component unmount
  *   or when the queueSessionId changes).
- * - Other tabs requesting the same lock will wait; when the current owner
- *   releases (page closed, navigated away, signal aborted), one of the
- *   waiters automatically becomes the new owner.
+ * - Uses ``ifAvailable: true`` with a retry loop instead of blocking-wait,
+ *   so a stale lock (e.g. WebView2 not releasing on page refresh) doesn't
+ *   hang the callback forever.
+ * - After ``maxRetries`` consecutive failures, assumes ownership as a
+ *   fallback. In a genuine multi-tab scenario the per-send lock
+ *   (:func:`withSendLock`) provides secondary protection against duplicates.
  * - Falls back to immediate ownership when Web Locks are unavailable, so
  *   single-tab functionality is preserved.
  */
@@ -260,28 +263,91 @@ export function holdOwnershipLock(
     onAcquired();
     return Promise.resolve();
   }
-  return locks
-    .request(
-      `aiarb:queue-owner:${sessionId}`,
-      { mode: "exclusive", signal: abortSignal },
-      async (lock: unknown) => {
-        if (!lock) return;
-        if (abortSignal.aborted) return;
-        onAcquired();
-        // Hold the lock until the caller aborts.
-        await new Promise<void>((resolve) => {
-          if (abortSignal.aborted) {
-            resolve();
+
+  const lockName = `aiarb:queue-owner:${sessionId}`;
+  const RETRY_INTERVAL_MS = 500;
+  const MAX_RETRIES = 3; // 3 × 500ms = 1.5s before fallback
+
+  let retryCount = 0;
+
+  const tryAcquire = (): Promise<void> => {
+    if (abortSignal.aborted) return Promise.resolve();
+
+    return locks
+      .request(
+        lockName,
+        { mode: "exclusive", ifAvailable: true, signal: abortSignal },
+        async (lock: unknown) => {
+          if (abortSignal.aborted) return;
+
+          if (lock) {
+            // Lock acquired — we are the owner.
+            onAcquired();
+            // Hold the lock until the caller aborts.
+            await new Promise<void>((resolve) => {
+              if (abortSignal.aborted) {
+                resolve();
+                return;
+              }
+              abortSignal.addEventListener("abort", () => resolve(), {
+                once: true,
+              });
+            });
             return;
           }
-          abortSignal.addEventListener("abort", () => resolve(), {
-            once: true,
+
+          // Lock held by another tab. Retry after a short delay.
+          retryCount++;
+          if (retryCount > MAX_RETRIES) {
+            // Fallback: assume ownership after exceeding retry budget.
+            // This handles stale locks in WebView2 / Electron where the
+            // previous page's lock wasn't released on refresh/unload.
+            onAcquired();
+            // Keep retrying in the background to eventually acquire the
+            // real lock (so a genuine multi-tab scenario self-heals).
+            await new Promise<void>((resolve) => {
+              if (abortSignal.aborted) {
+                resolve();
+                return;
+              }
+              const timer = setTimeout(resolve, RETRY_INTERVAL_MS);
+              abortSignal.addEventListener(
+                "abort",
+                () => {
+                  clearTimeout(timer);
+                  resolve();
+                },
+                { once: true },
+              );
+            });
+            // Reset retry count so we don't spam onAcquired.
+            retryCount = 0;
+            return tryAcquire();
+          }
+
+          await new Promise<void>((resolve) => {
+            if (abortSignal.aborted) {
+              resolve();
+              return;
+            }
+            const timer = setTimeout(resolve, RETRY_INTERVAL_MS);
+            abortSignal.addEventListener(
+              "abort",
+              () => {
+                clearTimeout(timer);
+                resolve();
+              },
+              { once: true },
+            );
           });
-        });
-      },
-    )
-    .then(() => undefined)
-    .catch(() => undefined);
+          return tryAcquire();
+        },
+      )
+      .then(() => undefined)
+      .catch(() => undefined);
+  };
+
+  return tryAcquire();
 }
 
 // ---------------------------------------------------------------------------

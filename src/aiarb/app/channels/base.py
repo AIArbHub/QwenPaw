@@ -792,7 +792,7 @@ class BaseChannel(ABC):
 
         # Fire-and-forget flush
         flush_meta["last_ts"] = now
-        from qwenpaw.agents.context.scroll.serialize import strip_headline
+        from aiarb.agents.context.scroll.serialize import strip_headline
 
         display_text = strip_headline(streaming_buffers[stream_type]) or ""
         flush_meta["task"] = asyncio.create_task(
@@ -856,7 +856,7 @@ class BaseChannel(ABC):
 
             buf = streaming_buffers.pop(stream_type, "")
             accumulated = self._extract_text_from_event(event) or buf
-            from qwenpaw.agents.context.scroll.serialize import strip_headline
+            from aiarb.agents.context.scroll.serialize import strip_headline
 
             accumulated = strip_headline(accumulated) or ""
             await self.on_streaming_end(
@@ -1204,7 +1204,7 @@ class BaseChannel(ABC):
         msg_id: str | None = None,
     ) -> list[str]:
         """Finalize buffered marker prefixes as ordinary content deltas."""
-        from qwenpaw.agents.context.scroll.serialize import (
+        from aiarb.agents.context.scroll.serialize import (
             flush_headline_delta,
         )
 
