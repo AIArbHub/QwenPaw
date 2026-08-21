@@ -58,7 +58,7 @@ export function OffloadPolicyCard() {
         "agentConfig.offloadPolicy.offloadDesc",
         "After the countdown expires, the tool is automatically moved to background execution, allowing the Agent to continue processing other tasks. Suitable for long-running tools.",
       ),
-      color: "#1890ff",
+      color: "#0065fd",
     },
   ];
 

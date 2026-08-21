@@ -4,10 +4,12 @@ import { Routes, Route, useLocation, matchPath } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Sidebar from "../Sidebar";
 import Header from "../Header";
+import DesignLayout from "../DesignLayout";
 import ConsolePollService from "../../components/ConsolePollService";
 import { AgentStatusPollingController } from "../../components/AgentStatusPollingController";
 import { ChunkErrorBoundary } from "../../components/ChunkErrorBoundary";
 import { useSyncCodingMode } from "../../stores/useSyncCodingMode";
+import { useSidebarModeStore } from "../../stores/sidebarModeStore";
 import styles from "../index.module.less";
 import { useRoutes } from "../../plugins/registry/hooks";
 import { Slot } from "../../plugins/registry/Slot";
@@ -36,6 +38,7 @@ export default function MainLayout({ hubMode = false }: { hubMode?: boolean }) {
   const location = useLocation();
   const currentPath = location.pathname;
   const routes = useRoutes();
+  const { mode: sidebarMode } = useSidebarModeStore();
 
   // Backend is the source of truth for Coding Mode state — refill the
   // in-memory store every time the selected agent changes.
@@ -55,6 +58,12 @@ export default function MainLayout({ hubMode = false }: { hubMode?: boolean }) {
     () => routes.filter((r) => !/^\/apps\/(?!:)/.test(r.path)),
     [routes],
   );
+
+  // Design mode: three-column layout replaces the standard
+  // Header + Sidebar + Content arrangement.
+  if (sidebarMode === "design") {
+    return <DesignLayout hubMode={hubMode} />;
+  }
 
   return (
     <Layout className={styles.mainLayout}>

@@ -52,8 +52,8 @@
   &:hover {
     background-color: var(--colorBgBase, #fff);
     background-image: linear-gradient(
-      var(--color-fill-tertiary, rgba(43, 18, 0, 0.03)),
-      var(--color-fill-tertiary, rgba(43, 18, 0, 0.03))
+      var(--color-fill-tertiary, rgba(0, 101, 253, 0.03)),
+      var(--color-fill-tertiary, rgba(0, 101, 253, 0.03))
     );
 
     .moreBtn {
@@ -73,7 +73,7 @@
   }
 
   &.active {
-    background: var(--color-fill-secondary, rgba(43, 18, 0, 0.08));
+    background: var(--color-fill-secondary, rgba(0, 101, 253, 0.08));
   }
 
   &.editing .content {
@@ -98,7 +98,7 @@
   margin-bottom: 2px;
 
   &:hover {
-    background: var(--color-fill-tertiary, rgba(43, 18, 0, 0.05));
+    background: var(--color-fill-tertiary, rgba(0, 101, 253, 0.05));
 
     .moreBtn {
       opacity: 1;
@@ -111,15 +111,15 @@
   }
 
   &.active {
-    background: var(--color-fill-secondary, rgba(43, 18, 0, 0.08));
+    background: var(--color-fill-secondary, rgba(0, 101, 253, 0.08));
 
     .name {
       font-weight: 500;
-      color: var(--colorText, rgba(26, 23, 22, 0.88));
+      color: var(--colorText, rgba(14, 17, 21, 0.88));
     }
 
     &:hover {
-      background: var(--color-fill-secondary, rgba(43, 18, 0, 0.1));
+      background: var(--color-fill-secondary, rgba(0, 101, 253, 0.1));
     }
   }
 
@@ -205,7 +205,7 @@
   font-size: 14px;
   font-weight: 500;
   line-height: 24px;
-  color: var(--colorText, rgba(26, 23, 22, 0.88));
+  color: var(--colorText, rgba(14, 17, 21, 0.88));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -277,7 +277,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--colorTextQuaternary, rgba(26, 23, 22, 0.25));
+  background: var(--colorTextQuaternary, rgba(14, 17, 21, 0.25));
   pointer-events: none;
 }
 
@@ -297,7 +297,7 @@
   min-width: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--colorTextSecondary, rgba(26, 23, 22, 0.45));
+  color: var(--colorTextSecondary, rgba(14, 17, 21, 0.45));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -319,8 +319,8 @@
     font-size: 11px;
     font-weight: 500;
     line-height: 18px;
-    color: var(--colorTextSecondary, rgba(26, 23, 22, 0.55));
-    background: var(--color-fill-tertiary, rgba(43, 18, 0, 0.06));
+    color: var(--colorTextSecondary, rgba(14, 17, 21, 0.55));
+    background: var(--color-fill-tertiary, rgba(0, 101, 253, 0.06));
     min-width: 0;
     opacity: 1;
   }
@@ -341,7 +341,7 @@
   padding: 1px 6px;
   border-radius: 999px;
   background: var(--colorPrimaryBg, #fff2e8);
-  color: var(--colorPrimary, #ff7f16);
+  color: var(--colorPrimary, #0065fd);
   font-size: 10px;
   font-weight: 600;
   line-height: 17px;
@@ -351,7 +351,7 @@
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
-  color: var(--colorPrimary, #ff7f16);
+  color: var(--colorPrimary, #0065fd);
 }
 
 .dragHint {
@@ -359,7 +359,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  color: var(--colorTextQuaternary, rgba(26, 23, 22, 0.24));
+  color: var(--colorTextQuaternary, rgba(14, 17, 21, 0.24));
   cursor: grab;
   opacity: 0;
 }
@@ -369,7 +369,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  color: var(--colorPrimary, #ff7f16);
+  color: var(--colorPrimary, #0065fd);
 }
 
 .item:hover .dragHint,
@@ -396,7 +396,7 @@
   align-items: center;
   padding: 4px;
   border-radius: 4px;
-  color: var(--colorText, rgba(26, 23, 22, 0.88));
+  color: var(--colorText, rgba(14, 17, 21, 0.88));
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s;
@@ -410,7 +410,7 @@
   }
 
   &[data-pinned="true"] {
-    color: var(--colorPrimary, #ff9d4d);
+    color: var(--colorPrimary, #0065fd);
   }
 }
 
@@ -437,12 +437,12 @@
   border: none;
   background: transparent;
   border-radius: 4px;
-  color: var(--colorText, rgba(26, 23, 22, 0.88));
+  color: var(--colorText, rgba(14, 17, 21, 0.88));
   cursor: pointer;
   transition: background 0.15s;
 
   &:hover {
-    background: var(--color-fill-secondary, rgba(43, 18, 0, 0.08));
+    background: var(--color-fill-secondary, rgba(0, 101, 253, 0.08));
   }
 }
 
@@ -456,7 +456,7 @@
   height: 22px;
   border-radius: 4px;
   font-size: 14px;
-  color: var(--colorTextTertiary, rgba(26, 23, 22, 0.45));
+  color: var(--colorTextTertiary, rgba(14, 17, 21, 0.45));
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
@@ -464,8 +464,8 @@
   flex-shrink: 0;
 
   &:hover {
-    background: var(--color-fill-secondary, rgba(43, 18, 0, 0.08));
-    color: var(--colorText, rgba(26, 23, 22, 0.88));
+    background: var(--color-fill-secondary, rgba(0, 101, 253, 0.08));
+    color: var(--colorText, rgba(14, 17, 21, 0.88));
   }
 
   .sidebar & {
@@ -494,7 +494,7 @@
 
 :global(.dark-mode) {
   .drawer {
-    background-color: #1f1f1f;
+    background-color: #161a20;
 
     &:hover {
       background: rgba(255, 255, 255, 0.08);
@@ -529,7 +529,7 @@
     }
 
     &::after {
-      background-color: #1f1f1f;
+      background-color: #161a20;
       border-color: rgba(255, 255, 255, 0.2);
     }
   }
@@ -557,7 +557,7 @@
     color: rgba(255, 255, 255, 0.72);
 
     &[data-pinned="true"] {
-      color: var(--colorPrimary, #ff9d4d);
+      color: var(--colorPrimary, #0065fd);
     }
   }
 

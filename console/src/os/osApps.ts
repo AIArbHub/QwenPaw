@@ -73,7 +73,7 @@ export const OS_APPS: OsAppDef[] = [
     labelKey: "nav.files",
     fallback: "Files",
     Icon: Files,
-    accent: "#f36b21",
+    accent: "#0065fd",
     defaultW: 1180,
     defaultH: 720,
     minW: 760,
@@ -212,7 +212,7 @@ export const STORE_APP: OsAppDef = {
   labelKey: "os.appStore",
   fallback: "App Store",
   Icon: Store,
-  accent: "#FF7F16",
+  accent: "#0065fd",
   defaultW: 860,
   defaultH: 600,
 };

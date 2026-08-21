@@ -263,6 +263,7 @@
     },
     "simpleMode": "Simple Mode",
     "fullMode": "Full Mode",
+    "designMode": "Design Mode",
     "toggleAgentNavigation": "Expand or collapse agent navigation"
   },
   "debug": {

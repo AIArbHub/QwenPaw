@@ -77,13 +77,13 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-primary, #ff9d4d);
+    outline: 2px solid var(--color-primary, #0065fd);
     outline-offset: 1px;
   }
 }
 
 .pinActive {
-  color: var(--color-primary, #ff9d4d);
+  color: var(--color-primary, #0065fd);
 }
 
 /* Create new chat button area */
@@ -112,22 +112,22 @@
   gap: 7px;
   margin-top: 6px;
   padding: 0 10px;
-  border: 1px dashed var(--colorBorder, rgba(43, 18, 0, 0.14));
+  border: 1px dashed var(--colorBorder, rgba(0, 101, 253, 0.14));
   border-radius: 8px;
   background: var(--colorBgContainer, rgba(255, 255, 255, 0.45));
-  color: var(--colorTextSecondary, rgba(26, 23, 22, 0.62));
+  color: var(--colorTextSecondary, rgba(14, 17, 21, 0.62));
   font-size: 12px;
   font-weight: 550;
   cursor: pointer;
 
   &:hover {
-    border-color: color-mix(in srgb, #ff7f16 46%, transparent);
-    background: color-mix(in srgb, #ff7f16 6%, transparent);
-    color: var(--colorPrimary, #ff7f16);
+    border-color: color-mix(in srgb, #0065fd 46%, transparent);
+    background: color-mix(in srgb, #0065fd 6%, transparent);
+    color: var(--colorPrimary, #0065fd);
   }
 
   &:focus-visible {
-    outline: 2px solid color-mix(in srgb, #ff7f16 38%, transparent);
+    outline: 2px solid color-mix(in srgb, #0065fd 38%, transparent);
     outline-offset: 1px;
   }
 }
@@ -151,7 +151,7 @@
   width: 100%;
   height: 36px;
   border-radius: 6px;
-  background: var(--colorPrimary, #ff9d4d);
+  background: var(--colorPrimary, #0065fd);
   border: none;
   color: #fff;
   font-size: 14px;
@@ -182,7 +182,7 @@
   right: 12px;
   left: 12px;
   padding-bottom: 2px;
-  border-bottom: 1px solid var(--colorBorderSecondary, rgba(43, 18, 0, 0.055));
+  border-bottom: 1px solid var(--colorBorderSecondary, rgba(0, 101, 253, 0.055));
   background: color-mix(in srgb, var(--colorBgBase, #fff) 96%, transparent);
   backdrop-filter: blur(12px);
 }
@@ -310,20 +310,20 @@
 /* Dark mode */
 :global(.dark-mode) {
   .embeddedPanel {
-    background-color: #141414;
+    background-color: #0e1115;
     border-left-color: rgba(255, 255, 255, 0.08);
   }
 
   .drawer {
     :global {
       .qwenpaw-drawer-body {
-        background-color: #141414;
+        background-color: #0e1115;
       }
     }
   }
 
   .header {
-    background-color: #141414;
+    background-color: #0e1115;
   }
 
   .headerTitle {
@@ -353,26 +353,26 @@
 
     &:hover {
       border-color: rgba(255, 143, 50, 0.5);
-      background: rgba(255, 127, 22, 0.1);
-      color: #ff8f32;
+      background: rgba(0, 101, 253, 0.1);
+      color: #557fff;
     }
   }
 
   .stickyGroupHeader {
     border-bottom-color: rgba(255, 255, 255, 0.08);
-    background: color-mix(in srgb, #141414 96%, transparent);
+    background: color-mix(in srgb, #0e1115 96%, transparent);
   }
 
   .topGradient {
-    background: linear-gradient(180deg, #141414 0%, rgba(31, 31, 31, 0) 100%);
+    background: linear-gradient(180deg, #0e1115 0%, rgba(31, 31, 31, 0) 100%);
   }
 
   .bottomGradient {
-    background: linear-gradient(0deg, #141414 0%, rgba(31, 31, 31, 0) 100%);
+    background: linear-gradient(0deg, #0e1115 0%, rgba(31, 31, 31, 0) 100%);
   }
 
   .footer {
-    background-color: #141414;
+    background-color: #0e1115;
   }
 
   .footerText {

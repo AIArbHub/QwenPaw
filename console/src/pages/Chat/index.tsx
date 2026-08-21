@@ -1551,7 +1551,7 @@ export default function ChatPage() {
     Map<string, ApprovalMessageData>
   >(new Map());
   const { mode: sidebarMode } = useSidebarModeStore();
-  const isFullMode = sidebarMode === "full";
+  const isFullMode = sidebarMode === "full" || sidebarMode === "design";
 
   // On mobile viewports the right-side history panel should always be
   // available regardless of the sidebar mode setting.
@@ -3775,7 +3775,7 @@ export default function ChatPage() {
           styles={{
             content: isDark
               ? {
-                  background: "#1f1f1f",
+                  background: "#161a20",
                   boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
                 }
               : undefined,

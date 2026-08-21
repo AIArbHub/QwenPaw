@@ -173,7 +173,7 @@ export default function LoginPage() {
           maxWidth: "100%",
           padding: 32,
           borderRadius: 12,
-          background: isDark ? "#1f1f1f" : "#fff",
+          background: isDark ? "#161a20" : "#fff",
           boxShadow: isDark
             ? "0 4px 24px rgba(0,0,0,0.4)"
             : "0 4px 24px rgba(0,0,0,0.1)",

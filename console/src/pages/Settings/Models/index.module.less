@@ -11,14 +11,14 @@
   --models-surface-muted: var(--qwenpaw-color-fill-quaternary, #f5f5f5);
   --models-border: var(--qwenpaw-color-border-secondary, #e8e8e8);
   --models-border-strong: var(--qwenpaw-color-border, #d9d9d9);
-  --models-text: var(--qwenpaw-color-text, #1f1f1f);
+  --models-text: var(--qwenpaw-color-text, #161a20);
   --models-text-muted: var(--qwenpaw-color-text-secondary, rgba(0, 0, 0, 0.65));
   --models-text-faint: var(--qwenpaw-color-text-tertiary, rgba(0, 0, 0, 0.45));
-  --models-accent: var(--qwenpaw-color-primary, #ff7f16);
-  --models-accent-strong: var(--qwenpaw-color-primary, #ff7f16);
+  --models-accent: var(--qwenpaw-color-primary, #0065fd);
+  --models-accent-strong: var(--qwenpaw-color-primary, #0065fd);
   --models-accent-soft: var(
     --qwenpaw-color-primary-bg,
-    rgba(255, 127, 22, 0.08)
+    rgba(0, 101, 253, 0.08)
   );
   --models-positive: #3f7450;
   --models-positive-soft: #edf5ee;
@@ -397,8 +397,8 @@
 
 :global(.dark-mode) .settingsPage {
   --models-bg: transparent;
-  --models-surface: var(--qwenpaw-color-bg-container, #1f1f1f);
-  --models-surface-muted: var(--qwenpaw-color-fill-quaternary, #262626);
+  --models-surface: var(--qwenpaw-color-bg-container, #161a20);
+  --models-surface-muted: var(--qwenpaw-color-fill-quaternary, #22252a);
   --models-border: var(
     --qwenpaw-color-border-secondary,
     rgba(255, 255, 255, 0.12)
@@ -413,11 +413,11 @@
     --qwenpaw-color-text-tertiary,
     rgba(255, 255, 255, 0.45)
   );
-  --models-accent: var(--qwenpaw-color-primary, #ff9d4d);
-  --models-accent-strong: var(--qwenpaw-color-primary, #ff9d4d);
+  --models-accent: var(--qwenpaw-color-primary, #0065fd);
+  --models-accent-strong: var(--qwenpaw-color-primary, #0065fd);
   --models-accent-soft: var(
     --qwenpaw-color-primary-bg,
-    rgba(255, 127, 22, 0.14)
+    rgba(0, 101, 253, 0.14)
   );
   --models-positive: #8ec49a;
   --models-positive-soft: rgba(76, 175, 96, 0.14);
@@ -461,7 +461,7 @@
   align-items: center;
   position: relative;
   padding: 20px;
-  border-bottom: 1px solid #eae9e7;
+  border-bottom: 1px solid #e7eaef;
   margin-bottom: 0;
   flex-shrink: 0;
 }
@@ -492,7 +492,7 @@
 }
 
 .breadcrumbCurrent {
-  color: #333;
+  color: #22252a;
   font-weight: 600;
   font-size: 20px;
 }
@@ -635,7 +635,7 @@
   font-size: 13px;
   font-weight: 500;
   flex: 1;
-  color: #1a1a1a;
+  color: #171717;
 }
 
 .availableItemAction {
@@ -762,7 +762,7 @@
 .cardName {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #171717;
 }
 
 /* Tags */
@@ -785,8 +785,8 @@
   font-size: 11px;
   font-weight: 500;
   background-color: rgba(255, 247, 230, 0.8);
-  color: #ff7f16;
-  border: 1px solid rgba(255, 127, 22, 0.2);
+  color: #0065fd;
+  border: 1px solid rgba(0, 101, 253, 0.2);
 }
 
 .freeTag {
@@ -859,7 +859,7 @@
 .cardName {
   font-size: 18px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #171717;
 }
 
 .cardInfo {
@@ -956,7 +956,7 @@
   font-size: 17px;
   font-weight: 600;
   flex: 1;
-  color: #1a1a1a;
+  color: #171717;
 }
 
 .groupCardLiveBadge {
@@ -1062,7 +1062,7 @@
 
 .groupCardFieldValue {
   font-size: 13px;
-  color: #333;
+  color: #22252a;
 }
 
 .groupCardMono {
@@ -1173,7 +1173,7 @@
   background: transparent;
   padding: 0 0 12px;
   cursor: pointer;
-  color: #333;
+  color: #22252a;
 }
 
 .advancedConfigToggleLabel {
@@ -1198,8 +1198,8 @@
     box-shadow 0.2s ease;
 
   &:focus-within {
-    border-color: #ff7f16;
-    box-shadow: 0 0 0 2px rgba(97, 92, 237, 0.12);
+    border-color: #0065fd;
+    box-shadow: 0 0 0 2px rgba(0, 101, 253, 0.12);
   }
 }
 
@@ -1478,7 +1478,7 @@
 .slotTitle {
   font-size: 18px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #171717;
 }
 
 .slotDescription {
@@ -1614,7 +1614,7 @@
 .localModalTitle {
   font-size: 18px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #171717;
 }
 
 .localModalDescription {
@@ -1989,7 +1989,7 @@
   align-items: stretch;
   gap: 10px;
   background: linear-gradient(180deg, #fffaf3 0%, #fffdf8 100%);
-  border-left: 3px solid rgba(255, 127, 22, 0.35);
+  border-left: 3px solid rgba(0, 101, 253, 0.35);
 }
 
 .customModelHeader {
@@ -2027,7 +2027,7 @@
 .modelListItemName {
   font-size: 14px;
   font-weight: 500;
-  color: #1a1a1a;
+  color: #171717;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2183,7 +2183,7 @@
   }
 
   :global(.ant-progress-inner) {
-    background: rgba(255, 127, 22, 0.14);
+    background: rgba(0, 101, 253, 0.14);
     border-radius: 999px;
   }
 
@@ -2353,7 +2353,7 @@
 
   .localRuntimeProgress {
     :global(.ant-progress-inner) {
-      background: rgba(255, 127, 22, 0.18);
+      background: rgba(0, 101, 253, 0.18);
     }
   }
 
@@ -2388,9 +2388,9 @@
   }
 
   .customTag {
-    background-color: rgba(255, 127, 22, 0.15);
-    color: #ff9d4d;
-    border-color: rgba(255, 127, 22, 0.25);
+    background-color: rgba(0, 101, 253, 0.15);
+    color: #0065fd;
+    border-color: rgba(0, 101, 253, 0.25);
   }
 
   .freeTag {
@@ -2464,7 +2464,7 @@
 
   .cardActions {
     border-top-color: rgba(255, 255, 255, 0.08);
-    background: #2a2a2a;
+    background: #22252a;
   }
 
   .groupCardGlass {
@@ -2545,7 +2545,7 @@
     color: rgba(255, 255, 255, 0.65) !important;
 
     &:hover {
-      color: #ff7f16 !important;
+      color: #0065fd !important;
     }
   }
 
@@ -2630,7 +2630,7 @@
 
   /* Slot section (LLM 顶部选择区) */
   .slotSection {
-    background: #2a2a2a;
+    background: #22252a;
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 
@@ -2682,10 +2682,10 @@
   /* JSON editor */
   .jsonEditorContainer {
     border-color: rgba(255, 255, 255, 0.15);
-    background: #1a1a1a;
+    background: #171717;
 
     &:focus-within {
-      border-color: #ff7f16;
+      border-color: #0065fd;
     }
   }
 
@@ -2725,16 +2725,16 @@
   .customModelListItem {
     background: linear-gradient(
       180deg,
-      rgba(255, 127, 22, 0.1) 0%,
-      rgba(255, 127, 22, 0.04) 100%
+      rgba(0, 101, 253, 0.1) 0%,
+      rgba(0, 101, 253, 0.04) 100%
     );
-    border-left-color: rgba(255, 127, 22, 0.55);
+    border-left-color: rgba(0, 101, 253, 0.55);
 
     &:hover {
       background: linear-gradient(
         180deg,
-        rgba(255, 127, 22, 0.14) 0%,
-        rgba(255, 127, 22, 0.06) 100%
+        rgba(0, 101, 253, 0.14) 0%,
+        rgba(0, 101, 253, 0.06) 100%
       );
     }
   }
@@ -2821,7 +2821,7 @@
   padding: 0;
   height: auto;
   font-size: 13px;
-  color: var(--ant-color-primary, #1677ff);
+  color: var(--ant-color-primary, #0065fd);
   background: transparent;
   border: none;
   cursor: pointer;

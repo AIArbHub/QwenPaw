@@ -17,7 +17,7 @@ interface UseTokenTypeConfigProps {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  "Prompt Tokens": "#1677ff",
+  "Prompt Tokens": "#0065fd",
   "Completion Tokens": "#52c41a",
   "Total Tokens": "#fa8c16",
 };
@@ -92,7 +92,18 @@ export function useTokenTypeConfig({
             },
           },
         },
-      }),
+      },
+      legend: {
+        position: "top" as const,
+        itemMarker: "circle",
+        itemName: {
+          style: {
+            fill: isDarkMode ? "rgba(255, 255, 255, 0.85)" : "#22252a",
+            fontSize: 12,
+          },
+        },
+      },
+      color: colors,
     };
   }, [byDate, startDate, endDate, isDark]);
 }
