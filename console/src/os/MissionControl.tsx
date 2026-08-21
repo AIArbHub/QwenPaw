@@ -19,7 +19,7 @@ import { useOsStyles } from "./useOsStyles";
 import { isAgentAvailableInChat } from "../utils/agentVisibility";
 
 const SPACE_COLORS = [
-  "#FF7F16",
+  "#0065fd",
   "#3b82f6",
   "#8b5cf6",
   "#10b981",
