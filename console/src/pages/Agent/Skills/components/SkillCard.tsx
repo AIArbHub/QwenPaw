@@ -62,7 +62,7 @@ export const getFileIcon = (filePath: string) => {
   ]);
 
   if (textSkillIcons.has(skillKey)) {
-    return <FileTextFilled style={{ color: "#1890ff" }} />;
+    return <FileTextFilled style={{ color: "#0065fd" }} />;
   }
 
   switch (skillKey) {
@@ -86,7 +86,7 @@ export const getFileIcon = (filePath: string) => {
     case "txt":
     case "md":
     case "markdown":
-      return <FileTextFilled style={{ color: "#1890ff" }} />;
+      return <FileTextFilled style={{ color: "#0065fd" }} />;
     case "zip":
     case "rar":
     case "7z":
@@ -125,7 +125,7 @@ export const getFileIcon = (filePath: string) => {
     case "php":
       return <CodeFilled style={{ color: "#52c41a" }} />;
     default:
-      return <FileTextFilled style={{ color: "#1890ff" }} />;
+      return <FileTextFilled style={{ color: "#0065fd" }} />;
   }
 };
 

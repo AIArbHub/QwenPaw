@@ -41,7 +41,7 @@ const RecordingIcon: React.FC<{ className?: string }> = ({ className }) => (
     xmlns="http://www.w3.org/2000/svg"
     className={className}
     style={{
-      color: "#1890ff",
+      color: "#0065fd",
       height: "1.2em",
       width: "1.2em",
       verticalAlign: "top",
@@ -245,7 +245,7 @@ const WhisperSpeechButton = forwardRef<
         onClick={toggleRecording}
         disabled={isDisabled}
         style={{
-          color: recording || loading ? "#1890ff" : undefined,
+          color: recording || loading ? "#0065fd" : undefined,
         }}
       />
     </Tooltip>

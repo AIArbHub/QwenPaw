@@ -195,7 +195,7 @@ export default function BackgroundTaskPanel({
     : isDark
     ? "rgba(114,46,209,0.25)"
     : "rgba(114,46,209,0.12)";
-  const badgeColor = hasRunning ? "#d48806" : "#722ed1";
+  const badgeColor = hasRunning ? "#0057da" : "#722ed1";
   const badgeCount = hasRunning
     ? runningTasks.length
     : showFinished
@@ -477,7 +477,7 @@ export default function BackgroundTaskPanel({
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
-                        color: isDark ? "#ddd" : "#333",
+                        color: isDark ? "#ddd" : "#22252a",
                       }}
                       title={task.toolName}
                     >
@@ -565,10 +565,10 @@ export default function BackgroundTaskPanel({
                 fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
                 whiteSpace: "pre-wrap",
                 wordBreak: "break-word",
-                background: isDark ? "#141414" : "#fafafa",
+                background: isDark ? "#0e1115" : "#fafafa",
                 border: `1px solid ${borderColor}`,
                 borderRadius: 6,
-                color: isDark ? "#ccc" : "#333",
+                color: isDark ? "#ccc" : "#22252a",
               }}
             >
               {(expandedTask.status === "running"

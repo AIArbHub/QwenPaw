@@ -48,7 +48,7 @@ export function ToolExecutionLevelCard({
       label: t("agentConfig.toolExecutionLevel.auto"),
       icon: <Shield size={18} />,
       description: t("agentConfig.toolExecutionLevel.autoDesc"),
-      color: "#1890ff",
+      color: "#0065fd",
     },
     {
       value: "OFF",

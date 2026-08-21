@@ -150,7 +150,7 @@ export default function ChatSenderTabsPanel({
     : isDark
     ? "rgba(114,46,209,0.25)"
     : "rgba(114,46,209,0.12)";
-  const bgBadgeColor = hasRunningBg ? "#d48806" : "#722ed1";
+  const bgBadgeColor = hasRunningBg ? "#0057da" : "#722ed1";
 
   const chipBtnStyle = {
     border: `1px solid ${borderColor}`,
@@ -395,7 +395,7 @@ export default function ChatSenderTabsPanel({
               t("chat.queue.title", "Message queue"),
               queueItems.length,
               isDark ? "rgba(24,144,255,0.2)" : "rgba(24,144,255,0.12)",
-              "#1677ff",
+              "#0065fd",
             )}
           {hasBg &&
             renderTab(

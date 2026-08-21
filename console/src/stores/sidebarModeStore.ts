@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 const STORAGE_KEY = "qwenpaw_sidebar_mode";
 
-export type SidebarMode = "simple" | "full";
+export type SidebarMode = "simple" | "full" | "design";
 
 interface SidebarModeState {
   mode: SidebarMode;
@@ -14,14 +14,19 @@ export const useSidebarModeStore = create<SidebarModeState>((set) => ({
   mode: (() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      return stored === "simple" ? "simple" : "full";
+      if (stored === "simple" || stored === "design" || stored === "full")
+        return stored;
+      return "design";
     } catch {
-      return "full";
+      return "design";
     }
   })(),
 
   toggleMode: () =>
     set((state) => {
+      // toggleMode only cycles between simple ↔ full (preserves existing
+      // behaviour).  Design mode has its own dedicated entry point in the
+      // settings panel.
       const next: SidebarMode = state.mode === "simple" ? "full" : "simple";
       try {
         if (next === "simple") {
@@ -37,11 +42,7 @@ export const useSidebarModeStore = create<SidebarModeState>((set) => ({
 
   setMode: (mode: SidebarMode) => {
     try {
-      if (mode === "simple") {
-        localStorage.setItem(STORAGE_KEY, "simple");
-      } else {
-        localStorage.removeItem(STORAGE_KEY);
-      }
+      localStorage.setItem(STORAGE_KEY, mode);
     } catch {
       // storage unavailable
     }

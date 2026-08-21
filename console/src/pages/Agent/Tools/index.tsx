@@ -33,7 +33,7 @@ const ICON_PALETTE = [
   "#ffbf00",
   "#00a2ae",
   "#87d068",
-  "#1890ff",
+  "#0065fd",
   "#eb2f96",
   "#722ed1",
 ];
