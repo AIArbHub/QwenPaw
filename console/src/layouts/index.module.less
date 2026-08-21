@@ -10,7 +10,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f9f8f4;
+  background: #ffffff;
 
   :global {
     .qwenpaw-space-item {
@@ -54,7 +54,7 @@
 
 // ─── Sidebar ─────────────────────────────────────────────────────────────────
 .sider {
-  background: #f9f8f4 !important;
+  background: #ffffff !important;
   overflow: auto;
   height: calc(100vh - 64px) !important;
   padding: 0 16px;
@@ -83,7 +83,7 @@
   // Agent-scoped section: selector + Chat + Control + Workspace
   .agentScopedSection {
     flex-shrink: 0;
-    background: rgba(43, 18, 0, 0.02);
+    background: rgba(0, 101, 253, 0.02);
     border-radius: 12px;
     border: 1px solid rgba(0, 0, 0, 0.06);
     padding: 4px;
@@ -101,7 +101,7 @@
     z-index: 10;
     margin-bottom: 4px;
     // Opaque background so scrolled content is hidden behind
-    background: #f9f7f3;
+    background: #eff1f4;
     border-radius: 12px 12px 0 0;
   }
 
@@ -128,7 +128,7 @@
   }
 
   .stickyChatButtonActive {
-    background: rgba(43, 18, 0, 0.08);
+    background: rgba(0, 101, 253, 0.08);
   }
 
   // Menu takes remaining space
@@ -236,13 +236,13 @@
       font-weight: 500 !important;
       line-height: 32px !important;
       letter-spacing: normal !important;
-      color: rgba(26, 23, 22, 0.25) !important;
+      color: rgba(14, 17, 21, 0.25) !important;
       padding-left: 8px !important;
 
       /* No hover effect for group titles */
       &:hover {
         background: transparent !important;
-        color: rgba(26, 23, 22, 0.25) !important;
+        color: rgba(14, 17, 21, 0.25) !important;
       }
     }
 
@@ -270,7 +270,7 @@
 
     /* Selected item */
     .qwenpaw-menu-item-selected {
-      background: rgba(43, 18, 0, 0.08) !important;
+      background: rgba(0, 101, 253, 0.08) !important;
       color: inherit !important;
       display: flex !important;
       align-items: center !important;
@@ -290,7 +290,7 @@
 }
 
 .siderDark {
-  background: #1a1a1a !important;
+  background: #171717 !important;
   border-right-color: rgba(255, 255, 255, 0.08) !important;
 
   // Agent-scoped section (dark mode)
@@ -301,12 +301,12 @@
 
   // Sticky container background (dark mode)
   .agentSelectorContainer {
-    background: #1e1e1e;
+    background: #171717;
   }
 
   // Sticky bottom bar background (dark mode)
   .collapseToggleContainer {
-    background: #1a1a1a;
+    background: #171717;
   }
 
   // Chat button (dark mode)
@@ -320,13 +320,13 @@
   }
 
   .stickyChatButtonActive {
-    background: rgba(255, 127, 22, 0.5);
-    color: #ff7f16;
+    background: rgba(0, 101, 253, 0.5);
+    color: #0065fd;
   }
 
   :global {
     .qwenpaw-menu {
-      background: #1a1a1a !important;
+      background: #171717 !important;
       border-inline-end: 0 !important;
     }
 
@@ -354,8 +354,8 @@
 
     /* Selected item */
     .qwenpaw-menu-item-selected {
-      background: rgba(255, 127, 22, 0.5) !important;
-      color: #ff7f16 !important;
+      background: rgba(0, 101, 253, 0.5) !important;
+      color: #0065fd !important;
     }
   }
 }
@@ -389,7 +389,7 @@
 
 .versionBadge {
   font-size: 12px;
-  color: #1a171673;
+  color: #0e111573;
   font-weight: 600;
   line-height: 1;
   position: relative;
@@ -406,7 +406,7 @@
 
 .collapseBtn {
   margin: auto;
-  color: #ff7f16;
+  color: #0065fd;
 }
 
 // ─── Auth actions (account + logout) ──────────────────────────────────────────
@@ -444,17 +444,17 @@
   gap: 16px;
   margin-bottom: 20px;
   padding: 14px 16px;
-  border: 1px solid rgba(26, 23, 22, 0.08);
+  border: 1px solid rgba(14, 17, 21, 0.08);
   border-radius: 10px;
-  background: rgba(26, 23, 22, 0.025);
+  background: rgba(14, 17, 21, 0.025);
 
   span {
-    color: rgba(26, 23, 22, 0.52);
+    color: rgba(14, 17, 21, 0.52);
   }
 
   strong {
     overflow: hidden;
-    color: rgba(26, 23, 22, 0.88);
+    color: rgba(14, 17, 21, 0.88);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -464,12 +464,12 @@
   strong {
     display: block;
     margin-bottom: 6px;
-    color: rgba(26, 23, 22, 0.88);
+    color: rgba(14, 17, 21, 0.88);
   }
 
   p {
     margin: 0 0 14px;
-    color: rgba(26, 23, 22, 0.52);
+    color: rgba(14, 17, 21, 0.52);
     font-size: 13px;
     line-height: 1.6;
   }
@@ -546,7 +546,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
-  background: #f9f8f4; // match sider background so scrolled content is hidden
+  background: #ffffff; // match sider background so scrolled content is hidden
 }
 
 .collapseToggle {
@@ -556,13 +556,13 @@
 
   &:hover {
     background: rgba(0, 0, 0, 0.06) !important;
-    color: #ff7f16 !important;
+    color: #0065fd !important;
   }
 }
 
 .modeToggleActive {
-  color: #ff7f16 !important;
-  background: rgba(255, 127, 22, 0.08);
+  color: #0065fd !important;
+  background: rgba(0, 101, 253, 0.08);
 }
 
 // ─── Simple mode: flat nav + session list ─────────────────────────────────────
@@ -602,40 +602,40 @@
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: var(--colorTextTertiary, rgba(26, 23, 22, 0.45));
+  color: var(--colorTextTertiary, rgba(14, 17, 21, 0.45));
   cursor: pointer;
 
   &:hover,
   &:focus-visible,
   &[aria-expanded="true"] {
-    color: var(--colorPrimary, #ff7f16);
+    color: var(--colorPrimary, #0065fd);
 
     .simpleAgentDisclosureLine {
       background: linear-gradient(
         90deg,
         transparent,
-        color-mix(in srgb, var(--colorPrimary, #ff7f16) 44%, transparent)
+        color-mix(in srgb, var(--colorPrimary, #0065fd) 44%, transparent)
       );
     }
 
     .simpleAgentDisclosureHandle {
       border-color: color-mix(
         in srgb,
-        var(--colorPrimary, #ff7f16) 34%,
+        var(--colorPrimary, #0065fd) 34%,
         transparent
       );
       background: color-mix(
         in srgb,
-        var(--colorPrimary, #ff7f16) 9%,
+        var(--colorPrimary, #0065fd) 9%,
         transparent
       );
-      box-shadow: 0 3px 10px rgba(255, 127, 22, 0.12);
+      box-shadow: 0 3px 10px rgba(0, 101, 253, 0.12);
     }
   }
 
   &:focus-visible {
     outline: 2px solid
-      color-mix(in srgb, var(--colorPrimary, #ff7f16) 30%, transparent);
+      color-mix(in srgb, var(--colorPrimary, #0065fd) 30%, transparent);
     outline-offset: 1px;
   }
 }
@@ -645,7 +645,7 @@
   background: linear-gradient(
     90deg,
     transparent,
-    var(--colorBorderSecondary, rgba(43, 18, 0, 0.1))
+    var(--colorBorderSecondary, rgba(0, 101, 253, 0.1))
   );
   transition: background 0.16s ease;
 
@@ -660,10 +660,10 @@
   height: 22px;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--colorBorderSecondary, rgba(43, 18, 0, 0.08));
+  border: 1px solid var(--colorBorderSecondary, rgba(0, 101, 253, 0.08));
   border-radius: 999px;
   background: color-mix(in srgb, white 48%, transparent);
-  box-shadow: 0 2px 8px rgba(43, 18, 0, 0.055);
+  box-shadow: 0 2px 8px rgba(0, 101, 253, 0.055);
   transition:
     border-color 0.16s ease,
     background 0.16s ease,
@@ -707,15 +707,15 @@
   margin: 4px 0;
   border: none;
   border-radius: 8px;
-  background: rgba(255, 127, 22, 0.08);
-  color: #ff7f16;
+  background: rgba(0, 101, 253, 0.08);
+  color: #0065fd;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s;
 
   &:hover {
-    background: rgba(255, 127, 22, 0.14);
+    background: rgba(0, 101, 253, 0.14);
   }
 }
 
@@ -751,7 +751,7 @@
 }
 
 .simpleNavItemActive {
-  background: rgba(43, 18, 0, 0.08);
+  background: rgba(0, 101, 253, 0.08);
   color: rgba(0, 0, 0, 0.88);
 }
 
@@ -767,7 +767,7 @@
 .simpleSessionHeader {
   font-size: 12px;
   font-weight: 500;
-  color: rgba(26, 23, 22, 0.35);
+  color: rgba(14, 17, 21, 0.35);
   padding: 4px 12px 6px;
   flex-shrink: 0;
 }
@@ -809,7 +809,7 @@
 }
 
 .simpleSessionItemActive {
-  background: rgba(43, 18, 0, 0.08);
+  background: rgba(0, 101, 253, 0.08);
 }
 
 .simpleSessionItemDisabled {
@@ -831,7 +831,7 @@
 .simpleSessionTime {
   flex-shrink: 0;
   font-size: 11px;
-  color: rgba(26, 23, 22, 0.35);
+  color: rgba(14, 17, 21, 0.35);
 }
 
 .simpleSessionActions {
@@ -858,7 +858,7 @@
 }
 
 .simpleSessionActionBtnActive {
-  color: #ff7f16 !important;
+  color: #0065fd !important;
 }
 
 .simpleSessionLoading {
@@ -909,7 +909,7 @@
 }
 
 .collapsedNavItemActive {
-  background: rgba(43, 18, 0, 0.08) !important;
+  background: rgba(0, 101, 253, 0.08) !important;
   color: rgba(0, 0, 0, 0.88) !important;
 }
 
@@ -1000,12 +1000,12 @@
   align-items: center;
   gap: 6px;
   background: #fff;
-  border: 1px solid rgba(43, 18, 0, 0.12);
+  border: 1px solid rgba(0, 101, 253, 0.12);
   border-radius: 20px;
   padding: 3px 12px;
   font-size: 12px;
   font-weight: 500;
-  color: rgba(26, 23, 22, 0.65);
+  color: rgba(14, 17, 21, 0.65);
   width: fit-content;
 }
 
@@ -1014,11 +1014,11 @@
   font-weight: 500;
   line-height: 64.78px;
   letter-spacing: normal;
-  color: #ff7f16;
+  color: #0065fd;
 }
 
 .updateModalTitle {
-  color: #ff7f16;
+  color: #0065fd;
 }
 
 .updateModalBody {
@@ -1037,19 +1037,19 @@
 }
 
 .updateViewReleasesBtn {
-  background: #ff7f16 !important;
-  border-color: #ff7f16 !important;
+  background: #0065fd !important;
+  border-color: #0065fd !important;
   color: #fff !important;
 
   &:hover {
-    background: #d45b0a !important;
-    border-color: #d45b0a !important;
+    background: #0057da !important;
+    border-color: #0057da !important;
   }
 }
 
 .updateModalPrimaryBtn {
-  background: #ff7f16;
-  border-color: #ff7f16;
+  background: #0065fd;
+  border-color: #0065fd;
 }
 
 // ─── Code block inside update modal ──────────────────────────────────────────
@@ -1105,7 +1105,7 @@
 /* ─── Dark mode overrides ─────────────────────────────────────────────────── */
 :global(.dark-mode) {
   .header {
-    background: #1a1a1a !important;
+    background: #171717 !important;
     border-bottom-color: rgba(255, 255, 255, 0.08) !important;
     color: rgba(255, 255, 255, 0.85);
 
@@ -1136,7 +1136,7 @@
   }
 
   .sider {
-    background: #1a1a1a !important;
+    background: #171717 !important;
     border-right-color: rgba(255, 255, 255, 0.08) !important;
   }
 
@@ -1145,11 +1145,11 @@
   }
 
   .versionBadge {
-    color: #ff7f16;
+    color: #0065fd;
   }
 
   .collapseBtn {
-    color: #ff7f16;
+    color: #0065fd;
   }
 
   .authActions {
@@ -1193,13 +1193,13 @@
 
     &:hover {
       background: rgba(255, 255, 255, 0.08);
-      color: #ff7f16;
+      color: #0065fd;
     }
   }
 
   .modeToggleActive {
-    color: #ff7f16 !important;
-    background: rgba(255, 127, 22, 0.12);
+    color: #0065fd !important;
+    background: rgba(0, 101, 253, 0.12);
   }
 
   .collapsedNavItem {
@@ -1212,17 +1212,17 @@
   }
 
   .collapsedNavItemActive {
-    background: rgba(255, 127, 22, 0.5) !important;
+    background: rgba(0, 101, 253, 0.5) !important;
     color: rgba(255, 255, 255, 0.88) !important;
   }
 
   .codeBlock {
-    background: #2a2a2a;
+    background: #22252a;
     border-color: rgba(255, 255, 255, 0.1);
   }
 
   .codeInline {
-    background: #2a2a2a;
+    background: #22252a;
     color: rgba(255, 255, 255, 0.85);
   }
 
@@ -1243,15 +1243,15 @@
   margin: 4px 0;
   border: none;
   border-radius: 8px;
-  background: rgba(255, 127, 22, 0.08);
-  color: #ff7f16;
+  background: rgba(0, 101, 253, 0.08);
+  color: #0065fd;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s;
 
   &:hover {
-    background: rgba(255, 127, 22, 0.14);
+    background: rgba(0, 101, 253, 0.14);
   }
 }
 
@@ -1287,7 +1287,7 @@
 }
 
 .simpleNavItemActive {
-  background: rgba(43, 18, 0, 0.08);
+  background: rgba(0, 101, 253, 0.08);
   color: rgba(0, 0, 0, 0.88);
 }
 
@@ -1303,7 +1303,7 @@
 .simpleSessionHeader {
   font-size: 12px;
   font-weight: 500;
-  color: rgba(26, 23, 22, 0.35);
+  color: rgba(14, 17, 21, 0.35);
   padding: 4px 12px 6px;
   flex-shrink: 0;
 }
@@ -1345,7 +1345,7 @@
 }
 
 .simpleSessionItemActive {
-  background: rgba(43, 18, 0, 0.08);
+  background: rgba(0, 101, 253, 0.08);
 }
 
 .simpleSessionItemDisabled {
@@ -1367,7 +1367,7 @@
 .simpleSessionTime {
   flex-shrink: 0;
   font-size: 11px;
-  color: rgba(26, 23, 22, 0.35);
+  color: rgba(14, 17, 21, 0.35);
 }
 
 .simpleSessionActions {
@@ -1394,7 +1394,7 @@
 }
 
 .simpleSessionActionBtnActive {
-  color: #ff7f16 !important;
+  color: #0065fd !important;
 }
 
 .simpleSessionLoading {
@@ -1414,7 +1414,7 @@
       &:hover,
       &:focus-visible,
       &[aria-expanded="true"] {
-        color: #ff8f32;
+        color: #557fff;
       }
     }
 
@@ -1433,11 +1433,11 @@
     }
 
     .simpleNewChat {
-      background: rgba(255, 127, 22, 0.12);
-      color: #ff7f16;
+      background: rgba(0, 101, 253, 0.12);
+      color: #0065fd;
 
       &:hover {
-        background: rgba(255, 127, 22, 0.2);
+        background: rgba(0, 101, 253, 0.2);
       }
     }
 
@@ -1451,8 +1451,8 @@
     }
 
     .simpleNavItemActive {
-      background: rgba(255, 127, 22, 0.5);
-      color: #ff7f16;
+      background: rgba(0, 101, 253, 0.5);
+      color: #0065fd;
     }
 
     .simpleSessionHeader {

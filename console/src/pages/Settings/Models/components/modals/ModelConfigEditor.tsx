@@ -153,7 +153,7 @@ export function ModelConfigEditor({
 
   const labelStyle: React.CSSProperties = {
     fontSize: 13,
-    color: isDark ? "rgba(255,255,255,0.85)" : "#333",
+    color: isDark ? "rgba(255,255,255,0.85)" : "#22252a",
     marginBottom: 4,
   };
 
@@ -224,7 +224,7 @@ export function ModelConfigEditor({
               <span
                 style={{
                   fontSize: 13,
-                  color: isDark ? "rgba(255,255,255,0.85)" : "#333",
+                  color: isDark ? "rgba(255,255,255,0.85)" : "#22252a",
                 }}
               >
                 {t("models.thinkingModeLabel")}
@@ -370,7 +370,7 @@ export function ModelConfigEditor({
             <span
               style={{
                 fontSize: 13,
-                color: isDark ? "rgba(255,255,255,0.85)" : "#333",
+                color: isDark ? "rgba(255,255,255,0.85)" : "#22252a",
               }}
             >
               {t("models.relayReasoningLabel")}

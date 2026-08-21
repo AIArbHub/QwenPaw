@@ -12,7 +12,7 @@
 .sessionListHeader {
   flex-shrink: 0;
   z-index: 1;
-  background: #f9f8f4;
+  background: #ffffff;
 }
 
 /* Search bar area */
@@ -25,7 +25,7 @@
   padding: 7px 12px;
   border: none;
   border-radius: 8px;
-  background: #ff7f16;
+  background: #0065fd;
   color: #fff;
   font-size: 13px;
   font-weight: 600;
@@ -55,22 +55,22 @@
   margin-top: 5px;
   justify-content: center;
   padding: 0 10px;
-  border: 1px dashed var(--colorBorder, rgba(43, 18, 0, 0.14));
+  border: 1px dashed var(--colorBorder, rgba(0, 101, 253, 0.14));
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.42);
-  color: var(--colorTextSecondary, rgba(26, 23, 22, 0.62));
+  color: var(--colorTextSecondary, rgba(14, 17, 21, 0.62));
   font-size: 12px;
   font-weight: 550;
   cursor: pointer;
 
   &:hover {
-    border-color: color-mix(in srgb, #ff7f16 46%, transparent);
-    background: color-mix(in srgb, #ff7f16 6%, transparent);
-    color: #ff7f16;
+    border-color: color-mix(in srgb, #0065fd 46%, transparent);
+    background: color-mix(in srgb, #0065fd 6%, transparent);
+    color: #0065fd;
   }
 
   &:focus-visible {
-    outline: 2px solid color-mix(in srgb, #ff7f16 38%, transparent);
+    outline: 2px solid color-mix(in srgb, #0065fd 38%, transparent);
     outline-offset: 1px;
   }
 }
@@ -97,8 +97,8 @@
   right: 4px;
   left: 4px;
   padding-bottom: 2px;
-  border-bottom: 1px solid var(--colorBorderSecondary, rgba(43, 18, 0, 0.055));
-  background: color-mix(in srgb, #f9f8f4 96%, transparent);
+  border-bottom: 1px solid var(--colorBorderSecondary, rgba(0, 101, 253, 0.055));
+  background: color-mix(in srgb, #ffffff 96%, transparent);
   backdrop-filter: blur(12px);
 }
 
@@ -144,7 +144,7 @@
 /* Dark mode */
 :global(.dark-mode) {
   .sessionListHeader {
-    background: #1a1a1a;
+    background: #171717;
   }
 
   .groupLabel {
@@ -189,14 +189,14 @@
 
     &:hover {
       border-color: rgba(255, 143, 50, 0.5);
-      background: rgba(255, 127, 22, 0.1);
-      color: #ff8f32;
+      background: rgba(0, 101, 253, 0.1);
+      color: #557fff;
     }
   }
 
   .stickyGroupHeader {
     border-bottom-color: rgba(255, 255, 255, 0.08);
-    background: color-mix(in srgb, #1a1a1a 96%, transparent);
+    background: color-mix(in srgb, #171717 96%, transparent);
   }
 }
 

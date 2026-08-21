@@ -1,0 +1,700 @@
+// ── DesignLayout — three-column layout styles ─────────────────────────────────
+//
+// CSS grid: [left rail | middle panel | content]
+// Collapsed:  72px  320px  1fr
+// Expanded:  240px  320px  1fr
+//
+// Dark mode is toggled via the `.dark` class on the root container (driven by
+// useTheme().isDark). CSS custom properties switch between light/dark palettes.
+
+.designLayout {
+  position: relative;  // anchor for .middleToggle absolute positioning
+  // ── Color tokens (light) ──────────────────────────────────────────────────
+  --bg-primary: #eff1f4;
+  --bg-rail: #ffffff;
+  --bg-panel: #ffffff;
+  --bg-content: #ffffff;
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-active: rgba(0, 101, 253, 0.08);
+  --border-color: #e7eaef;
+  --text-primary: #0e1115;
+  --text-secondary: rgba(14, 17, 21, 0.65);
+  --text-tertiary: rgba(14, 17, 21, 0.35);
+  --color-primary: #0065fd;
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+
+  // ── Grid layout ───────────────────────────────────────────────────────────
+  display: grid;
+  grid-template-columns: 72px 320px 1fr;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-primary);
+  transition: grid-template-columns 0.2s ease;
+
+  // Expanded rail
+  &.expanded {
+    grid-template-columns: 240px 320px 1fr;
+  }
+
+  // Middle panel collapsed
+  &.middleCollapsed {
+    grid-template-columns: 72px 0px 1fr;
+    &.expanded {
+      grid-template-columns: 240px 0px 1fr;
+    }
+  }
+
+  // ── Dark mode tokens ───────────────────────────────────────────────────────
+  &.dark {
+    --bg-primary: #0e1115;
+    --bg-rail: #0e1115;
+    --bg-panel: #171717;
+    --bg-content: #0e1115;
+    --bg-hover: rgba(255, 255, 255, 0.06);
+    --bg-active: rgba(0, 101, 253, 0.15);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --text-primary: #eff1f4;
+    --text-secondary: rgba(255, 255, 255, 0.65);
+    --text-tertiary: rgba(255, 255, 255, 0.35);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  }
+}
+
+// ── Column 1: Left Rail ─────────────────────────────────────────────────────
+
+.leftRail {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-rail);
+  border-right: 1px solid var(--border-color);
+  overflow: hidden;
+  grid-column: 1;
+}
+
+.railLogo {
+  flex-shrink: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  span {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1;
+  }
+}
+
+.railNavScroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 8px;
+
+  // Hide scrollbar completely — don't take up layout space
+  &::-webkit-scrollbar {
+    width: 0;
+    display: none;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+
+  // Firefox
+  scrollbar-width: none;
+}
+
+.railMenuGroup {
+  padding: 16px 12px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  user-select: none;
+}
+
+// Single class for all rail items — label visibility is controlled by
+// the parent .leftRail.collapsed class via the .designLayout:not(.expanded)
+// selector below.
+.railMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0 12px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 14px;
+  transition: background 0.15s, color 0.15s;
+  margin-bottom: 2px;
+  text-align: left;
+
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  // Active item: blue soft background, blue text, blue left bar
+  &.railMenuItemActive {
+    background: var(--bg-active);
+    color: var(--color-primary);
+    font-weight: 500;
+    position: relative;
+
+    // Blue left bar indicator
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 20px;
+      border-radius: 0 2px 2px 0;
+      background: var(--color-primary);
+    }
+  }
+}
+
+.railMenuItemIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  width: 20px;
+  height: 20px;
+}
+
+.railMenuItemLabel {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Collapsed state: center icons, hide labels
+.designLayout:not(.expanded) {
+  .railMenuItem {
+    justify-content: center;
+    padding: 0;
+    height: 44px;
+    width: 44px;
+    margin: 0 auto 2px;
+  }
+
+  .railMenuItemLabel {
+    display: none;
+  }
+}
+
+// ── Rail bottom controls ─────────────────────────────────────────────────────
+
+.railBottom {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.railBottomButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 13px;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  span {
+    white-space: nowrap;
+  }
+}
+
+// Collapsed: center icons
+.designLayout:not(.expanded) {
+  .railBottomButton {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto;
+    padding: 0;
+
+    span {
+      display: none;
+    }
+  }
+}
+
+.railAvatar {
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+// ── Column 2: Middle Panel ───────────────────────────────────────────────────
+
+.middlePanel {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border-color);
+  overflow: hidden;
+  position: relative;
+  transition: opacity 0.2s ease;
+}
+
+// When collapsed, hide content but keep toggle button visible
+.designLayout.middleCollapsed {
+  .middlePanel {
+    border-right: none;
+    overflow: visible;  // allow toggle button to show outside 0-width panel
+  }
+}
+
+// Toggle button — independent element, floats above all columns
+// Positioned relative to .designLayout grid container
+.middleToggle {
+  position: absolute;
+  top: 50%;
+  left: 392px;  // 72px rail + 320px middle - 12px overlap
+  transform: translateY(-50%);
+  z-index: 999;
+  width: 24px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  border-radius: 0 8px 8px 0;
+  background: var(--bg-panel);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, left 0.2s ease;
+  padding: 0;
+
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--color-primary);
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// When rail is expanded, shift toggle right
+.designLayout.expanded .middleToggle {
+  left: 560px;  // 240px rail + 320px middle - 12px overlap
+}
+
+// When middle is collapsed, move toggle to the left edge of content
+.designLayout.middleCollapsed .middleToggle {
+  left: 72px;   // just right of the rail
+  border-radius: 0 8px 8px 0;
+  z-index: 999;
+}
+
+.designLayout.middleCollapsed.expanded .middleToggle {
+  left: 240px;
+}
+
+// ── State A: Agent List ──────────────────────────────────────────────────────
+
+.agentList {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.panelHeader {
+  flex-shrink: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.panelTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.panelSearchButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+}
+
+.listTabs {
+  flex-shrink: 0;
+  display: flex;
+  gap: 4px;
+  padding: 0 16px 8px;
+}
+
+.listTab {
+  flex: 1;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 13px;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  &.listTabActive {
+    background: var(--bg-active);
+    color: var(--color-primary);
+    font-weight: 500;
+  }
+}
+
+.listContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 2px;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+  }
+
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  &:hover {
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+}
+
+.agentItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: left;
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+}
+
+.agentAvatar {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.agentStatusDot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-panel);
+}
+
+.agentInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.agentInfoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.agentName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agentTime {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.agentDesc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ── State B: Agent Detail ─────────────────────────────────────────────────────
+
+.agentDetail {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.detailScrollArea {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  // Hide scrollbar to keep icons centered (same as left rail)
+  &::-webkit-scrollbar {
+    width: 0;
+    display: none;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+
+  // Firefox
+  scrollbar-width: none;
+}
+
+.detailHeader {
+  flex-shrink: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+}
+
+.detailTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detailInfo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px 12px;
+}
+
+.detailInfoText {
+  flex: 1;
+  min-width: 0;
+}
+
+.detailInfoName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.detailInfoDesc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.detailDivider {
+  flex-shrink: 0;
+  margin: 0 !important;
+  border-color: var(--border-color) !important;
+}
+
+// ── Session list (reuses SidebarSessionList component) ───────────────────────
+
+.detailSessionList {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+// ── Feature cards grid ───────────────────────────────────────────────────────
+
+.featureGrid {
+  flex-shrink: 0;
+  padding: 8px 4px;
+}
+
+.featureGroupHeader {
+  padding: 12px 12px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  user-select: none;
+}
+
+.featureCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 0 4px 8px;
+}
+
+.featureCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 4px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: center;
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+}
+
+.featureCardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--bg-active);
+  color: var(--color-primary);
+}
+
+.featureCardLabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 120px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+// ── Column 3: Content ─────────────────────────────────────────────────────────
+
+.content {
+  grid-column: 3;
+  overflow: auto;
+  background: var(--bg-content);
+  position: relative;
+
+  // Override antd Layout.Content default flex
+  flex: none !important;
+  max-width: none !important;
+
+  // page-content wrapper
+  :global {
+    .page-content {
+      height: 100%;
+      min-height: 0;
+    }
+  }
+}

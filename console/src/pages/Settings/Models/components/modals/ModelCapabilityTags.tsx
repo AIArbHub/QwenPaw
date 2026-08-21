@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 export const tagColors = (isDark: boolean) => ({
   multimodal: {
     backgroundColor: isDark ? "rgba(24,144,255,0.15)" : "#e6f7ff",
-    color: "#1890ff",
+    color: "#0065fd",
     borderColor: isDark ? "rgba(24,144,255,0.3)" : "#91d5ff",
   },
   vision: {
@@ -41,7 +41,7 @@ export const tagColors = (isDark: boolean) => ({
   },
   userAdded: {
     backgroundColor: isDark ? "rgba(24,144,255,0.15)" : "#e6f7ff",
-    color: "#1890ff",
+    color: "#0065fd",
     borderColor: isDark ? "rgba(24,144,255,0.3)" : "#91d5ff",
   },
 });

@@ -154,7 +154,7 @@ export function FileGuardSection({
             {isDir ? (
               <FolderOutlined style={{ color: "#faad14" }} />
             ) : (
-              <FileOutlined style={{ color: "#1890ff" }} />
+              <FileOutlined style={{ color: "#0065fd" }} />
             )}
             <code>{path}</code>
             {isDir && (

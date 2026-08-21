@@ -196,7 +196,7 @@ function AgentStatsPage() {
           { key: "chats", label: t("agentStats.newSessions") },
           { key: "activeSessions", label: t("agentStats.activeSessions") },
         ],
-        ["#ff7f16", "#3b82f6"],
+        ["#0065fd", "#3b82f6"],
         isDarkMode,
         crossesYear,
       ),
@@ -249,7 +249,7 @@ function AgentStatsPage() {
       autoFit: true,
       angleField: "value" as const,
       colorField: "channel" as const,
-      color: ["#1890ff", "#52c41a", "#faad14", "#f5222d"],
+      color: ["#0065fd", "#52c41a", "#faad14", "#f5222d"],
       padding: 40,
       label: {
         text: (d: { channel: string; value: number }) =>

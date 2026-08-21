@@ -232,9 +232,8 @@ export default function Sidebar({
   }, []);
 
   useEffect(() => {
-    if (!isMobile && shouldShowDesktopModeHint(window.localStorage)) {
-      setDesktopModeHintOpen(true);
-    }
+    // Desktop mode hint disabled — no longer shown to users
+    setDesktopModeHintOpen(false);
   }, [isMobile]);
 
   const dismissDesktopHint = useCallback(() => {
@@ -347,7 +346,7 @@ export default function Sidebar({
   const hasInboxUnread = hasUnreadMessages || hasPendingApprovals;
   const inboxDotColor = hasPendingApprovals
     ? "#e04848"
-    : "rgba(255, 157, 77, 1)";
+    : "rgba(0, 101, 253, 1)";
   const effectiveShake = shakeInbox && wobbleEnabled;
 
   // ── Adapter: convert MenuItem trees to antd, with inbox badge decoration.

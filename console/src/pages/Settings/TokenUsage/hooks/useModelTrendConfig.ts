@@ -127,7 +127,7 @@ export function useModelTrendConfig({
         itemSpacing: 8,
         itemName: {
           style: {
-            fill: isDarkMode ? "rgba(255, 255, 255, 0.85)" : "#333",
+            fill: isDarkMode ? "rgba(255, 255, 255, 0.85)" : "#22252a",
             fontSize: 11,
           },
         },

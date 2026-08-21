@@ -161,7 +161,7 @@ export default function MessageQueuePanel({
             position: "sticky",
             top: 0,
             zIndex: 1,
-            background: isDark ? "#1f1f1f" : "#fff",
+            background: isDark ? "#161a20" : "#fff",
             paddingTop: 4,
             paddingBottom: 6,
             borderBottom: `1px solid ${borderColor}`,
@@ -257,7 +257,7 @@ export default function MessageQueuePanel({
           item.status === "failed"
             ? "#ff4d4f"
             : item.status === "sending"
-            ? "#1890ff"
+            ? "#0065fd"
             : "#52c41a";
         const isHovered = hoveredId === item.id;
         const isEditing = editingId === item.id;
@@ -350,10 +350,10 @@ export default function MessageQueuePanel({
                       item.status === "failed"
                         ? "#ff4d4f"
                         : item.status === "sending"
-                        ? "#1890ff"
+                        ? "#0065fd"
                         : isDark
                         ? "#ddd"
-                        : "#333",
+                        : "#22252a",
                     fontWeight: item.status === "sending" ? 500 : 400,
                   }}
                 >
@@ -470,7 +470,7 @@ export default function MessageQueuePanel({
                           size="small"
                           icon={
                             <SparkRefreshLine
-                              style={{ fontSize: 13, color: "#1890ff" }}
+                              style={{ fontSize: 13, color: "#0065fd" }}
                             />
                           }
                           onClick={() => onRetry(item.id)}

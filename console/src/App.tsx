@@ -376,7 +376,9 @@ function AppInner({ backendInfo }: { backendInfo: BackendInfo }) {
             ? antdTheme.darkAlgorithm
             : antdTheme.defaultAlgorithm,
           token: {
-            colorPrimary: "#FF7F16",
+            colorPrimary: "#0065fd",
+            // Ensure primary button text is always white on blue background
+            colorTextLightSolid: "#ffffff",
           },
         }}
       >

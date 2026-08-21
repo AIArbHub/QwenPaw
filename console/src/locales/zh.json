@@ -266,6 +266,7 @@
     },
     "simpleMode": "精简模式",
     "fullMode": "完整模式",
+    "designMode": "设计模式",
     "toggleAgentNavigation": "展开或收起智能体导航"
   },
   "debug": {
