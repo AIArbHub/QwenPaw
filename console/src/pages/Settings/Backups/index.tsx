@@ -2,11 +2,12 @@
  * Backups page — thin assembly layer.
  * Owns the shared data (backup list + agent list) and composes the
  * sub-feature modules (list/, create/, restore/, import/) together.
+ * Also includes the Cloud Storage Backups section for S3/WebDAV sync.
  * All modal/flow logic lives in the dedicated hooks and components;
- * this file is intentionally kept short (~90 lines).
+ * this file is intentionally kept short.
  */
 import { useCallback, useEffect, useState } from "react";
-import { Button, Spin } from "antd";
+import { Button, Divider, Spin } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import api, { agentsApi } from "@/api";
@@ -26,6 +27,7 @@ import SilentBackupModal from "./create/SilentBackupModal";
 import PreRestoreConfirmModal from "./restore/PreRestoreConfirmModal";
 import RestoreBackupModal from "./restore/RestoreBackupModal";
 import { useRestoreFlow } from "./restore/useRestoreFlow";
+import CloudBackupSection from "./cloud/CloudBackupSection";
 import styles from "./index.module.less";
 
 export default function BackupsPage() {
@@ -81,7 +83,14 @@ export default function BackupsPage() {
         className={styles.pageHeader}
         parent={t("nav.settings")}
         current={t("backup.title")}
-        extra={
+      />
+
+      <div className={styles.content}>
+        {/* ===== Local Backups ===== */}
+        <div className={styles.sectionHeader}>
+          <span className={styles.sectionLabel}>
+            {t("cloudBackup.sectionLocal")}
+          </span>
           <div className={styles.headerRight}>
             <ImportButton onPick={importFlow.handleImport} />
             <Button
@@ -95,10 +104,7 @@ export default function BackupsPage() {
               {t("backup.create")}
             </Button>
           </div>
-        }
-      />
-
-      <div className={styles.content}>
+        </div>
         <BackupToolbar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -109,6 +115,11 @@ export default function BackupsPage() {
           onRestore={restoreFlow.handleRestore}
           onRefresh={fetchData}
         />
+
+        <Divider />
+
+        {/* ===== Cloud Storage Backups ===== */}
+        <CloudBackupSection />
       </div>
 
       {/* Import flow */}
