@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw Agents module P0-level end-to-end test cases.
+AIArb Agents module P0-level end-to-end test cases.
 
 Combined test cases:
 - AGENT-001: Agent list display and refresh
@@ -575,9 +575,9 @@ class TestToggleAgent:
             # Post-#6198 the "Disabled" state is an AgentStatusIndicator dot with
             # data-status="disabled" (no text tag); also accept the success toast.
             disabled_dot = page.locator(
-                f'.qwenpaw-table-row:has-text("{agent_name}") [data-status="disabled"]'
+                f'.aiarb-table-row:has-text("{agent_name}") [data-status="disabled"]'
             )
-            success_msg = page.locator('.qwenpaw-message-success, .qwenpaw-notification-success')
+            success_msg = page.locator('.aiarb-message-success, .aiarb-notification-success')
             dot_visible = disabled_dot.count() > 0 and disabled_dot.first.is_visible()
             msg_visible = success_msg.count() > 0
             assert dot_visible or msg_visible, \
@@ -593,7 +593,7 @@ class TestToggleAgent:
             log_test_step("6. Verify the post-enable state")
             # The disabled dot should disappear once re-enabled.
             disabled_dot_after = page.locator(
-                f'.qwenpaw-table-row:has-text("{agent_name}") [data-status="disabled"]'
+                f'.aiarb-table-row:has-text("{agent_name}") [data-status="disabled"]'
             )
             is_still_disabled = disabled_dot_after.count() > 0 and disabled_dot_after.first.is_visible()
             assert not is_still_disabled, "Agent should be enabled (disabled dot should disappear)"
@@ -765,7 +765,7 @@ class TestAgentProtection:
         for agent in agents:
             agent_id = agent.get("id", "").lower()
             agent_name = agent.get("name", "").lower()
-            if agent_id == "default" or "default" in agent_id or agent_name in ("默认智能体", "copaw"):
+            if agent_id == "default" or "default" in agent_id or agent_name in ("默认智能体", "aiarb"):
                 default_agent = agent["element"]
                 logger.info(f"Found default agent: name={agent.get('name')}, id={agent.get('id')}")
                 break
@@ -916,7 +916,7 @@ class TestAgentSkillAssociation:
         page.wait_for_timeout(3000)
 
         log_test_step("Look for agent cards")
-        agent_cards = page.locator('.qwenpaw-card, [class*="agentCard"]').all()
+        agent_cards = page.locator('.aiarb-card, [class*="agentCard"]').all()
         if len(agent_cards) == 0:
             logger.info("No agent card found, skipping test")
             log_test_result(test_name, True, 0)
@@ -930,7 +930,7 @@ class TestAgentSkillAssociation:
         log_test_step("Verify the agent detail view is open")
         # Clicking the card may open a modal/drawer or navigate to a new page
         detail_area = page.locator(
-            '.qwenpaw-modal, .ant-modal, .qwenpaw-drawer, .ant-drawer, '
+            '.aiarb-modal, .ant-modal, .aiarb-drawer, .ant-drawer, '
             '[class*="detail"], [class*="config"], [class*="agent"]'
         ).first
 
@@ -959,8 +959,8 @@ class TestAgentSkillAssociation:
 
         # Verify the page has interactive elements (inputs, switches, selects, etc.)
         interactive_elements = page.locator(
-            'input, textarea, .qwenpaw-switch, .qwenpaw-select, '
-            '.qwenpaw-radio-group, button'
+            'input, textarea, .aiarb-switch, .aiarb-select, '
+            '.aiarb-radio-group, button'
         ).all()
         visible_interactive = [el for el in interactive_elements if el.is_visible()]
         assert len(visible_interactive) > 0, "Detail view should have interactive elements"

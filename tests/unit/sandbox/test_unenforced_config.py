@@ -18,38 +18,38 @@ import sys
 
 import pytest
 
-from qwenpaw.sandbox import (
+from aiarb.sandbox import (
     MountSpec,
     PortRule,
     SandboxConfig,
     SandboxMode,
 )
-from qwenpaw.sandbox.bubblewrap_sandbox import BubblewrapSandbox
-from qwenpaw.sandbox.config import (
+from aiarb.sandbox.bubblewrap_sandbox import BubblewrapSandbox
+from aiarb.sandbox.config import (
     _SECURITY_BOUNDARY_FIELDS,
     NETWORK_DOMAIN_HINT,
     _requested_constraints,
     network_allow_is_absolute,
     report_unenforced_config,
 )
-from qwenpaw.sandbox.linux_sandbox import (
+from aiarb.sandbox.linux_sandbox import (
     LinuxSandbox,
     _generate_sandbox_script,
 )
-from qwenpaw.sandbox.local_sandbox import (
+from aiarb.sandbox.local_sandbox import (
     LocalSandbox,
     NoneSandbox,
     _platform_default_shell,
     _resolve_shell,
     _shell_argv,
 )
-from qwenpaw.sandbox.macos_sandbox import MacOSSandbox
-from qwenpaw.sandbox.windows_elevated_sandbox import WindowsElevatedSandbox
-from qwenpaw.sandbox.windows_unelevated_sandbox import (
+from aiarb.sandbox.macos_sandbox import MacOSSandbox
+from aiarb.sandbox.windows_elevated_sandbox import WindowsElevatedSandbox
+from aiarb.sandbox.windows_unelevated_sandbox import (
     WindowsUnelevatedSandbox,
 )
 
-_CONFIG_LOGGER = "qwenpaw.sandbox.config"
+_CONFIG_LOGGER = "aiarb.sandbox.config"
 
 
 def _config(**overrides) -> SandboxConfig:
@@ -573,7 +573,7 @@ class TestNoneSandboxShellFallback:
         # elsewhere), which the tests below cover separately.
         caplog.set_level(
             logging.WARNING,
-            logger="qwenpaw.sandbox.local_sandbox",
+            logger="aiarb.sandbox.local_sandbox",
         )
         sandbox = NoneSandbox(
             _config(
@@ -605,7 +605,7 @@ class TestNoneSandboxShellFallback:
     def test_existing_shell_is_not_reported(self, caplog, tmp_path):
         caplog.set_level(
             logging.WARNING,
-            logger="qwenpaw.sandbox.local_sandbox",
+            logger="aiarb.sandbox.local_sandbox",
         )
         sandbox = NoneSandbox(
             _config(

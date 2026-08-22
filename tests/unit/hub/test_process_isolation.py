@@ -11,9 +11,9 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.hub.local_provisioner import LocalProcessRuntimeProvisioner
-from qwenpaw.hub.models import RuntimeRecord, RuntimeState
-from qwenpaw.hub.process_isolation import (
+from aiarb.hub.local_provisioner import LocalProcessRuntimeProvisioner
+from aiarb.hub.models import RuntimeRecord, RuntimeState
+from aiarb.hub.process_isolation import (
     IsolatedLaunch,
     LinuxBubblewrapIsolator,
     MacOSSeatbeltIsolator,
@@ -143,7 +143,7 @@ def test_linux_command_mounts_only_runtime_root_writable(
     isolator = LinuxBubblewrapIsolator("/usr/bin/bwrap")
     monkeypatch.setattr(isolator, "_probe", lambda *args: None)
 
-    launch = isolator.prepare(record, ["python", "-m", "qwenpaw"], {})
+    launch = isolator.prepare(record, ["python", "-m", "aiarb"], {})
 
     args = launch.command
     bind_index = args.index("--bind")
@@ -161,7 +161,7 @@ def test_linux_command_mounts_only_runtime_root_writable(
     assert tmp_index < bind_index
     assert args[bind_index + 1] == str(record.working_dir.parent)
     assert str(record.working_dir.parent.parent) not in args
-    assert str(repository / "packages" / "qwenpawmail-mcp" / "src") in (
+    assert str(repository / "packages" / "aiarbmail-mcp" / "src") in (
         read_only_sources
     )
     assert ("/etc", "/etc") not in {
@@ -188,7 +188,7 @@ def test_linux_command_mounts_resolver_at_standard_path(
 
     launch = isolator.prepare(
         _record(tmp_path),
-        ["python", "-m", "qwenpaw"],
+        ["python", "-m", "aiarb"],
         {},
     )
 
@@ -223,7 +223,7 @@ def test_linux_command_mounts_python_base_prefix(
 
     launch = isolator.prepare(
         _record(tmp_path),
-        [str(venv_executable), "-m", "qwenpaw"],
+        [str(venv_executable), "-m", "aiarb"],
         {},
     )
 
@@ -249,7 +249,7 @@ def test_linux_command_never_mounts_pythonpath(
 
     launch = isolator.prepare(
         _record(tmp_path),
-        ["python", "-m", "qwenpaw"],
+        ["python", "-m", "aiarb"],
         {"PYTHONPATH": f"{Path('/')}:{other_tenant}"},
     )
 
@@ -379,7 +379,7 @@ def test_provisioner_launches_through_injected_isolator(
 
     started = provisioner.start(
         _record(tmp_path),
-        {"QWENPAW_RUNTIME_INTERNAL_TOKEN": "secret"},
+        {"AIARB_RUNTIME_INTERNAL_TOKEN": "secret"},
     )
 
     assert isolator.called is True
@@ -395,27 +395,27 @@ def test_windows_runtime_uses_outbound_reverse_tunnel(
     isolator = _WindowsRecordingIsolator()
     provisioner = LocalProcessRuntimeProvisioner(isolator=isolator)
     monkeypatch.setattr(
-        "qwenpaw.hub.local_provisioner.WindowsReverseTunnelBroker",
+        "aiarb.hub.local_provisioner.WindowsReverseTunnelBroker",
         _TunnelBroker,
     )
     monkeypatch.setattr(provisioner, "_wait_until_ready", lambda *_: None)
 
     started = provisioner.start(
         _record(tmp_path),
-        {"QWENPAW_RUNTIME_INTERNAL_TOKEN": "secret"},
+        {"AIARB_RUNTIME_INTERNAL_TOKEN": "secret"},
     )
 
     command = isolator.command
     separator = command.index("--")
     assert command[command.index("-m") + 1] == (
-        "qwenpaw.hub.windows_runtime_bridge"
+        "aiarb.hub.windows_runtime_bridge"
     )
     assert command[command.index("--control-port") + 1] == "9100"
     assert command[command.index("--token") + 1] == "tunnel-token"
     assert command[separator + 1 : separator + 4] == [
         sys.executable,
         "-m",
-        "qwenpaw",
+        "aiarb",
     ]
     assert command[command.index("--host", separator) + 1] == "127.0.0.1"
     assert started.port == 9001
@@ -467,7 +467,7 @@ def test_local_readiness_ignores_optional_integration_health(
     )
 
     assert requests[0].full_url == "http://127.0.0.1:9001/api/version"
-    assert requests[0].get_header("X-qwenpaw-runtime-token") == (
+    assert requests[0].get_header("X-aiarb-runtime-token") == (
         "runtime-token"
     )
 
@@ -503,11 +503,11 @@ def test_runtime_parent_thread_survives_request_worker(
         return _Process()
 
     monkeypatch.setattr(
-        "qwenpaw.hub.local_provisioner.subprocess.Popen",
+        "aiarb.hub.local_provisioner.subprocess.Popen",
         popen,
     )
     monkeypatch.setattr(
-        "qwenpaw.hub.local_provisioner.os.killpg",
+        "aiarb.hub.local_provisioner.os.killpg",
         lambda *_: None,
         raising=False,
     )
@@ -517,7 +517,7 @@ def test_runtime_parent_thread_survives_request_worker(
         target=lambda: results.append(
             provisioner.start(
                 _record(tmp_path),
-                {"QWENPAW_RUNTIME_INTERNAL_TOKEN": "secret"},
+                {"AIARB_RUNTIME_INTERNAL_TOKEN": "secret"},
             ),
         ),
     )

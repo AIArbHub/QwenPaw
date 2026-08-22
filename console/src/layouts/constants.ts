@@ -1,8 +1,8 @@
 // ── URLs ──────────────────────────────────────────────────────────────────
 
-export const PYPI_URL = "https://pypi.org/pypi/qwenpaw/json";
+export const PYPI_URL = "https://pypi.org/pypi/aiarb/json";
 
-export const GITHUB_URL = "https://github.com/agentscope-ai/QwenPaw" as const;
+export const GITHUB_URL = "https://github.com/agentscope-ai/AIArb" as const;
 
 // ── Timing ────────────────────────────────────────────────────────────────
 
@@ -14,16 +14,16 @@ export const getWebsiteLang = (lang: string): string =>
   lang.startsWith("zh") ? "zh" : "en";
 
 export const getDocsUrl = (lang: string): string =>
-  `https://qwenpaw.agentscope.io/docs/intro?lang=${getWebsiteLang(lang)}`;
+  `https://aiarb.agentscope.io/docs/intro?lang=${getWebsiteLang(lang)}`;
 
 export const getFaqUrl = (lang: string): string =>
-  `https://qwenpaw.agentscope.io/docs/faq?lang=${getWebsiteLang(lang)}`;
+  `https://aiarb.agentscope.io/docs/faq?lang=${getWebsiteLang(lang)}`;
 
 export const getReleaseNotesUrl = (lang: string): string =>
-  `https://qwenpaw.agentscope.io/release-notes?lang=${getWebsiteLang(lang)}`;
+  `https://aiarb.agentscope.io/release-notes?lang=${getWebsiteLang(lang)}`;
 
 export const getFeatureDemosUrl = (lang: string): string =>
-  `https://qwenpaw.agentscope.io/docs/functiondemo?lang=${getWebsiteLang(
+  `https://aiarb.agentscope.io/docs/functiondemo?lang=${getWebsiteLang(
     lang,
   )}`;
 
@@ -79,99 +79,99 @@ export const compareVersions = (a: string, b: string): number => {
 // ── Update markdown ───────────────────────────────────────────────────────
 // TODO
 export const UPDATE_MD: Record<string, string> = {
-  zh: `### QwenPaw如何更新
+  zh: `### AIArb如何更新
 
-要更新 QwenPaw 到最新版本，可根据你的安装方式选择对应方法：
+要更新 AIArb 到最新版本，可根据你的安装方式选择对应方法：
 
 1. 如果你使用的是一键安装脚本，直接重新运行安装命令即可自动升级。
 
 2. 如果你是通过 pip 安装，在终端中执行以下命令升级：
 
 \`\`\`
-qwenpaw update
+aiarb update
 \`\`\`
 
 3. 如果你是从源码安装，进入项目目录并拉取最新代码后重新安装：
 
 \`\`\`
-cd QwenPaw
+cd AIArb
 git pull origin main
 cd console && npm ci && npm run build
-cd .. && mkdir -p src/qwenpaw/console
-cp -R console/dist/. src/qwenpaw/console/
+cd .. && mkdir -p src/aiarb/console
+cp -R console/dist/. src/aiarb/console/
 pip install -e .
 \`\`\`
 
 4. 如果你使用的是 Docker，拉取最新镜像并重启容器：
 
 \`\`\`
-docker pull agentscope/qwenpaw:latest
-docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working -v qwenpaw-secrets:/app/working.secret -v qwenpaw-backups:/app/working.backups agentscope/qwenpaw:latest
+docker pull agentscope/aiarb:latest
+docker run -p 127.0.0.1:8088:8088 -v aiarb-data:/app/working -v aiarb-secrets:/app/working.secret -v aiarb-backups:/app/working.backups agentscope/aiarb:latest
 \`\`\`
 
-升级后重启服务 qwenpaw app。`,
+升级后重启服务 aiarb app。`,
 
-  ru: `### Как обновить QwenPaw
+  ru: `### Как обновить AIArb
 
-Чтобы обновить QwenPaw, выберите способ в зависимости от типа установки:
+Чтобы обновить AIArb, выберите способ в зависимости от типа установки:
 
 1. Если вы устанавливали через однострочный скрипт, повторно запустите установщик для обновления.
 
 2. Если устанавливали через pip, выполните:
 
 \`\`\`
-qwenpaw update
+aiarb update
 \`\`\`
 
 3. Если устанавливали из исходников, получите последние изменения и переустановите:
 
 \`\`\`
-cd QwenPaw
+cd AIArb
 git pull origin main
 cd console && npm ci && npm run build
-cd .. && mkdir -p src/qwenpaw/console
-cp -R console/dist/. src/qwenpaw/console/
+cd .. && mkdir -p src/aiarb/console
+cp -R console/dist/. src/aiarb/console/
 pip install -e .
 \`\`\`
 
 4. Если используете Docker, загрузите новый образ и перезапустите контейнер:
 
 \`\`\`
-docker pull agentscope/qwenpaw:latest
-docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working -v qwenpaw-secrets:/app/working.secret -v qwenpaw-backups:/app/working.backups agentscope/qwenpaw:latest
+docker pull agentscope/aiarb:latest
+docker run -p 127.0.0.1:8088:8088 -v aiarb-data:/app/working -v aiarb-secrets:/app/working.secret -v aiarb-backups:/app/working.backups agentscope/aiarb:latest
 \`\`\`
 
-After upgrading, restart the service with \`qwenpaw app\`.`,
+After upgrading, restart the service with \`aiarb app\`.`,
 
-  en: `### How to update QwenPaw
+  en: `### How to update AIArb
 
-To update QwenPaw, use the method matching your installation type:
+To update AIArb, use the method matching your installation type:
 
 1. If installed via one-line script, re-run the installer to upgrade.
 
 2. If installed via pip, run:
 
 \`\`\`
-qwenpaw update
+aiarb update
 \`\`\`
 
 3. If installed from source, pull the latest code and reinstall:
 
 \`\`\`
-cd QwenPaw
+cd AIArb
 git pull origin main
 cd console && npm ci && npm run build
-cd .. && mkdir -p src/qwenpaw/console
-cp -R console/dist/. src/qwenpaw/console/
+cd .. && mkdir -p src/aiarb/console
+cp -R console/dist/. src/aiarb/console/
 pip install -e .
 \`\`\`
 
 4. If using Docker, pull the latest image and restart the container:
 
 \`\`\`
-docker pull agentscope/qwenpaw:latest
-docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working -v qwenpaw-secrets:/app/working.secret -v qwenpaw-backups:/app/working.backups agentscope/qwenpaw:latest
+docker pull agentscope/aiarb:latest
+docker run -p 127.0.0.1:8088:8088 -v aiarb-data:/app/working -v aiarb-secrets:/app/working.secret -v aiarb-backups:/app/working.backups agentscope/aiarb:latest
 \`\`\`
 
-After upgrading, restart the service with \`qwenpaw app\`.`,
+After upgrading, restart the service with \`aiarb app\`.`,
 };

@@ -39,7 +39,7 @@ function targetForPath(
 
 function openTarget(target: FileTarget, trigger: HTMLElement) {
   window.dispatchEvent(
-    new CustomEvent("qwenpaw:open-file-preview", {
+    new CustomEvent("aiarb:open-file-preview", {
       detail: { target, trigger },
     }),
   );

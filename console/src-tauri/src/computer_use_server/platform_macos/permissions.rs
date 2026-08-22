@@ -19,7 +19,7 @@ pub(crate) fn ensure_for(method: &str) -> Result<(), (&'static str, String)> {
         request_screen_recording();
         return Err((
             "screen_recording_permission_required",
-            "Screen Recording access is required. Grant it to QwenPaw Computer Use in System Settings, then retry."
+            "Screen Recording access is required. Grant it to AIArb Computer Use in System Settings, then retry."
                 .to_string(),
         ));
     }
@@ -27,7 +27,7 @@ pub(crate) fn ensure_for(method: &str) -> Result<(), (&'static str, String)> {
         request_accessibility();
         return Err((
             "accessibility_permission_required",
-            "Accessibility access is required. Grant it to QwenPaw Computer Use in System Settings, then retry."
+            "Accessibility access is required. Grant it to AIArb Computer Use in System Settings, then retry."
                 .to_string(),
         ));
     }

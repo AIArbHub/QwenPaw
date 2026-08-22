@@ -163,7 +163,7 @@ export function AgentTable({
       key: "backend",
       width: 180,
       render: (backend: AgentSummary["backend"]) => {
-        const thirdParty = backend !== "qwenpaw";
+        const thirdParty = backend !== "aiarb";
         const name = THIRD_PARTY_AGENT_NAMES[backend] ?? backend;
         return (
           <Tag
@@ -176,7 +176,7 @@ export function AgentTable({
           >
             {thirdParty
               ? `${name} · ${t("agent.backend.thirdPartyBadge")}`
-              : `QwenPaw · ${t("agent.backend.nativeBadge")}`}
+              : `AIArb · ${t("agent.backend.nativeBadge")}`}
           </Tag>
         );
       },
@@ -201,7 +201,7 @@ export function AgentTable({
       width: 220,
       ellipsis: true,
       render: (_value: unknown, record: AgentSummary) => {
-        if (record.backend !== "qwenpaw") {
+        if (record.backend !== "aiarb") {
           const model = record.backend_model;
           return model ? (
             <Space size={6}>

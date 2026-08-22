@@ -15,18 +15,18 @@ pub(super) fn create(app: &tauri::AppHandle) -> Result<Command, String> {
     let source_path = repo_root.join("src");
     let command = if command_exists("uv") {
         log::info!(
-            "[backend] dev command: uv run python -m qwenpaw.tauri.entry cwd={}",
+            "[backend] dev command: uv run python -m aiarb.tauri.entry cwd={}",
             repo_root.display(),
         );
         app.shell()
             .command("uv")
-            .args(["run", "python", "-m", "qwenpaw.tauri.entry"])
+            .args(["run", "python", "-m", "aiarb.tauri.entry"])
             .current_dir(repo_root)
             .env("PYTHONPATH", source_path.display().to_string())
     } else {
         let (python, prefix_args) = python_command(&repo_root);
         let mut args = prefix_args;
-        args.extend(["-m", "qwenpaw.tauri.entry"]);
+        args.extend(["-m", "aiarb.tauri.entry"]);
         log::info!(
             "[backend] dev command: {} {} cwd={}",
             python,
@@ -65,22 +65,22 @@ pub(super) fn create(app: &tauri::AppHandle) -> Result<Command, String> {
         .current_dir(&backend_dir)
         .env(path_env_key(), path_with_backend_dir(&backend_dir)?)
         .env(
-            "QWENPAW_TAURI_RESOURCE_DIR",
+            "AIARB_TAURI_RESOURCE_DIR",
             resource_dir.to_string_lossy().to_string(),
         );
     let mut command = apply_contributed_environment(app, command);
     // A complete Playwright Chromium payload exceeds the practical NSIS
     // installer mapping limit on Windows. The sidecar downloads the exact
-    // driver-matched revision into the user's QwenPaw data directory instead.
+    // driver-matched revision into the user's AIArb data directory instead.
     if cfg!(windows) {
-        command = command.env("QWENPAW_DESKTOP_MANAGED_PLAYWRIGHT", "1");
+        command = command.env("AIARB_DESKTOP_MANAGED_PLAYWRIGHT", "1");
     }
     // Bundled standalone Python used by the backend to install third-party
     // plugin dependencies (sys.executable is the frozen backend, not Python).
     if let Some(python) = packaged_python_runtime(app) {
         log::info!("[backend] bundled python runtime: {}", python.display());
         command = command.env(
-            "QWENPAW_DESKTOP_PY_RUNTIME",
+            "AIARB_DESKTOP_PY_RUNTIME",
             python.to_string_lossy().to_string(),
         );
     } else {
@@ -92,7 +92,7 @@ pub(super) fn create(app: &tauri::AppHandle) -> Result<Command, String> {
     if let Some(node_runtime) = packaged_node_runtime(app) {
         log::info!("[backend] bundled node runtime: {}", node_runtime.display());
         command = command.env(
-            "QWENPAW_DESKTOP_NODE_RUNTIME",
+            "AIARB_DESKTOP_NODE_RUNTIME",
             node_runtime.to_string_lossy().to_string(),
         );
     } else {
@@ -151,16 +151,16 @@ fn packaged_node_runtime(app: &tauri::AppHandle) -> Option<PathBuf> {
 #[cfg(not(debug_assertions))]
 fn packaged_backend_executable(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     let executable_name = if cfg!(windows) {
-        "qwenpaw-backend.exe"
+        "aiarb-backend.exe"
     } else {
-        "qwenpaw-backend"
+        "aiarb-backend"
     };
     let path = app
         .path()
         .resource_dir()
         .map_err(|err| format!("failed to resolve resource directory: {err}"))?
         .join("binaries")
-        .join("qwenpaw-backend")
+        .join("aiarb-backend")
         .join(executable_name);
 
     if path.is_file() {

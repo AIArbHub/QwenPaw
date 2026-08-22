@@ -54,7 +54,7 @@ def mock_mqtt_client():
 @pytest.fixture
 def mqtt_channel(mock_process):
     """Create MQTTChannel instance for testing."""
-    from qwenpaw.app.channels.mqtt.channel import MQTTChannel
+    from aiarb.app.channels.mqtt.channel import MQTTChannel
 
     channel = MQTTChannel(
         process=mock_process,
@@ -64,8 +64,8 @@ def mqtt_channel(mock_process):
         transport="tcp",
         username="test_user",
         password="test_pass",
-        subscribe_topic="copaw/in/{client_id}",
-        publish_topic="copaw/out/{client_id}",
+        subscribe_topic="aiarb/in/{client_id}",
+        publish_topic="aiarb/out/{client_id}",
         bot_prefix="[BOT] ",
         clean_session=True,
         qos=2,
@@ -86,7 +86,7 @@ class TestMQTTChannelInit:
 
     def test_init_stores_basic_config(self, mock_process):
         """Constructor should store all basic configuration parameters."""
-        from qwenpaw.app.channels.mqtt.channel import MQTTChannel
+        from aiarb.app.channels.mqtt.channel import MQTTChannel
 
         channel = MQTTChannel(
             process=mock_process,
@@ -113,7 +113,7 @@ class TestMQTTChannelInit:
 
     def test_init_stores_advanced_config(self, mock_process):
         """Constructor should store advanced configuration parameters."""
-        from qwenpaw.app.channels.mqtt.channel import MQTTChannel
+        from aiarb.app.channels.mqtt.channel import MQTTChannel
 
         channel = MQTTChannel(
             process=mock_process,
@@ -143,7 +143,7 @@ class TestMQTTChannelInit:
 
     def test_init_creates_required_data_structures(self, mock_process):
         """Constructor should initialize required internal data structures."""
-        from qwenpaw.app.channels.mqtt.channel import MQTTChannel
+        from aiarb.app.channels.mqtt.channel import MQTTChannel
 
         channel = MQTTChannel(
             process=mock_process,
@@ -184,7 +184,7 @@ class TestMQTTChannelFromEnv:
 
     def test_from_env_reads_basic_env_vars(self, mock_process, monkeypatch):
         """from_env should read basic environment variables."""
-        from qwenpaw.app.channels.mqtt.channel import MQTTChannel
+        from aiarb.app.channels.mqtt.channel import MQTTChannel
 
         monkeypatch.setenv("MQTT_CHANNEL_ENABLED", "1")
         monkeypatch.setenv("MQTT_HOST", "env.mqtt.local")
@@ -210,7 +210,7 @@ class TestMQTTChannelFromEnv:
 
     def test_from_env_reads_advanced_env_vars(self, mock_process, monkeypatch):
         """from_env should read advanced environment variables."""
-        from qwenpaw.app.channels.mqtt.channel import MQTTChannel
+        from aiarb.app.channels.mqtt.channel import MQTTChannel
 
         monkeypatch.setenv("MQTT_CHANNEL_ENABLED", "1")
         monkeypatch.setenv("MQTT_HOST", "test.mqtt.local")
@@ -232,7 +232,7 @@ class TestMQTTChannelFromEnv:
 
     def test_from_env_defaults(self, mock_process, monkeypatch):
         """from_env should use sensible defaults."""
-        from qwenpaw.app.channels.mqtt.channel import MQTTChannel
+        from aiarb.app.channels.mqtt.channel import MQTTChannel
 
         monkeypatch.setenv("MQTT_HOST", "test.mqtt.local")
         monkeypatch.setenv("MQTT_SUBSCRIBE_TOPIC", "test/in")
@@ -259,7 +259,7 @@ class TestMQTTChannelFromEnv:
         monkeypatch,
     ):
         """from_env should handle invalid port."""
-        from qwenpaw.app.channels.mqtt.channel import MQTTChannel
+        from aiarb.app.channels.mqtt.channel import MQTTChannel
 
         monkeypatch.setenv("MQTT_HOST", "test.mqtt.local")
         monkeypatch.setenv("MQTT_SUBSCRIBE_TOPIC", "test/in")
@@ -278,7 +278,7 @@ class TestMQTTChannelFromConfig:
 
     def test_from_config_with_dict(self, mock_process):
         """from_config should accept dict config."""
-        from qwenpaw.app.channels.mqtt.channel import MQTTChannel
+        from aiarb.app.channels.mqtt.channel import MQTTChannel
 
         config = {
             "enabled": True,
@@ -309,7 +309,7 @@ class TestMQTTChannelFromConfig:
 
     def test_from_config_with_object(self, mock_process):
         """from_config should accept config object."""
-        from qwenpaw.app.channels.mqtt.channel import MQTTChannel
+        from aiarb.app.channels.mqtt.channel import MQTTChannel
 
         config = Mock()
         config.enabled = True
@@ -338,7 +338,7 @@ class TestMQTTChannelFromConfig:
 
     def test_from_config_strips_whitespace(self, mock_process):
         """from_config should strip whitespace from string values."""
-        from qwenpaw.app.channels.mqtt.channel import MQTTChannel
+        from aiarb.app.channels.mqtt.channel import MQTTChannel
 
         config = {
             "host": "  spaced.host  ",
@@ -431,7 +431,7 @@ class TestMQTTChannelLifecycle:
     async def test_start_success(self, mqtt_channel, mock_mqtt_client):
         """start() should successfully create and connect MQTT client."""
         with patch(
-            "qwenpaw.app.channels.mqtt.channel.mqtt.Client",
+            "aiarb.app.channels.mqtt.channel.mqtt.Client",
             return_value=mock_mqtt_client,
         ):
             await mqtt_channel.start()
@@ -460,7 +460,7 @@ class TestMQTTChannelLifecycle:
         mqtt_channel.tls_keyfile = "/path/to/client.key"
 
         with patch(
-            "qwenpaw.app.channels.mqtt.channel.mqtt.Client",
+            "aiarb.app.channels.mqtt.channel.mqtt.Client",
             return_value=mock_mqtt_client,
         ):
             await mqtt_channel.start()
@@ -477,7 +477,7 @@ class TestMQTTChannelLifecycle:
         mqtt_channel.password = ""
 
         with patch(
-            "qwenpaw.app.channels.mqtt.channel.mqtt.Client",
+            "aiarb.app.channels.mqtt.channel.mqtt.Client",
             return_value=mock_mqtt_client,
         ):
             await mqtt_channel.start()
@@ -493,7 +493,7 @@ class TestMQTTChannelLifecycle:
         )
 
         with patch(
-            "qwenpaw.app.channels.mqtt.channel.mqtt.Client",
+            "aiarb.app.channels.mqtt.channel.mqtt.Client",
             return_value=mock_mqtt_client,
         ):
             # Should not raise
@@ -585,7 +585,7 @@ class TestMQTTChannelMessageHandling:
     ):
         """_on_message should use client_id from JSON payload if present."""
         mock_msg = MagicMock()
-        mock_msg.topic = "copaw/in/ignored-topic-client"
+        mock_msg.topic = "aiarb/in/ignored-topic-client"
         mock_msg.payload = json.dumps(
             {
                 "text": "Hello MQTT",
@@ -606,7 +606,7 @@ class TestMQTTChannelMessageHandling:
     def test_on_message_plaintext_payload(self, mqtt_channel):
         """_on_message should handle non-JSON payload."""
         mock_msg = MagicMock()
-        mock_msg.topic = "copaw/in/test-client"
+        mock_msg.topic = "aiarb/in/test-client"
         mock_msg.payload = b"Plain text message"
 
         mock_enqueue = Mock()
@@ -620,7 +620,7 @@ class TestMQTTChannelMessageHandling:
     def test_on_message_extracts_client_id_from_topic(self, mqtt_channel):
         """_on_message extracts client_id from topic path."""
         mock_msg = MagicMock()
-        mock_msg.topic = "copaw/in/my-device-001"
+        mock_msg.topic = "aiarb/in/my-device-001"
         mock_msg.payload = b"Hello"  # No redirect_client_id in payload
 
         mock_enqueue = Mock()
@@ -629,7 +629,7 @@ class TestMQTTChannelMessageHandling:
         mqtt_channel._on_message(None, None, mock_msg)
 
         call_args = mock_enqueue.call_args[0][0]
-        # Topic "copaw/in/my-device-001"
+        # Topic "aiarb/in/my-device-001"
         # parts[1] = "in"
         assert call_args["sender_id"] == "in"
 
@@ -649,7 +649,7 @@ class TestMQTTChannelMessageHandling:
     def test_on_message_no_enqueue_handles_gracefully(self, mqtt_channel):
         """_on_message should handle missing _enqueue gracefully."""
         mock_msg = MagicMock()
-        mock_msg.topic = "copaw/in/test-client"
+        mock_msg.topic = "aiarb/in/test-client"
         mock_msg.payload = b"Test message"
 
         mqtt_channel._enqueue = None
@@ -687,7 +687,7 @@ class TestMQTTChannelSend:
         await mqtt_channel.send("device-001", "Hello device", meta={})
 
         mock_mqtt_client.publish.assert_called_once_with(
-            "copaw/out/device-001",
+            "aiarb/out/device-001",
             "Hello device",
             qos=2,
         )
@@ -708,7 +708,7 @@ class TestMQTTChannelSend:
         )
 
         mock_mqtt_client.publish.assert_called_once_with(
-            "copaw/out/real-device",
+            "aiarb/out/real-device",
             "Hello",
             qos=mqtt_channel.qos,
         )
@@ -758,7 +758,7 @@ class TestMQTTChannelSend:
         mqtt_channel.client = mock_mqtt_client
         mqtt_channel.connected = True
 
-        from qwenpaw.app.channels.base import ImageContent, ContentType
+        from aiarb.app.channels.base import ImageContent, ContentType
 
         mock_part = ImageContent(
             type=ContentType.IMAGE,
@@ -768,7 +768,7 @@ class TestMQTTChannelSend:
         await mqtt_channel.send_media("device-001", mock_part, meta={})
 
         mock_mqtt_client.publish.assert_called_once_with(
-            "copaw/out/device-001",
+            "aiarb/out/device-001",
             "[Image] http://img.jpg",
             qos=mqtt_channel.qos,
         )
@@ -778,7 +778,7 @@ class TestMQTTChannelSend:
         mqtt_channel.client = mock_mqtt_client
         mqtt_channel.connected = True
 
-        from qwenpaw.app.channels.base import VideoContent, ContentType
+        from aiarb.app.channels.base import VideoContent, ContentType
 
         mock_part = VideoContent(
             type=ContentType.VIDEO,
@@ -788,7 +788,7 @@ class TestMQTTChannelSend:
         await mqtt_channel.send_media("device-001", mock_part, meta={})
 
         mock_mqtt_client.publish.assert_called_once_with(
-            "copaw/out/device-001",
+            "aiarb/out/device-001",
             "[Video] http://vid.mp4",
             qos=mqtt_channel.qos,
         )
@@ -798,7 +798,7 @@ class TestMQTTChannelSend:
         mqtt_channel.client = mock_mqtt_client
         mqtt_channel.connected = True
 
-        from qwenpaw.app.channels.base import FileContent, ContentType
+        from aiarb.app.channels.base import FileContent, ContentType
 
         mock_part = FileContent(
             type=ContentType.FILE,
@@ -808,7 +808,7 @@ class TestMQTTChannelSend:
         await mqtt_channel.send_media("device-001", mock_part, meta={})
 
         mock_mqtt_client.publish.assert_called_once_with(
-            "copaw/out/device-001",
+            "aiarb/out/device-001",
             "[File] http://doc.pdf",
             qos=mqtt_channel.qos,
         )
@@ -818,7 +818,7 @@ class TestMQTTChannelSend:
         mqtt_channel.client = mock_mqtt_client
         mqtt_channel.connected = True
 
-        from qwenpaw.app.channels.base import AudioContent, ContentType
+        from aiarb.app.channels.base import AudioContent, ContentType
 
         mock_part = AudioContent(
             type=ContentType.AUDIO,
@@ -828,7 +828,7 @@ class TestMQTTChannelSend:
         await mqtt_channel.send_media("device-001", mock_part, meta={})
 
         mock_mqtt_client.publish.assert_called_once_with(
-            "copaw/out/device-001",
+            "aiarb/out/device-001",
             "[Audio]",
             qos=mqtt_channel.qos,
         )
@@ -883,7 +883,7 @@ class TestMQTTChannelUtilities:
 
     def test_build_agent_request_from_native(self, mqtt_channel):
         """build_agent_request_from_native should create proper request."""
-        from qwenpaw.schemas import (
+        from aiarb.schemas import (
             TextContent,
             ContentType,
         )

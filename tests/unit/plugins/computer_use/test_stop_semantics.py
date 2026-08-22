@@ -17,7 +17,7 @@ from computer_use.transport import (
     ComputerUseTransport,
     ReverseRequestHandler,
 )
-from qwenpaw.app.computer_use import set_current_computer_use_turn_id
+from aiarb.app.computer_use import set_current_computer_use_turn_id
 
 
 class _ControlledTransport(ComputerUseTransport):

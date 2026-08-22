@@ -26,8 +26,8 @@ import type {
 import { isProjectRoot } from "../features/files-workspace/directorySources";
 
 export const ORIGINAL_DIFF_SIZE_LIMIT = 256 * 1024;
-export const AGENT_FILES_TABS_STORAGE_KEY = "qwenpaw-agent-files-tabs";
-export const SESSION_FILES_TABS_STORAGE_KEY = "qwenpaw-session-files-tabs";
+export const AGENT_FILES_TABS_STORAGE_KEY = "aiarb-agent-files-tabs";
+export const SESSION_FILES_TABS_STORAGE_KEY = "aiarb-session-files-tabs";
 
 export interface EditorTab {
   /** Internal stable identity used by the tab/diff stores. */
@@ -401,7 +401,7 @@ export const useCodingTabsStore = create<CodingTabsState>()(
         }),
     }),
     {
-      name: "qwenpaw-split-files-workbench",
+      name: "aiarb-split-files-workbench",
       storage: createJSONStorage(() => splitTabsStorage),
       // Persist only the path list (no content/dirty) and small `original`s.
       partialize: ((state: CodingTabsState) => ({

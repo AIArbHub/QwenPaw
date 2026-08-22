@@ -8,8 +8,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from qwenpaw.app.crons.manager import CronManager
-from qwenpaw.app.crons.models import (
+from aiarb.app.crons.manager import CronManager
+from aiarb.app.crons.models import (
     CronExecutionRecord,
     CronJobRequest,
     CronJobSpec,
@@ -18,7 +18,7 @@ from qwenpaw.app.crons.models import (
     JobsFile,
     ScheduleSpec,
 )
-from qwenpaw.app.crons.repo.base import BaseJobRepository
+from aiarb.app.crons.repo.base import BaseJobRepository
 
 
 class InMemoryJobRepository(BaseJobRepository):

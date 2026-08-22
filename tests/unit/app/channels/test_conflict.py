@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.app.channels.conflict import get_channel_bot_identity
+from aiarb.app.channels.conflict import get_channel_bot_identity
 
 
 @pytest.mark.parametrize(

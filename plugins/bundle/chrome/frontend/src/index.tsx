@@ -1,4 +1,4 @@
-// Chrome plugin UI. React and antd are provided by the QwenPaw console host.
+// Chrome plugin UI. React and antd are provided by the AIArb console host.
 import type * as ReactNS from "react";
 
 import {
@@ -8,7 +8,7 @@ import {
   type MessageKey,
 } from "./locale";
 
-const host = window.QwenPaw.host;
+const host = window.AIArb.host;
 const React: typeof ReactNS = host.React;
 const antd = host.antd;
 const getApiUrl = host.getApiUrl;
@@ -1375,7 +1375,7 @@ function ChromeSetupPage() {
                             </span>
                             <StepControl
                               icon="copy"
-                              label={translate(locale, "qwenpawExtensionPath")}
+                              label={translate(locale, "aiarbExtensionPath")}
                               loading={setupLoading}
                               onClick={() => void handleCopyPath()}
                               tone="blue"
@@ -1414,7 +1414,7 @@ function ChromeSetupPage() {
   );
 }
 
-window.QwenPaw.registerRoutes?.("chrome", [
+window.AIArb.registerRoutes?.("chrome", [
   {
     path: "/plugin/chrome",
     component: ChromeSetupPage,

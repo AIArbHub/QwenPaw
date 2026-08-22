@@ -1,4 +1,4 @@
-# CoPaw Test & Coverage Makefile
+# AIArb Test & Coverage Makefile
 
 .PHONY: test test-unit test-contract test-integration test-channel test-channel-contract coverage-full clean gen-browser-manual install-dev install-mail-mcp
 
@@ -25,7 +25,7 @@ test-integration:
 # Full coverage (all modules)
 coverage-full:
 	$(PYTEST) tests/unit/ tests/integration/ -v \
-		--cov=src/qwenpaw \
+		--cov=src/aiarb \
 		--cov-report=term-missing \
 		--cov-report=html
 
@@ -42,7 +42,7 @@ clean:
 quick:
 	@qp_test_workdir=$$(mktemp -d); \
 	trap 'rm -rf "$$qp_test_workdir"' EXIT; \
-	QWENPAW_WORKING_DIR="$$qp_test_workdir" \
+	AIARB_WORKING_DIR="$$qp_test_workdir" \
 	$(PYTEST) tests/unit/ -x -q --tb=line
 
 gen-browser-manual:
@@ -67,4 +67,4 @@ install-dev:
 
 ## Install only the standalone mail MCP package.
 install-mail-mcp:
-	$(PYTHON) -m pip install -e packages/qwenpawmail-mcp
+	$(PYTHON) -m pip install -e packages/aiarbmail-mcp

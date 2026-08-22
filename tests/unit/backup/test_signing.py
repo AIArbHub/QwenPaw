@@ -4,16 +4,16 @@ from __future__ import annotations
 import json
 import zipfile
 
-from qwenpaw.backup._utils.constants import META_FILE, PREFIX_CONFIG
-from qwenpaw.backup._utils.signing import key as signing_key
-from qwenpaw.backup._utils.signing.digest import (
+from aiarb.backup._utils.constants import META_FILE, PREFIX_CONFIG
+from aiarb.backup._utils.signing import key as signing_key
+from aiarb.backup._utils.signing.digest import (
     _assert_signed_fields_cover_model,
     verify_signature,
 )
-from qwenpaw.backup._utils.signing.resign import (
+from aiarb.backup._utils.signing.resign import (
     replace_meta_with_local_signature,
 )
-from qwenpaw.backup.models import BackupMeta
+from aiarb.backup.models import BackupMeta
 
 
 def _reset_key_cache(monkeypatch, backup_dir):

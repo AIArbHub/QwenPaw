@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { useSidebarModeStore } from "./sidebarModeStore";
 
-const STORAGE_KEY = "qwenpaw_sidebar_mode";
+const STORAGE_KEY = "aiarb_sidebar_mode";
 
 function clearStorage() {
   try {
@@ -28,9 +28,9 @@ describe("sidebarModeStore", () => {
     expect(useSidebarModeStore.getState().mode).toBe("full");
   });
 
-  it("persists to the 'qwenpaw_sidebar_mode' localStorage key", () => {
+  it("persists to the 'aiarb_sidebar_mode' localStorage key", () => {
     useSidebarModeStore.getState().setMode("simple");
-    expect(localStorage.getItem("qwenpaw_sidebar_mode")).toBe("simple");
+    expect(localStorage.getItem("aiarb_sidebar_mode")).toBe("simple");
   });
 
   // ---------------------------------------------------------------------------

@@ -7,9 +7,9 @@ from types import SimpleNamespace
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.routers import checkpoints as router
-from qwenpaw.checkpoints.models import CheckpointEntry, GcResult, RestoreResult
-from qwenpaw.checkpoints.policy import session_key
+from aiarb.app.routers import checkpoints as router
+from aiarb.checkpoints.models import CheckpointEntry, GcResult, RestoreResult
+from aiarb.checkpoints.policy import session_key
 
 
 def _entry() -> CheckpointEntry:

@@ -7,7 +7,7 @@ import socket
 import threading
 import time
 
-from qwenpaw.hub.windows_reverse_tunnel import (
+from aiarb.hub.windows_reverse_tunnel import (
     WindowsReverseTunnelBroker,
     run_reverse_tunnel_client,
 )

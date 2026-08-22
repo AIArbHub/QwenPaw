@@ -11,7 +11,7 @@ vi.mock("react-i18next", () => ({
 const agent = (
   id: string,
   pinned: boolean,
-  backend: AgentSummary["backend"] = "qwenpaw",
+  backend: AgentSummary["backend"] = "aiarb",
 ): AgentSummary => ({
   id,
   name: id,
@@ -105,7 +105,7 @@ describe("AgentTable", () => {
       />,
     );
 
-    expect(screen.getByText(/QwenPaw/)).toBeInTheDocument();
+    expect(screen.getByText(/AIArb/)).toBeInTheDocument();
     expect(screen.getByText(/Codex/)).toBeInTheDocument();
     expect(screen.getByText(/Qoder/)).toBeInTheDocument();
   });

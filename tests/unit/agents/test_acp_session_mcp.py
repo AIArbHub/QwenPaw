@@ -20,17 +20,17 @@ from acp.schema import (
     SseMcpServer,
 )
 
-from qwenpaw.agents.acp.server import QwenPawACPAgent
-from qwenpaw.agents.acp.session_mcp import (
+from aiarb.agents.acp.server import AIArbACPAgent
+from aiarb.agents.acp.session_mcp import (
     acp_mcp_scope_id,
     build_acp_mcp_driver_cards,
 )
-from qwenpaw.drivers.constants import (
+from aiarb.drivers.constants import (
     DRIVER_SCOPE_CONTEXT_KEY,
     POLICY_EFFECT_ASK,
 )
-from qwenpaw.drivers.credentials.store import AsyncCredentialStore
-from qwenpaw.drivers.manager import DriverManager
+from aiarb.drivers.credentials.store import AsyncCredentialStore
+from aiarb.drivers.manager import DriverManager
 
 
 def _stdio_server(name: str = "tools") -> McpServerStdio:
@@ -139,7 +139,7 @@ def test_build_acp_mcp_driver_cards_rejects_duplicate_environment() -> None:
 
 
 async def test_acp_advertises_supported_remote_mcp_transports() -> None:
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
 
     response = await agent.initialize(protocol_version=1)
 
@@ -191,7 +191,7 @@ class _FakeWorkspace:
             yield event
 
 
-class _TestACPAgent(QwenPawACPAgent):
+class _TestACPAgent(AIArbACPAgent):
     def __init__(self, workspace: _FakeWorkspace) -> None:
         super().__init__(agent_id="default")
         self._fake_workspace = workspace

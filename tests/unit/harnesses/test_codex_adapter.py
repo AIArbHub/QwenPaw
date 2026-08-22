@@ -14,18 +14,18 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from qwenpaw.harnesses.codex.adapter import CodexAdapter
-from qwenpaw.harnesses.capabilities import (
+from aiarb.harnesses.codex.adapter import CodexAdapter
+from aiarb.harnesses.capabilities import (
     HarnessRuntimeCapabilities,
     HarnessSkillDefinition,
 )
-from qwenpaw.harnesses.events import (
+from aiarb.harnesses.events import (
     HarnessAttachment,
     HarnessAttachmentKind,
     HarnessEventKind,
 )
-from qwenpaw.security.tool_guard.approval import ApprovalDecision
-from qwenpaw.utils.io_utils import write_json_atomic
+from aiarb.security.tool_guard.approval import ApprovalDecision
+from aiarb.utils.io_utils import write_json_atomic
 
 
 class FakeCodexClient:
@@ -204,7 +204,7 @@ def test_loads_persisted_threads_with_io_utils(tmp_path: Path) -> None:
 
 def test_passes_manual_binary_to_app_server(tmp_path: Path) -> None:
     with patch(
-        "qwenpaw.harnesses.codex.adapter.CodexAppServerClient",
+        "aiarb.harnesses.codex.adapter.CodexAppServerClient",
     ) as client_class:
         CodexAdapter(tmp_path, binary="/custom/bin/codex")
 
@@ -219,7 +219,7 @@ def test_capabilities_explain_when_codex_cli_is_missing(
     adapter = CodexAdapter(tmp_path, client=client)  # type: ignore[arg-type]
 
     assert adapter.capability_unavailable_message == (
-        "Codex runtime not found. Install qwenpaw[codex] or provide a "
+        "Codex runtime not found. Install aiarb[codex] or provide a "
         "standalone Codex CLI."
     )
 
@@ -236,7 +236,7 @@ async def test_status_explains_how_to_install_missing_codex_cli(
 
     assert status.installed is False
     assert status.error == (
-        "Codex runtime not found. Install qwenpaw[codex] or provide a "
+        "Codex runtime not found. Install aiarb[codex] or provide a "
         "standalone Codex CLI."
     )
 
@@ -313,7 +313,7 @@ async def test_discovers_codex_owned_mcp_as_read_only(
     )
 
     with patch(
-        "qwenpaw.harnesses.codex.adapter.asyncio.create_subprocess_exec",
+        "aiarb.harnesses.codex.adapter.asyncio.create_subprocess_exec",
         return_value=process,
     ) as create_process:
         servers = await adapter.discover_mcp(tmp_path)
@@ -411,7 +411,7 @@ async def test_run_turn_persists_and_reuses_thread(tmp_path: Path) -> None:
 
 
 @pytest.mark.asyncio
-async def test_run_turn_projects_qwenpaw_skill_roots(
+async def test_run_turn_projects_aiarb_skill_roots(
     tmp_path: Path,
 ) -> None:
     client = FakeCodexClient()
@@ -451,7 +451,7 @@ async def test_runtime_clients_are_isolated_by_capability_fingerprint(
     first_client = FakeCodexClient()
     second_client = FakeCodexClient()
     with patch(
-        "qwenpaw.harnesses.codex.adapter.CodexAppServerClient",
+        "aiarb.harnesses.codex.adapter.CodexAppServerClient",
         side_effect=[base_client, first_client, second_client],
     ):
         adapter = CodexAdapter(tmp_path, binary="/custom/codex")
@@ -495,7 +495,7 @@ async def test_session_switches_runtime_and_resumes_thread(
     first_client = FakeCodexClient()
     second_client = FakeCodexClient()
     with patch(
-        "qwenpaw.harnesses.codex.adapter.CodexAppServerClient",
+        "aiarb.harnesses.codex.adapter.CodexAppServerClient",
         side_effect=[base_client, first_client, second_client],
     ):
         adapter = CodexAdapter(tmp_path, binary="/custom/codex")
@@ -605,7 +605,7 @@ async def test_run_turn_applies_provider_approval_controls(
 
 
 @pytest.mark.asyncio
-async def test_codex_approval_uses_qwenpaw_service(
+async def test_codex_approval_uses_aiarb_service(
     tmp_path: Path,
 ) -> None:
     adapter = CodexAdapter(
@@ -626,7 +626,7 @@ async def test_codex_approval_uses_qwenpaw_service(
     )
 
     with patch(
-        "qwenpaw.harnesses.codex.adapter.get_approval_service",
+        "aiarb.harnesses.codex.adapter.get_approval_service",
         return_value=service,
     ):
         result = await adapter._handle_server_request(
@@ -680,7 +680,7 @@ async def test_codex_permission_approval_uses_requested_permissions(
     permissions = {"network": {"enabled": True}}
 
     with patch(
-        "qwenpaw.harnesses.codex.adapter.get_approval_service",
+        "aiarb.harnesses.codex.adapter.get_approval_service",
         return_value=service,
     ):
         result = await adapter._handle_server_request(

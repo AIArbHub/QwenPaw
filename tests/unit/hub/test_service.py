@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Runtime admission policy tests for QwenPaw Hub."""
+"""Runtime admission policy tests for AIArb Hub."""
 
 from collections.abc import Mapping
 from dataclasses import replace
@@ -7,25 +7,25 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.hub.config import (
+from aiarb.hub.config import (
     DockerRuntimeConfig,
     HubConfig,
     RuntimeCapacityConfig,
     RuntimeConfig,
 )
-from qwenpaw.hub.provisioner import (
+from aiarb.hub.provisioner import (
     RuntimeProvisioner,
     RuntimeProvisionerAvailability,
     RuntimeProvisionerUnavailableError,
 )
-from qwenpaw.hub.models import (
+from aiarb.hub.models import (
     RuntimeRecord,
     RuntimeSpec,
     RuntimeStartPolicy,
     RuntimeState,
 )
-from qwenpaw.hub.registry import RuntimeRegistry
-from qwenpaw.hub.service import RuntimeService
+from aiarb.hub.registry import RuntimeRegistry
+from aiarb.hub.service import RuntimeService
 
 
 class _FakeProvisioner(RuntimeProvisioner):
@@ -269,9 +269,9 @@ def test_restart_applies_state_transition(
         "expected_docker_starts",
     ),
     [
-        (None, "qwenpaw-hub-test:pr-7112", None, 1),
-        ("qwenpaw:test-old", "qwenpaw:test-new", None, 2),
-        (None, "qwenpaw:test", "container failed", 1),
+        (None, "aiarb-hub-test:pr-7112", None, 1),
+        ("aiarb:test-old", "aiarb:test-new", None, 2),
+        (None, "aiarb:test", "container failed", 1),
     ],
     ids=["backend-switch", "image-refresh", "target-failure"],
 )

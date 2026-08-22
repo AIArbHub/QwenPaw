@@ -12,14 +12,14 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
 
-from qwenpaw.app.routers import console as console_mod
-from qwenpaw.app.routers.console import (
+from aiarb.app.routers import console as console_mod
+from aiarb.app.routers.console import (
     _background_task_cancel_error,
     _resolve_effective_stream_task_timeout,
 )
-from qwenpaw.app.task_tracker import REPLAY_END_SSE, TaskTracker
-from qwenpaw.constant import DEFAULT_STREAM_TASK_TIMEOUT_SECONDS
-from qwenpaw.utils.timeout import parse_positive_timeout_seconds
+from aiarb.app.task_tracker import REPLAY_END_SSE, TaskTracker
+from aiarb.constant import DEFAULT_STREAM_TASK_TIMEOUT_SECONDS
+from aiarb.utils.timeout import parse_positive_timeout_seconds
 
 
 def test_resolve_timeout_omitted_uses_default() -> None:
@@ -125,18 +125,18 @@ def console_workspace(workspace_mock, monkeypatch):
     workspace_mock.chat_manager.mark_chat_finished = AsyncMock()
     workspace_mock.task_tracker = TaskTracker()
     workspace_mock.agent_id = "default"
-    workspace_mock.workspace_dir = "/tmp/qwenpaw-test-workspace"
+    workspace_mock.workspace_dir = "/tmp/aiarb-test-workspace"
 
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: MagicMock(project_dir=None),
     )
     monkeypatch.setattr(
-        "qwenpaw.services.project_directory.resolve_effective_project_dir",
+        "aiarb.services.project_directory.resolve_effective_project_dir",
         lambda *args, **kwargs: ("/tmp/project", "test"),
     )
     monkeypatch.setattr(
-        "qwenpaw.services.project_directory.session_project_dir",
+        "aiarb.services.project_directory.session_project_dir",
         lambda _meta: None,
     )
     monkeypatch.setattr(
@@ -245,7 +245,7 @@ def test_chat_task_invalid_timeout_returns_400(
 
 def test_agent_request_does_not_declare_task_timeout() -> None:
     """Shared AgentRequest must not own the background-task timeout field."""
-    from qwenpaw.schemas import AgentRequest
+    from aiarb.schemas import AgentRequest
 
     assert "timeout" not in AgentRequest.model_fields
     dumped = AgentRequest().model_dump()

@@ -11,14 +11,14 @@ import pytest
 from aiohttp import web
 from aiohttp.test_utils import make_mocked_request
 from pydantic import ValidationError
-from qwenpaw.config.config import OneBotConfig
-from qwenpaw.schemas import (
+from aiarb.config.config import OneBotConfig
+from aiarb.schemas import (
     ContentType,
     TextContent,
 )
 
-from qwenpaw.app.channels.onebot import channel as onebot_channel_module
-from qwenpaw.app.channels.onebot.channel import (
+from aiarb.app.channels.onebot import channel as onebot_channel_module
+from aiarb.app.channels.onebot.channel import (
     OneBotChannel,
     _normalize_media_ref_sync,
 )
@@ -960,7 +960,7 @@ class TestSend:
 
 class TestSendMedia:
     async def test_send_image(self):
-        from qwenpaw.schemas import (
+        from aiarb.schemas import (
             ImageContent,
         )
 
@@ -977,7 +977,7 @@ class TestSendMedia:
         assert args[1]["message"][0]["type"] == "image"
 
     async def test_send_audio(self):
-        from qwenpaw.schemas import (
+        from aiarb.schemas import (
             AudioContent,
         )
 
@@ -990,7 +990,7 @@ class TestSendMedia:
         assert args[1]["message"][0]["type"] == "record"
 
     async def test_send_video(self):
-        from qwenpaw.schemas import (
+        from aiarb.schemas import (
             VideoContent,
         )
 
@@ -1006,7 +1006,7 @@ class TestSendMedia:
         assert args[1]["message"][0]["type"] == "video"
 
     async def test_send_file_private(self):
-        from qwenpaw.schemas import (
+        from aiarb.schemas import (
             FileContent,
         )
 
@@ -1028,7 +1028,7 @@ class TestSendMedia:
         )
 
     async def test_send_file_to_group(self):
-        from qwenpaw.schemas import (
+        from aiarb.schemas import (
             FileContent,
         )
 
@@ -1054,7 +1054,7 @@ class TestSendMedia:
         )
 
     async def test_send_file_converts_local_path_when_enabled(self, tmp_path):
-        from qwenpaw.schemas import FileContent
+        from aiarb.schemas import FileContent
 
         file_path = tmp_path / "report.txt"
         file_path.write_bytes(b"fake")
@@ -1070,7 +1070,7 @@ class TestSendMedia:
         assert ch._call_api.call_args.args[1]["file"] == "base64://ZmFrZQ=="
 
     async def test_send_file_no_url_noop(self):
-        from qwenpaw.schemas import (
+        from aiarb.schemas import (
             FileContent,
         )
 
@@ -1081,7 +1081,7 @@ class TestSendMedia:
         ch._call_api.assert_not_called()
 
     async def test_send_image_to_group(self):
-        from qwenpaw.schemas import (
+        from aiarb.schemas import (
             ImageContent,
         )
 
@@ -1101,7 +1101,7 @@ class TestSendMedia:
         assert args[1]["group_id"] == 67890
 
     async def test_send_content_parts_preserves_order_and_prefix(self):
-        from qwenpaw.schemas import ImageContent
+        from aiarb.schemas import ImageContent
 
         ch = _make_channel()
         ch._call_api = AsyncMock(return_value={"retcode": 0})
@@ -1483,7 +1483,7 @@ class TestPreviewText:
         assert OneBotChannel._preview_text(parts) == "hello world"
 
     def test_non_text_content(self):
-        from qwenpaw.schemas import (
+        from aiarb.schemas import (
             ImageContent,
         )
 

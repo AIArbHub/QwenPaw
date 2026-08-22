@@ -1,10 +1,10 @@
-# QwenPaw Hub
+# AIArb Hub
 
-QwenPaw Hub lets a team use QwenPaw on a shared server. Team members sign in at one address, but each person gets their own QwenPaw with separate workspaces, settings, credentials, and conversations.
+AIArb Hub lets a team use AIArb on a shared server. Team members sign in at one address, but each person gets their own AIArb with separate workspaces, settings, credentials, and conversations. 
 
-If you only use QwenPaw on your own computer, keep using the desktop App. Deploy Hub only when you need to manage multiple users on a server.
+AIArb Hub is a unified entry point for self-hosted, multi-user deployments. An administrator operates one Hub while every account receives a separate AIArb runtime with its own workspace, configuration, credentials, and conversations.  
 
-> QwenPaw Hub is available in non-desktop installations starting with QwenPaw 2.2.0. The desktop edition is the single-user App and does not include Hub. Earlier versions do not have the `qwenpaw hub` command.
+Hub does not replace or alter the single-user AIArb App. Personal devices can continue to run `aiarb app`; use `aiarb hub` only when multiple accounts need centralized management.
 
 > Hub 2.2.0 is an early release intended only for internal teams whose members trust one another. Even with HTTPS and remote access configured, do not operate the current version as a public multi-tenant service for unknown users.
 
@@ -12,7 +12,7 @@ If you only use QwenPaw on your own computer, keep using the desktop App. Deploy
 
 ## When to use Hub
 
-Hub is designed for companies, labs, and small teams that want to run QwenPaw for trusted members on their own server. Administrators can:
+Hub is designed for companies, labs, and small teams that want to run AIArb for trusted members on their own server. Administrators can:
 
 - create and manage accounts;
 - choose Local or Docker for all user runtimes;
@@ -20,28 +20,27 @@ Hub is designed for companies, labs, and small teams that want to run QwenPaw fo
 - set Docker images, resource limits, and access rules;
 - preserve user data and manage backups and upgrades centrally.
 
-Hub is self-hosted software, not a cloud service operated by the QwenPaw team. The server administrator can access the server, database, and backups, so users should only join a Hub run by themselves or an organization they trust.
+Hub is self-hosted software, not a cloud service operated by the AIArb team. The server administrator can access the server, database, and backups, so users should only join a Hub run by themselves or an organization they trust.
 
 ## Install
 
-Hub requires a non-desktop installation of QwenPaw 2.2.0 or later. Install or upgrade the Python package with the Hub dependencies:
+Hub requires a non-desktop installation of AIArb 2.2.0 or later. Install or upgrade the Python package with the Hub dependencies:
 
 ```bash
-pip install -U "qwenpaw[hub]"
+pip install -U "aiarb[hub]"
 ```
 
 Confirm that the command is available:
 
 ```bash
-qwenpaw hub --help
-```
+aiarb hub --help
 
 ## First start
 
 Start Hub on the loopback interface first:
 
 ```bash
-qwenpaw hub --host 127.0.0.1 --port 8000
+aiarb hub --host 127.0.0.1 --port 8000
 ```
 
 Open `http://127.0.0.1:8000/` and register an account. The first registered account becomes the administrator.
@@ -107,7 +106,7 @@ Create `hub.yaml`:
 version: 1
 
 control_plane:
-  public_base_url: https://qwenpaw.example.com
+  public_base_url: https://aiarb.example.com
   registration:
     enabled: false
     default_role: user
@@ -122,7 +121,7 @@ capacity:
 Then start Hub:
 
 ```bash
-qwenpaw hub \
+aiarb hub \
   --host 0.0.0.0 \
   --port 8000 \
   --force-public \
@@ -168,10 +167,10 @@ Users can restart a failed or normally stopped runtime from their personal page.
 
 ## Where Hub stores data
 
-Hub stores data in `~/.qwenpaw/hub/` by default. If `QWENPAW_WORKING_DIR` is set, it uses `<QWENPAW_WORKING_DIR>/hub/` instead.
+Hub stores data in `~/.aiarb/hub/` by default. If `AIARB_WORKING_DIR` is set, it uses `<AIARB_WORKING_DIR>/hub/` instead.
 
 ```text
-<QWENPAW_WORKING_DIR>/hub/
+<AIARB_WORKING_DIR>/hub/
 ├── control.db
 ├── secrets/
 └── runtimes/
@@ -194,7 +193,7 @@ secrets/
 runtimes/
 ```
 
-The database stores accounts, settings, and runtime records. `secrets/` contains keys required to decrypt credentials. `runtimes/` contains user workspaces and private configuration. Backing up only part of this set may not produce a complete recovery.
+The database stores accounts, se  ttings, and runtime records. `secrets/` contains keys required to decrypt credentials. `runtimes/` contains user workspaces and private configuration. Backing up only part of this set may not produce a complete recovery.
 
 Before an upgrade:
 

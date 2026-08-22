@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import asyncio
-from qwenpaw.browser.errors import BrowserError, ErrorCategory
+from aiarb.browser.errors import BrowserError, ErrorCategory
 
 
 class FakeCdpTransport:

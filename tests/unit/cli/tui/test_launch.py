@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Tests for launching the bundled TUI (`qwenpaw` / `qwenpaw tui`).
+"""Tests for launching the bundled TUI (`aiarb` / `aiarb tui`).
 
 Replaces paw's old ``test_cli.py`` + ``test_resolve.py``: the standalone
 ``paw`` command and PATH-based resolution were dropped when the TUI moved into
-QwenPaw. The TUI now spawns ``qwenpaw acp`` using the *current* interpreter.
+AIArb. The TUI now spawns ``aiarb acp`` using the *current* interpreter.
 """
 
 from __future__ import annotations
@@ -19,29 +19,29 @@ import pytest
 from click import get_current_context
 from click.testing import CliRunner
 
-from qwenpaw.cli.tui import launch
-from qwenpaw.cli.tui.launch import _build_transport, _resolve_workspace_dir
-from qwenpaw.cli.tui.launch import _resume_command
-from qwenpaw.cli.tui.launch import tui_cmd
+from aiarb.cli.tui import launch
+from aiarb.cli.tui.launch import _build_transport, _resolve_workspace_dir
+from aiarb.cli.tui.launch import _resume_command
+from aiarb.cli.tui.launch import tui_cmd
 
 pytestmark = [pytest.mark.unit, pytest.mark.p1]
 
 
 def test_default_transport_targets_current_interpreter(tmp_path, monkeypatch):
-    """Default spawns this very ``python -m qwenpaw acp`` (no PATH lookup)."""
+    """Default spawns this very ``python -m aiarb acp`` (no PATH lookup)."""
     monkeypatch.chdir(tmp_path)
     transport, description = _build_transport(agent=None, resume=None)
     assert transport._command == [
         sys.executable,
         "-m",
-        "qwenpaw",
+        "aiarb",
         "acp",
         "--local-diagnostics",
     ]
     project_dir = str(tmp_path.resolve())
     assert transport._cwd == project_dir
     assert transport._project_dir == project_dir
-    assert "qwenpaw acp" in description
+    assert "aiarb acp" in description
     assert "--local-diagnostics" in description
     assert f"cwd={project_dir}" in description
 
@@ -52,7 +52,7 @@ def test_default_transport_appends_agent_once():
     assert transport._command == [
         sys.executable,
         "-m",
-        "qwenpaw",
+        "aiarb",
         "acp",
         "--local-diagnostics",
         "--agent",
@@ -120,7 +120,7 @@ def test_resume_command_quotes_agent_session_and_project_path(monkeypatch):
     )
 
     assert command == (
-        "qwenpaw tui --agent writer --resume 'sess abc' "
+        "aiarb tui --agent writer --resume 'sess abc' "
         "'/tmp/project with spaces'"
     )
 
@@ -134,7 +134,7 @@ def test_resume_command_uses_windows_quoting(monkeypatch):
         project_dir=r"C:\Project Dir",
     )
 
-    assert command == r'qwenpaw tui --resume "sess abc" "C:\Project Dir"'
+    assert command == r'aiarb tui --resume "sess abc" "C:\Project Dir"'
 
 
 def test_resume_command_quotes_windows_project_path_with_shell_meta(
@@ -148,7 +148,7 @@ def test_resume_command_quotes_windows_project_path_with_shell_meta(
         project_dir=r"C:\A&B",
     )
 
-    assert command == r'qwenpaw tui --resume sess-abc "C:\A&B"'
+    assert command == r'aiarb tui --resume sess-abc "C:\A&B"'
 
 
 def test_resume_command_quotes_windows_project_path_trailing_backslash(
@@ -162,7 +162,7 @@ def test_resume_command_quotes_windows_project_path_trailing_backslash(
         project_dir="C:\\",
     )
 
-    assert command == r'qwenpaw tui --resume sess-abc "C:\\"'
+    assert command == r'aiarb tui --resume sess-abc "C:\\"'
 
 
 def test_run_tui_prints_resume_hint(monkeypatch, capsys, tmp_path):
@@ -183,7 +183,7 @@ def test_run_tui_prints_resume_hint(monkeypatch, capsys, tmp_path):
         "_build_transport",
         lambda **_: (FakeTransport(), "fake transport"),
     )
-    monkeypatch.setattr("qwenpaw.cli.tui.app.PawApp", FakeApp)
+    monkeypatch.setattr("aiarb.cli.tui.app.PawApp", FakeApp)
 
     launch.run_tui(agent="writer")
 
@@ -213,7 +213,7 @@ def test_run_tui_applies_textual_compat_before_app_runs(monkeypatch):
             calls.append("app-ran")
 
     monkeypatch.setattr(
-        "qwenpaw.cli.tui.compat.apply_textual_compat",
+        "aiarb.cli.tui.compat.apply_textual_compat",
         lambda: calls.append("compat"),
     )
     monkeypatch.setattr(
@@ -221,7 +221,7 @@ def test_run_tui_applies_textual_compat_before_app_runs(monkeypatch):
         "_build_transport",
         lambda **_: (FakeTransport(), "fake transport"),
     )
-    monkeypatch.setattr("qwenpaw.cli.tui.app.PawApp", FakeApp)
+    monkeypatch.setattr("aiarb.cli.tui.app.PawApp", FakeApp)
 
     launch.run_tui()
 
@@ -244,7 +244,7 @@ def test_tui_cmd_invokes_run_tui(monkeypatch):
         calls["resume"] = resume
         calls["project"] = project
 
-    monkeypatch.setattr("qwenpaw.cli.tui.launch.run_tui", fake_run_tui)
+    monkeypatch.setattr("aiarb.cli.tui.launch.run_tui", fake_run_tui)
     result = CliRunner().invoke(tui_cmd, ["--agent", "writer"])
     assert result.exit_code == 0
     assert calls == {
@@ -262,7 +262,7 @@ def test_tui_cmd_accepts_project(monkeypatch, tmp_path):
         calls["resume"] = resume
         calls["project"] = project
 
-    monkeypatch.setattr("qwenpaw.cli.tui.launch.run_tui", fake_run_tui)
+    monkeypatch.setattr("aiarb.cli.tui.launch.run_tui", fake_run_tui)
     result = CliRunner().invoke(tui_cmd, [str(tmp_path)])
     assert result.exit_code == 0
     assert calls == {
@@ -272,9 +272,9 @@ def test_tui_cmd_accepts_project(monkeypatch, tmp_path):
     }
 
 
-def test_bare_qwenpaw_launches_tui(monkeypatch):
-    """Bare ``qwenpaw`` (no subcommand) opens the TUI."""
-    from qwenpaw.cli.main import cli
+def test_bare_aiarb_launches_tui(monkeypatch):
+    """Bare ``aiarb`` (no subcommand) opens the TUI."""
+    from aiarb.cli.main import cli
 
     launched = {}
 
@@ -282,16 +282,16 @@ def test_bare_qwenpaw_launches_tui(monkeypatch):
         launched["called"] = True
         launched["kwargs"] = kwargs
 
-    monkeypatch.setattr("qwenpaw.cli.tui.launch.run_tui", fake_run_tui)
+    monkeypatch.setattr("aiarb.cli.tui.launch.run_tui", fake_run_tui)
     result = CliRunner().invoke(cli, [])
     assert result.exit_code == 0
     assert launched["called"] is True
     assert launched["kwargs"]["project"] is None
 
 
-def test_bare_qwenpaw_project_launches_tui(monkeypatch):
-    """``qwenpaw .`` opens the TUI with the current directory as project."""
-    from qwenpaw.cli.main import cli
+def test_bare_aiarb_project_launches_tui(monkeypatch):
+    """``aiarb .`` opens the TUI with the current directory as project."""
+    from aiarb.cli.main import cli
 
     launched = {}
 
@@ -299,7 +299,7 @@ def test_bare_qwenpaw_project_launches_tui(monkeypatch):
         launched["called"] = True
         launched["kwargs"] = kwargs
 
-    monkeypatch.setattr("qwenpaw.cli.tui.launch.run_tui", fake_run_tui)
+    monkeypatch.setattr("aiarb.cli.tui.launch.run_tui", fake_run_tui)
     result = CliRunner().invoke(cli, ["."])
     assert result.exit_code == 0
     assert launched["called"] is True
@@ -321,7 +321,7 @@ def test_project_path_with_global_port_launches_tui(
     expected_project,
 ):
     """A global port option does not hide the implicit project path."""
-    from qwenpaw.cli.main import cli
+    from aiarb.cli.main import cli
 
     launched = {}
 
@@ -329,7 +329,7 @@ def test_project_path_with_global_port_launches_tui(
         launched["port"] = get_current_context().obj["port"]
         launched["project"] = kwargs["project"]
 
-    monkeypatch.setattr("qwenpaw.cli.tui.launch.run_tui", fake_run_tui)
+    monkeypatch.setattr("aiarb.cli.tui.launch.run_tui", fake_run_tui)
     result = CliRunner().invoke(cli, cli_args)
     assert result.exit_code == 0
     assert launched == {
@@ -340,7 +340,7 @@ def test_project_path_with_global_port_launches_tui(
 
 def test_path_like_global_option_value_is_not_project(monkeypatch, tmp_path):
     """A path-like option value is skipped when locating the project."""
-    from qwenpaw.cli.main import cli
+    from aiarb.cli.main import cli
 
     launched = {}
 
@@ -348,7 +348,7 @@ def test_path_like_global_option_value_is_not_project(monkeypatch, tmp_path):
         launched["host"] = get_current_context().obj["host"]
         launched["project"] = kwargs["project"]
 
-    monkeypatch.setattr("qwenpaw.cli.tui.launch.run_tui", fake_run_tui)
+    monkeypatch.setattr("aiarb.cli.tui.launch.run_tui", fake_run_tui)
     host = str(tmp_path)
     result = CliRunner().invoke(cli, ["--host", host, "."])
     assert result.exit_code == 0
@@ -358,14 +358,14 @@ def test_path_like_global_option_value_is_not_project(monkeypatch, tmp_path):
     }
 
 
-def test_bare_qwenpaw_unknown_command_still_errors(monkeypatch):
+def test_bare_aiarb_unknown_command_still_errors(monkeypatch):
     """Only path-like unknown args are treated as TUI project paths."""
-    from qwenpaw.cli.main import cli
+    from aiarb.cli.main import cli
 
     monkeypatch.setattr(
-        "qwenpaw.cli.tui.launch.run_tui",
+        "aiarb.cli.tui.launch.run_tui",
         pytest.fail,
     )
-    result = CliRunner().invoke(cli, ["__missing_qwenpaw_command__"])
+    result = CliRunner().invoke(cli, ["__missing_aiarb_command__"])
     assert result.exit_code != 0
     assert "No such command" in result.output

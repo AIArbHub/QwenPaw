@@ -7,9 +7,9 @@ from __future__ import annotations
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
-import qwenpaw.providers.openrouter_provider as openrouter_provider_module
-from qwenpaw.providers.openrouter_provider import OpenRouterProvider
-from qwenpaw.providers.provider_manager import ProviderManager
+import aiarb.providers.openrouter_provider as openrouter_provider_module
+from aiarb.providers.openrouter_provider import OpenRouterProvider
+from aiarb.providers.provider_manager import ProviderManager
 
 
 def _make_provider() -> OpenRouterProvider:

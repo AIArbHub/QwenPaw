@@ -90,17 +90,17 @@ jobs:
         timeout-minutes: 10
         uses: ./.github/actions/verify-tauri-macos
         with:
-          dashscope-api-key: ${{ secrets.QWENPAW_DASHSCOPE_API_KEY }}
+          dashscope-api-key: ${{ secrets.AIARB_DASHSCOPE_API_KEY }}
           allow-flaky-llm: "true"
 
       - name: Stop desktop server
         if: always()
         run: |
-          pkill -f "QwenPaw Desktop" 2>/dev/null || true
-          pkill -f "qwenpaw-backend" 2>/dev/null || true
+          pkill -f "AIArb Desktop" 2>/dev/null || true
+          pkill -f "aiarb-backend" 2>/dev/null || true
           sleep 2
-          pkill -9 -f "QwenPaw Desktop" 2>/dev/null || true
-          pkill -9 -f "qwenpaw-backend" 2>/dev/null || true
+          pkill -9 -f "AIArb Desktop" 2>/dev/null || true
+          pkill -9 -f "aiarb-backend" 2>/dev/null || true
 
   tauri-windows:
     if: >-
@@ -157,7 +157,7 @@ jobs:
           $installer = Get-ChildItem "console/src-tauri/target/release/bundle/nsis/*.exe" |
             Select-Object -First 1
           if (-not $installer) { throw "No Tauri Windows installer found" }
-          $target = "dist/QwenPaw-Tauri-${{ steps.version.outputs.version }}-Windows-setup.exe"
+          $target = "dist/AIArb-Tauri-${{ steps.version.outputs.version }}-Windows-setup.exe"
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           Copy-Item -Force $installer.FullName $target
           Write-Host "Staged: $target"
@@ -166,7 +166,7 @@ jobs:
         timeout-minutes: 10
         uses: ./.github/actions/verify-tauri-windows
         with:
-          dashscope-api-key: ${{ secrets.QWENPAW_DASHSCOPE_API_KEY }}
+          dashscope-api-key: ${{ secrets.AIARB_DASHSCOPE_API_KEY }}
           allow-flaky-llm: "true"
 
       - name: Stop desktop server
@@ -174,13 +174,13 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Continue"
-          Get-Process -Name "qwenpaw-desktop" -ErrorAction SilentlyContinue |
+          Get-Process -Name "aiarb-desktop" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
-          Get-Process -Name "qwenpaw-backend" -ErrorAction SilentlyContinue |
+          Get-Process -Name "aiarb-backend" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
           Start-Sleep -Seconds 2
-          Get-Process -Name "qwenpaw-desktop" -ErrorAction SilentlyContinue |
+          Get-Process -Name "aiarb-desktop" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
-          Get-Process -Name "qwenpaw-backend" -ErrorAction SilentlyContinue |
+          Get-Process -Name "aiarb-backend" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
           exit 0

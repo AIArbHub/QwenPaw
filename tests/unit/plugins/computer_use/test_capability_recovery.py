@@ -12,8 +12,8 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.app.computer_use import runtime as runtime_module
-from qwenpaw.app.computer_use.runtime import (
+from aiarb.app.computer_use import runtime as runtime_module
+from aiarb.app.computer_use.runtime import (
     HostRuntimeProvider,
     RuntimeCapability,
 )
@@ -33,9 +33,9 @@ def _clean_provider(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(HostRuntimeProvider, "_capability", None)
     monkeypatch.setattr(HostRuntimeProvider, "_environment_spent", False)
     for name in (
-        "QWENPAW_COMPUTER_USE_PIPE",
-        "QWENPAW_COMPUTER_USE_CAPABILITY",
-        "QWENPAW_COMPUTER_USE_PROTOCOL",
+        "AIARB_COMPUTER_USE_PIPE",
+        "AIARB_COMPUTER_USE_CAPABILITY",
+        "AIARB_COMPUTER_USE_PROTOCOL",
     ):
         monkeypatch.delenv(name, raising=False)
     yield
@@ -103,10 +103,10 @@ def test_a_spent_environment_capability_stops_being_returned(
     returning it again would loop forever, since clearing the cached capability
     cannot clear an environment variable.
     """
-    monkeypatch.setenv("QWENPAW_COMPUTER_USE_PIPE", "pipe-from-env")
-    monkeypatch.setenv("QWENPAW_COMPUTER_USE_CAPABILITY", "secret")
+    monkeypatch.setenv("AIARB_COMPUTER_USE_PIPE", "pipe-from-env")
+    monkeypatch.setenv("AIARB_COMPUTER_USE_CAPABILITY", "secret")
     monkeypatch.setenv(
-        "QWENPAW_COMPUTER_USE_PROTOCOL",
+        "AIARB_COMPUTER_USE_PROTOCOL",
         str(runtime_module.COMPUTER_USE_PROTOCOL_VERSION),
     )
 
@@ -133,10 +133,10 @@ def test_a_spent_environment_capability_stops_being_returned(
 def test_an_incompatible_desktop_capability_is_not_exposed(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_COMPUTER_USE_PIPE", "pipe-old")
-    monkeypatch.setenv("QWENPAW_COMPUTER_USE_CAPABILITY", "secret")
+    monkeypatch.setenv("AIARB_COMPUTER_USE_PIPE", "pipe-old")
+    monkeypatch.setenv("AIARB_COMPUTER_USE_CAPABILITY", "secret")
     monkeypatch.setenv(
-        "QWENPAW_COMPUTER_USE_PROTOCOL",
+        "AIARB_COMPUTER_USE_PROTOCOL",
         str(runtime_module.COMPUTER_USE_PROTOCOL_VERSION + 1),
     )
 

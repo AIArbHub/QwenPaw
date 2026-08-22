@@ -2,7 +2,7 @@
 """Tests for WorkspaceBootstrapFactory."""
 from __future__ import annotations
 
-from qwenpaw.app.workspace.bootstrap_factory import WorkspaceBootstrapFactory
+from aiarb.app.workspace.bootstrap_factory import WorkspaceBootstrapFactory
 
 
 class TestWorkspaceBootstrapFactory:
@@ -13,7 +13,7 @@ class TestWorkspaceBootstrapFactory:
         assert isinstance(kwargs, dict)
 
     def test_includes_builtin_hook_clses(self) -> None:
-        from qwenpaw.checkpoints.hooks import (
+        from aiarb.checkpoints.hooks import (
             CheckpointAutoSnapshotHook,
             CheckpointQueryGateHook,
         )

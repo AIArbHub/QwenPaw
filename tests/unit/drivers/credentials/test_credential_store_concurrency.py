@@ -18,8 +18,8 @@ import time
 
 import pytest
 
-from qwenpaw.drivers.credentials.store import AsyncCredentialStore
-from qwenpaw.drivers.credentials.types import CredentialRecord
+from aiarb.drivers.credentials.store import AsyncCredentialStore
+from aiarb.drivers.credentials.types import CredentialRecord
 
 
 @pytest.mark.asyncio

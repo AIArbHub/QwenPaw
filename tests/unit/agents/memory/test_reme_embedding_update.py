@@ -9,14 +9,14 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from qwenpaw.agents.memory.embedding_model import (
+from aiarb.agents.memory.embedding_model import (
     embedding_config_fingerprint,
 )
-from qwenpaw.agents.memory.reme_light_memory_manager import (
+from aiarb.agents.memory.reme_light_memory_manager import (
     ReMeLightMemoryManager,
     _to_reme_session_id,
 )
-from qwenpaw.config.config import AgentProfileConfig, EmbeddingModelConfig
+from aiarb.config.config import AgentProfileConfig, EmbeddingModelConfig
 
 
 class FakeReMe:
@@ -135,7 +135,7 @@ async def test_manual_reindex_clears_persisted_requirement(tmp_path) -> None:
         return profile
 
     with patch(
-        "qwenpaw.agents.memory.reme_light_memory_manager."
+        "aiarb.agents.memory.reme_light_memory_manager."
         "update_agent_config_async",
         side_effect=update_config,
     ) as update_config_mock:
@@ -163,7 +163,7 @@ async def test_reindex_does_not_clear_a_new_vector_space_requirement(
         return profile
 
     with patch(
-        "qwenpaw.agents.memory.reme_light_memory_manager."
+        "aiarb.agents.memory.reme_light_memory_manager."
         "update_agent_config_async",
         side_effect=update_config,
     ):
@@ -249,7 +249,7 @@ async def test_reindex_and_embedding_update_share_lifecycle_boundary(
     )
 
     with patch(
-        "qwenpaw.agents.memory.reme_light_memory_manager."
+        "aiarb.agents.memory.reme_light_memory_manager."
         "update_agent_config_async",
         side_effect=update_config,
     ):

@@ -15,7 +15,7 @@ from typing import Any, AsyncGenerator, Callable
 from agentscope.middleware import MiddlewareBase
 from agentscope.event import ThinkingBlockDeltaEvent, TextBlockDeltaEvent
 
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 
 logger = logging.getLogger(__name__)
 

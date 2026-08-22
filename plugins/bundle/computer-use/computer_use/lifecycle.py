@@ -19,9 +19,9 @@ from __future__ import annotations
 
 import logging
 
-from qwenpaw.hooks.base import LifecycleHook
-from qwenpaw.runtime.hooks import HookContext, HookResult
-from qwenpaw.runtime.phases import Phase
+from aiarb.hooks.base import LifecycleHook
+from aiarb.runtime.hooks import HookContext, HookResult
+from aiarb.runtime.phases import Phase
 
 from .client import end_computer_use_turn
 

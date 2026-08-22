@@ -7,9 +7,9 @@ from unittest import mock
 
 import pytest
 
-from qwenpaw.providers.model_capability_cache import ModelCapabilityCache
+from aiarb.providers.model_capability_cache import ModelCapabilityCache
 
-_TTL = "qwenpaw.providers.model_capability_cache.CAPABILITY_CACHE_TTL_SECONDS"
+_TTL = "aiarb.providers.model_capability_cache.CAPABILITY_CACHE_TTL_SECONDS"
 
 
 @pytest.fixture()
@@ -70,7 +70,7 @@ def test_relearn_same_value_refreshes_timestamp(
     cache: ModelCapabilityCache,
 ) -> None:
     with mock.patch(
-        "qwenpaw.providers.model_capability_cache.time.monotonic",
+        "aiarb.providers.model_capability_cache.time.monotonic",
         side_effect=[100.0, 200.0],
     ):
         cache.learn("p:m", "rejects_media", True)

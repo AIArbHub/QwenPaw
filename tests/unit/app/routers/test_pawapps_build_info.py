@@ -5,13 +5,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from qwenpaw.app.routers.pawapps import _build_app_info
+from aiarb.app.routers.pawapps import _build_app_info
 
 CREATOR_PLUGIN_JSON = (
     Path(__file__).resolve().parents[4]
     / "plugins"
     / "apps"
-    / "qwenpaw-creator"
+    / "aiarb-creator"
     / "plugin.json"
 )
 
@@ -57,7 +57,7 @@ class TestBuildAppInfoCategory:
         manifest = json.loads(CREATOR_PLUGIN_JSON.read_text(encoding="utf-8"))
         info = _build_app_info(manifest)
 
-        assert info["id"] == "qwenpaw-creator"
+        assert info["id"] == "aiarb-creator"
         assert info["category"] == "video-creation"
         assert "category" not in (manifest.get("meta") or {})
         assert (manifest.get("meta") or {}).get("pawapp", {}).get(

@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """Shared fixtures for integration tests.
 
-These fixtures start a real QwenPaw app subprocess with isolated workspace
+These fixtures start a real AIArb app subprocess with isolated workspace
 directories and a sanitized environment to avoid touching local secrets.
 
 Subprocess coverage (optional):
 
-    QWENPAW_INTEGRATION_COVERAGE=1 pytest tests/integration/
+    AIARB_INTEGRATION_COVERAGE=1 pytest tests/integration/
 
 When set, ``pytest_sessionstart`` writes a coverage rcfile under
 ``.integration_coverage/`` with an **absolute** ``source=`` path
-(``…/src/qwenpaw``); the app subprocess runs with
+(``…/src/aiarb``); the app subprocess runs with
 ``COVERAGE_PROCESS_START`` / ``COVERAGE_FILE`` so the child traces
 that tree. The fixture stops the app with **SIGINT** first so coverage
 can flush (SIGTERM often yields empty data). After the session, files
@@ -73,12 +73,12 @@ def _write_integration_subprocess_rc(root: Path, dest_ini: Path) -> None:
     when the file is loaded via ``COVERAGE_PROCESS_START``, which produced
     empty traces (0 files) even though the app ran.
     """
-    src_qwenpaw = (root / "src" / "qwenpaw").resolve()
+    src_aiarb = (root / "src" / "aiarb").resolve()
     text = (
         "[run]\n"
         "parallel = true\n"
         "branch = false\n"
-        f"source = {src_qwenpaw}\n"
+        f"source = {src_aiarb}\n"
         "omit =\n"
         "    */tests/*\n"
         "    */test_*\n"
@@ -89,7 +89,7 @@ def _write_integration_subprocess_rc(root: Path, dest_ini: Path) -> None:
 
 def _integration_coverage_requested() -> bool:
     return os.environ.get(
-        "QWENPAW_INTEGRATION_COVERAGE",
+        "AIARB_INTEGRATION_COVERAGE",
         "",
     ).strip().lower() in (
         "1",
@@ -243,7 +243,7 @@ class AppServer:
     client: httpx.Client
     logs: list[str]
     log_thread: threading.Thread
-    # Working directory of the subprocess (= QWENPAW_WORKING_DIR). Tests that
+    # Working directory of the subprocess (= AIARB_WORKING_DIR). Tests that
     # need to seed file-backed stores (inbox_events.json, cron jobs_history/,
     # backups, etc.) write directly under this path. The subprocess re-reads
     # these files on each HTTP request, so no restart is needed after seeding.
@@ -316,7 +316,7 @@ def app_server(  # pylint: disable=too-many-statements,too-many-branches
     request: pytest.FixtureRequest,
     tmp_path_factory: pytest.TempPathFactory,
 ) -> Iterator[AppServer]:
-    """Start one isolated qwenpaw app process per test module.
+    """Start one isolated aiarb app process per test module.
 
     Module-scoped: cases in the same file share one subprocess. Cross-module
     isolation is preserved by re-launching with a fresh tmp dir. Cases must
@@ -342,18 +342,18 @@ def app_server(  # pylint: disable=too-many-statements,too-many-branches
     for key in _SENSITIVE_ENV_VARS:
         env.pop(key, None)
 
-    env["QWENPAW_WORKING_DIR"] = str(working_dir)
-    env["QWENPAW_SECRET_DIR"] = str(secret_dir)
-    env["QWENPAW_BACKUP_DIR"] = str(backups_dir)
-    env["QWENPAW_AUTH_ENABLED"] = "false"
+    env["AIARB_WORKING_DIR"] = str(working_dir)
+    env["AIARB_SECRET_DIR"] = str(secret_dir)
+    env["AIARB_BACKUP_DIR"] = str(backups_dir)
+    env["AIARB_AUTH_ENABLED"] = "false"
     # Set the upload size limit used by /api/.../upload-limit and the
     # request-body cap. Read once at app import time from this env var,
     # so it must be present before the subprocess starts.
-    env["QWENPAW_UPLOAD_MAX_SIZE_MB"] = "10"
+    env["AIARB_UPLOAD_MAX_SIZE_MB"] = "10"
     # Integration tests run in a temporary isolated workspace and must not
     # touch the developer's OS keychain. Force file-backed secrets so first
     # encryption does not block on desktop keyring discovery.
-    env["QWENPAW_RUNNING_IN_CONTAINER"] = "true"
+    env["AIARB_RUNNING_IN_CONTAINER"] = "true"
     env["NO_PROXY"] = "*"
     env["PYTHONUNBUFFERED"] = "1"
     # Force UTF-8 stdio in the subprocess so non-ASCII log lines (e.g.
@@ -371,7 +371,7 @@ def app_server(  # pylint: disable=too-many-statements,too-many-branches
     if _integration_coverage_requested():
         if _INTEGRATION_COVERAGE_DIR is None:
             raise AssertionError(
-                "QWENPAW_INTEGRATION_COVERAGE is set but coverage dir was not "
+                "AIARB_INTEGRATION_COVERAGE is set but coverage dir was not "
                 "initialised (pytest_sessionstart should create "
                 ".integration_coverage/).",
             )
@@ -431,7 +431,7 @@ def app_server(  # pylint: disable=too-many-statements,too-many-branches
     # a wrapper that maps SIGBREAK to KeyboardInterrupt.  CPython installs
     # a Python-level handler only for SIGINT (Modules/signalmodule.c);
     # SIGBREAK keeps the CRT default action, and neither uvicorn nor
-    # QwenPaw registers a SIGBREAK handler, so the CTRL_BREAK_EVENT sent
+    # AIArb registers a SIGBREAK handler, so the CTRL_BREAK_EVENT sent
     # by _shutdown_app would terminate the process without running
     # atexit -- coverage's save never happens and all recorded data is
     # dropped (forensics: fork runs 31666657171 / 31671241854, tracer
@@ -439,7 +439,7 @@ def app_server(  # pylint: disable=too-many-statements,too-many-branches
     # KeyboardInterrupt instead puts shutdown on the same graceful path
     # POSIX enjoys with SIGINT, so atexit runs and coverage flushes.
     # Non-coverage launches are unchanged.
-    app_launcher = [sys.executable, "-m", "qwenpaw"]
+    app_launcher = [sys.executable, "-m", "aiarb"]
     if sys.platform == "win32" and _integration_coverage_requested():
         app_launcher = [
             sys.executable,
@@ -530,7 +530,7 @@ def app_server(  # pylint: disable=too-many-statements,too-many-branches
         max_attempts -= 1
         if max_attempts <= 0:
             raise AssertionError(
-                "qwenpaw core agents did not become ready in time.\n"
+                "aiarb core agents did not become ready in time.\n"
                 f"{exit_note}\n"
                 f"logs:\n{logs_tail}",
             )

@@ -84,7 +84,7 @@ export function AgentBackendFields({ form, open }: AgentBackendFieldsProps) {
   const { t } = useTranslation();
   const { message } = useAppMessage();
   const backend =
-    (Form.useWatch("backend", form) as AgentBackend | undefined) ?? "qwenpaw";
+    (Form.useWatch("backend", form) as AgentBackend | undefined) ?? "aiarb";
   const selectedProvider = providerOption(backend);
   const [provider, setProvider] = useState<HarnessProvider | null>(null);
   const [connecting, setConnecting] = useState(false);
@@ -124,7 +124,7 @@ export function AgentBackendFields({ form, open }: AgentBackendFieldsProps) {
   }, [loadStatus]);
 
   useEffect(() => {
-    if (!open || backend === "qwenpaw") {
+    if (!open || backend === "aiarb") {
       setProvider(null);
       return stopPolling;
     }
@@ -216,10 +216,10 @@ export function AgentBackendFields({ form, open }: AgentBackendFieldsProps) {
   const selectBackend = useCallback(
     (next: AgentBackend) => {
       const switchingProvider =
-        next !== "qwenpaw" && next !== form.getFieldValue("backend");
+        next !== "aiarb" && next !== form.getFieldValue("backend");
       form.setFieldsValue({
         backend: next,
-        ...(next === "qwenpaw" || switchingProvider
+        ...(next === "aiarb" || switchingProvider
           ? { backend_settings: {} }
           : {}),
       });
@@ -243,9 +243,9 @@ export function AgentBackendFields({ form, open }: AgentBackendFieldsProps) {
         <button
           type="button"
           className={`${styles.typeCard} ${
-            backend === "qwenpaw" ? styles.selected : ""
+            backend === "aiarb" ? styles.selected : ""
           }`}
-          onClick={() => selectBackend("qwenpaw")}
+          onClick={() => selectBackend("aiarb")}
         >
           <span className={styles.typeIcon}>
             <PawPrint size={20} />
@@ -259,10 +259,10 @@ export function AgentBackendFields({ form, open }: AgentBackendFieldsProps) {
         <button
           type="button"
           className={`${styles.typeCard} ${
-            backend !== "qwenpaw" ? styles.selected : ""
+            backend !== "aiarb" ? styles.selected : ""
           }`}
           onClick={() =>
-            selectBackend(backend === "qwenpaw" ? "codex" : backend)
+            selectBackend(backend === "aiarb" ? "codex" : backend)
           }
         >
           <span className={styles.typeIcon}>
@@ -276,7 +276,7 @@ export function AgentBackendFields({ form, open }: AgentBackendFieldsProps) {
         </button>
       </div>
 
-      {backend !== "qwenpaw" && (
+      {backend !== "aiarb" && (
         <div className={styles.thirdPartyPanel}>
           <div className={styles.panelHeading}>
             <h4>{t("agent.backend.providerTitle")}</h4>
@@ -467,7 +467,7 @@ export function AgentBackendFields({ form, open }: AgentBackendFieldsProps) {
                     <span>
                       <strong>{t("agent.backend.inheritedSkills")}</strong>
                       <small>
-                        {provider.capabilities.qwenpaw_skills_projection
+                        {provider.capabilities.aiarb_skills_projection
                           ? t("agent.backend.runtimeInherited")
                           : t("agent.backend.notSupported")}
                       </small>
@@ -478,7 +478,7 @@ export function AgentBackendFields({ form, open }: AgentBackendFieldsProps) {
                     <span>
                       <strong>{t("agent.backend.inheritedMcp")}</strong>
                       <small>
-                        {provider.capabilities.qwenpaw_mcp_projection
+                        {provider.capabilities.aiarb_mcp_projection
                           ? t("agent.backend.runtimeInherited")
                           : t("agent.backend.notSupported")}
                       </small>

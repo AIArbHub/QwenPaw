@@ -63,7 +63,7 @@ type BroadcastConflict =
       current_language: string;
     };
 
-const BUILTIN_NOTICE_ACK_STORAGE_KEY = "qwenpaw.skill-pool.builtin-notice.ack";
+const BUILTIN_NOTICE_ACK_STORAGE_KEY = "aiarb.skill-pool.builtin-notice.ack";
 
 function countAutomationAttentionItems(
   result: SkillAutomationResponse,

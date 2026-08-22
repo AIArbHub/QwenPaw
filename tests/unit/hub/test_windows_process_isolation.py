@@ -11,12 +11,12 @@ from typing import IO, Any
 
 import pytest
 
-from qwenpaw.hub.local_provisioner import LocalProcessRuntimeProvisioner
-from qwenpaw.hub.process_isolation import (
+from aiarb.hub.local_provisioner import LocalProcessRuntimeProvisioner
+from aiarb.hub.process_isolation import (
     IsolatedLaunch,
     ProcessIsolationError,
 )
-from qwenpaw.hub.windows_process_isolation import (
+from aiarb.hub.windows_process_isolation import (
     WindowsAppContainerIsolator,
 )
 from tests.unit.hub.factories import runtime_record as _record
@@ -44,7 +44,7 @@ class _Sandbox:
 
     def __init__(self, config: Any) -> None:
         self.config = config
-        self.container_name = "qwenpaw_runtime_a"
+        self.container_name = "aiarb_runtime_a"
         self.container_sid = "S-1-15-2-123"
         self.stopped = False
         self.spawned: tuple[list[str], str, dict[str, str]] | None = None
@@ -77,11 +77,11 @@ def _mock_windows_boundary(
     loopback_calls: list[tuple[str, bool]] = []
     monkeypatch.setattr(sys, "platform", "win32")
     monkeypatch.setattr(
-        "qwenpaw.hub.windows_process_isolation.is_windows_admin",
+        "aiarb.hub.windows_process_isolation.is_windows_admin",
         lambda: True,
     )
     monkeypatch.setattr(
-        "qwenpaw.hub.windows_process_isolation.WindowsAppContainerSandbox",
+        "aiarb.hub.windows_process_isolation.WindowsAppContainerSandbox",
         _Sandbox,
     )
 
@@ -105,13 +105,13 @@ def test_windows_boundary_is_fail_closed_without_admin(
 ) -> None:
     monkeypatch.setattr(sys, "platform", "win32")
     monkeypatch.setattr(
-        "qwenpaw.hub.windows_process_isolation.is_windows_admin",
+        "aiarb.hub.windows_process_isolation.is_windows_admin",
         lambda: False,
     )
     isolator = WindowsAppContainerIsolator()
 
     with pytest.raises(ProcessIsolationError, match="administrator"):
-        isolator.prepare(_record(tmp_path), ["python", "-m", "qwenpaw"], {})
+        isolator.prepare(_record(tmp_path), ["python", "-m", "aiarb"], {})
 
 
 def test_windows_boundary_uses_private_writable_mounts(
@@ -122,7 +122,7 @@ def test_windows_boundary_uses_private_writable_mounts(
     isolator = WindowsAppContainerIsolator()
     loopback_calls = _mock_windows_boundary(monkeypatch, isolator)
 
-    launch = isolator.prepare(record, ["python", "-m", "qwenpaw"], {})
+    launch = isolator.prepare(record, ["python", "-m", "aiarb"], {})
 
     sandbox = _Sandbox.instances[0]
     writable = {
@@ -138,7 +138,7 @@ def test_windows_boundary_uses_private_writable_mounts(
         record.backup_dir,
         record.log_file.parent,
     }
-    assert launch == IsolatedLaunch(["python", "-m", "qwenpaw"], {})
+    assert launch == IsolatedLaunch(["python", "-m", "aiarb"], {})
     assert loopback_calls == [("S-1-15-2-123", True)]
 
     isolator.release(record.runtime_id)
@@ -157,7 +157,7 @@ def test_windows_boundary_launches_inside_prepared_sandbox(
     record = _record(tmp_path)
     isolator = WindowsAppContainerIsolator()
     _mock_windows_boundary(monkeypatch, isolator)
-    launch = isolator.prepare(record, ["python", "-m", "qwenpaw"], {})
+    launch = isolator.prepare(record, ["python", "-m", "aiarb"], {})
 
     with record.log_file.open("a", encoding="utf-8") as log_handle:
         process = isolator.launch(record, launch, log_handle)
@@ -165,7 +165,7 @@ def test_windows_boundary_launches_inside_prepared_sandbox(
     sandbox = _Sandbox.instances[0]
     assert process.pid == 42
     assert sandbox.spawned == (
-        ["python", "-m", "qwenpaw"],
+        ["python", "-m", "aiarb"],
         str(record.working_dir),
         {},
     )
@@ -213,7 +213,7 @@ def test_windows_probe_timeout_terminates_job_tree(tmp_path: Path) -> None:
 
 @pytest.mark.skipif(
     sys.platform != "win32"
-    or os.environ.get("QWENPAW_WINDOWS_APPCONTAINER_E2E") != "1",
+    or os.environ.get("AIARB_WINDOWS_APPCONTAINER_E2E") != "1",
     reason="requires the elevated GitHub Windows AppContainer runner",
 )
 def test_windows_appcontainer_real_preflight(tmp_path: Path) -> None:

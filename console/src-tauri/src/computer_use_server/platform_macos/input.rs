@@ -771,7 +771,7 @@ fn prepare_point(
 ) -> Result<CGPoint, (&'static str, String)> {
     // Refuse stale geometry before changing focus, then verify it again once
     // activation has completed. The final hit test must happen after focus so
-    // a foreground QwenPaw window does not make every background target fail.
+    // a foreground AIArb window does not make every background target fail.
     resolve_point(observation, params, x_key, y_key)?;
     set_focus(&observation.window)?;
     resolve_target_point(observation, params, x_key, y_key)

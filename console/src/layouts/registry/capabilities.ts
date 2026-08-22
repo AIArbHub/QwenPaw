@@ -5,8 +5,8 @@ interface AgentMenuCapabilities {
   native_skills_ui?: boolean;
   native_tools_ui?: boolean;
   native_mcp_ui?: boolean;
-  qwenpaw_skills_projection?: boolean;
-  qwenpaw_mcp_projection?: boolean;
+  aiarb_skills_projection?: boolean;
+  aiarb_mcp_projection?: boolean;
   provider_skills_discovery?: boolean;
   provider_mcp_discovery?: boolean;
 }
@@ -27,13 +27,13 @@ export function filterMenuForAgentCapabilities(
   if (capabilities?.workspace_ui !== false) return items;
   const showSkills = Boolean(
     capabilities.native_skills_ui ||
-      capabilities.qwenpaw_skills_projection ||
+      capabilities.aiarb_skills_projection ||
       capabilities.provider_skills_discovery,
   );
   const showTools = Boolean(capabilities.native_tools_ui);
   const showMcp = Boolean(
     capabilities.native_mcp_ui ||
-      capabilities.qwenpaw_mcp_projection ||
+      capabilities.aiarb_mcp_projection ||
       capabilities.provider_mcp_discovery,
   );
   const showAgentGroup = showSkills || showTools || showMcp;

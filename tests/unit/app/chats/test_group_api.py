@@ -5,14 +5,14 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.chats.api import get_chat_manager, router
-from qwenpaw.app.chats.manager import ChatManager
-from qwenpaw.app.chats.models import (
+from aiarb.app.chats.api import get_chat_manager, router
+from aiarb.app.chats.manager import ChatManager
+from aiarb.app.chats.models import (
     CRON_CHAT_GROUP_ID,
     DEFAULT_CHAT_GROUP_ID,
     SUBAGENT_CHAT_GROUP_ID,
 )
-from qwenpaw.app.chats.repo import JsonChatRepository
+from aiarb.app.chats.repo import JsonChatRepository
 
 
 def _client(tmp_path: Path) -> TestClient:

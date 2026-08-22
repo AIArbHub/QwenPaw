@@ -11,8 +11,8 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from starlette.testclient import WebSocketDenialResponse
 
-from qwenpaw.browser.control_link.chrome import ws_handler
-from qwenpaw.browser.control_link.chrome.bridge import NMBridge
+from aiarb.browser.control_link.chrome import ws_handler
+from aiarb.browser.control_link.chrome.bridge import NMBridge
 
 
 def _write_config(config_path: Path, token: str) -> None:

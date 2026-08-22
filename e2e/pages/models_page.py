@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw Models page object.
+AIArb Models page object.
 
 Wraps all interactions on the Models page and exposes business-level methods.
 """
@@ -27,23 +27,23 @@ class ModelsPage(BasePage):
     - Get the model list
     """
 
-    PAGE_TITLE = "QwenPaw Console"
+    PAGE_TITLE = "AIArb Console"
     MODELS_URL = f"{config.base_url}/models"
     PAGE_URL = MODELS_URL
 
     # ========== Selector definitions ==========
 
     # Page load indicator
-    PAGE_LOAD_INDICATOR = '.ant-breadcrumb, .qwenpaw-breadcrumb, h1, h2, [class*="breadcrumb"]'
+    PAGE_LOAD_INDICATOR = '.ant-breadcrumb, .aiarb-breadcrumb, h1, h2, [class*="breadcrumb"]'
 
     # Breadcrumb
-    BREADCRUMB_SELECTOR = '.ant-breadcrumb, .qwenpaw-breadcrumb, nav[class*="breadcrumb"], [class*="Breadcrumb"]'
+    BREADCRUMB_SELECTOR = '.ant-breadcrumb, .aiarb-breadcrumb, nav[class*="breadcrumb"], [class*="Breadcrumb"]'
 
     # Download model button
     DOWNLOAD_MODEL_BTN = 'button:has-text("下载模型"), button:has-text("Download Model"), button:has-text("下载"), button:has-text("Download")'
 
     # Model list
-    MODEL_LIST_SELECTOR = '.ant-list-item, .qwenpaw-list-item, [class*="modelItem"], [class*="model-item"], table tbody tr, .ant-table-row, .qwenpaw-table-row'
+    MODEL_LIST_SELECTOR = '.ant-list-item, .aiarb-list-item, [class*="modelItem"], [class*="model-item"], table tbody tr, .ant-table-row, .aiarb-table-row'
 
     # ========== Navigation ==========
 

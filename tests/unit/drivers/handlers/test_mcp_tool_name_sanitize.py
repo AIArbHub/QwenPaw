@@ -5,8 +5,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.drivers.capabilities import parse_capability_id
-from qwenpaw.drivers.handlers.mcp import (
+from aiarb.drivers.capabilities import parse_capability_id
+from aiarb.drivers.handlers.mcp import (
     _mcp_tool_to_capability,
     _sanitize_tool_name,
     _tool_namespace_from_display_name,

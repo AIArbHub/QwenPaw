@@ -23,7 +23,7 @@ from agentscope.message import (
 )
 from agentscope.tool import ToolChunk
 
-from qwenpaw.runtime.tool_registry import tool_descriptor
+from aiarb.runtime.tool_registry import tool_descriptor
 
 from .client import get_computer_use_client
 from .feature_state import get_computer_use_feature_state

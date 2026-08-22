@@ -11,16 +11,16 @@ from unittest.mock import MagicMock
 
 import pytest
 
-import qwenpaw.app.agent_context as agent_context_module
-import qwenpaw.app.routers.tools as tools_router_module
-import qwenpaw.browser.runtime.managed_playwright as managed_playwright_module
-import qwenpaw.plugins.registry as registry_module
-from qwenpaw.app.routers.tools import (
+import aiarb.app.agent_context as agent_context_module
+import aiarb.app.routers.tools as tools_router_module
+import aiarb.browser.runtime.managed_playwright as managed_playwright_module
+import aiarb.plugins.registry as registry_module
+from aiarb.app.routers.tools import (
     ToolConfigUpdate,
     get_tool_config,
     update_tool_config,
 )
-from qwenpaw.utils.io_utils import run_sync_io
+from aiarb.utils.io_utils import run_sync_io
 
 
 def _agent_config(tool_name: str, config: dict) -> SimpleNamespace:

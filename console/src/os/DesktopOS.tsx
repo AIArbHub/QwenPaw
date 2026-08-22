@@ -59,7 +59,7 @@ import { getOsRootHref } from "../utils/navigationMode";
 import "./osWindowBody.css";
 
 /** Session flag so the boot splash plays once per browser session. */
-const BOOT_FLAG_KEY = "qwenpaw.os.booted";
+const BOOT_FLAG_KEY = "aiarb.os.booted";
 
 function shouldPlayBoot(): boolean {
   try {
@@ -442,12 +442,12 @@ export default function DesktopOS() {
         </div>
       )}
 
-      {/* Persistent background watermark — QwenPaw OS brand mark. Sits at the
+      {/* Persistent background watermark — AIArb OS brand mark. Sits at the
           lowest layer and never intercepts pointer events, so it reads as a
           backdrop behind icons and app windows rather than a card. */}
       <div className={styles.emptyHint}>
-        <img src="/qwenpaw.png" alt="" />
-        <div className={styles.emptyBrandName}>QwenPaw OS</div>
+        <img src="/aiarb.png" alt="" />
+        <div className={styles.emptyBrandName}>AIArb OS</div>
       </div>
 
       {/* Windows layer */}

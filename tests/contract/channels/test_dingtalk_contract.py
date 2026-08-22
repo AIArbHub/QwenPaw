@@ -19,12 +19,12 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.app.channels.renderer import ChannelDisplayConfig
+from aiarb.app.channels.renderer import ChannelDisplayConfig
 
 from tests.contract.channels import ChannelContractTest
 
 if TYPE_CHECKING:
-    from qwenpaw.app.channels.base import BaseChannel
+    from aiarb.app.channels.base import BaseChannel
 
 
 class TestDingTalkChannelContract(ChannelContractTest):
@@ -42,9 +42,9 @@ class TestDingTalkChannelContract(ChannelContractTest):
     """
 
     @pytest.fixture(autouse=True)
-    def _setup_dingtalk_env(self, temp_copaw_home):
+    def _setup_dingtalk_env(self, temp_aiarb_home):
         """Setup isolated environment for DingTalk tests."""
-        self._media_dir = temp_copaw_home / ".copaw" / "media"
+        self._media_dir = temp_aiarb_home / ".aiarb" / "media"
         self._media_dir.mkdir(parents=True, exist_ok=True)
 
     def create_instance(self) -> "BaseChannel":
@@ -53,7 +53,7 @@ class TestDingTalkChannelContract(ChannelContractTest):
 
         Uses mocks to avoid requiring real DingTalk credentials.
         """
-        from qwenpaw.app.channels.dingtalk.channel import DingTalkChannel
+        from aiarb.app.channels.dingtalk.channel import DingTalkChannel
 
         process = AsyncMock()
 

@@ -8,11 +8,11 @@ from pathlib import Path
 
 
 def _load_mission_prompts(monkeypatch):
-    """Load mission prompts without importing the full qwenpaw package."""
+    """Load mission prompts without importing the full aiarb package."""
     for package_name in (
-        "qwenpaw",
-        "qwenpaw.modes",
-        "qwenpaw.modes.mission",
+        "aiarb",
+        "aiarb.modes",
+        "aiarb.modes.mission",
     ):
         package = types.ModuleType(package_name)
         package.__path__ = []
@@ -21,13 +21,13 @@ def _load_mission_prompts(monkeypatch):
     prompts_path = (
         Path(__file__).parents[3]
         / "src"
-        / "qwenpaw"
+        / "aiarb"
         / "modes"
         / "mission"
         / "prompts.py"
     )
     spec = importlib.util.spec_from_file_location(
-        "qwenpaw.modes.mission.prompts",
+        "aiarb.modes.mission.prompts",
         prompts_path,
     )
     assert spec is not None
@@ -35,16 +35,16 @@ def _load_mission_prompts(monkeypatch):
     mission_prompts = importlib.util.module_from_spec(spec)
     monkeypatch.setitem(
         sys.modules,
-        "qwenpaw.modes.mission.prompts",
+        "aiarb.modes.mission.prompts",
         mission_prompts,
     )
     spec.loader.exec_module(mission_prompts)
 
-    mission_handler = types.ModuleType("qwenpaw.modes.mission.handler")
+    mission_handler = types.ModuleType("aiarb.modes.mission.handler")
     mission_handler.build_master_prompt = mission_prompts.build_master_prompt
     monkeypatch.setitem(
         sys.modules,
-        "qwenpaw.modes.mission.handler",
+        "aiarb.modes.mission.handler",
         mission_handler,
     )
     return mission_prompts, mission_handler

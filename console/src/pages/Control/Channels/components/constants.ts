@@ -48,7 +48,7 @@ const IPV6_LOOPBACK_RE = /^(?:0*:)+0*1$/;
 /**
  * Whether a listen address only accepts connections from the local machine.
  *
- * Mirrors `is_loopback_host` in `src/qwenpaw/utils/http.py`, which stays
+ * Mirrors `is_loopback_host` in `src/aiarb/utils/http.py`, which stays
  * authoritative; this copy only drives form validation. Unspecified
  * addresses such as `0.0.0.0`, `::` and the empty string bind every
  * interface and are therefore not loopback.

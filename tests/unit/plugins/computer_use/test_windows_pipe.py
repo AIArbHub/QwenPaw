@@ -30,7 +30,7 @@ from computer_use.transport.windows_pipe import (
     WindowsPipeTransport,
     _kernel32,
 )
-from qwenpaw.app.computer_use.runtime import (
+from aiarb.app.computer_use.runtime import (
     COMPUTER_USE_PROTOCOL_VERSION,
     RuntimeCapability,
 )
@@ -50,7 +50,7 @@ class _MockHelper:
 
     def __init__(self) -> None:
         suffix = uuid.uuid4().hex[:8]
-        self.pipe_name = f"qwenpaw-cu-test-{os.getpid()}-{suffix}"
+        self.pipe_name = f"aiarb-cu-test-{os.getpid()}-{suffix}"
         self.secret = "test-secret"
         self.stop_reading = threading.Event()
         self._ready = threading.Event()

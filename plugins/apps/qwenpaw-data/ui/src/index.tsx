@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 
 import { App } from "./App";
-import { requireQwenPawDataSdk } from "./sdk";
+import { requireAIArbDataSdk } from "./sdk";
 import styles from "./styles.css?inline";
 
 function installStyles(): () => void {
@@ -13,10 +13,10 @@ function installStyles(): () => void {
 }
 
 try {
-  const paw = requireQwenPawDataSdk();
+  const paw = requireAIArbDataSdk();
   paw.ui.registerPage({
     path: "/apps/qwenpaw-data",
-    label: "QwenPaw-Data",
+    label: "AIArb-Data",
     icon: "📊",
     priority: 20,
     mount(container) {

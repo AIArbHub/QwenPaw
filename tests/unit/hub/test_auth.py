@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Tests for QwenPaw Hub users, roles, and token invalidation."""
+"""Tests for AIArb Hub users, roles, and token invalidation."""
 
 import sqlite3
 from pathlib import Path
 
 import pytest
 
-from qwenpaw.hub.auth import HubAuthService
-from qwenpaw.hub.credentials import TenantCredentialVault
+from aiarb.hub.auth import HubAuthService
+from aiarb.hub.credentials import TenantCredentialVault
 
 
 def _auth_service(tmp_path: Path) -> HubAuthService:

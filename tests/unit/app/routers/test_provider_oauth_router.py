@@ -9,7 +9,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.routers import router as api_router
+from aiarb.app.routers import router as api_router
 
 
 def _callback_url(authorize_url: str) -> str:
@@ -37,7 +37,7 @@ def test_openrouter_oauth_start_is_registered() -> None:
 def test_openrouter_uses_managed_callback_when_injected(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "runtime-token")
+    monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "runtime-token")
     app = FastAPI()
     app.include_router(api_router, prefix="/api")
     client = TestClient(app)
@@ -45,15 +45,15 @@ def test_openrouter_uses_managed_callback_when_injected(
     response = client.post(
         "/api/providers/openrouter/oauth/start",
         headers={
-            "X-QwenPaw-Hub-OAuth-Callback-Url": (
-                "https://qwenpaw.example.com/api/hub/oauth/callback/relay"
+            "X-AIArb-Hub-OAuth-Callback-Url": (
+                "https://aiarb.example.com/api/hub/oauth/callback/relay"
             ),
         },
     )
 
     assert response.status_code == 200
     assert _callback_url(response.json()["authorize_url"]) == (
-        "https://qwenpaw.example.com/api/hub/oauth/callback/relay"
+        "https://aiarb.example.com/api/hub/oauth/callback/relay"
     )
 
 
@@ -65,7 +65,7 @@ def test_openrouter_ignores_managed_callback_header_in_standalone() -> None:
     response = client.post(
         "/api/providers/openrouter/oauth/start",
         headers={
-            "X-QwenPaw-Hub-OAuth-Callback-Url": (
+            "X-AIArb-Hub-OAuth-Callback-Url": (
                 "https://attacker.example/callback"
             ),
         },
@@ -79,7 +79,7 @@ def test_openrouter_ignores_managed_callback_header_in_standalone() -> None:
 def test_openrouter_rejects_public_http_managed_callback(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "runtime-token")
+    monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "runtime-token")
     app = FastAPI()
     app.include_router(api_router, prefix="/api")
     client = TestClient(app)
@@ -87,7 +87,7 @@ def test_openrouter_rejects_public_http_managed_callback(
     response = client.post(
         "/api/providers/openrouter/oauth/start",
         headers={
-            "X-QwenPaw-Hub-OAuth-Callback-Url": (
+            "X-AIArb-Hub-OAuth-Callback-Url": (
                 "http://192.0.2.4/api/hub/oauth/callback/runtime/openrouter"
             ),
         },

@@ -49,7 +49,7 @@ vi.mock("../Settings/Market/MarketPanel", () => ({
         onClick={() =>
           install.enqueue([
             {
-              source: "qwenpaw",
+              source: "aiarb",
               slug: "test-skill",
               name: "Test Skill",
               source_url: "https://example.com/test-skill.zip",

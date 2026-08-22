@@ -7,10 +7,10 @@ import pytest
 import pytest_asyncio
 from agentscope.message import ToolResultState
 
-from qwenpaw.agents.tools.browser import browser
-from qwenpaw.browser.execution import kernel
-from qwenpaw.browser.execution.kernel import get_default_kernel_manager
-from qwenpaw.browser import tool_entrypoint
+from aiarb.agents.tools.browser import browser
+from aiarb.browser.execution import kernel
+from aiarb.browser.execution.kernel import get_default_kernel_manager
+from aiarb.browser import tool_entrypoint
 
 
 @pytest_asyncio.fixture(autouse=True)

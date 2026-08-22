@@ -54,7 +54,7 @@ import {
 import styles from "./index.module.less";
 
 type TabKey = "approvals" | "messages";
-const INBOX_TAB_STORAGE_KEY = "qwenpaw.inbox.activeTab";
+const INBOX_TAB_STORAGE_KEY = "aiarb.inbox.activeTab";
 const PUSH_MESSAGES_PAGE_SIZE = 5;
 
 const SOURCE_TYPE_LABEL_KEYS: Record<string, string> = {

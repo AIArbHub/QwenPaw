@@ -1,6 +1,6 @@
 # Computer Use
 
-Computer Use is a desktop plugin backed by the QwenPaw desktop host, supported
+Computer Use is a desktop plugin backed by the AIArb desktop host, supported
 on Windows and macOS. The Python plugin contains only the tool adapter,
 approval bridge, and usage skill. Window discovery, screen capture,
 accessibility inspection, input injection, and target validation run in the
@@ -33,7 +33,7 @@ directory would therefore never run.
 The manifest points `entry.frontend` at `dist/index.js`. That bundle is a build
 artifact of `frontend/`, and it is committed rather than gitignored so the
 plugin installs on a machine with no npm toolchain -- the same arrangement
-`plugins/bundle/qwenpaw-pet` uses, and the reason the repository `.gitignore`
+`plugins/bundle/aiarb-pet` uses, and the reason the repository `.gitignore`
 carries an exception for this path.
 
 It therefore has to be rebuilt and committed alongside any edit under
@@ -50,7 +50,7 @@ The helper is a Rust binary in `console/src-tauri/src/computer_use_server/`,
 with a leaf directory per platform. Windows builds and tests locally:
 
 ```bash
-cd console/src-tauri && cargo test --bin qwenpaw-computer-use-helper
+cd console/src-tauri && cargo test --bin aiarb-computer-use-helper
 ```
 
 A change under `platform_macos/` needs a macOS compiler, so verify it with the

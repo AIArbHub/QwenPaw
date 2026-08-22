@@ -72,7 +72,7 @@ export const pawappApi = {
   },
 
   /**
-   * Uninstall a PawApp by ID (deletes its directory under ~/.copaw/apps).
+   * Uninstall a PawApp by ID (deletes its directory under ~/.aiarb/apps).
    */
   async uninstall(appId: string): Promise<void> {
     const res = await fetch(getApiUrl(`/pawapps/${appId}`), {

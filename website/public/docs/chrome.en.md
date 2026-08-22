@@ -1,6 +1,6 @@
 # Chrome extension
 
-The Chrome extension connects QwenPaw to the Chrome you already use. Once
+The Chrome extension connects AIArb to the Chrome you already use. Once
 connected, an Agent can open tabs, click, and type inside your signed-in
 browser — visible to you the whole time, and yours to take over at any moment.
 
@@ -18,15 +18,15 @@ browser — visible to you the whole time, and yours to take over at any moment.
 | ------- | --------------------------------------------------------------------------------------------------- |
 | Browser | Desktop Google Chrome                                                                               |
 | OS      | Windows, macOS, Linux                                                                               |
-| QwenPaw | Runs on the same machine as Chrome and listens on a local address (`127.0.0.1`, `localhost`, `::1`) |
+| AIArb | Runs on the same machine as Chrome and listens on a local address (`127.0.0.1`, `localhost`, `::1`) |
 
 The extension relies on Chrome Native Messaging: it has to be able to start
-QwenPaw's local connection helper. The following setups therefore do not work:
+AIArb's local connection helper. The following setups therefore do not work:
 
-- QwenPaw runs in Docker, on a remote server, or in the cloud while Chrome runs
+- AIArb runs in Docker, on a remote server, or in the cloud while Chrome runs
   on your own machine.
 - You reach the Console through a non-local address. Setup then fails with an
-  explicit message that QwenPaw must listen on a local address.
+  explicit message that AIArb must listen on a local address.
 
 For those setups use the standalone browser instead (`avatar` / `guest`
 identity) — see [Browser](./browser).
@@ -65,7 +65,7 @@ Follow the **Local install steps** — you only need to do this once:
    corner.
 3. **Click load button** — select **Load unpacked** in Chrome.
 4. **Paste path and open** — follow the **Quick paste path tips** on the right
-   and select **Copy QwenPaw extension path** first, then follow your platform:
+   and select **Copy AIArb extension path** first, then follow your platform:
 
 | Platform | In the folder picker                                                              |
 | -------- | --------------------------------------------------------------------------------- |
@@ -73,7 +73,7 @@ Follow the **Local install steps** — you only need to do this once:
 | Windows  | Click the address bar, paste the path, press Enter, then select **Select Folder** |
 | Linux    | Press `Ctrl + L`, paste the path, press Enter, then select **Open**               |
 
-Return to the QwenPaw page and select **I've installed it, refresh status**.
+Return to the AIArb page and select **I've installed it, refresh status**.
 
 > You can also use **Copy Path** or **Open Folder** to get at the extension
 > folder directly.
@@ -94,9 +94,9 @@ The top of the page shows one of three states:
 | **Extension installed, waiting for Chrome** | The extension is loaded, the connection is not up yet    | Keep Chrome running, then select **Refresh Status** |
 | **Chrome Connected**                        | Connected, showing extension version and connect time    | Ready for the Agent to use                          |
 
-Once connected, the QwenPaw icon in the Chrome toolbar also reports status:
-open it to see **Status** (connected or not), **QwenPaw tabs** (how many tabs
-QwenPaw currently manages), and the extension **Version**.
+Once connected, the AIArb icon in the Chrome toolbar also reports status:
+open it to see **Status** (connected or not), **AIArb tabs** (how many tabs
+AIArb currently manages), and the extension **Version**.
 
 ### Connection checks
 
@@ -105,12 +105,12 @@ The **Connection checks** section lists health item by item, each marked
 
 | Check                     | Meaning                                                            | Advice when it needs attention                                   |
 | ------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| **Extension bridge**      | The connection between the extension and QwenPaw                   | Reload the extension, or reopen the target browser tab           |
+| **Extension bridge**      | The connection between the extension and AIArb                   | Reload the extension, or reopen the target browser tab           |
 | **Native Messaging host** | Whether the local connection helper is installed and usable        | Reinstall the Native Messaging host (rerun setup from this page) |
-| **Extension assets**      | Whether the version loaded in Chrome matches the one QwenPaw ships | Reload the unpacked extension in `chrome://extensions`           |
+| **Extension assets**      | Whether the version loaded in Chrome matches the one AIArb ships | Reload the unpacked extension in `chrome://extensions`           |
 | **Bridge lifecycle**      | Whether the connection is stable                                   | Wait a moment or restart Chrome                                  |
 
-It is worth revisiting this page after upgrading QwenPaw: if **Extension
+It is worth revisiting this page after upgrading AIArb: if **Extension
 assets** reports a version mismatch, rerun setup and reload the extension in
 Chrome.
 
@@ -136,10 +136,10 @@ that step back to you.
 
 | Name                    | Location                                                                                                                                                                                                                                                                                                                              |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Extension folder        | `~/.qwenpaw/chrome-extension/qwenpaw-chrome`                                                                                                                                                                                                                                                                                          |
-| Local connection helper | `~/.qwenpaw/bin/qwenpaw-nm-host` (`qwenpaw-nm-host.bat` on Windows)                                                                                                                                                                                                                                                                   |
-| Local connection config | macOS: `~/Library/Application Support/Google/Chrome/NativeMessagingHosts/com.qwenpaw.browser.json`<br>Linux: `~/.config/google-chrome/NativeMessagingHosts/com.qwenpaw.browser.json`<br>Windows: `~/.qwenpaw/com.qwenpaw.browser.json` (also registered under `HKCU\Software\Google\Chrome\NativeMessagingHosts\com.qwenpaw.browser`) |
-| Local settings file     | `~/.qwenpaw/nm-bridge.json`                                                                                                                                                                                                                                                                                                           |
+| Extension folder        | `~/.aiarb/chrome-extension/aiarb-chrome`                                                                                                                                                                                                                                                                                          |
+| Local connection helper | `~/.aiarb/bin/aiarb-nm-host` (`aiarb-nm-host.bat` on Windows)                                                                                                                                                                                                                                                                   |
+| Local connection config | macOS: `~/Library/Application Support/Google/Chrome/NativeMessagingHosts/com.aiarb.browser.json`<br>Linux: `~/.config/google-chrome/NativeMessagingHosts/com.aiarb.browser.json`<br>Windows: `~/.aiarb/com.aiarb.browser.json` (also registered under `HKCU\Software\Google\Chrome\NativeMessagingHosts\com.aiarb.browser`) |
+| Local settings file     | `~/.aiarb/nm-bridge.json`                                                                                                                                                                                                                                                                                                           |
 | Connection endpoint     | Derived from the address the service actually listens on, for example `ws://127.0.0.1:8088/api/ws/chrome`                                                                                                                                                                                                                             |
 
 ---
@@ -147,10 +147,10 @@ that step back to you.
 ## Security boundaries
 
 - **The connection endpoint cannot be supplied manually.** It is derived from
-  the address QwenPaw actually listens on, and must be a local address.
+  the address AIArb actually listens on, and must be a local address.
 - **The local settings file holds a locally generated connection token**,
   readable only by your user (written with `600` permissions on macOS and
-  Linux). The extension can only connect to QwenPaw on this machine.
+  Linux). The extension can only connect to AIArb on this machine.
 - **The extension only accepts page messages from local addresses**
   (`localhost`, `127.0.0.1`, `[::1]`).
 
@@ -166,27 +166,27 @@ immediately.
 
 ### It stays on "Extension installed, waiting for Chrome"
 
-Check in order: Chrome is running; the QwenPaw extension is enabled in
-`chrome://extensions`; the QwenPaw service is running and listening on a local
+Check in order: Chrome is running; the AIArb extension is enabled in
+`chrome://extensions`; the AIArb service is running and listening on a local
 address. Then select **Refresh Status**. If it still does not connect, reload
 the extension in `chrome://extensions`.
 
 ### It stopped connecting after I changed the service port
 
 The connection endpoint is derived from the address the service listens on.
-After changing the `qwenpaw app` port, rerun setup from this page and reload the
+After changing the `aiarb app` port, rerun setup from this page and reload the
 extension in Chrome.
 
 ### It disconnects briefly after restarting Chrome or waking from sleep
 
 The extension reconnects on its own (about 5 seconds at first, backing off to
 at most 60 seconds). If the disconnect lasts longer than roughly a minute, the
-extension stops acting on QwenPaw's behalf so it never keeps touching your
+extension stops acting on AIArb's behalf so it never keeps touching your
 pages while out of contact; it resumes once reconnected.
 
-### Can one computer connect to several QwenPaw instances?
+### Can one computer connect to several AIArb instances?
 
-No. The local connection config points at a single QwenPaw service, so one
+No. The local connection config points at a single AIArb service, so one
 Chrome connects to only one of them at a time.
 
 ### When will the Chrome Web Store version be available?

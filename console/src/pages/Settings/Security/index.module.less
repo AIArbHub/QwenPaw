@@ -6,7 +6,7 @@
   width: 100%;
 
   :global {
-    .qwenpaw-tabs-nav {
+    .aiarb-tabs-nav {
       padding: 0 16px !important;
     }
   }
@@ -103,7 +103,7 @@
 
 /* ---- Main Tabs (Tool Guard / Skill Scanner) ---- */
 .mainTabs {
-  :global(.qwenpaw-tabs-nav) {
+  :global(.aiarb-tabs-nav) {
     margin-bottom: 20px;
 
     &::before {
@@ -111,7 +111,7 @@
     }
   }
 
-  :global(.qwenpaw-tabs-tab) {
+  :global(.aiarb-tabs-tab) {
     padding: 10px 4px;
     font-size: 14px;
     font-weight: 500;
@@ -122,12 +122,12 @@
     }
   }
 
-  :global(.qwenpaw-tabs-tab-active .qwenpaw-tabs-tab-btn) {
+  :global(.aiarb-tabs-tab-active .aiarb-tabs-tab-btn) {
     color: #0065fd !important;
     font-weight: 600;
   }
 
-  :global(.qwenpaw-tabs-ink-bar) {
+  :global(.aiarb-tabs-ink-bar) {
     background: #0065fd !important;
     height: 3px;
     border-radius: 2px 2px 0 0;
@@ -136,30 +136,30 @@
 
 :global(.dark-mode) {
   .mainTabs {
-    :global(.qwenpaw-tabs-tab .qwenpaw-tabs-tab-btn) {
+    :global(.aiarb-tabs-tab .aiarb-tabs-tab-btn) {
       color: #ffffff !important;
     }
 
-    :global(.qwenpaw-tabs-tab-active .qwenpaw-tabs-tab-btn) {
+    :global(.aiarb-tabs-tab-active .aiarb-tabs-tab-btn) {
       color: #0065fd !important;
       font-weight: 600;
     }
 
-    :global(.qwenpaw-tabs-ink-bar) {
+    :global(.aiarb-tabs-ink-bar) {
       background: #0065fd !important;
     }
   }
 
   .innerTabs {
-    :global(.qwenpaw-tabs-tab .qwenpaw-tabs-tab-btn) {
+    :global(.aiarb-tabs-tab .aiarb-tabs-tab-btn) {
       color: #ffffff !important;
     }
 
-    :global(.qwenpaw-tabs-tab-active .qwenpaw-tabs-tab-btn) {
+    :global(.aiarb-tabs-tab-active .aiarb-tabs-tab-btn) {
       color: #0065fd !important;
     }
 
-    :global(.qwenpaw-tabs-ink-bar) {
+    :global(.aiarb-tabs-ink-bar) {
       background: #0065fd !important;
     }
   }
@@ -185,20 +185,20 @@
 
   .tableCard {
     :global(.ant-table-thead > tr > th),
-    :global(.qwenpaw-table-thead > tr > th) {
+    :global(.aiarb-table-thead > tr > th) {
       background: rgba(255, 255, 255, 0.04) !important;
       color: rgba(255, 255, 255, 0.7) !important;
       border-bottom-color: rgba(255, 255, 255, 0.08) !important;
     }
 
     :global(.ant-table-tbody > tr > td),
-    :global(.qwenpaw-table-tbody > tr > td) {
+    :global(.aiarb-table-tbody > tr > td) {
       color: rgba(255, 255, 255, 0.75);
       border-bottom-color: rgba(255, 255, 255, 0.06);
     }
 
     :global(.ant-table-tbody > tr:hover > td),
-    :global(.qwenpaw-table-tbody > tr:hover > td) {
+    :global(.aiarb-table-tbody > tr:hover > td) {
       background: rgba(255, 255, 255, 0.06) !important;
     }
   }
@@ -222,9 +222,9 @@
   .sectionContainer {
     .tableCard {
       :global {
-        .qwenpaw-table-wrapper
-          .qwenpaw-table-container
-          .qwenpaw-table-thead
+        .aiarb-table-wrapper
+          .aiarb-table-container
+          .aiarb-table-thead
           > tr
           > th {
           background: rgba(255, 255, 255, 0.04) !important;
@@ -266,13 +266,13 @@
     padding: 0 !important;
 
     :global {
-      .qwenpaw-spark-card-wrapper {
+      .aiarb-spark-card-wrapper {
         padding: 0 !important;
       }
 
-      .qwenpaw-table-wrapper
-        .qwenpaw-table-container
-        .qwenpaw-table-thead
+      .aiarb-table-wrapper
+        .aiarb-table-container
+        .aiarb-table-thead
         > tr
         > th {
         background: #ffffff !important;
@@ -290,7 +290,7 @@
 .innerTabs {
   margin-top: 20px;
 
-  :global(.qwenpaw-tabs-nav) {
+  :global(.aiarb-tabs-nav) {
     margin-bottom: 16px;
 
     &::before {
@@ -298,7 +298,7 @@
     }
   }
 
-  :global(.qwenpaw-tabs-tab) {
+  :global(.aiarb-tabs-tab) {
     font-size: 13px;
     font-weight: 500;
     color: #666 !important;
@@ -308,11 +308,11 @@
     }
   }
 
-  :global(.qwenpaw-tabs-tab-active .qwenpaw-tabs-tab-btn) {
+  :global(.aiarb-tabs-tab-active .aiarb-tabs-tab-btn) {
     color: #0065fd !important;
   }
 
-  :global(.qwenpaw-tabs-ink-bar) {
+  :global(.aiarb-tabs-ink-bar) {
     background: #0065fd !important;
   }
 }
@@ -397,9 +397,9 @@
 /* ---- Rule Table ---- */
 .ruleTable {
   :global(.ant-table-thead > tr > th),
-  :global(.qwenpaw-table-thead > tr > th),
+  :global(.aiarb-table-thead > tr > th),
   :global(.ant-table-tbody > tr > td),
-  :global(.qwenpaw-table-tbody > tr > td) {
+  :global(.aiarb-table-tbody > tr > td) {
     padding-left: 16px !important;
     padding-right: 16px !important;
   }
@@ -410,32 +410,32 @@
   background: transparent;
   border: none;
 
-  :global(.qwenpaw-collapse-item) {
+  :global(.aiarb-collapse-item) {
     margin-bottom: 12px;
     border: 1px solid #e8e8e8;
     border-radius: 8px !important;
     overflow: hidden;
   }
 
-  :global(.qwenpaw-collapse-header) {
+  :global(.aiarb-collapse-header) {
     font-weight: 600;
     font-size: 14px;
     padding: 12px 16px !important;
     background: #fafafa;
   }
 
-  :global(.qwenpaw-collapse-content-box) {
+  :global(.aiarb-collapse-content-box) {
     padding: 0 !important;
   }
 }
 
 :global(.dark-mode) {
   .ruleCollapse {
-    :global(.qwenpaw-collapse-item) {
+    :global(.aiarb-collapse-item) {
       border-color: rgba(255, 255, 255, 0.1);
     }
 
-    :global(.qwenpaw-collapse-header) {
+    :global(.aiarb-collapse-header) {
       background: rgba(255, 255, 255, 0.04);
     }
   }
@@ -648,7 +648,7 @@
 @media (max-width: 768px) {
   .mainTabs {
     :global {
-      .qwenpaw-tabs-nav {
+      .aiarb-tabs-nav {
         overflow-x: auto;
         scrollbar-width: none;
 
@@ -657,17 +657,17 @@
         }
       }
 
-      .qwenpaw-tabs-nav-wrap {
+      .aiarb-tabs-nav-wrap {
         overflow-x: auto !important;
         white-space: nowrap;
       }
 
-      .qwenpaw-tabs-nav-list {
+      .aiarb-tabs-nav-list {
         display: inline-flex;
         white-space: nowrap;
       }
 
-      .qwenpaw-tabs-tab {
+      .aiarb-tabs-tab {
         flex-shrink: 0;
         white-space: nowrap;
       }
@@ -705,13 +705,13 @@
     overflow-x: auto;
 
     :global(.ant-table),
-    :global(.qwenpaw-table) {
+    :global(.aiarb-table) {
       min-width: 600px;
     }
   }
 
   .ruleCollapse {
-    :global(.qwenpaw-collapse-header) {
+    :global(.aiarb-collapse-header) {
       padding: 10px 12px !important;
     }
   }

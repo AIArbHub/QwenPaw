@@ -72,8 +72,8 @@ describe("filterMenuForAgentCapabilities", () => {
       native_skills_ui: false,
       native_tools_ui: false,
       native_mcp_ui: false,
-      qwenpaw_skills_projection: true,
-      qwenpaw_mcp_projection: true,
+      aiarb_skills_projection: true,
+      aiarb_mcp_projection: true,
       provider_mcp_discovery: true,
     });
 

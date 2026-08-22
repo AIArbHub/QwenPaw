@@ -26,15 +26,15 @@ from nio.responses import (
     WhoamiResponse,
 )
 
-from qwenpaw.schemas import (
+from aiarb.schemas import (
     AgentRequest,
     ContentType,
     ImageContent,
     TextContent,
 )
-from qwenpaw.app.channels.matrix.channel import MatrixChannel
-from qwenpaw.app.channels.renderer import ChannelDisplayConfig
-from qwenpaw.config.config import MatrixConfig
+from aiarb.app.channels.matrix.channel import MatrixChannel
+from aiarb.app.channels.renderer import ChannelDisplayConfig
+from aiarb.config.config import MatrixConfig
 
 
 @pytest.fixture
@@ -87,7 +87,7 @@ def test_preflight_keeps_encryption_when_nio_has_backend(matrix_channel):
     """
     matrix_channel.encryption = True
     with patch(
-        "qwenpaw.app.channels.matrix.channel.ENCRYPTION_ENABLED",
+        "aiarb.app.channels.matrix.channel.ENCRYPTION_ENABLED",
         True,
     ):
         matrix_channel._preflight_e2ee_dependencies()
@@ -100,7 +100,7 @@ def test_preflight_disables_encryption_when_no_nio_backend(
     """No matrix-nio crypto backend -> E2EE disabled with a clear error."""
     matrix_channel.encryption = True
     with patch(
-        "qwenpaw.app.channels.matrix.channel.ENCRYPTION_ENABLED",
+        "aiarb.app.channels.matrix.channel.ENCRYPTION_ENABLED",
         False,
     ):
         matrix_channel._preflight_e2ee_dependencies()
@@ -231,8 +231,8 @@ class TestMatrixChannelBoundedState:
         matrix_channel,
         monkeypatch,
     ):
-        from qwenpaw.app.channels.matrix import channel as matrix_module
-        from qwenpaw.app.channels.matrix.channel import HistoryEntry
+        from aiarb.app.channels.matrix import channel as matrix_module
+        from aiarb.app.channels.matrix.channel import HistoryEntry
 
         monkeypatch.setattr(matrix_module, "ROOM_HISTORY_MAX_ROOMS", 2)
         for room_id in ("!one", "!two", "!three"):
@@ -248,7 +248,7 @@ class TestMatrixChannelBoundedState:
         matrix_channel,
         monkeypatch,
     ):
-        from qwenpaw.app.channels.matrix import channel as matrix_module
+        from aiarb.app.channels.matrix import channel as matrix_module
 
         monkeypatch.setattr(matrix_module, "DM_ROOM_CACHE_MAX_ENTRIES", 2)
         matrix_channel._dm_room_cache.update(
@@ -270,7 +270,7 @@ class TestMatrixChannelBoundedState:
         matrix_channel,
         monkeypatch,
     ):
-        from qwenpaw.app.channels.matrix import channel as matrix_module
+        from aiarb.app.channels.matrix import channel as matrix_module
 
         monkeypatch.setattr(matrix_module, "VERIFICATION_STATE_MAX_ENTRIES", 1)
         matrix_channel._remember_verification_peer("old", "@old", "D1")
@@ -935,7 +935,7 @@ class TestMatrixChannelStartStop:
     ):
         """Test that start creates and configures AsyncClient."""
         with patch(
-            "qwenpaw.app.channels.matrix.channel.AsyncClient",
+            "aiarb.app.channels.matrix.channel.AsyncClient",
             return_value=mock_async_client,
         ):
             await matrix_channel.start()
@@ -951,7 +951,7 @@ class TestMatrixChannelStartStop:
     ):
         """Test that start creates sync task."""
         with patch(
-            "qwenpaw.app.channels.matrix.channel.AsyncClient",
+            "aiarb.app.channels.matrix.channel.AsyncClient",
             return_value=mock_async_client,
         ):
             await matrix_channel.start()
@@ -966,7 +966,7 @@ class TestMatrixChannelStartStop:
     ):
         """Test that stop cancels sync task."""
         with patch(
-            "qwenpaw.app.channels.matrix.channel.AsyncClient",
+            "aiarb.app.channels.matrix.channel.AsyncClient",
             return_value=mock_async_client,
         ):
             await matrix_channel.start()
@@ -979,7 +979,7 @@ class TestMatrixChannelStartStop:
     async def test_stop_closes_client(self, matrix_channel, mock_async_client):
         """Test that stop closes the client."""
         with patch(
-            "qwenpaw.app.channels.matrix.channel.AsyncClient",
+            "aiarb.app.channels.matrix.channel.AsyncClient",
             return_value=mock_async_client,
         ):
             await matrix_channel.start()
@@ -1012,7 +1012,7 @@ class TestMatrixChannelLoginRetry:
     ):
         """Unparseable login response is retried until ready."""
         monkeypatch.setattr(
-            "qwenpaw.app.channels.matrix.channel"
+            "aiarb.app.channels.matrix.channel"
             "._LOGIN_RETRY_INITIAL_DELAY",
             0.0,
         )
@@ -1101,7 +1101,7 @@ class TestMatrixChannelLoginRetry:
     ):
         """Unparseable whoami response is retried until ready."""
         monkeypatch.setattr(
-            "qwenpaw.app.channels.matrix.channel"
+            "aiarb.app.channels.matrix.channel"
             "._LOGIN_RETRY_INITIAL_DELAY",
             0.0,
         )
@@ -1152,7 +1152,7 @@ class TestMatrixChannelLoginRetry:
     ):
         """stop() during login retry terminates the loop."""
         monkeypatch.setattr(
-            "qwenpaw.app.channels.matrix.channel"
+            "aiarb.app.channels.matrix.channel"
             "._LOGIN_RETRY_INITIAL_DELAY",
             100.0,
         )
@@ -1185,7 +1185,7 @@ class TestMatrixChannelLoginRetry:
     ):
         """CancelledError propagates through the retry loop."""
         monkeypatch.setattr(
-            "qwenpaw.app.channels.matrix.channel"
+            "aiarb.app.channels.matrix.channel"
             "._LOGIN_RETRY_INITIAL_DELAY",
             0.0,
         )
@@ -1199,7 +1199,7 @@ class TestMatrixChannelLoginRetry:
             raise asyncio.CancelledError()
 
         monkeypatch.setattr(
-            "qwenpaw.app.channels.matrix.channel.asyncio.sleep",
+            "aiarb.app.channels.matrix.channel.asyncio.sleep",
             raise_cancelled,
         )
 
@@ -1474,7 +1474,7 @@ class TestMatrixChannelSendMedia:
         tmp_path,
     ):
         """Test sending video media type."""
-        from qwenpaw.schemas import (
+        from aiarb.schemas import (
             VideoContent,
         )
 
@@ -1506,7 +1506,7 @@ class TestMatrixChannelSendMedia:
         tmp_path,
     ):
         """Test sending audio media type."""
-        from qwenpaw.schemas import (
+        from aiarb.schemas import (
             AudioContent,
         )
 
@@ -1563,7 +1563,7 @@ class TestMatrixChannelSendMedia:
         )
         mock_async_client.room_send = AsyncMock(return_value=MagicMock())
 
-        from qwenpaw.schemas import FileContent
+        from aiarb.schemas import FileContent
 
         part = FileContent(
             type=ContentType.FILE,

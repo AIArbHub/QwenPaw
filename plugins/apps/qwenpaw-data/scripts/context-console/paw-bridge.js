@@ -1,9 +1,9 @@
 /**
  * paw-bridge.js — injected ahead of the embedded Context console bundle.
  *
- * The console build is served same-origin from the QwenPaw host
- * (/api/frontend_plugin/qwenpaw-data/files/...), so it can read the host auth
- * token from localStorage. QwenPaw authenticates /api/* requests with a
+ * The console build is served same-origin from the AIArb host
+ * (/api/frontend_plugin/aiarb-data/files/...), so it can read the host auth
+ * token from localStorage. AIArb authenticates /api/* requests with a
  * Bearer header, while the Context console issues plain axios/fetch calls,
  * so this shim attaches the host token to every same-origin request that
  * targets the qwenpaw-data PawApp backend (/api/qwenpaw-data/...).
@@ -14,12 +14,12 @@
 (function () {
   "use strict";
 
-  var API_PREFIX = "/api/qwenpaw-data/";
-  var TOKEN_KEY = "qwenpaw_auth_token";
+  var API_PREFIX = "/api/aiarb-data/";
+  var TOKEN_KEY = "aiarb_auth_token"; 
 
   // Route the console's auth-status probe through the context gateway.
   if (!window.__VITE_AUTH_API_URL__) {
-    window.__VITE_AUTH_API_URL__ = "/api/qwenpaw-data/context";
+    window.__VITE_AUTH_API_URL__ = "/api/aiarb-data/context";
   }
 
   function hostToken() {
@@ -97,18 +97,18 @@
   }
 
   // --- Model Configuration: explain the first-run default -------------------
-  // The app owns its LLM configuration (same as standalone qwenpaw-data-cli);
-  // the QwenPaw host model only seeds it on first run. Surface that in the
+  // The app owns its LLM configuration (same as standalone aiarb-data-cli);
+  // the AIArb host model only seeds it on first run. Surface that in the
   // LLM card using the console's own Alert styling: clone the embedding
   // card's info alert so the note matches it pixel for pixel, and render a
   // single language following the console's language setting.
   var NOTE_ATTR = "data-paw-llm-tie-note";
   var NOTE_TEXT = {
     en:
-      "Defaults to the QwenPaw host model on first run. " +
+      "Defaults to the AIArb host model on first run. " +
       "Afterwards this setting is owned by the app.",
     zh:
-      "\u9996\u6b21\u8fd0\u884c\u65f6\u9ed8\u8ba4\u7ee7\u627f QwenPaw " +
+      "\u9996\u6b21\u8fd0\u884c\u65f6\u9ed8\u8ba4\u7ee7\u627f AIArb " +
       "\u5bbf\u4e3b\u6a21\u578b\uff1b\u6b64\u540e\u8be5\u914d\u7f6e\u5f52 " +
       "app \u81ea\u6709\u3002",
   };

@@ -6,9 +6,9 @@ Market or URL imports, or files you add yourself.
 Two ways to manage skills:
 
 - **Console:** Use the [Console](./console) under **Workspace → Skills**.
-- **Working directory:** Edit skill files directly under `$QWENPAW_WORKING_DIR`
-  (default `~/.qwenpaw`), including `$QWENPAW_WORKING_DIR/skill_pool/` and each
-  workspace's `$QWENPAW_WORKING_DIR/workspaces/{agent_id}/skills/`.
+- **Working directory:** Edit skill files directly under `$AIARB_WORKING_DIR`
+  (default `~/.aiarb`), including `$AIARB_WORKING_DIR/skill_pool/` and each
+  workspace's `$AIARB_WORKING_DIR/workspaces/{agent_id}/skills/`.
 
 > If you're new to channels, heartbeat, or cron, read [Introduction](./intro) first.
 
@@ -19,16 +19,16 @@ copies. The structure and creation paths are described below.
 
 ## Skill Structure
 
-QwenPaw skills are organized in two layers:
+AIArb skills are organized in two layers:
 
-- **Skill Pool:** Shared local repository at `$QWENPAW_WORKING_DIR/skill_pool/`
-  (default `~/.qwenpaw/skill_pool/`).
+- **Skill Pool:** Shared local repository at `$AIARB_WORKING_DIR/skill_pool/`
+  (default `~/.aiarb/skill_pool/`).
 - **Workspace Skills:** The local runtime copy at
-  `$QWENPAW_WORKING_DIR/workspaces/{agent_id}/skills/`
-  (default `~/.qwenpaw/workspaces/{agent_id}/skills/`).
+  `$AIARB_WORKING_DIR/workspaces/{agent_id}/skills/`
+  (default `~/.aiarb/workspaces/{agent_id}/skills/`).
 
 ```
-$QWENPAW_WORKING_DIR/                      # Default ~/.qwenpaw
+$AIARB_WORKING_DIR/                      # Default ~/.aiarb
   skill_pool/                # Shared pool
     skill.json               # Pool manifest
     pdf/
@@ -66,7 +66,7 @@ Pool-side operations:
   entry. Editing a built-in's `SKILL.md` converts that Pool entry to a custom
   skill, so future packaged updates cannot overwrite the edit.
 - **Conflict handling:** If save, import, upload, or broadcast would land on a
-  name that already exists, QwenPaw returns a conflict instead of silently
+  name that already exists, AIArb returns a conflict instead of silently
   overwriting. The UI/API includes a suggested renamed target so you can retry
   with that name.
 - **Auto sync:** Once enabled for a skill, changes to its Pool `SKILL.md`
@@ -85,12 +85,12 @@ Adding skills to the pool:
    | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
    | **browser**                   | Drive a live browser through the Unified Browser SDK with async Python and a perceive → act → verify workflow. See [Browser](./browser).                | Built-in                                                   |
    | **channel_message**           | Proactively send a one-way message to a session or channel after first locating the target session.                                                     | Built-in                                                   |
-   | **QA_source_index**           | Internal QwenPaw source/doc index skill for quickly mapping keywords to source paths and local docs.                                                    | Built-in                                                   |
-   | **cron**                      | Scheduled jobs. Create, list, pause, resume, or delete jobs via `qwenpaw cron` or Console **Control → Cron Jobs**.                                      | Built-in                                                   |
+   | **QA_source_index**           | Internal AIArb source/doc index skill for quickly mapping keywords to source paths and local docs.                                                    | Built-in                                                   |
+   | **cron**                      | Scheduled jobs. Create, list, pause, resume, or delete jobs via `aiarb cron` or Console **Control → Cron Jobs**.                                      | Built-in                                                   |
    | **dingtalk_channel**          | Helps with DingTalk channel onboarding through a visible browser flow and required manual steps.                                                        | Built-in                                                   |
    | **docx**                      | Create, read, and edit Word documents (.docx), including TOC, headers/footers, tables, images, track changes, comments.                                 | https://github.com/anthropics/skills/tree/main/skills/docx |
    | **file_reader**               | Read and summarize text-based files (.txt, .md, .json, .csv, .log, .py, etc.). PDF and Office are handled by dedicated skills.                          | Built-in                                                   |
-   | **guidance**                  | Answer QwenPaw installation and configuration questions by consulting local docs first.                                                                 | Built-in                                                   |
+   | **guidance**                  | Answer AIArb installation and configuration questions by consulting local docs first.                                                                 | Built-in                                                   |
    | **mailbox**                   | Connect through qwenpawmail MCP to send, search, organize, safely automate new mail, and learn reusable workflows. See [Mailbox Management](./mailbox). | Built-in                                                   |
    | **multi_agent_collaboration** | Coordinate with another agent when the user explicitly asks for it or another agent's context is needed.                                                | Built-in                                                   |
    | **news**                      | Fetch and summarize latest news from configured sites; categories include politics, finance, society, world, tech, sports, etc.                         | Built-in                                                   |
@@ -107,11 +107,11 @@ Adding skills to the pool:
    built-ins remain part of the existing manual review flow.
 
    The **Cron** built-in provides scheduled job management. Use the
-   [CLI](./cli) (`qwenpaw cron`) or Console **Control → Cron Jobs**:
+   [CLI](./cli) (`aiarb cron`) or Console **Control → Cron Jobs**:
 
-   - Create: `qwenpaw cron create --type agent --name "xxx" --cron "0 9 * * *" ...`
-   - List: `qwenpaw cron list`
-   - Check state: `qwenpaw cron state <job_id>`
+   - Create: `aiarb cron create --type agent --name "xxx" --cron "0 9 * * *" ...`
+   - List: `aiarb cron list`
+   - Check state: `aiarb cron state <job_id>`
 
 2. **Through the unified "Add Skill" entry**.
    The **Add Skill** dropdown at the top right of the pool page offers four
@@ -129,7 +129,7 @@ Adding skills to the pool:
    pool.
 
 4. **Manual filesystem changes**.
-   You can place folders directly under `$QWENPAW_WORKING_DIR/skill_pool/`, but this is not
+   You can place folders directly under `$AIARB_WORKING_DIR/skill_pool/`, but this is not
    recommended. Direct pool edits can be lost or overwritten more easily,
    especially for customized skills. Be careful and treat this as an advanced
    workflow.
@@ -137,8 +137,8 @@ Adding skills to the pool:
 ### External skill paths
 
 By default the skill pool has a single root: the primary pool at
-`$QWENPAW_WORKING_DIR/skill_pool/`. You can also register one or more **external skill
-roots** in the config so QwenPaw reads the skills they contain into the **same skill pool
+`$AIARB_WORKING_DIR/skill_pool/`. You can also register one or more **external skill
+roots** in the config so AIArb reads the skills they contain into the **same skill pool
 view**. This is useful for reusing skill collections already on your machine (a git repo,
 a shared team folder) without copying them into the primary pool.
 
@@ -162,7 +162,7 @@ What external paths mean:
 
 #### How to configure
 
-Edit `$QWENPAW_WORKING_DIR/config.json` and add the top-level `skill_paths` field:
+Edit `$AIARB_WORKING_DIR/config.json` and add the top-level `skill_paths` field:
 
 ```json
 {
@@ -178,14 +178,14 @@ Notes:
 - After saving, external skills appear on the next skill pool load (a refresh, a restart,
   or any endpoint that triggers it).
 
-`$QWENPAW_WORKING_DIR` defaults to `~/.qwenpaw` and can be overridden with the
-`QWENPAW_WORKING_DIR` environment variable. See [Config](./config) for the full
+`$AIARB_WORKING_DIR` defaults to `~/.aiarb` and can be overridden with the
+`AIARB_WORKING_DIR` environment variable. See [Config](./config) for the full
 configuration reference.
 
 ### Workspace Skills
 
 Every workspace runs from its own local copies under
-`$QWENPAW_WORKING_DIR/workspaces/{agent_id}/skills/`. Those copies are what the agent
+`$AIARB_WORKING_DIR/workspaces/{agent_id}/skills/`. Those copies are what the agent
 actually loads at runtime.
 
 ---
@@ -231,15 +231,15 @@ CLI supports the same URL-based import flow:
 **Workspace targeting:** use `--agent-id` when targeting a single agent workspace; without it, `install` / `uninstall` act on the skill pool.
 
 ```bash
-qwenpaw skills install <skill_url> --pool
-qwenpaw skills install <skill_url> --agent-id <agent_id>
+aiarb skills install <skill_url> --pool
+aiarb skills install <skill_url> --agent-id <agent_id>
 ```
 
 CLI also supports uninstalling from the shared pool or one workspace:
 
 ```bash
-qwenpaw skills uninstall <skill_name> --pool
-qwenpaw skills uninstall <skill_name> --agent-id <agent_id>
+aiarb skills uninstall <skill_name> --pool
+aiarb skills uninstall <skill_name> --agent-id <agent_id>
 ```
 
 Workspace skills can be enabled or disabled directly by exact name, or managed
@@ -248,11 +248,11 @@ scope selected with `--pool` on commands that support it. Because Pool skills
 have no enabled state, `config`, `enable`, and `disable` are workspace-only:
 
 ```bash
-qwenpaw skills enable <skill_name>... --agent-id <agent_id>
-qwenpaw skills disable <skill_name>... --agent-id <agent_id>
-qwenpaw skills list --status enabled --agent-id <agent_id>
-qwenpaw skills list --pool
-qwenpaw skills info <skill_name> --pool
+aiarb skills enable <skill_name>... --agent-id <agent_id>
+aiarb skills disable <skill_name>... --agent-id <agent_id>
+aiarb skills list --status enabled --agent-id <agent_id>
+aiarb skills list --pool
+aiarb skills info <skill_name> --pool
 ```
 
 #### Steps
@@ -309,7 +309,7 @@ qwenpaw skills info <skill_name> --pool
 ### Create manually in the workspace
 
 You can also create a workspace skill directly by writing files under
-`$QWENPAW_WORKING_DIR/workspaces/{agent_id}/skills/`, including using QwenPaw itself to help
+`$AIARB_WORKING_DIR/workspaces/{agent_id}/skills/`, including using AIArb itself to help
 generate those files.
 
 This is flexible, but the write location and resulting skill quality are not
@@ -317,10 +317,10 @@ always fully controlled. You should supervise the creation process carefully,
 verify that files land in the right workspace path, and review the skill
 content before relying on it.
 
-Create a directory under `$QWENPAW_WORKING_DIR/workspaces/{agent_id}/skills/`, add a
+Create a directory under `$AIARB_WORKING_DIR/workspaces/{agent_id}/skills/`, add a
 `SKILL.md`, and make sure it includes YAML front matter with `name` and
 `description`. If the skill depends on external binaries or environment
-variables, declare them in `metadata.requires`; QwenPaw exposes them as
+variables, declare them in `metadata.requires`; AIArb exposes them as
 `require_bins` and `require_envs` metadata, but does not disable the skill
 automatically.
 
@@ -454,7 +454,7 @@ search-driven alternative to the per-URL **Import from URL** flow above.
 
 Four providers ship out of the box:
 
-- **QwenPaw** — public, always enabled.
+- **AIArb** — public, always enabled.
 - **ClawHub** — public, always enabled.
 - **ModelScope** — public, always enabled.
 - **Aliyun** — requires `ALIBABA_CLOUD_ACCESS_KEY_ID` /
@@ -500,7 +500,7 @@ not need to appear on Discord.
 
 Each skill can have a `config` object stored in its manifest entry. This config
 is not just stored metadata. When a skill is effective for the current
-workspace and channel, QwenPaw injects that config into the runtime environment
+workspace and channel, AIArb injects that config into the runtime environment
 for that agent turn, then restores the environment after the turn completes.
 
 You can set config per skill in the Console (**Workspace → Skills** → click the
@@ -513,7 +513,7 @@ injected as environment variables. Keys not declared in `requires.env` are
 skipped (but still available via the full JSON variable). If a required key
 is missing from the config, a warning is logged.
 
-The full config is always available as `QWENPAW_SKILL_CONFIG_<SKILL_NAME>`
+The full config is always available as `AIARB_SKILL_CONFIG_<SKILL_NAME>`
 (JSON string), regardless of `requires.env`.
 
 Existing host environment variables are never overwritten.
@@ -548,7 +548,7 @@ The skill can read:
 - `BASE_URL` comes from config and matches `requires.env`.
 - `timeout` is not in `requires.env`, so it is only available via the full
   JSON below.
-- `QWENPAW_SKILL_CONFIG_MY_SKILL` always contains the full JSON config.
+- `AIARB_SKILL_CONFIG_MY_SKILL` always contains the full JSON config.
 
 Python example:
 
@@ -558,7 +558,7 @@ import os
 
 api_key = os.environ.get("MY_API_KEY", "")
 base_url = os.environ.get("BASE_URL", "")
-cfg = json.loads(os.environ.get("QWENPAW_SKILL_CONFIG_MY_SKILL", "{}"))
+cfg = json.loads(os.environ.get("AIARB_SKILL_CONFIG_MY_SKILL", "{}"))
 timeout = cfg.get("timeout", 30)
 ```
 
@@ -578,7 +578,7 @@ When a skill runs, the effective config follows this priority (highest wins):
    `config` is copied as the initial workspace config. Subsequent workspace
    edits take precedence.
 
-For `requires` metadata, the parser checks keys in order: `metadata.openclaw.requires` → `metadata.qwenpaw.requires` → `metadata.requires`. The first one found is used.
+For `requires` metadata, the parser checks keys in order: `metadata.openclaw.requires` → `metadata.aiarb.requires` → `metadata.requires`. The first one found is used.
 
 ---
 

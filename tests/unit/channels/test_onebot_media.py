@@ -12,13 +12,13 @@ from unittest.mock import AsyncMock
 import aiohttp
 import pytest
 
-from qwenpaw.app.channels.onebot.media import (
+from aiarb.app.channels.onebot.media import (
     OneBotInboundMedia,
     _download_suffix,
     _safe_filename_stem,
     _suffix_from_bytes,
 )
-from qwenpaw.schemas import (
+from aiarb.schemas import (
     ContentType,
     FileContent,
     ImageContent,

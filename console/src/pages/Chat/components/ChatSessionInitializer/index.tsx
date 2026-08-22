@@ -26,8 +26,8 @@ import { useCreateNewSession } from "../../hooks/useCreateNewSession";
  * it causes an infinite loop of getSession calls bouncing between two chat IDs.
  *
  * Also handles sidebar events:
- *  - qwenpaw:sidebar-select-session → switch to the given sessionId
- *  - qwenpaw:sidebar-new-chat       → create a new session
+ *  - aiarb:sidebar-select-session → switch to the given sessionId
+ *  - aiarb:sidebar-new-chat       → create a new session
  */
 const ChatSessionInitializer: React.FC = () => {
   const location = useLocation();
@@ -174,7 +174,7 @@ const ChatSessionInitializer: React.FC = () => {
             if (!controller.signal.aborted) {
               sessionApi.finishSessionSwitch();
               window.dispatchEvent(
-                new CustomEvent("qwenpaw:sidebar-switch-done"),
+                new CustomEvent("aiarb:sidebar-switch-done"),
               );
             }
           });
@@ -189,16 +189,16 @@ const ChatSessionInitializer: React.FC = () => {
     };
 
     window.addEventListener(
-      "qwenpaw:sidebar-select-session",
+      "aiarb:sidebar-select-session",
       handleSelectSession,
     );
-    window.addEventListener("qwenpaw:sidebar-new-chat", handleNewChat);
+    window.addEventListener("aiarb:sidebar-new-chat", handleNewChat);
 
     // Check for pending new-chat flag set by Sidebar when navigating from
     // another page. Must be deferred so the library has initialized.
-    const pendingNewChat = sessionStorage.getItem("qwenpaw_pending_new_chat");
+    const pendingNewChat = sessionStorage.getItem("aiarb_pending_new_chat");
     if (pendingNewChat) {
-      sessionStorage.removeItem("qwenpaw_pending_new_chat");
+      sessionStorage.removeItem("aiarb_pending_new_chat");
       requestAnimationFrame(() => handleNewChat());
     }
 
@@ -215,10 +215,10 @@ const ChatSessionInitializer: React.FC = () => {
       }
       switchControllerRef.current = null;
       window.removeEventListener(
-        "qwenpaw:sidebar-select-session",
+        "aiarb:sidebar-select-session",
         handleSelectSession,
       );
-      window.removeEventListener("qwenpaw:sidebar-new-chat", handleNewChat);
+      window.removeEventListener("aiarb:sidebar-new-chat", handleNewChat);
     };
   }, [navigate, setCurrentSessionId]);
 

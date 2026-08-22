@@ -4,7 +4,7 @@
 import re
 from pathlib import Path
 
-SRC = Path(__file__).resolve().parents[3] / "src" / "qwenpaw"
+SRC = Path(__file__).resolve().parents[3] / "src" / "aiarb"
 FORK = SRC / "agents" / "tools" / "__init__.py"
 DEPRECATED = SRC / "agents" / "tools" / "deprecated_browser"
 UNIFIED = SRC / "browser"
@@ -42,7 +42,7 @@ def test_unified_never_imports_deprecated() -> None:
 
 def test_deprecated_never_imports_unified_package() -> None:
     pattern = re.compile(
-        r"^\s*(?:from|import)\s+qwenpaw\.browser\b"
+        r"^\s*(?:from|import)\s+aiarb\.browser\b"
         r"|^\s*from\s+\.\.\.browser\b",
         re.MULTILINE,
     )

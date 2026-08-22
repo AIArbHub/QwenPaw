@@ -7,7 +7,7 @@ import pytest
 from agentscope.model import ChatResponse
 from agentscope.message import TextBlock, ThinkingBlock
 
-from qwenpaw.utils.model_response import (
+from aiarb.utils.model_response import (
     consume_model_response,
     extract_response_text,
     safe_attr,

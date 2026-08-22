@@ -7,9 +7,9 @@ from __future__ import annotations
 
 import pytest
 
-import qwenpaw.providers.provider_manager as provider_manager_module
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.provider_manager import (
+import aiarb.providers.provider_manager as provider_manager_module
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.provider_manager import (
     PROVIDER_VOLCENGINE_CN,
     PROVIDER_VOLCENGINE_CN_AGENTPLAN,
     PROVIDER_VOLCENGINE_CN_CODINGPLAN,
@@ -121,7 +121,7 @@ def test_volcengine_agentplan_model_limits() -> None:
 @pytest.fixture
 def isolated_secret_dir(monkeypatch, tmp_path):
     """Provide an isolated secret dir for provider tests."""
-    secret_dir = tmp_path / ".qwenpaw.secret"
+    secret_dir = tmp_path / ".aiarb.secret"
     monkeypatch.setattr(provider_manager_module, "SECRET_DIR", secret_dir)
     return secret_dir
 

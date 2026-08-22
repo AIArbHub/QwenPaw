@@ -6,10 +6,10 @@ from __future__ import annotations
 import asyncio
 from types import SimpleNamespace
 
-from qwenpaw.app.workspace.service_factories import (
+from aiarb.app.workspace.service_factories import (
     create_mail_monitor_service,
 )
-from qwenpaw.config.config import (
+from aiarb.config.config import (
     AgentMailConfig,
     AgentMailCredential,
     AgentMailPushConfig,
@@ -54,8 +54,8 @@ def test_third_party_backend_never_starts_monitor(tmp_path):
     assert not published
 
 
-def test_qwenpaw_backend_still_starts_monitor(tmp_path):
-    ws = _fake_workspace("qwenpaw", tmp_path)
+def test_aiarb_backend_still_starts_monitor(tmp_path):
+    ws = _fake_workspace("aiarb", tmp_path)
     monitor, published = _create_monitor(ws)
     assert monitor is not None
     assert published == [monitor]

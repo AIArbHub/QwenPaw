@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw Skill Pool page object.
+AIArb Skill Pool page object.
 
 Wraps interactions on the Skill Pool page (``/skill-pool``), including the
 skill auto-sync affordances added in upstream #5639:
@@ -9,9 +9,9 @@ skill auto-sync affordances added in upstream #5639:
 - the hover-revealed single automation quick action,
 - the independent built-in Auto Update and Auto Sync detail settings.
 
-Selectors target the real post-#5639 DOM: antd ``prefixCls`` is ``qwenpaw``
+Selectors target the real post-#5639 DOM: antd ``prefixCls`` is ``aiarb``
 and component-local styles are CSS-Module hashed class names, matched via
-``[class*=basename]`` substrings (never the stale ``.qwenpaw-card`` stub).
+``[class*=basename]`` substrings (never the stale ``.aiarb-card`` stub).
 """
 from __future__ import annotations
 
@@ -51,24 +51,24 @@ class SkillPoolPage(BasePage):
     AUTOMATION_BUTTON = '[class*="automationButton"]'
 
     # Edit drawer (PoolSkillDrawer.tsx)
-    DRAWER = '.qwenpaw-drawer'
-    DRAWER_TITLE = '.qwenpaw-drawer-title'
-    AUTO_SYNC_SWITCH = '.qwenpaw-drawer [data-testid="auto-sync-switch"]'
+    DRAWER = '.aiarb-drawer'
+    DRAWER_TITLE = '.aiarb-drawer-title'
+    AUTO_SYNC_SWITCH = '.aiarb-drawer [data-testid="auto-sync-switch"]'
     # Target-agent multi-select is rendered ONLY after the switch is ON; anchor
     # on its placeholder text (unique) so we don't match other selects.
     TARGET_SELECT_PLACEHOLDER = (
-        '.qwenpaw-drawer [class*="select-selection-placeholder"]'
+        '.aiarb-drawer [class*="select-selection-placeholder"]'
         ':has-text("All agents that have this skill"), '
-        '.qwenpaw-drawer [class*="select-selection-placeholder"]'
+        '.aiarb-drawer [class*="select-selection-placeholder"]'
         ':has-text("所有已安装该技能的智能体")'
     )
     SAVE_BTN = (
-        '.qwenpaw-drawer button:has-text("Save"), '
-        '.qwenpaw-drawer button:has-text("保存")'
+        '.aiarb-drawer button:has-text("Save"), '
+        '.aiarb-drawer button:has-text("保存")'
     )
     CANCEL_BTN = (
-        '.qwenpaw-drawer button:has-text("Cancel"), '
-        '.qwenpaw-drawer button:has-text("取消")'
+        '.aiarb-drawer button:has-text("Cancel"), '
+        '.aiarb-drawer button:has-text("取消")'
     )
 
     # ========== Initialization ==========

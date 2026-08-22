@@ -117,7 +117,7 @@ pub(crate) fn resolve_window(value: &str) -> Result<WindowInfo, (&'static str, S
 pub(crate) fn is_forbidden(window: &WindowInfo) -> bool {
     let title = window.title.to_ascii_lowercase();
     let name = window.display_name.to_ascii_lowercase();
-    // The self-ban keeps the agent off QwenPaw's own windows -- above all the
+    // The self-ban keeps the agent off AIArb's own windows -- above all the
     // approval prompt, which it must never answer for itself. It is matched on
     // the owner name, not the title: the title comes from kCGWindowName, which
     // is empty without Screen Recording permission, and a ban that vanished
@@ -126,7 +126,7 @@ pub(crate) fn is_forbidden(window: &WindowInfo) -> bool {
     title.contains("password")
         || title.contains("credential")
         || title.contains("keychain")
-        || name.contains("qwenpaw")
+        || name.contains("aiarb")
         || name.contains("keychain access")
 }
 

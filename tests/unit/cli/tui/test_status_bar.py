@@ -9,7 +9,7 @@ from __future__ import annotations
 import pytest
 from rich.text import Text
 
-from qwenpaw.cli.tui.widgets.status_bar import (
+from aiarb.cli.tui.widgets.status_bar import (
     _CTX_AMBER,
     _CTX_GREEN,
     _CTX_RED,
@@ -59,10 +59,10 @@ def test_initial_state_is_starting_not_ready():
 
 def test_version_renders_in_status_bar():
     bar = StatusBar()
-    bar.set(qwenpaw_version="1.1.10")
+    bar.set(aiarb_version="1.1.10")
     summary = bar.summary
-    assert "QwenPaw 1.1.10" in summary
-    # Only QwenPaw's version is shown; the TUI version was removed.
+    assert "AIArb 1.1.10" in summary
+    # Only AIArb's version is shown; the TUI version was removed.
     assert "TUI" not in summary
 
 

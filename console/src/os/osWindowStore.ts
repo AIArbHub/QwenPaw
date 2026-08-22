@@ -468,7 +468,7 @@ export const useOsWindows = create<OsStore>()(
         }),
     }),
     {
-      name: "qwenpaw-os-windows",
+      name: "aiarb-os-windows",
       version: 3,
       // Debounced storage: keep synchronous localStorage writes off the
       // drag/resize hot path (see createDebouncedStorage above).

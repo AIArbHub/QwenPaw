@@ -12,21 +12,21 @@ import pytest
 import yaml
 from fastapi import HTTPException
 
-from qwenpaw.app.routers.agents import (
+from aiarb.app.routers.agents import (
     CopyAgentRequest,
     CreateAgentRequest,
     _build_copied_agent_config,
-    _build_qwenpawmail_env,
+    _build_aiarbmail_env,
     _ensure_mail_triage_file,
-    _generate_qwenpawmail_driver_card,
-    _resolve_qwenpawmail_command,
-    _sync_qwenpawmail_driver_card,
+    _generate_aiarbmail_driver_card,
+    _resolve_aiarbmail_command,
+    _sync_aiarbmail_driver_card,
     _validate_mail_config,
     copy_agent,
     create_agent,
     update_agent,
 )
-from qwenpaw.config.config import (
+from aiarb.config.config import (
     AGENT_MAIL_CREDENTIAL_REF,
     AgentMailConfig,
     AgentMailCredential,
@@ -34,14 +34,14 @@ from qwenpaw.config.config import (
     AgentMailPushRule,
     AgentProfileConfig,
 )
-from qwenpaw.drivers.credentials.store import AsyncCredentialStore
-from qwenpaw.drivers.credentials.bindings import (
+from aiarb.drivers.credentials.store import AsyncCredentialStore
+from aiarb.drivers.credentials.bindings import (
     resolve_binding,
     resolve_credentials,
 )
-from qwenpaw.drivers.credentials.providers import build_provider
-from qwenpaw.drivers.contracts import DriverPolicy, PolicyRule, PolicyTarget
-from qwenpaw.drivers.storage import dump_card, load_card
+from aiarb.drivers.credentials.providers import build_provider
+from aiarb.drivers.contracts import DriverPolicy, PolicyRule, PolicyTarget
+from aiarb.drivers.storage import dump_card, load_card
 
 
 def _valid_mail(push: AgentMailPushConfig | None = None) -> AgentMailConfig:
@@ -202,50 +202,50 @@ def test_env_injects_hosts_for_enterprise_provider(tmp_path):
     mail = _valid_mail()
     mail.credential.provider = "netease_qiye"
     mail.credential.domain = "mycompany.com"
-    env = _build_qwenpawmail_env(mail, tmp_path)
-    assert env["QWENPAWMAIL_EMAIL"] == "tester@mycompany.com"
-    assert env["QWENPAWMAIL_AUTH_CODE"] == {
+    env = _build_aiarbmail_env(mail, tmp_path)
+    assert env["AIARBMAIL_EMAIL"] == "tester@mycompany.com"
+    assert env["AIARBMAIL_AUTH_CODE"] == {
         "source": "credential",
         "credential": "mail",
         "field": "auth_code",
     }
-    assert env["QWENPAWMAIL_IMAP_HOST"] == "imap.qiye.163.com"
-    assert env["QWENPAWMAIL_IMAP_PORT"] == "993"
-    assert env["QWENPAWMAIL_SMTP_HOST"] == "smtp.qiye.163.com"
+    assert env["AIARBMAIL_IMAP_HOST"] == "imap.qiye.163.com"
+    assert env["AIARBMAIL_IMAP_PORT"] == "993"
+    assert env["AIARBMAIL_SMTP_HOST"] == "smtp.qiye.163.com"
     # NetEase enterprise SMTP SSL port is 994, not 465.
-    assert env["QWENPAWMAIL_SMTP_PORT"] == "994"
+    assert env["AIARBMAIL_SMTP_PORT"] == "994"
 
 
 def test_env_injects_tencent_exmail_hosts(tmp_path):
     mail = _valid_mail()
     mail.credential.provider = "tencent_exmail"
     mail.credential.domain = "mycompany.com"
-    env = _build_qwenpawmail_env(mail, tmp_path)
-    assert env["QWENPAWMAIL_IMAP_HOST"] == "imap.exmail.qq.com"
-    assert env["QWENPAWMAIL_IMAP_PORT"] == "993"
-    assert env["QWENPAWMAIL_SMTP_HOST"] == "smtp.exmail.qq.com"
-    assert env["QWENPAWMAIL_SMTP_PORT"] == "465"
+    env = _build_aiarbmail_env(mail, tmp_path)
+    assert env["AIARBMAIL_IMAP_HOST"] == "imap.exmail.qq.com"
+    assert env["AIARBMAIL_IMAP_PORT"] == "993"
+    assert env["AIARBMAIL_SMTP_HOST"] == "smtp.exmail.qq.com"
+    assert env["AIARBMAIL_SMTP_PORT"] == "465"
 
 
 def test_env_without_provider_has_no_host_overrides(tmp_path):
-    env = _build_qwenpawmail_env(_valid_mail(), tmp_path)
-    assert env["QWENPAWMAIL_EMAIL"] == "tester@163.com"
-    assert "QWENPAWMAIL_IMAP_HOST" not in env
-    assert "QWENPAWMAIL_IMAP_PORT" not in env
-    assert "QWENPAWMAIL_SMTP_HOST" not in env
-    assert "QWENPAWMAIL_SMTP_PORT" not in env
+    env = _build_aiarbmail_env(_valid_mail(), tmp_path)
+    assert env["AIARBMAIL_EMAIL"] == "tester@163.com"
+    assert "AIARBMAIL_IMAP_HOST" not in env
+    assert "AIARBMAIL_IMAP_PORT" not in env
+    assert "AIARBMAIL_SMTP_HOST" not in env
+    assert "AIARBMAIL_SMTP_PORT" not in env
 
 
 def test_env_injects_workspace_and_state_dirs(tmp_path):
-    env = _build_qwenpawmail_env(_valid_mail(), tmp_path)
-    assert env["QWENPAWMAIL_STATE_DIR"] == str(tmp_path / "mail_state")
-    assert env["QWENPAWMAIL_WORKSPACE_DIR"] == str(tmp_path)
+    env = _build_aiarbmail_env(_valid_mail(), tmp_path)
+    assert env["AIARBMAIL_STATE_DIR"] == str(tmp_path / "mail_state")
+    assert env["AIARBMAIL_WORKSPACE_DIR"] == str(tmp_path)
 
 
 def test_env_without_workspace_dir_has_no_dir_vars():
-    env = _build_qwenpawmail_env(_valid_mail())
-    assert "QWENPAWMAIL_STATE_DIR" not in env
-    assert "QWENPAWMAIL_WORKSPACE_DIR" not in env
+    env = _build_aiarbmail_env(_valid_mail())
+    assert "AIARBMAIL_STATE_DIR" not in env
+    assert "AIARBMAIL_WORKSPACE_DIR" not in env
 
 
 def test_create_agent_rejects_mail_for_third_party_backend():
@@ -257,7 +257,7 @@ def test_create_agent_rejects_mail_for_third_party_backend():
     with pytest.raises(HTTPException) as exc_info:
         asyncio.run(create_agent(request=request, http_request=None))
     assert exc_info.value.status_code == 400
-    assert "qwenpaw backend" in exc_info.value.detail
+    assert "aiarb backend" in exc_info.value.detail
 
 
 def test_create_mail_agent_driver_failure_is_not_committed(tmp_path):
@@ -276,18 +276,18 @@ def test_create_mail_agent_driver_failure_is_not_committed(tmp_path):
     )
     with (
         patch(
-            "qwenpaw.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=config,
         ),
         patch(
-            "qwenpaw.app.routers.agents._initialize_agent_workspace",
+            "aiarb.app.routers.agents._initialize_agent_workspace",
         ),
         patch(
-            "qwenpaw.app.routers.agents._sync_qwenpawmail_driver_card",
+            "aiarb.app.routers.agents._sync_aiarbmail_driver_card",
             return_value=False,
         ),
         patch(
-            "qwenpaw.app.routers.agents._persist_created_agent",
+            "aiarb.app.routers.agents._persist_created_agent",
         ) as persist_agent,
     ):
         with pytest.raises(HTTPException) as exc_info:
@@ -320,33 +320,33 @@ def test_copy_mail_agent_driver_failure_is_not_committed(
         id="source",
         name="source",
         workspace_dir=str(source_workspace),
-        backend="qwenpaw",
+        backend="aiarb",
         mail=_valid_mail(),
     )
     monkeypatch.setattr(
-        "qwenpaw.app.routers.agents.WORKING_DIR",
+        "aiarb.app.routers.agents.WORKING_DIR",
         tmp_path,
     )
     with (
         patch(
-            "qwenpaw.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=config,
         ),
         patch(
-            "qwenpaw.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=source_config,
         ),
         patch(
-            "qwenpaw.app.routers.agents._generate_unique_id",
+            "aiarb.app.routers.agents._generate_unique_id",
             return_value="copy-failure",
         ),
-        patch("qwenpaw.app.routers.agents._prepare_copied_workspace"),
+        patch("aiarb.app.routers.agents._prepare_copied_workspace"),
         patch(
-            "qwenpaw.app.routers.agents._sync_qwenpawmail_driver_card",
+            "aiarb.app.routers.agents._sync_aiarbmail_driver_card",
             return_value=False,
         ),
         patch(
-            "qwenpaw.app.routers.agents._persist_created_agent",
+            "aiarb.app.routers.agents._persist_created_agent",
         ) as persist_agent,
     ):
         with pytest.raises(HTTPException) as exc_info:
@@ -377,11 +377,11 @@ def test_update_agent_rejects_mail_when_existing_backend_third_party():
     body = AgentProfileConfig(id="a1", name="bot", mail=_valid_mail())
     with (
         patch(
-            "qwenpaw.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=_fake_global_config("a1"),
         ),
         patch(
-            "qwenpaw.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=SimpleNamespace(backend="claude_code"),
         ),
     ):
@@ -390,7 +390,7 @@ def test_update_agent_rejects_mail_when_existing_backend_third_party():
                 update_agent(agentId="a1", agent_config=body, request=None),
             )
     assert exc_info.value.status_code == 400
-    assert "qwenpaw backend" in exc_info.value.detail
+    assert "aiarb backend" in exc_info.value.detail
 
 
 def test_update_agent_rejects_mail_with_explicit_third_party_backend():
@@ -402,12 +402,12 @@ def test_update_agent_rejects_mail_with_explicit_third_party_backend():
     )
     with (
         patch(
-            "qwenpaw.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=_fake_global_config("a1"),
         ),
         patch(
-            "qwenpaw.app.routers.agents.load_agent_config",
-            return_value=SimpleNamespace(backend="qwenpaw"),
+            "aiarb.app.routers.agents.load_agent_config",
+            return_value=SimpleNamespace(backend="aiarb"),
         ),
     ):
         with pytest.raises(HTTPException) as exc_info:
@@ -415,13 +415,13 @@ def test_update_agent_rejects_mail_with_explicit_third_party_backend():
                 update_agent(agentId="a1", agent_config=body, request=None),
             )
     assert exc_info.value.status_code == 400
-    assert "qwenpaw backend" in exc_info.value.detail
+    assert "aiarb backend" in exc_info.value.detail
 
 
 def test_update_agent_lock_recheck_rejects_stale_backend_snapshot():
     """The in-lock re-check must catch a concurrent backend switch.
 
-    The unlocked snapshot still reports the qwenpaw backend, but by the
+    The unlocked snapshot still reports the aiarb backend, but by the
     time the file lock is taken a concurrent request has persisted a
     third-party backend: the merged config must be rejected inside the
     lock instead of persisting the illegal backend+mail combination.
@@ -438,15 +438,15 @@ def test_update_agent_lock_recheck_rejects_stale_backend_snapshot():
 
     with (
         patch(
-            "qwenpaw.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=_fake_global_config("a1"),
         ),
         patch(
-            "qwenpaw.app.routers.agents.load_agent_config",
-            return_value=SimpleNamespace(backend="qwenpaw"),
+            "aiarb.app.routers.agents.load_agent_config",
+            return_value=SimpleNamespace(backend="aiarb"),
         ),
         patch(
-            "qwenpaw.app.routers.agents.update_agent_config_async",
+            "aiarb.app.routers.agents.update_agent_config_async",
             new=_fake_update_locked,
         ),
     ):
@@ -455,42 +455,42 @@ def test_update_agent_lock_recheck_rejects_stale_backend_snapshot():
                 update_agent(agentId="a1", agent_config=body, request=None),
             )
     assert exc_info.value.status_code == 400
-    assert "qwenpaw backend" in exc_info.value.detail
+    assert "aiarb backend" in exc_info.value.detail
 
 
-# ── qwenpawmail MCP command resolution ──────────────────────────────
+# ── aiarbmail MCP command resolution ──────────────────────────────
 
 
-def test_resolve_qwenpawmail_command_env_override(monkeypatch):
-    monkeypatch.setenv("QWENPAWMAIL_PYTHON", "/custom/bin/python")
-    assert _resolve_qwenpawmail_command() == "/custom/bin/python"
+def test_resolve_aiarbmail_command_env_override(monkeypatch):
+    monkeypatch.setenv("AIARBMAIL_PYTHON", "/custom/bin/python")
+    assert _resolve_aiarbmail_command() == "/custom/bin/python"
 
 
-def test_resolve_qwenpawmail_command_uses_current_env(monkeypatch):
-    monkeypatch.delenv("QWENPAWMAIL_PYTHON", raising=False)
+def test_resolve_aiarbmail_command_uses_current_env(monkeypatch):
+    monkeypatch.delenv("AIARBMAIL_PYTHON", raising=False)
     with patch(
         "importlib.util.find_spec",
         return_value=object(),
     ):
-        assert _resolve_qwenpawmail_command() == sys.executable
+        assert _resolve_aiarbmail_command() == sys.executable
 
 
-def test_resolve_qwenpawmail_command_falls_back_to_path(monkeypatch):
-    monkeypatch.delenv("QWENPAWMAIL_PYTHON", raising=False)
+def test_resolve_aiarbmail_command_falls_back_to_path(monkeypatch):
+    monkeypatch.delenv("AIARBMAIL_PYTHON", raising=False)
     with patch(
         "importlib.util.find_spec",
         return_value=None,
     ):
-        assert _resolve_qwenpawmail_command() == "python"
+        assert _resolve_aiarbmail_command() == "python"
 
 
 def test_driver_card_uses_resolved_command(tmp_path, monkeypatch):
-    monkeypatch.setenv("QWENPAWMAIL_PYTHON", "/custom/bin/python")
-    _generate_qwenpawmail_driver_card(tmp_path, _valid_mail())
-    card_path = tmp_path / "drivers" / "mcp" / "qwenpawmail.yaml"
+    monkeypatch.setenv("AIARBMAIL_PYTHON", "/custom/bin/python")
+    _generate_aiarbmail_driver_card(tmp_path, _valid_mail())
+    card_path = tmp_path / "drivers" / "mcp" / "aiarbmail.yaml"
     card = yaml.safe_load(card_path.read_text(encoding="utf-8"))
     assert card["endpoint"]["command"] == "/custom/bin/python"
-    assert card["endpoint"]["args"] == ["-m", "qwenpawmail_mcp"]
+    assert card["endpoint"]["args"] == ["-m", "aiarbmail_mcp"]
     # The old personal-machine interpreter path must never leak in.
     card_text = card_path.read_text(encoding="utf-8")
     assert "/Users/luohh/Documents/mcp" not in card_text
@@ -506,8 +506,8 @@ def test_driver_card_uses_resolved_command(tmp_path, monkeypatch):
 
 
 def test_driver_runtime_resolves_mail_secret_from_credential_store(tmp_path):
-    assert _generate_qwenpawmail_driver_card(tmp_path, _valid_mail())
-    card = load_card(tmp_path / "drivers" / "mcp" / "qwenpawmail.yaml")
+    assert _generate_aiarbmail_driver_card(tmp_path, _valid_mail())
+    card = load_card(tmp_path / "drivers" / "mcp" / "aiarbmail.yaml")
     store = AsyncCredentialStore(tmp_path / "credentials.yaml")
     providers = {
         alias: build_provider(reference, store)
@@ -517,32 +517,32 @@ def test_driver_runtime_resolves_mail_secret_from_credential_store(tmp_path):
     resolved = asyncio.run(resolve_credentials(providers))
     env = resolve_binding(card.endpoint["env"], resolved)
 
-    assert env["QWENPAWMAIL_EMAIL"] == "tester@163.com"
-    assert env["QWENPAWMAIL_AUTH_CODE"] == "a" * 16
+    assert env["AIARBMAIL_EMAIL"] == "tester@163.com"
+    assert env["AIARBMAIL_AUTH_CODE"] == "a" * 16
 
 
 def test_sync_upgrades_legacy_plaintext_driver_card(tmp_path):
-    card_path = tmp_path / "drivers" / "mcp" / "qwenpawmail.yaml"
+    card_path = tmp_path / "drivers" / "mcp" / "aiarbmail.yaml"
     card_path.parent.mkdir(parents=True)
     card_path.write_text(
-        """name: qwenpawmail
+        """name: aiarbmail
 protocol: mcp
 endpoint:
   transport: stdio
   command: python
-  args: [-m, qwenpawmail_mcp]
+  args: [-m, aiarbmail_mcp]
   env:
-    QWENPAWMAIL_EMAIL: tester@163.com
-    QWENPAWMAIL_AUTH_CODE: aaaaaaaaaaaaaaaa
+    AIARBMAIL_EMAIL: tester@163.com
+    AIARBMAIL_AUTH_CODE: aaaaaaaaaaaaaaaa
 credentials: {}
 """,
         encoding="utf-8",
     )
 
-    assert _sync_qwenpawmail_driver_card(
+    assert _sync_aiarbmail_driver_card(
         tmp_path,
         _valid_mail(),
-        "qwenpaw",
+        "aiarb",
     )
 
     rewritten = card_path.read_text("utf-8")
@@ -552,8 +552,8 @@ credentials: {}
 
 def test_sync_preserves_policy_enabled_and_tool_whitelist(tmp_path):
     original_mail = _valid_mail()
-    assert _generate_qwenpawmail_driver_card(tmp_path, original_mail)
-    card_path = tmp_path / "drivers" / "mcp" / "qwenpawmail.yaml"
+    assert _generate_aiarbmail_driver_card(tmp_path, original_mail)
+    card_path = tmp_path / "drivers" / "mcp" / "aiarbmail.yaml"
     card = load_card(card_path)
     expected_policy = DriverPolicy(
         default_effect="allow",
@@ -570,10 +570,10 @@ def test_sync_preserves_policy_enabled_and_tool_whitelist(tmp_path):
     dump_card(card, card_path)
 
     # Backend restart synchronization must retain user-controlled card state.
-    assert _sync_qwenpawmail_driver_card(
+    assert _sync_aiarbmail_driver_card(
         tmp_path,
         original_mail,
-        "qwenpaw",
+        "aiarb",
     )
     restarted = load_card(card_path)
     assert restarted.policy == expected_policy
@@ -584,14 +584,14 @@ def test_sync_preserves_policy_enabled_and_tool_whitelist(tmp_path):
     updated_mail = _valid_mail()
     updated_mail.credential.name = "updated"
     updated_mail.credential.auth_code = "b" * 16
-    assert _sync_qwenpawmail_driver_card(
+    assert _sync_aiarbmail_driver_card(
         tmp_path,
         updated_mail,
-        "qwenpaw",
+        "aiarb",
         force_rewrite=True,
     )
     updated = load_card(card_path)
-    assert updated.endpoint["env"]["QWENPAWMAIL_EMAIL"] == "updated@163.com"
+    assert updated.endpoint["env"]["AIARBMAIL_EMAIL"] == "updated@163.com"
     assert updated.policy == expected_policy
     assert updated.enabled is False
     assert updated.config["tools"] == ["list_messages", "get_message"]
@@ -607,11 +607,11 @@ def _run_mail_revocation_update(tmp_path, body: AgentProfileConfig):
             id="a1",
             name="bot",
             workspace_dir=str(tmp_path),
-            backend="qwenpaw",
+            backend="aiarb",
             mail=_valid_mail(),
         ),
     ]
-    _generate_qwenpawmail_driver_card(tmp_path, persisted[0].mail)
+    _generate_aiarbmail_driver_card(tmp_path, persisted[0].mail)
 
     async def _fake_update(_agent_id, apply_update):
         updated = persisted[0].model_copy(deep=True)
@@ -627,18 +627,18 @@ def _run_mail_revocation_update(tmp_path, body: AgentProfileConfig):
     global_config.agents.language = "en"
     with (
         patch(
-            "qwenpaw.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=global_config,
         ),
         patch(
-            "qwenpaw.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             side_effect=_fake_load,
         ),
         patch(
-            "qwenpaw.app.routers.agents.update_agent_config_async",
+            "aiarb.app.routers.agents.update_agent_config_async",
             new=_fake_update,
         ),
-        patch("qwenpaw.app.routers.agents.schedule_agent_reload"),
+        patch("aiarb.app.routers.agents.schedule_agent_reload"),
     ):
         asyncio.run(
             update_agent(agentId="a1", agent_config=body, request=None),
@@ -651,19 +651,19 @@ def test_update_personal_mail_to_none_revokes_driver_card(tmp_path):
         tmp_path,
         AgentProfileConfig(id="a1", name="bot", mail=None),
     )
-    card_path = tmp_path / "drivers" / "mcp" / "qwenpawmail.yaml"
+    card_path = tmp_path / "drivers" / "mcp" / "aiarbmail.yaml"
     assert updated.mail is None
     assert not card_path.exists()
     # Driver discovery has no card to reload.
-    from qwenpaw.drivers.storage import list_card_paths
+    from aiarb.drivers.storage import list_card_paths
 
     assert list_card_paths(tmp_path / "drivers") == []
     # Repeated close is idempotent.
-    _sync_qwenpawmail_driver_card(tmp_path, None, "qwenpaw")
+    _sync_aiarbmail_driver_card(tmp_path, None, "aiarb")
     assert not card_path.exists()
 
 
-def test_update_qwenpaw_to_third_party_revokes_driver_card(tmp_path):
+def test_update_aiarb_to_third_party_revokes_driver_card(tmp_path):
     updated = _run_mail_revocation_update(
         tmp_path,
         AgentProfileConfig(
@@ -675,7 +675,7 @@ def test_update_qwenpaw_to_third_party_revokes_driver_card(tmp_path):
     )
     assert updated.backend == "claude_code"
     assert updated.mail is None
-    assert not (tmp_path / "drivers" / "mcp" / "qwenpawmail.yaml").exists()
+    assert not (tmp_path / "drivers" / "mcp" / "aiarbmail.yaml").exists()
 
 
 def test_update_cannot_relocate_mail_driver_writes(tmp_path):
@@ -694,7 +694,7 @@ def test_update_cannot_relocate_mail_driver_writes(tmp_path):
 
     assert updated.workspace_dir == str(registered_workspace)
     assert not (
-        registered_workspace / "drivers" / "mcp" / "qwenpawmail.yaml"
+        registered_workspace / "drivers" / "mcp" / "aiarbmail.yaml"
     ).exists()
     assert not requested_workspace.exists()
 
@@ -732,17 +732,17 @@ def test_update_changed_mailbox_requires_fresh_secret(tmp_path):
 
 
 def test_failed_driver_rewrite_revokes_stale_credentials(tmp_path):
-    card_path = tmp_path / "drivers" / "mcp" / "qwenpawmail.yaml"
+    card_path = tmp_path / "drivers" / "mcp" / "aiarbmail.yaml"
     card_path.parent.mkdir(parents=True)
     card_path.write_text("old plaintext credentials", encoding="utf-8")
     with patch(
-        "qwenpaw.app.mail.driver_config.generate_qwenpawmail_driver_card",
+        "aiarb.app.mail.driver_config.generate_aiarbmail_driver_card",
         return_value=False,
     ):
-        assert not _sync_qwenpawmail_driver_card(
+        assert not _sync_aiarbmail_driver_card(
             tmp_path,
             _valid_mail(),
-            "qwenpaw",
+            "aiarb",
             force_rewrite=True,
         )
     assert not card_path.exists()
@@ -758,7 +758,7 @@ def test_update_driver_failure_restores_previous_config(tmp_path):
             id="a1",
             name="bot",
             workspace_dir=str(stale_workspace),
-            backend="qwenpaw",
+            backend="aiarb",
             mail=previous_mail,
         ),
     ]
@@ -782,27 +782,27 @@ def test_update_driver_failure_restores_previous_config(tmp_path):
 
     with (
         patch(
-            "qwenpaw.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=global_config,
         ),
         patch(
-            "qwenpaw.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             side_effect=_fake_load,
         ),
         patch(
-            "qwenpaw.app.routers.agents.update_agent_config_async",
+            "aiarb.app.routers.agents.update_agent_config_async",
             new=_fake_update,
         ),
         patch(
-            "qwenpaw.app.routers.agents.save_agent_config",
+            "aiarb.app.routers.agents.save_agent_config",
             side_effect=_fake_save,
         ),
         patch(
-            "qwenpaw.app.routers.agents._sync_qwenpawmail_driver_card",
+            "aiarb.app.routers.agents._sync_aiarbmail_driver_card",
             side_effect=[False, True],
         ) as sync_driver,
         patch(
-            "qwenpaw.app.routers.agents.schedule_agent_reload",
+            "aiarb.app.routers.agents.schedule_agent_reload",
         ) as reload_agent,
     ):
         with pytest.raises(HTTPException) as exc_info:
@@ -833,11 +833,11 @@ def test_update_failed_new_card_rebuilds_old_credentials(tmp_path):
             id="a1",
             name="bot",
             workspace_dir=str(tmp_path),
-            backend="qwenpaw",
+            backend="aiarb",
             mail=previous_mail,
         ),
     ]
-    assert _generate_qwenpawmail_driver_card(tmp_path, previous_mail)
+    assert _generate_aiarbmail_driver_card(tmp_path, previous_mail)
 
     async def _fake_update(_agent_id, apply_update):
         candidate = persisted[0].model_copy(deep=True)
@@ -854,7 +854,7 @@ def test_update_failed_new_card_rebuilds_old_credentials(tmp_path):
     def _fail_only_new_credentials(workspace_dir, mail):
         if mail.credential.auth_code == "b" * 16:
             return False
-        return _generate_qwenpawmail_driver_card(workspace_dir, mail)
+        return _generate_aiarbmail_driver_card(workspace_dir, mail)
 
     global_config = _fake_global_config("a1")
     global_config.agents.profiles["a1"].workspace_dir = str(tmp_path)
@@ -863,27 +863,27 @@ def test_update_failed_new_card_rebuilds_old_credentials(tmp_path):
 
     with (
         patch(
-            "qwenpaw.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=global_config,
         ),
         patch(
-            "qwenpaw.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             side_effect=_fake_load,
         ),
         patch(
-            "qwenpaw.app.routers.agents.update_agent_config_async",
+            "aiarb.app.routers.agents.update_agent_config_async",
             new=_fake_update,
         ),
         patch(
-            "qwenpaw.app.routers.agents.save_agent_config",
+            "aiarb.app.routers.agents.save_agent_config",
             side_effect=_fake_save,
         ),
         patch(
-            "qwenpaw.app.mail.driver_config.generate_qwenpawmail_driver_card",
+            "aiarb.app.mail.driver_config.generate_aiarbmail_driver_card",
             side_effect=_fail_only_new_credentials,
         ),
         patch(
-            "qwenpaw.app.routers.agents.schedule_agent_reload",
+            "aiarb.app.routers.agents.schedule_agent_reload",
         ) as reload_agent,
     ):
         with pytest.raises(HTTPException):
@@ -895,11 +895,11 @@ def test_update_failed_new_card_rebuilds_old_credentials(tmp_path):
                 ),
             )
 
-    card_path = tmp_path / "drivers" / "mcp" / "qwenpawmail.yaml"
+    card_path = tmp_path / "drivers" / "mcp" / "aiarbmail.yaml"
     card = yaml.safe_load(card_path.read_text("utf-8"))
     assert persisted[0].mail is not None
     assert persisted[0].mail.credential.auth_code == "a" * 16
-    assert card["endpoint"]["env"]["QWENPAWMAIL_AUTH_CODE"] == {
+    assert card["endpoint"]["env"]["AIARBMAIL_AUTH_CODE"] == {
         "source": "credential",
         "credential": "mail",
         "field": "auth_code",
@@ -927,11 +927,11 @@ def test_copied_agent_drops_mail_for_third_party_backend(tmp_path):
     assert copied.mail is None
 
 
-def test_copied_agent_keeps_mail_for_qwenpaw_backend(tmp_path):
+def test_copied_agent_keeps_mail_for_aiarb_backend(tmp_path):
     source = AgentProfileConfig(
         id="src",
         name="src",
-        backend="qwenpaw",
+        backend="aiarb",
         mail=_valid_mail(),
     )
     copied = _build_copied_agent_config(
@@ -1062,12 +1062,12 @@ def test_dedicated_mailbox_credential_completes_provisioning(tmp_path):
     assert mail.is_new_account is False
     assert mail.credential.password == ""
     assert mail.credential.phone_number == ""
-    env = _build_qwenpawmail_env(mail, tmp_path)
-    assert env["QWENPAWMAIL_EMAIL"] == "registered@163.com"
-    assert env["QWENPAWMAIL_AUTH_CODE"]["field"] == "auth_code"
-    assert _generate_qwenpawmail_driver_card(tmp_path, mail)
-    card = load_card(tmp_path / "drivers" / "mcp" / "qwenpawmail.yaml")
-    assert card.endpoint["env"]["QWENPAWMAIL_EMAIL"] == "registered@163.com"
+    env = _build_aiarbmail_env(mail, tmp_path)
+    assert env["AIARBMAIL_EMAIL"] == "registered@163.com"
+    assert env["AIARBMAIL_AUTH_CODE"]["field"] == "auth_code"
+    assert _generate_aiarbmail_driver_card(tmp_path, mail)
+    card = load_card(tmp_path / "drivers" / "mcp" / "aiarbmail.yaml")
+    assert card.endpoint["env"]["AIARBMAIL_EMAIL"] == "registered@163.com"
     stored = AsyncCredentialStore(
         tmp_path / "credentials.yaml",
     ).get_sync(AGENT_MAIL_CREDENTIAL_REF)

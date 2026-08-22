@@ -37,15 +37,15 @@ except ImportError:
 
 from PIL import Image
 
-from qwenpaw.agents import model_factory
-from qwenpaw.constant import MEDIA_UNSUPPORTED_PLACEHOLDER
-from qwenpaw.providers.capping_formatter import (
+from aiarb.agents import model_factory
+from aiarb.constant import MEDIA_UNSUPPORTED_PLACEHOLDER
+from aiarb.providers.capping_formatter import (
     _CappingAnthropicFormatter,
     _CappingDashScopeFormatter,
     _CappingGeminiFormatter,
     _CappingOpenAIFormatter,
 )
-from qwenpaw.utils.tool_call_extra import persist_tool_call_extras
+from aiarb.utils.tool_call_extra import persist_tool_call_extras
 
 
 def _data_block(media_type: str, url: str) -> DataBlock:
@@ -201,7 +201,7 @@ def test_force_strip_media_flag_overrides_multimodal_support(
     )
 
     original = _media_messages()
-    formatter_instance = SimpleNamespace(_qwenpaw_force_strip_media=True)
+    formatter_instance = SimpleNamespace(_aiarb_force_strip_media=True)
 
     (
         normalized,
@@ -239,7 +239,7 @@ async def test_anthropic_dedup_uses_complete_media_content(
 
     content = formatted[0]["content"]
     assert [item["type"] for item in content] == ["image", "image"]
-    assert formatter._qwenpaw_last_wire_media_count == 2
+    assert formatter._aiarb_last_wire_media_count == 2
 
 
 @pytest.mark.asyncio
@@ -264,7 +264,69 @@ async def test_anthropic_dedup_omits_identical_media(
     content = formatted[0]["content"]
     assert [item["type"] for item in content] == ["image", "text"]
     assert "omitted" in content[1]["text"]
-    assert formatter._qwenpaw_last_wire_media_count == 1
+    assert formatter._aiarb_last_wire_media_count == 1  
+
+
+@pytest.mark.asyncio
+async def test_request_time_image_resize_preserves_original(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        model_factory,
+        "_supports_multimodal_for_current_model",
+        lambda: True,
+    )
+    monkeypatch.setenv("QWENPAW_MAX_IMAGE_PIXELS", "1250")
+    formatter_class = model_factory._create_file_block_support_formatter(
+        _CappingOpenAIFormatter,
+    )
+    formatter = formatter_class()
+    original = _base64_data_block("image/png", _png_bytes((100, 50)))
+    msg = Msg(name="user", role="user", content=[original])
+
+    formatted = await formatter.format([msg])
+
+    image_url = formatted[0]["content"][0]["image_url"]["url"]
+    resized_data = image_url.split(",", 1)[1]
+    with Image.open(BytesIO(base64.b64decode(resized_data))) as resized:
+        assert resized.size == (50, 25)
+    with Image.open(
+        BytesIO(base64.b64decode(original.source.data)),
+    ) as untouched:
+        assert untouched.size == (100, 50)
+
+
+@pytest.mark.asyncio
+async def test_resize_failure_preserves_media_dedup_context(
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("QWENPAW_MAX_IMAGE_PIXELS", "invalid")
+    formatter_class = model_factory._create_file_block_support_formatter(
+        _CappingOpenAIFormatter,
+    )
+    formatter = formatter_class()
+    previous_context = {"existing-media"}
+    outer_token = model_factory._FORMATTER_SEEN_MEDIA_KEYS.set(
+        previous_context,
+    )
+    msg = Msg(
+        name="user",
+        role="user",
+        content=[TextBlock(text="hello")],
+    )
+
+    try:
+        with pytest.raises(
+            ValueError,
+            match="QWENPAW_MAX_IMAGE_PIXELS must be zero or a positive",
+        ):
+            await formatter.format([msg])
+
+        assert model_factory._FORMATTER_SEEN_MEDIA_KEYS.get() is (
+            previous_context
+        )
+    finally:
+        model_factory._FORMATTER_SEEN_MEDIA_KEYS.reset(outer_token)
 
 
 @pytest.mark.asyncio
@@ -348,7 +410,7 @@ async def test_formatter_resets_wire_media_count_before_failure(
         content=[_base64_data_block("image/png", b"valid")],
     )
     await formatter.format([valid])
-    assert formatter._qwenpaw_last_wire_media_count == 1
+    assert formatter._aiarb_last_wire_media_count == 1
 
     async def fail_format(_self, _msgs):
         raise RuntimeError("formatter failed")
@@ -357,7 +419,7 @@ async def test_formatter_resets_wire_media_count_before_failure(
     with pytest.raises(RuntimeError, match="formatter failed"):
         await formatter.format([valid])
 
-    assert formatter._qwenpaw_last_wire_media_count == 0
+    assert formatter._aiarb_last_wire_media_count == 0
 
 
 @pytest.mark.asyncio
@@ -401,10 +463,10 @@ async def test_dashscope_audio_strip_flag_preserves_other_media(
             "format": "mp3",
         },
     }
-    assert formatter._qwenpaw_last_wire_media_count == 3
-    assert formatter._qwenpaw_last_wire_audio_count == 1
+    assert formatter._aiarb_last_wire_media_count == 3
+    assert formatter._aiarb_last_wire_audio_count == 1
 
-    formatter._qwenpaw_force_strip_audio = True
+    formatter._aiarb_force_strip_audio = True
     retry_request = await formatter.format([msg])
 
     assert [block["type"] for block in retry_request[0]["content"]] == [
@@ -412,8 +474,8 @@ async def test_dashscope_audio_strip_flag_preserves_other_media(
         "image_url",
         "video_url",
     ]
-    assert formatter._qwenpaw_last_wire_media_count == 2
-    assert formatter._qwenpaw_last_wire_audio_count == 0
+    assert formatter._aiarb_last_wire_media_count == 2
+    assert formatter._aiarb_last_wire_audio_count == 0
     assert msg.model_dump(mode="json") == original
 
 
@@ -513,7 +575,7 @@ def test_original_messages_not_modified_by_formatter_prep() -> None:
     ) = model_factory._normalize_messages_for_formatter(
         [original],
         OpenAIChatFormatter,
-        SimpleNamespace(_qwenpaw_force_strip_media=False),
+        SimpleNamespace(_aiarb_force_strip_media=False),
     )
 
     assert original.to_dict() == original_dict
@@ -629,7 +691,7 @@ async def test_required_reasoning_preserves_real_and_fills_missing() -> None:
     formatter = formatter_class(
         relay_reasoning_content=True,
     )
-    formatter._qwenpaw_require_reasoning_content = True
+    formatter._aiarb_require_reasoning_content = True
     msg = Msg(
         name="assistant",
         role="assistant",
@@ -665,7 +727,7 @@ async def test_required_reasoning_respects_disabled_relay_privacy() -> None:
     formatter = formatter_class(
         relay_reasoning_content=False,
     )
-    formatter._qwenpaw_require_reasoning_content = True
+    formatter._aiarb_require_reasoning_content = True
     msg = Msg(
         name="assistant",
         role="assistant",
@@ -693,7 +755,7 @@ async def test_required_reasoning_falls_back_when_alignment_mismatches(
     formatter = formatter_class(
         relay_reasoning_content=True,
     )
-    formatter._qwenpaw_require_reasoning_content = True
+    formatter._aiarb_require_reasoning_content = True
     monkeypatch.setattr(
         model_factory,
         "_reasoning_by_assistant_segment",

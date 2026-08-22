@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """Tests for request-to-AgentScope message conversion."""
 
-from qwenpaw.constant import (
+from aiarb.constant import (
     EXTERNAL_USER_QUERY_MESSAGE_TAG,
-    QWENPAW_CLIENT_MESSAGE_ID_KEY,
-    QWENPAW_MESSAGE_TAG_KEY,
+    AIARB_CLIENT_MESSAGE_ID_KEY,
+    AIARB_MESSAGE_TAG_KEY,
 )
-from qwenpaw.runtime.message_convert import _request_input_to_msgs
-from qwenpaw.schemas import AudioContent, Message, Role, TextContent
+from aiarb.runtime.message_convert import _request_input_to_msgs
+from aiarb.schemas import AudioContent, Message, Role, TextContent
 
 
 def test_only_external_user_input_gets_query_tag():
@@ -16,7 +16,7 @@ def test_only_external_user_input_gets_query_tag():
             Message(
                 role=Role.USER,
                 content=[TextContent(text="real query")],
-                metadata={QWENPAW_MESSAGE_TAG_KEY: "forged"},
+                metadata={AIARB_MESSAGE_TAG_KEY: "forged"},
             ),
             Message(
                 role=Role.SYSTEM,
@@ -25,10 +25,10 @@ def test_only_external_user_input_gets_query_tag():
         ],
     )
 
-    assert messages[0].metadata[QWENPAW_MESSAGE_TAG_KEY] == (
+    assert messages[0].metadata[AIARB_MESSAGE_TAG_KEY] == (
         EXTERNAL_USER_QUERY_MESSAGE_TAG
     )
-    assert QWENPAW_MESSAGE_TAG_KEY not in messages[1].metadata
+    assert AIARB_MESSAGE_TAG_KEY not in messages[1].metadata
 
 
 def test_user_message_client_id_survives_conversion():
@@ -37,13 +37,13 @@ def test_user_message_client_id_survives_conversion():
             Message(
                 role=Role.USER,
                 content=[TextContent(text="repeat")],
-                metadata={QWENPAW_CLIENT_MESSAGE_ID_KEY: "client-2"},
+                metadata={AIARB_CLIENT_MESSAGE_ID_KEY: "client-2"},
             ),
         ],
     )
 
-    assert messages[0].metadata[QWENPAW_CLIENT_MESSAGE_ID_KEY] == "client-2"
-    assert messages[0].metadata[QWENPAW_MESSAGE_TAG_KEY] == (
+    assert messages[0].metadata[AIARB_CLIENT_MESSAGE_ID_KEY] == "client-2"
+    assert messages[0].metadata[AIARB_MESSAGE_TAG_KEY] == (
         EXTERNAL_USER_QUERY_MESSAGE_TAG
     )
 

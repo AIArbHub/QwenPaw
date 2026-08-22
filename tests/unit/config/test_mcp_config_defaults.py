@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from qwenpaw.config.config import MCPConfig
+from aiarb.config.config import MCPConfig
 
 
 def test_default_mcp_config_contains_anysearch() -> None:
