@@ -6,14 +6,14 @@ import asyncio
 
 import pytest
 
-from qwenpaw.tool_calls import (
+from aiarb.tool_calls import (
     OFFLOAD_TIMEOUT_RATIO,
     arm_kill_deadline,
     cancellable_wait,
     reset_call_context,
     set_call_context,
 )
-from qwenpaw.tool_calls._context import CancelReason, ToolCallContext
+from aiarb.tool_calls._context import CancelReason, ToolCallContext
 
 
 @pytest.mark.asyncio

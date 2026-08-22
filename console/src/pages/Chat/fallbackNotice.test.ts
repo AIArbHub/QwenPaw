@@ -19,13 +19,13 @@ describe("fallbackNotice", () => {
   it("parses direct and nested response metadata", () => {
     expect(
       parseModelFallbackEvents({
-        metadata: { qwenpaw_model_fallbacks: [event] },
+        metadata: { aiarb_model_fallbacks: [event] },
       }),
     ).toEqual([event]);
     expect(
       parseModelFallbackEvents({
         metadata: {
-          metadata: { qwenpaw_model_fallbacks: [event] },
+          metadata: { aiarb_model_fallbacks: [event] },
         },
       }),
     ).toEqual([event]);
@@ -35,7 +35,7 @@ describe("fallbackNotice", () => {
     expect(
       parseModelFallbackEvents({
         metadata: {
-          qwenpaw_model_fallbacks: [{ type: "model_fallback" }, event],
+          aiarb_model_fallbacks: [{ type: "model_fallback" }, event],
         },
       }),
     ).toEqual([event]);
@@ -60,7 +60,7 @@ describe("fallbackNotice", () => {
           text: "openai:gpt-primary -> anthropic:claude-fallback -> rate_limited",
         },
       ],
-      metadata: { qwenpaw_model_fallbacks: [event] },
+      metadata: { aiarb_model_fallbacks: [event] },
     });
   });
 });

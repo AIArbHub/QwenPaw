@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.config.config import migrate_project_directory_config
-from qwenpaw.services.project_directory import (
+from aiarb.config.config import migrate_project_directory_config
+from aiarb.services.project_directory import (
     resolve_effective_project_dir,
     session_project_dir,
 )

@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock
 
 from agentscope.model import OpenAIChatModel
 
-import qwenpaw.providers.openai_provider as openai_provider_module
-from qwenpaw.providers.openai_provider import (
+import aiarb.providers.openai_provider as openai_provider_module
+from aiarb.providers.openai_provider import (
     GitHubModelsProvider,
     OpenAIProvider,
 )

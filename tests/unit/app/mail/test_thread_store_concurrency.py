@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Concurrency regression tests for qwenpawmail's JSON ThreadStore."""
+"""Concurrency regression tests for aiarbmail's JSON ThreadStore."""
 from __future__ import annotations
 
 import threading
 import json
 from concurrent.futures import ThreadPoolExecutor
 
-from qwenpawmail_mcp.errors import MailError
-from qwenpawmail_mcp.thread_store import ThreadStore
+from aiarbmail_mcp.errors import MailError
+from aiarbmail_mcp.thread_store import ThreadStore
 
 
 def _envelope(uid: str, *, reply: bool = False) -> dict:

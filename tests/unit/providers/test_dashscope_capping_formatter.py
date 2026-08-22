@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import base64
 
-from qwenpaw.providers.dashscope_provider import (
+from aiarb.providers.dashscope_provider import (
     _CappingDashScopeFormatter,
     MAX_INLINE_MEDIA_BYTES,
 )

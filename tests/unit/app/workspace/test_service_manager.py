@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.app.workspace.service_manager import (
+from aiarb.app.workspace.service_manager import (
     ServiceDescriptor,
     ServiceManager,
 )

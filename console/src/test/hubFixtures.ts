@@ -119,7 +119,7 @@ export function hubSettings(overrides: Partial<HubSettings> = {}): HubSettings {
         provisioner: "local",
         docker: {
           source: "docker_hub",
-          image: "docker.io/agentscope/qwenpaw:latest",
+          image: "docker.io/agentscope/aiarb:latest",
           pull_policy: "if_not_present",
           cpu_limit: 2,
           memory_limit_mb: 4096,
@@ -142,14 +142,14 @@ export function dockerCatalog(
   return {
     available: true,
     sources: {
-      docker_hub: "docker.io/agentscope/qwenpaw",
+      docker_hub: "docker.io/agentscope/aiarb",
       aliyun_acr:
-        "agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/qwenpaw",
+        "agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/aiarb",
     },
     official_images: [
       {
         source: "docker_hub",
-        reference: "docker.io/agentscope/qwenpaw:latest",
+        reference: "docker.io/agentscope/aiarb:latest",
         tag: "latest",
         downloaded: true,
       },
@@ -157,7 +157,7 @@ export function dockerCatalog(
     local_images: [],
     policy: {
       source: "docker_hub",
-      image: "docker.io/agentscope/qwenpaw:latest",
+      image: "docker.io/agentscope/aiarb:latest",
       pull_policy: "if_not_present",
       cpu_limit: 2,
       memory_limit_mb: 4096,

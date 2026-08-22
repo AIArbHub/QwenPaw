@@ -25,7 +25,7 @@ from typing import Any
 
 import pytest
 
-from qwenpaw.config.context import (
+from aiarb.config.context import (
     _F1_REASONING_MAX_CHARS,
     _f1_sessions,
     activate_f1_for_session,
@@ -35,15 +35,15 @@ from qwenpaw.config.context import (
     is_f1_active_for_session,
     set_f1_reasoning,
 )
-from qwenpaw.drivers.handler import _resolve_driver_execution_level
-from qwenpaw.governance import tool_adapter as gov_tool_adapter
-from qwenpaw.governance.policy import (
+from aiarb.drivers.handler import _resolve_driver_execution_level
+from aiarb.governance import tool_adapter as gov_tool_adapter
+from aiarb.governance.policy import (
     GovernanceAction,
     GovernanceDecision,
     ToolCallSpec,
 )
-from qwenpaw.security.tool_guard.execution_level import ToolExecutionLevel
-from qwenpaw.tool_calls._middleware import (
+from aiarb.security.tool_guard.execution_level import ToolExecutionLevel
+from aiarb.tool_calls._middleware import (
     ToolCoordinatorMiddleware,
     _extract_last_assistant_text,
 )
@@ -87,7 +87,7 @@ def test_registry_tolerates_empty_session():
 
 def test_activation_tool_registers_session():
     """The tool must register the session from get_current_session_id."""
-    from qwenpaw.agents.tools.mail_f1_tool import (
+    from aiarb.agents.tools.mail_f1_tool import (
         activate_f1_exploration_mode,
     )
 
@@ -102,7 +102,7 @@ def test_activation_tool_registers_session():
 
 def test_activation_tool_without_session_id_is_safe():
     """No session_id in context → warning path, nothing registered."""
-    from qwenpaw.agents.tools.mail_f1_tool import (
+    from aiarb.agents.tools.mail_f1_tool import (
         activate_f1_exploration_mode,
     )
 
@@ -187,7 +187,7 @@ def _stub_ask_approval(monkeypatch):
 
 @pytest.mark.parametrize(
     "tool_name",
-    ["edit_file", "read_file", "qwenpawmail__reply_message", "browser_use"],
+    ["edit_file", "read_file", "aiarbmail__reply_message", "browser_use"],
 )
 def test_policy_tool_gates_all_tools_when_f1_active(
     _stub_ask_approval,
@@ -242,7 +242,7 @@ def test_policy_tool_f1_overrides_off_level(_stub_ask_approval):
     tool = _make_tool(
         governor,
         request_context={"approval_level": "off", "session_id": _SESSION},
-        name="qwenpawmail__send_message",
+        name="aiarbmail__send_message",
     )
 
     decision = asyncio.run(
@@ -264,7 +264,7 @@ def test_policy_tool_normal_when_f1_inactive(_stub_ask_approval):
     tool = _make_tool(
         governor,
         request_context={"session_id": _SESSION},
-        name="qwenpawmail__reply_message",
+        name="aiarbmail__reply_message",
     )
 
     decision = asyncio.run(
@@ -369,7 +369,7 @@ def test_activation_survives_create_task_isolation(_stub_ask_approval):
     here — the flag never propagated back to the parent task. The
     session registry must survive this isolation.
     """
-    from qwenpaw.agents.tools.mail_f1_tool import (
+    from aiarb.agents.tools.mail_f1_tool import (
         activate_f1_exploration_mode,
     )
 
@@ -389,7 +389,7 @@ def test_activation_survives_create_task_isolation(_stub_ask_approval):
         tool = _make_tool(
             governor,
             request_context={"session_id": _SESSION},
-            name="qwenpawmail__reply_message",
+            name="aiarbmail__reply_message",
         )
         policy_decision = await asyncio.create_task(
             gov_tool_adapter._policy_tool_check_permissions(tool, {}),
@@ -774,7 +774,7 @@ class _FakeApprovalService:
 
 def _install_fake_approval_service(monkeypatch, decision):
     """Patch get_approval_service (both call sites import it lazily)."""
-    import qwenpaw.app.approvals as approvals_pkg
+    import aiarb.app.approvals as approvals_pkg
 
     svc = _FakeApprovalService(decision)
     monkeypatch.setattr(approvals_pkg, "get_approval_service", lambda: svc)
@@ -783,7 +783,7 @@ def _install_fake_approval_service(monkeypatch, decision):
 
 def _patch_generalize(monkeypatch):
     """Skip the (potentially model-backed) target generalization."""
-    import qwenpaw.governance.generalize as generalize_mod
+    import aiarb.governance.generalize as generalize_mod
 
     async def _identity(
         _tool_name,
@@ -803,7 +803,7 @@ def _patch_generalize(monkeypatch):
 
 def _run_ask_user_approval(monkeypatch) -> _FakeApprovalService:
     """Drive the real _ask_user_approval against the fake service."""
-    from qwenpaw.security.tool_guard.approval import ApprovalDecision
+    from aiarb.security.tool_guard.approval import ApprovalDecision
 
     svc = _install_fake_approval_service(monkeypatch, ApprovalDecision.DENIED)
     _patch_generalize(monkeypatch)
@@ -849,20 +849,20 @@ def test_ask_user_approval_reasoning_empty_when_f1_inactive(monkeypatch):
 
 
 def _run_driver_gate(monkeypatch) -> _FakeApprovalService:
-    """Drive the real QwenPawDriverApprovalGate.request_approval."""
-    from qwenpaw.app.approvals.driver_gate import QwenPawDriverApprovalGate
-    from qwenpaw.drivers.policy import DriverInvocationContext
-    from qwenpaw.security.tool_guard.approval import ApprovalDecision
+    """Drive the real AIArbDriverApprovalGate.request_approval."""
+    from aiarb.app.approvals.driver_gate import AIArbDriverApprovalGate
+    from aiarb.drivers.policy import DriverInvocationContext
+    from aiarb.security.tool_guard.approval import ApprovalDecision
 
     svc = _install_fake_approval_service(
         monkeypatch,
         ApprovalDecision.APPROVED,
     )
 
-    gate = QwenPawDriverApprovalGate()
+    gate = AIArbDriverApprovalGate()
     context = DriverInvocationContext(
         subject="tool:reply_message",
-        driver_name="qwenpawmail",
+        driver_name="aiarbmail",
         protocol="mcp",
         request_context={"session_id": _SESSION},
     )

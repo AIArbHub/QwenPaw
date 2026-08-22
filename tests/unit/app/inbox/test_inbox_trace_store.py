@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access,unused-argument
 # pylint: disable=use-implicit-booleaness-not-comparison
-"""Unit tests for qwenpaw.app.inbox_trace_store.
+"""Unit tests for aiarb.app.inbox_trace_store.
 
 Real file IO through a monkeypatched ``_TRACE_DIR`` — no over-mocking.
 Covers: create_trace, append_trace_events (normalization, pydantic
@@ -20,7 +20,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.app import inbox_trace_store as trace_store
+from aiarb.app import inbox_trace_store as trace_store
 
 
 @pytest.fixture

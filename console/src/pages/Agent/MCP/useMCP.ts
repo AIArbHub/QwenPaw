@@ -13,7 +13,7 @@ export function useMCP() {
   const { t } = useTranslation();
   const { selectedAgent, agents } = useAgentStore();
   const selectedAgentInfo = agents.find((item) => item.id === selectedAgent);
-  const selectedBackend = selectedAgentInfo?.backend ?? "qwenpaw";
+  const selectedBackend = selectedAgentInfo?.backend ?? "aiarb";
   const canDiscoverProviderMCP = Boolean(
     selectedAgentInfo?.backend_capabilities?.provider_mcp_discovery,
   );
@@ -29,7 +29,7 @@ export function useMCP() {
     try {
       const data = await api.listMCPClients();
       setClients(data);
-      if (selectedBackend !== "qwenpaw" && canDiscoverProviderMCP) {
+      if (selectedBackend !== "aiarb" && canDiscoverProviderMCP) {
         try {
           const discovered = await harnessApi.listMCP(selectedBackend);
           setProviderServers(discovered.servers);

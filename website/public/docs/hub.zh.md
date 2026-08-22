@@ -1,8 +1,8 @@
-# QwenPaw Hub：部署与管理多租户 QwenPaw
+# AIArb Hub：部署与管理多租户 AIArb
 
-QwenPaw Hub 是面向自托管多用户场景的统一入口。管理员只需维护一个 Hub，每个账户即可使用自己的 QwenPaw 运行环境，并拥有分别存放的工作目录、配置、凭据和会话。
+AIArb Hub 是面向自托管多用户场景的统一入口。管理员只需维护一个 Hub，每个账户即可使用自己的 AIArb 运行环境，并拥有分别存放的工作目录、配置、凭据和会话。
 
-Hub 不会替代或改变原有的单机 QwenPaw App。个人设备仍然可以使用 `qwenpaw app`；只有需要集中管理多个账户时，才需要启动 `qwenpaw hub`。
+Hub 不会替代或改变原有的单机 AIArb App。个人设备仍然可以使用 `aiarb app`；只有需要集中管理多个账户时，才需要启动 `aiarb hub`。
 
 > **重要安全边界：当前 Hub 不提供每个用户独立的内核。** Linux Local 使用 Bubblewrap namespace，macOS Local 使用 Seatbelt，Windows Local 使用 AppContainer 和 Job Object；三者都是共享宿主机内核的进程沙箱。Docker 使用容器隔离，所有 Hub 容器共享 Docker Engine 所使用的 Linux 内核。在 Windows 或 macOS 的 Docker Desktop/虚拟机环境中，这通常是 Docker Linux VM 的内核，而不是 Windows 或 macOS 宿主内核，但仍不是一租户一内核。以上机制可以限制文件、进程权限和运行环境访问范围，却不能等同于每个用户一台虚拟机或 MicroVM。对于彼此不信任的用户或更高风险的多租户部署，应在 Hub 外增加独立虚拟机、专用节点或其他更强的基础设施隔离。
 
@@ -10,22 +10,22 @@ Hub 不会替代或改变原有的单机 QwenPaw App。个人设备仍然可以�
 
 ## Hub 与单机 App 的区别
 
-| 能力     | `qwenpaw app`               | `qwenpaw hub`                  |
+| 能力     | `aiarb app`               | `aiarb hub`                  |
 | -------- | --------------------------- | ------------------------------ |
 | 使用场景 | 个人设备、单用户            | 自托管、多用户                 |
-| 登录身份 | 当前 QwenPaw 实例的本地认证 | Hub 统一账户                   |
+| 登录身份 | 当前 AIArb 实例的本地认证 | Hub 统一账户                   |
 | 运行环境 | 一个本机进程                | 每个账户一个独立运行环境       |
-| 数据目录 | 默认 `~/.qwenpaw`           | Hub 根目录下按运行环境隔离     |
-| 运维入口 | QwenPaw Console             | Hub 管理中心与个人 QwenPaw     |
+| 数据目录 | 默认 `~/.aiarb`           | Hub 根目录下按运行环境隔离     |
+| 运维入口 | AIArb Console             | Hub 管理中心与个人 AIArb     |
 | 运行方式 | 本机进程或手工部署的容器    | 管理员统一选择 Local 或 Docker |
 
-登录 Hub 后，普通用户会被转发到自己的 QwenPaw Console。管理员还可以进入 Hub 管理中心，管理账户、运行环境、访问安全和 Docker 策略。
+登录 Hub 后，普通用户会被转发到自己的 AIArb Console。管理员还可以进入 Hub 管理中心，管理账户、运行环境、访问安全和 Docker 策略。
 
 ## 系统要求
 
 运行 Hub 前请确认：
 
-- 已安装当前版本的 QwenPaw，Python 版本要求与普通 QwenPaw 相同；
+- 已安装当前版本的 AIArb，Python 版本要求与普通 AIArb 相同；
 - Console 前端资源已经包含在安装包中，或已在源码目录完成构建；
 - 选择 Local 后端时，宿主机具备受支持的操作系统隔离能力；
 - 选择 Docker 后端时，Hub 进程能够访问运行 Linux 容器的 Docker Engine；
@@ -38,19 +38,19 @@ Local 后端和 Docker 后端的具体要求将在本文的运行环境章节中
 通过 PyPI 安装 Hub 可选依赖：
 
 ```bash
-pip install "qwenpaw[hub]"
+pip install "aiarb[hub]"
 ```
 
-`hub` extra 包含 Docker 后端所需的 Docker SDK；普通的 `pip install qwenpaw` 不会安装它，也不会改变原有 QwenPaw App 主链路。即使只准备使用 Local 后端，也建议为运行 Hub 的环境安装该 extra，以便管理中心能够探测和展示 Docker 后端状态。
+`hub` extra 包含 Docker 后端所需的 Docker SDK；普通的 `pip install aiarb` 不会安装它，也不会改变原有 AIArb App 主链路。即使只准备使用 Local 后端，也建议为运行 Hub 的环境安装该 extra，以便管理中心能够探测和展示 Docker 后端状态。
 
-已有 QwenPaw 安装无需为 Hub 创建另一套环境，可以在原环境补装 `hub` extra，然后确认当前版本已经包含 `hub` 命令：
+已有 AIArb 安装无需为 Hub 创建另一套环境，可以在原环境补装 `hub` extra，然后确认当前版本已经包含 `hub` 命令：
 
 ```bash
-pip install -U "qwenpaw[hub]"
+pip install -U "aiarb[hub]"
 ```
 
 ```bash
-qwenpaw hub --help
+aiarb hub --help
 ```
 
 ## 初始化第一个管理员
@@ -58,7 +58,7 @@ qwenpaw hub --help
 Hub 默认只监听回环地址，而且不会允许一个尚未初始化管理员的实例直接暴露到公网。推荐先在服务器上以回环模式启动：
 
 ```bash
-qwenpaw hub --host 127.0.0.1 --port 8000
+aiarb hub --host 127.0.0.1 --port 8000
 ```
 
 如果是在远程服务器上初始化，可以从管理电脑建立 SSH 端口转发：
@@ -79,7 +79,7 @@ ssh -L 8000:127.0.0.1:8000 user@example.com
 version: 1
 
 control_plane:
-  public_base_url: https://qwenpaw.example.com
+  public_base_url: https://aiarb.example.com
   registration:
     enabled: true
     default_role: user
@@ -129,7 +129,7 @@ Hub 是否采用 YAML，取决于启动时有没有显式传入 `--config`：
 完成管理员初始化并设置 `public_base_url` 后，可以显式允许非回环监听：
 
 ```bash
-qwenpaw hub \
+aiarb hub \
   --host 0.0.0.0 \
   --port 8000 \
   --force-public \
@@ -140,18 +140,18 @@ qwenpaw hub \
 
 ```yaml
 control_plane:
-  public_base_url: https://qwenpaw.example.com
+  public_base_url: https://aiarb.example.com
 ```
 
 这个地址也用于生成 OpenRouter、MCP 等集成的 OAuth 回调地址。协议、域名、端口或路径不正确时，授权提供方可能拒绝回调。
 
 ## 首次使用
 
-用户打开 Hub 地址后，需要先阅读并同意用户条款，再登录或注册。登录成功后，Hub 会为该账户查找或创建个人运行环境，并将浏览器请求代理到对应的 QwenPaw Console。
+用户打开 Hub 地址后，需要先阅读并同意用户条款，再登录或注册。登录成功后，Hub 会为该账户查找或创建个人运行环境，并将浏览器请求代理到对应的 AIArb Console。
 
 普通用户可以：
 
-- 使用自己的 QwenPaw Console；
+- 使用自己的 AIArb Console；
 - 管理自己的模型与集成凭据；
 - 修改自己的密码；
 - 在运行环境失败或被普通停止后自行重启；
@@ -175,7 +175,7 @@ control_plane:
 
 ## Local 后端：进程级隔离
 
-Local 后端在宿主机上启动 QwenPaw 进程，但不会在隔离能力缺失时退化成普通进程。启动前会执行隔离探测，失败时拒绝启动运行环境。
+Local 后端在宿主机上启动 AIArb 进程，但不会在隔离能力缺失时退化成普通进程。启动前会执行隔离探测，失败时拒绝启动运行环境。
 
 | 平台    | 隔离方式                  | 要求                                                                                                             |
 | ------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -185,7 +185,7 @@ Local 后端在宿主机上启动 QwenPaw 进程，但不会在隔离能力缺�
 
 三个平台都采用默认拒绝的文件系统边界，只开放运行所需的只读系统路径和当前运行环境的数据目录。Windows 还使用 Job Object 管理完整进程树，确保停止运行环境时一并终止子进程。
 
-Windows AppContainer 默认不能直接连接宿主机 loopback。Hub 会在运行环境存续期间为对应 AppContainer SID 启用 Windows loopback exemption，由 AppContainer 主动建立到 Hub 的反向 TCP 隧道，Hub 再通过该隧道代理其中的 QwenPaw；运行环境停止时会同时撤销规则并关闭隧道。这项规则也允许 Windows Local 访问宿主机上的其他 loopback 服务，因此它提供的是文件系统和进程边界，不提供独立网络边界。管理员权限、ACL、AppContainer、Job Object、规则配置、反向隧道或真实运行环境健康检查任一失败，Local 后端都会拒绝启动，而不会退化成未隔离进程。
+Windows AppContainer 默认不能直接连接宿主机 loopback。Hub 会在运行环境存续期间为对应 AppContainer SID 启用 Windows loopback exemption，由 AppContainer 主动建立到 Hub 的反向 TCP 隧道，Hub 再通过该隧道代理其中的 AIArb；运行环境停止时会同时撤销规则并关闭隧道。这项规则也允许 Windows Local 访问宿主机上的其他 loopback 服务，因此它提供的是文件系统和进程边界，不提供独立网络边界。管理员权限、ACL、AppContainer、Job Object、规则配置、反向隧道或真实运行环境健康检查任一失败，Local 后端都会拒绝启动，而不会退化成未隔离进程。
 
 这属于**进程和文件系统访问控制**，不是内核隔离。所有 Local 运行环境仍使用宿主机内核，不能视为虚拟机、MicroVM 或针对恶意租户的强安全边界。
 
@@ -207,14 +207,14 @@ Docker 提供容器级进程、文件系统和资源隔离，但同一个 Docker
 
 | 来源              | 镜像仓库                                                                |
 | ----------------- | ----------------------------------------------------------------------- |
-| Docker Hub 官方源 | `docker.io/agentscope/qwenpaw`                                          |
-| 阿里云官方源      | `agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/qwenpaw` |
+| Docker Hub 官方源 | `docker.io/agentscope/aiarb`                                          |
+| 阿里云官方源      | `agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/aiarb` |
 | 自定义镜像        | 管理员填写完整镜像引用                                                  |
 
 官方源支持对应仓库的发布 Tag。自定义镜像既可以来自远程仓库，也可以使用宿主机已经存在的本地镜像 Tag，例如：
 
 ```text
-qwenpaw-hub-custom:2026-08
+aiarb-hub-custom:2026-08
 ```
 
 使用本地 Tag 时，应选择“从不拉取”，避免 Docker 尝试从远程仓库下载同名镜像。
@@ -246,10 +246,10 @@ CPU、内存和 PID 留空表示不设置对应限制。调整限制后，应重
 
 ## 数据目录与持久化
 
-Hub 根目录默认位于 `<QWENPAW_WORKING_DIR>/hub/`。如果没有设置 `QWENPAW_WORKING_DIR`，QwenPaw 工作目录默认是 `~/.qwenpaw`。
+Hub 根目录默认位于 `<AIARB_WORKING_DIR>/hub/`。如果没有设置 `AIARB_WORKING_DIR`，AIArb 工作目录默认是 `~/.aiarb`。
 
 ```text
-<QWENPAW_WORKING_DIR>/hub/
+<AIARB_WORKING_DIR>/hub/
 ├── control.db
 ├── secrets/
 └── runtimes/
@@ -334,14 +334,14 @@ Hub 分别记录观察状态、期望状态和启动权限，避免用户访问�
 
 每个租户的模型 API Key 和集成凭据由 Hub 凭据库独立保存，并只注入对应运行环境。内部边界 Token 属于 Hub 系统作用域，用户凭据不能覆盖它。
 
-Hub 会拒绝用户用凭据名覆盖 `PATH`、`PYTHON*`、`QWENPAW_*`、`LD_*` 等控制运行环境或动态加载行为的变量。部署者也不应通过宿主机环境变量无意间向所有租户共享敏感密钥。
+Hub 会拒绝用户用凭据名覆盖 `PATH`、`PYTHON*`、`AIARB_*`、`LD_*` 等控制运行环境或动态加载行为的变量。部署者也不应通过宿主机环境变量无意间向所有租户共享敏感密钥。
 
 ## OAuth 回调
 
 Hub 代理运行环境中的 OAuth 流程，使第三方提供方回调到公开 Hub，再路由到正确的用户运行环境。回调地址基于 `public_base_url` 生成：
 
 ```text
-https://qwenpaw.example.com/api/hub/oauth/callback/<runtime-id>/<route>
+https://aiarb.example.com/api/hub/oauth/callback/<runtime-id>/<route>
 ```
 
 OpenRouter 或其他 OAuth 授权失败时，应确认：
@@ -365,9 +365,9 @@ Hub 提供轻量运维数据：用户和运行环境数量、状态分布、后�
 至少备份：
 
 ```text
-<QWENPAW_WORKING_DIR>/hub/control.db*
-<QWENPAW_WORKING_DIR>/hub/secrets/
-<QWENPAW_WORKING_DIR>/hub/runtimes/
+<AIARB_WORKING_DIR>/hub/control.db*
+<AIARB_WORKING_DIR>/hub/secrets/
+<AIARB_WORKING_DIR>/hub/runtimes/
 ```
 
 `control.db` 保存账户、配置、运行环境注册和审计；`secrets/.vault_key` 是解密凭据与系统密钥所需的关键材料；`runtimes/` 保存用户工作区、私密配置、备份和日志。三者必须作为一套备份。
@@ -417,6 +417,6 @@ Hub 提供轻量运维数据：用户和运行环境数量、状态分布、后�
 
 ## 部署边界
 
-QwenPaw Hub 是自托管软件。部署者能够控制服务器、数据库、备份和进程，也可能接触用户在该实例中保存的数据。用户只应登录本人或可信组织运营的 Hub。
+AIArb Hub 是自托管软件。部署者能够控制服务器、数据库、备份和进程，也可能接触用户在该实例中保存的数据。用户只应登录本人或可信组织运营的 Hub。
 
-Hub 中的 QwenPaw 运行在受约束的进程或容器中，文件、进程、设备和网络能力可能不同于个人电脑上的完整 QwenPaw。Linux、macOS 和 Windows 的 Local 运行环境共享各自的宿主机内核；Docker 运行环境共享 Docker Engine 使用的 Linux 内核。Hub 不提供每个用户独立的内核沙箱。这些机制可以降低账户之间相互影响的风险，但不能替代虚拟机级租户隔离、主机加固、网络隔离、HTTPS、备份、监控和组织自身的安全制度。
+Hub 中的 AIArb 运行在受约束的进程或容器中，文件、进程、设备和网络能力可能不同于个人电脑上的完整 AIArb。Linux、macOS 和 Windows 的 Local 运行环境共享各自的宿主机内核；Docker 运行环境共享 Docker Engine 使用的 Linux 内核。Hub 不提供每个用户独立的内核沙箱。这些机制可以降低账户之间相互影响的风险，但不能替代虚拟机级租户隔离、主机加固、网络隔离、HTTPS、备份、监控和组织自身的安全制度。

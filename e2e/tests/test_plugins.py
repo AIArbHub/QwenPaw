@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw Plugin Manager end-to-end tests.
+AIArb Plugin Manager end-to-end tests.
 
 UI-driven only: any pure API/contract checks for the Plugin Manager
 endpoints belong in ``tests/integration/`` (which already covers them).
@@ -98,7 +98,7 @@ class TestPluginCompatibility:
         log_test_step("1. Open Market tab with mocked catalog (1 compat + 1 legacy)")
         self._open_market_tab(plugin_page)
 
-        log_test_step("2. Compatible plugin row shows a green 'QwenPaw 2.x' tag")
+        log_test_step("2. Compatible plugin row shows a green 'AIArb 2.x' tag")
         compat_row = page.locator(plugin_page.MARKET_ROW).filter(
             has_text=plugin_market.COMPATIBLE_PLUGIN_NAME
         ).first
@@ -109,7 +109,7 @@ class TestPluginCompatibility:
             f"green tag text unexpected: {green_tag.inner_text()!r}"
         )
 
-        log_test_step("3. Incompatible plugin row shows an orange 'QwenPaw 1.x' tag")
+        log_test_step("3. Incompatible plugin row shows an orange 'AIArb 1.x' tag")
         legacy_row = page.locator(plugin_page.MARKET_ROW).filter(
             has_text=plugin_market.INCOMPATIBLE_PLUGIN_NAME
         ).first

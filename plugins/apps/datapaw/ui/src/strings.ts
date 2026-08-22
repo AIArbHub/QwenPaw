@@ -1,5 +1,5 @@
 /**
- * Zero-dependency string tables for the QwenPaw-Data shell.
+ * Zero-dependency string tables for the AIArb-Data shell.
  *
  * `en` is the schema: `zh` is typed against its keys, so a missing or
  * extra translation fails typecheck instead of falling back at runtime.
@@ -12,7 +12,7 @@ export type Language = "en" | "zh";
 
 const en = {
   // App chrome
-  "nav.aria": "QwenPaw-Data navigation",
+  "nav.aria": "AIArb-Data navigation",
   "nav.analyze": "Analyze",
   "nav.manage": "Manage",
   "topbar.modelSettings": "Model settings",
@@ -53,7 +53,7 @@ const en = {
   "chat.restoring": "Restoring your analysis…",
   "chat.welcomeTitle": "What would you like to understand?",
   "chat.welcomeBody":
-    "QwenPaw-Data can retrieve semantic definitions, inspect " +
+    "AIArb-Data can retrieve semantic definitions, inspect " +
     "relationships, and run governed queries through the selected " +
     "data source.",
   "chat.starter.domains":
@@ -68,9 +68,9 @@ const en = {
     "Ask about a metric, trend, dataset, or business question…",
   "chat.send": "Send",
   "chat.hint":
-    "QwenPaw-Data may execute read-only queries. Verify important decisions.",
+    "AIArb-Data may execute read-only queries. Verify important decisions.",
   "chat.noTextResponse": "The analysis completed without a text response.",
-  "chat.analysisFailed": "QwenPaw-Data analysis failed",
+  "chat.analysisFailed": "AIArb-Data analysis failed",
 
   // Analysis trace
   "trace.live": "Live analysis",
@@ -121,13 +121,13 @@ const en = {
 
   // Analysis error surfaces
   "error.modelNotConfigured":
-    "No language model is configured for this QwenPaw workspace. " +
+    "No language model is configured for this AIArb workspace. " +
     "Open Settings → Models, configure and activate a model, then retry.",
   "error.modelUnauthorized":
     "The configured language model rejected its credentials. " +
     "Open Settings → Models, update the API key, then retry.",
   "error.agentReloading":
-    "The QwenPaw-Data agent is reloading (this happens briefly after an " +
+    "The AIArb-Data agent is reloading (this happens briefly after an " +
     "app update). Please retry in a few seconds.",
   "error.analysisFallback": "I could not run that analysis. {detail}",
 } as const;
@@ -135,7 +135,7 @@ const en = {
 export type StringKey = keyof typeof en;
 
 const zh: Record<StringKey, string> = {
-  "nav.aria": "QwenPaw-Data 导航",
+  "nav.aria": "AIArb-Data 导航",
   "nav.analyze": "分析",
   "nav.manage": "管理",
   "topbar.modelSettings": "模型设置",
@@ -174,7 +174,7 @@ const zh: Record<StringKey, string> = {
   "chat.restoring": "正在恢复你的分析…",
   "chat.welcomeTitle": "你想分析什么？",
   "chat.welcomeBody":
-    "QwenPaw-Data 可以检索语义定义、洞察实体关系，并通过所选数据源执行治理查询。",
+    "AIArb-Data 可以检索语义定义、洞察实体关系，并通过所选数据源执行治理查询。",
   "chat.starter.domains": "总结核心业务域及其北极星指标。",
   "chat.starter.movement": "找出周环比波动最大的指标，并解释可能的原因。",
   "chat.starter.retention": "哪些数据集可以回答客户留存问题？",
@@ -182,9 +182,9 @@ const zh: Record<StringKey, string> = {
   "chat.analyzing": "分析中",
   "chat.placeholder": "询问指标、趋势、数据集或业务问题…",
   "chat.send": "发送",
-  "chat.hint": "QwenPaw-Data 可能执行只读查询。重要决策请自行核实。",
+  "chat.hint": "AIArb-Data 可能执行只读查询。重要决策请自行核实。",
   "chat.noTextResponse": "分析已完成，但没有文本回复。",
-  "chat.analysisFailed": "QwenPaw-Data 分析失败",
+  "chat.analysisFailed": "AIArb-Data 分析失败",
 
   "trace.live": "实时分析",
   "trace.steps": "分析轨迹 · {count} {stepWord}",
@@ -229,11 +229,11 @@ const zh: Record<StringKey, string> = {
   "session.action.replace": "替换",
 
   "error.modelNotConfigured":
-    "当前 QwenPaw 工作区未配置语言模型。请打开 设置 → 模型，配置并激活一个模型后重试。",
+    "当前 AIArb 工作区未配置语言模型。请打开 设置 → 模型，配置并激活一个模型后重试。",
   "error.modelUnauthorized":
     "配置的语言模型拒绝了凭据。请打开 设置 → 模型，更新 API Key 后重试。",
   "error.agentReloading":
-    "QwenPaw-Data 智能体正在重新加载（应用更新后会短暂出现）。请几秒后重试。",
+    "AIArb-Data 智能体正在重新加载（应用更新后会短暂出现）。请几秒后重试。",
   "error.analysisFallback": "无法完成本次分析。{detail}",
 };
 

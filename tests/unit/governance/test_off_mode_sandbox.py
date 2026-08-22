@@ -12,9 +12,9 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from qwenpaw.governance import tool_adapter
-from qwenpaw.governance.resource_governor import ResourceGovernor
-from qwenpaw.governance.tool_registry import DEFAULT_REGISTRY
+from aiarb.governance import tool_adapter
+from aiarb.governance.resource_governor import ResourceGovernor
+from aiarb.governance.tool_registry import DEFAULT_REGISTRY
 
 
 class _FakeGovernor:
@@ -174,7 +174,7 @@ class TestSandboxSwitchHotReload:
 
     @staticmethod
     def _patch_switch(monkeypatch, state: dict) -> None:
-        import qwenpaw.config as config_mod
+        import aiarb.config as config_mod
 
         monkeypatch.setattr(
             config_mod,

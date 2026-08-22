@@ -2,7 +2,7 @@
 
 > This page builds on [Long-Term Memory](./memory) and covers only the two things that page does not expand on: **how a single durable conclusion gets rewritten over time**, and **how `/proactive` actually works**. Memory directories, file formats, indexing internals, retrieval mechanics, and the complete configuration all live in [Long-Term Memory](./memory).
 
-QwenPaw has two related but currently **independent** paths:
+AIArb has two related but currently **independent** paths:
 
 | Path             | Input                                      | Output                                            |
 | ---------------- | ------------------------------------------ | ------------------------------------------------- |
@@ -12,7 +12,7 @@ QwenPaw has two related but currently **independent** paths:
 `/proactive` does **not** read `digest/` or `interests.yaml` today. See “Current boundary” at the end of this page.
 
 <p align="center">
-  <img src="https://img.alicdn.com/imgextra/i3/O1CN01mG5Uot1GQdX33v4h4_!!6000000000617-55-tps-1200-640.svg" alt="QwenPaw long-term memory from capture and consolidation to retrieval and discovery" />
+  <img src="https://img.alicdn.com/imgextra/i3/O1CN01mG5Uot1GQdX33v4h4_!!6000000000617-55-tps-1200-640.svg" alt="AIArb long-term memory from capture and consolidation to retrieval and discovery" />
 </p>
 
 ---
@@ -23,7 +23,7 @@ A static memory can only append and retrieve. An evolving memory has to answer a
 
 ### One conclusion, rewritten four times
 
-Suppose last week you told QwenPaw: “Validate staging before production. Release notes must explain risks and rollback steps.” A few days later the team added an exception: “An emergency hotfix may ship with lead approval, but the skipped checks must be completed afterward.”
+Suppose last week you told AIArb: “Validate staging before production. Release notes must explain risks and rollback steps.” A few days later the team added an exception: “An emergency hotfix may ship with lead approval, but the skipped checks must be completed afterward.”
 
 Those statements sit in conversations from different days. When Auto-Dream runs, it does not create a new file per statement. It finds the **same** durable node and rewrites it with exactly one action (the four actions are defined in [Long-Term Memory](./memory)):
 
@@ -196,7 +196,7 @@ If all of them fail, the round simply produces nothing and no message is sent.
 
 Given a result, the model writes it up in the language configured for the current Agent, phrased along the lines of “I noticed you've been focusing on X, so I looked into…” — explaining why it brought this up before giving the answer. The output **must start with `[PROACTIVE] `**, and that same marker drives the “previous answered” check in Step 1.
 
-Delivery happens by calling QwenPaw's own API (`POST /api/console/chat`) with a fixed session of `proactive_mode:<agentId>` and a 300-second timeout. So **proactive messages land in a dedicated session rather than in the middle of a conversation you are having.**
+Delivery happens by calling AIArb's own API (`POST /api/console/chat`) with a fixed session of `proactive_mode:<agentId>` and a 300-second timeout. So **proactive messages land in a dedicated session rather than in the middle of a conversation you are having.**
 
 ### It can be interrupted at any point
 
@@ -211,7 +211,7 @@ This is the section worth reading carefully. Enabling `/proactive` means:
 - The assistant it starts has web search/fetch, browser, file-read, and shell-command capabilities.
 - That assistant runs with **bypass permissions**, meaning it **skips the normal tool-authorization prompts**.
 
-`/proactive` displays this warning when you enable it. Turn it on only when that level of access is appropriate, and use `/proactive off` to stop at any time. Note also that monitor settings live **only in process memory** — they must be enabled again after a QwenPaw restart.
+`/proactive` displays this warning when you enable it. Turn it on only when that level of access is appropriate, and use `/proactive off` to stop at any time. Note also that monitor settings live **only in process memory** — they must be enabled again after a AIArb restart.
 
 ### Current boundary
 

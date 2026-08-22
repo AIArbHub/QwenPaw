@@ -15,18 +15,18 @@ from typing import Any, cast
 import httpx
 import pytest
 
-import qwenpaw.local_models.llamacpp as downloader_module
-from qwenpaw.constant import DEFAULT_LOCAL_PROVIDER_DIR
-from qwenpaw.local_models.download_manager import (
+import aiarb.local_models.llamacpp as downloader_module
+from aiarb.constant import DEFAULT_LOCAL_PROVIDER_DIR
+from aiarb.local_models.download_manager import (
     DownloadTaskResult,
     DownloadTaskStatus,
 )
-from qwenpaw.utils.command_runner import (
+from aiarb.utils.command_runner import (
     CommandExecutionError,
     CommandResult,
     ShutdownResult,
 )
-from qwenpaw.local_models.llamacpp import LlamaCppBackend
+from aiarb.local_models.llamacpp import LlamaCppBackend
 
 
 class _FakeServerProcess:
@@ -576,7 +576,7 @@ def test_start_download_delegates_to_process_controller(
 
     assert controller.started_spec is not None
     assert controller.started_spec.command == [
-        "qwenpaw-llamacpp-download",
+        "aiarb-llamacpp-download",
         "https://example.com/releases/b1234/"
         "llama-b1234-bin-ubuntu-x64.tar.gz",
     ]

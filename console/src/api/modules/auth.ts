@@ -54,7 +54,7 @@ export const authApi = {
     newUsername?: string,
     newPassword?: string,
   ): Promise<LoginResponse> => {
-    const token = localStorage.getItem("qwenpaw_auth_token") || "";
+    const token = localStorage.getItem("aiarb_auth_token") || "";
     const res = await fetch(getApiUrl("/auth/update-profile"), {
       method: "POST",
       headers: {

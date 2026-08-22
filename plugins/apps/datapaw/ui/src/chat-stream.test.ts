@@ -153,7 +153,7 @@ describe("DataPaw chat stream reducer", () => {
           {
             type: "text",
             delta: false,
-            text: "Use QwenPaw-Data source source-1 (Warehouse) for this request unless the user explicitly asks for another source.\n\nShow daily GAAP",
+            text: "Use AIArb-Data source source-1 (Warehouse) for this request unless the user explicitly asks for another source.\n\nShow daily GAAP",
           },
         ],
         metadata: { original_id: "user-1" },

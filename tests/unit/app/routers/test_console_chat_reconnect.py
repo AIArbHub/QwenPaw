@@ -19,9 +19,9 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.routers.console import _extract_session_and_payload
-from qwenpaw.app.task_tracker import TaskTracker
-from qwenpaw.schemas import AgentRequest, Message, Role, TextContent
+from aiarb.app.routers.console import _extract_session_and_payload
+from aiarb.app.task_tracker import TaskTracker
+from aiarb.schemas import AgentRequest, Message, Role, TextContent
 
 
 @pytest.fixture
@@ -62,7 +62,7 @@ def console_workspace(workspace_mock):
 @pytest.fixture
 def app(manager_mock, console_workspace) -> FastAPI:
     """A fresh FastAPI app mounting only the console router under /api."""
-    from qwenpaw.app.routers.console import router as console_router
+    from aiarb.app.routers.console import router as console_router
 
     application = FastAPI()
     application.state.multi_agent_manager = manager_mock
@@ -106,7 +106,7 @@ def test_extract_payload_preserves_user_message_metadata():
                     role=Role.USER,
                     content=[TextContent(text="continue")],
                     metadata={
-                        "qwenpaw_client_message_id": "client-new",
+                        "aiarb_client_message_id": "client-new",
                     },
                 ),
             ],
@@ -114,7 +114,7 @@ def test_extract_payload_preserves_user_message_metadata():
     )
 
     assert payload["message_metadata"] == {
-        "qwenpaw_client_message_id": "client-new",
+        "aiarb_client_message_id": "client-new",
     }
 
 
@@ -124,7 +124,7 @@ async def test_reconnect_with_active_run_replays_buffer_and_marker(
     console_workspace,
 ):
     from starlette.requests import Request
-    from qwenpaw.app.routers.console import post_console_chat
+    from aiarb.app.routers.console import post_console_chat
 
     tracker = console_workspace.task_tracker
     release = asyncio.Event()

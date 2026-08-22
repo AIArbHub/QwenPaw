@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-const STORAGE_KEY = "qwenpaw_sidebar_mode";
+const STORAGE_KEY = "aiarb_sidebar_mode";
 
 export type SidebarMode = "simple" | "full" | "design";
 

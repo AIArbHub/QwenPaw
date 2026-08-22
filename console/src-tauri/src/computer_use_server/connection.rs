@@ -23,7 +23,7 @@ use serde_json::{json, Value};
 // This line is consumed only by the desktop process that spawned the helper:
 // stdout is a direct child-process pipe, not a user-visible protocol channel.
 // Keep its prefix in step with `computer_use_runtime::HELPER_READY_PREFIX`.
-const HELPER_READY_PREFIX: &str = "QWENPAW_COMPUTER_USE_READY ";
+const HELPER_READY_PREFIX: &str = "AIARB_COMPUTER_USE_READY ";
 
 // Windows named-pipe server primitives. The macOS build listens on a Unix
 // domain socket instead (see the platform_macos leaf and the cfg-split run).
@@ -138,8 +138,8 @@ fn parse_arguments(args: &[String]) -> Result<(String, String), String> {
     // The capability secret arrives in the environment rather than on the
     // command line, so it is not exposed to other processes through argv. The
     // spawning side sets the matching variable in computer_use_runtime.
-    let capability = std::env::var("QWENPAW_CU_CAPABILITY")
-        .map_err(|_| "QWENPAW_CU_CAPABILITY is required".to_string())?;
+    let capability = std::env::var("AIARB_CU_CAPABILITY")
+        .map_err(|_| "AIARB_CU_CAPABILITY is required".to_string())?;
     if pipe_name.is_empty() || capability.is_empty() {
         return Err("Computer Use pipe configuration is empty".to_string());
     }

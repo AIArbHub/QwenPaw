@@ -33,17 +33,17 @@ async function main() {
   const indexHtml = await readFile(join(distDir, "index.html"), "utf-8");
   const BLOG_SLUGS = [
     "creator-install-guide",
-    "qwenpaw-long-term-memory",
-    "qwenpaw-files-workspace",
-    "qwenpaw-os-shell",
-    "introducing-qwenpaw-driver",
-    "qwenpaw-developer-day-collection",
-    "play-with-qwenpaw-pet",
+    "aiarb-long-term-memory",
+    "aiarb-files-workspace",
+    "aiarb-os-shell",
+    "introducing-aiarb-driver",
+    "aiarb-developer-day-collection",
+    "play-with-aiarb-pet",
     "paw-git",
     "runtime-architecture-upgrade",
-    "qwenpaw-plugin-picks-1",
-    "qwenpaw-loop-engineering",
-    "qwenpaw-sandbox",
+    "aiarb-plugin-picks-1",
+    "aiarb-loop-engineering",
+    "aiarb-sandbox",
   ];
   const paths = [
     "docs",

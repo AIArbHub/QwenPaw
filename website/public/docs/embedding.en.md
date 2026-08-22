@@ -1,14 +1,14 @@
 # Embedding Models
 
-Suppose you told QwenPaw a month ago, “We will keep the current database for this release and reassess migration afterward.” Today you ask, “Why did we stay with the old data setup?”
+Suppose you told AIArb a month ago, “We will keep the current database for this release and reassess migration afterward.” Today you ask, “Why did we stay with the old data setup?”
 
-The two sentences mean nearly the same thing but share few keywords. A keyword-only search may miss the memory. Embeddings help QwenPaw recognize content whose meaning is similar even when the wording is different.
+The two sentences mean nearly the same thing but share few keywords. A keyword-only search may miss the memory. Embeddings help AIArb recognize content whose meaning is similar even when the wording is different.
 
 An embedding is not another memory system, and it does not generate an answer. It simply adds semantic retrieval to the memories you already have.
 
 ## How Embeddings Help Long-Term Memory
 
-QwenPaw still stores memories as Markdown files in the workspace. When Embedding is enabled, ReMeLight generates vectors for text under `memory/` and `digest/`, then searches through two complementary paths:
+AIArb still stores memories as Markdown files in the workspace. When Embedding is enabled, ReMeLight generates vectors for text under `memory/` and `digest/`, then searches through two complementary paths:
 
 - **BM25 keyword search** works well for exact terms such as function names, error codes, product names, and quoted wording.
 - **Embedding semantic search** works well for synonyms, paraphrases, and topically related content.
@@ -29,15 +29,15 @@ Documents and queries must be placed in the same compatible coordinate system. T
 
 Even if two models both return 1,024 numbers, they do not necessarily share a coordinate system. Document vectors created by the old model cannot safely be compared with query vectors from the new one.
 
-Memory files remain the source of truth. Vectors and indexes are derived data that QwenPaw can recreate. Rebuilding the index does not rewrite your Markdown memories.
+Memory files remain the source of truth. Vectors and indexes are derived data that AIArb can recreate. Rebuilding the index does not rewrite your Markdown memories.
 
 ## Current Scope and Boundaries
 
-QwenPaw connects to `openai`, `dashscope`, `dashscope_multimodal`, `gemini`, and `ollama` backends through AgentScope 2.x. ReMeLight is currently the only direct consumer of this configuration.
+AIArb connects to `openai`, `dashscope`, `dashscope_multimodal`, `gemini`, and `ollama` backends through AgentScope 2.x. ReMeLight is currently the only direct consumer of this configuration.
 
 Keep these boundaries in mind:
 
-- QwenPaw currently sends only **text** produced by ReMeLight. Selecting a multimodal type or model does not make QwenPaw parse images, audio, video, or PDFs.
+- AIArb currently sends only **text** produced by ReMeLight. Selecting a multimodal type or model does not make AIArb parse images, audio, video, or PDFs.
 - Embeddings do not capture or organize memories and do not provide a standalone agent tool. They only add a semantic signal to `memory_search` and digest similarity queries.
 - Other memory backends, such as ADBPG, manage their own vector behavior and do not read this ReMeLight configuration.
 - Identical inputs can use a local cache to reduce repeated computation and API calls.
@@ -103,7 +103,7 @@ After saving a new backend, endpoint, model, dimensions, or `use_dimensions` val
 - For an OpenAI-compatible service, select `openai`; `base_url` is used as the API endpoint.
 - DashScope currently uses the official SDK destination, so a custom `base_url` does not redirect its requests.
 - Gemini currently does not use `base_url`.
-- Ollama treats `base_url` as its `host`. When QwenPaw runs in a container, `localhost` refers to the container itself; use an address reachable from the QwenPaw process.
+- Ollama treats `base_url` as its `host`. When AIArb runs in a container, `localhost` refers to the container itself; use an address reachable from the AIArb process.
 
 ### Long or Batched Requests Fail
 
@@ -118,10 +118,10 @@ The configuration lives at `running.reme_light_memory_config.embedding_model_con
 | `backend`              | Credentials and endpoint                | Notes                                                                                             |
 | ---------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `openai`               | `api_key` required; optional `base_url` | OpenAI and OpenAI-compatible text embedding services; the only backend that uses `use_dimensions` |
-| `dashscope`            | `api_key` required                      | The model name selects the text or multimodal API path; QwenPaw currently sends only text         |
+| `dashscope`            | `api_key` required                      | The model name selects the text or multimodal API path; AIArb currently sends only text         |
 | `dashscope_multimodal` | `api_key` required                      | Uses the same adapter as `dashscope`; does not automatically read multimodal files                |
 | `gemini`               | `api_key` required                      | Currently receives only text, does not expose `task_type`, and does not use `base_url`            |
-| `ollama`               | No API key; `base_url` is the `host`    | Local or self-hosted text embedding service; the QwenPaw process must be able to reach it         |
+| `ollama`               | No API key; `base_url` is the `host`    | Local or self-hosted text embedding service; the AIArb process must be able to reach it         |
 
 ### Fields
 
@@ -161,7 +161,7 @@ Example for an OpenAI-compatible service:
 }
 ```
 
-QwenPaw uses up to three retries during normal operation. The test uses one retry and a 15-second timeout. AgentScope may split requests again to meet provider limits, so `max_batch_size` is an upstream limit; the usable value still depends on the model and service.
+AIArb uses up to three retries during normal operation. The test uses one retry and a 15-second timeout. AgentScope may split requests again to meet provider limits, so `max_batch_size` is an upstream limit; the usable value still depends on the model and service.
 
 ## Related Pages
 

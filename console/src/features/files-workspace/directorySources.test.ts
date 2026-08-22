@@ -7,14 +7,14 @@ import {
 
 describe("directorySources", () => {
   it("normalizes separators and trailing slashes", () => {
-    expect(normalizeDirectoryPath("/repo/qwenpaw/")).toBe("/repo/qwenpaw");
-    expect(normalizeDirectoryPath("C:\\Repo\\QwenPaw\\")).toBe(
-      "c:/repo/qwenpaw",
+    expect(normalizeDirectoryPath("/repo/aiarb/")).toBe("/repo/aiarb");
+    expect(normalizeDirectoryPath("C:\\Repo\\AIArb\\")).toBe(
+      "c:/repo/aiarb",
     );
   });
 
   it("compares Windows paths without case sensitivity", () => {
-    expect(directoriesMatch("C:\\Repo\\QwenPaw", "c:/repo/qwenpaw/")).toBe(
+    expect(directoriesMatch("C:\\Repo\\AIArb", "c:/repo/aiarb/")).toBe(
       true,
     );
   });

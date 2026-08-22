@@ -14,7 +14,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 
-from qwenpaw.agents.fork_project import (
+from aiarb.agents.fork_project import (
     REGISTRY_REL,
     begin_fork_scope,
     bind_fork_task,
@@ -92,11 +92,11 @@ def test_gate_allows_no_project_when_flag_true(
     other = tmp_path / "other_proj"
     _init_repo(other)
     monkeypatch.setattr(
-        "qwenpaw.app.agent_context.get_current_agent_id",
+        "aiarb.app.agent_context.get_current_agent_id",
         lambda: "other-agent",
     )
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _aid: SimpleNamespace(
             coding_mode=SimpleNamespace(
                 enabled=True,
@@ -123,12 +123,12 @@ def test_register_fork_requires_workspace_dir(
 ) -> None:
     project = tmp_path / "code_proj"
     _init_repo(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     # No context and no agent-config fallback → refuse.
     monkeypatch.setattr(
-        "qwenpaw.agents.fork_project._fallback_agent_workspace_dir",
+        "aiarb.agents.fork_project._fallback_agent_workspace_dir",
         lambda **_kwargs: None,
     )
     assert register_fork(str(wt), branch, workspace_dir=None) is False
@@ -144,11 +144,11 @@ def test_register_fork_falls_back_to_agent_workspace(
     project = tmp_path / "code_proj"
     workspace.mkdir()
     _init_repo(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     monkeypatch.setattr(
-        "qwenpaw.agents.fork_project._fallback_agent_workspace_dir",
+        "aiarb.agents.fork_project._fallback_agent_workspace_dir",
         lambda **_kwargs: workspace.resolve(),
     )
     assert register_fork(str(wt), branch, workspace_dir=None) is True
@@ -159,7 +159,7 @@ def test_bind_fork_task_does_not_create_ghost_entry(tmp_path: Path) -> None:
     """Without register_fork, bind_fork_task must not invent registry rows."""
     project = tmp_path / "code_proj"
     _init_repo(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     assert bind_fork_task(str(wt), branch, "task-ghost") is False
@@ -179,7 +179,7 @@ def test_register_fork_writes_pointer_on_agent_workspace(
     _init_repo(workspace)
 
     scope = begin_fork_scope(workspace)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -211,7 +211,7 @@ def test_register_fork_writes_pointer_on_agent_workspace(
 
 def test_resolve_allowed_fork_project_dir(tmp_path: Path) -> None:
     project = tmp_path / "proj"
-    wt = project / ".qwenpaw" / "worktrees" / "abc"
+    wt = project / ".aiarb" / "worktrees" / "abc"
     wt.mkdir(parents=True)
     outside = tmp_path / "other"
     outside.mkdir()
@@ -242,7 +242,7 @@ def test_failed_fork_blocks_current_scope_not_next(
     bind_workspace_integration_project(workspace, project)
 
     scope1 = begin_fork_scope(workspace)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -290,11 +290,11 @@ def test_finalize_does_not_resurrect_pruned_fork(
     other = tmp_path / "other_proj"
     _init_repo(other)
     monkeypatch.setattr(
-        "qwenpaw.app.agent_context.get_current_agent_id",
+        "aiarb.app.agent_context.get_current_agent_id",
         lambda: "other-agent",
     )
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _aid: SimpleNamespace(
             coding_mode=SimpleNamespace(
                 enabled=True,
@@ -304,7 +304,7 @@ def test_finalize_does_not_resurrect_pruned_fork(
         ),
     )
     scope1 = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -337,11 +337,11 @@ def test_matching_agent_dual_root_bind(tmp_path: Path, monkeypatch) -> None:
     workspace.mkdir()
     _init_repo(project)
     monkeypatch.setattr(
-        "qwenpaw.app.agent_context.get_current_agent_id",
+        "aiarb.app.agent_context.get_current_agent_id",
         lambda: "agent-a",
     )
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _aid: SimpleNamespace(
             project_dir=str(project),
             workspace_dir=str(workspace),
@@ -357,12 +357,12 @@ def test_mark_fork_failed_waits_for_finalize_lock(
     monkeypatch,
 ) -> None:
     """Watchdog blocks on the finalize lock and cannot overwrite success."""
-    from qwenpaw.agents import fork_project as fp
+    from aiarb.agents import fork_project as fp
 
     project = tmp_path / "repo"
     _init_repo(project)
     scope = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -430,7 +430,7 @@ def test_recover_crashed_finalizing_clean_worktree(tmp_path: Path) -> None:
     project = tmp_path / "repo"
     _init_repo(project)
     scope = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -457,7 +457,7 @@ def test_recover_crashed_finalizing_dirty_worktree(tmp_path: Path) -> None:
     project = tmp_path / "repo"
     _init_repo(project)
     scope = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -493,7 +493,7 @@ def test_mark_fork_failed_heals_clean_finalizing_with_commit(
     project = tmp_path / "repo"
     _init_repo(project)
     scope = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -538,7 +538,7 @@ def test_mark_fork_failed_rejects_clean_no_commit_finalizing(
     project = tmp_path / "repo"
     _init_repo(project)
     scope = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -570,7 +570,7 @@ def test_update_fork_head_requires_matching_scope(tmp_path: Path) -> None:
     project = tmp_path / "repo"
     _init_repo(project)
     scope1 = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -626,7 +626,7 @@ def test_bind_fork_task_requires_matching_scope(tmp_path: Path) -> None:
     project = tmp_path / "repo"
     _init_repo(project)
     scope1 = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     assert register_fork(
@@ -677,7 +677,7 @@ def test_finalize_fork_for_task_ignores_stale_scope(tmp_path: Path) -> None:
     project = tmp_path / "repo"
     _init_repo(project)
     scope1 = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     assert register_fork(
@@ -742,7 +742,7 @@ def test_mark_fork_failed_pending_ignores_new_scope(tmp_path: Path) -> None:
     project = tmp_path / "repo"
     _init_repo(project)
     scope1 = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     assert register_fork(
@@ -793,7 +793,7 @@ def test_finalize_requires_matching_scope(tmp_path: Path) -> None:
     project = tmp_path / "repo"
     _init_repo(project)
     scope1 = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     assert register_fork(
@@ -854,12 +854,12 @@ def test_finalize_or_fail_marks_failed_when_commit_raises(
     monkeypatch,
 ) -> None:
     """A raising finalize must not leave the registry stuck in finalizing."""
-    from qwenpaw.agents import fork_project as fp
+    from aiarb.agents import fork_project as fp
 
     project = tmp_path / "repo"
     _init_repo(project)
     scope = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     assert register_fork(
@@ -896,12 +896,12 @@ def test_mark_fork_failed_dirty_recovery_ignores_new_scope(
 ) -> None:
     """Stale dirty-fail must not poison a newer scope reusing the branch."""
     # pylint: disable=protected-access
-    from qwenpaw.agents import fork_project as fp
+    from aiarb.agents import fork_project as fp
 
     project = tmp_path / "repo"
     _init_repo(project)
     scope1 = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -957,12 +957,12 @@ def test_forks_merged_rechecks_registry_after_git(
 ) -> None:
     """A fork registered during merge checks must keep the gate closed."""
     # pylint: disable=protected-access
-    from qwenpaw.agents import fork_project as fp
+    from aiarb.agents import fork_project as fp
 
     project = tmp_path / "repo"
     _init_repo(project)
     scope = begin_fork_scope(project)
-    wt1 = project / ".qwenpaw" / "worktrees" / "w1"
+    wt1 = project / ".aiarb" / "worktrees" / "w1"
     branch1 = "fork/w1"
     _git(project, "worktree", "add", str(wt1), "-b", branch1)
     register_fork(
@@ -976,7 +976,7 @@ def test_forks_merged_rechecks_registry_after_git(
     )
     _git(project, "merge", "--no-ff", branch1, "-m", "integrate w1")
 
-    wt2 = project / ".qwenpaw" / "worktrees" / "w2"
+    wt2 = project / ".aiarb" / "worktrees" / "w2"
     branch2 = "fork/w2"
     inserted = {"done": False}
     real_is_ancestor = fp._is_ancestor
@@ -1005,12 +1005,12 @@ def test_recovery_git_runs_outside_registry_lock(
 ) -> None:
     """Crash-recovery Git must not hold the project registry lock."""
     # pylint: disable=protected-access
-    from qwenpaw.agents import fork_project as fp
+    from aiarb.agents import fork_project as fp
 
     project = tmp_path / "repo"
     _init_repo(project)
     scope = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -1055,7 +1055,7 @@ def test_finalize_lock_released_after_subprocess_crash(
 ) -> None:
     """OS must release the finalize lock when the holding process dies."""
     # pylint: disable=protected-access
-    from qwenpaw.agents.fork_project import (
+    from aiarb.agents.fork_project import (
         _exclusive_file_lock,
         _fork_finalize_lock_path,
     )
@@ -1068,7 +1068,7 @@ def test_finalize_lock_released_after_subprocess_crash(
     child = (
         "import time\n"
         "from pathlib import Path\n"
-        "from qwenpaw.agents.fork_project import _exclusive_file_lock\n"
+        "from aiarb.agents.fork_project import _exclusive_file_lock\n"
         f"lock_path = Path({str(lock_path)!r})\n"
         f"ready = Path({str(ready)!r})\n"
         "with _exclusive_file_lock(lock_path, blocking=True) as ok:\n"
@@ -1121,7 +1121,7 @@ def test_windows_blocking_lock_retries_past_ten(
 ) -> None:
     """Windows blocking acquire must poll beyond msvcrt.LK_LOCK's ~10 tries."""
     # pylint: disable=protected-access
-    from qwenpaw.agents import fork_project as fp
+    from aiarb.agents import fork_project as fp
 
     monkeypatch.setattr(fp.os, "name", "nt")
     monkeypatch.setattr(fp, "_WINDOWS_LOCK_POLL_S", 0)
@@ -1153,7 +1153,7 @@ def test_finalize_idempotent_and_mark_failed_skips_finalized(
     project = tmp_path / "repo"
     _init_repo(project)
     scope = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -1197,7 +1197,7 @@ def test_fork_registry_with_space_in_project_path(tmp_path: Path) -> None:
     project = tmp_path / "code project"
     _init_repo(project)
     scope = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     assert register_fork(
@@ -1221,7 +1221,7 @@ def test_concurrent_finalize_is_serialized(tmp_path: Path) -> None:
     project = tmp_path / "repo"
     _init_repo(project)
     scope = begin_fork_scope(project)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -1264,7 +1264,7 @@ def test_gate_uses_integration_project_not_workspace(
     _init_repo(project)
 
     scope = begin_fork_scope(workspace)
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -1312,7 +1312,7 @@ def test_unfinalized_tip_equals_base_does_not_pass(tmp_path: Path) -> None:
     _init_repo(project)
     scope = begin_fork_scope(project)
 
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(
@@ -1337,7 +1337,7 @@ def test_commit_and_merge_verification(tmp_path: Path) -> None:
     _init_repo(project)
     scope = begin_fork_scope(project)
 
-    wt = project / ".qwenpaw" / "worktrees" / "w1"
+    wt = project / ".aiarb" / "worktrees" / "w1"
     branch = "fork/w1"
     _git(project, "worktree", "add", str(wt), "-b", branch)
     register_fork(

@@ -19,10 +19,10 @@ jobs:
     environment: staging
 
     env:
-      QWENPAW_BASE_URL: http://localhost:8088
-      QWENPAW_HEADLESS: 'true'
-      QWENPAW_TIMEOUT: '60000'
-      QWENPAW_DASHSCOPE_API_KEY: ${{ secrets.QWENPAW_DASHSCOPE_API_KEY }}
+      AIARB_BASE_URL: http://localhost:8088
+      AIARB_HEADLESS: 'true'
+      AIARB_TIMEOUT: '60000'
+      AIARB_DASHSCOPE_API_KEY: ${{ secrets.AIARB_DASHSCOPE_API_KEY }}
 
     steps:
       - uses: actions/checkout@v4
@@ -44,9 +44,9 @@ jobs:
       - name: Copy console build into package
         shell: bash
         run: |
-          rm -rf src/qwenpaw/console/*
-          mkdir -p src/qwenpaw/console
-          cp -R console/dist/* src/qwenpaw/console/
+          rm -rf src/aiarb/console/*
+          mkdir -p src/aiarb/console
+          cp -R console/dist/* src/aiarb/console/
 
       # ---- Install Python dependencies ----
       - name: Set up Python 3.11
@@ -68,7 +68,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p .e2e_coverage
-          SRC_ABS=$(cd src/qwenpaw && pwd)
+          SRC_ABS=$(cd src/aiarb && pwd)
           {
             echo "[run]"
             echo "parallel = true"
@@ -81,33 +81,33 @@ jobs:
           } > .e2e_coverage/coverage_e2e.ini
 
       # ---- Start backend (isolated) ----
-      - name: Start QwenPaw backend
+      - name: Start AIArb backend
         shell: bash
         run: |
-          QWENPAW_E2E_DIR=$(mktemp -d)
-          echo "QWENPAW_E2E_DIR=$QWENPAW_E2E_DIR" >> "$GITHUB_ENV"
-          mkdir -p "$QWENPAW_E2E_DIR/working" \
-                   "$QWENPAW_E2E_DIR/secret" \
-                   "$QWENPAW_E2E_DIR/backups"
+          AIARB_E2E_DIR=$(mktemp -d)
+          echo "AIARB_E2E_DIR=$AIARB_E2E_DIR" >> "$GITHUB_ENV"
+          mkdir -p "$AIARB_E2E_DIR/working" \
+                   "$AIARB_E2E_DIR/secret" \
+                   "$AIARB_E2E_DIR/backups"
 
           # Export working dirs so subsequent steps (notably the pytest
           # step) can write seed files into the same paths the backend
           # is reading from. Without this, pytest's os.getenv lookup
-          # falls back to ~/.qwenpaw and seeds land in the wrong place.
-          echo "QWENPAW_WORKING_DIR=$QWENPAW_E2E_DIR/working" >> "$GITHUB_ENV"
-          echo "QWENPAW_SECRET_DIR=$QWENPAW_E2E_DIR/secret" >> "$GITHUB_ENV"
-          echo "QWENPAW_BACKUP_DIR=$QWENPAW_E2E_DIR/backups" >> "$GITHUB_ENV"
+          # falls back to ~/.aiarb and seeds land in the wrong place.
+          echo "AIARB_WORKING_DIR=$AIARB_E2E_DIR/working" >> "$GITHUB_ENV"
+          echo "AIARB_SECRET_DIR=$AIARB_E2E_DIR/secret" >> "$GITHUB_ENV"
+          echo "AIARB_BACKUP_DIR=$AIARB_E2E_DIR/backups" >> "$GITHUB_ENV"
 
-          QWENPAW_WORKING_DIR="$QWENPAW_E2E_DIR/working" \
-          QWENPAW_SECRET_DIR="$QWENPAW_E2E_DIR/secret" \
-          QWENPAW_BACKUP_DIR="$QWENPAW_E2E_DIR/backups" \
-          QWENPAW_AUTH_ENABLED=false \
+          AIARB_WORKING_DIR="$AIARB_E2E_DIR/working" \
+          AIARB_SECRET_DIR="$AIARB_E2E_DIR/secret" \
+          AIARB_BACKUP_DIR="$AIARB_E2E_DIR/backups" \
+          AIARB_AUTH_ENABLED=false \
           PYTHONUNBUFFERED=1 \
           COVERAGE_PROCESS_START="${{ github.workspace }}/.e2e_coverage/coverage_e2e.ini" \
           COVERAGE_FILE="${{ github.workspace }}/.e2e_coverage/e2e_subproc" \
-          python -m qwenpaw app --host 127.0.0.1 --port 8088 --log-level info &
+          python -m aiarb app --host 127.0.0.1 --port 8088 --log-level info &
 
-          echo $! > /tmp/qwenpaw-e2e.pid
+          echo $! > /tmp/aiarb-e2e.pid
 
       - name: Wait for backend ready
         shell: bash
@@ -134,8 +134,8 @@ jobs:
         if: always()
         shell: bash
         run: |
-          if [ -f /tmp/qwenpaw-e2e.pid ]; then
-            PID=$(cat /tmp/qwenpaw-e2e.pid)
+          if [ -f /tmp/aiarb-e2e.pid ]; then
+            PID=$(cat /tmp/aiarb-e2e.pid)
             kill -INT "$PID" 2>/dev/null || true
             for i in $(seq 1 15); do
               kill -0 "$PID" 2>/dev/null || break

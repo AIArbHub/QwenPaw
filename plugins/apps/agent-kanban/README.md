@@ -15,9 +15,9 @@
 
 ### 安装
 
-通过 QwenPaw 应用中心安装：
+通过 AIArb 应用中心安装：
 
-1. 打开 QwenPaw 应用中心
+1. 打开 AIArb 应用中心
 2. 搜索 "Agent Kanban"
 3. 点击安装
 

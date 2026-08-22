@@ -14,16 +14,16 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from qwenpawmail_mcp.providers import ProviderCapabilities
+from aiarbmail_mcp.providers import ProviderCapabilities
 
-from qwenpaw.app.mail.mail_access_control import MailAccessControlStore
-from qwenpaw.config.config import (
+from aiarb.app.mail.mail_access_control import MailAccessControlStore
+from aiarb.config.config import (
     AgentMailConfig,
     AgentMailCredential,
     AgentMailPushConfig,
     AgentMailPushRule,
 )
-from qwenpaw.app.mail.monitor import (
+from aiarb.app.mail.monitor import (
     MailMonitorService,
     build_wake_prompt,
     build_wake_trace,
@@ -36,7 +36,7 @@ from qwenpaw.app.mail.monitor import (
     should_wake_agent,
     wake_agent_for_mail,
 )
-from qwenpaw.utils.io_utils import run_sync_io
+from aiarb.utils.io_utils import run_sync_io
 
 # ── test doubles ─────────────────────────────────────────────────────
 
@@ -202,7 +202,7 @@ def _mail_config(
 def recorder():
     rec = EventRecorder()
     with patch(
-        "qwenpaw.app.mail.monitor.append_inbox_event",
+        "aiarb.app.mail.monitor.append_inbox_event",
         new=rec,
     ):
         yield rec
@@ -531,8 +531,8 @@ def test_poll_loop_disconnect_backoff_resets_after_success(tmp_path):
     service._sleep = _sleep
 
     with (
-        patch("qwenpaw.app.mail.monitor._BACKOFF_INITIAL_SECONDS", 2.0),
-        patch("qwenpaw.app.mail.monitor._BACKOFF_MAX_SECONDS", 8.0),
+        patch("aiarb.app.mail.monitor._BACKOFF_INITIAL_SECONDS", 2.0),
+        patch("aiarb.app.mail.monitor._BACKOFF_MAX_SECONDS", 8.0),
     ):
         service._poll_loop()
 
@@ -588,8 +588,8 @@ def test_poll_loop_reconnect_backoff_is_stop_interruptible(tmp_path):
     service._sleep = _sleep
 
     with (
-        patch("qwenpaw.app.mail.monitor._BACKOFF_INITIAL_SECONDS", 60.0),
-        patch("qwenpaw.app.mail.monitor._BACKOFF_MAX_SECONDS", 60.0),
+        patch("aiarb.app.mail.monitor._BACKOFF_INITIAL_SECONDS", 60.0),
+        patch("aiarb.app.mail.monitor._BACKOFF_MAX_SECONDS", 60.0),
     ):
         thread = threading.Thread(target=_run, daemon=True)
         thread.start()
@@ -1746,7 +1746,7 @@ async def test_approved_uids_replay_once_and_restart_does_not_repeat(
 
     service._worker = _idle_worker
     with patch(
-        "qwenpaw.app.mail.monitor.wake_agent_for_mail",
+        "aiarb.app.mail.monitor.wake_agent_for_mail",
         new=_successful_wake,
     ):
         await service.start()
@@ -1768,7 +1768,7 @@ async def test_approved_uids_replay_once_and_restart_does_not_repeat(
 
     restarted._worker = _restarted_idle_worker
     with patch(
-        "qwenpaw.app.mail.monitor.wake_agent_for_mail",
+        "aiarb.app.mail.monitor.wake_agent_for_mail",
         new=_successful_wake,
     ):
         await restarted.start()
@@ -1802,7 +1802,7 @@ async def test_failed_approved_replay_retries_until_success(tmp_path):
 
     service._wake_agent = _eventual_wake
     with patch(
-        "qwenpaw.app.mail.monitor._BACKOFF_INITIAL_SECONDS",
+        "aiarb.app.mail.monitor._BACKOFF_INITIAL_SECONDS",
         0.01,
     ):
         assert service.schedule_approved_replay()
@@ -2036,7 +2036,7 @@ async def test_stop_interrupts_blocked_imap_calls(
         service._check_new_messages = lambda _conn: None
 
     with patch(
-        "qwenpaw.app.mail.monitor.imaplib.IMAP4_SSL",
+        "aiarb.app.mail.monitor.imaplib.IMAP4_SSL",
         new=_imap_factory,
     ):
         await service.start()

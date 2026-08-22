@@ -107,7 +107,7 @@ describe("ResponseArtifactList", () => {
 
   it("opens the existing file preview when clicked", () => {
     const listener = vi.fn();
-    window.addEventListener("qwenpaw:open-file-preview", listener);
+    window.addEventListener("aiarb:open-file-preview", listener);
     render(
       <ResponseArtifactList messages={successfulFileIo("reports/final.md")} />,
     );
@@ -124,7 +124,7 @@ describe("ResponseArtifactList", () => {
       path: "reports/final.md",
       root: "project",
     });
-    window.removeEventListener("qwenpaw:open-file-preview", listener);
+    window.removeEventListener("aiarb:open-file-preview", listener);
   });
 
   it("renders nothing when the response has no successful file IO", () => {

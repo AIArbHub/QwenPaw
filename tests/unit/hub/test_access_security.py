@@ -3,8 +3,8 @@
 
 from fastapi import Request
 
-from qwenpaw.hub.access_security import HubAccessSecurity
-from qwenpaw.hub.config import AccessSecurityConfig, RateLimitConfig
+from aiarb.hub.access_security import HubAccessSecurity
+from aiarb.hub.config import AccessSecurityConfig, RateLimitConfig
 
 
 def _request(peer: str, forwarded: str | None = None) -> Request:

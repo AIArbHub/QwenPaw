@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Same-origin static build of the QwenPaw-Data-Cloud Context console,
+ * Same-origin static build of the AIArb-Data-Cloud Context console,
  * vendored by scripts/sync-context-ui.sh. The build uses hash routing, so
  * tab switches navigate the live iframe without reloading it.
  */
@@ -55,7 +55,7 @@ export function EmbeddedConsole({
       <div className="datapaw-embedded-console__empty">
         <b>Context console is not bundled</b>
         <p>
-          The embedded QwenPaw-Data-Cloud console was not found in this build.
+          The embedded AIArb-Data-Cloud console was not found in this build.
           Vendor it with <code>scripts/sync-context-ui.sh</code> and reinstall
           the app.
         </p>
@@ -77,7 +77,7 @@ export function EmbeddedConsole({
         <iframe
           ref={iframeRef}
           src={`${CONSOLE_INDEX}#${initialRouteRef.current}`}
-          title="QwenPaw-Data context console"
+          title="AIArb-Data context console"
           onLoad={() => setLoaded(true)}
         />
       ) : null}

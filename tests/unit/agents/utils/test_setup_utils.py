@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests for qwenpaw.agents.utils.setup_utils.
+"""Tests for aiarb.agents.utils.setup_utils.
 
 Covers:
 - normalize_agent_language
@@ -16,7 +16,7 @@ Covers:
 
 from unittest.mock import patch
 
-from qwenpaw.agents.utils.setup_utils import (
+from aiarb.agents.utils.setup_utils import (
     _copy_template_md_files,
     _remove_bootstrap_from_workspace,
     _resolve_md_lang_dir,
@@ -38,7 +38,7 @@ class TestNormalizeAgentLanguage:
     """Tests for normalize_agent_language."""
 
     def test_supported_language(self):
-        from qwenpaw.constant import SUPPORTED_AGENT_LANGUAGES
+        from aiarb.constant import SUPPORTED_AGENT_LANGUAGES
 
         if "en" in SUPPORTED_AGENT_LANGUAGES:
             assert normalize_agent_language("en") == "en"
@@ -72,7 +72,7 @@ class TestEnsureWorkspaceMdFile:
     def test_sanitizes_rejected_filename_in_log(self, tmp_path, caplog):
         with caplog.at_level(
             "WARNING",
-            logger="qwenpaw.agents.utils.setup_utils",
+            logger="aiarb.agents.utils.setup_utils",
         ):
             ensure_workspace_md_file(tmp_path, "en", "bad\nfilename.md")
 
@@ -234,7 +234,7 @@ class TestCopyWorkspaceMdFiles:
 
     def test_without_template(self, tmp_path):
         with patch(
-            "qwenpaw.agents.utils.setup_utils.copy_md_files",
+            "aiarb.agents.utils.setup_utils.copy_md_files",
             return_value=["AGENTS.md"],
         ):
             result = copy_workspace_md_files("en", tmp_path)
@@ -242,10 +242,10 @@ class TestCopyWorkspaceMdFiles:
 
     def test_with_template(self, tmp_path):
         with patch(
-            "qwenpaw.agents.utils.setup_utils.copy_md_files",
+            "aiarb.agents.utils.setup_utils.copy_md_files",
             return_value=["AGENTS.md"],
         ), patch(
-            "qwenpaw.agents.utils.setup_utils.copy_template_md_files",
+            "aiarb.agents.utils.setup_utils.copy_template_md_files",
             return_value=["SOUL.md"],
         ):
             result = copy_workspace_md_files(
@@ -262,7 +262,7 @@ class TestCopyBuiltinQaMdFiles:
 
     def test_delegates_to_copy_workspace_md_files(self, tmp_path):
         with patch(
-            "qwenpaw.agents.utils.setup_utils.copy_workspace_md_files",
+            "aiarb.agents.utils.setup_utils.copy_workspace_md_files",
             return_value=["AGENTS.md"],
         ) as mock:
             result = copy_builtin_qa_md_files("en", tmp_path)

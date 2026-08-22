@@ -6,7 +6,7 @@
 - 状态：Draft，待 PawApp SDK owning team 评审
 - 日期：2026-08-11
 - 验证分支：`dev/datapaw-app`
-- 验证应用：QwenPaw-Data / DataPaw
+- 验证应用：AIArb-Data / DataPaw
 - 适用范围：需要原生页面、App-owned Agent、持久对话、私有 backend/sidecar 或外部依赖的 PawApp
 
 ## 1. 执行摘要
@@ -16,7 +16,7 @@
 1. **原生 App contract**：App 获得永久绑定的 API scope、原生页面注册、Host 鉴权和统一
    SSE，不再直接组合低层 Plugin globals、固定端口或第二套 request client。
 2. **对话 contract**：App 可以恢复 Host transcript、创建和切换独立 dialogue，并继续复用
-   QwenPaw 现有 `ChatManager` 与 Session Store。
+   AIArb 现有 `ChatManager` 与 Session Store。
 3. **服务 contract**：App 可以声明由 Host 管理的私有服务，SDK 负责动态 loopback 端口、
    readiness、受控 shutdown 和 external mode。
 4. **依赖 contract**：App 可以声明 dependency、capability、probe 和有限 lifecycle action，
@@ -117,7 +117,7 @@ Native PawApp UI
 ### 5.1 永久 App scope
 
 ```ts
-const paw = window.QwenPaw.paw.forApp("example-app");
+const paw = window.AIArb.paw.forApp("example-app");
 ```
 
 `forApp(appId)` 返回永久绑定到一个 App 的 handle：
@@ -580,7 +580,7 @@ DataPaw UI
 - Graph Store 和数据源声明为 external dependency，只执行 readiness check；
 - Docker、本地数据库和图服务生命周期属于 `datapaw-cli` 或部署 owner；
 - `datapaw-context`、`datapaw-host-core`、`datapaw-cli`、`datapaw-skills` 使用独立环境，
-  不污染 QwenPaw Python environment。
+  不污染 AIArb Python environment。
 
 ### 10.2 App UI
 

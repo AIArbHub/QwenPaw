@@ -10,12 +10,12 @@ import uuid
 from collections.abc import Awaitable, Callable, Mapping
 from typing import Any
 
-from qwenpaw.app.computer_use import (
+from aiarb.app.computer_use import (
     HostRuntimeProvider,
     RuntimeCapability,
     get_current_computer_use_turn_id,
 )
-from qwenpaw.config.context import (
+from aiarb.config.context import (
     get_current_session_id as get_tool_session_id,
 )
 
@@ -92,7 +92,7 @@ TransportFactory = Callable[[], ComputerUseTransport]
 
 
 class ComputerUseClient:
-    """Own one authenticated native connection for one QwenPaw session."""
+    """Own one authenticated native connection for one AIArb session."""
 
     def __init__(
         self,
@@ -564,10 +564,10 @@ def _evict_idle_clients() -> list[ComputerUseClient]:
 
 
 def get_computer_use_client() -> ComputerUseClient:
-    """Return the controlled client for the active QwenPaw session."""
+    """Return the controlled client for the active AIArb session."""
     # The request-context module initializes the web workspace stack. Defer it
     # until session lookup so transport and protocol code remain lightweight.
-    from qwenpaw.app.agent_context import get_current_session_id
+    from aiarb.app.agent_context import get_current_session_id
 
     session_id = get_current_session_id() or get_tool_session_id() or ""
     if not session_id:

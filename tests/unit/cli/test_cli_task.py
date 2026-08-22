@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests for the ``qwenpaw task`` headless CLI command."""
+"""Tests for the ``aiarb task`` headless CLI command."""
 from __future__ import annotations
 
 import json
@@ -10,8 +10,8 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli.main import cli
-from qwenpaw.cli.task_cmd import _read_instruction
+from aiarb.cli.main import cli
+from aiarb.cli.task_cmd import _read_instruction
 
 
 # ── _read_instruction ────────────────────────────────────────────────
@@ -53,7 +53,7 @@ def test_task_command_registered_in_cli() -> None:
 
 def test_task_rejects_empty_instruction(monkeypatch) -> None:
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         MagicMock(),
     )
     result = CliRunner().invoke(cli, ["task", "-i", "   "])
@@ -65,7 +65,7 @@ def test_task_rejects_empty_instruction(monkeypatch) -> None:
 
 
 def test_task_reports_missing_agent_without_traceback(monkeypatch) -> None:
-    from qwenpaw.exceptions import ConfigurationException
+    from aiarb.exceptions import ConfigurationException
 
     missing_agent = "missing-agent"
 
@@ -76,7 +76,7 @@ def test_task_reports_missing_agent_without_traceback(monkeypatch) -> None:
         )
 
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         _raise_missing_agent,
     )
 
@@ -104,15 +104,15 @@ def test_task_reports_missing_agent_without_traceback(monkeypatch) -> None:
 
 
 def test_model_flag_overrides_agent_config(monkeypatch) -> None:
-    from qwenpaw.config.config import AgentProfileConfig
+    from aiarb.config.config import AgentProfileConfig
 
     fake_config = AgentProfileConfig(id="default", name="Default")
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _aid: fake_config,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.task_cmd._run_task",
+        "aiarb.cli.task_cmd._run_task",
         AsyncMock(
             return_value={"status": "success", "response": "", "usage": {}},
         ),
@@ -129,15 +129,15 @@ def test_model_flag_overrides_agent_config(monkeypatch) -> None:
 
 
 def test_model_flag_without_slash(monkeypatch) -> None:
-    from qwenpaw.config.config import AgentProfileConfig
+    from aiarb.config.config import AgentProfileConfig
 
     fake_config = AgentProfileConfig(id="default", name="Default")
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _aid: fake_config,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.task_cmd._run_task",
+        "aiarb.cli.task_cmd._run_task",
         AsyncMock(
             return_value={"status": "success", "response": "", "usage": {}},
         ),
@@ -154,13 +154,13 @@ def test_model_flag_without_slash(monkeypatch) -> None:
 
 
 def test_output_dir_writes_result_json(monkeypatch, tmp_path) -> None:
-    from qwenpaw.config.config import AgentProfileConfig
+    from aiarb.config.config import AgentProfileConfig
 
     out_dir = tmp_path / "results"
 
     fake_config = AgentProfileConfig(id="default", name="Default")
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _aid: fake_config,
     )
 
@@ -181,7 +181,7 @@ def test_output_dir_writes_result_json(monkeypatch, tmp_path) -> None:
             )
         return result
 
-    monkeypatch.setattr("qwenpaw.cli.task_cmd._run_task", _fake_run_task)
+    monkeypatch.setattr("aiarb.cli.task_cmd._run_task", _fake_run_task)
 
     result = CliRunner().invoke(
         cli,
@@ -204,14 +204,14 @@ def test_output_dir_writes_result_json(monkeypatch, tmp_path) -> None:
     ["error", "timeout"],
 )
 def test_exit_code_one_on_failure(monkeypatch, status) -> None:
-    from qwenpaw.config.config import AgentProfileConfig
+    from aiarb.config.config import AgentProfileConfig
 
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _aid: AgentProfileConfig(id="default", name="Default"),
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.task_cmd._run_task",
+        "aiarb.cli.task_cmd._run_task",
         AsyncMock(
             return_value={
                 "status": status,
@@ -227,10 +227,10 @@ def test_exit_code_one_on_failure(monkeypatch, status) -> None:
 
 def test_stdout_json_and_default_context(monkeypatch) -> None:
     """Happy-path: valid JSON on stdout, exit 0, no headless overrides."""
-    from qwenpaw.config.config import AgentProfileConfig
+    from aiarb.config.config import AgentProfileConfig
 
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _aid: AgentProfileConfig(id="default", name="Default"),
     )
 
@@ -245,7 +245,7 @@ def test_stdout_json_and_default_context(monkeypatch) -> None:
             "usage": {},
         }
 
-    monkeypatch.setattr("qwenpaw.cli.task_cmd._run_task", _fake_run_task)
+    monkeypatch.setattr("aiarb.cli.task_cmd._run_task", _fake_run_task)
 
     result = CliRunner().invoke(cli, ["task", "-i", "hello"])
     assert result.exit_code == 0
@@ -268,7 +268,7 @@ def test_e2e_cli_no_guard_and_skills_dir(monkeypatch, tmp_path):
     (no longer embedded in ``request_context``), and neither flag
     pollutes environment variables.
     """
-    from qwenpaw.config.config import AgentProfileConfig
+    from aiarb.config.config import AgentProfileConfig
 
     skills_dir = tmp_path / "my_skills"
     skill_sub = skills_dir / "e2e-skill"
@@ -284,7 +284,7 @@ def test_e2e_cli_no_guard_and_skills_dir(monkeypatch, tmp_path):
     )
     (tmp_path / "workspace").mkdir()
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _aid: fake_config,
     )
 
@@ -295,9 +295,9 @@ def test_e2e_cli_no_guard_and_skills_dir(monkeypatch, tmp_path):
         captured["request_context"] = dict(ctx)
         captured["skills_dir"] = kwargs.get("skills_dir")
         captured["env_tool_guard"] = os.environ.get(
-            "QWENPAW_TOOL_GUARD_ENABLED",
+            "AIARB_TOOL_GUARD_ENABLED",
         )
-        captured["env_skills_dir"] = os.environ.get("QWENPAW_SKILLS_DIR")
+        captured["env_skills_dir"] = os.environ.get("AIARB_SKILLS_DIR")
         captured["guard_bypassed"] = (
             ctx.get("_headless_tool_guard", "true").lower() == "false"
         )
@@ -308,7 +308,7 @@ def test_e2e_cli_no_guard_and_skills_dir(monkeypatch, tmp_path):
             "usage": {},
         }
 
-    monkeypatch.setattr("qwenpaw.cli.task_cmd._run_task", _spy_run_task)
+    monkeypatch.setattr("aiarb.cli.task_cmd._run_task", _spy_run_task)
 
     result = CliRunner().invoke(
         cli,
@@ -344,8 +344,8 @@ def test_e2e_cli_no_guard_and_skills_dir(monkeypatch, tmp_path):
 
 def test_isolated_workspace_creates_overlay(tmp_path):
     """Overlay workspace symlinks skills and pre-populates manifest."""
-    from qwenpaw.cli.task_cmd import _isolated_skills_workspace
-    from qwenpaw.agents.skill_system import resolve_effective_skills
+    from aiarb.cli.task_cmd import _isolated_skills_workspace
+    from aiarb.agents.skill_system import resolve_effective_skills
 
     skills_dir = tmp_path / "ext_skills"
     (skills_dir / "alpha").mkdir(parents=True)
@@ -387,7 +387,7 @@ def test_isolated_workspace_creates_overlay(tmp_path):
 
 def test_isolated_workspace_none_without_skills_dir(tmp_path):
     """Without skills_dir the context manager yields base_workspace as-is."""
-    from qwenpaw.cli.task_cmd import _isolated_skills_workspace
+    from aiarb.cli.task_cmd import _isolated_skills_workspace
 
     base_ws = tmp_path / "ws"
     base_ws.mkdir()
@@ -398,7 +398,7 @@ def test_isolated_workspace_none_without_skills_dir(tmp_path):
 
 def test_isolated_workspace_does_not_pollute_real_workspace(tmp_path):
     """Real workspace must have zero new files after overlay teardown."""
-    from qwenpaw.cli.task_cmd import _isolated_skills_workspace
+    from aiarb.cli.task_cmd import _isolated_skills_workspace
 
     skills_dir = tmp_path / "skills_src"
     (skills_dir / "s1").mkdir(parents=True)
@@ -425,8 +425,8 @@ async def test_run_task_sends_a_valid_user_message(monkeypatch) -> None:
     ``except Exception`` turns into ``status="error"`` — the task never
     reaches the agent.
     """
-    from qwenpaw.config.config import AgentProfileConfig
-    from qwenpaw.cli.task_cmd import _run_task
+    from aiarb.config.config import AgentProfileConfig
+    from aiarb.cli.task_cmd import _run_task
 
     captured: dict = {}
 
@@ -444,7 +444,7 @@ async def test_run_task_sends_a_valid_user_message(monkeypatch) -> None:
             return _FakeAgent()
 
     monkeypatch.setattr(
-        "qwenpaw.runtime.builder.AgentBuilder",
+        "aiarb.runtime.builder.AgentBuilder",
         _FakeBuilder,
     )
 

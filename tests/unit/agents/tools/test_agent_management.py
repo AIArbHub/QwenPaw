@@ -13,7 +13,7 @@ import pytest
 from agentscope.tool import FunctionTool
 from agentscope.tool import Toolkit
 
-from qwenpaw.agents.tools import agent_management
+from aiarb.agents.tools import agent_management
 
 
 class _FakeResponse:
@@ -329,8 +329,8 @@ async def test_chat_with_agent_uses_async_collect_for_final_mode(monkeypatch):
 
 async def test_chat_with_agent_arms_kill_deadline_from_timeout(monkeypatch):
     """Caller timeout must register kill_deadline (may exceed hook offload)."""
-    from qwenpaw.tool_calls import reset_call_context, set_call_context
-    from qwenpaw.tool_calls._context import ToolCallContext
+    from aiarb.tool_calls import reset_call_context, set_call_context
+    from aiarb.tool_calls._context import ToolCallContext
 
     async def fake_collect_async(*_args, **_kwargs):
         return {
@@ -465,7 +465,7 @@ async def test_spawn_subagent_inherits_root_channel_context(monkeypatch):
     async def fake_to_thread(func, *args, **kwargs):
         return func(*args, **kwargs)
 
-    from qwenpaw.app import agent_context
+    from aiarb.app import agent_context
 
     monkeypatch.setattr(
         agent_management,
@@ -515,7 +515,7 @@ async def test_spawn_subagent_inherits_approval_level(monkeypatch):
     async def fake_to_thread(func, *args, **kwargs):
         return func(*args, **kwargs)
 
-    from qwenpaw.app import agent_context
+    from aiarb.app import agent_context
 
     monkeypatch.setattr(
         agent_management,
@@ -678,7 +678,7 @@ def test_parse_positive_timeout_seconds_accepts_numeric_and_rejects_invalid():
 
 
 def test_foreground_wait_omitted_uses_spawn_constant():
-    from qwenpaw.constant import DEFAULT_SPAWN_FOREGROUND_TIMEOUT_SECONDS
+    from aiarb.constant import DEFAULT_SPAWN_FOREGROUND_TIMEOUT_SECONDS
 
     assert (
         agent_management._foreground_wait_seconds(None)
@@ -688,7 +688,7 @@ def test_foreground_wait_omitted_uses_spawn_constant():
 
 
 def test_watchdog_timeout_prefers_submit_echo():
-    from qwenpaw.constant import DEFAULT_STREAM_TASK_TIMEOUT_SECONDS
+    from aiarb.constant import DEFAULT_STREAM_TASK_TIMEOUT_SECONDS
 
     assert (
         agent_management._watchdog_timeout_from_submit_result(
@@ -786,7 +786,7 @@ async def test_submit_to_agent_string_timeout_reaches_submit(monkeypatch):
         "agent_exists",
         lambda _to_agent, _base_url=None: True,
     )
-    from qwenpaw.app import agent_context
+    from aiarb.app import agent_context
 
     monkeypatch.setattr(agent_context, "get_current_session_id", lambda: "s1")
     monkeypatch.setattr(
@@ -888,7 +888,7 @@ async def test_submit_to_agent_omitted_timeout_passes_none(monkeypatch):
         "agent_exists",
         lambda *_a, **_k: True,
     )
-    from qwenpaw.app import agent_context
+    from aiarb.app import agent_context
 
     monkeypatch.setattr(agent_context, "get_current_session_id", lambda: "s1")
     monkeypatch.setattr(
@@ -942,7 +942,7 @@ async def test_spawn_subagent_empty_batch_uses_single_task(
     async def fake_to_thread(func, *args, **kwargs):
         return func(*args, **kwargs)
 
-    from qwenpaw.app import agent_context
+    from aiarb.app import agent_context
 
     monkeypatch.setattr(
         agent_management,
@@ -1049,7 +1049,7 @@ async def test_spawn_subagent_batch_json_string_dispatches(monkeypatch):
     async def fake_to_thread(func, *args, **kwargs):
         return func(*args, **kwargs)
 
-    from qwenpaw.app import agent_context
+    from aiarb.app import agent_context
 
     monkeypatch.setattr(
         agent_management,
@@ -1113,7 +1113,7 @@ async def test_spawn_subagent_batch_list_still_works(monkeypatch):
     async def fake_to_thread(func, *args, **kwargs):
         return func(*args, **kwargs)
 
-    from qwenpaw.app import agent_context
+    from aiarb.app import agent_context
 
     monkeypatch.setattr(
         agent_management,
@@ -1181,7 +1181,7 @@ async def test_spawn_subagent_batch_ignores_top_level_ignored_fields(
     async def fake_to_thread(func, *args, **kwargs):
         return func(*args, **kwargs)
 
-    from qwenpaw.app import agent_context
+    from aiarb.app import agent_context
 
     monkeypatch.setattr(
         agent_management,
@@ -1258,7 +1258,7 @@ async def test_spawn_subagent_batch_ambiguous_fork_errors_before_dispatch(
     async def fake_to_thread(func, *args, **kwargs):
         return func(*args, **kwargs)
 
-    from qwenpaw.app import agent_context
+    from aiarb.app import agent_context
 
     monkeypatch.setattr(
         agent_management,
@@ -1335,7 +1335,7 @@ async def test_spawn_subagent_top_level_string_bools(monkeypatch):
     async def fake_to_thread(func, *args, **kwargs):
         return func(*args, **kwargs)
 
-    from qwenpaw.app import agent_context
+    from aiarb.app import agent_context
 
     monkeypatch.setattr(
         agent_management,
@@ -1440,7 +1440,7 @@ async def test_spawn_subagent_batch_item_timeout_errors_before_dispatch(
     async def fake_to_thread(func, *args, **kwargs):
         return func(*args, **kwargs)
 
-    from qwenpaw.app import agent_context
+    from aiarb.app import agent_context
 
     monkeypatch.setattr(
         agent_management,
@@ -1508,7 +1508,7 @@ async def test_spawn_subagent_batch_item_timeout_errors_before_dispatch(
 
 
 def _patch_spawn_runtime(monkeypatch):
-    from qwenpaw.app import agent_context
+    from aiarb.app import agent_context
 
     async def fake_to_thread(func, *args, **kwargs):
         return func(*args, **kwargs)
@@ -1592,7 +1592,7 @@ async def test_spawn_background_explicit_timeout_reaches_submit(monkeypatch):
 
 
 async def test_spawn_foreground_omitted_timeout_waits_600(monkeypatch):
-    from qwenpaw.constant import DEFAULT_SPAWN_FOREGROUND_TIMEOUT_SECONDS
+    from aiarb.constant import DEFAULT_SPAWN_FOREGROUND_TIMEOUT_SECONDS
 
     captured: dict = {}
 
@@ -1646,7 +1646,7 @@ async def test_spawn_batch_omitted_timeout_passes_none(monkeypatch):
 
 
 async def test_spawn_fork_foreground_omitted_timeout_waits_600(monkeypatch):
-    from qwenpaw.constant import DEFAULT_SPAWN_FOREGROUND_TIMEOUT_SECONDS
+    from aiarb.constant import DEFAULT_SPAWN_FOREGROUND_TIMEOUT_SECONDS
 
     captured: dict = {}
 
@@ -1683,7 +1683,7 @@ async def test_spawn_fork_foreground_omitted_timeout_waits_600(monkeypatch):
 async def test_spawn_fork_background_uses_submit_echo_for_watchdog(
     monkeypatch,
 ):
-    from qwenpaw.agents import fork_project
+    from aiarb.agents import fork_project
 
     captured: dict = {}
     watch: dict = {}

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw Channels page object.
+AIArb Channels page object.
 
 Wraps all interactions on the Channels page and exposes business-level methods.
 """
@@ -29,7 +29,7 @@ class ChannelsPage(BasePage):
     - Save/cancel channel configuration
     """
 
-    PAGE_TITLE = "QwenPaw Console"
+    PAGE_TITLE = "AIArb Console"
     PAGE_URL = f"{config.base_url}/channels"
 
     # ========== Selector definitions ==========
@@ -74,22 +74,22 @@ class ChannelsPage(BasePage):
     CHANNEL_BOT_PREFIX = '[class*=channelCard] [class*=botPrefix]'
 
     # Edit drawer (match only the visible drawer to avoid strict mode violations)
-    CHANNEL_DRAWER = '.qwenpaw-drawer:visible, .ant-drawer:visible'
-    DRAWER_TITLE = '.qwenpaw-drawer-title, .ant-drawer-title'
-    DRAWER_CLOSE_BTN = '.qwenpaw-drawer-close, .ant-drawer-close'
+    CHANNEL_DRAWER = '.aiarb-drawer:visible, .ant-drawer:visible'
+    DRAWER_TITLE = '.aiarb-drawer-title, .ant-drawer-title'
+    DRAWER_CLOSE_BTN = '.aiarb-drawer-close, .ant-drawer-close'
 
     # Form fields
-    FORM_ITEM = '.ant-form-item, .qwenpaw-form-item'
-    FORM_LABEL = '.ant-form-item-label, .qwenpaw-form-item-label'
-    FORM_INPUT = 'input.ant-input, input.qwenpaw-input'
-    FORM_SWITCH = '.ant-switch, .qwenpaw-switch'
-    FORM_SELECT = '.ant-select-selector, .qwenpaw-select-selector'
-    FORM_SUBMIT_BTN = '.qwenpaw-drawer button:has-text("保 存"), .qwenpaw-drawer button:has-text("保存"), .qwenpaw-drawer button:has-text("Save"), .ant-drawer button:has-text("Save")'
-    FORM_CANCEL_BTN = '.qwenpaw-drawer button:has-text("取 消"), .qwenpaw-drawer button:has-text("取消"), .qwenpaw-drawer button:has-text("Cancel"), .ant-drawer button:has-text("Cancel")'
+    FORM_ITEM = '.ant-form-item, .aiarb-form-item'
+    FORM_LABEL = '.ant-form-item-label, .aiarb-form-item-label'
+    FORM_INPUT = 'input.ant-input, input.aiarb-input'
+    FORM_SWITCH = '.ant-switch, .aiarb-switch'
+    FORM_SELECT = '.ant-select-selector, .aiarb-select-selector'
+    FORM_SUBMIT_BTN = '.aiarb-drawer button:has-text("保 存"), .aiarb-drawer button:has-text("保存"), .aiarb-drawer button:has-text("Save"), .ant-drawer button:has-text("Save")'
+    FORM_CANCEL_BTN = '.aiarb-drawer button:has-text("取 消"), .aiarb-drawer button:has-text("取消"), .aiarb-drawer button:has-text("Cancel"), .ant-drawer button:has-text("Cancel")'
 
     # Channel-specific field selectors (composed dynamically per channel type)
-    BOT_PREFIX_INPUT = '.qwenpaw-drawer input[placeholder*="@bot"], .qwenpaw-drawer input[placeholder*="bot prefix" i], input[placeholder*="Bot Prefix" i], input[placeholder*="机器人前缀" i]'
-    ENABLE_TOGGLE = '.ant-switch, .qwenpaw-switch'
+    BOT_PREFIX_INPUT = '.aiarb-drawer input[placeholder*="@bot"], .aiarb-drawer input[placeholder*="bot prefix" i], input[placeholder*="Bot Prefix" i], input[placeholder*="机器人前缀" i]'
+    ENABLE_TOGGLE = '.ant-switch, .aiarb-switch'
 
     # Toast messages and loading state (inherited from BasePage; no redefinition needed)
 
@@ -287,7 +287,7 @@ class ChannelsPage(BasePage):
 
     # Built-in channel labels (aligned with console/src/pages/Control/Channels/
     # components/constants.ts::CHANNEL_LABELS and the backend
-    # src/qwenpaw/app/channels/registry.py::_BUILTIN_SPECS).
+    # src/aiarb/app/channels/registry.py::_BUILTIN_SPECS).
     #
     # In v2.0.0 (PR #5504) built-in channels rendered in the Available section
     # use <ChannelAvailableItem> and no longer show a "内置 / Built-in" tag,
@@ -321,7 +321,7 @@ class ChannelsPage(BasePage):
         timeout = timeout or self.timeout
         logger.info("Waiting for drawer to open")
         try:
-            self.page.locator('.qwenpaw-drawer, .ant-drawer').first.wait_for(state="visible", timeout=timeout)
+            self.page.locator('.aiarb-drawer, .ant-drawer').first.wait_for(state="visible", timeout=timeout)
             return True
         except Exception:
             return False
@@ -374,8 +374,8 @@ class ChannelsPage(BasePage):
         """
         logger.info(f"Toggling enable to: {enable}")
         # Locate the switch inside the drawer
-        drawer = self.page.locator('.qwenpaw-drawer, .ant-drawer')
-        switch = drawer.locator('.qwenpaw-switch, .ant-switch').first
+        drawer = self.page.locator('.aiarb-drawer, .ant-drawer')
+        switch = drawer.locator('.aiarb-switch, .ant-switch').first
 
         # Read the current state
         aria_checked = switch.get_attribute('aria-checked') or 'false'
@@ -430,7 +430,7 @@ class ChannelsPage(BasePage):
     def has_form_validation_errors(self) -> bool:
         """Check whether the form has validation errors."""
         errors = self.page.locator(
-            '.qwenpaw-form-item-explain-error, .ant-form-item-explain-error'
+            '.aiarb-form-item-explain-error, .ant-form-item-explain-error'
         )
         count = errors.count()
         if count > 0:

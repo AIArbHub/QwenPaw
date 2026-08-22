@@ -7,14 +7,14 @@ from __future__ import annotations
 import logging
 from unittest.mock import patch
 
-from qwenpaw.sandbox import (
+from aiarb.sandbox import (
     MountSpec,
     PortRule,
     SandboxConfig,
     SandboxMode,
     create_sandbox,
 )
-from qwenpaw.sandbox.macos_sandbox import MacOSSandbox
+from aiarb.sandbox.macos_sandbox import MacOSSandbox
 
 # ============================================================================
 # Task 5.1: test_sandbox_config_defaults
@@ -201,7 +201,7 @@ class TestUnsupportedFeaturesLogging:
     def test_max_processes_warning(self, caplog):
         with caplog.at_level(
             logging.WARNING,
-            logger="qwenpaw.sandbox.config",
+            logger="aiarb.sandbox.config",
         ):
             self._build(max_processes=10)
 
@@ -211,7 +211,7 @@ class TestUnsupportedFeaturesLogging:
     def test_max_memory_warning(self, caplog):
         with caplog.at_level(
             logging.WARNING,
-            logger="qwenpaw.sandbox.config",
+            logger="aiarb.sandbox.config",
         ):
             self._build(max_memory_mb=512)
 
@@ -221,7 +221,7 @@ class TestUnsupportedFeaturesLogging:
     def test_network_ports_warning(self, caplog):
         with caplog.at_level(
             logging.WARNING,
-            logger="qwenpaw.sandbox.config",
+            logger="aiarb.sandbox.config",
         ):
             self._build(network_ports=[PortRule(port=443)])
 
@@ -236,7 +236,7 @@ class TestUnsupportedFeaturesLogging:
                 mounts=[MountSpec(path="/tmp/ws", writable=True)],
             ),
         )
-        with patch("qwenpaw.sandbox.macos_sandbox.logger") as mock_logger:
+        with patch("aiarb.sandbox.macos_sandbox.logger") as mock_logger:
             sandbox._compile_seatbelt_profile()
 
         mock_logger.warning.assert_not_called()
@@ -250,14 +250,14 @@ class TestUnsupportedFeaturesLogging:
 class TestCreateSandboxSeatbeltDowngrade:
     """Test that SEATBELT mode downgrades on non-darwin platforms."""
 
-    @patch("qwenpaw.sandbox.config.sys")
+    @patch("aiarb.sandbox.config.sys")
     @patch(
-        "qwenpaw.sandbox.config.detect_platform_mode",
+        "aiarb.sandbox.config.detect_platform_mode",
         return_value=SandboxMode.NONE,
     )
     def test_seatbelt_mode_on_windows_downgrades(self, mock_detect, mock_sys):
         """SEATBELT on Windows downgrades to platform default."""
-        from qwenpaw.sandbox.local_sandbox import NoneSandbox
+        from aiarb.sandbox.local_sandbox import NoneSandbox
 
         mock_sys.platform = "win32"
         config = SandboxConfig(

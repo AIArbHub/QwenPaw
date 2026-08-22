@@ -11,17 +11,17 @@ from agentscope.model import ChatModelBase
 from agentscope.model._model_response import ChatResponse, StructuredResponse
 from agentscope.model._model_usage import ChatUsage
 
-from qwenpaw.providers.fallback_chat_model import (
+from aiarb.providers.fallback_chat_model import (
     FallbackChatModel,
     install_fallback_notice_sink,
 )
-from qwenpaw.providers.rate_limiter import _limiters
-from qwenpaw.providers.retry_chat_model import (
+from aiarb.providers.rate_limiter import _limiters
+from aiarb.providers.retry_chat_model import (
     RateLimitConfig,
     RetryChatModel,
     RetryConfig,
 )
-from qwenpaw.token_usage.model_wrapper import TokenRecordingModelWrapper
+from aiarb.token_usage.model_wrapper import TokenRecordingModelWrapper
 
 
 class FakeModel(ChatModelBase):
@@ -61,7 +61,7 @@ class FakeModel(ChatModelBase):
 
 
 class _FakeFormatter:
-    """Minimal stand-in for a QwenPaw formatter."""
+    """Minimal stand-in for a AIArb formatter."""
 
     def __init__(self, media_types: list[str]) -> None:
         self.supported_input_media_types = media_types
@@ -113,7 +113,7 @@ async def test_falls_back_on_transient_error_before_output() -> None:
     assert chunks[0].content[0]["text"] == "ok"
     assert primary.calls == 1
     assert fallback.calls == 1
-    assert chunks[0].metadata["qwenpaw_model_fallbacks"] == [
+    assert chunks[0].metadata["aiarb_model_fallbacks"] == [
         {
             "type": "model_fallback",
             "from_provider_id": "",
@@ -164,7 +164,7 @@ async def test_stream_idle_timeout_falls_back_after_retries() -> None:
         assert primary.calls == 2
         assert fallback.calls == 1
         assert state["closed"] == 2
-        assert chunks[-1].metadata["qwenpaw_model_fallbacks"] == [
+        assert chunks[-1].metadata["aiarb_model_fallbacks"] == [
             {
                 "type": "model_fallback",
                 "from_provider_id": "",
@@ -196,7 +196,7 @@ async def test_falls_back_when_primary_model_is_not_found() -> None:
     assert response.content[0]["text"] == "fallback-ok"
     assert primary.calls == 1
     assert fallback.calls == 1
-    assert response.metadata["qwenpaw_model_fallbacks"] == [
+    assert response.metadata["aiarb_model_fallbacks"] == [
         {
             "type": "model_fallback",
             "from_provider_id": "primary-provider",
@@ -240,12 +240,12 @@ async def test_identity_and_context_follow_fallback(
     # once the request settles, identity resets to the primary so the
     # compaction budget and capability learning size for the model the
     # NEXT request will try first.
-    actual = response.metadata["qwenpaw_actual_model"]
+    actual = response.metadata["aiarb_actual_model"]
     assert actual["model_id"] == "fallback"
     assert actual["context_size"] == fallback_size
     assert model.model == "primary"
     assert model.context_size == primary_size
-    assert response.metadata["qwenpaw_model_fallbacks"] == [
+    assert response.metadata["aiarb_model_fallbacks"] == [
         {
             "type": "model_fallback",
             "from_provider_id": "primary-provider",
@@ -507,12 +507,12 @@ async def test_concurrent_requests_keep_active_metadata_isolated() -> None:
     # After both requests settle, identity is back on the primary.
     assert model.model_key == "primary"
     assert model.context_size == 128_000
-    assert first[0].metadata["qwenpaw_actual_model"] == {
+    assert first[0].metadata["aiarb_actual_model"] == {
         "provider_id": "fallback-provider",
         "model_id": "fallback",
         "context_size": 1_000_000,
     }
-    assert second[0].metadata["qwenpaw_actual_model"] == {
+    assert second[0].metadata["aiarb_actual_model"] == {
         "provider_id": "primary-provider",
         "model_id": "primary",
         "context_size": 128_000,
@@ -523,7 +523,7 @@ async def test_usage_and_model_key_follow_actual_fallback(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.app.agent_context.get_current_session_id",
+        "aiarb.app.agent_context.get_current_session_id",
         lambda: "fallback-session",
     )
     primary = FakeModel("primary", HttpError(503))
@@ -586,7 +586,7 @@ async def test_structured_output_reports_multi_hop_fallback() -> None:
     response = await model.generate_structured_output(messages=[], tools=[])
 
     assert response.content == {"answer": "ok"}
-    assert response.metadata["qwenpaw_model_fallbacks"] == [
+    assert response.metadata["aiarb_model_fallbacks"] == [
         {
             "type": "model_fallback",
             "from_provider_id": "primary-provider",
@@ -604,7 +604,7 @@ async def test_structured_output_reports_multi_hop_fallback() -> None:
             "reason_kind": "rate_limited",
         },
     ]
-    assert response.metadata["qwenpaw_actual_model"] == {
+    assert response.metadata["aiarb_actual_model"] == {
         "provider_id": "final-provider",
         "model_id": "final-fallback",
         "context_size": 1_000_000,
@@ -641,7 +641,7 @@ async def test_concurrent_structured_fallback_events_are_isolated() -> None:
     )
 
     assert all(
-        len(response.metadata["qwenpaw_model_fallbacks"]) == 1
+        len(response.metadata["aiarb_model_fallbacks"]) == 1
         for response in responses
     )
     assert responses[0].metadata is not responses[1].metadata
@@ -658,12 +658,12 @@ async def test_broken_candidate_does_not_block_rest_of_chain() -> None:
 
     assert revoked.calls == 1
     assert healthy.calls == 1
-    events = response.metadata["qwenpaw_model_fallbacks"]
+    events = response.metadata["aiarb_model_fallbacks"]
     assert [event["to_model_id"] for event in events] == [
         "revoked",
         "healthy",
     ]
-    actual = response.metadata["qwenpaw_actual_model"]
+    actual = response.metadata["aiarb_actual_model"]
     assert actual["model_id"] == "healthy"
 
 
@@ -679,7 +679,7 @@ async def test_structured_output_skips_broken_candidate() -> None:
     response = await model.generate_structured_output(messages=[], tools=[])
 
     assert healthy.calls == 1
-    events = response.metadata["qwenpaw_model_fallbacks"]
+    events = response.metadata["aiarb_model_fallbacks"]
     assert len(events) == 2
 
 

@@ -396,7 +396,7 @@ describe("AppMarket", () => {
   it("asks for confirmation before installing an incompatible app", async () => {
     hoisted.getVersion.mockResolvedValue({ version: "1.9.0" });
     hoisted.fetchMarketPlugins.mockResolvedValue({
-      plugins: [makeEntry("future-app", { qwenpaw_compat_labels: ["2.x"] })],
+      plugins: [makeEntry("future-app", { aiarb_compat_labels: ["2.x"] })],
       total: 1,
     });
     hoisted.installPlugin.mockResolvedValue({ name: "future-app" });

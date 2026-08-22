@@ -92,7 +92,7 @@ describe("hubApi pagination", () => {
         provisioner: "local" as const,
         docker: {
           source: "docker_hub" as const,
-          image: "docker.io/agentscope/qwenpaw:latest",
+          image: "docker.io/agentscope/aiarb:latest",
           pull_policy: "if_not_present" as const,
           cpu_limit: 2,
           memory_limit_mb: 4096,

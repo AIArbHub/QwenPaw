@@ -20,7 +20,7 @@ export function parseModelFallbackEvents(
     nestedMetadata && typeof nestedMetadata === "object"
       ? (nestedMetadata as Record<string, unknown>)
       : metadataRecord;
-  const events = eventSource?.qwenpaw_model_fallbacks;
+  const events = eventSource?.aiarb_model_fallbacks;
   if (!Array.isArray(events)) return [];
   return events.filter((event): event is ModelFallbackEvent => {
     if (!event || typeof event !== "object") return false;
@@ -44,7 +44,7 @@ export type FallbackSystemMessage = {
   type: "message";
   role: "system";
   content: Array<{ type: "text"; text: string }>;
-  metadata: { qwenpaw_model_fallbacks: ModelFallbackEvent[] };
+  metadata: { aiarb_model_fallbacks: ModelFallbackEvent[] };
 };
 
 export function buildFallbackSystemMessage(
@@ -60,6 +60,6 @@ export function buildFallbackSystemMessage(
         text: events.map(formatNotice).join("\n"),
       },
     ],
-    metadata: { qwenpaw_model_fallbacks: events },
+    metadata: { aiarb_model_fallbacks: events },
   };
 }

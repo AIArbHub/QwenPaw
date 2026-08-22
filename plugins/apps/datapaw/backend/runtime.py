@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Resolve QwenPaw-Data package assets without machine coupling."""
+"""Resolve AIArb-Data package assets without machine coupling."""
 
 from __future__ import annotations
 

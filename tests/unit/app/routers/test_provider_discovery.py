@@ -8,7 +8,7 @@ import pytest
 from fastapi import BackgroundTasks
 from pydantic import ValidationError
 
-from qwenpaw.app.routers.providers import (
+from aiarb.app.routers.providers import (
     CreateCustomProviderRequest,
     DiscoverModelsRequest,
     ProviderConfigRequest,
@@ -18,7 +18,7 @@ from qwenpaw.app.routers.providers import (
     test_provider as provider_connection_endpoint,
     test_model as model_test_endpoint,
 )
-from qwenpaw.providers.provider import ModelInfo, ProviderInfo
+from aiarb.providers.provider import ModelInfo, ProviderInfo
 
 
 @pytest.mark.parametrize(

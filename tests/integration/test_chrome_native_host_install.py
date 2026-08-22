@@ -30,10 +30,10 @@ def test_probe_round_trips_through_the_real_launcher(
     isolated_home: Path,
     monkeypatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_DESKTOP_PY_RUNTIME", sys.executable)
+    monkeypatch.setenv("AIARB_DESKTOP_PY_RUNTIME", sys.executable)
     extension_setup.setup_extension_files(home=isolated_home)
     launcher = extension_setup.native_host_launcher_path(
-        isolated_home / ".qwenpaw",
+        isolated_home / ".aiarb",
     )
 
     outcome = extension_setup._probe_native_host(launcher)
@@ -47,7 +47,7 @@ def test_broken_launcher_reports_failure_without_raising(
     tmp_path: Path,
     isolated_home: Path,
 ) -> None:
-    launcher = tmp_path / "qwenpaw-nm-host"
+    launcher = tmp_path / "aiarb-nm-host"
     launcher.write_text("#!/usr/bin/env sh\nexit 3\n", encoding="utf-8")
     launcher.chmod(0o755)
 
@@ -63,11 +63,11 @@ def test_recorded_probe_failure_is_diagnostic_only(
     isolated_home: Path,
     monkeypatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_DESKTOP_PY_RUNTIME", sys.executable)
+    monkeypatch.setenv("AIARB_DESKTOP_PY_RUNTIME", sys.executable)
     extension_setup.setup_extension_files(home=isolated_home)
     state_path = (
         isolated_home
-        / ".qwenpaw"
+        / ".aiarb"
         / (extension_setup.INSTALL_MODE_STATE_FILENAME)
     )
     state = json.loads(state_path.read_text(encoding="utf-8"))
@@ -87,12 +87,12 @@ def test_successful_install_records_a_passing_probe(
     isolated_home: Path,
     monkeypatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_DESKTOP_PY_RUNTIME", sys.executable)
+    monkeypatch.setenv("AIARB_DESKTOP_PY_RUNTIME", sys.executable)
     result = extension_setup.setup_extension_files(home=isolated_home)
 
     state_path = (
         isolated_home
-        / ".qwenpaw"
+        / ".aiarb"
         / (extension_setup.INSTALL_MODE_STATE_FILENAME)
     )
     state = json.loads(state_path.read_text(encoding="utf-8"))
@@ -104,9 +104,9 @@ def test_non_reset_repair_preserves_existing_bridge_token(
     isolated_home: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_DESKTOP_PY_RUNTIME", sys.executable)
+    monkeypatch.setenv("AIARB_DESKTOP_PY_RUNTIME", sys.executable)
     extension_setup.setup_extension_files(home=isolated_home)
-    config_path = isolated_home / ".qwenpaw" / "nm-bridge.json"
+    config_path = isolated_home / ".aiarb" / "nm-bridge.json"
     original_token = json.loads(config_path.read_text(encoding="utf-8"))[
         "token"
     ]
@@ -123,20 +123,20 @@ def test_non_reset_repair_preserves_existing_bridge_token(
     ("source", "expected"),
     [
         (
-            r"\\?\D:\Programs\QwenPaw Desktop\python.exe",
-            r"D:\Programs\QwenPaw Desktop\python.exe",
+            r"\\?\D:\Programs\AIArb Desktop\python.exe",
+            r"D:\Programs\AIArb Desktop\python.exe",
         ),
         (
             r"\\?\UNC\server\share\python.exe",
             r"\\server\share\python.exe",
         ),
         (
-            r"D:\Programs\QwenPaw Desktop\python.exe",
-            r"D:\Programs\QwenPaw Desktop\python.exe",
+            r"D:\Programs\AIArb Desktop\python.exe",
+            r"D:\Programs\AIArb Desktop\python.exe",
         ),
         (
-            r"D:\Programs\100% QwenPaw\python.exe",
-            r"D:\Programs\100%% QwenPaw\python.exe",
+            r"D:\Programs\100% AIArb\python.exe",
+            r"D:\Programs\100%% AIArb\python.exe",
         ),
     ],
 )
@@ -151,7 +151,7 @@ def test_windows_launcher_uses_cmd_safe_path_literals(
     isolated_home: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    interpreter = r"\\?\D:\Programs\100% QwenPaw\python.exe"
+    interpreter = r"\\?\D:\Programs\100% AIArb\python.exe"
     monkeypatch.setattr(
         extension_setup,
         "_resolve_host_interpreter",
@@ -159,13 +159,13 @@ def test_windows_launcher_uses_cmd_safe_path_literals(
     )
 
     launcher = extension_setup._write_host(
-        isolated_home / ".qwenpaw",
+        isolated_home / ".aiarb",
         platform="win32",
     )
     launcher_text = launcher.read_text(encoding="utf-8")
 
     assert "\\\\?\\" not in launcher_text
-    assert '"D:\\Programs\\100%% QwenPaw\\python.exe"' in launcher_text
+    assert '"D:\\Programs\\100%% AIArb\\python.exe"' in launcher_text
     assert launcher_text.endswith('" %*\n')
 
 
@@ -290,7 +290,7 @@ HOST = Path("plugins/bundle/chrome/assets/scripts/nm_host.py")
 
 
 KEY_PATH = (
-    "Software\\Google\\Chrome\\NativeMessagingHosts\\com.qwenpaw.browser"
+    "Software\\Google\\Chrome\\NativeMessagingHosts\\com.aiarb.browser"
 )
 
 

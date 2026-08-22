@@ -8,8 +8,8 @@ from types import SimpleNamespace
 
 import pytest
 
-import qwenpaw.agents.context as context_mod
-from qwenpaw.runtime.builder import AgentBuilder
+import aiarb.agents.context as context_mod
+from aiarb.runtime.builder import AgentBuilder
 
 
 @pytest.mark.asyncio

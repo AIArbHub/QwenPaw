@@ -277,7 +277,7 @@ describe("workspaceApi.downloadWorkspace", () => {
     await workspaceApi.downloadWorkspace();
     expect(downloadFileFromUrl).toHaveBeenCalledWith(
       "/api/workspace/download",
-      expect.stringContaining("qwenpaw_workspace_"),
+      expect.stringContaining("aiarb_workspace_"),
       expect.objectContaining({
         errorMessage: "Workspace download failed",
         preferResponseFilename: true,

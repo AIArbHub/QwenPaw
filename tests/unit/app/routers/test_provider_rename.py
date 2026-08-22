@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 from fastapi import BackgroundTasks
 
-from qwenpaw.app.routers.providers import (
+from aiarb.app.routers.providers import (
     ProviderConfigRequest,
     configure_provider,
 )

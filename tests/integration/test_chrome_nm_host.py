@@ -419,7 +419,7 @@ def _frame(payload: dict) -> bytes:
 def test_probe_echoes_one_frame_and_exits_zero() -> None:
     completed = subprocess.run(
         [sys.executable, str(HOST), "--probe"],
-        input=_frame({"probe": "qwenpaw", "n": 1}),
+        input=_frame({"probe": "aiarb", "n": 1}),
         capture_output=True,
         timeout=15,
         check=False,
@@ -431,7 +431,7 @@ def test_probe_echoes_one_frame_and_exits_zero() -> None:
     )
     size = struct.unpack("<I", completed.stdout[:4])[0]
     echoed = json.loads(completed.stdout[4 : 4 + size].decode("utf-8"))
-    assert echoed == {"probe": "qwenpaw", "n": 1}
+    assert echoed == {"probe": "aiarb", "n": 1}
 
 
 # test_chrome_nm_host_single_backend.py
@@ -446,7 +446,7 @@ def _load_nm_host() -> ModuleType:
     sys.path.insert(0, str(SCRIPTS))
     try:
         spec = importlib.util.spec_from_file_location(
-            "qwenpaw_chrome_nm_host",
+            "aiarb_chrome_nm_host",
             SCRIPTS / "nm_host.py",
         )
         assert spec and spec.loader

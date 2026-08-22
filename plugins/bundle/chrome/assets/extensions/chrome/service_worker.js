@@ -1,10 +1,10 @@
-const NATIVE_HOST = "com.qwenpaw.browser";
+const NATIVE_HOST = "com.aiarb.browser";
 const JSONRPC_VERSION = "2.0";
-const WATCHDOG_ALARM = "qwenpaw-native-watchdog";
+const WATCHDOG_ALARM = "aiarb-native-watchdog";
 const WATCHDOG_PERIOD_MINUTES = 0.5;
 const FAST_RECONNECT_DEBOUNCE_MS = 10 * 1000;
 const DEGRADE_AFTER_DISCONNECT_MS = 60 * 1000;
-const CONTROL_TAB_GROUP_TITLE = "QwenPaw";
+const CONTROL_TAB_GROUP_TITLE = "AIArb";
 const CONTROL_TAB_GROUP_COLOR = "blue";
 const EXTENSIONS_MANAGER_URL = "chrome://extensions";
 const PROTECTED_BROWSER_SCHEMES = new Set([
@@ -17,7 +17,7 @@ const PROTECTED_BROWSER_SCHEMES = new Set([
   "opera:",
   "vivaldi:",
 ]);
-const LOCAL_QWENPAW_HOSTS = new Set([
+const LOCAL_AIARB_HOSTS = new Set([
   "127.0.0.1",
   "::1",
   "[::1]",
@@ -30,11 +30,11 @@ const TAB_OWNERSHIP_PENDING_CLAIM = "pending_claim";
 const TAB_OWNERSHIP_PROTECTED = "protected";
 const TAB_OWNERSHIP_ORPHANED = "orphaned";
 const TAB_OWNERSHIP_RELEASED = "released";
-const COMMAND_RECEIPT_PREFIX = "qwenpawCommandReceipt:";
-const COMMAND_EVICTIONS_KEY = "qwenpawCommandReceiptEvictions";
+const COMMAND_RECEIPT_PREFIX = "aiarbCommandReceipt:";
+const COMMAND_EVICTIONS_KEY = "aiarbCommandReceiptEvictions";
 const COMMAND_RECEIPT_TTL_MS = 5 * 60 * 1000;
 const COMMAND_RECEIPT_CAPACITY = 256;
-const LAST_DISCONNECT_KEY = "qwenpawLastDisconnect";
+const LAST_DISCONNECT_KEY = "aiarbLastDisconnect";
 const DISCONNECT_REPORT_MAX_AGE_MS = 3600000;
 // Bounded so 256 receipts plus metadata and evictions stay below
 // chrome.storage.session's 10MB quota. Raise only after redoing that math.
@@ -52,9 +52,9 @@ if (typeof importScripts === "function") {
   }
 }
 
-const bridgeConfig = globalThis.QWENPAW_BRIDGE_CONFIG || {};
+const bridgeConfig = globalThis.AIARB_BRIDGE_CONFIG || {};
 const extensionBuild = bridgeConfig.build || {};
-const LOCAL_QWENPAW_PORTS = new Set([
+const LOCAL_AIARB_PORTS = new Set([
   String(Number(bridgeConfig.localPort) || 8088),
 ]);
 
@@ -116,7 +116,7 @@ async function restoreManagedTabs() {
     Number.isFinite(restoredDisconnectedSince) && restoredDisconnectedSince > 0
       ? restoredDisconnectedSince
       : null;
-  const restoredLastDisconnect = data["qwenpawLastDisconnect"];
+  const restoredLastDisconnect = data["aiarbLastDisconnect"];
   if (
     restoredLastDisconnect &&
     typeof restoredLastDisconnect === "object" &&
@@ -183,7 +183,7 @@ async function storeTabProtocolMetadata(tabId, metadata) {
     ownerId: String(metadata.ownerId || ""),
     workspaceId: String(metadata.workspaceId || ""),
     ownershipState: String(metadata.ownershipState || ""),
-    createdByQwenPaw: Boolean(metadata.createdByQwenPaw),
+    createdByAIArb: Boolean(metadata.createdByAIArb),
   };
   if (normalized.protocolVersion === 2) {
     if (!normalized.ownerId || !normalized.workspaceId) {
@@ -213,7 +213,7 @@ function tabLifecycleEventParams(tab, extra) {
     params.id = tabId;
     params.tabId = tabId;
     params.managed = managedTabs.has(tabId);
-    params.createdByQwenPaw = createdTabs.has(tabId);
+    params.createdByAIArb = createdTabs.has(tabId);
     params.ownershipState = tabOwnershipState(tabId, tab);
     Object.assign(params, tabProtocolMetadata(tabId));
   }
@@ -331,8 +331,8 @@ function isProtectedTabUrl(url) {
     return true;
   }
   return (
-    LOCAL_QWENPAW_HOSTS.has(parsed.hostname) &&
-    LOCAL_QWENPAW_PORTS.has(parsed.port)
+    LOCAL_AIARB_HOSTS.has(parsed.hostname) &&
+    LOCAL_AIARB_PORTS.has(parsed.port)
   );
 }
 
@@ -370,7 +370,7 @@ function tabOwnershipState(tabId, tab) {
   if (isProtectedTabUrl(tab && tab.url)) {
     return TAB_OWNERSHIP_PROTECTED;
   }
-  if (tab && tab.createdByQwenPaw) {
+  if (tab && tab.createdByAIArb) {
     return TAB_OWNERSHIP_ORPHANED;
   }
   return "";
@@ -433,9 +433,9 @@ async function listTabs(queryInfo) {
         ...(await attachGroupInfo(tab)),
         managed:
           tab && tab.id !== undefined ? managedTabs.has(tab.id) : false,
-        createdByQwenPaw:
-          metadata.createdByQwenPaw !== undefined
-            ? metadata.createdByQwenPaw
+        createdByAIArb:
+          metadata.createdByAIArb !== undefined
+            ? metadata.createdByAIArb
             : tab && tab.id !== undefined
               ? createdTabs.has(tab.id)
               : false,
@@ -491,7 +491,7 @@ async function createTab(params) {
       ownerId,
       workspaceId,
       ownershipState: TAB_OWNERSHIP_PENDING_CLAIM,
-      createdByQwenPaw: true,
+      createdByAIArb: true,
     });
     await persistManagedTabs();
   }
@@ -502,14 +502,14 @@ async function createTab(params) {
         ? tabProtocolMetadata(controlTab.id)
         : {}
     ),
-    createdByQwenPaw: true,
+    createdByAIArb: true,
     workspace: workspaceId,
   };
 }
 
 async function openExtensionsManager() {
   // This must remain separate from createTab(): the extensions manager is a
-  // user-owned Chrome page, not a QwenPaw-controlled browser session tab.
+  // user-owned Chrome page, not a AIArb-controlled browser session tab.
   const tab = await chrome.tabs.create({
     url: EXTENSIONS_MANAGER_URL,
     active: true,
@@ -542,7 +542,7 @@ async function commitTabMetadata(params) {
     ownerId,
     workspaceId,
     ownershipState: TAB_OWNERSHIP_OWNED,
-    createdByQwenPaw: true,
+    createdByAIArb: true,
   });
 }
 
@@ -955,7 +955,7 @@ async function handleMessage(message) {
       case "file.upload":
         return jsonRpcResult(id, {
           ok: false, error_code: "capability_missing",
-          message: "File upload is handled by QwenPaw's Chrome connection.",
+          message: "File upload is handled by AIArb's Chrome connection.",
         });
       case "download.read":
         return jsonRpcResult(id, {
@@ -1164,7 +1164,7 @@ chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
     tabId,
     ...(removeInfo || {}),
     managed: wasManaged,
-    createdByQwenPaw: wasCreated,
+    createdByAIArb: wasCreated,
     ownershipState: TAB_OWNERSHIP_RELEASED,
   });
   managedTabs.delete(tabId);
@@ -1188,13 +1188,13 @@ function externalMessageOrigin(sender) {
   return "";
 }
 
-function isLocalQwenPawExternalOrigin(origin) {
+function isLocalAIArbExternalOrigin(origin) {
   try {
     const parsed = new URL(origin);
     return (
       parsed.protocol === "http:" &&
-      LOCAL_QWENPAW_HOSTS.has(parsed.hostname) &&
-      LOCAL_QWENPAW_PORTS.has(parsed.port)
+      LOCAL_AIARB_HOSTS.has(parsed.hostname) &&
+      LOCAL_AIARB_PORTS.has(parsed.port)
     );
   } catch (error) {
     return false;
@@ -1202,7 +1202,7 @@ function isLocalQwenPawExternalOrigin(origin) {
 }
 
 function handleExternalMessage(message, sender, sendResponse) {
-  if (!isLocalQwenPawExternalOrigin(externalMessageOrigin(sender))) {
+  if (!isLocalAIArbExternalOrigin(externalMessageOrigin(sender))) {
     sendResponse({ ok: false, error: "origin_not_allowed" });
     return false;
   }
@@ -1237,7 +1237,7 @@ function handleExternalMessage(message, sender, sendResponse) {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message && message.source === "qwenpaw-chrome-popup") {
+  if (message && message.source === "aiarb-chrome-popup") {
     if (message.method === "status.get") {
       if (!nmPort) {
         void ready.then(() => connectNative());

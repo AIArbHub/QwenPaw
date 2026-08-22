@@ -16,7 +16,7 @@ import httpx
 import pytest
 from agentscope.formatter import AnthropicChatFormatter
 
-from qwenpaw.agents import model_factory
+from aiarb.agents import model_factory
 
 
 def _install_mock_transport(monkeypatch, handler) -> None:

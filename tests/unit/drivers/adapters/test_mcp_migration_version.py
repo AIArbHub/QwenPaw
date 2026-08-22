@@ -20,17 +20,17 @@ from types import SimpleNamespace
 
 import pytest
 
-import qwenpaw.config.config as cfg_config
-from qwenpaw.config.config import MCPConfig
-from qwenpaw.drivers.adapters.mcp_legacy_config import (
+import aiarb.config.config as cfg_config
+from aiarb.config.config import MCPConfig
+from aiarb.drivers.adapters.mcp_legacy_config import (
     CURRENT_MCP_MIGRATION_VERSION,
     migrate_legacy_mcp_if_needed,
 )
-from qwenpaw.drivers.contracts import CredentialRef, DriverCard, PolicyRule
-from qwenpaw.drivers.credentials.store import AsyncCredentialStore
-from qwenpaw.drivers.credentials.types import CredentialRecord
-from qwenpaw.drivers.manager import DriverManager
-from qwenpaw.drivers.storage import (
+from aiarb.drivers.contracts import CredentialRef, DriverCard, PolicyRule
+from aiarb.drivers.credentials.store import AsyncCredentialStore
+from aiarb.drivers.credentials.types import CredentialRecord
+from aiarb.drivers.manager import DriverManager
+from aiarb.drivers.storage import (
     card_path,
     delete_card,
     dump_card,

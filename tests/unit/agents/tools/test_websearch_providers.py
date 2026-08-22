@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.agents.tools.websearch import (
+from aiarb.agents.tools.websearch import (
     AnySearchProvider,
     SearchProvider,
     TavilyProvider,
@@ -38,11 +38,11 @@ def test_get_search_provider_defaults_to_tavily(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.factory.get_current_agent_id",
+        "aiarb.agents.tools.websearch.factory.get_current_agent_id",
         lambda: "default",
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.factory.load_agent_config",
+        "aiarb.agents.tools.websearch.factory.load_agent_config",
         lambda agent_id: _agent_config_with_provider(None),
     )
     assert isinstance(get_search_provider(), TavilyProvider)
@@ -52,11 +52,11 @@ def test_get_search_provider_selects_anysearch(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.factory.get_current_agent_id",
+        "aiarb.agents.tools.websearch.factory.get_current_agent_id",
         lambda: "default",
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.factory.load_agent_config",
+        "aiarb.agents.tools.websearch.factory.load_agent_config",
         lambda agent_id: _agent_config_with_provider("anysearch"),
     )
     assert isinstance(get_search_provider(), AnySearchProvider)
@@ -66,11 +66,11 @@ def test_get_search_provider_selects_tavily_explicit(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.factory.get_current_agent_id",
+        "aiarb.agents.tools.websearch.factory.get_current_agent_id",
         lambda: "default",
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.factory.load_agent_config",
+        "aiarb.agents.tools.websearch.factory.load_agent_config",
         lambda agent_id: _agent_config_with_provider("tavily"),
     )
     assert isinstance(get_search_provider(), TavilyProvider)
@@ -80,11 +80,11 @@ def test_get_search_provider_rejects_unknown_value(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.factory.get_current_agent_id",
+        "aiarb.agents.tools.websearch.factory.get_current_agent_id",
         lambda: "default",
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.factory.load_agent_config",
+        "aiarb.agents.tools.websearch.factory.load_agent_config",
         lambda agent_id: _agent_config_with_provider("bogus"),
     )
     with pytest.raises(ValueError):
@@ -121,11 +121,11 @@ async def test_anysearch_provider_parses_response(
         }
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.anysearch._post",
+        "aiarb.agents.tools.websearch.anysearch._post",
         fake_post,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.anysearch._current_agent_anysearch_key",
+        "aiarb.agents.tools.websearch.anysearch._current_agent_anysearch_key",
         AsyncMock(return_value=""),
     )
     provider = AnySearchProvider()
@@ -150,11 +150,11 @@ async def test_anysearch_provider_sends_key_when_set(
         return {"code": 0, "data": {"results": []}}
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.anysearch._post",
+        "aiarb.agents.tools.websearch.anysearch._post",
         fake_post,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.anysearch._current_agent_anysearch_key",
+        "aiarb.agents.tools.websearch.anysearch._current_agent_anysearch_key",
         AsyncMock(return_value="sk-test"),
     )
     provider = AnySearchProvider()
@@ -172,7 +172,7 @@ async def test_tavily_provider_uses_keyless_header(
         return {"results": [{"title": "T", "url": "u", "content": "c"}]}
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.tavily._post",
+        "aiarb.agents.tools.websearch.tavily._post",
         fake_post,
     )
     provider = TavilyProvider()

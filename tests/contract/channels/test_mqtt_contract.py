@@ -11,12 +11,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock
 
-from qwenpaw.app.channels.renderer import ChannelDisplayConfig
+from aiarb.app.channels.renderer import ChannelDisplayConfig
 
 from tests.contract.channels import ChannelContractTest
 
 if TYPE_CHECKING:
-    from qwenpaw.app.channels.base import BaseChannel
+    from aiarb.app.channels.base import BaseChannel
 
 
 class TestMQTTChannelContract(ChannelContractTest):
@@ -29,7 +29,7 @@ class TestMQTTChannelContract(ChannelContractTest):
 
     def create_instance(self) -> "BaseChannel":
         """Provide a MQTTChannel instance for contract testing."""
-        from qwenpaw.app.channels.mqtt.channel import MQTTChannel
+        from aiarb.app.channels.mqtt.channel import MQTTChannel
 
         process = AsyncMock()
 
@@ -42,8 +42,8 @@ class TestMQTTChannelContract(ChannelContractTest):
             transport="tcp",
             username="test_user",
             password="test_pass",
-            subscribe_topic="copaw/in",
-            publish_topic="copaw/out",
+            subscribe_topic="aiarb/in",
+            publish_topic="aiarb/out",
             bot_prefix="[Test]",
             display_config=ChannelDisplayConfig(
                 show_tool_calls=False,

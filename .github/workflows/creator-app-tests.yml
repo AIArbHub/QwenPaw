@@ -4,12 +4,12 @@ on:
   push:
     branches: [main, master, dev, develop, "dev/**"]
     paths:
-      - "plugins/apps/qwenpaw-creator/**"
+      - "plugins/apps/aiarb-creator/**"
       - ".github/workflows/creator-app-tests.yml"
   pull_request:
     branches: [main, master, dev, develop, "dev/**"]
     paths:
-      - "plugins/apps/qwenpaw-creator/**"
+      - "plugins/apps/aiarb-creator/**"
       - ".github/workflows/creator-app-tests.yml"
 
 jobs:
@@ -43,10 +43,10 @@ jobs:
           # pydantic, agentscope, ...); the plugin requirements add the
           # Creator-specific extras (oss2, imageio-ffmpeg).
           pip install -e ".[test]"
-          pip install -r plugins/apps/qwenpaw-creator/requirements.txt
+          pip install -r plugins/apps/aiarb-creator/requirements.txt
 
       - name: Run Creator backend tests
-        working-directory: plugins/apps/qwenpaw-creator/backend
+        working-directory: plugins/apps/aiarb-creator/backend
         run: |
           python -m pytest tests -v --timeout=120
 
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: plugins/apps/qwenpaw-creator/ui
+        working-directory: plugins/apps/aiarb-creator/ui
     steps:
       - uses: actions/checkout@v4
 
@@ -67,7 +67,7 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: plugins/apps/qwenpaw-creator/ui/package-lock.json
+          cache-dependency-path: plugins/apps/aiarb-creator/ui/package-lock.json
 
       - name: Install dependencies
         # npm ci occasionally crashes ("Exit handler never called") and can

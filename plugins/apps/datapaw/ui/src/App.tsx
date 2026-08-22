@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
 import {
-  createQwenPawDataApi,
+  createAIArbDataApi,
   type AppStatus,
   type DataSourceMetadata,
 } from "./api";
@@ -119,7 +119,7 @@ function StatusPanel({
 }
 
 export function App({ paw }: { paw: PawAppSdk }) {
-  const api = useMemo(() => createQwenPawDataApi(paw), [paw]);
+  const api = useMemo(() => createAIArbDataApi(paw), [paw]);
   const [page, setPage] = useState<Page>("analysis");
   const [consoleRoute, setConsoleRoute] = useState(CONSOLE_HOME);
   const [consoleEpoch, setConsoleEpoch] = useState(0);

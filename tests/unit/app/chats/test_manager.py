@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Unit tests for ``qwenpaw.app.chats.manager.ChatManager``.
+"""Unit tests for ``aiarb.app.chats.manager.ChatManager``.
 
 Uses the real :class:`JsonChatRepository` backed by ``tmp_path`` so the
 tests cover the integrated CRUD path without mocking the repo away.
@@ -13,8 +13,8 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.app.chats.manager import ChatManager
-from qwenpaw.app.chats.models import (
+from aiarb.app.chats.manager import ChatManager
+from aiarb.app.chats.models import (
     ChatGroupKind,
     ChatSpec,
     ChatUpdate,
@@ -23,10 +23,10 @@ from qwenpaw.app.chats.models import (
     SessionSource,
     SUBAGENT_CHAT_GROUP_ID,
 )
-from qwenpaw.app.chats.repo import (
+from aiarb.app.chats.repo import (
     JsonChatRepository,
 )
-from qwenpaw.app.channels.schema import DEFAULT_CHANNEL
+from aiarb.app.channels.schema import DEFAULT_CHANNEL
 
 
 @pytest.fixture

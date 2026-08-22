@@ -12,15 +12,15 @@ from agentscope.agent import Agent, ContextConfig, ReActConfig
 from agentscope.message import HintBlock, Msg, TextBlock
 from agentscope.tool import Toolkit
 
-from qwenpaw.agents.command_handler import CommandHandler
-from qwenpaw.agents.middlewares import (
+from aiarb.agents.command_handler import CommandHandler
+from aiarb.agents.middlewares import (
     MemoryMiddleware,
     auto_memory_turn_state,
 )
-from qwenpaw.agents.react_agent import QwenPawAgent
-from qwenpaw.constant import (
+from aiarb.agents.react_agent import AIArbAgent
+from aiarb.constant import (
     EXTERNAL_USER_QUERY_MESSAGE_TAG,
-    QWENPAW_MESSAGE_TAG_KEY,
+    AIARB_MESSAGE_TAG_KEY,
 )
 
 
@@ -52,10 +52,10 @@ class _MemoryManager:
         self.submitted.append([msg.get_text_content() for msg in messages])
 
 
-def test_qwenpaw_agent_disables_runtime_state_injection() -> None:
-    """The AgentScope 2.0.6 opt-in must preserve QwenPaw's old prompts."""
-    agent = QwenPawAgent(
-        name="QwenPaw",
+def test_aiarb_agent_disables_runtime_state_injection() -> None:
+    """The AgentScope 2.0.6 opt-in must preserve AIArb's old prompts."""
+    agent = AIArbAgent(
+        name="AIArb",
         model=_TokenModel(),
         system_prompt="",
         toolkit=Toolkit(tools=[]),
@@ -87,11 +87,11 @@ class _ScrollManager:
 def _scroll_agent(
     memory_manager: _MemoryManager,
     scroll_manager: _ScrollManager,
-) -> QwenPawAgent:
-    agent = object.__new__(QwenPawAgent)
+) -> AIArbAgent:
+    agent = object.__new__(AIArbAgent)
     Agent.__init__(
         agent,
-        name="QwenPaw",
+        name="AIArb",
         system_prompt="",
         model=_TokenModel(),
         middlewares=[MemoryMiddleware(memory_manager=memory_manager)],
@@ -115,7 +115,7 @@ def _scroll_agent(
         role="user",
         content=[TextBlock(type="text", text="remember this")],
         metadata={
-            QWENPAW_MESSAGE_TAG_KEY: EXTERNAL_USER_QUERY_MESSAGE_TAG,
+            AIARB_MESSAGE_TAG_KEY: EXTERNAL_USER_QUERY_MESSAGE_TAG,
         },
     )
     user.id = "turn-1"
@@ -151,13 +151,13 @@ async def test_manual_compact_submits_auto_memory_once() -> None:
     agent = _scroll_agent(memory_manager, scroll_manager)
     agent.state.context.append(
         Msg(
-            name="QwenPaw",
+            name="AIArb",
             role="assistant",
             content=[TextBlock(type="text", text="answer-1")],
         ),
     )
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIArb",
         agent=agent,
         memory_manager=memory_manager,
     )

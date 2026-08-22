@@ -43,7 +43,7 @@ const LEGACY_CHAT_SESSION_ID = "pawapp:datapaw";
 const SOURCE_CONTEXT_OPEN = "<datapaw-source-context>";
 const SOURCE_CONTEXT_CLOSE = "</datapaw-source-context>";
 const LEGACY_SOURCE_CONTEXT_RE =
-  /^Use QwenPaw-Data source .*? for this request unless the user explicitly asks for another source\.\s*/;
+  /^Use AIArb-Data source .*? for this request unless the user explicitly asks for another source\.\s*/;
 
 export interface ChatStreamState {
   textByMessage: Record<string, string>;
@@ -224,7 +224,7 @@ function upsertTrace(
   return next;
 }
 
-/** Rebuild DataPaw's transcript and trace cards from QwenPaw session events. */
+/** Rebuild DataPaw's transcript and trace cards from AIArb session events. */
 export function historyToChatMessages(
   history: PawChatHistoryMessage[],
   language: Language = "en",
@@ -1029,7 +1029,7 @@ export function ChatWorkspace({
     let streamState = createChatStreamState();
     try {
       const sourceContext = selectedSource
-        ? `${SOURCE_CONTEXT_OPEN}Use QwenPaw-Data source ${selectedSource.datasource_id} (${sourceLabel}) for this request unless the user explicitly asks for another source.${SOURCE_CONTEXT_CLOSE}\n\n`
+        ? `${SOURCE_CONTEXT_OPEN}Use AIArb-Data source ${selectedSource.datasource_id} (${sourceLabel}) for this request unless the user explicitly asks for another source.${SOURCE_CONTEXT_CLOSE}\n\n`
         : "";
       for await (const event of paw.chatStream(`${sourceContext}${clean}`, {
         agentId: "datapaw",
@@ -1156,7 +1156,7 @@ export function ChatWorkspace({
                   key={message.id}
                 >
                   <div className="datapaw-message__role">
-                    {message.role === "user" ? t("chat.you") : "QwenPaw-Data"}
+                    {message.role === "user" ? t("chat.you") : "AIArb-Data"}
                   </div>
                   {message.role === "assistant" ? (
                     <>

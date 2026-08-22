@@ -16,10 +16,10 @@ use std::process::Command;
 
 use tauri::AppHandle;
 
-const HELPER_BUNDLE_NAME: &str = "QwenPaw Computer Use.app";
-const HELPER_BUNDLE_ID: &str = "io.agentscope.qwenpaw.computer-use.v1";
-const HELPER_EXECUTABLE_NAME: &str = "qwenpaw-computer-use-helper";
-const HELPER_BACKUP_NAME: &str = ".qwenpaw-computer-use-backup";
+const HELPER_BUNDLE_NAME: &str = "AIArb Computer Use.app";
+const HELPER_BUNDLE_ID: &str = "io.agentscope.aiarb.computer-use.v1";
+const HELPER_EXECUTABLE_NAME: &str = "aiarb-computer-use-helper";
+const HELPER_BACKUP_NAME: &str = ".aiarb-computer-use-backup";
 const HELPER_INFO_PLIST: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -27,15 +27,15 @@ const HELPER_INFO_PLIST: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>CFBundleDisplayName</key>
-    <string>QwenPaw Computer Use</string>
+    <string>AIArb Computer Use</string>
     <key>CFBundleExecutable</key>
-    <string>qwenpaw-computer-use-helper</string>
+    <string>aiarb-computer-use-helper</string>
     <key>CFBundleIdentifier</key>
-    <string>io.agentscope.qwenpaw.computer-use.v1</string>
+    <string>io.agentscope.aiarb.computer-use.v1</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>QwenPaw Computer Use</string>
+    <string>AIArb Computer Use</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>

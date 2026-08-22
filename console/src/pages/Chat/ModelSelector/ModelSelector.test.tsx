@@ -402,7 +402,7 @@ describe("ModelSelector", () => {
       });
     });
     expect(navigateMock).not.toHaveBeenCalled();
-    expect(localStorage.getItem("qwenpaw_model_selector_recent")).toBe(
+    expect(localStorage.getItem("aiarb_model_selector_recent")).toBe(
       JSON.stringify(["oauth-provider:gpt-3.5-turbo"]),
     );
   });
@@ -536,7 +536,7 @@ describe("ModelSelector", () => {
     expect(
       screen.getByRole("button", { name: "chat.modelSelectTooltip" }),
     ).not.toHaveTextContent("GPT-3.5 Turbo");
-    expect(localStorage.getItem("qwenpaw_model_selector_recent")).toBeNull();
+    expect(localStorage.getItem("aiarb_model_selector_recent")).toBeNull();
   });
 
   it("publishes the backend-resolved context window after loading active models", async () => {
@@ -662,7 +662,7 @@ describe("ModelSelector", () => {
 
   it("expands each provider by default and limits each to five models", async () => {
     localStorage.setItem(
-      "qwenpaw_model_selector_collapsed",
+      "aiarb_model_selector_collapsed",
       JSON.stringify(["openai", "anthropic"]),
     );
     const openAiModels = Array.from({ length: 6 }, (_, index) => ({
@@ -720,7 +720,7 @@ describe("ModelSelector", () => {
 
     await user.click(screen.getByText("OpenAI").closest("button")!);
 
-    expect(localStorage.getItem("qwenpaw_model_selector_collapsed")).toBeNull();
+    expect(localStorage.getItem("aiarb_model_selector_collapsed")).toBeNull();
   });
 
   it("loads large provider lists step by step instead of all at once", async () => {
@@ -799,7 +799,7 @@ describe("ModelSelector", () => {
 
   it("does not render model pin controls", async () => {
     localStorage.setItem(
-      "qwenpaw_model_selector_pinned",
+      "aiarb_model_selector_pinned",
       JSON.stringify(["openai:gpt-3.5-turbo"]),
     );
     vi.mocked(providerApi.listProviders).mockResolvedValue([
@@ -833,7 +833,7 @@ describe("ModelSelector", () => {
 
   it("keeps recent models visible without showing all models", async () => {
     localStorage.setItem(
-      "qwenpaw_model_selector_recent",
+      "aiarb_model_selector_recent",
       JSON.stringify(["openai:gpt-3.5-turbo"]),
     );
     vi.mocked(providerApi.listProviders).mockResolvedValue([

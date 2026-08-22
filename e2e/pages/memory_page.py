@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw Long-term Memory page object.
+AIArb Long-term Memory page object.
 
 Wraps backend API helpers for daily memory file CRUD and the running
 config (which holds ``reme_light_memory_config``), plus locator
@@ -39,8 +39,8 @@ class MemoryPage(BasePage):
 
     # Long-term Memory tab on /agent-config
     MEMORY_TAB = (
-        '.qwenpaw-tabs-tab:has-text("Long-term Memory"), '
-        '.qwenpaw-tabs-tab:has-text("长期记忆")'
+        '.aiarb-tabs-tab:has-text("Long-term Memory"), '
+        '.aiarb-tabs-tab:has-text("长期记忆")'
     )
     # Switches and inputs use stable form-item names (Form.Item name=[...]).
     # The dream_cron input is unique to this card and serves as a
@@ -59,8 +59,8 @@ class MemoryPage(BasePage):
     # Auto Memory Search collapse (forceRender: children always in DOM,
     # visible only once the panel is expanded).
     AUTO_SEARCH_COLLAPSE_HEADER = (
-        '.qwenpaw-collapse-header:has-text("Auto Memory Search"), '
-        '.qwenpaw-collapse-header:has-text("自动记忆搜索")'
+        '.aiarb-collapse-header:has-text("Auto Memory Search"), '
+        '.aiarb-collapse-header:has-text("自动记忆搜索")'
     )
     AUTO_SEARCH_SWITCH = (
         'button[role="switch"]'
@@ -70,27 +70,27 @@ class MemoryPage(BasePage):
         'input[id$="auto_memory_search_config_max_results"]'
     )
     # --- ReAct Agent tab: memory backend select (ReactAgentCard.tsx) ---
-    REACT_TAB = '[data-node-key="reactAgent"] .qwenpaw-tabs-tab-btn'
+    REACT_TAB = '[data-node-key="reactAgent"] .aiarb-tabs-tab-btn'
     REME_MEMORY_TAB = '[data-node-key="remeLightMemory"]'
     ADBPG_MEMORY_TAB = '[data-node-key="adbpgMemory"]'
     BACKEND_SELECT = '#memory_manager_backend'
     # antd Select: the inner input is readonly; clicks must land on the
     # surrounding selector box, not on #memory_manager_backend itself.
     BACKEND_SELECT_TRIGGER = (
-        '.qwenpaw-select:has(#memory_manager_backend) '
-        '.qwenpaw-select-selector'
+        '.aiarb-select:has(#memory_manager_backend) '
+        '.aiarb-select-selector'
     )
     BACKEND_OPTION = (
-        '.qwenpaw-select-dropdown:not(.qwenpaw-select-dropdown-hidden) '
-        '.qwenpaw-select-item-option'
+        '.aiarb-select-dropdown:not(.aiarb-select-dropdown-hidden) '
+        '.aiarb-select-item-option'
     )
     # --- Save footer + toast ---
     SAVE_BTN = (
-        'button.qwenpaw-btn-primary:has-text("Save"), '
-        'button.qwenpaw-btn-primary:has-text("保存"), '
-        'button.qwenpaw-btn-primary:has-text("保 存")'
+        'button.aiarb-btn-primary:has-text("Save"), '
+        'button.aiarb-btn-primary:has-text("保存"), '
+        'button.aiarb-btn-primary:has-text("保 存")'
     )
-    SUCCESS_TOAST = '.qwenpaw-message-success'
+    SUCCESS_TOAST = '.aiarb-message-success'
 
     # localStorage agent storage — see CodingPage for the rationale.
     AGENT_ID_DEFAULT = "default"
@@ -111,9 +111,9 @@ class MemoryPage(BasePage):
             "      state: { selectedAgent: a, agents: [], lastChatIdByAgent: {} },"
             "      version: 0"
             "    });"
-            "    try { localStorage.setItem('qwenpaw-last-used-agent', a); } catch (e) {}"
-            "    try { localStorage.setItem('qwenpaw-agent-storage', blob); } catch (e) {}"
-            "    try { sessionStorage.setItem('qwenpaw-agent-storage', blob); } catch (e) {}"
+            "    try { localStorage.setItem('aiarb-last-used-agent', a); } catch (e) {}"
+            "    try { localStorage.setItem('aiarb-agent-storage', blob); } catch (e) {}"
+            "    try { sessionStorage.setItem('aiarb-agent-storage', blob); } catch (e) {}"
             "  } catch (e) {}"
             "})();"
         )

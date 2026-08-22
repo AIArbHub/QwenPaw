@@ -19,14 +19,14 @@ from agentscope.message import (
 )
 from agentscope.state import AgentState
 
-from qwenpaw.agents.middlewares import (
+from aiarb.agents.middlewares import (
     MemoryMiddleware,
     auto_memory_turn_state,
 )
-from qwenpaw.constant import (
+from aiarb.constant import (
     EXTERNAL_USER_QUERY_MESSAGE_TAG,
     LOOP_CONTINUATION_MESSAGE_TAG,
-    QWENPAW_MESSAGE_TAG_KEY,
+    AIARB_MESSAGE_TAG_KEY,
 )
 
 # ---------------------------------------------------------------------------
@@ -59,7 +59,7 @@ def _user_msg(text: str = "hello", *, msg_id: str = "turn-1") -> Msg:
         role="user",
         content=[TextBlock(type="text", text=text)],
         metadata={
-            QWENPAW_MESSAGE_TAG_KEY: EXTERNAL_USER_QUERY_MESSAGE_TAG,
+            AIARB_MESSAGE_TAG_KEY: EXTERNAL_USER_QUERY_MESSAGE_TAG,
         },
     )
     msg.id = msg_id
@@ -338,7 +338,7 @@ class TestOnModelCallAutomationSkip:
                 TextBlock(text="[WARNING] Repetitive pattern detected."),
             ],
             metadata={
-                QWENPAW_MESSAGE_TAG_KEY: LOOP_CONTINUATION_MESSAGE_TAG,
+                AIARB_MESSAGE_TAG_KEY: LOOP_CONTINUATION_MESSAGE_TAG,
             },
         )
         agent.state.context.append(continuation)
@@ -454,7 +454,7 @@ class TestOnReplyAutomationSkip:
             role="user",
             content=[TextBlock(text="[WARNING] Repetitive pattern detected.")],
             metadata={
-                QWENPAW_MESSAGE_TAG_KEY: LOOP_CONTINUATION_MESSAGE_TAG,
+                AIARB_MESSAGE_TAG_KEY: LOOP_CONTINUATION_MESSAGE_TAG,
             },
         )
         final_reply = Msg(

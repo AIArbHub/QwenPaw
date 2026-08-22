@@ -42,7 +42,7 @@ for _mod_name in _AGENTSCOPE_STUBS:
 @pytest.fixture()
 def fresh_registry():
     """Create a fresh PluginRegistry (bypass singleton)."""
-    from qwenpaw.plugins.registry import PluginRegistry
+    from aiarb.plugins.registry import PluginRegistry
 
     old_instance = PluginRegistry._instance
     PluginRegistry._instance = None
@@ -54,7 +54,7 @@ def fresh_registry():
 @pytest.fixture()
 def loader(fresh_registry, tmp_path):
     """Create a PluginLoader wired to the fresh registry."""
-    from qwenpaw.plugins.loader import PluginLoader
+    from aiarb.plugins.loader import PluginLoader
 
     ldr = PluginLoader(plugin_dirs=[tmp_path])
     ldr.registry = fresh_registry
@@ -95,7 +95,7 @@ def _write_manifest(
         "name": plugin_dir.name,
         "version": "1.0.0",
         "entry": {"backend": backend_entry},
-        "qwenpaw_version": {"min": "0.1.0", "max": "99.0.0"},
+        "aiarb_version": {"min": "0.1.0", "max": "99.0.0"},
     }
     (plugin_dir / "plugin.json").write_text(
         json.dumps(manifest),
@@ -105,7 +105,7 @@ def _write_manifest(
 
 
 async def _load(loader, plugin_dir: Path, backend_entry: str = "plugin.py"):
-    from qwenpaw.plugins.architecture import PluginManifest
+    from aiarb.plugins.architecture import PluginManifest
 
     manifest = PluginManifest.from_dict(
         json.loads((plugin_dir / "plugin.json").read_text(encoding="utf-8")),
@@ -286,7 +286,7 @@ class TestBareImportNamespaceIsolation:
 
     @pytest.mark.asyncio
     async def test_nested_entry_dir_imports(self, loader, tmp_path):
-        """The qwenpaw-creator layout: entry at ``backend/main.py`` with
+        """The aiarb-creator layout: entry at ``backend/main.py`` with
         bare imports resolving against ``backend/``."""
         plugin_dir = tmp_path / "nested-entry"
         backend = plugin_dir / "backend"
@@ -690,7 +690,7 @@ class TestBareImportNamespaceIsolation:
         tmp_path,
     ):
         """A failed load must remove the plugin's import redirection."""
-        from qwenpaw.plugins.module_isolation import get_namespace_finder
+        from aiarb.plugins.module_isolation import get_namespace_finder
 
         plugin_dir = tmp_path / "fail-ns"
         plugin_dir.mkdir()

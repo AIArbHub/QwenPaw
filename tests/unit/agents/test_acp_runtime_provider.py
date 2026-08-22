@@ -11,13 +11,13 @@ from types import SimpleNamespace
 import pytest
 from acp import RequestError, text_block
 
-from qwenpaw.agents.acp.runtime_provider import (
-    QWENPAW_MODEL_INFO_ENV,
+from aiarb.agents.acp.runtime_provider import (
+    AIARB_MODEL_INFO_ENV,
     RUNTIME_OPENAI_PROVIDER_ID,
     OpenAIRuntimeProviderConfig,
 )
-from qwenpaw.agents.acp.server import QwenPawACPAgent
-from qwenpaw.config.config import ModelSlotConfig
+from aiarb.agents.acp.server import AIArbACPAgent
+from aiarb.config.config import ModelSlotConfig
 
 
 class _FakeManager:
@@ -118,7 +118,7 @@ def test_runtime_provider_applies_model_info():
             "OPENAI_BASE_URL": "https://policy.example.test/v1",
             "OPENAI_API_KEY": "execution-secret",
             "OPENAI_MODEL": "policy",
-            QWENPAW_MODEL_INFO_ENV: (
+            AIARB_MODEL_INFO_ENV: (
                 '{"max_input_tokens":32768,"max_output_tokens":4096}'
             ),
         },
@@ -153,13 +153,13 @@ def test_runtime_provider_applies_model_info():
     ],
 )
 def test_runtime_provider_rejects_invalid_model_info(model_info):
-    with pytest.raises(ValueError, match=QWENPAW_MODEL_INFO_ENV):
+    with pytest.raises(ValueError, match=AIARB_MODEL_INFO_ENV):
         OpenAIRuntimeProviderConfig.from_env(
             {
                 "OPENAI_BASE_URL": "https://policy.example.test/v1",
                 "OPENAI_API_KEY": "execution-secret",
                 "OPENAI_MODEL": "policy",
-                QWENPAW_MODEL_INFO_ENV: model_info,
+                AIARB_MODEL_INFO_ENV: model_info,
             },
         )
 
@@ -167,12 +167,12 @@ def test_runtime_provider_rejects_invalid_model_info(model_info):
 async def test_runtime_provider_is_registered_only_in_memory(monkeypatch):
     manager = _FakeManager()
     original_model = manager.active_model
-    agent = QwenPawACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.acp.server.ProviderManager.get_instance",
+        "aiarb.agents.acp.server.ProviderManager.get_instance",
         lambda: manager,
     )
 
@@ -191,7 +191,7 @@ async def test_runtime_provider_is_registered_only_in_memory(monkeypatch):
 async def test_runtime_provider_initialization_uses_sync_io(monkeypatch):
     manager = _FakeManager()
     operations = []
-    agent = QwenPawACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
@@ -204,11 +204,11 @@ async def test_runtime_provider_initialization_uses_sync_io(monkeypatch):
         return operation()
 
     monkeypatch.setattr(
-        "qwenpaw.agents.acp.server.ProviderManager.get_instance",
+        "aiarb.agents.acp.server.ProviderManager.get_instance",
         get_manager,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.acp.server.run_sync_io",
+        "aiarb.agents.acp.server.run_sync_io",
         fake_run_sync_io,
     )
 
@@ -220,7 +220,7 @@ async def test_runtime_provider_initialization_uses_sync_io(monkeypatch):
 async def test_runtime_provider_credentials_are_not_persisted(
     isolated_secret_dir,
 ):
-    agent = QwenPawACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
@@ -241,13 +241,13 @@ async def test_runtime_provider_credentials_are_not_persisted(
 async def test_runtime_provider_forces_model_override(monkeypatch):
     manager = _FakeManager()
     workspace = _FakeWorkspace()
-    agent = QwenPawACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
     agent.on_connect(_FakeConn())
     monkeypatch.setattr(
-        "qwenpaw.agents.acp.server.ProviderManager.get_instance",
+        "aiarb.agents.acp.server.ProviderManager.get_instance",
         lambda: manager,
     )
 
@@ -273,12 +273,12 @@ async def test_runtime_provider_forces_model_override(monkeypatch):
 
 async def test_runtime_provider_is_advertised_as_current_model(monkeypatch):
     manager = _FakeManager()
-    agent = QwenPawACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.acp.server.ProviderManager.get_instance",
+        "aiarb.agents.acp.server.ProviderManager.get_instance",
         lambda: manager,
     )
     await agent._install_runtime_provider()
@@ -293,7 +293,7 @@ async def test_runtime_provider_is_advertised_as_current_model(monkeypatch):
 
 
 async def test_runtime_provider_rejects_other_model():
-    agent = QwenPawACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
@@ -321,7 +321,7 @@ async def test_runtime_failure_is_an_acp_request_error(monkeypatch):
             del request
             yield await _raise_runtime_error()
 
-    agent = QwenPawACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
@@ -342,7 +342,7 @@ async def test_runtime_failure_is_an_acp_request_error(monkeypatch):
 
     assert exc_info.value.code == -32603
     assert exc_info.value.data == {
-        "details": "QwenPaw runtime failed",
+        "details": "AIArb runtime failed",
     }
     assert "secret-token" not in str(conn.updates)
 
@@ -362,7 +362,7 @@ async def test_cancel_stops_active_prompt(monkeypatch):
                 raise
             yield
 
-    agent = QwenPawACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )

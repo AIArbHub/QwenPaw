@@ -6,7 +6,7 @@ import type {
 import { useTurnUsageStore } from "./turnUsageStore";
 import type { TurnUsageToken } from "./turnUsageStore";
 
-export const TURN_USAGE_META_KEY = "qwenpaw_turn_usage";
+export const TURN_USAGE_META_KEY = "aiarb_turn_usage";
 
 export interface TurnUsage {
   provider_id?: string;
@@ -55,7 +55,7 @@ function parseTurnUsagePayload(raw: unknown): TurnUsageSnapshot | null {
   };
 }
 
-/** Read ``qwenpaw_turn_usage`` from backend message metadata wrappers. */
+/** Read ``aiarb_turn_usage`` from backend message metadata wrappers. */
 export function extractTurnUsageFromBackendMetadata(
   meta: unknown,
 ): TurnUsageSnapshot | null {

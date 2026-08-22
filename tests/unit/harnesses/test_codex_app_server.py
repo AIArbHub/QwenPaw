@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.harnesses.codex.app_server import CodexAppServerClient
+from aiarb.harnesses.codex.app_server import CodexAppServerClient
 
 
 @pytest.mark.asyncio

@@ -12,8 +12,8 @@ from unittest.mock import patch
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.mail.mail_access_control import MailAccessControlStore
-from qwenpaw.app.routers.mail_access_control import (
+from aiarb.app.mail.mail_access_control import MailAccessControlStore
+from aiarb.app.routers.mail_access_control import (
     MailACLActionBody,
     MailACLEntry,
     MailACLRemarkBody,
@@ -41,7 +41,7 @@ def store(tmp_path):
         return acl_store if agent_id == AGENT else None
 
     with patch(
-        "qwenpaw.app.routers.mail_access_control._get_store_for_agent",
+        "aiarb.app.routers.mail_access_control._get_store_for_agent",
         new=_fake_get_store,
     ):
         yield acl_store
@@ -117,7 +117,7 @@ def test_approve_hides_pending_and_schedules_all_uids_once(store):
 
     async def _run():
         with patch(
-            "qwenpaw.app.inbox_store.mark_read_by_acl_sender",
+            "aiarb.app.inbox_store.mark_read_by_acl_sender",
             new=lambda _agent_id, _address: asyncio.sleep(0, result=0),
         ):
             first = await approve_pending(
@@ -158,7 +158,7 @@ def test_failed_approval_replay_remains_durable(store):
 
     async def _run():
         with patch(
-            "qwenpaw.app.inbox_store.mark_read_by_acl_sender",
+            "aiarb.app.inbox_store.mark_read_by_acl_sender",
             new=lambda _agent_id, _address: asyncio.sleep(0, result=0),
         ):
             result = await approve_pending(
@@ -242,7 +242,7 @@ def test_sync_acl_io_does_not_block_event_loop(store):
     async def _run():
         ticks = 0
         with patch(
-            "qwenpaw.app.routers.mail_access_control._get_store_for_agent",
+            "aiarb.app.routers.mail_access_control._get_store_for_agent",
             new=_slow_get_store,
         ):
             operation = asyncio.create_task(

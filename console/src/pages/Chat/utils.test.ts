@@ -129,7 +129,7 @@ describe("getActiveSenderTextarea", () => {
 describe("getSenderTextareaFromTarget", () => {
   it("resolves the hidden textarea from the rich sender editor", () => {
     document.body.innerHTML = `
-      <div class="qwenpaw-sender">
+      <div class="aiarb-sender">
         <div id="editor" contenteditable="true"></div>
         <textarea id="bridge"></textarea>
       </div>
@@ -143,7 +143,7 @@ describe("getSenderTextareaFromTarget", () => {
 
   it("resolves the hidden textarea from a rich-editor Enter event", () => {
     document.body.innerHTML = `
-      <div class="qwenpaw-sender">
+      <div class="aiarb-sender">
         <div id="editor" contenteditable="true"></div>
         <textarea id="bridge">queued message</textarea>
       </div>

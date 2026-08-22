@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from qwenpaw.app.crons.models import (
+from aiarb.app.crons.models import (
     CronJobSpec,
     DispatchSpec,
     DispatchTarget,

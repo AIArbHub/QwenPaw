@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from watchfiles import Change
 
-from qwenpaw.app.routers import workspace as workspace_router
+from aiarb.app.routers import workspace as workspace_router
 
 
 @pytest.fixture(name="files_client")

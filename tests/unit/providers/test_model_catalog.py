@@ -10,8 +10,8 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.providers import model_catalog
-from qwenpaw.providers.provider import ModelInfo
+from aiarb.providers import model_catalog
+from aiarb.providers.provider import ModelInfo
 
 
 def _write_catalog(

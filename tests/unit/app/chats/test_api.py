@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.chats.api import get_chat, list_chats
-from qwenpaw.app.chats.models import ChatSpec
+from aiarb.app.chats.api import get_chat, list_chats
+from aiarb.app.chats.models import ChatSpec
 
 
 def _chat(chat_id: str, *, app_id: str | None = None) -> ChatSpec:

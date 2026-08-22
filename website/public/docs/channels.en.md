@@ -1,12 +1,12 @@
 # Channels
 
-A **channel** is where you talk to QwenPaw: connect DingTalk and it replies
+A **channel** is where you talk to AIArb: connect DingTalk and it replies
 in DingTalk; same for QQ, etc. If that term is new, see [Introduction](./intro).
 
 Two ways to configure channels:
 
 - **Console** (recommended) — In the [Console](./console) under **Control → Channels**, click a channel card, enable it and fill in credentials in the drawer. Changes take effect when you save.
-- **Edit `agent.json` directly** — Agent workspace config at `~/.qwenpaw/workspaces/{agent_id}/agent.json`, set `enabled: true` and fill in that platform's credentials. Saving triggers a reload without restarting the app.
+- **Edit `agent.json` directly** — Agent workspace config at `~/.aiarb/workspaces/{agent_id}/agent.json`, set `enabled: true` and fill in that platform's credentials. Saving triggers a reload without restarting the app.
 
 Below is how to get credentials and fill config for each channel.
 
@@ -51,7 +51,7 @@ Step-by-step:
 
    ![client](https://img.alicdn.com/imgextra/i3/O1CN01JsRrwx1hJImLfM7O1_!!6000000004256-2-tps-2809-1585.png)
 
-7. (Optional) **Add your server's IP to the whitelist** — this is required for features that call the DingTalk Open API (e.g. downloading images and files sent by users). Go to **"Security & Compliance → IP Whitelist"** in your app settings and add the public IP of the machine running QwenPaw. You can find your public IP by running `curl ifconfig.me` in a terminal. If the IP is not whitelisted, image and file downloads will fail with a `Forbidden.AccessDenied.IpNotInWhiteList` error.
+7. (Optional) **Add your server's IP to the whitelist** — this is required for features that call the DingTalk Open API (e.g. downloading images and files sent by users). Go to **"Security & Compliance → IP Whitelist"** in your app settings and add the public IP of the machine running AIArb. You can find your public IP by running `curl ifconfig.me` in a terminal. If the IP is not whitelisted, image and file downloads will fail with a `Forbidden.AccessDenied.IpNotInWhiteList` error.
 
 ### Link the app
 
@@ -65,7 +65,7 @@ Go to "Control→Channels", find **DingTalk**, click it, and enter the **Client 
 
 **Method 2**: Edit agent workspace `agent.json`
 
-In your agent's `agent.json` (e.g., `~/.qwenpaw/workspaces/default/agent.json`), find `channels.dingtalk` and fill in the corresponding information, for example:
+In your agent's `agent.json` (e.g., `~/.aiarb/workspaces/default/agent.json`), find `channels.dingtalk` and fill in the corresponding information, for example:
 
 ```json
 "dingtalk": {
@@ -101,9 +101,9 @@ In your agent's `agent.json` (e.g., `~/.qwenpaw/workspaces/default/agent.json`),
 >
 > - Tool calls and results can be shown independently. Set a maximum length to `0` to disable truncation.
 > - AI Card mode: set `message_type` to `card`, then configure `card_template_id`; keep `card_template_key` consistent with your DingTalk template variable (default `content`).
-> - `robot_code` is recommended in group scenarios; if empty, QwenPaw falls back to `client_id`.
+> - `robot_code` is recommended in group scenarios; if empty, AIArb falls back to `client_id`.
 
-Save the file; if the app is already running, the channel will reload. Otherwise run `qwenpaw app`.
+Save the file; if the app is already running, the channel will reload. Otherwise run `aiarb app`.
 
 ### Find the created app
 
@@ -147,7 +147,7 @@ The Feishu channel receives messages via **WebSocket long connection** (no publi
 
 3. Fill **App ID** and **App Secret** in `agent.json` (see "Fill agent.json" below) and save
 
-4. Run **`qwenpaw app`** to start QwenPaw
+4. Run **`aiarb app`** to start AIArb
 
 5. Back in the Feishu console, enable **Bot** under **Add Features**
 
@@ -187,7 +187,7 @@ The Feishu channel receives messages via **WebSocket long connection** (no publi
 
 7. Under **Events & Callbacks**, click **Event configuration**, and choose **Receive events through persistent connection** as the subscription mode (no public IP needed)
 
-> **Note:** Follow this order: Configure App ID/Secret → start `qwenpaw app` → then configure the long connection in the Feishu console. If errors persist, try stopping the qwenpaw service and restarting `qwenpaw app`.
+> **Note:** Follow this order: Configure App ID/Secret → start `aiarb app` → then configure the long connection in the Feishu console. If errors persist, try stopping the aiarb service and restarting `aiarb app`.
 
 ![WebSocket](https://img.alicdn.com/imgextra/i3/O1CN01XdU7hK1fVY8gIDhZK_!!6000000004012-2-tps-4082-2126.png)
 
@@ -225,7 +225,7 @@ The Feishu channel receives messages via **WebSocket long connection** (no publi
 
 ### Fill agent.json
 
-Find `channels.feishu` in your agent's `agent.json` (e.g., `~/.qwenpaw/workspaces/default/agent.json`). Only **App ID** and **App Secret** are required (copy from the Feishu console under Credentials & basic info):
+Find `channels.feishu` in your agent's `agent.json` (e.g., `~/.aiarb/workspaces/default/agent.json`). Only **App ID** and **App Secret** are required (copy from the Feishu console under Credentials & basic info):
 
 ```json
 "feishu": {
@@ -254,7 +254,7 @@ Find `channels.feishu` in your agent's `agent.json` (e.g., `~/.qwenpaw/workspace
 
 If your environment uses a SOCKS proxy, also install `python-socks` (for example, `pip install python-socks`), otherwise you may see: `python-socks is required to use a SOCKS proxy`.
 
-> **Note:** You can also fill in **App ID** and **App Secret** in the Console UI, but you must restart the qwenpaw service before continuing with the long-connection configuration.
+> **Note:** You can also fill in **App ID** and **App Secret** in the Console UI, but you must restart the aiarb service before continuing with the long-connection configuration.
 > ![console](https://img.alicdn.com/imgextra/i4/O1CN01OXdwjN1KVS8Nsc1he_!!6000000001169-2-tps-3822-2070.png)
 
 ### Recommended bot permissions
@@ -276,7 +276,7 @@ The JSON in step 6 grants the following permissions (app identity) for messaging
 | Get/upload image and file resources | im:resource                    | App     | -             |
 | **Read contact as app**             | **contact:user.base:readonly** | **App** | **See below** |
 
-> **User display name (recommended):** To show **user nicknames** in sessions and logs (e.g. "张三#1d1a" instead of "unknown#1d1a"), enable the contact read permission **Read contact as app** (`contact:user.base:readonly`). Without it, Feishu only returns identity fields (e.g. open_id) and not the user's name, so QwenPaw cannot resolve nicknames. After enabling, publish or update the app version so the permission takes effect.
+> **User display name (recommended):** To show **user nicknames** in sessions and logs (e.g. "张三#1d1a" instead of "unknown#1d1a"), enable the contact read permission **Read contact as app** (`contact:user.base:readonly`). Without it, Feishu only returns identity fields (e.g. open_id) and not the user's name, so AIArb cannot resolve nicknames. After enabling, publish or update the app version so the permission takes effect.
 
 ### Add the bot to favorites
 
@@ -320,7 +320,7 @@ The app polls the local iMessage database for new messages and sends replies on 
    > cp ./bin/imsg /usr/local/bin/
    > ```
 
-3. For QwenPaw to read iMessage data, **Terminal** (or the app you use to run `qwenpaw app`) and **Messages** need **Full Disk Access** (System Settings → Privacy & Security → Full Disk Access).
+3. For AIArb to read iMessage data, **Terminal** (or the app you use to run `aiarb app`) and **Messages** need **Full Disk Access** (System Settings → Privacy & Security → Full Disk Access).
 
 4. Set the iMessage database path. The default is `~/Library/Messages/chat.db`; use this unless you've moved the database. You can configure it in either of these ways:
 
@@ -328,7 +328,7 @@ The app polls the local iMessage database for new messages and sends replies on 
 
      ![console](https://img.alicdn.com/imgextra/i3/O1CN01LXTm20287qVYjicfn_!!6000000007886-2-tps-3822-2070.png)
 
-   - Or edit the agent workspace `agent.json` (usually at `~/.qwenpaw/workspaces/default/agent.json`):
+   - Or edit the agent workspace `agent.json` (usually at `~/.aiarb/workspaces/default/agent.json`):
 
      ```json
      "imessage": {
@@ -402,7 +402,7 @@ Go to **Control → Channels**, click **Discord**, and enter the **Bot Token** y
 
 **Method 2:** Edit agent workspace `agent.json`
 
-Find `channels.discord` in your agent's `agent.json` (e.g., `~/.qwenpaw/workspaces/default/agent.json`) and fill in the fields, for example:
+Find `channels.discord` in your agent's `agent.json` (e.g., `~/.aiarb/workspaces/default/agent.json`) and fill in the fields, for example:
 
 ```json
 "discord": {
@@ -454,7 +454,7 @@ Find `channels.discord` in your agent's `agent.json` (e.g., `~/.qwenpaw/workspac
 
 5. In **Developer settings**, get **AppID** and **AppSecret** (ClientSecret) and fill them into config (see below). Add your server’s **IP to the whitelist** — only whitelisted IPs can call the Open API outside sandbox.
 
-   > **Tip:** If you are using ModelScope Creative Space to deploy QwenPaw, the IP whitelist for QQ channel should be: `47.92.200.108`
+   > **Tip:** If you are using ModelScope Creative Space to deploy AIArb, the IP whitelist for QQ channel should be: `47.92.200.108`
 
 ![1](https://img.alicdn.com/imgextra/i4/O1CN012UQWI21cnvBAUcz54_!!6000000003646-2-tps-4082-2126.png)
 
@@ -464,7 +464,7 @@ Find `channels.discord` in your agent's `agent.json` (e.g., `~/.qwenpaw/workspac
 
 ### Fill agent.json
 
-In your agent's `agent.json` (e.g., `~/.qwenpaw/workspaces/default/agent.json`), find `channels.qq` and set `app_id` and `client_secret` to the values above:
+In your agent's `agent.json` (e.g., `~/.aiarb/workspaces/default/agent.json`), find `channels.qq` and set `app_id` and `client_secret` to the values above:
 
 ```json
 "qq": {
@@ -494,16 +494,16 @@ You can also fill them in the Console UI.
 
 ## OneBot v11 (NapCat / QQ full protocol)
 
-The **OneBot** channel connects QwenPaw to [NapCat](https://github.com/NapNeko/NapCatQQ), [go-cqhttp](https://github.com/Mrs4s/go-cqhttp), [Lagrange](https://github.com/LagrangeDev/Lagrange.Core), or any other [OneBot v11](https://github.com/botuniverse/onebot-11) compatible implementation via **reverse WebSocket**.
+The **OneBot** channel connects AIArb to [NapCat](https://github.com/NapNeko/NapCatQQ), [go-cqhttp](https://github.com/Mrs4s/go-cqhttp), [Lagrange](https://github.com/LagrangeDev/Lagrange.Core), or any other [OneBot v11](https://github.com/botuniverse/onebot-11) compatible implementation via **reverse WebSocket**.
 
 Unlike the built-in QQ channel (which uses the official QQ Bot API with limited features), OneBot v11 provides **full QQ protocol** support: personal accounts, group messages without @mention, rich media, and more.
 
 ### How it works
 
-QwenPaw starts a WebSocket server; the OneBot implementation (e.g. NapCat) connects to it as a client:
+AIArb starts a WebSocket server; the OneBot implementation (e.g. NapCat) connects to it as a client:
 
 ```
-NapCat  ──reverse WS──▶  QwenPaw (:6199/ws)
+NapCat  ──reverse WS──▶  AIArb (:6199/ws)
 ```
 
 ### Setup NapCat
@@ -521,8 +521,8 @@ NapCat  ──reverse WS──▶  QwenPaw (:6199/ws)
 2. Open NapCat WebUI at `http://localhost:6099`, scan the QR code with QQ to log in.
 
 3. Go to **Network Config** → **New** → **WebSocket Client** (reverse WS):
-   - URL: `ws://<qwenpaw_host>:6199/ws`
-   - Access Token: same as `access_token` in QwenPaw config (required unless QwenPaw listens on loopback)
+   - URL: `ws://<aiarb_host>:6199/ws`
+   - Access Token: same as `access_token` in AIArb config (required unless AIArb listens on loopback)
 
 ### Fill agent.json
 
@@ -568,10 +568,10 @@ lets anyone drive your agent.
   directly: `ws://` traffic is unencrypted, so a token sent over the public
   internet can be intercepted.
 
-> **Docker Compose tip:** When running QwenPaw and NapCat in Docker Compose, the
+> **Docker Compose tip:** When running AIArb and NapCat in Docker Compose, the
 > two containers are not on the same loopback interface, so set `ws_host` to
 > `0.0.0.0`, **set `access_token`**, and point the NapCat reverse WS URL at
-> `ws://qwenpaw:6199/ws` (using the service name). Do not publish port 6199 to
+> `ws://aiarb:6199/ws` (using the service name). Do not publish port 6199 to
 > the host, or publish it as `127.0.0.1:6199:6199` so it stays local.
 
 ---
@@ -614,7 +614,7 @@ You can bind the bot by filling in the Bot ID and Secret in the Console or `agen
 
 ![console](https://img.alicdn.com/imgextra/i1/O1CN01A4916J1RB1mXpeVqK_!!6000000002072-2-tps-3822-2070.png)
 
-**Method 2:** Fill in `agent.json` (e.g., `~/.qwenpaw/workspaces/default/agent.json`)
+**Method 2:** Fill in `agent.json` (e.g., `~/.aiarb/workspaces/default/agent.json`)
 
 Find `wecom` and fill in the corresponding information, for example:
 
@@ -626,7 +626,7 @@ Find `wecom` and fill in the corresponding information, for example:
   "group_policy": "open",
   "bot_id": "your bot_id",
   "secret": "your secret",
-  "media_dir": "~/.qwenpaw/media",
+  "media_dir": "~/.aiarb/media",
   "max_reconnect_attempts": -1
 }
 ```
@@ -637,7 +637,7 @@ Find `wecom` and fill in the corresponding information, for example:
 | ------------------------ | ------ | ------------------ | ---------------------------------------------------- |
 | `bot_id`                 | string | `""` (required)    | WeCom bot ID                                         |
 | `secret`                 | string | `""` (required)    | WeCom bot secret                                     |
-| `media_dir`              | string | `~/.qwenpaw/media` | Media files (images, files, etc.) download directory |
+| `media_dir`              | string | `~/.aiarb/media` | Media files (images, files, etc.) download directory |
 | `max_reconnect_attempts` | int    | `-1`               | WebSocket max reconnect attempts (`-1` = unlimited)  |
 
 ### Start chatting with the bot in WeCom
@@ -654,28 +654,28 @@ The WeChat iLink Bot channel lets you run an AI bot via a **personal WeChat acco
 
 ### How it works
 
-- **Authentication**: On first use, scan a QR code to authorize. The token is automatically persisted to a local file (default `~/.qwenpaw/wechat_bot_token`), so you won't need to scan again on subsequent starts.
+- **Authentication**: On first use, scan a QR code to authorize. The token is automatically persisted to a local file (default `~/.aiarb/wechat_bot_token`), so you won't need to scan again on subsequent starts.
 - **Receiving messages**: Uses HTTP long-polling (`getupdates`) to continuously fetch new messages. Supports text, images, voice (ASR transcription), files, and videos.
 - **Sending messages**: Replies via `sendmessage`. Currently only text is supported (iLink API limitation).
 
 ### QR code login (recommended via Console)
 
-1. Open the QwenPaw Web Console and go to **Settings → Channels → WeChat Personal (iLink)**.
+1. Open the AIArb Web Console and go to **Settings → Channels → WeChat Personal (iLink)**.
 2. Click **Get Login QR Code** and wait for the QR code to appear.
 3. Scan the QR code with your WeChat mobile app and confirm authorization.
 4. Once confirmed, the Bot Token is automatically filled in the form — click **Save**.
 
 ### Configure via config file
 
-You can also configure directly in the agent workspace `agent.json` (e.g., `~/.qwenpaw/workspaces/default/agent.json`):
+You can also configure directly in the agent workspace `agent.json` (e.g., `~/.aiarb/workspaces/default/agent.json`):
 
 ```json
 "wechat": {
   "enabled": true,
   "bot_token": "your_bot_token",
-  "bot_token_file": "~/.qwenpaw/wechat_bot_token",
+  "bot_token_file": "~/.aiarb/wechat_bot_token",
   "base_url": "",
-  "media_dir": "~/.qwenpaw/media",
+  "media_dir": "~/.aiarb/media",
   "dm_policy": "open",
   "group_policy": "open"
 }
@@ -686,17 +686,17 @@ You can also configure directly in the agent workspace `agent.json` (e.g., `~/.q
 | Field            | Type   | Default                       | Description                                                                           |
 | ---------------- | ------ | ----------------------------- | ------------------------------------------------------------------------------------- |
 | `bot_token`      | string | `""`                          | Bearer token obtained after QR code login; leave empty to trigger QR login on startup |
-| `bot_token_file` | string | `~/.qwenpaw/wechat_bot_token` | Path to persist the token for future runs                                             |
+| `bot_token_file` | string | `~/.aiarb/wechat_bot_token` | Path to persist the token for future runs                                             |
 | `base_url`       | string | official default              | iLink API base URL; leave empty to use the official default                           |
-| `media_dir`      | string | `~/.qwenpaw/media`            | Directory to save received images and files                                           |
+| `media_dir`      | string | `~/.aiarb/media`            | Directory to save received images and files                                           |
 
 ### Configure via environment variables
 
 ```bash
 WECHAT_CHANNEL_ENABLED=1
 WECHAT_BOT_TOKEN=your_bot_token
-WECHAT_BOT_TOKEN_FILE=~/.qwenpaw/wechat_bot_token
-WECHAT_MEDIA_DIR=~/.qwenpaw/media
+WECHAT_BOT_TOKEN_FILE=~/.aiarb/wechat_bot_token
+WECHAT_MEDIA_DIR=~/.aiarb/media
 WECHAT_DM_POLICY=open
 WECHAT_GROUP_POLICY=open
 ```
@@ -728,7 +728,7 @@ Go to **Control → Channels**, click **Telegram**, and enter the **Bot Token** 
 
 **Method 2:** Edit agent workspace `agent.json`
 
-Find `channels.telegram` in your agent's `agent.json` (e.g., `~/.qwenpaw/workspaces/default/agent.json`) and fill in the fields, for example:
+Find `channels.telegram` in your agent's `agent.json` (e.g., `~/.aiarb/workspaces/default/agent.json`) and fill in the fields, for example:
 
 ```json
 "telegram": {
@@ -831,7 +831,7 @@ JSON message format
 
 2. Fuzzy match subscription and automatic push
 
-   Subscribe to the wildcard topic `/server/+/up`. Messages will be automatically pushed to the corresponding topic based on the client's `client_id`. For example, after a client pushes a message to `/server/client_a/up`, QwenPaw will push the message to `/client/client_b/down` after processing.
+   Subscribe to the wildcard topic `/server/+/up`. Messages will be automatically pushed to the corresponding topic based on the client's `client_id`. For example, after a client pushes a message to `/server/client_a/up`, AIArb will push the message to `/client/client_b/down` after processing.
 
    | subscribe_topic | publish_topic           |
    | --------------- | ----------------------- |
@@ -848,13 +848,13 @@ JSON message format
    }
    ```
 
-   Messages will be pushed to `client/client_b/down` based on the `redirect_client_id` attribute, enabling cross-topic push. In IoT scenarios, with QwenPaw as the core, autonomous message pushing between multiple devices can be achieved according to individual requirements.
+   Messages will be pushed to `client/client_b/down` based on the `redirect_client_id` attribute, enabling cross-topic push. In IoT scenarios, with AIArb as the core, autonomous message pushing between multiple devices can be achieved according to individual requirements.
 
 ---
 
 ## Matrix
 
-The Matrix channel connects QwenPaw to any Matrix homeserver using the [matrix-nio](https://github.com/poljar/matrix-nio) library. It supports text messaging in both direct messages and group rooms.
+The Matrix channel connects AIArb to any Matrix homeserver using the [matrix-nio](https://github.com/poljar/matrix-nio) library. It supports text messaging in both direct messages and group rooms.
 
 ### Create a Matrix bot account and get an access token
 
@@ -890,7 +890,7 @@ Go to **Control → Channels**, click **Matrix**, enable it, and fill in:
 
 **Method 2:** Edit agent workspace `agent.json`
 
-Find `channels.matrix` in your agent's `agent.json` (e.g., `~/.qwenpaw/workspaces/default/agent.json`):
+Find `channels.matrix` in your agent's `agent.json` (e.g., `~/.aiarb/workspaces/default/agent.json`):
 
 ```json
 "matrix": {
@@ -912,7 +912,7 @@ Find `channels.matrix` in your agent's `agent.json` (e.g., `~/.qwenpaw/workspace
 | `access_token`           | string | `""` (required) | Bot access token (starts with `syt_`)                                                                         |
 | `share_session_in_group` | bool   | `true`          | If `true`, all members in a group room share one session; if `false`, each member gets an independent session |
 
-Save the file; the channel will reload automatically if QwenPaw is already running.
+Save the file; the channel will reload automatically if AIArb is already running.
 
 ### Chat with the bot
 
@@ -929,7 +929,7 @@ Invite the bot to a room or send it a direct message from any Matrix client (e.g
 
 ## Yuanbao
 
-The Yuanbao channel connects QwenPaw to Tencent's Yuanbao AI assistant platform via protobuf WebSocket, supporting C2C (direct) and group chat with image/file sending.
+The Yuanbao channel connects AIArb to Tencent's Yuanbao AI assistant platform via protobuf WebSocket, supporting C2C (direct) and group chat with image/file sending.
 
 ### Create a bot
 
@@ -937,7 +937,7 @@ The Yuanbao channel connects QwenPaw to Tencent's Yuanbao AI assistant platform 
 
    ![Create Bot](https://img.alicdn.com/imgextra/i3/O1CN01ChYAcN1L0b4pj7ODV_!!6000000001237-2-tps-2112-1440.png)
 
-2. In the bot settings, find **Method 2** to get the **App ID** and **App Secret**, then fill them into QwenPaw's channel settings and click **Done**.
+2. In the bot settings, find **Method 2** to get the **App ID** and **App Secret**, then fill them into AIArb's channel settings and click **Done**.
 
    ![App ID and Secret](https://img.alicdn.com/imgextra/i2/O1CN01F4vbLs29ID63r4cGf_!!6000000008044-2-tps-2112-1440.png)
 
@@ -955,7 +955,7 @@ The Yuanbao channel connects QwenPaw to Tencent's Yuanbao AI assistant platform 
 
 ## XiaoYi
 
-The XiaoYi channel connects QwenPaw via **A2A (Agent-to-Agent) protocol** over WebSocket to Huawei's AI assistant platform.
+The XiaoYi channel connects AIArb via **A2A (Agent-to-Agent) protocol** over WebSocket to Huawei's AI assistant platform.
 
 ### Get credentials
 
@@ -985,12 +985,12 @@ The XiaoYi channel connects QwenPaw via **A2A (Agent-to-Agent) protocol** over W
 
 ## Voice
 
-The Voice channel enables phone call interactions with QwenPaw via Twilio ConversationRelay, supporting Speech-to-Text (STT) and Text-to-Speech (TTS) for voice-based conversations.
+The Voice channel enables phone call interactions with AIArb via Twilio ConversationRelay, supporting Speech-to-Text (STT) and Text-to-Speech (TTS) for voice-based conversations.
 
 ### Prerequisites
 
 1. **Twilio Account**: Register at [Twilio](https://www.twilio.com/) and obtain credentials
-2. **Cloudflare Tunnel** (or similar): Expose your local QwenPaw service to the public internet for Twilio webhook callbacks
+2. **Cloudflare Tunnel** (or similar): Expose your local AIArb service to the public internet for Twilio webhook callbacks
 
 ### Create Twilio account and get credentials
 
@@ -1005,7 +1005,7 @@ The Voice channel enables phone call interactions with QwenPaw via Twilio Conver
 
 ### Configure Cloudflare Tunnel
 
-Twilio needs to reach QwenPaw's webhook endpoint via the public internet, so you need to expose your local service.
+Twilio needs to reach AIArb's webhook endpoint via the public internet, so you need to expose your local service.
 
 1. Install Cloudflare Tunnel client:
 
@@ -1061,7 +1061,7 @@ Advanced options:
       "tts_voice": "en-US-Journey-D",
       "stt_provider": "deepgram",
       "language": "en-US",
-      "welcome_greeting": "Hi! This is QwenPaw. How can I help you?"
+      "welcome_greeting": "Hi! This is AIArb. How can I help you?"
     }
   }
 }
@@ -1081,11 +1081,11 @@ Configure your phone number's webhook in the Twilio Console:
 
 ### Usage
 
-After configuration, simply call your Twilio phone number to have a voice conversation with QwenPaw:
+After configuration, simply call your Twilio phone number to have a voice conversation with AIArb:
 
 1. Dial the phone number
 2. After hearing the welcome greeting, start speaking
-3. QwenPaw converts speech to text and processes it through the Agent
+3. AIArb converts speech to text and processes it through the Agent
 4. The Agent's response is converted to speech and played back to you
 
 **Voice channel-specific fields:**
@@ -1100,7 +1100,7 @@ After configuration, simply call your Twilio phone number to have a voice conver
 | `tts_voice`          | string | `"en-US-Journey-D"`                          | TTS voice model                              |
 | `stt_provider`       | string | `"deepgram"`                                 | Speech-to-text provider                      |
 | `language`           | string | `"en-US"`                                    | Language code                                |
-| `welcome_greeting`   | string | `"Hi! This is QwenPaw. How can I help you?"` | Welcome message when call connects           |
+| `welcome_greeting`   | string | `"Hi! This is AIArb. How can I help you?"` | Welcome message when call connects           |
 
 > **Note**: The Voice channel requires a continuous network connection and a running tunnel solution. For production use, consider stable tunneling options (like Cloudflare Tunnel, ngrok paid plans, etc.).
 
@@ -1108,7 +1108,7 @@ After configuration, simply call your Twilio phone number to have a voice conver
 
 ## SIP
 
-The SIP channel enables voice conversations with QwenPaw via standard SIP phones and softphones (e.g., Linphone, MicroSIP, IP desk phones). It works entirely on your local network or private infrastructure — no cloud account or public URL required.
+The SIP channel enables voice conversations with AIArb via standard SIP phones and softphones (e.g., Linphone, MicroSIP, IP desk phones). It works entirely on your local network or private infrastructure — no cloud account or public URL required.
 
 Two backend modes are available:
 
@@ -1119,29 +1119,29 @@ Two backend modes are available:
 
 ### Quick try: Dev mode (3 minutes, zero external infra)
 
-The fastest way to try SIP. QwenPaw starts a built-in SIP registrar automatically — no Asterisk, FreeSWITCH, or any external server needed.
+The fastest way to try SIP. AIArb starts a built-in SIP registrar automatically — no Asterisk, FreeSWITCH, or any external server needed.
 
 1. Install:
 
 ```bash
-pip install "qwenpaw[sip]"
+pip install "aiarb[sip]"
 ```
 
-2. Start QwenPaw and configure in Console:
+2. Start AIArb and configure in Console:
 
 ```bash
-qwenpaw init --defaults
-qwenpaw app
+aiarb init --defaults
+aiarb app
 ```
 
-Open **http://127.0.0.1:8088/** → **Settings → Models**: configure a model provider and API key. Then go to **Control → Channels → SIP**: enable it, fill in your DashScope API Key, and click **Save**. All other fields can be left at their defaults — when `sip_server` is empty, QwenPaw automatically starts a built-in registrar, uses `aliyun` for STT/TTS, and picks a default voice.
+Open **http://127.0.0.1:8088/** → **Settings → Models**: configure a model provider and API key. Then go to **Control → Channels → SIP**: enable it, fill in your DashScope API Key, and click **Save**. All other fields can be left at their defaults — when `sip_server` is empty, AIArb automatically starts a built-in registrar, uses `aliyun` for STT/TTS, and picks a default voice.
 
-QwenPaw will restart the SIP channel automatically. You'll see in the terminal:
+AIArb will restart the SIP channel automatically. You'll see in the terminal:
 
 ```
 [SIP] Built-in SIP registrar started on 0.0.0.0:5060
 [SIP] Quickstart: register your softphone to <Your-IP>:5060
-[SIP] Dial 'sip:agent@<Your-IP>:5060' to talk with QwenPaw!
+[SIP] Dial 'sip:agent@<Your-IP>:5060' to talk with AIArb!
 ```
 
 3. Open [Linphone](https://www.linphone.org/linphone) (or any SIP softphone) and configure:
@@ -1153,7 +1153,7 @@ QwenPaw will restart the SIP channel automatically. You'll see in the terminal:
    - No password needed — the built-in registrar accepts all registrations
    - Dial: `sip:agent@127.0.0.1:5060`
 
-   You should hear the welcome greeting, then speak — QwenPaw will reply!
+   You should hear the welcome greeting, then speak — AIArb will reply!
 
    **Alternative: pjsua (CLI, uses system microphone/speaker)**
 
@@ -1176,12 +1176,12 @@ You can test the full LiveKit audio pipeline directly from your browser using We
 
 1. Sign up for [LiveKit Cloud](https://cloud.livekit.io/) (free tier available) and create a project. Note your project URL (from **Settings → Project**), and API Key / API Secret (from **Settings → API keys**).
 
-2. Install, start QwenPaw, and configure in Console:
+2. Install, start AIArb, and configure in Console:
 
 ```bash
-pip install "qwenpaw[sip,sip-livekit]"
-qwenpaw init --defaults
-qwenpaw app
+pip install "aiarb[sip,sip-livekit]"
+aiarb init --defaults
+aiarb app
 ```
 
 Open **http://127.0.0.1:8088/** → **Settings → Models**: configure a model provider and API key. Then go to **Control → Channels → SIP**: enable it, set SIP Mode to **Production (LiveKit)**, and fill in these 4 fields:
@@ -1212,7 +1212,7 @@ You'll see in the terminal: `Connected to room: sip-inbound, waiting...`
    - Open [meet.livekit.io](https://meet.livekit.io/) → click **"Custom"** at the bottom
    - Enter your LiveKit Cloud URL (e.g., `wss://<your-project>.livekit.cloud`)
    - Paste the generated token and click **Connect**
-   - Allow microphone access, then speak — QwenPaw responds!
+   - Allow microphone access, then speak — AIArb responds!
 
 > **Note**: This browser-based test exercises the exact same audio pipeline (streaming STT, 24kHz TTS, barge-in) as a real SIP phone call. It's a fully valid test of LiveKit mode.
 
@@ -1222,7 +1222,7 @@ For production use with real phone numbers and carrier-grade reliability, use on
 
 **Dev mode with external SIP server:**
 
-Use Asterisk, FreeSWITCH, or any SIP PBX as the registrar. Set `sip_server` to your PBX address. QwenPaw registers as a SIP extension and receives calls routed by the PBX.
+Use Asterisk, FreeSWITCH, or any SIP PBX as the registrar. Set `sip_server` to your PBX address. AIArb registers as a SIP extension and receives calls routed by the PBX.
 
 **LiveKit mode with SIP Trunk:**
 
@@ -1255,22 +1255,22 @@ Go to **Control → Channels**, click **SIP**, select **Dev (pyVoIP)** mode. Lea
       "tts_provider": "aliyun",
       "tts_voice": "longxiaochun",
       "language": "zh-CN",
-      "welcome_greeting": "你好，我是QwenPaw"
+      "welcome_greeting": "你好，我是AIArb"
     }
   }
 }
 ```
 
-When `sip_server` is empty, QwenPaw starts a built-in SIP registrar on port 5060 and the agent registers to it automatically. When `sip_server` is set (e.g., `"192.168.1.100:5060"`), QwenPaw registers to that external server instead.
+When `sip_server` is empty, AIArb starts a built-in SIP registrar on port 5060 and the agent registers to it automatically. When `sip_server` is set (e.g., `"192.168.1.100:5060"`), AIArb registers to that external server instead.
 
 ### LiveKit mode configuration
 
-Production mode delegates SIP/RTP to LiveKit SIP Server — a Go binary that handles NAT traversal, jitter buffering, and codec negotiation. QwenPaw joins LiveKit rooms as an AI participant.
+Production mode delegates SIP/RTP to LiveKit SIP Server — a Go binary that handles NAT traversal, jitter buffering, and codec negotiation. AIArb joins LiveKit rooms as an AI participant.
 
 1. Install extras:
 
 ```bash
-pip install "qwenpaw[sip,sip-livekit]"
+pip install "aiarb[sip,sip-livekit]"
 ```
 
 2. Configure the SIP channel in Console or `agent.json`:
@@ -1288,7 +1288,7 @@ pip install "qwenpaw[sip,sip-livekit]"
       "tts_provider": "aliyun",
       "tts_voice": "longxiaochun",
       "language": "zh-CN",
-      "welcome_greeting": "你好，我是QwenPaw"
+      "welcome_greeting": "你好，我是AIArb"
     }
   }
 }
@@ -1296,14 +1296,14 @@ pip install "qwenpaw[sip,sip-livekit]"
 
 > **`livekit_url`**: Use `wss://<project>.livekit.cloud` for LiveKit Cloud, or `ws://<host>:<port>` for a self-hosted LiveKit Server.
 
-3. Start QwenPaw. For SIP phone calls, also set up LiveKit infrastructure with a SIP Trunk and Dispatch Rule (see [LiveKit SIP docs](https://docs.livekit.io/sip/)). For browser-based testing, see the [Quick try](#quick-try-livekit-mode-via-browser-3-minutes-no-sip-phone-needed) section above.
+3. Start AIArb. For SIP phone calls, also set up LiveKit infrastructure with a SIP Trunk and Dispatch Rule (see [LiveKit SIP docs](https://docs.livekit.io/sip/)). For browser-based testing, see the [Quick try](#quick-try-livekit-mode-via-browser-3-minutes-no-sip-phone-needed) section above.
 
 ### Usage
 
 After configuration, start a call from your SIP phone or browser:
 
 1. The call connects and you hear the welcome greeting
-2. Start speaking — QwenPaw converts speech to text via streaming STT
+2. Start speaking — AIArb converts speech to text via streaming STT
 3. The Agent processes your message and generates a reply
 4. The reply is converted to speech via TTS and played back to you
 5. Continue the conversation naturally — multi-turn is fully supported
@@ -1329,18 +1329,18 @@ After configuration, start a call from your SIP phone or browser:
 | `tts_voice`          | string | `"longxiaochun"`                             | TTS voice model                                                         |
 | `stt_provider`       | string | `"aliyun"`                                   | STT provider (currently supports `aliyun`)                              |
 | `language`           | string | `"zh-CN"`                                    | Language code                                                           |
-| `welcome_greeting`   | string | `"Hi! This is QwenPaw. How can I help you?"` | Welcome message when call connects                                      |
+| `welcome_greeting`   | string | `"Hi! This is AIArb. How can I help you?"` | Welcome message when call connects                                      |
 | `call_timeout`       | float  | `30.0`                                       | Outbound call timeout in seconds                                        |
 
 ---
 
 ## Azure Bot (Microsoft Bot Service)
 
-The Azure Bot channel is built on the [Bot Framework](https://dev.botframework.com/) Webhook protocol, connecting QwenPaw to **Microsoft Teams**, **Web Chat**, **DirectLine**, and any other channel supported by Azure Bot Service.
+The Azure Bot channel is built on the [Bot Framework](https://dev.botframework.com/) Webhook protocol, connecting AIArb to **Microsoft Teams**, **Web Chat**, **DirectLine**, and any other channel supported by Azure Bot Service.
 
-Setup involves three phases: register an application in **Microsoft Entra ID** to obtain credentials, create an **Azure Bot** resource linked to that registration, then point the Messaging Endpoint at QwenPaw's Webhook and enable your target channel(s).
+Setup involves three phases: register an application in **Microsoft Entra ID** to obtain credentials, create an **Azure Bot** resource linked to that registration, then point the Messaging Endpoint at AIArb's Webhook and enable your target channel(s).
 
-> **Note**: Azure Bot is a **plugin channel**, not a built-in one. Before configuring it, search for and install the `azure-bot` plugin from the **Plugin Marketplace** in the QwenPaw Console. The channel appears in the Channels settings only after installation.
+> **Note**: Azure Bot is a **plugin channel**, not a built-in one. Before configuring it, search for and install the `azure-bot` plugin from the **Plugin Marketplace** in the AIArb Console. The channel appears in the Channels settings only after installation.
 
 ### Step 1: Create an App Registration
 
@@ -1356,7 +1356,7 @@ This step yields the three required credentials: `app_id`, `tenant_id`, and `app
 
 3. Fill in the registration form:
 
-   - **Name**: Any name, e.g. `QwenPaw-Bot`
+   - **Name**: Any name, e.g. `AIArb-Bot`
    - **Supported account types**: Select the first option — **"Accounts in this organizational directory only"** (Single tenant)
    - **Redirect URI**: Leave blank
 
@@ -1373,7 +1373,7 @@ This step yields the three required credentials: `app_id`, `tenant_id`, and `app
 
 5. In the left menu, click **"Certificates & secrets"** → select the **"Client secrets"** tab → click **"New client secret"**.
 
-   Enter a description (e.g. `qwenpaw`), choose an expiry, and click **"Add"**.
+   Enter a description (e.g. `aiarb`), choose an expiry, and click **"Add"**.
 
    ![New client secret](https://img.alicdn.com/imgextra/i3/O1CN01IfUrY727KNkaWwu8g_!!6000000007778-2-tps-1544-836.png)
 
@@ -1391,7 +1391,7 @@ This step yields the three required credentials: `app_id`, `tenant_id`, and `app
 
 2. Fill in the details:
 
-   - **Bot handle**: Globally unique, e.g. `qwenpaw-bot`
+   - **Bot handle**: Globally unique, e.g. `aiarb-bot`
    - **Subscription**: Select your subscription
    - **Resource group**: Select an existing group or create new
    - **Pricing tier**: `F0 (Free)` is sufficient
@@ -1408,11 +1408,11 @@ This step yields the three required credentials: `app_id`, `tenant_id`, and `app
 
 ### Step 3: Expose the Webhook Endpoint
 
-QwenPaw starts a standalone HTTP server (default port `3978`) to receive messages forwarded by Azure. Azure Bot Service requires this endpoint to be **publicly reachable over HTTPS**.
+AIArb starts a standalone HTTP server (default port `3978`) to receive messages forwarded by Azure. Azure Bot Service requires this endpoint to be **publicly reachable over HTTPS**.
 
 **Option A: Fixed domain + reverse proxy (recommended for production)**
 
-If QwenPaw runs on a server with a public IP, set up Nginx with an SSL certificate. The Webhook URL will look like:
+If AIArb runs on a server with a public IP, set up Nginx with an SSL certificate. The Webhook URL will look like:
 
 ```
 https://your-domain.com/api/messages
@@ -1451,7 +1451,7 @@ In the Azure Bot resource, click **"Channels"** in the left menu to see the full
 
 ![Channels](https://img.alicdn.com/imgextra/i3/O1CN01cpH8jd1rS8bZYQpCE_!!6000000005629-2-tps-1533-839.png)
 
-### Step 6: Connect to QwenPaw
+### Step 6: Connect to AIArb
 
 Configure via the Console UI or by editing `agent.json` directly.
 
@@ -1467,7 +1467,7 @@ Go to **Control → Channels**, click **Azure Bot**, and fill in:
 
 **Method 2:** Edit `agent.json`
 
-Find `channels.azure_bot` in your agent's `agent.json` (e.g. `~/.qwenpaw/workspaces/default/agent.json`) and fill in:
+Find `channels.azure_bot` in your agent's `agent.json` (e.g. `~/.aiarb/workspaces/default/agent.json`) and fill in:
 
 ```json
 "azure_bot": {
@@ -1481,7 +1481,7 @@ Find `channels.azure_bot` in your agent's `agent.json` (e.g. `~/.qwenpaw/workspa
 }
 ```
 
-The config reloads automatically when the service is running; otherwise run `qwenpaw app` to start.
+The config reloads automatically when the service is running; otherwise run `aiarb app` to start.
 
 **Azure Bot-specific fields:**
 
@@ -1500,8 +1500,8 @@ The config reloads automatically when the service is running; otherwise run `qwe
 - **HTTPS required**: Azure Bot Service requires the Messaging Endpoint to use HTTPS. Use ngrok or an SSL-terminated reverse proxy for local development.
 - **Firewall**: Make sure your server's security group / firewall allows inbound traffic on `http_port` (default 3978), or expose only the reverse proxy on port 443.
 - **Group @mention**: In Teams group chats, setting `require_mention: true` is recommended to prevent the bot from responding to every group message; this does not affect direct messages.
-- **Multi-channel**: A single Azure Bot resource can simultaneously connect to Teams, Web Chat, DirectLine, and more — QwenPaw automatically routes replies to the correct channel.
-- **Session reference persistence**: QwenPaw stores per-user / per-group conversation references in `azure_bot_refs.json` in the workspace directory, enabling proactive outbound messages after restarts.
+- **Multi-channel**: A single Azure Bot resource can simultaneously connect to Teams, Web Chat, DirectLine, and more — AIArb automatically routes replies to the correct channel.
+- **Session reference persistence**: AIArb stores per-user / per-group conversation references in `azure_bot_refs.json` in the workspace directory, enabling proactive outbound messages after restarts.
 - **Client secret expiry**: Azure AD client secrets have a maximum lifetime of 2 years. Regenerate and update `app_password` before expiry.
 
 ---
@@ -1599,7 +1599,7 @@ Go to **Control → Channels**, click **Slack**, and enter the **Bot Token** and
 
 **Method 2:** Edit agent workspace `agent.json`
 
-Find `channels.slack` in your agent's `agent.json` (e.g., `~/.qwenpaw/workspaces/default/agent.json`) and fill in the fields:
+Find `channels.slack` in your agent's `agent.json` (e.g., `~/.aiarb/workspaces/default/agent.json`) and fill in the fields:
 
 ```json
 "slack": {
@@ -1622,7 +1622,7 @@ Find `channels.slack` in your agent's `agent.json` (e.g., `~/.qwenpaw/workspaces
 
 ### Notes
 
-- QwenPaw magic commands (e.g., `/stop`, `/model list`) can be sent as native Slack slash commands. You can also type them as plain messages — just prefix with a space (` /stop`) to bypass Slack's slash-command interception in threads.
+- AIArb magic commands (e.g., `/stop`, `/model list`) can be sent as native Slack slash commands. You can also type them as plain messages — just prefix with a space (` /stop`) to bypass Slack's slash-command interception in threads.
 - If you change scopes or event subscriptions later, you **must reinstall the app** for the changes to take effect.
 - To control who can interact with the bot, use the access control fields (`access_control_dm`, `access_control_group`). Slack uses **Member IDs** (e.g., `U01ABC2DEF3`) for user identification — find them via profile → ⋮ → Copy member ID.
 - You can add more slash commands in the manifest's `slash_commands` array to register additional magic commands (e.g., `/stop`, `/status`).
@@ -1768,9 +1768,9 @@ For text-only channels using the manager queue, you do not need to implement `co
 ```python
 # my_channel.py
 from agentscope_runtime.engine.schemas.agent_schemas import TextContent, ContentType
-from qwenpaw.app.channels.base import BaseChannel
-from qwenpaw.app.channels.renderer import ChannelDisplayConfig
-from qwenpaw.app.channels.schema import ChannelType
+from aiarb.app.channels.base import BaseChannel
+from aiarb.app.channels.renderer import ChannelDisplayConfig
+from aiarb.app.channels.schema import ChannelType
 
 class MyChannel(BaseChannel):
     channel: ChannelType = "my_channel"
@@ -1890,7 +1890,7 @@ To add a custom channel:
 1. Create a plugin with `type: "channel"` in `plugin.json`
 2. Implement a `BaseChannel` subclass with a unique `channel` class attribute
 3. Call `api.register_channel(...)` in your plugin's `register()` method
-4. Install with `qwenpaw plugin install <path>`
+4. Install with `aiarb plugin install <path>`
 
 Plugin channels appear in the Console UI alongside built-in channels, with
 full support for enable/disable, config fields, and access control.
@@ -1899,7 +1899,7 @@ For channels that need webhook HTTP endpoints, use `api.register_http_router()`
 in the same plugin to mount routes under `/api`.
 
 > **Migration from `custom_channels/`**: The legacy `custom_channels/`
-> directory and `qwenpaw channels install/add/remove` CLI commands have been
+> directory and `aiarb channels install/add/remove` CLI commands have been
 > removed. If you have existing custom channels under `custom_channels/`,
 > migrate them to the plugin system:
 >
@@ -1910,7 +1910,7 @@ in the same plugin to mount routes under `/api`.
 > 4. If your channel used `register_app_routes(app)`, replace it with
 >    `api.register_http_router(router, prefix="/your-channel")` using a
 >    FastAPI `APIRouter`
-> 5. Install the plugin: `qwenpaw plugin install <path>`
+> 5. Install the plugin: `aiarb plugin install <path>`
 > 6. Remove the old module from `custom_channels/`
 
 ---

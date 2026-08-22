@@ -72,9 +72,9 @@ jobs:
       - name: Copy console build into package
         shell: bash
         run: |
-          rm -rf src/qwenpaw/console/*
-          mkdir -p src/qwenpaw/console
-          cp -R console/dist/* src/qwenpaw/console/
+          rm -rf src/aiarb/console/*
+          mkdir -p src/aiarb/console
+          cp -R console/dist/* src/aiarb/console/
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -114,7 +114,7 @@ jobs:
           if [ "${{ matrix.os }}" = "ubuntu-latest" ] && \
              [ "${{ matrix.python-version }}" = "3.13" ]; then
             pytest tests/unit -v \
-              --cov=src/qwenpaw \
+              --cov=src/aiarb \
               --cov-report=xml:coverage.unit.xml \
               --cov-fail-under=0
           else
@@ -169,9 +169,9 @@ jobs:
       - name: Copy console build into package
         shell: bash
         run: |
-          rm -rf src/qwenpaw/console/*
-          mkdir -p src/qwenpaw/console
-          cp -R console/dist/* src/qwenpaw/console/
+          rm -rf src/aiarb/console/*
+          mkdir -p src/aiarb/console
+          cp -R console/dist/* src/aiarb/console/
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -209,7 +209,7 @@ jobs:
           if [ "${{ matrix.os }}" = "ubuntu-latest" ] && \
              [ "${{ matrix.python-version }}" = "3.13" ]; then
             pytest tests/contract -v \
-              --cov=src/qwenpaw \
+              --cov=src/aiarb \
               --cov-report=xml:coverage.contract.xml \
               --cov-fail-under=0
           else
@@ -264,9 +264,9 @@ jobs:
       - name: Copy console build into package
         shell: bash
         run: |
-          rm -rf src/qwenpaw/console/*
-          mkdir -p src/qwenpaw/console
-          cp -R console/dist/* src/qwenpaw/console/
+          rm -rf src/aiarb/console/*
+          mkdir -p src/aiarb/console
+          cp -R console/dist/* src/aiarb/console/
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -335,15 +335,15 @@ jobs:
       - name: Run integration suite (full sweep)
         shell: bash
         env:
-          QWENPAW_INTEGRATION_COVERAGE: ${{ steps.cov_flag.outputs.enabled }}
+          AIARB_INTEGRATION_COVERAGE: ${{ steps.cov_flag.outputs.enabled }}
           # Windows runners are 2-core and IO-bound; under xdist parallel
           # the default 15s HTTP timeout is too tight and intermittently
           # surfaces as ``httpx.ReadTimeout``. Lift the floor here.
-          QWENPAW_INTEGRATION_HTTP_TIMEOUT: ${{ matrix.os == 'windows-latest' && '120' || '' }}
+          AIARB_INTEGRATION_HTTP_TIMEOUT: ${{ matrix.os == 'windows-latest' && '120' || '' }}
         run: |
           # Nightly always runs the full -m integration sweep (p0 + p1 +
           # p2), unlike tests.yml which gates by GITHUB_EVENT_NAME.
-          if [ -n "$QWENPAW_INTEGRATION_COVERAGE" ]; then
+          if [ -n "$AIARB_INTEGRATION_COVERAGE" ]; then
             # Subprocess coverage entry. Parent process must not carry
             # --cov, hence --no-cov here.
             #
@@ -383,7 +383,7 @@ jobs:
                 PYTEST_RC=1
               fi
             else
-              echo "::warning::Integration coverage data file missing despite QWENPAW_INTEGRATION_COVERAGE=1 (session may have crashed before coverage flush)"
+              echo "::warning::Integration coverage data file missing despite AIARB_INTEGRATION_COVERAGE=1 (session may have crashed before coverage flush)"
             fi
             exit "$PYTEST_RC"
           else
@@ -526,11 +526,11 @@ jobs:
           cat > .coveragerc <<RCEOF
           [paths]
           source =
-              src/qwenpaw
-              */src/qwenpaw
-              /Users/runner/work/QwenPaw/QwenPaw/src/qwenpaw
-              /home/runner/work/QwenPaw/QwenPaw/src/qwenpaw
-              D:\a\QwenPaw\QwenPaw\src\qwenpaw
+              src/aiarb
+              */src/aiarb
+              /Users/runner/work/AIArb/AIArb/src/aiarb
+              /home/runner/work/AIArb/AIArb/src/aiarb
+              D:\a\AIArb\AIArb\src\aiarb
           RCEOF
           COMBINE_ARGS=""
           for f in .coverage.unit .coverage.contract .coverage.integration .coverage.integration.* .coverage.e2e; do

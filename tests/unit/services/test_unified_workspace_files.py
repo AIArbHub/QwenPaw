@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.services.workspace_files import (
+from aiarb.services.workspace_files import (
     FileVersionConflict,
     InvalidCursor,
     InvalidWorkspacePath,
@@ -184,7 +184,7 @@ def test_save_text_file_is_atomic_and_checks_etag(tmp_path: Path) -> None:
 
     assert target.read_text(encoding="utf-8") == "after"
     assert result["etag"] != old_etag
-    assert not list(tmp_path.glob(".notes.md.*.qwenpaw.tmp"))
+    assert not list(tmp_path.glob(".notes.md.*.aiarb.tmp"))
     with pytest.raises(FileVersionConflict):
         save_text_file(tmp_path, "notes.md", "stale", old_etag)
 

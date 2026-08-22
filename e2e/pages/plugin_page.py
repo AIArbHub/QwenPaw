@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw Plugin Manager page object.
+AIArb Plugin Manager page object.
 
 Wraps:
 - Navigation to ``/plugin-manager``
@@ -49,38 +49,38 @@ class PluginPage(BasePage):
         'button:has-text("安装插件")'
     )
     TAB_INSTALLED = (
-        '.qwenpaw-tabs-tab:has-text("Installed"), '
-        '.qwenpaw-tabs-tab:has-text("已安装")'
+        '.aiarb-tabs-tab:has-text("Installed"), '
+        '.aiarb-tabs-tab:has-text("已安装")'
     )
     TAB_OFFICIAL = (
-        '.qwenpaw-tabs-tab:has-text("Official"), '
-        '.qwenpaw-tabs-tab:has-text("官方")'
+        '.aiarb-tabs-tab:has-text("Official"), '
+        '.aiarb-tabs-tab:has-text("官方")'
     )
     TAB_MARKET = (
-        '.qwenpaw-tabs-tab:has-text("Plugin Market"), '
-        '.qwenpaw-tabs-tab:has-text("插件市场")'
+        '.aiarb-tabs-tab:has-text("Plugin Market"), '
+        '.aiarb-tabs-tab:has-text("插件市场")'
     )
 
     # ----- Plugin Market compatibility (upstream #5661) -----
     # Catalog rows share CSS-module classes with the Official list
     # (OfficialPluginList.module.less), matched by basename substring.
     MARKET_ROW = '[class*="catalogRow"]'
-    # antd Tag with prefixCls=qwenpaw; text is "QwenPaw <labels>"
-    COMPAT_TAG_GREEN = '.qwenpaw-tag-green:has-text("QwenPaw")'
-    COMPAT_TAG_ORANGE = '.qwenpaw-tag-orange:has-text("QwenPaw")'
+    # antd Tag with prefixCls=aiarb; text is "AIArb <labels>"
+    COMPAT_TAG_GREEN = '.aiarb-tag-green:has-text("AIArb")'
+    COMPAT_TAG_ORANGE = '.aiarb-tag-orange:has-text("AIArb")'
     MARKET_INSTALL_BTN = (
         '[class*="catalogActions"] button:has-text("Install"), '
         '[class*="catalogActions"] button:has-text("安装")'
     )
     # Modal.confirm for incompatible installs
-    COMPAT_MODAL = '.qwenpaw-modal-confirm'
+    COMPAT_MODAL = '.aiarb-modal-confirm'
     COMPAT_MODAL_TITLE = (
-        '.qwenpaw-modal-confirm-title:has-text("Compatibility Warning"), '
-        '.qwenpaw-modal-confirm-title:has-text("兼容性警告")'
+        '.aiarb-modal-confirm-title:has-text("Compatibility Warning"), '
+        '.aiarb-modal-confirm-title:has-text("兼容性警告")'
     )
     COMPAT_MODAL_OK = (
-        '.qwenpaw-modal-confirm-btns button:has-text("Install anyway"), '
-        '.qwenpaw-modal-confirm-btns button:has-text("仍然安装")'
+        '.aiarb-modal-confirm-btns button:has-text("Install anyway"), '
+        '.aiarb-modal-confirm-btns button:has-text("仍然安装")'
     )
 
     # Empty-state text inside the installed table
@@ -108,9 +108,9 @@ class PluginPage(BasePage):
             "      state: { selectedAgent: a, agents: [], lastChatIdByAgent: {} },"
             "      version: 0"
             "    });"
-            "    try { localStorage.setItem('qwenpaw-last-used-agent', a); } catch (e) {}"
-            "    try { localStorage.setItem('qwenpaw-agent-storage', blob); } catch (e) {}"
-            "    try { sessionStorage.setItem('qwenpaw-agent-storage', blob); } catch (e) {}"
+            "    try { localStorage.setItem('aiarb-last-used-agent', a); } catch (e) {}"
+            "    try { localStorage.setItem('aiarb-agent-storage', blob); } catch (e) {}"
+            "    try { sessionStorage.setItem('aiarb-agent-storage', blob); } catch (e) {}"
             "  } catch (e) {}"
             "})();"
         )

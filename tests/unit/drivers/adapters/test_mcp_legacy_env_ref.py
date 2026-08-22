@@ -3,22 +3,22 @@
 
 from types import SimpleNamespace
 
-from qwenpaw.drivers.adapters.mcp_binding import (
+from aiarb.drivers.adapters.mcp_binding import (
     EnvRefPlan,
     plan_env_ref_bindings,
 )
-from qwenpaw.drivers.adapters.mcp_card_builder import (
+from aiarb.drivers.adapters.mcp_card_builder import (
     build_mcp_client_info_payload,
     build_mcp_credential_record,
     build_mcp_driver_card,
     mcp_credential_ref,
 )
-from qwenpaw.drivers.adapters.mcp_legacy_config import (
+from aiarb.drivers.adapters.mcp_legacy_config import (
     legacy_mcp_client_to_driver,
 )
-from qwenpaw.drivers.contracts import CredentialRef
-from qwenpaw.drivers.credentials.bindings import resolve_binding
-from qwenpaw.drivers.credentials.types import ResolvedCredential
+from aiarb.drivers.contracts import CredentialRef
+from aiarb.drivers.credentials.bindings import resolve_binding
+from aiarb.drivers.credentials.types import ResolvedCredential
 
 # --- plan_env_ref_bindings unit behavior ---
 

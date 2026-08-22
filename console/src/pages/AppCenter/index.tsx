@@ -65,7 +65,7 @@ const { Option } = Select;
 type AppCenterView = "installed" | "official" | "market";
 // Featured installed apps (e.g. Creator) are pinned to the top of the grid.
 // Lower index = higher placement.
-const FEATURED_APP_IDS = ["qwenpaw-creator"];
+const FEATURED_APP_IDS = ["aiarb-creator"];
 
 function featuredRank(id: string): number {
   const index = FEATURED_APP_IDS.indexOf(id);

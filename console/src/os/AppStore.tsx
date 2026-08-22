@@ -94,7 +94,7 @@ export default function AppStore() {
     page,
     pageSize,
     installingId,
-    qwenpawVersion,
+    aiarbVersion,
     isCompatible,
     handleSearch,
     handlePageChange,
@@ -162,9 +162,9 @@ export default function AppStore() {
       title: t("os.appCompatibilityWarningTitle", "Compatibility Warning"),
       content: t("os.appCompatibilityWarningContent", {
         defaultValue:
-          "This app is labeled for QwenPaw {{labels}}. Your QwenPaw version is {{version}}. Installing it may cause errors. Continue?",
-        labels: entry.qwenpaw_compat_labels?.join(", ") ?? "unknown",
-        version: qwenpawVersion ?? "unknown",
+          "This app is labeled for AIArb {{labels}}. Your AIArb version is {{version}}. Installing it may cause errors. Continue?",
+        labels: entry.aiarb_compat_labels?.join(", ") ?? "unknown",
+        version: aiarbVersion ?? "unknown",
       }),
       okText: t("os.appCompatibilityWarningConfirm", "Install anyway"),
       cancelText: t("common.cancel", "Cancel"),
@@ -377,8 +377,8 @@ export default function AppStore() {
           <div className={styles.storeGrid}>
             {plugins.map((entry) => {
               const compat =
-                entry.qwenpaw_compat_labels &&
-                entry.qwenpaw_compat_labels.length > 0;
+                entry.aiarb_compat_labels &&
+                entry.aiarb_compat_labels.length > 0;
               return (
                 <div key={entry.id} className={styles.storeCard}>
                   <div className={styles.storeCardTop}>
@@ -410,7 +410,7 @@ export default function AppStore() {
                             color={isCompatible(entry) ? "green" : "orange"}
                             style={{ marginLeft: 6, fontSize: 10 }}
                           >
-                            {`QwenPaw ${entry.qwenpaw_compat_labels!.join(
+                            {`AIArb ${entry.aiarb_compat_labels!.join(
                               ", ",
                             )}`}
                           </Tag>
@@ -450,7 +450,7 @@ export default function AppStore() {
                         !isCompatible(entry)
                           ? t("os.appCompatibilityUnverified", {
                               defaultValue:
-                                "Compatibility with your QwenPaw version is unverified.",
+                                "Compatibility with your AIArb version is unverified.",
                             })
                           : undefined
                       }

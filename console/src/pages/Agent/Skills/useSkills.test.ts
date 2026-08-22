@@ -35,7 +35,7 @@ const hoisted = vi.hoisted(() => {
   };
   const agentState = {
     selectedAgent: "agent-1",
-    agents: [{ id: "agent-1", backend: "qwenpaw" }] as Array<
+    agents: [{ id: "agent-1", backend: "aiarb" }] as Array<
       Record<string, unknown>
     >,
   };
@@ -159,7 +159,7 @@ describe("useSkills", () => {
     handleScanErrorMock.mockReturnValue(false);
     harnessMocks.listSkills.mockReset();
     agentState.selectedAgent = "agent-1";
-    agentState.agents = [{ id: "agent-1", backend: "qwenpaw" }];
+    agentState.agents = [{ id: "agent-1", backend: "aiarb" }];
 
     apiMocks.listSkills.mockResolvedValue([makeSkill()]);
     apiMocks.getBlockedHistory.mockResolvedValue([]);

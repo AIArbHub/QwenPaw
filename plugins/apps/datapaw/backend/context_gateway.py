@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Authenticated, allowlisted gateway to the QwenPaw-Data context service."""
+"""Authenticated, allowlisted gateway to the AIArb-Data context service."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import httpx
 from fastapi import HTTPException, Request
 from fastapi.responses import Response
 
-from qwenpaw.pawapp import ManagedService
+from aiarb.pawapp import ManagedService
 
 _ALLOWED_ROUTES = (
     ("/api/health", False),
@@ -114,7 +114,7 @@ class ContextGateway:
         """Resolve browser and CLI-style paths onto the Context API.
 
         The embedded UI uses paths such as ``semantic-config/metric-lib``.
-        QwenPaw-Data CLI clients append canonical paths beginning with
+        AIArb-Data CLI clients append canonical paths beginning with
         ``/api`` to ``DATAPAW_CM_BASE_URL``.  Accept both shapes so callers can
         point the CLI at ``.../api/datapaw/context`` and reach the same managed
         Context service that backs the portal.

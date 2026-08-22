@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.routers.console import _apply_session_project_dir
+from aiarb.app.routers.console import _apply_session_project_dir
 
 
 @pytest.mark.asyncio

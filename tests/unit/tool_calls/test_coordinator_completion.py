@@ -11,10 +11,10 @@ import pytest
 from agentscope.message import TextBlock, ToolResultBlock
 from agentscope.tool import ToolResponse
 
-from qwenpaw.tool_calls import ToolCoordinator, ToolCoordinatorMiddleware
-from qwenpaw.tool_calls._context import CancelReason, ToolCallContext
-from qwenpaw.tool_calls._entry import ToolCallEntry
-from qwenpaw.tool_calls._stream import ToolStream
+from aiarb.tool_calls import ToolCoordinator, ToolCoordinatorMiddleware
+from aiarb.tool_calls._context import CancelReason, ToolCallContext
+from aiarb.tool_calls._entry import ToolCallEntry
+from aiarb.tool_calls._stream import ToolStream
 
 
 @dataclass
@@ -277,7 +277,7 @@ async def test_kill_deadline_terminates_execution():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         await cancellable_wait(
             asyncio.sleep(10),
@@ -403,7 +403,7 @@ async def test_extend_offload_deadline_rejects_after_offload():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         await cancellable_wait(
             asyncio.sleep(1),
@@ -452,7 +452,7 @@ async def test_offload_does_not_set_cancel_event_background_keeps_running():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait, get_call_context
+        from aiarb.tool_calls import cancellable_wait, get_call_context
 
         # Arm a long kill so seeded post-offload kill does not race this test.
         await cancellable_wait(
@@ -512,7 +512,7 @@ async def test_keep_foreground_survives_offload_deadline_then_kill():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         # Offload window (~0.02s) clears first; kill (~0.08s) must still fire.
         await cancellable_wait(
@@ -561,7 +561,7 @@ async def test_keep_foreground_timeout_gt_hook_survives_offload_window():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         # Offload ~0.05s; tool timeout / kill ~0.2s.
         await cancellable_wait(
@@ -815,7 +815,7 @@ async def test_request_offload_rejects_when_no_kill_bound_available():
 @pytest.mark.asyncio
 async def test_user_offload_message_tells_agent_not_to_rerun():
     """Manual offload ToolResponse must attribute the user and forbid rerun."""
-    from qwenpaw.tool_calls._context import OffloadReason
+    from aiarb.tool_calls._context import OffloadReason
 
     coordinator = ToolCoordinator(
         default_timeout_secs=30.0,
@@ -828,7 +828,7 @@ async def test_user_offload_message_tells_agent_not_to_rerun():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         started.set()
         await cancellable_wait(
@@ -966,7 +966,7 @@ async def test_equal_timeout_budget_offloads_before_kill():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         # Arm kill to the same budget the coordinator resolved for offload.
         try:
@@ -1019,7 +1019,7 @@ async def test_extend_kill_allows_tool_past_original_budget():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         await cancellable_wait(
             asyncio.sleep(0.25),
@@ -1070,7 +1070,7 @@ async def test_extend_kill_keeps_chat_style_async_collect_alive():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         async def collect_hang() -> str:
             started.set()
@@ -1134,7 +1134,7 @@ async def test_offloaded_rejects_clearing_kill_deadline():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         await cancellable_wait(
             release.wait(),
@@ -1176,7 +1176,7 @@ async def test_offloaded_rejects_clearing_kill_deadline():
 @pytest.mark.asyncio
 async def test_extend_kill_refuses_past_max_internal_and_no_deadline():
     """API must not promise more than a tool's internal executor ceiling."""
-    from qwenpaw.tool_calls import COORDINATOR_OWNED_EXEC_TIMEOUT_SECS
+    from aiarb.tool_calls import COORDINATOR_OWNED_EXEC_TIMEOUT_SECS
 
     coordinator = ToolCoordinator(offload_on_deadline=False)
     coordinator.hooks.register(
@@ -1190,7 +1190,7 @@ async def test_extend_kill_refuses_past_max_internal_and_no_deadline():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         started.set()
         await cancellable_wait(

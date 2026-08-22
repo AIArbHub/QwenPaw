@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw Chat page object.
+AIArb Chat page object.
 
 Wraps all interactions on the Chat page and exposes business-level methods.
 """
@@ -32,11 +32,11 @@ class ChatPage(BasePage):
     - Skill invocation
     """
 
-    PAGE_TITLE = "QwenPaw Console"
+    PAGE_TITLE = "AIArb Console"
     PAGE_URL = f"{config.base_url}/chat"
 
     # ========== Selector definitions ==========
-    # Page components use the qwenpaw- CSS prefix
+    # Page components use the aiarb- CSS prefix
 
     # Navigation and new chat (compatible with both spark-icon and anticon icon sets)
     NEW_CHAT_BTN = 'button:has(.spark-icon-spark-newChat-fill), button:has(.anticon-plus), button:has([class*="newChat"])'
@@ -44,18 +44,18 @@ class ChatPage(BasePage):
 
     # Input area
     CHAT_INPUT = (
-        '.qwenpaw-sender [role="textbox"][contenteditable="true"]:visible, '
-        "textarea.qwenpaw-sender-input:visible"
+        '.aiarb-sender [role="textbox"][contenteditable="true"]:visible, '
+        "textarea.aiarb-sender-input:visible"
     )
-    SEND_BTN = 'button.qwenpaw-sender-actions-btn.qwenpaw-btn-primary'
+    SEND_BTN = 'button.aiarb-sender-actions-btn.aiarb-btn-primary'
     FILE_INPUT = 'input[type="file"]'
-    UPLOAD_WRAPPER = 'span.qwenpaw-upload-wrapper'
+    UPLOAD_WRAPPER = 'span.aiarb-upload-wrapper'
 
     # Message area
-    USER_MESSAGE = '.qwenpaw-bubble.qwenpaw-bubble-end'
-    AI_MESSAGE = '.qwenpaw-bubble.qwenpaw-bubble-start'
-    MESSAGE_CONTAINER = '.qwenpaw-bubble.qwenpaw-bubble-start, .qwenpaw-bubble.qwenpaw-bubble-end'
-    MESSAGE_LIST = '.qwenpaw-bubble-list-scroll'
+    USER_MESSAGE = '.aiarb-bubble.aiarb-bubble-end'
+    AI_MESSAGE = '.aiarb-bubble.aiarb-bubble-start'
+    MESSAGE_CONTAINER = '.aiarb-bubble.aiarb-bubble-start, .aiarb-bubble.aiarb-bubble-end'
+    MESSAGE_LIST = '.aiarb-bubble-list-scroll'
 
     # Welcome screen (check input visibility)
     WELCOME_TEXT = CHAT_INPUT
@@ -83,20 +83,20 @@ class ChatPage(BasePage):
     SESSION_MORE_BTN = '[class*=moreBtn]'
     # ``:text-is`` is exact so "Pin" does not also match "Unpin".
     SESSION_MENU_PIN = (
-        '.qwenpaw-dropdown-menu-item:has-text("Pin"), '
-        '.qwenpaw-dropdown-menu-item:has-text("置顶")'
+        '.aiarb-dropdown-menu-item:has-text("Pin"), '
+        '.aiarb-dropdown-menu-item:has-text("置顶")'
     )
     SESSION_MENU_UNPIN = (
-        '.qwenpaw-dropdown-menu-item:has-text("Unpin"), '
-        '.qwenpaw-dropdown-menu-item:has-text("取消置顶")'
+        '.aiarb-dropdown-menu-item:has-text("Unpin"), '
+        '.aiarb-dropdown-menu-item:has-text("取消置顶")'
     )
     SESSION_MENU_RENAME = (
-        '.qwenpaw-dropdown-menu-item:has-text("Rename"), '
-        '.qwenpaw-dropdown-menu-item:has-text("重命名")'
+        '.aiarb-dropdown-menu-item:has-text("Rename"), '
+        '.aiarb-dropdown-menu-item:has-text("重命名")'
     )
     SESSION_MENU_DELETE = (
-        '.qwenpaw-dropdown-menu-item:has-text("Delete"), '
-        '.qwenpaw-dropdown-menu-item:has-text("删除")'
+        '.aiarb-dropdown-menu-item:has-text("Delete"), '
+        '.aiarb-dropdown-menu-item:has-text("删除")'
     )
     # Inline rename input rendered when a SessionItem enters edit mode.
     SESSION_RENAME_INPUT = 'input[class*=renameInput]'
@@ -124,36 +124,36 @@ class ChatPage(BasePage):
     # Only items inside the currently-open dropdown (antd keeps closed menus in
     # the DOM with a ``-hidden`` modifier).
     APPROVAL_MENU_ITEM = (
-        '.qwenpaw-dropdown:not(.qwenpaw-dropdown-hidden) '
-        '.qwenpaw-dropdown-menu-item'
+        '.aiarb-dropdown:not(.aiarb-dropdown-hidden) '
+        '.aiarb-dropdown-menu-item'
     )
 
     # Settings and model
-    MODEL_SELECTOR = '.qwenpaw-dropdown-trigger'
-    MODEL_OPTION = '.qwenpaw-dropdown-menu-item'
-    AGENT_SELECTOR = '.qwenpaw-select-selector'
+    MODEL_SELECTOR = '.aiarb-dropdown-trigger'
+    MODEL_OPTION = '.aiarb-dropdown-menu-item'
+    AGENT_SELECTOR = '.aiarb-select-selector'
 
     # --- Sidebar agent switcher (components/AgentSelector) ---
     # The antd Select sits inside a CSS-module wrapper whose hashed class
     # keeps the "agentSelector" basename; scoping avoids other Selects.
-    AGENT_SWITCHER = '[class*="agentSelector"] .qwenpaw-select-selector'
+    AGENT_SWITCHER = '[class*="agentSelector"] .aiarb-select-selector'
     AGENT_SWITCHER_VALUE = (
-        '[class*="agentSelector"] .qwenpaw-select-selection-item'
+        '[class*="agentSelector"] .aiarb-select-selection-item'
     )
     AGENT_SWITCHER_OPTION = (
-        '.qwenpaw-select-dropdown:not(.qwenpaw-select-dropdown-hidden) '
-        '.qwenpaw-select-item-option'
+        '.aiarb-select-dropdown:not(.aiarb-select-dropdown-hidden) '
+        '.aiarb-select-item-option'
     )
 
     # --- Slash-command suggestion popup (@ant-design/x Suggestion) ---
     # Opens while the input starts with "/" and has no whitespace yet.
-    # Two nodes carry .qwenpaw-suggestion (inline content + the cascader
+    # Two nodes carry .aiarb-suggestion (inline content + the cascader
     # dropdown); anchor on the dropdown, excluding its hidden state.
     SUGGESTION_POPUP = (
-        '.qwenpaw-suggestion.qwenpaw-select-dropdown'
-        ':not(.qwenpaw-select-dropdown-hidden)'
+        '.aiarb-suggestion.aiarb-select-dropdown'
+        ':not(.aiarb-select-dropdown-hidden)'
     )
-    SUGGESTION_ITEM = '.qwenpaw-suggestion-item'
+    SUGGESTION_ITEM = '.aiarb-suggestion-item'
 
     # --- Sidebar session date groups — upstream #5643 ---
     # SidebarSessionList renders one <button class={styles.groupLabel}> per
@@ -171,9 +171,9 @@ class ChatPage(BasePage):
 
     # --- Non-owner tab banner — upstream #5664 ---
     # antd <Alert type="info" banner> injected into the sender beforeUI slot
-    # when this tab lost the qwenpaw:queue-owner:<sessionId> Web Lock. Appears
+    # when this tab lost the aiarb:queue-owner:<sessionId> Web Lock. Appears
     # only after a 300ms ownershipResolved fallback timer.
-    QUEUE_BANNER = '.qwenpaw-alert-banner'
+    QUEUE_BANNER = '.aiarb-alert-banner'
     _QUEUE_BANNER_RE = re.compile(
         r"This tab queues only|当前标签页仅入队"
     )
@@ -182,15 +182,15 @@ class ChatPage(BasePage):
     COPY_BTN = 'span[title="复制"]'
 
     # Tool and skill details
-    TOOL_TOGGLE = '.qwenpaw-operate-card-header-arrow'
-    TOOL_DETAILS = '.qwenpaw-operate-card'
+    TOOL_TOGGLE = '.aiarb-operate-card-header-arrow'
+    TOOL_DETAILS = '.aiarb-operate-card'
 
     # Errors and toasts (SUCCESS_MESSAGE / ERROR_MESSAGE inherited from BasePage)
-    COPY_SUCCESS = '.qwenpaw-message-success'
+    COPY_SUCCESS = '.aiarb-message-success'
 
     # Drawer and dialog
     DRAWER_CLOSE = '[class*=headerRight] button'
-    CONFIRM_BTN = 'button:has-text("确认"), button:has-text("OK"), .qwenpaw-btn-primary:has-text("确定")'
+    CONFIRM_BTN = 'button:has-text("确认"), button:has-text("OK"), .aiarb-btn-primary:has-text("确定")'
     CANCEL_BTN = 'button:has-text("取消"), button:has-text("Cancel")'
 
     # ========== Robust "button disabled" detection JS snippets ==========
@@ -202,14 +202,14 @@ class ChatPage(BasePage):
     # Hitting any of them is treated as disabled.
     _JS_BTN_IS_DISABLED = """() => {
         const btn = document.querySelector(
-            'button.qwenpaw-sender-actions-btn.qwenpaw-btn-primary'
+            'button.aiarb-sender-actions-btn.aiarb-btn-primary'
         );
         if (!btn) return false;
         if (btn.disabled === true) return true;
         if (btn.hasAttribute('disabled')) return true;
         if (btn.getAttribute('aria-disabled') === 'true') return true;
         const cls = btn.className || '';
-        if (/qwenpaw-btn-disabled|qwenpaw-btn-loading|is-disabled|is-loading/.test(cls)) {
+        if (/aiarb-btn-disabled|aiarb-btn-loading|is-disabled|is-loading/.test(cls)) {
             return true;
         }
         return false;
@@ -217,14 +217,14 @@ class ChatPage(BasePage):
 
     _JS_BTN_IS_ENABLED = """() => {
         const btn = document.querySelector(
-            'button.qwenpaw-sender-actions-btn.qwenpaw-btn-primary'
+            'button.aiarb-sender-actions-btn.aiarb-btn-primary'
         );
         if (!btn) return false;
         if (btn.disabled === true) return false;
         if (btn.hasAttribute('disabled')) return false;
         if (btn.getAttribute('aria-disabled') === 'true') return false;
         const cls = btn.className || '';
-        if (/qwenpaw-btn-disabled|qwenpaw-btn-loading|is-disabled|is-loading/.test(cls)) {
+        if (/aiarb-btn-disabled|aiarb-btn-loading|is-disabled|is-loading/.test(cls)) {
             return false;
         }
         return true;
@@ -376,11 +376,11 @@ class ChatPage(BasePage):
                     """() => {
                         // Path A: button has recovered to enabled
                         const btn = document.querySelector(
-                            'button.qwenpaw-sender-actions-btn.qwenpaw-btn-primary'
+                            'button.aiarb-sender-actions-btn.aiarb-btn-primary'
                         );
                         if (btn) {
                             const cls = btn.className || '';
-                            const disabledByCls = /qwenpaw-btn-disabled|qwenpaw-btn-loading|is-disabled|is-loading/.test(cls);
+                            const disabledByCls = /aiarb-btn-disabled|aiarb-btn-loading|is-disabled|is-loading/.test(cls);
                             const disabledByAttr = btn.disabled === true
                                 || btn.hasAttribute('disabled')
                                 || btn.getAttribute('aria-disabled') === 'true';
@@ -388,12 +388,12 @@ class ChatPage(BasePage):
                         }
                         // Path B: last AI bubble content unchanged for 1.5s in a row (release even if button is forever disabled)
                         const aiMsgs = document.querySelectorAll(
-                            '.qwenpaw-bubble.qwenpaw-bubble-start'
+                            '.aiarb-bubble.aiarb-bubble-start'
                         );
                         if (aiMsgs.length === 0) return true; // No AI bubble, release directly
                         const last = aiMsgs[aiMsgs.length - 1];
                         const raw = (last.innerText || '').trim();
-                        const key = '__qwenpaw_send_idle_cache__';
+                        const key = '__aiarb_send_idle_cache__';
                         const now = Date.now();
                         const cache = window[key] || {};
                         if (cache.text !== raw) {
@@ -413,7 +413,7 @@ class ChatPage(BasePage):
             finally:
                 try:
                     self.page.evaluate(
-                        "() => { try { delete window.__qwenpaw_send_idle_cache__; } catch(e) {} }"
+                        "() => { try { delete window.__aiarb_send_idle_cache__; } catch(e) {} }"
                     )
                 except Exception:
                     pass
@@ -442,7 +442,7 @@ class ChatPage(BasePage):
             self.page.wait_for_function(
                 """(expected) => {
                     const msgs = document.querySelectorAll(
-                        '.qwenpaw-bubble.qwenpaw-bubble-end'
+                        '.aiarb-bubble.aiarb-bubble-end'
                     );
                     return msgs.length > expected;
                 }""",
@@ -460,7 +460,7 @@ class ChatPage(BasePage):
             self.page.wait_for_function(
                 """(expected) => {
                     const msgs = document.querySelectorAll(
-                        '.qwenpaw-bubble.qwenpaw-bubble-end'
+                        '.aiarb-bubble.aiarb-bubble-end'
                     );
                     return msgs.length > expected;
                 }""",
@@ -568,7 +568,7 @@ class ChatPage(BasePage):
             self.page.wait_for_function(
                 """(expectedCount) => {
                     const aiMsgs = document.querySelectorAll(
-                        '.qwenpaw-bubble.qwenpaw-bubble-start'
+                        '.aiarb-bubble.aiarb-bubble-start'
                     );
                     return aiMsgs.length > expectedCount;
                 }""",
@@ -598,12 +598,12 @@ class ChatPage(BasePage):
                 """(expectedCount) => {
                     // Path A: button transitioned from disabled back to enabled -> streaming really ended
                     const btn = document.querySelector(
-                        'button.qwenpaw-sender-actions-btn.qwenpaw-btn-primary'
+                        'button.aiarb-sender-actions-btn.aiarb-btn-primary'
                     );
                     let btnEnabled = false;
                     if (btn) {
                         const cls = btn.className || '';
-                        const disabledByCls = /qwenpaw-btn-disabled|qwenpaw-btn-loading|is-disabled|is-loading/.test(cls);
+                        const disabledByCls = /aiarb-btn-disabled|aiarb-btn-loading|is-disabled|is-loading/.test(cls);
                         const disabledByAttr = btn.disabled === true
                             || btn.hasAttribute('disabled')
                             || btn.getAttribute('aria-disabled') === 'true';
@@ -612,7 +612,7 @@ class ChatPage(BasePage):
 
                     // Path B: AI bubble content unchanged for 2500ms in a row and >= 2 chars after stripping placeholders
                     const aiMsgs = document.querySelectorAll(
-                        '.qwenpaw-bubble.qwenpaw-bubble-start'
+                        '.aiarb-bubble.aiarb-bubble-start'
                     );
                     if (aiMsgs.length <= expectedCount) {
                         return false; // No new bubble at all; definitely cannot release
@@ -628,7 +628,7 @@ class ChatPage(BasePage):
                     // Content stability check (only computed when there is real text)
                     let contentStable = false;
                     if (hasRealText) {
-                        const key = '__qwenpaw_ai_stable_cache__';
+                        const key = '__aiarb_ai_stable_cache__';
                         const now = Date.now();
                         const cache = window[key] || {};
                         if (cache.text !== raw) {
@@ -640,12 +640,12 @@ class ChatPage(BasePage):
 
                     // Path A priority (button recovered + at least real text -> release immediately)
                     if (btnEnabled && hasRealText) {
-                        window.__qwenpaw_wait_passed_via__ = 'btn_enabled';
+                        window.__aiarb_wait_passed_via__ = 'btn_enabled';
                         return true;
                     }
                     // Path B fallback (release on content stability even if button is forever disabled)
                     if (contentStable) {
-                        window.__qwenpaw_wait_passed_via__ = 'content_stable';
+                        window.__aiarb_wait_passed_via__ = 'content_stable';
                         return true;
                     }
                     return false;
@@ -655,7 +655,7 @@ class ChatPage(BasePage):
             )
             try:
                 passed_via = self.page.evaluate(
-                    "() => window.__qwenpaw_wait_passed_via__ || 'unknown'"
+                    "() => window.__aiarb_wait_passed_via__ || 'unknown'"
                 )
             except Exception:
                 passed_via = "unknown"
@@ -681,8 +681,8 @@ class ChatPage(BasePage):
             try:
                 self.page.evaluate(
                     "() => { try { "
-                    "delete window.__qwenpaw_ai_stable_cache__; "
-                    "delete window.__qwenpaw_wait_passed_via__; "
+                    "delete window.__aiarb_ai_stable_cache__; "
+                    "delete window.__aiarb_wait_passed_via__; "
                     "} catch(e) {} }"
                 )
             except Exception:
@@ -783,7 +783,7 @@ class ChatPage(BasePage):
         Returns:
             whether the upload succeeded
         """
-        file_preview_selector = '.qwenpaw-upload-list-item, .qwenpaw-sender-content [class*="file"], [class*="attachment"]'
+        file_preview_selector = '.aiarb-upload-list-item, .aiarb-sender-content [class*="file"], [class*="attachment"]'
         return self.assert_visible(file_preview_selector, timeout=timeout)
 
     # ========== Session management ==========
@@ -849,7 +849,7 @@ class ChatPage(BasePage):
     def close_session_list(self) -> "ChatPage":
         """Close the session list.
 
-        The panel may be rendered as an antd Drawer (``.qwenpaw-drawer``)
+        The panel may be rendered as an antd Drawer (``.aiarb-drawer``)
         or as an embedded panel (``[class*=historyPanel]``). The close
         button is the **last** button inside ``[class*=headerRight]``
         (the first is pin/unpin). If neither selector matches, fall back
@@ -858,7 +858,7 @@ class ChatPage(BasePage):
         """
         logger.info("Closing session list")
         for container in (
-            '.qwenpaw-drawer',
+            '.aiarb-drawer',
             '[class*="historyPanel"]',
             '[class*="embeddedPanel"]',
         ):
@@ -933,8 +933,8 @@ class ChatPage(BasePage):
         # antd keeps closed menus in the DOM with a ``-hidden`` modifier; the
         # open one is the menu WITHOUT it.
         open_menu_item = (
-            '.qwenpaw-dropdown:not(.qwenpaw-dropdown-hidden) '
-            '.qwenpaw-dropdown-menu-item'
+            '.aiarb-dropdown:not(.aiarb-dropdown-hidden) '
+            '.aiarb-dropdown-menu-item'
         )
 
         def _menu_visible(timeout: int) -> bool:
@@ -1022,7 +1022,7 @@ class ChatPage(BasePage):
         rename_input = self.page.locator(self.SESSION_RENAME_INPUT).first
         if rename_input.count() == 0 or not rename_input.is_visible():
             rename_input = self.page.locator(
-                '[class*=listWrapper] input, .qwenpaw-drawer input'
+                '[class*=listWrapper] input, .aiarb-drawer input'
             ).first
         if rename_input.count() == 0 or not rename_input.is_visible():
             logger.warning("Rename input not found, skipping rename")
@@ -1077,9 +1077,9 @@ class ChatPage(BasePage):
 
         # A confirmation modal may appear; confirm it when present.
         confirm = self.page.locator(
-            '.qwenpaw-modal-confirm-btns button.qwenpaw-btn-dangerous, '
-            '.qwenpaw-modal button.qwenpaw-btn-dangerous, '
-            '.qwenpaw-modal-confirm-btns button.qwenpaw-btn-primary'
+            '.aiarb-modal-confirm-btns button.aiarb-btn-dangerous, '
+            '.aiarb-modal button.aiarb-btn-dangerous, '
+            '.aiarb-modal-confirm-btns button.aiarb-btn-primary'
         ).first
         try:
             if confirm.count() > 0 and confirm.is_visible(timeout=1500):
@@ -1134,7 +1134,7 @@ class ChatPage(BasePage):
     def get_approval_toggle(self) -> Locator:
         """Locate the approval-level Tag in the composer (matches any level)."""
         return (
-            self.page.locator("span.qwenpaw-tag")
+            self.page.locator("span.aiarb-tag")
             .filter(has_text=self._APPROVAL_LABEL_RE)
             .first
         )
@@ -1225,7 +1225,7 @@ class ChatPage(BasePage):
         """Open the model selector."""
         logger.info("Opening model selector")
         # The model selector lives in the right-side area of the header
-        header = self.page.locator('.qwenpaw-chat-anywhere-layout-right-header')
+        header = self.page.locator('.aiarb-chat-anywhere-layout-right-header')
         model_btn = header.locator(self.MODEL_SELECTOR).first
         model_btn.click()
         self.wait(500)
@@ -1338,7 +1338,7 @@ class ChatPage(BasePage):
         """Dismiss the error message."""
         error = self.find(self.ERROR_MESSAGE)
         if error.count() > 0:
-            close_btn = error.locator('.qwenpaw-message-close, .qwenpaw-notification-close').first
+            close_btn = error.locator('.aiarb-message-close, .aiarb-notification-close').first
             if close_btn.count() > 0:
                 close_btn.click()
                 self.wait(500)
@@ -1349,7 +1349,7 @@ class ChatPage(BasePage):
     def scroll_to_top(self) -> "ChatPage":
         """Scroll the message list to the top."""
         self.page.evaluate("""() => {
-            const list = document.querySelector('.qwenpaw-bubble-list-scroll');
+            const list = document.querySelector('.aiarb-bubble-list-scroll');
             if (list) list.scrollTop = 0;
         }""")
         self.wait(500)
@@ -1358,7 +1358,7 @@ class ChatPage(BasePage):
     def scroll_to_bottom(self) -> "ChatPage":
         """Scroll the message list to the bottom."""
         self.page.evaluate("""() => {
-            const list = document.querySelector('.qwenpaw-bubble-list-scroll');
+            const list = document.querySelector('.aiarb-bubble-list-scroll');
             if (list) list.scrollTop = list.scrollHeight;
         }""")
         self.wait(500)

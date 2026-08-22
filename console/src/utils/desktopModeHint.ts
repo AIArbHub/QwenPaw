@@ -1,4 +1,4 @@
-const DESKTOP_MODE_HINT_KEY = "qwenpaw.desktop-mode-hint.dismissed";
+const DESKTOP_MODE_HINT_KEY = "aiarb.desktop-mode-hint.dismissed";
 
 export function shouldShowDesktopModeHint(storage: Storage): boolean {
   try {

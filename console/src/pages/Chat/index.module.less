@@ -140,11 +140,11 @@
 
   /* Wide mode: widen bubble list and sender while keeping spacing */
   &.wideMode :global {
-    .qwenpaw-bubble-list {
+    .aiarb-bubble-list {
       max-width: none !important;
     }
 
-    .qwenpaw-chat-anywhere-sender-wrapper {
+    .aiarb-chat-anywhere-sender-wrapper {
       max-width: none !important;
     }
   }
@@ -255,10 +255,10 @@
 }
 
 :global {
-  .qwenpaw-suggestion .qwenpaw-cascader-menu,
-  .qwenpaw-suggestion .ant-cascader-menu,
-  .ant-cascader-dropdown.qwenpaw-suggestion .qwenpaw-cascader-menu,
-  .ant-cascader-dropdown.qwenpaw-suggestion .ant-cascader-menu {
+  .aiarb-suggestion .aiarb-cascader-menu,
+  .aiarb-suggestion .ant-cascader-menu,
+  .ant-cascader-dropdown.aiarb-suggestion .aiarb-cascader-menu,
+  .ant-cascader-dropdown.aiarb-suggestion .ant-cascader-menu {
     height: auto !important;
     max-height: 210px;
     overflow-y: auto;
@@ -352,12 +352,12 @@
 /* Fix #6583: Keep enough attachment cards visible to verify a multi-file
  * selection, while bounding very large drops to three scrollable rows. */
 .chatMessagesArea :global {
-  .qwenpaw-sender-header .qwenpaw-attachment {
+  .aiarb-sender-header .aiarb-attachment {
     width: 100%;
     overflow: visible;
   }
 
-  .qwenpaw-sender-header .qwenpaw-attachment-list {
+  .aiarb-sender-header .aiarb-attachment-list {
     flex-wrap: wrap;
     align-content: flex-start;
     max-height: 208px;
@@ -370,7 +370,7 @@
 
 @media (max-width: 600px) {
   .chatMessagesArea :global {
-    .qwenpaw-sender-header .qwenpaw-attachment-list {
+    .aiarb-sender-header .aiarb-attachment-list {
       column-gap: 8px;
       padding-inline: 6px;
     }

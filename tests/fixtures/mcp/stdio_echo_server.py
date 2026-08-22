@@ -5,7 +5,7 @@ import os
 
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("qwenpaw-stdio-echo")
+mcp = FastMCP("aiarb-stdio-echo")
 
 
 @mcp.tool()

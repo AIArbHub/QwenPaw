@@ -13,10 +13,10 @@ import asyncio
 from pathlib import Path
 from types import SimpleNamespace
 
-from qwenpaw.app.workspace.service_factories import (
+from aiarb.app.workspace.service_factories import (
     create_mail_monitor_service,
 )
-from qwenpaw.config.config import (
+from aiarb.config.config import (
     AgentMailConfig,
     AgentMailCredential,
     AgentMailPushConfig,
@@ -25,7 +25,7 @@ from qwenpaw.config.config import (
 _SEED_ROOT = (
     Path(__file__).resolve().parents[4]
     / "src"
-    / "qwenpaw"
+    / "aiarb"
     / "agents"
     / "md_files"
 )
@@ -63,7 +63,7 @@ def _fake_workspace(
 
 
 def test_monitor_start_seeds_missing_mail_files(tmp_path):
-    ws = _fake_workspace("qwenpaw", tmp_path)
+    ws = _fake_workspace("aiarb", tmp_path)
     monitor = asyncio.run(create_mail_monitor_service(ws, None))
     assert monitor is not None
     triage = tmp_path / "MAIL_TRIAGE.md"
@@ -79,14 +79,14 @@ def test_monitor_start_seeds_missing_mail_files(tmp_path):
 def test_monitor_start_keeps_existing_files(tmp_path):
     existing = tmp_path / "MAIL_TRIAGE.md"
     existing.write_text("user edited triage tree", encoding="utf-8")
-    ws = _fake_workspace("qwenpaw", tmp_path)
+    ws = _fake_workspace("aiarb", tmp_path)
     monitor = asyncio.run(create_mail_monitor_service(ws, None))
     assert monitor is not None
     assert existing.read_text(encoding="utf-8") == "user edited triage tree"
 
 
 def test_monitor_start_falls_back_to_en_for_unknown_language(tmp_path):
-    ws = _fake_workspace("qwenpaw", tmp_path, language="fr")
+    ws = _fake_workspace("aiarb", tmp_path, language="fr")
     monitor = asyncio.run(create_mail_monitor_service(ws, None))
     assert monitor is not None
     triage = tmp_path / "MAIL_TRIAGE.md"

@@ -1,6 +1,6 @@
 {
   "id": "datapaw",
-  "name": "QwenPaw-Data",
+  "name": "AIArb-Data",
   "version": "0.2.0",
   "type": "app",
   "description": "Self-Evolving, Graph-Grounded Agentic BI at Enterprise Scale",
@@ -8,7 +8,7 @@
     "zh-CN": "Self-Evolving, Graph-Grounded Agentic BI at Enterprise Scale",
     "en-US": "Self-Evolving, Graph-Grounded Agentic BI at Enterprise Scale"
   },
-  "author": "QwenPaw-Data Team",
+  "author": "AIArb-Data Team",
   "entry": {
     "backend": "backend/main.py",
     "frontend": "ui/dist/index.js"
@@ -30,7 +30,7 @@
     "ui/vite.config.ts"
   ],
   "dependencies": [],
-  "qwenpaw_version": {
+  "aiarb_version": {
     "min": "2.0.1",
     "max": "3.1.0"
   },

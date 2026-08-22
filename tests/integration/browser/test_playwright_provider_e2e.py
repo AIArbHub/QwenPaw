@@ -3,10 +3,10 @@
 
 import pytest
 
-from qwenpaw.browser.control_link.playwright.adapter import (
+from aiarb.browser.control_link.playwright.adapter import (
     PlaywrightControlLink,
 )
-from qwenpaw.browser.errors import BrowserError
+from aiarb.browser.errors import BrowserError
 
 
 def _locator_spec(method: str, *args: str, **kwargs: str) -> list[dict]:

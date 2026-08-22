@@ -8,10 +8,10 @@ import jsonschema
 import pytest
 from agentscope.tool import Toolkit
 
-from qwenpaw.agents.tools.file_io import read_file
-from qwenpaw.agents.tools.shell import execute_shell_command
-from qwenpaw.governance import PolicyGuardedTool
-from qwenpaw.providers.openai_chat_model_compat import (
+from aiarb.agents.tools.file_io import read_file
+from aiarb.agents.tools.shell import execute_shell_command
+from aiarb.governance import PolicyGuardedTool
+from aiarb.providers.openai_chat_model_compat import (
     _expand_regex_shorthands,
     _sanitize_tool_schemas,
 )

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from qwenpaw.browser.control_link.chrome.protocol import EXTENSION_COMMANDS
+from aiarb.browser.control_link.chrome.protocol import EXTENSION_COMMANDS
 
 _CDP_FIXTURES: dict[str, dict[str, Any]] = {
     "Page.reload": {},
@@ -113,7 +113,7 @@ class FakeExtensionBridge:
                 "url": url,
                 "title": "Fake Extension Page",
                 "active": True,
-                "createdByQwenPaw": True,
+                "createdByAIArb": True,
                 "ownerId": str(owner_id),
                 "workspaceId": str(workspace_id),
             }

@@ -8,14 +8,14 @@ from types import SimpleNamespace
 import pytest
 from agentscope.message import Msg, TextBlock
 
-from qwenpaw.agents.memory.proactive import proactive_responder
-from qwenpaw.agents.memory.proactive.proactive_responder import (
+from aiarb.agents.memory.proactive import proactive_responder
+from aiarb.agents.memory.proactive.proactive_responder import (
     _generate_final_message,
 )
-from qwenpaw.agents.memory.proactive.proactive_types import (
+from aiarb.agents.memory.proactive.proactive_types import (
     ProactiveQueryResult,
 )
-from qwenpaw.agents.memory.reme_light_memory_manager import (
+from aiarb.agents.memory.reme_light_memory_manager import (
     ReMeLightMemoryManager,
 )
 
@@ -42,7 +42,7 @@ async def test_reme_auto_search_loads_config_in_worker_thread(monkeypatch):
         return agent_config
 
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         load_config,
     )
     manager = ReMeLightMemoryManager.__new__(ReMeLightMemoryManager)
@@ -75,7 +75,7 @@ async def test_reme_inbox_config_loads_in_worker_thread(monkeypatch):
         )
 
     monkeypatch.setattr(
-        "qwenpaw.agents.memory.reme_light_memory_manager.load_agent_config",
+        "aiarb.agents.memory.reme_light_memory_manager.load_agent_config",
         load_config,
     )
     manager = ReMeLightMemoryManager.__new__(ReMeLightMemoryManager)

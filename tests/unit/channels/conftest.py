@@ -45,6 +45,6 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
 @pytest.fixture
 def temp_media_dir(tmp_path) -> str:
     """Temporary directory for media files."""
-    media_dir = tmp_path / ".copaw" / "media"
+    media_dir = tmp_path / ".aiarb" / "media"
     media_dir.mkdir(parents=True, exist_ok=True)
     return str(media_dir)

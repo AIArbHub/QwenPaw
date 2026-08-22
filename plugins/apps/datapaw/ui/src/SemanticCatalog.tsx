@@ -212,7 +212,7 @@ export function SemanticCatalog({
       <PageHeader
         eyebrow="Configuration state"
         title="Semantic model"
-        description="Live view of datasource and semantic changes made through the QwenPaw-Data CLI."
+        description="Live view of datasource and semantic changes made through the AIArb-Data CLI."
         actions={
           <div className="datapaw-live-controls">
             <span className="datapaw-live-status" aria-live="polite">

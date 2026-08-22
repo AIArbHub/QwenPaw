@@ -3,23 +3,23 @@
 # sync-context-ui.sh — build the datapaw-context console frontend and vendor
 # the output into this plugin as an embeddable static SPA.
 #
-# The default source is the public QwenPaw-Data checkout (matches the
+# The default source is the public AIArb-Data checkout (matches the
 # datapaw-* packages published on PyPI and installed in the managed service
-# runtime). Point DATAPAW_SOURCE_DIR at an internal QwenPaw-Data-Cloud
+# runtime). Point DATAPAW_SOURCE_DIR at an internal AIArb-Data-Cloud
 # checkout to build its frontend superset instead; both repos share the
 # packages/datapaw-context/frontend layout.
 #
 # The build is patched to use hash routing (static file serving cannot
 # rewrite deep-link paths) and pointed at the plugin's context gateway.
 # A small classic-script bridge (scripts/context-console/paw-bridge.js) is
-# injected into index.html so the same-origin iframe can attach the QwenPaw
+# injected into index.html so the same-origin iframe can attach the AIArb
 # host auth token to gateway requests.
 #
 # Usage:
 #   scripts/sync-context-ui.sh
 #
 # Environment:
-#   DATAPAW_SOURCE_DIR    Frontend source checkout (default: ~/dev/QwenPaw-Data)
+#   DATAPAW_SOURCE_DIR    Frontend source checkout (default: ~/dev/AIArb-Data)
 #   DATAPAW_GATEWAY_BASE  Gateway base path (default: /api/datapaw/context)
 #   FORCE_INSTALL=1       Re-run the npm install even if node_modules exists
 
@@ -27,7 +27,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-DATAPAW_SOURCE_DIR="${DATAPAW_SOURCE_DIR:-${DATA_CLOUD_DIR:-$HOME/dev/QwenPaw-Data}}"
+DATAPAW_SOURCE_DIR="${DATAPAW_SOURCE_DIR:-${DATA_CLOUD_DIR:-$HOME/dev/AIArb-Data}}"
 FRONTEND_DIR="$DATAPAW_SOURCE_DIR/packages/datapaw-context/frontend"
 ROUTER_FILE="$FRONTEND_DIR/src/router/index.tsx"
 DEST_DIR="$APP_DIR/ui/public/context-console"
@@ -36,7 +36,7 @@ GATEWAY_BASE="${DATAPAW_GATEWAY_BASE:-/api/datapaw/context}"
 
 if [[ ! -f "$FRONTEND_DIR/package.json" ]]; then
   echo "Context console frontend was not found: $FRONTEND_DIR" >&2
-  echo "Set DATAPAW_SOURCE_DIR to a QwenPaw-Data (or Data-Cloud) checkout." >&2
+  echo "Set DATAPAW_SOURCE_DIR to a AIArb-Data (or Data-Cloud) checkout." >&2
   exit 1
 fi
 if [[ ! -f "$BRIDGE_FILE" ]]; then
@@ -110,7 +110,7 @@ if ! grep -q "paw-bridge.js" "$DEST_DIR/index.html"; then
 fi
 
 # The layout hardcodes root-absolute image paths (e.g.
-# src="/qwenpaw-data-wordmark.png") that bypass the vite --base rewrite and
+# src="/aiarb-data-wordmark.png") that bypass the vite --base rewrite and
 # 404 when the console is served from a subpath. Rewrite every reference to
 # a public-root PNG we vendored so it resolves relative to index.html.
 for asset in "$DEST_DIR"/*.png; do

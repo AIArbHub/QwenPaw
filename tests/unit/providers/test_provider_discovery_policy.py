@@ -6,12 +6,12 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock
 
-from qwenpaw.providers.provider import ModelInfo
-from qwenpaw.providers.provider_catalog import BUILTIN_PROVIDERS
-from qwenpaw.providers.provider_discovery_policy import (
+from aiarb.providers.provider import ModelInfo
+from aiarb.providers.provider_catalog import BUILTIN_PROVIDERS
+from aiarb.providers.provider_discovery_policy import (
     BUILTIN_DISCOVERY_POLICIES,
 )
-from qwenpaw.providers.provider_manager import ProviderManager
+from aiarb.providers.provider_manager import ProviderManager
 
 
 def test_every_builtin_provider_has_discovery_policy() -> None:

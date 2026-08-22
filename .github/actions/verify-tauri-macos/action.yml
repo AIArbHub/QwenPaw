@@ -29,7 +29,7 @@ runs:
     - name: Verify desktop (Tauri macOS)
       shell: bash
       env:
-        QWENPAW_DASHSCOPE_API_KEY: ${{ inputs.dashscope-api-key }}
+        AIARB_DASHSCOPE_API_KEY: ${{ inputs.dashscope-api-key }}
         ALLOW_FLAKY_LLM: ${{ inputs.allow-flaky-llm }}
       run: |
         set -euo pipefail

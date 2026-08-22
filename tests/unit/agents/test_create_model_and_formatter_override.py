@@ -20,11 +20,11 @@ try:
 except ImportError:
     GeminiChatFormatter = None
 
-from qwenpaw.agents import model_factory
-from qwenpaw.config import config as config_module
-from qwenpaw.config.config import ModelSlotConfig
-from qwenpaw.providers import fallback_chat_model
-from qwenpaw.providers import provider as provider_module
+from aiarb.agents import model_factory
+from aiarb.config import config as config_module
+from aiarb.config.config import ModelSlotConfig
+from aiarb.providers import fallback_chat_model
+from aiarb.providers import provider as provider_module
 
 
 _REAL_INSTALL_MODEL_FORMATTER = model_factory._install_model_formatter
@@ -37,11 +37,11 @@ class _FakeChatModel:
         self.identifier = identifier
         self.formatter = SimpleNamespace()
         self.max_retries = 3
-        self.qwenpaw_provider_id = "credential-derived"
+        self.aiarb_provider_id = "credential-derived"
 
-    def bind_qwenpaw_provider_id(self, provider_id: str) -> None:
+    def bind_aiarb_provider_id(self, provider_id: str) -> None:
         """Record the provider identity selected by the factory."""
-        self.qwenpaw_provider_id = provider_id
+        self.aiarb_provider_id = provider_id
 
 
 def _patched_load_agent_config(_agent_id):  # noqa: ARG001
@@ -183,7 +183,7 @@ def test_factory_uses_resolved_provider_id(
 
     assert _patch_dependencies == ["canonical-provider"]
     assert wrapper_provider_ids == ["canonical-provider"]
-    assert canonical_model.qwenpaw_provider_id == "canonical-provider"
+    assert canonical_model.aiarb_provider_id == "canonical-provider"
 
 
 def test_override_with_dict():
@@ -558,7 +558,7 @@ def test_invalid_fallback_slots_are_skipped(monkeypatch):
     ],
 )
 def test_installs_extended_formatter_for_each_protocol(formatter_class):
-    """Install QwenPaw extensions on every supported protocol family."""
+    """Install AIArb extensions on every supported protocol family."""
     native_formatter = formatter_class()
     model = SimpleNamespace(formatter=native_formatter)
 

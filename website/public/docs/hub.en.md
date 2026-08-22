@@ -1,8 +1,8 @@
-# Deploying and Managing QwenPaw Hub
+# Deploying and Managing AIArb Hub
 
-QwenPaw Hub is a unified entry point for self-hosted, multi-user deployments. An administrator operates one Hub while every account receives a separate QwenPaw runtime with its own workspace, configuration, credentials, and conversations.
+AIArb Hub is a unified entry point for self-hosted, multi-user deployments. An administrator operates one Hub while every account receives a separate AIArb runtime with its own workspace, configuration, credentials, and conversations.
 
-Hub does not replace or alter the single-user QwenPaw App. Personal devices can continue to run `qwenpaw app`; use `qwenpaw hub` only when multiple accounts need centralized management.
+Hub does not replace or alter the single-user AIArb App. Personal devices can continue to run `aiarb app`; use `aiarb hub` only when multiple accounts need centralized management.
 
 > **Important security boundary: Hub does not give every user a separate kernel.** Local runtimes use Bubblewrap namespaces on Linux, Seatbelt on macOS, and AppContainer plus a Job Object on Windows. All three are process sandboxes that share the host kernel. Docker runtimes share the Linux kernel used by their Docker Engine. On Docker Desktop this is normally the Docker Linux VM kernel, but it is still not one kernel per tenant. For mutually untrusted users or higher-risk multi-tenant deployments, add virtual machines, dedicated nodes, microVMs, or another stronger infrastructure boundary outside Hub.
 
@@ -10,20 +10,20 @@ Hub does not replace or alter the single-user QwenPaw App. Personal devices can 
 
 ## Hub and the single-user App
 
-| Capability | `qwenpaw app`                                | `qwenpaw hub`                                   |
+| Capability | `aiarb app`                                | `aiarb hub`                                   |
 | ---------- | -------------------------------------------- | ----------------------------------------------- |
 | Use case   | Personal device, one user                    | Self-hosted, multiple users                     |
 | Identity   | Local instance authentication                | Central Hub accounts                            |
 | Runtime    | One local process                            | One managed runtime per account                 |
-| Data       | `~/.qwenpaw` by default                      | Separate runtime directories under the Hub root |
-| Operations | QwenPaw Console                              | Hub admin center and personal Console           |
+| Data       | `~/.aiarb` by default                      | Separate runtime directories under the Hub root |
+| Operations | AIArb Console                              | Hub admin center and personal Console           |
 | Backend    | Local process or manually operated container | Administrator-selected Local or Docker backend  |
 
-After signing in, a regular user is proxied to their own QwenPaw Console. Administrators can also manage accounts, runtimes, access security, and Docker policy.
+After signing in, a regular user is proxied to their own AIArb Console. Administrators can also manage accounts, runtimes, access security, and Docker policy.
 
 ## Requirements
 
-- Install the current QwenPaw release and a supported Python version.
+- Install the current AIArb release and a supported Python version.
 - Include the built Console assets in the package, or build them in a source checkout.
 - For Local, provide the native isolation mechanism listed below.
 - For Docker, allow the Hub process to access a Docker Engine that runs Linux containers.
@@ -34,22 +34,22 @@ After signing in, a regular user is proxied to their own QwenPaw Console. Admini
 Install the Hub optional dependencies from PyPI:
 
 ```bash
-pip install "qwenpaw[hub]"
+pip install "aiarb[hub]"
 ```
 
-The `hub` extra includes the Docker SDK required by the Docker backend. A normal `pip install qwenpaw` does not install it and does not change the existing QwenPaw App dependency path. Install the extra in a Hub environment even if you initially select Local, so the admin center can probe and report Docker backend availability.
+The `hub` extra includes the Docker SDK required by the Docker backend. A normal `pip install aiarb` does not install it and does not change the existing AIArb App dependency path. Install the extra in a Hub environment even if you initially select Local, so the admin center can probe and report Docker backend availability.
 
-For an existing QwenPaw environment, install the extra in place and verify that the Hub command is present:
+For an existing AIArb environment, install the extra in place and verify that the Hub command is present:
 
 ```bash
-pip install -U "qwenpaw[hub]"
-qwenpaw hub --help
+pip install -U "aiarb[hub]"
+aiarb hub --help
 ```
 
 Hub initially listens on loopback and refuses public exposure before an administrator exists. Start it locally:
 
 ```bash
-qwenpaw hub --host 127.0.0.1 --port 8000
+aiarb hub --host 127.0.0.1 --port 8000
 ```
 
 For a remote server, create an SSH tunnel and open `http://127.0.0.1:8000/`:
@@ -68,7 +68,7 @@ This example selects Local and enables registration after initialization:
 version: 1
 
 control_plane:
-  public_base_url: https://qwenpaw.example.com
+  public_base_url: https://aiarb.example.com
   registration:
     enabled: true
     default_role: user
@@ -118,7 +118,7 @@ The `control_plane.proxy` limits bound traffic forwarded to personal runtimes. R
 After creating an administrator and setting `public_base_url`, explicitly allow a public listener:
 
 ```bash
-qwenpaw hub \
+aiarb hub \
   --host 0.0.0.0 \
   --port 8000 \
   --force-public \
@@ -143,7 +143,7 @@ Changing the global backend does not interrupt a running runtime. Restarting a r
 
 ## Local backend: process isolation
 
-Local starts QwenPaw on the host but never falls back to an ordinary unsandboxed process. It performs platform isolation probes first and refuses startup when the required boundary is unavailable.
+Local starts AIArb on the host but never falls back to an ordinary unsandboxed process. It performs platform isolation probes first and refuses startup when the required boundary is unavailable.
 
 | Platform | Isolation                 | Requirements                                                                                                            |
 | -------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
@@ -153,7 +153,7 @@ Local starts QwenPaw on the host but never falls back to an ordinary unsandboxed
 
 All platforms use a deny-by-default filesystem boundary and expose only required read-only runtime dependencies plus the current tenant's data. Windows uses a kill-on-close Job Object for the complete process tree.
 
-AppContainer normally cannot connect directly to host loopback. While a runtime is active, Hub enables the Windows loopback exemption for its AppContainer SID. The AppContainer then opens an outbound reverse TCP tunnel to Hub, and Hub proxies QwenPaw through that tunnel. Stopping the runtime removes the rule and closes the tunnel. The same rule also lets Windows Local reach other host loopback services, so this is a filesystem and process boundary, not a separate network boundary. Missing privileges, ACL support, AppContainer APIs, Job Object support, rule configuration, reverse-tunnel connectivity, or the real runtime health check causes Local to fail closed.
+AppContainer normally cannot connect directly to host loopback. While a runtime is active, Hub enables the Windows loopback exemption for its AppContainer SID. The AppContainer then opens an outbound reverse TCP tunnel to Hub, and Hub proxies AIArb through that tunnel. Stopping the runtime removes the rule and closes the tunnel. The same rule also lets Windows Local reach other host loopback services, so this is a filesystem and process boundary, not a separate network boundary. Missing privileges, ACL support, AppContainer APIs, Job Object support, rule configuration, reverse-tunnel connectivity, or the real runtime health check causes Local to fail closed.
 
 This is process and filesystem access control, not kernel isolation. Local runtimes share the host kernel and must not be treated as virtual machines, microVMs, or a sufficient boundary for hostile tenants.
 
@@ -175,11 +175,11 @@ Containers share the Linux kernel used by the Engine. Container escape risks, Li
 
 | Source                 | Repository                                                              |
 | ---------------------- | ----------------------------------------------------------------------- |
-| Docker Hub official    | `docker.io/agentscope/qwenpaw`                                          |
-| Alibaba Cloud official | `agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/qwenpaw` |
+| Docker Hub official    | `docker.io/agentscope/aiarb`                                          |
+| Alibaba Cloud official | `agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/aiarb` |
 | Custom                 | A complete administrator-provided image reference                       |
 
-Custom images may be remote or an existing local tag such as `qwenpaw-hub-custom:2026-08`. Select `never` for a local-only tag.
+Custom images may be remote or an existing local tag such as `aiarb-hub-custom:2026-08`. Select `never` for a local-only tag.
 
 | Pull policy      | Behavior                                   |
 | ---------------- | ------------------------------------------ |
@@ -204,10 +204,10 @@ Empty CPU, memory, or PID values mean no corresponding limit. `capacity.max_runn
 
 ## Persistent data
 
-The Hub root defaults to `<QWENPAW_WORKING_DIR>/hub/`, or `~/.qwenpaw/hub/` when `QWENPAW_WORKING_DIR` is unset:
+The Hub root defaults to `<AIARB_WORKING_DIR>/hub/`, or `~/.aiarb/hub/` when `AIARB_WORKING_DIR` is unset:
 
 ```text
-<QWENPAW_WORKING_DIR>/hub/
+<AIARB_WORKING_DIR>/hub/
 ├── control.db
 ├── secrets/
 └── runtimes/
@@ -250,7 +250,7 @@ Hub trusts `X-Forwarded-For` only when the direct peer is in `trusted_proxy_ips`
 Hub proxies runtime OAuth flows through a browser-reachable callback:
 
 ```text
-https://qwenpaw.example.com/api/hub/oauth/callback/<runtime-id>/<route>
+https://aiarb.example.com/api/hub/oauth/callback/<runtime-id>/<route>
 ```
 
 If authorization fails, verify the effective `public_base_url`, reverse-proxy Host/Scheme/WebSocket headers, provider callback policy, runtime ownership, and provider-side account errors. Some MCP servers do not publish OAuth Protected Resource Metadata; configure `auth_endpoint` and `token_endpoint` manually from the service operator's documentation.
@@ -262,9 +262,9 @@ The admin center provides user/runtime counts, status distribution, backend avai
 Back up these paths as one consistent set:
 
 ```text
-<QWENPAW_WORKING_DIR>/hub/control.db*
-<QWENPAW_WORKING_DIR>/hub/secrets/
-<QWENPAW_WORKING_DIR>/hub/runtimes/
+<AIARB_WORKING_DIR>/hub/control.db*
+<AIARB_WORKING_DIR>/hub/secrets/
+<AIARB_WORKING_DIR>/hub/runtimes/
 ```
 
 The database stores accounts, configuration, runtime registration, and audit events. `secrets/.vault_key` is required to decrypt credentials and system secrets. Before an upgrade, stop Hub, take a consistent backup of the entire root, record the installed version, and then verify administrator login, pagination, runtime proxying, WebSockets, and OAuth callbacks.
@@ -280,6 +280,6 @@ The database stores accounts, configuration, runtime registration, and audit eve
 
 ## Deployment boundary
 
-QwenPaw Hub is self-hosted software. The operator controls the server, database, backups, and processes and may be able to access data stored by users. Users should sign in only to a Hub operated by themselves or a trusted organization.
+AIArb Hub is self-hosted software. The operator controls the server, database, backups, and processes and may be able to access data stored by users. Users should sign in only to a Hub operated by themselves or a trusted organization.
 
-QwenPaw runtimes have constrained file, process, device, and network capabilities compared with the full personal App. Local on Linux, macOS, and Windows shares the respective host kernel; Docker shares its Engine's Linux kernel. These controls reduce cross-account interference but do not replace VM-level tenant isolation, host hardening, network boundaries, HTTPS, backup, monitoring, or organizational security policy.
+AIArb runtimes have constrained file, process, device, and network capabilities compared with the full personal App. Local on Linux, macOS, and Windows shares the respective host kernel; Docker shares its Engine's Linux kernel. These controls reduce cross-account interference but do not replace VM-level tenant isolation, host hardening, network boundaries, HTTPS, backup, monitoring, or organizational security policy.

@@ -19,8 +19,8 @@ from agentscope.message import (
 )
 from PIL import Image
 
-from qwenpaw.agents.utils import message_processing
-from qwenpaw.agents.utils.message_processing import (
+from aiarb.agents.utils import message_processing
+from aiarb.agents.utils.message_processing import (
     _process_audio_block,
     is_first_user_interaction,
     prepend_to_message_content,
@@ -52,7 +52,7 @@ def _audio_message(audio_path, media_type="audio/opus"):
 
 def _mock_transcription(result=None):
     return patch(
-        "qwenpaw.agents.utils.audio_transcription.transcribe_audio",
+        "aiarb.agents.utils.audio_transcription.transcribe_audio",
         new=AsyncMock(return_value=result),
     )
 
@@ -63,7 +63,7 @@ def _audio_config():
     config.agents.audio_mode = "auto"
     config.agents.language = "en"
     with patch(
-        "qwenpaw.agents.utils.message_processing.load_config",
+        "aiarb.agents.utils.message_processing.load_config",
         return_value=config,
     ):
         yield config

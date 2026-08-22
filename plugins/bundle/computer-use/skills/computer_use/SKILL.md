@@ -3,7 +3,7 @@ name: computer_use
 description: "Use computer_use for live Windows or macOS GUI work that structured tools cannot complete. Discover an approved app and window, act from fresh observations, and verify every requested result."
 metadata:
   builtin_skill_version: "1.0"
-  qwenpaw:
+  aiarb:
     requires: {}
 ---
 

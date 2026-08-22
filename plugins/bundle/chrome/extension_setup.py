@@ -15,24 +15,24 @@ import webbrowser
 from ipaddress import ip_address
 from pathlib import Path
 
-from qwenpaw.config.utils import read_last_api
-from qwenpaw.utils.io_utils import write_json_atomic
+from aiarb.config.utils import read_last_api
+from aiarb.utils.io_utils import write_json_atomic
 
 try:
     # Cross-track contract (lands with unified browser, PR #6276).
-    from qwenpaw.browser.control_link.chrome.protocol import (
+    from aiarb.browser.control_link.chrome.protocol import (
         NM_HOST_BASENAME,
         NM_HOST_WIN_SUFFIX,
     )
 except ImportError:  # pre-rebase fallback; values locked 2026-07-27.
     # After rebasing onto a main that contains PR #6276 this branch is
     # dead code: delete the whole except block in the rebase commit.
-    NM_HOST_BASENAME = "qwenpaw-nm-host"
+    NM_HOST_BASENAME = "aiarb-nm-host"
     NM_HOST_WIN_SUFFIX = ".bat"
 
-NATIVE_HOST_NAME = "com.qwenpaw.browser"
+NATIVE_HOST_NAME = "com.aiarb.browser"
 NATIVE_HOST_REGISTRY_KEY = (
-    "Software\\Google\\Chrome\\NativeMessagingHosts\\com.qwenpaw.browser"
+    "Software\\Google\\Chrome\\NativeMessagingHosts\\com.aiarb.browser"
 )
 # EXTENSION_ID is Chrome's deterministic derivation of the manifest "key":
 # base64-decode the public key (SubjectPublicKeyInfo DER), sha256 it, take the
@@ -47,7 +47,7 @@ EXTENSION_ID = "nflcgkfjgoiipklkpenmbiificbakoch"
 CWS_EXTENSION_ID = EXTENSION_ID
 CWS_URL = (
     "https://chromewebstore.google.com/detail/"
-    f"qwenpaw-chrome/{CWS_EXTENSION_ID}"
+    f"aiarb-chrome/{CWS_EXTENSION_ID}"
 )
 CWS_COMING_SOON_MESSAGE = (
     "cws install mode is coming soon and not supported in this "
@@ -82,7 +82,7 @@ def native_manifest_path(
             / f"{NATIVE_HOST_NAME}.json"
         )
     if platform == "win32":
-        return home / ".qwenpaw" / f"{NATIVE_HOST_NAME}.json"
+        return home / ".aiarb" / f"{NATIVE_HOST_NAME}.json"
     return (
         home
         / ".config"
@@ -180,22 +180,22 @@ def _native_host_support_paths() -> list[Path]:
     ]
 
 
-def _qwenpaw_home(home: Path) -> Path:
-    return home / ".qwenpaw"
+def _aiarb_home(home: Path) -> Path:
+    return home / ".aiarb"
 
 
 def _resolve_host_interpreter() -> str:
     """Return the Python runtime that can execute the Native Messaging host."""
-    bundled_runtime = os.environ.get("QWENPAW_DESKTOP_PY_RUNTIME", "")
+    bundled_runtime = os.environ.get("AIARB_DESKTOP_PY_RUNTIME", "")
     if bundled_runtime and Path(bundled_runtime).is_file():
         return bundled_runtime
     if not getattr(sys, "frozen", False) and not os.environ.get(
-        "QWENPAW_DESKTOP_APP",
+        "AIARB_DESKTOP_APP",
     ):
         return sys.executable
     raise RuntimeError(
-        "QWENPAW_DESKTOP_PY_RUNTIME is missing or invalid; reinstall the "
-        "QwenPaw desktop app.",
+        "AIARB_DESKTOP_PY_RUNTIME is missing or invalid; reinstall the "
+        "AIArb desktop app.",
     )
 
 
@@ -210,7 +210,7 @@ def _windows_batch_path_literal(value: str) -> str:
 
 
 def native_host_launcher_path(
-    qwenpaw_home: Path,
+    aiarb_home: Path,
     *,
     platform: str | None = None,
 ) -> Path:
@@ -218,7 +218,7 @@ def native_host_launcher_path(
     name = NM_HOST_BASENAME
     if (platform or sys.platform) == "win32":
         name += NM_HOST_WIN_SUFFIX
-    return qwenpaw_home / "bin" / name
+    return aiarb_home / "bin" / name
 
 
 class _NoopNativeHostRegistry:
@@ -299,7 +299,7 @@ def require_bridge_endpoint() -> str:
             is_loopback = False
         if not is_loopback:
             raise BridgeEndpointUnavailable(
-                "Chrome Native Messaging requires QwenPaw to bind to a "
+                "Chrome Native Messaging requires AIArb to bind to a "
                 "loopback address (127.0.0.1, ::1, or localhost).",
             )
     if ":" in host and not host.startswith("["):
@@ -307,9 +307,9 @@ def require_bridge_endpoint() -> str:
     return f"ws://{host}:{port}/api/ws/chrome"
 
 
-def _copy_extension(qwenpaw_home: Path) -> Path:
+def _copy_extension(aiarb_home: Path) -> Path:
     source = _extension_source_dir()
-    target = qwenpaw_home / "chrome-extension" / "qwenpaw-chrome"
+    target = aiarb_home / "chrome-extension" / "aiarb-chrome"
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(source, target, dirs_exist_ok=True)
     return target
@@ -331,7 +331,7 @@ def _write_local_extension_config(
         "build": build or _build_fingerprint(),
     }
     config_path.write_text(
-        "globalThis.QWENPAW_BRIDGE_CONFIG = "
+        "globalThis.AIARB_BRIDGE_CONFIG = "
         f"{json.dumps(config, separators=(',', ':'))};\n",
         encoding="utf-8",
     )
@@ -344,24 +344,24 @@ def atomic_write_json_0600(path: Path, data: dict[str, object]) -> Path:
     return path
 
 
-def _write_nm_config(qwenpaw_home: Path, token: str, ws_url: str) -> Path:
-    config_path = qwenpaw_home / "nm-bridge.json"
+def _write_nm_config(aiarb_home: Path, token: str, ws_url: str) -> Path:
+    config_path = aiarb_home / "nm-bridge.json"
     return atomic_write_json_0600(
         config_path,
         {"ws_url": ws_url, "token": token},
     )
 
 
-def _install_mode_state_path(qwenpaw_home: Path) -> Path:
-    return qwenpaw_home / INSTALL_MODE_STATE_FILENAME
+def _install_mode_state_path(aiarb_home: Path) -> Path:
+    return aiarb_home / INSTALL_MODE_STATE_FILENAME
 
 
 def _write_install_mode_state(
-    qwenpaw_home: Path,
+    aiarb_home: Path,
     install_mode: str,
     native_host_probe: dict[str, object] | None = None,
 ) -> Path:
-    state_path = _install_mode_state_path(qwenpaw_home)
+    state_path = _install_mode_state_path(aiarb_home)
     state: dict[str, object] = {"install_mode": install_mode}
     if native_host_probe is not None:
         state["native_host_probe"] = native_host_probe
@@ -369,11 +369,11 @@ def _write_install_mode_state(
 
 
 def _read_install_mode_state_data(
-    qwenpaw_home: Path,
+    aiarb_home: Path,
 ) -> dict[str, object] | None:
     try:
         state = json.loads(
-            _install_mode_state_path(qwenpaw_home).read_text(
+            _install_mode_state_path(aiarb_home).read_text(
                 encoding="utf-8",
             ),
         )
@@ -382,8 +382,8 @@ def _read_install_mode_state_data(
     return state if isinstance(state, dict) else None
 
 
-def _read_install_mode_state(qwenpaw_home: Path) -> str | None:
-    state = _read_install_mode_state_data(qwenpaw_home)
+def _read_install_mode_state(aiarb_home: Path) -> str | None:
+    state = _read_install_mode_state_data(aiarb_home)
     install_mode = state.get("install_mode") if state is not None else None
     return install_mode if install_mode in {"unpacked", "cws"} else None
 
@@ -425,7 +425,7 @@ def _probe_native_host(
     if runtime_failure is not None:
         return runtime_failure
 
-    payload = {"probe": "qwenpaw"}
+    payload = {"probe": "aiarb"}
     raw_payload = json.dumps(payload, separators=(",", ":")).encode("utf-8")
     frame = struct.pack("<I", len(raw_payload)) + raw_payload
     try:
@@ -467,8 +467,8 @@ def _native_host_repair_instruction(probe: dict[str, object]) -> str:
     return f"{prefix} {NATIVE_HOST_REPAIR_INSTRUCTION}"
 
 
-def _read_existing_nm_token(qwenpaw_home: Path) -> str | None:
-    config_path = qwenpaw_home / "nm-bridge.json"
+def _read_existing_nm_token(aiarb_home: Path) -> str | None:
+    config_path = aiarb_home / "nm-bridge.json"
     if not config_path.exists():
         return None
     try:
@@ -480,15 +480,15 @@ def _read_existing_nm_token(qwenpaw_home: Path) -> str | None:
 
 
 def _write_host(
-    qwenpaw_home: Path,
+    aiarb_home: Path,
     *,
     platform: str | None = None,
     build: dict[str, str | None] | None = None,
 ) -> Path:
     platform = platform or sys.platform
-    bin_dir = qwenpaw_home / "bin"
+    bin_dir = aiarb_home / "bin"
     bin_dir.mkdir(parents=True, exist_ok=True)
-    host_impl = bin_dir / "qwenpaw-nm-host.py"
+    host_impl = bin_dir / "aiarb-nm-host.py"
     shutil.copy2(_native_host_source_path(), host_impl)
     if platform != "win32":
         host_impl.chmod(0o755)
@@ -501,7 +501,7 @@ def _write_host(
         encoding="utf-8",
     )
 
-    host = native_host_launcher_path(qwenpaw_home, platform=platform)
+    host = native_host_launcher_path(aiarb_home, platform=platform)
     interpreter = _resolve_host_interpreter()
     if platform == "win32":
         interpreter = _windows_batch_path_literal(interpreter)
@@ -536,7 +536,7 @@ def _write_native_manifest(
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest = {
         "name": NATIVE_HOST_NAME,
-        "description": "QwenPaw Native Messaging host",
+        "description": "AIArb Native Messaging host",
         "path": str(host_path),
         "type": "stdio",
         "allowed_origins": [f"chrome-extension://{extension_id}/"],
@@ -545,7 +545,7 @@ def _write_native_manifest(
 
 
 def _uninstall(
-    qwenpaw_home: Path,
+    aiarb_home: Path,
     *,
     home: Path,
     platform: str | None = None,
@@ -557,18 +557,18 @@ def _uninstall(
     if manifest_path.exists():
         manifest_path.unlink()
     native_host_registry.delete_value(NATIVE_HOST_REGISTRY_KEY)
-    config_path = qwenpaw_home / "nm-bridge.json"
+    config_path = aiarb_home / "nm-bridge.json"
     if config_path.exists():
         config_path.unlink()
-    install_mode_state_path = _install_mode_state_path(qwenpaw_home)
+    install_mode_state_path = _install_mode_state_path(aiarb_home)
     if install_mode_state_path.exists():
         install_mode_state_path.unlink()
-    host = native_host_launcher_path(qwenpaw_home, platform=platform)
-    host_impl = qwenpaw_home / "bin" / "qwenpaw-nm-host.py"
+    host = native_host_launcher_path(aiarb_home, platform=platform)
+    host_impl = aiarb_home / "bin" / "aiarb-nm-host.py"
     for path in (host, host_impl):
         if path.exists():
             path.unlink()
-    shutil.rmtree(qwenpaw_home / "chrome-extension", ignore_errors=True)
+    shutil.rmtree(aiarb_home / "chrome-extension", ignore_errors=True)
 
 
 def setup_extension_files(
@@ -589,24 +589,24 @@ def setup_extension_files(
     platform = platform or sys.platform
     native_host_registry = _native_host_registry(platform, registry)
     ws_url = require_bridge_endpoint()
-    qwenpaw_home = _qwenpaw_home(home)
+    aiarb_home = _aiarb_home(home)
     if reset:
         _uninstall(
-            qwenpaw_home,
+            aiarb_home,
             home=home,
             platform=platform,
             registry=native_host_registry,
         )
 
-    token = None if reset else _read_existing_nm_token(qwenpaw_home)
+    token = None if reset else _read_existing_nm_token(aiarb_home)
     token = token or secrets.token_urlsafe(32)
     build = _build_fingerprint()
     extension_dir = None
     if install_mode == "unpacked":
-        extension_dir = _copy_extension(qwenpaw_home)
+        extension_dir = _copy_extension(aiarb_home)
         _write_local_extension_config(extension_dir, build)
-    config_path = _write_nm_config(qwenpaw_home, token, ws_url)
-    host_path = _write_host(qwenpaw_home, platform=platform, build=build)
+    config_path = _write_nm_config(aiarb_home, token, ws_url)
+    host_path = _write_host(aiarb_home, platform=platform, build=build)
     manifest_path = _write_native_manifest(
         host_path,
         home=home,
@@ -617,7 +617,7 @@ def setup_extension_files(
         str(manifest_path),
     )
     native_host_probe = _probe_native_host(host_path)
-    _write_install_mode_state(qwenpaw_home, install_mode, native_host_probe)
+    _write_install_mode_state(aiarb_home, install_mode, native_host_probe)
     result: dict[str, str | bool] = {
         "installed": bool(native_host_probe["ok"]),
         "install_mode": install_mode,
@@ -651,11 +651,11 @@ def extension_install_status(
     home = home or Path.home()
     platform = platform or sys.platform
     native_host_registry = _native_host_registry(platform, registry)
-    qwenpaw_home = _qwenpaw_home(home)
-    extension_dir = qwenpaw_home / "chrome-extension" / "qwenpaw-chrome"
+    aiarb_home = _aiarb_home(home)
+    extension_dir = aiarb_home / "chrome-extension" / "aiarb-chrome"
     manifest_path = native_manifest_path(home, platform=platform)
-    host_path = native_host_launcher_path(qwenpaw_home, platform=platform)
-    config_path = qwenpaw_home / "nm-bridge.json"
+    host_path = native_host_launcher_path(aiarb_home, platform=platform)
+    config_path = aiarb_home / "nm-bridge.json"
     manifest_configured = False
     repair_required = False
     ws_url = None
@@ -694,8 +694,8 @@ def extension_install_status(
     unpacked_installed = (extension_dir / "manifest.json").exists() and (
         native_host_configured
     )
-    install_state = _read_install_mode_state_data(qwenpaw_home)
-    install_mode = _read_install_mode_state(qwenpaw_home)
+    install_state = _read_install_mode_state_data(aiarb_home)
+    install_mode = _read_install_mode_state(aiarb_home)
     cws_installed = native_host_configured and (
         install_mode == "cws"
         or (install_mode is None and not unpacked_installed)
@@ -749,7 +749,7 @@ def open_extension_folder(
     home = home or Path.home()
     platform = platform or sys.platform
     target = extension_dir or (
-        _qwenpaw_home(home) / "chrome-extension" / "qwenpaw-chrome"
+        _aiarb_home(home) / "chrome-extension" / "aiarb-chrome"
     )
     target = target.expanduser()
 

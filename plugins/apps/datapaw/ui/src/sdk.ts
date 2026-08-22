@@ -214,7 +214,7 @@ export interface PawAppSdk {
 
 declare global {
   interface Window {
-    QwenPaw?: {
+    AIArb?: {
       paw?: {
         forApp(appId: string): PawAppSdk;
       };
@@ -222,11 +222,11 @@ declare global {
   }
 }
 
-export function requireQwenPawDataSdk(): PawAppSdk {
-  const factory = window.QwenPaw?.paw;
+export function requireAIArbDataSdk(): PawAppSdk {
+  const factory = window.AIArb?.paw;
   if (!factory) {
     throw new Error(
-      "This QwenPaw-Data build requires the app-scoped PawApp SDK",
+      "This AIArb-Data build requires the app-scoped PawApp SDK",
     );
   }
   return factory.forApp("datapaw");

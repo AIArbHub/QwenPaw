@@ -1,10 +1,10 @@
 # 安全
 
-QwenPaw 内置了安全功能，保护你的 Agent 在运行过程中产生的不安全行为和不安全技能的影响。这些功能在控制台 **设置 → 安全** 中配置，也可以通过 `config.json` 进行设置。
+AIArb 内置了安全功能，保护你的 Agent 在运行过程中产生的不安全行为和不安全技能的影响。这些功能在控制台 **设置 → 安全** 中配置，也可以通过 `config.json` 进行设置。
 
 ## 概述
 
-QwenPaw 的安全系统由五个核心安全层组成:
+AIArb 的安全系统由五个核心安全层组成:
 
 ```
 安全架构:
@@ -86,7 +86,7 @@ QwenPaw 的安全系统由五个核心安全层组成:
 
 | 字段                   | 说明                                                                                                                                                                                                                                                                                                                                       |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `enabled`              | 启用或禁用工具守卫。也可通过环境变量 `QWENPAW_TOOL_GUARD_ENABLED` 设置(优先级高于配置文件)。                                                                                                                                                                                                                                               |
+| `enabled`              | 启用或禁用工具守卫。也可通过环境变量 `AIARB_TOOL_GUARD_ENABLED` 设置(优先级高于配置文件)。                                                                                                                                                                                                                                               |
 | `guarded_tools`        | 指定守护范围:<br>• `null`(默认) — 守护所有内置工具<br>• `[]` — 不守护任何工具<br>• `["tool_a", "tool_b"]` — 仅守护列出的工具                                                                                                                                                                                                               |
 | `denied_tools`         | 无条件阻止的工具列表:列在其中的工具**无论参数如何**均不可调用(自动拒绝,不提供审批)。                                                                                                                                                                                                                                                       |
 | `custom_rules`         | 用户自定义正则规则(格式见下文)。                                                                                                                                                                                                                                                                                                           |
@@ -293,7 +293,7 @@ QwenPaw 的安全系统由五个核心安全层组成:
 4. **目录递归保护** — 以 `/` 结尾的路径视为目录,其下所有文件和子目录都会被递归阻止
 5. **阻止机制** — 发现匹配时,工具调用以 HIGH 级别发现被阻止
 
-**默认保护**: `{WORKING_DIR}.secret/` 目录(存储 API 密钥、认证凭据和提供商配置)默认包含在敏感文件列表中。默认情况下,`WORKING_DIR` 为 `~/.qwenpaw/`,完整路径为 `~/.qwenpaw.secret/`。
+**默认保护**: `{WORKING_DIR}.secret/` 目录(存储 API 密钥、认证凭据和提供商配置)默认包含在敏感文件列表中。默认情况下,`WORKING_DIR` 为 `~/.aiarb/`,完整路径为 `~/.aiarb.secret/`。
 
 ### 配置
 
@@ -304,7 +304,7 @@ QwenPaw 的安全系统由五个核心安全层组成:
   "security": {
     "file_guard": {
       "enabled": true,
-      "sensitive_files": ["~/.ssh/", "/etc/passwd", "~/.qwenpaw.secret/"]
+      "sensitive_files": ["~/.ssh/", "/etc/passwd", "~/.aiarb.secret/"]
     }
   }
 }
@@ -370,7 +370,7 @@ QwenPaw 的安全系统由五个核心安全层组成:
 
 ### 支持平台
 
-QwenPaw 在启动时自动检测最佳可用的沙箱后端：
+AIArb 在启动时自动检测最佳可用的沙箱后端：
 
 | 平台    | 后端                                          | 机制                                             | 检测方式                                             |
 | ------- | --------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------- |
@@ -452,7 +452,7 @@ user_rules:
 
 ### 违规检测
 
-当沙箱内的命令尝试访问其允许视图之外的路径时，操作系统内核会阻止该操作。QwenPaw 通过匹配 stderr 模式来检测这些违规：
+当沙箱内的命令尝试访问其允许视图之外的路径时，操作系统内核会阻止该操作。AIArb 通过匹配 stderr 模式来检测这些违规：
 
 | 平台             | 检测模式                                                                                 |
 | ---------------- | ---------------------------------------------------------------------------------------- |
@@ -477,7 +477,7 @@ user_rules:
 - **`env_mode="allowlist"`**：未实现。所有后端的行为都等同于 `"inject"`——继承当前环境后再应用 `env_vars`。由于 allowlist 的目的正是防止未声明的宿主变量（API key、云凭据、token）进入沙箱子进程，请求该模式会以 `WARNING` 上报。
 - **`shell_executable`**：Windows 后端和 `mode=none` 会遵循该设置；bubblewrap / Seatbelt / Landlock 后端固定使用自己的 shell。`mode=none` 下若配置的 shell 无法解析，会上报并回退到**平台默认 shell**（Windows 为 `COMSPEC` / cmd.exe，其余为 `SHELL` / `/bin/bash`）；命令参数随 shell 而定，cmd.exe 用 `/c`、PowerShell 用 `-Command`、POSIX shell 用 `-c`。
 - **`platform_hints`**：仅 `seatbelt_extra_rules`（macOS）被消费。其余任何键（包括该键的拼写错误）都会被丢弃；由于这些 hint 可能携带 admin 手写的 deny 规则，此时整个字段会以 `WARNING` 上报。
-- **`mode=none` 不强制任何约束**：直通后端只应用 `timeout_seconds`、`env_vars` 和 `shell_executable`，所有隔离类约束都被忽略。这是容器环境下的常见情形——没有可用的内核后端时 QwenPaw 会回退到 `mode=none`。
+- **`mode=none` 不强制任何约束**：直通后端只应用 `timeout_seconds`、`env_vars` 和 `shell_executable`，所有隔离类约束都被忽略。这是容器环境下的常见情形——没有可用的内核后端时 AIArb 会回退到 `mode=none`。
 - **未生效的约束会被记录，绝不静默丢弃**：每个后端都声明自己真正应用的字段，其余你配置过的内容会在沙箱创建时上报——构成安全边界的约束记为 `WARNING`，其余记为 `DEBUG`。看到 `NoneSandbox does not enforce deny_paths=~/.ssh; the constraint is IGNORED.` 就意味着这些路径确实可读。请把这类日志当作安全发现而非噪音处理。
 - **Windows AppContainer**（`allow_read_all=False`）：首次 ACL 设置需要管理员权限。AppContainer profile 会被保留以供相同配置的后续调用复用。
 - **Windows AppContainer 文件删除受限**（`allow_read_all=False`）：在 AppContainer 模式下，沙箱内的进程可能无法删除工作区中的文件。此问题不影响 `allow_read_all=True`（Restricted_token）模式。我们正在研究解决方案。
@@ -508,34 +508,34 @@ cat /proc/sys/kernel/unprivileged_userns_clone
 bwrap --ro-bind / / --dev /dev --unshare-user --unshare-pid --proc /proc -- /bin/echo OK
 ```
 
-如果 user namespace 被禁用（Docker 容器、部分安全加固内核），QwenPaw 会自动回退到 Landlock。
+如果 user namespace 被禁用（Docker 容器、部分安全加固内核），AIArb 会自动回退到 Landlock。
 
 **Windows: AppContainer ACL 设置失败**
 
 AppContainer（`allow_read_all=False`）的 `icacls` ACL 操作需要管理员权限。如果看到 ACL 设置失败的警告：
 
-1. 以管理员身份运行 QwenPaw（右键 → 以管理员身份运行）
+1. 以管理员身份运行 AIArb（右键 → 以管理员身份运行）
 2. 确认 `icacls.exe` 在 PATH 中（所有 Windows 版本均自带）
 3. 使用 `scripts/cleanup_windows_sandbox.py` 清理旧的 AppContainer profile 和 ACL
 
 **Windows: Restricted_token 用户创建失败**
 
-Restricted_token（`allow_read_all=True`）使用专用本地用户和 WFP 防火墙规则实现完整隔离，需要管理员权限。在非管理员模式下，QwenPaw 会自动回退到非提权沙箱模式，提供有限的隔离保护。如果看到用户创建或防火墙设置相关错误：
+Restricted_token（`allow_read_all=True`）使用专用本地用户和 WFP 防火墙规则实现完整隔离，需要管理员权限。在非管理员模式下，AIArb 会自动回退到非提权沙箱模式，提供有限的隔离保护。如果看到用户创建或防火墙设置相关错误：
 
 1. 非提权沙箱仍然处于活动状态，提供基本的写入限制
-2. 如需完整沙箱保护，以管理员身份运行 QwenPaw（右键 → 以管理员身份运行）
+2. 如需完整沙箱保护，以管理员身份运行 AIArb（右键 → 以管理员身份运行）
 3. 使用 `scripts/cleanup_windows_sandbox.py` 清理旧的沙箱用户和防火墙规则
 
 **Windows: 不满足最低版本要求**
 
-两种 Windows 沙箱后端均需要 Windows 10（build 10240）或更高版本。如果探测输出中出现 `"AppContainer requires Windows 10+"` 消息，说明当前运行的 Windows 版本不受支持。请升级到 Windows 10 或更高版本以使用沙箱隔离。在旧版系统上，QwenPaw 将回退到 `mode=none`（无内核隔离）。
+两种 Windows 沙箱后端均需要 Windows 10（build 10240）或更高版本。如果探测输出中出现 `"AppContainer requires Windows 10+"` 消息，说明当前运行的 Windows 版本不受支持。请升级到 Windows 10 或更高版本以使用沙箱隔离。在旧版系统上，AIArb 将回退到 `mode=none`（无内核隔离）。
 
 **Windows: 系统目录（如 Program Files）ACL 授权失败**
 
 如果看到 `icacls` 对 `C:\Program Files` 或 `C:\Windows` 等路径报告警告，这是正常现象（仅 AppContainer 模式）。这些目录由 TrustedInstaller 拥有并受 Windows 资源保护（WRP）——即使管理员也无法修改其 ACL。
 **确认沙箱是否激活**
 
-检查治理日志（`qwenpaw.log`）中是否包含：
+检查治理日志（`aiarb.log`）中是否包含：
 
 ```
 governance decision: tool=Bash target="..." action=sandbox_fallback sandbox=bubblewrap ...
@@ -574,7 +574,7 @@ governance decision: tool=Bash target="..." action=sandbox_fallback sandbox=bubb
 | **仅提醒(Warn)** | 扫描并记录发现,但允许技能继续使用。显示警告通知,记录到扫描告警中。(默认) |
 | **关闭(Off)**    | 完全禁用扫描,所有技能直接通过。                                          |
 
-**配置优先级**: 环境变量 `QWENPAW_SKILL_SCAN_MODE` > 控制台设置 > `config.json`
+**配置优先级**: 环境变量 `AIARB_SKILL_SCAN_MODE` > 控制台设置 > `config.json`
 
 可选值: `block`、`warn`、`off`
 
@@ -649,11 +649,11 @@ governance decision: tool=Bash target="..." action=sandbox_fallback sandbox=bubb
 
 对于需要深度定制的场景,扫描器支持编程方式配置:
 
-扫描器使用 `src/qwenpaw/security/skill_scanner/rules/signatures/` 中的 YAML 规则文件。你可以通过 YAML 策略文件自定义扫描策略:
+扫描器使用 `src/aiarb/security/skill_scanner/rules/signatures/` 中的 YAML 规则文件。你可以通过 YAML 策略文件自定义扫描策略:
 
 ```python
-from qwenpaw.security.skill_scanner import SkillScanner
-from qwenpaw.security.skill_scanner.scan_policy import ScanPolicy
+from aiarb.security.skill_scanner import SkillScanner
+from aiarb.security.skill_scanner.scan_policy import ScanPolicy
 
 policy = ScanPolicy.from_yaml("my_org_policy.yaml")
 scanner = SkillScanner(policy=policy)
@@ -908,7 +908,7 @@ policy:
       "enabled": true,
       "sensitive_files": [
         "~/.ssh/",
-        "~/.qwenpaw.secret/",
+        "~/.aiarb.secret/",
         "/etc/passwd",
         "/etc/shadow",
         ".env",
@@ -934,13 +934,13 @@ policy:
 
 ## Web 登录认证
 
-QwenPaw 支持可选的 Web 登录认证,保护控制台免受未授权访问。认证**默认关闭**,需要通过 `QWENPAW_AUTH_ENABLED` 环境变量显式启用。
+AIArb 支持可选的 Web 登录认证,保护控制台免受未授权访问。认证**默认关闭**,需要通过 `AIARB_AUTH_ENABLED` 环境变量显式启用。
 
 ![login](https://img.alicdn.com/imgextra/i4/O1CN01VdXCuP1tWpsl0TlQ5_!!6000000005910-2-tps-3822-2070.png)
 
 ### 工作原理
 
-1. **启用认证** — 设置 `QWENPAW_AUTH_ENABLED=true` 并启动 QwenPaw
+1. **启用认证** — 设置 `AIARB_AUTH_ENABLED=true` 并启动 AIArb
 2. **注册流程**:
    - 首次访问时,控制台显示**注册页面**
    - 创建唯一的管理员账户(用户名 + 密码)
@@ -950,10 +950,10 @@ QwenPaw 支持可选的 Web 登录认证,保护控制台免受未授权访问。
    - 输入凭据后,生成签名令牌(有效期 7 天)
    - 令牌存储在浏览器 localStorage,自动附加到所有 API 请求
 4. **自动注册**(可选):
-   - 设置 `QWENPAW_AUTH_USERNAME` 和 `QWENPAW_AUTH_PASSWORD` 环境变量
-   - QwenPaw 启动时自动创建管理员账户,跳过网页注册
+   - 设置 `AIARB_AUTH_USERNAME` 和 `AIARB_AUTH_PASSWORD` 环境变量
+   - AIArb 启动时自动创建管理员账户,跳过网页注册
    - 适用于 Docker、Kubernetes、服务器管理面板等自动化部署场景
-5. **本地免认证** — 来自本地(`127.0.0.1` / `::1`)的请求自动跳过认证,CLI 命令(`qwenpaw app`、`qwenpaw chat` 等)无需令牌即可正常工作
+5. **本地免认证** — 来自本地(`127.0.0.1` / `::1`)的请求自动跳过认证,CLI 命令(`aiarb app`、`aiarb chat` 等)无需令牌即可正常工作
 
 **安全特性**:
 
@@ -966,9 +966,9 @@ QwenPaw 支持可选的 Web 登录认证,保护控制台免受未授权访问。
 
 | 变量                    | 说明                         | 是否必填 |
 | ----------------------- | ---------------------------- | -------- |
-| `QWENPAW_AUTH_ENABLED`  | 设为 `true` 启用认证         | **是**   |
-| `QWENPAW_AUTH_USERNAME` | 自动注册时预设的管理员用户名 | 可选     |
-| `QWENPAW_AUTH_PASSWORD` | 自动注册时预设的管理员密码   | 可选     |
+| `AIARB_AUTH_ENABLED`  | 设为 `true` 启用认证         | **是**   |
+| `AIARB_AUTH_USERNAME` | 自动注册时预设的管理员用户名 | 可选     |
+| `AIARB_AUTH_PASSWORD` | 自动注册时预设的管理员密码   | 可选     |
 
 ### 认证豁免主机白名单
 
@@ -992,8 +992,8 @@ QwenPaw 支持可选的 Web 登录认证,保护控制台免受未授权访问。
 
 **配置说明**:
 
-- `QWENPAW_AUTH_ENABLED=true` 是启用认证的唯一必需变量
-- `QWENPAW_AUTH_USERNAME` 和 `QWENPAW_AUTH_PASSWORD` 成对使用:
+- `AIARB_AUTH_ENABLED=true` 是启用认证的唯一必需变量
+- `AIARB_AUTH_USERNAME` 和 `AIARB_AUTH_PASSWORD` 成对使用:
   - 两者都设置 → 启动时自动创建管理员账户(适用于自动化部署)
   - 不设置或只设置其一 → 首次访问通过网页注册(交互式部署)
 - 如果已有注册用户,自动注册环境变量会被忽略
@@ -1008,14 +1008,14 @@ QwenPaw 支持可选的 Web 登录认证,保护控制台免受未授权访问。
 
 ```bash
 # 基础启用(网页注册)
-export QWENPAW_AUTH_ENABLED=true
-qwenpaw app
+export AIARB_AUTH_ENABLED=true
+aiarb app
 
 # 或: 自动注册模式
-export QWENPAW_AUTH_ENABLED=true
-export QWENPAW_AUTH_USERNAME=admin
-export QWENPAW_AUTH_PASSWORD=mypassword
-qwenpaw app
+export AIARB_AUTH_ENABLED=true
+export AIARB_AUTH_USERNAME=admin
+export AIARB_AUTH_PASSWORD=mypassword
+aiarb app
 ```
 
 如需永久生效,将 `export` 行添加到 `~/.bashrc`、`~/.zshrc` 或等效文件中。
@@ -1023,21 +1023,21 @@ qwenpaw app
 **Windows (CMD):**
 
 ```cmd
-set QWENPAW_AUTH_ENABLED=true
+set AIARB_AUTH_ENABLED=true
 rem 可选: 自动注册
-rem set QWENPAW_AUTH_USERNAME=admin
-rem set QWENPAW_AUTH_PASSWORD=mypassword
-qwenpaw app
+rem set AIARB_AUTH_USERNAME=admin
+rem set AIARB_AUTH_PASSWORD=mypassword
+aiarb app
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-$env:QWENPAW_AUTH_ENABLED = "true"
+$env:AIARB_AUTH_ENABLED = "true"
 # 可选: 自动注册
-# $env:QWENPAW_AUTH_USERNAME = "admin"
-# $env:QWENPAW_AUTH_PASSWORD = "mypassword"
-qwenpaw app
+# $env:AIARB_AUTH_USERNAME = "admin"
+# $env:AIARB_AUTH_PASSWORD = "mypassword"
+aiarb app
 ```
 
 #### Docker
@@ -1045,34 +1045,34 @@ qwenpaw app
 通过 `-e` 传递环境变量(推荐使用自动注册):
 
 ```bash
-docker run -e QWENPAW_AUTH_ENABLED=true \
-  -e QWENPAW_AUTH_USERNAME=admin \
-  -e QWENPAW_AUTH_PASSWORD=mypassword \
+docker run -e AIARB_AUTH_ENABLED=true \
+  -e AIARB_AUTH_USERNAME=admin \
+  -e AIARB_AUTH_PASSWORD=mypassword \
   -p 127.0.0.1:8088:8088 \
-  -v qwenpaw-data:/app/working \
-  -v qwenpaw-secrets:/app/working.secret \
-  -v qwenpaw-backups:/app/working.backups \
-  agentscope/qwenpaw:latest
+  -v aiarb-data:/app/working \
+  -v aiarb-secrets:/app/working.secret \
+  -v aiarb-backups:/app/working.backups \
+  agentscope/aiarb:latest
 ```
 
-> **提示**: 不使用自动注册时,移除 `QWENPAW_AUTH_USERNAME` 和 `QWENPAW_AUTH_PASSWORD`,首次通过浏览器注册。
+> **提示**: 不使用自动注册时,移除 `AIARB_AUTH_USERNAME` 和 `AIARB_AUTH_PASSWORD`,首次通过浏览器注册。
 
 #### docker-compose.yml
 
 ```yaml
 services:
-  qwenpaw:
-    image: agentscope/qwenpaw:latest
+  aiarb:
+    image: agentscope/aiarb:latest
     ports:
       - "127.0.0.1:8088:8088"
     environment:
-      - QWENPAW_AUTH_ENABLED=true
-      - QWENPAW_AUTH_USERNAME=admin
-      - QWENPAW_AUTH_PASSWORD=mypassword
+      - AIARB_AUTH_ENABLED=true
+      - AIARB_AUTH_USERNAME=admin
+      - AIARB_AUTH_PASSWORD=mypassword
     volumes:
-      - qwenpaw-data:/app/working
-      - qwenpaw-secrets:/app/working.secret
-      - qwenpaw-backups:/app/working.backups
+      - aiarb-data:/app/working
+      - aiarb-secrets:/app/working.secret
+      - aiarb-backups:/app/working.backups
 ```
 
 #### 环境文件 (.env)
@@ -1080,24 +1080,24 @@ services:
 也可以使用 `.env` 文件：
 
 ```
-QWENPAW_AUTH_ENABLED=true
-QWENPAW_AUTH_USERNAME=admin
-QWENPAW_AUTH_PASSWORD=mypassword
+AIARB_AUTH_ENABLED=true
+AIARB_AUTH_USERNAME=admin
+AIARB_AUTH_PASSWORD=mypassword
 ```
 
-然后通过 `--env-file .env` 传递给 Docker，或在运行 `qwenpaw app` 前在 shell 中 source 该文件。
+然后通过 `--env-file .env` 传递给 Docker，或在运行 `aiarb app` 前在 shell 中 source 该文件。
 
 ### 关闭认证
 
-移除或取消环境变量并重启 QwenPaw：
+移除或取消环境变量并重启 AIArb：
 
 ```bash
 # Linux / macOS
-unset QWENPAW_AUTH_ENABLED
-qwenpaw app
+unset AIARB_AUTH_ENABLED
+aiarb app
 
 # Docker — 移除 -e 参数即可。以下示例包含用于持久化的卷。
-docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working -v qwenpaw-secrets:/app/working.secret -v qwenpaw-backups:/app/working.backups agentscope/qwenpaw:latest
+docker run -p 127.0.0.1:8088:8088 -v aiarb-data:/app/working -v aiarb-secrets:/app/working.secret -v aiarb-backups:/app/working.backups agentscope/aiarb:latest
 ```
 
 ### 重置密码
@@ -1105,7 +1105,7 @@ docker run -p 127.0.0.1:8088:8088 -v qwenpaw-data:/app/working -v qwenpaw-secret
 如果忘记密码,使用 CLI 命令重置:
 
 ```bash
-qwenpaw auth reset-password
+aiarb auth reset-password
 ```
 
 该命令会:
@@ -1117,7 +1117,7 @@ qwenpaw auth reset-password
 **Docker 部署**:
 
 ```bash
-docker exec -it <容器名> qwenpaw auth reset-password
+docker exec -it <容器名> aiarb auth reset-password
 ```
 
 **替代方案**:
@@ -1126,9 +1126,9 @@ docker exec -it <容器名> qwenpaw auth reset-password
 
 ```bash
 # 删除认证文件
-rm ~/.qwenpaw.secret/auth.json  # 或 $WORKING_DIR.secret/auth.json
-# 重启 QwenPaw,下次访问时重新注册
-qwenpaw app
+rm ~/.aiarb.secret/auth.json  # 或 $WORKING_DIR.secret/auth.json
+# 重启 AIArb,下次访问时重新注册
+aiarb app
 ```
 
 ### 退出登录

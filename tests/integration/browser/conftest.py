@@ -12,12 +12,12 @@ import tempfile
 import pytest
 import pytest_asyncio
 
-# This executes before any QwenPaw module is imported by browser tests. Worker
+# This executes before any AIArb module is imported by browser tests. Worker
 # subprocesses inherit it, so they cannot read a developer's live config or
 # launch the system browser in headed mode.
-_TEST_WORKING_DIR = Path(tempfile.mkdtemp(prefix="qwenpaw-browser-tests-"))
-os.environ["QWENPAW_WORKING_DIR"] = str(_TEST_WORKING_DIR)
-os.environ["QWENPAW_CONFIG_FILE"] = "config.json"
+_TEST_WORKING_DIR = Path(tempfile.mkdtemp(prefix="aiarb-browser-tests-"))
+os.environ["AIARB_WORKING_DIR"] = str(_TEST_WORKING_DIR)
+os.environ["AIARB_CONFIG_FILE"] = "config.json"
 os.environ.pop("PWDEBUG", None)
 (_TEST_WORKING_DIR / "config.json").write_text(
     json.dumps(
@@ -32,13 +32,13 @@ os.environ.pop("PWDEBUG", None)
     encoding="utf-8",
 )
 
-from qwenpaw.browser.control_link.playwright.adapter import (  # noqa: E402
+from aiarb.browser.control_link.playwright.adapter import (  # noqa: E402
     PlaywrightControlLink,
 )
-from qwenpaw.browser.execution.subprocess_plane import (  # noqa: E402
+from aiarb.browser.execution.subprocess_plane import (  # noqa: E402
     SubprocessPlane,
 )
-from qwenpaw.browser.runtime import links as runtime_links  # noqa: E402
+from aiarb.browser.runtime import links as runtime_links  # noqa: E402
 
 
 class _OwnerBoundLink:
@@ -71,7 +71,7 @@ async def isolated_browser_runtime(monkeypatch: pytest.MonkeyPatch):
     planes: list[SubprocessPlane] = []
     initial_links = list(runtime_links._local)
     original_init = SubprocessPlane.__init__
-    from qwenpaw.browser.control_link.playwright import adapter
+    from aiarb.browser.control_link.playwright import adapter
 
     original_build_launch_kwargs = adapter._build_launch_kwargs
 

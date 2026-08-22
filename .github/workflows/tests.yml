@@ -109,9 +109,9 @@ jobs:
       - name: Copy console build into package
         shell: bash
         run: |
-          rm -rf src/qwenpaw/console/*
-          mkdir -p src/qwenpaw/console
-          cp -R console/dist/* src/qwenpaw/console/
+          rm -rf src/aiarb/console/*
+          mkdir -p src/aiarb/console
+          cp -R console/dist/* src/aiarb/console/
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -136,7 +136,7 @@ jobs:
           if [ "${{ matrix.os }}" = "ubuntu-latest" ] && \
              [ "${{ matrix.python-version }}" = "3.13" ]; then
             pytest tests/unit -v \
-              --cov=src/qwenpaw \
+              --cov=src/aiarb \
               --cov-report=xml:coverage.unit.xml
           else
             pytest tests/unit -v
@@ -146,7 +146,7 @@ jobs:
         if: matrix.python-version == '3.11'
         shell: bash
         env:
-          QWENPAW_LOCAL_RUNTIME_E2E: '1'
+          AIARB_LOCAL_RUNTIME_E2E: '1'
         run: |
           python -m pip install --no-deps --force-reinstall .
           pytest tests/e2e/test_hub_local_runtime.py -v
@@ -202,9 +202,9 @@ jobs:
       - name: Copy console build into package
         shell: bash
         run: |
-          rm -rf src/qwenpaw/console/*
-          mkdir -p src/qwenpaw/console
-          cp -R console/dist/* src/qwenpaw/console/
+          rm -rf src/aiarb/console/*
+          mkdir -p src/aiarb/console
+          cp -R console/dist/* src/aiarb/console/
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -227,7 +227,7 @@ jobs:
           if [ "${{ matrix.os }}" = "ubuntu-latest" ] && \
              [ "${{ matrix.python-version }}" = "3.13" ]; then
             pytest tests/contract -v \
-              --cov=src/qwenpaw \
+              --cov=src/aiarb \
               --cov-report=xml:coverage.contract.xml \
               --cov-fail-under=0
           else
@@ -285,9 +285,9 @@ jobs:
       - name: Copy console build into package
         shell: bash
         run: |
-          rm -rf src/qwenpaw/console/*
-          mkdir -p src/qwenpaw/console
-          cp -R console/dist/* src/qwenpaw/console/
+          rm -rf src/aiarb/console/*
+          mkdir -p src/aiarb/console
+          cp -R console/dist/* src/aiarb/console/
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -363,13 +363,13 @@ jobs:
           # treats empty / missing as off, so the other matrix entries do
           # not pay the tracer overhead. Multi-platform coverage is opt-in
           # via full-tests-nightly.yml dispatch (coverage_platforms input).
-          QWENPAW_INTEGRATION_COVERAGE: ${{ (matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11') && '1' || '' }}
+          AIARB_INTEGRATION_COVERAGE: ${{ (matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11') && '1' || '' }}
           # Windows runners are 2-core and IO-bound; under xdist parallel
           # the default 15s HTTP timeout is too tight and intermittently
           # surfaces as ``httpx.ReadTimeout``. Lift the floor here.
-          QWENPAW_INTEGRATION_HTTP_TIMEOUT: ${{ matrix.os == 'windows-latest' && '120' || '' }}
+          AIARB_INTEGRATION_HTTP_TIMEOUT: ${{ matrix.os == 'windows-latest' && '120' || '' }}
         run: |
-          if [ -n "$QWENPAW_INTEGRATION_COVERAGE" ]; then
+          if [ -n "$AIARB_INTEGRATION_COVERAGE" ]; then
             # Subprocess coverage entry. Parent process must not carry
             # --cov, hence --no-cov here.
             pytest tests/integration -v --no-cov \
@@ -500,7 +500,7 @@ jobs:
           script: |
             const fs = require('fs');
             const body = fs.readFileSync('coverage_summary.md', 'utf8');
-            const marker = '<!-- qwenpaw-coverage-summary -->';
+            const marker = '<!-- aiarb-coverage-summary -->';
             const finalBody = `${marker}\n${body}`;
             const comments = await github.paginate(
               github.rest.issues.listComments,

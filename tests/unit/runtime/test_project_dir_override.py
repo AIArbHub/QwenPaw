@@ -10,10 +10,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.agents.acp.meta import ACP_PROJECT_DIR_META_KEY
-from qwenpaw.config.config import AgentProfileConfig
-from qwenpaw.runtime.builder import AgentBuilder
-from qwenpaw.runtime.prompt_contributors import CodingModeContributor
+from aiarb.agents.acp.meta import ACP_PROJECT_DIR_META_KEY
+from aiarb.config.config import AgentProfileConfig
+from aiarb.runtime.builder import AgentBuilder
+from aiarb.runtime.prompt_contributors import CodingModeContributor
 
 
 def test_request_project_override_does_not_enable_coding_tools(tmp_path):
@@ -74,7 +74,7 @@ def test_request_project_ignores_non_directory(tmp_path):
     assert config.coding_mode.enabled is False
 
 
-@pytest.mark.usefixtures("capture_qwenpaw_logs")
+@pytest.mark.usefixtures("capture_aiarb_logs")
 def test_request_project_warns_for_unsupported_config(
     caplog,
     tmp_path,
@@ -99,7 +99,7 @@ def test_coding_prompt_prefers_request_project(monkeypatch, tmp_path):
         raise AssertionError("request project should be used first")
 
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         fail_load_agent_config,
     )
 

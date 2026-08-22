@@ -5,7 +5,7 @@ export const DATAPAW_LOGO_URL =
 
 /** Full wordmark shipped with the vendored Context console build. */
 export const DATAPAW_WORDMARK_URL =
-  "/api/frontend_plugin/datapaw/files/ui/dist/context-console/qwenpaw-data-wordmark.png";
+  "/api/frontend_plugin/datapaw/files/ui/dist/context-console/aiarb-data-wordmark.png";
 
 export function LogoMark() {
   const [failed, setFailed] = useState(false);
@@ -23,11 +23,11 @@ export function WordmarkLogo() {
   const [failed, setFailed] = useState(false);
 
   return failed ? (
-    <b className="datapaw-topbar__fallback">QwenPaw-Data</b>
+    <b className="datapaw-topbar__fallback">AIArb-Data</b>
   ) : (
     <img
       src={DATAPAW_WORDMARK_URL}
-      alt="QwenPaw-Data"
+      alt="AIArb-Data"
       onError={() => setFailed(true)}
     />
   );

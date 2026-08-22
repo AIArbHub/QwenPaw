@@ -17,7 +17,7 @@ vi.mock("../hostSdk/fetch", () => ({
 const mockedFetch = vi.mocked(hostFetch);
 
 beforeEach(() => {
-  Object.defineProperty(window, "QwenPaw", {
+  Object.defineProperty(window, "AIArb", {
     configurable: true,
     writable: true,
     value: {
@@ -77,8 +77,8 @@ describe("app-scoped PawApp SDK", () => {
   });
 
   it("routes chat through the selected host agent and session", async () => {
-    window.QwenPaw.host.getSelectedAgentId = () => "analyst";
-    window.QwenPaw.host.getCurrentSessionId = () => "session-7";
+    window.AIArb.host.getSelectedAgentId = () => "analyst";
+    window.AIArb.host.getCurrentSessionId = () => "session-7";
     mockedFetch.mockResolvedValue(
       new Response(JSON.stringify({ text: "done" }), {
         headers: { "content-type": "application/json" },

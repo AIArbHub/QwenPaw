@@ -40,7 +40,7 @@ export function useMarketPlugins({ onInstalled }: UseMarketPluginsOptions) {
   const [autoLoadBlocked, setAutoLoadBlocked] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [installingId, setInstallingId] = useState<string | null>(null);
-  const [qwenpawVersion, setQwenpawVersion] = useState<string | null>(null);
+  const [aiarbVersion, setAIArbVersion] = useState<string | null>(null);
   const loadingMoreRef = useRef(false);
   const requestControllerRef = useRef<AbortController | null>(null);
 
@@ -56,14 +56,14 @@ export function useMarketPlugins({ onInstalled }: UseMarketPluginsOptions) {
       .then((data) => {
         const version =
           typeof data === "object" && data !== null ? data.version : null;
-        setQwenpawVersion(typeof version === "string" ? version : null);
+        setAIArbVersion(typeof version === "string" ? version : null);
       })
       .catch((err) => {
         if (err instanceof Error && err.name === "AbortError") {
           return;
         }
         console.error("[useMarketPlugins] failed to fetch version:", err);
-        setQwenpawVersion(null);
+        setAIArbVersion(null);
       });
     return () => {
       controller.abort();
@@ -244,8 +244,8 @@ export function useMarketPlugins({ onInstalled }: UseMarketPluginsOptions) {
 
   const isCompatible = useCallback(
     (entry: MarketPluginEntry) =>
-      isMarketPluginCompatible(entry, qwenpawVersion),
-    [qwenpawVersion],
+      isMarketPluginCompatible(entry, aiarbVersion),
+    [aiarbVersion],
   );
 
   const handleInstall = useCallback(
@@ -286,7 +286,7 @@ export function useMarketPlugins({ onInstalled }: UseMarketPluginsOptions) {
     hasMore: plugins.length < total,
     autoLoadBlocked,
     installingId,
-    qwenpawVersion,
+    aiarbVersion,
     isCompatible,
     handleSearch,
     handleCategoryChange,

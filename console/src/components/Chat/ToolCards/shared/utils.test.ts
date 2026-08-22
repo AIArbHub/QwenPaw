@@ -78,7 +78,7 @@ describe("formatMemorySearch", () => {
   it("formats malformed memory search text without showing metadata prefix", () => {
     // 截图格式：[ { 之间有空格，snippet 含真实换行导致 JSON.parse 失败
     const malformedMemoryText =
-      '[ { "path": "/Users/zz/.copaw/workspaces/q88eWE/memory/2026-05-18.md", "start_line": 1, "end_line": 77, "score": 0.625, "snippet": "# 记忆与反思 - 2026-05-18\n\n## 项目信息\n\n项目名称：《弹幕逃生》4分钟短视频';
+      '[ { "path": "/Users/zz/.aiarb/workspaces/q88eWE/memory/2026-05-18.md", "start_line": 1, "end_line": 77, "score": 0.625, "snippet": "# 记忆与反思 - 2026-05-18\n\n## 项目信息\n\n项目名称：《弹幕逃生》4分钟短视频';
     const rawToolResult = JSON.stringify([
       {
         type: "text",
@@ -89,7 +89,7 @@ describe("formatMemorySearch", () => {
     const formattedResult = formatMemorySearch(rawToolResult, translate);
 
     expect(formattedResult).toContain(
-      "### 1. /Users/zz/.copaw/workspaces/q88eWE/memory/2026-05-18.md",
+      "### 1. /Users/zz/.aiarb/workspaces/q88eWE/memory/2026-05-18.md",
     );
     expect(formattedResult).toContain("- **lineNumber**: L1-77");
     expect(formattedResult).toContain("- **score**: 0.63");
@@ -166,7 +166,7 @@ describe("getMediaInfo", () => {
 
   it("extracts a screenshot path without the serialized JSON suffix", () => {
     const screenshotPath =
-      "/Users/zz/.copaw/workspaces/Yn8ymB/" +
+      "/Users/zz/.aiarb/workspaces/Yn8ymB/" +
       "desktop_screenshot_1786592092.png";
     const result = JSON.stringify([
       {

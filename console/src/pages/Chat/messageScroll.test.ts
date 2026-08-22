@@ -48,8 +48,8 @@ function createReverseScroller(): {
   const content = document.createElement("div");
 
   scroller.className =
-    "qwenpaw-bubble-list-order-desc " +
-    "qwenpaw-chat-anywhere-message-list-bubble-scroll";
+    "aiarb-bubble-list-order-desc " +
+    "aiarb-chat-anywhere-message-list-bubble-scroll";
   scroller.append(content);
   root.append(scroller);
   document.body.append(root);

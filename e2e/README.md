@@ -1,4 +1,4 @@
-# QwenPaw E2E Test Framework
+# AIArb E2E Test Framework
 
 End-to-end test framework built on Playwright + pytest + the Page Object Pattern.
 
@@ -37,9 +37,9 @@ tests/
 >
 > E2E tests write seed data (inbox events, plan state, workspace
 > files) into the backend's working directory. If that directory is
-> your real `~/.qwenpaw` you will **corrupt your actual QwenPaw data**.
+> your real `~/.aiarb` you will **corrupt your actual AIArb data**.
 >
-> The framework enforces this rule: if `QWENPAW_WORKING_DIR` is unset
+> The framework enforces this rule: if `AIARB_WORKING_DIR` is unset
 > or points inside your home directory, pytest will **refuse to start**
 > with a clear RuntimeError.
 
@@ -49,33 +49,33 @@ tests/
 # From the repo root:
 source e2e/scripts/start_test_server.sh --bg
 
-# This starts QwenPaw on port 7077 with:
-#   QWENPAW_WORKING_DIR=/tmp/qwenpaw-e2e-test-work-dir/working
+# This starts AIArb on port 7077 with:
+#   AIARB_WORKING_DIR=/tmp/aiarb-e2e-test-work-dir/working
 # The env var is exported so pytest inherits it automatically.
 ```
 
 If you prefer manual setup:
 
 ```bash
-export QWENPAW_WORKING_DIR=/tmp/my-e2e-workdir
-mkdir -p "$QWENPAW_WORKING_DIR"
-QWENPAW_WORKING_DIR="$QWENPAW_WORKING_DIR" python -m qwenpaw app --port 7077 &
+export AIARB_WORKING_DIR=/tmp/my-e2e-workdir
+mkdir -p "$AIARB_WORKING_DIR"
+AIARB_WORKING_DIR="$AIARB_WORKING_DIR" python -m aiarb app --port 7077 &
 ```
 
 ### 1. Install dependencies
 
 ```bash
-cd /Users/ming/.qwenpaw/workspaces/Hv3HJ9
+cd /Users/ming/.aiarb/workspaces/Hv3HJ9
 pip install -r tests/requirements.txt
 playwright install chromium
 ```
 
-### 2. Ensure the QwenPaw service is running
+### 2. Ensure the AIArb service is running
 
 ```bash
-qwenpaw start
+aiarb start
 # or
-cd /Users/ming/Desktop/qwenpaw && python -m qwenpaw
+cd /Users/ming/Desktop/aiarb && python -m aiarb
 ```
 
 ### 3. Run tests
@@ -98,7 +98,7 @@ pytest tests/tests/test_chat_p0.py -m "chat_file" -v
 ### 4. Headed mode (visual debugging)
 
 ```bash
-QWENPAW_HEADLESS=false pytest tests/tests/test_chat_p0.py -v
+AIARB_HEADLESS=false pytest tests/tests/test_chat_p0.py -v
 ```
 
 ### 5. Slow-motion mode (for debugging)
@@ -126,25 +126,25 @@ PLAYWRIGHT_SLOW_MO=1000 pytest tests/tests/test_chat_p0.py -v
 
 | Name | Default | Description |
 |------|---------|-------------|
-| `QWENPAW_WORKING_DIR` | **(required)** | Backend working directory for seed data. Must be outside `$HOME`. |
-| `QWENPAW_BASE_URL` | `http://localhost:7077` | QwenPaw service URL |
-| `QWENPAW_HEADLESS` | `true` | Headless mode (`true`/`false`) |
-| `QWENPAW_TIMEOUT` | `30000` | Timeout (milliseconds) |
-| `QWENPAW_USER_ID` | `default` | User ID |
-| `QWENPAW_CHANNEL` | `console` | Channel name |
+| `AIARB_WORKING_DIR` | **(required)** | Backend working directory for seed data. Must be outside `$HOME`. |
+| `AIARB_BASE_URL` | `http://localhost:7077` | AIArb service URL |
+| `AIARB_HEADLESS` | `true` | Headless mode (`true`/`false`) |
+| `AIARB_TIMEOUT` | `30000` | Timeout (milliseconds) |
+| `AIARB_USER_ID` | `default` | User ID |
+| `AIARB_CHANNEL` | `console` | Channel name |
 | `PLAYWRIGHT_SLOW_MO` | `0` | Slow-motion delay (milliseconds) |
 
 ### Examples
 
 ```bash
 # Override the service URL
-QWENPAW_BASE_URL=http://127.0.0.1:9000 pytest tests/tests/test_chat_p0.py -v
+AIARB_BASE_URL=http://127.0.0.1:9000 pytest tests/tests/test_chat_p0.py -v
 
 # Headed mode + slow motion
-QWENPAW_HEADLESS=false PLAYWRIGHT_SLOW_MO=500 pytest tests/tests/test_chat_p0.py -v
+AIARB_HEADLESS=false PLAYWRIGHT_SLOW_MO=500 pytest tests/tests/test_chat_p0.py -v
 
 # Increase timeout
-QWENPAW_TIMEOUT=60000 pytest tests/tests/test_chat_p0.py -v
+AIARB_TIMEOUT=60000 pytest tests/tests/test_chat_p0.py -v
 ```
 
 ## Test Reports
@@ -277,27 +277,27 @@ def test_various_messages(self, chat_page, message, expected_keyword):
 
 ## FAQ
 
-### 1. Test failure: cannot connect to the QwenPaw service
+### 1. Test failure: cannot connect to the AIArb service
 
 ```bash
 # Check service status
-qwenpaw status
+aiarb status
 
 # Start manually
-cd /Users/ming/Desktop/qwenpaw && python -m qwenpaw
+cd /Users/ming/Desktop/aiarb && python -m aiarb
 ```
 
 ### 2. Test failure: element not found
 
 ```bash
 # Debug in headed mode
-QWENPAW_HEADLESS=false pytest tests/tests/test_chat_p0.py::TestNewChatAndBasicQA -v
+AIARB_HEADLESS=false pytest tests/tests/test_chat_p0.py::TestNewChatAndBasicQA -v
 
 # Increase timeout
-QWENPAW_TIMEOUT=60000 pytest tests/tests/test_chat_p0.py -v
+AIARB_TIMEOUT=60000 pytest tests/tests/test_chat_p0.py -v
 
 # Use slow motion to inspect page loading
-PLAYWRIGHT_SLOW_MO=1000 QWENPAW_HEADLESS=false pytest tests/tests/test_chat_p0.py -v
+PLAYWRIGHT_SLOW_MO=1000 AIARB_HEADLESS=false pytest tests/tests/test_chat_p0.py -v
 ```
 
 ### 3. Browser fails to launch

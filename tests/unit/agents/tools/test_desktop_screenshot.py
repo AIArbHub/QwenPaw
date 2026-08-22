@@ -11,7 +11,7 @@ import pytest
 from agentscope.message import Base64Source
 from PIL import Image
 
-from qwenpaw.agents.tools.desktop_screenshot import (
+from aiarb.agents.tools.desktop_screenshot import (
     _tool_ok,
     _capture_macos_screencapture,
     desktop_screenshot,
@@ -35,7 +35,7 @@ async def test_macos_screencapture_kills_proc_on_cancel(tmp_path):
             new=AsyncMock(return_value=proc),
         ),
         patch(
-            "qwenpaw.tool_calls.cancellable_wait",
+            "aiarb.tool_calls.cancellable_wait",
             new=_raise_cancelled,
         ),
     ):
@@ -61,7 +61,7 @@ async def test_desktop_screenshot_freezes_local_image(tmp_path):
     with (
         patch("platform.system", return_value="Linux"),
         patch(
-            "qwenpaw.agents.tools.desktop_screenshot._capture_mss",
+            "aiarb.agents.tools.desktop_screenshot._capture_mss",
             side_effect=capture,
         ),
     ):

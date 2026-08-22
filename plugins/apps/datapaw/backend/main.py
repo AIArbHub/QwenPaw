@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""QwenPaw-Data PawApp backend entry point."""
+"""AIArb-Data PawApp backend entry point."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 
-from qwenpaw.pawapp import DependencyHealth, DependencyProbe, PawApp
+from aiarb.pawapp import DependencyHealth, DependencyProbe, PawApp
 
 logger = logging.getLogger(__name__)
 
@@ -39,12 +39,12 @@ else:
     )
 
 
-app = PawApp("QwenPaw-Data", app_id="datapaw")
+app = PawApp("AIArb-Data", app_id="datapaw")
 app.enable_standard_capabilities()
 app.enable_dependency_agent_tools()
 app.agent_profile(
     "datapaw",
-    name="QwenPaw-Data",
+    name="AIArb-Data",
     description="Graph-grounded data analysis with governed queries.",
     persona_dir=PLUGIN_DIR / "agents" / "datapaw",
     language="en",
@@ -195,7 +195,7 @@ if _skills is not None:
 app.prompt_section(
     "datapaw-analysis",
     """
-You are operating inside the QwenPaw-Data application. For questions that
+You are operating inside the AIArb-Data application. For questions that
 depend on organizational metrics, datasets, dimensions, prior analysis, or
 graph context, call datapaw_search_context before drawing conclusions. Use
 datapaw_execute_sql only for read-only SQL and preserve the selected data
@@ -247,7 +247,7 @@ def _source_probe(source_id: str):
                 "POST",
                 "/api/v1/cm/execute_sql",
                 body={
-                    "sql": "SELECT 1 AS qwenpaw_data_health_check",
+                    "sql": "SELECT 1 AS aiarb_data_health_check",
                     "datasource_id": source_id,
                     "max_rows": 1,
                 },
@@ -348,7 +348,7 @@ _llm_bootstrap_done = False
 def _host_llm_payload() -> dict[str, Any] | None:
     """Read the host's active model as an OpenAI-compatible payload."""
     try:
-        from qwenpaw.providers.provider_manager import ProviderManager
+        from aiarb.providers.provider_manager import ProviderManager
 
         manager = ProviderManager.get_instance()
         slot = manager.get_active_model()
@@ -366,7 +366,7 @@ def _host_llm_payload() -> dict[str, Any] | None:
 
 
 async def _bootstrap_llm_from_host() -> None:
-    """Bootstrap the Context service's LLM from the QwenPaw host model.
+    """Bootstrap the Context service's LLM from the AIArb host model.
 
     The app owns its model configuration, matching standalone datapaw-cli
     and Data-Cloud deployments. The host's active model is used only as a
@@ -456,7 +456,7 @@ app.include_router(router)
 @app.tool(
     "datapaw_search_context",
     description=(
-        "Retrieve QwenPaw-Data semantic, metric, dataset, and graph "
+        "Retrieve AIArb-Data semantic, metric, dataset, and graph "
         "context for a question."
     ),
     icon="🔎",
@@ -477,7 +477,7 @@ async def datapaw_search_context(
 
 @app.tool(
     "datapaw_list_domains",
-    description="List QwenPaw-Data business domains available for analysis.",
+    description="List AIArb-Data business domains available for analysis.",
     icon="🗂️",
     tool_type="network",
 )
@@ -489,7 +489,7 @@ async def datapaw_list_domains(datasource_id: str = "") -> Any:
 @app.tool(
     "datapaw_explore_entity",
     description=(
-        "Explore a metric or business entity across QwenPaw-Data "
+        "Explore a metric or business entity across AIArb-Data "
         "context graphs."
     ),
     icon="🕸️",
@@ -512,7 +512,7 @@ async def datapaw_explore_entity(
     "datapaw_execute_sql",
     description=(
         "Execute a read-only SQL query through the selected "
-        "QwenPaw-Data source."
+        "AIArb-Data source."
     ),
     icon="🧮",
     tool_type="network",

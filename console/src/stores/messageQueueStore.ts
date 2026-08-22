@@ -73,7 +73,7 @@ export interface QueueItemInput {
 // removed eagerly via remove())
 // ---------------------------------------------------------------------------
 
-export const STORAGE_PREFIX = "qwenpaw:message-queue:";
+export const STORAGE_PREFIX = "aiarb:message-queue:";
 
 /** Shape persisted in localStorage per session */
 interface PersistedQueue {
@@ -184,7 +184,7 @@ function getChannel(): BroadcastChannel | null {
   if (_channel) return _channel;
   if (typeof BroadcastChannel === "undefined") return null;
   try {
-    _channel = new BroadcastChannel("qwenpaw:queue");
+    _channel = new BroadcastChannel("aiarb:queue");
   } catch {
     _channel = null;
   }
@@ -225,7 +225,7 @@ export async function withSendLock<T>(
   }
   try {
     const result = (await locks.request(
-      `qwenpaw:queue-send:${sessionId}`,
+      `aiarb:queue-send:${sessionId}`,
       { ifAvailable: true },
       async (lock: unknown) => {
         if (!lock) return null;
@@ -264,7 +264,7 @@ export function holdOwnershipLock(
   }
   return locks
     .request(
-      `qwenpaw:queue-owner:${sessionId}`,
+      `aiarb:queue-owner:${sessionId}`,
       { mode: "exclusive", signal: abortSignal },
       async (lock: unknown) => {
         if (!lock) return;
@@ -356,8 +356,8 @@ export const useMessageQueueStore = create<MessageQueueStore>((set, get) => ({
     let agentId: string | undefined;
     try {
       const agentStorage =
-        sessionStorage.getItem("qwenpaw-agent-storage") ||
-        localStorage.getItem("qwenpaw-agent-storage");
+        sessionStorage.getItem("aiarb-agent-storage") ||
+        localStorage.getItem("aiarb-agent-storage");
       if (agentStorage) {
         const parsed = JSON.parse(agentStorage);
         agentId = parsed?.state?.selectedAgent || undefined;

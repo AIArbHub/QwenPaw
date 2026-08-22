@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-"""QwenPaw-Data application package."""
+"""AIArb-Data application package."""

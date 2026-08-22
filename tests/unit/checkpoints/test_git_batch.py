@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.checkpoints.git_batch import GitBlobBatch
-from qwenpaw.checkpoints.models import CheckpointError
+from aiarb.checkpoints.git_batch import GitBlobBatch
+from aiarb.checkpoints.models import CheckpointError
 
 
 def _batch(

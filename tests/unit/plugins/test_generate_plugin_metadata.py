@@ -30,23 +30,23 @@ from generate_plugin_metadata import (  # noqa: E402
 )
 
 
-def test_structured_qwenpaw_version_passthrough() -> None:
-    manifest = {"qwenpaw_version": {"min": "1.1.6", "max": "2.1.0"}}
+def test_structured_aiarb_version_passthrough() -> None:
+    manifest = {"aiarb_version": {"min": "1.1.6", "max": "2.1.0"}}
     assert get_version(manifest) == {"min": "1.1.6", "max": "2.1.0"}
 
 
-def test_structured_qwenpaw_version_only_min() -> None:
-    manifest = {"qwenpaw_version": {"min": "2.0.0"}}
+def test_structured_aiarb_version_only_min() -> None:
+    manifest = {"aiarb_version": {"min": "2.0.0"}}
     assert get_version(manifest) == {"min": "2.0.0"}
 
 
-def test_structured_qwenpaw_version_strips_leading_v() -> None:
-    manifest = {"qwenpaw_version": {"min": "v1.0.0", "max": "v2.0.0"}}
+def test_structured_aiarb_version_strips_leading_v() -> None:
+    manifest = {"aiarb_version": {"min": "v1.0.0", "max": "v2.0.0"}}
     assert get_version(manifest) == {"min": "1.0.0", "max": "2.0.0"}
 
 
-def test_structured_qwenpaw_version_strips_whitespace() -> None:
-    manifest = {"qwenpaw_version": {"min": " 1.0.0 ", "max": " 2.0.0\t"}}
+def test_structured_aiarb_version_strips_whitespace() -> None:
+    manifest = {"aiarb_version": {"min": " 1.0.0 ", "max": " 2.0.0\t"}}
     assert get_version(manifest) == {"min": "1.0.0", "max": "2.0.0"}
 
 
@@ -80,17 +80,17 @@ def test_no_constraints_returns_none() -> None:
     assert get_version(manifest) is None
 
 
-def test_non_dict_qwenpaw_version_falls_to_legacy() -> None:
-    """Non-dict qwenpaw_version is ignored; falls back to min/max."""
+def test_non_dict_aiarb_version_falls_to_legacy() -> None:
+    """Non-dict aiarb_version is ignored; falls back to min/max."""
     manifest = {
-        "qwenpaw_version": "invalid",
+        "aiarb_version": "invalid",
         "min_version": "1.0.0",
     }
     assert get_version(manifest) == {"min": "1.0.0"}
 
 
-def test_non_dict_qwenpaw_version_no_legacy_returns_none() -> None:
-    manifest = {"qwenpaw_version": "invalid"}
+def test_non_dict_aiarb_version_no_legacy_returns_none() -> None:
+    manifest = {"aiarb_version": "invalid"}
     assert get_version(manifest) is None
 
 
@@ -103,10 +103,10 @@ def test_prerelease_version_string_in_legacy() -> None:
     }
 
 
-def test_extra_keys_in_qwenpaw_version_ignored() -> None:
+def test_extra_keys_in_aiarb_version_ignored() -> None:
     """Only 'min' and 'max' keys are retained."""
     manifest = {
-        "qwenpaw_version": {
+        "aiarb_version": {
             "min": "1.0.0",
             "max": "2.0.0",
             "note": "should be ignored",

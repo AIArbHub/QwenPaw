@@ -272,7 +272,7 @@ describe("codingTabsStore", () => {
     expect(agentEnvelope.state.tabsByAgent["session:a1:s1"]).toBeUndefined();
     expect(sessionEnvelope.state.tabsByAgent["session:a1:s1"]).toHaveLength(1);
     expect(sessionEnvelope.state.tabsByAgent["agent:a1"]).toBeUndefined();
-    expect(localStorage.getItem("qwenpaw-files-workbench")).toBeNull();
+    expect(localStorage.getItem("aiarb-files-workbench")).toBeNull();
   });
 
   it("migrates a temporary Session scope to its backend id", () => {

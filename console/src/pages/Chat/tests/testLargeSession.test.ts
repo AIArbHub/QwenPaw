@@ -127,7 +127,7 @@ function buildLargeMessages(
           timestamp: `2026-06-01 10:00:${(t % 60)
             .toString()
             .padStart(2, "0")}.${(s * 100).toString().padStart(3, "0")}`,
-          qwenpaw_turn_usage: {
+          aiarb_turn_usage: {
             usage: {
               prompt_tokens: 100 + s,
               completion_tokens: 50 + s,
@@ -163,7 +163,7 @@ function buildOneGiantAssistantMessage(bytes: number): Message[] {
       content: [{ type: "text", text: bigText(bytes, "huge") }],
       metadata: {
         timestamp: "2026-06-01 10:00:01.000",
-        qwenpaw_turn_usage: {
+        aiarb_turn_usage: {
           usage: { prompt_tokens: 1, completion_tokens: 2, total_tokens: 3 },
           context_usage: {
             estimated_tokens: 4,
@@ -458,7 +458,7 @@ describe("convertMessages — structural correctness on large input", () => {
         role: "assistant",
         content: "p1",
         metadata: {
-          qwenpaw_turn_usage: {
+          aiarb_turn_usage: {
             usage: {
               prompt_tokens: 10,
               completion_tokens: 5,
@@ -471,7 +471,7 @@ describe("convertMessages — structural correctness on large input", () => {
         role: "assistant",
         content: "p2",
         metadata: {
-          qwenpaw_turn_usage: {
+          aiarb_turn_usage: {
             usage: {
               prompt_tokens: 100,
               completion_tokens: 50,

@@ -6,11 +6,11 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.agents import model_factory
-from qwenpaw.config import config as config_module
-from qwenpaw.exceptions import ConfigurationException
-from qwenpaw.providers import provider_manager
-from qwenpaw.runtime.builder import AgentBuilder
+from aiarb.agents import model_factory
+from aiarb.config import config as config_module
+from aiarb.exceptions import ConfigurationException
+from aiarb.providers import provider_manager
+from aiarb.runtime.builder import AgentBuilder
 
 
 @pytest.mark.asyncio
@@ -123,11 +123,11 @@ async def test_build_constructs_model_in_worker_thread(monkeypatch):
         return []
 
     monkeypatch.setattr(
-        "qwenpaw.agents.skill_system.ensure_skills_initialized",
+        "aiarb.agents.skill_system.ensure_skills_initialized",
         ensure_skills_initialized,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.skill_system.resolve_effective_skills",
+        "aiarb.agents.skill_system.resolve_effective_skills",
         resolve_effective_skills,
     )
     ctx = SimpleNamespace(
@@ -196,11 +196,11 @@ async def test_build_constructs_prompt_in_worker_thread(monkeypatch):
         collect_drivers,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.skill_system.ensure_skills_initialized",
+        "aiarb.agents.skill_system.ensure_skills_initialized",
         lambda *_args: None,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.skill_system.resolve_effective_skills",
+        "aiarb.agents.skill_system.resolve_effective_skills",
         lambda *_args: [],
     )
     monkeypatch.setattr(

@@ -5,7 +5,7 @@ import io
 import types
 import urllib.request
 
-from qwenpaw.cli import desktop_cmd
+from aiarb.cli import desktop_cmd
 
 
 class _Response(io.BytesIO):

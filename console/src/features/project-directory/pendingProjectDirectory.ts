@@ -1,4 +1,4 @@
-const KEY_PREFIX = "qwenpaw-session-project-dir:";
+const KEY_PREFIX = "aiarb-session-project-dir:";
 
 function storageKey(agentId: string, sessionId: string): string {
   return `${KEY_PREFIX}${agentId}:${sessionId}`;

@@ -24,8 +24,8 @@ import asyncio
 
 import pytest
 
-from qwenpaw.agents import model_factory
-from qwenpaw.governance import generalize as g
+from aiarb.agents import model_factory
+from aiarb.governance import generalize as g
 
 
 # ---------------------------------------------------------------------------
@@ -681,7 +681,7 @@ class TestOpenAIChatModelCompatDisableThinking:
     they all build an ``OpenAIChatModelCompat``."""
 
     def test_translates_to_extra_body(self):
-        from qwenpaw.providers.openai_chat_model_compat import (
+        from aiarb.providers.openai_chat_model_compat import (
             OpenAIChatModelCompat,
         )
 
@@ -695,7 +695,7 @@ class TestOpenAIChatModelCompatDisableThinking:
         assert "disable_thinking" not in kwargs
 
     def test_noop_when_flag_absent(self):
-        from qwenpaw.providers.openai_chat_model_compat import (
+        from aiarb.providers.openai_chat_model_compat import (
             OpenAIChatModelCompat,
         )
 
@@ -705,7 +705,7 @@ class TestOpenAIChatModelCompatDisableThinking:
         assert kwargs == {"temperature": 0.7}
 
     def test_merges_existing_extra_body(self):
-        from qwenpaw.providers.openai_chat_model_compat import (
+        from aiarb.providers.openai_chat_model_compat import (
             OpenAIChatModelCompat,
         )
 
