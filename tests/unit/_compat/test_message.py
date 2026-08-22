@@ -8,7 +8,7 @@ import os
 import pytest
 from agentscope.message import DataBlock, URLSource
 
-from qwenpaw._compat.message import _ensure_url_scheme, msg_from_dict
+from aiarb._compat.message import _ensure_url_scheme, msg_from_dict
 
 
 @pytest.mark.parametrize(

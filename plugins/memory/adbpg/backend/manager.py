@@ -1,5 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """ADBPG memory backend plugin implementation.
+"""ADBPG Memory Manager for AIArb agents.
 
 Provides long-term memory backed by AnalyticDB for PostgreSQL (ADBPG).
 Context compaction is handled natively by AgentScope's
@@ -19,7 +20,7 @@ from agentscope.message import Msg, TextBlock
 from agentscope.message import ToolResultState
 from agentscope.tool import ToolChunk
 
-from qwenpaw.memory import (
+from AIARB.memory import (
     AutoMemorySearchOptions,
     BaseMemoryManager,
     MemoryBackendContext,
@@ -143,7 +144,7 @@ class ADBPGMemoryManager(BaseMemoryManager):
         # plugin-owned network policy whenever a remote call can occur.
         setattr(
             adbpg_memory_search,
-            "_qwenpaw_policy_name",
+            "_AIARB_policy_name",
             "ADBPGMemorySearch",
         )
         return [adbpg_memory_search]

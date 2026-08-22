@@ -1,27 +1,27 @@
 ---
-title: "QwenPaw Creator：从安装到开始创作"
+title: "AIArb Creator：从安装到开始创作"
 date: 2026-08-19
-author: QwenPaw Team
-tags: [QwenPaw Creator, 视频创作, 安装指南, Agentic Workflow]
+author: AIArb Team
+tags: [AIArb Creator, 视频创作, 安装指南, Agentic Workflow]
 cover: https://img.alicdn.com/imgextra/i3/O1CN01BrV3VrZ2axF5qXky_!!6000000006553-2-tps-2880-1620.png
-excerpt: "了解 QwenPaw Creator 的核心能力，并通过 7 个步骤完成安装、模型配置与首次打开。"
+excerpt: "了解 AIArb Creator 的核心能力，并通过 7 个步骤完成安装、模型配置与首次打开。"
 ---
 
-# QwenPaw Creator：从安装到开始创作
+# AIArb Creator：从安装到开始创作
 
-> **QwenPaw Creator** 是一个 Agentic 视频创作平台：从一句想法生成短剧，或把现有素材剪成成片，Agent 团队全程协作，关键决定始终在你手中。
+> **AIArb Creator** 是一个 Agentic 视频创作平台：从一句想法生成短剧，或把现有素材剪成成片，Agent 团队全程协作，关键决定始终在你手中。
 >
-> 本文将带你了解 Creator 的核心能力，并通过 7 个步骤完成安装与首次打开。QwenPaw 本身的安装请参考官网：<https://qwenpaw.agentscope.io/>
+> 本文将带你了解 Creator 的核心能力，并通过 7 个步骤完成安装与首次打开。AIArb 本身的安装请参考官网：<https://aiarb.agentscope.io/>
 
-![QwenPaw Creator 产品演示](https://cloud.video.taobao.com/vod/QrQ22smEYzVP5QtchnWO6ix6caO84v72wVKmqDmRoDY.mp4)
+![AIArb Creator 产品演示](https://cloud.video.taobao.com/vod/QrQ22smEYzVP5QtchnWO6ix6caO84v72wVKmqDmRoDY.mp4)
 
-_QwenPaw Creator 产品演示：从创意输入到视频创作工作流。_
+_AIArb Creator 产品演示：从创意输入到视频创作工作流。_
 
 截图中红色方框与数字圆标为操作标注（① ② ③ ……），按步骤顺序排列。
 
 ---
 
-## 什么是 QwenPaw Creator？
+## 什么是 AIArb Creator？
 
 在 Creator 里，你负责提出目标、提供素材和把握方向，Agent 团队负责策划、生成、剪辑与合成，并在关键节点把决定权交还给你。
 
@@ -43,13 +43,13 @@ Creator 原生集成了 [Qwen-MM-Plugins](https://github.com/QwenLM/Qwen-MM-Plug
 
 ---
 
-## 开始之前：先打开 QwenPaw
+## 开始之前：先打开 AIArb
 
-按官网指引安装好 QwenPaw 后（安装方式见官网 [快速开始](https://qwenpaw.agentscope.io/#qwenpaw-quickstart)，支持 pip / 一键脚本 / Docker / 云端 / 桌面端），在终端启动它，浏览器会自动打开控制台：
+按官网指引安装好 AIArb 后（安装方式见官网 [快速开始](https://aiarb.agentscope.io/#aiarb-quickstart)，支持 pip / 一键脚本 / Docker / 云端 / 桌面端），在终端启动它，浏览器会自动打开控制台：
 
 ```bash
-# 启动 QwenPaw（默认监听 127.0.0.1:8088）
-qwenpaw app
+# 启动 AIArb（默认监听 127.0.0.1:8088）
+aiarb app
 
 # 若浏览器未自动打开，手动访问
 open http://127.0.0.1:8088
@@ -61,9 +61,9 @@ open http://127.0.0.1:8088
 
 ## 步骤 1：进入主界面
 
-启动 QwenPaw 后，浏览器会自动打开控制台主界面（Chat 页面）。
+启动 AIArb 后，浏览器会自动打开控制台主界面（Chat 页面）。
 
-![步骤 1：QwenPaw 主界面](https://img.alicdn.com/imgextra/i2/O1CN01fvYmw40BXLL5qXky_!!6000000007717-2-tps-2880-1620.png)
+![步骤 1：AIArb 主界面](https://img.alicdn.com/imgextra/i2/O1CN01fvYmw40BXLL5qXky_!!6000000007717-2-tps-2880-1620.png)
 
 _红框标注①：左侧导航栏中的「应用」入口。_
 
@@ -81,7 +81,7 @@ _红框标注①：「应用」菜单项。首次进入时如果还没有安装�
 
 ## 步骤 3：选择 Creator 并点击「安装」
 
-切换到 **官方应用** 页签，找到 **QwenPaw Creator** 卡片，点击卡片右下角的 **安装** 按钮（圆标 ① 处）。
+切换到 **官方应用** 页签，找到 **AIArb Creator** 卡片，点击卡片右下角的 **安装** 按钮（圆标 ① 处）。
 
 ![步骤 3：官方应用页签中的 Creator 卡片](https://img.alicdn.com/imgextra/i4/O1CN01MFQj17c3uGC5qXky_!!6000000001609-2-tps-2880-1620.png)
 
@@ -101,7 +101,7 @@ _红框标注①：「安装」按钮变为「正在安装…」加载态。_
 
 ## 步骤 5：确认安装成功
 
-安装完成后，页面顶部会弹出绿色对勾提示 **「已安装: QwenPaw Creator」**。
+安装完成后，页面顶部会弹出绿色对勾提示 **「已安装: AIArb Creator」**。
 
 ![步骤 5：安装成功提示](https://img.alicdn.com/imgextra/i3/O1CN01khWNWYm8iTG5qXky_!!6000000004768-2-tps-2880-1620.png)
 

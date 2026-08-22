@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """QQ native gateway, routing, media and heartbeat with local wire peers."""
 import asyncio
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -7,7 +7,7 @@ import threading
 import pytest
 import pytest_asyncio
 from websockets.sync.server import serve
-from qwenpaw.channel_protocol.models import SendParams
+from AIARB.channel_protocol.models import SendParams
 from tests.channel_support.driver import bind, module
 
 

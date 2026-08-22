@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Voice page object.
+AIARB Voice page object.
 
 Wraps all interactions on the Voice page and exposes business-level methods.
 """
@@ -26,7 +26,7 @@ class VoicePage(BasePage):
     - Read voice service status
     """
 
-    PAGE_TITLE = "QwenPaw Console"
+    PAGE_TITLE = "AIARB Console"
     PAGE_URL = f"{config.base_url}/voice-transcription"
 
     # ========== Selector definitions ==========
@@ -35,13 +35,13 @@ class VoicePage(BasePage):
     PAGE_LOAD_INDICATOR = 'div[class*="voiceTranscriptionPage"]'
 
     # Voice service switch
-    VOICE_TOGGLE_SELECTOR = '.qwenpaw-switch, .qwenpaw-switch-input, [class*=voiceToggle]'
+    VOICE_TOGGLE_SELECTOR = '.AIARB-switch, .AIARB-switch-input, [class*=voiceToggle]'
 
     # Configuration form
-    CONFIG_FORM_SELECTOR = '.qwenpaw-form, [class*=configForm], form'
+    CONFIG_FORM_SELECTOR = '.AIARB-form, [class*=configForm], form'
 
     # Success message
-    SUCCESS_MESSAGE_SELECTOR = '.qwenpaw-message-success, .qwenpaw-notification-success'
+    SUCCESS_MESSAGE_SELECTOR = '.AIARB-message-success, .AIARB-notification-success'
 
     # ========== Navigation methods ==========
 

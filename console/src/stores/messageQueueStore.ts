@@ -1,4 +1,4 @@
-import { create } from "zustand";
+﻿import { create } from "zustand";
 import {
   createClientMessageId,
   extractClientMessageId,
@@ -140,7 +140,7 @@ export function getLatestQueuedSessionIdForAgent(
 // removed eagerly via remove())
 // ---------------------------------------------------------------------------
 
-export const STORAGE_PREFIX = "qwenpaw:message-queue:";
+export const STORAGE_PREFIX = "AIARB:message-queue:";
 
 /** Shape persisted in localStorage per session */
 interface PersistedQueue {
@@ -274,7 +274,7 @@ function getChannel(): BroadcastChannel | null {
   if (_channel) return _channel;
   if (typeof BroadcastChannel === "undefined") return null;
   try {
-    _channel = new BroadcastChannel("qwenpaw:queue");
+    _channel = new BroadcastChannel("AIARB:queue");
   } catch {
     _channel = null;
   }
@@ -315,7 +315,7 @@ export async function withSendLock<T>(
   }
   try {
     const result = (await locks.request(
-      `qwenpaw:queue-send:${sessionId}`,
+      `AIARB:queue-send:${sessionId}`,
       { ifAvailable: true },
       async (lock: unknown) => {
         if (!lock) return null;
@@ -346,7 +346,7 @@ export async function withAvailableOwnershipLock<T>(
   }
   try {
     const result = (await locks.request(
-      `qwenpaw:queue-owner:${sessionId}`,
+      `AIARB:queue-owner:${sessionId}`,
       { mode: "exclusive", ifAvailable: true },
       async (lock: unknown) => {
         if (!lock || abortSignal?.aborted) return null;
@@ -398,7 +398,7 @@ export function holdOwnershipLock(
   }
   return locks
     .request(
-      `qwenpaw:queue-owner:${sessionId}`,
+      `AIARB:queue-owner:${sessionId}`,
       { mode: "exclusive", signal: abortSignal },
       async (lock: unknown) => {
         if (!lock) return;
@@ -501,8 +501,8 @@ export const useMessageQueueStore = create<MessageQueueStore>((set, get) => ({
     try {
       if (!agentId) {
         const agentStorage =
-          sessionStorage.getItem("qwenpaw-agent-storage") ||
-          localStorage.getItem("qwenpaw-agent-storage");
+          sessionStorage.getItem("AIARB-agent-storage") ||
+          localStorage.getItem("AIARB-agent-storage");
         if (agentStorage) {
           const parsed = JSON.parse(agentStorage);
           agentId = parsed?.state?.selectedAgent || undefined;
@@ -829,7 +829,7 @@ export async function recoverLegacyDraftQueue(
   }
   try {
     await locks.request(
-      "qwenpaw:queue-migrate:legacy-new",
+      "AIARB:queue-migrate:legacy-new",
       { mode: "exclusive", signal },
       recover,
     );

@@ -9,8 +9,8 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.cli import channels_cmd
-from qwenpaw.plugins.registry import PluginRegistry
+from aiarb.cli import channels_cmd
+from aiarb.plugins.registry import PluginRegistry
 
 
 @pytest.fixture()
@@ -39,7 +39,7 @@ def _write_channel_plugin(plugin_root: Path) -> None:
         "version": "1.0.0",
         "type": "channel",
         "entry": {"backend": "plugin.py"},
-        "qwenpaw_version": {"min": "0.1.0", "max": "99.0.0"},
+        "aiarb_version": {"min": "0.1.0", "max": "99.0.0"},
     }
     (plugin_dir / "plugin.json").write_text(
         json.dumps(manifest),
@@ -49,7 +49,7 @@ def _write_channel_plugin(plugin_root: Path) -> None:
         """
 from fastapi import APIRouter
 
-from qwenpaw.app.channels.base import BaseChannel
+from aiarb.app.channels.base import BaseChannel
 
 
 class InteractiveChannel(BaseChannel):

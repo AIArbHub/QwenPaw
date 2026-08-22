@@ -1,22 +1,22 @@
 /**
- * QwenPaw logo: symbol only. When logo and brand text would both appear,
+ * AIArb logo: symbol only. When logo and brand text would both appear,
  * we show only the logo (no separate text).
  */
 import { CatPawIcon } from "./CatPawIcon";
 
-interface QwenpawLogoProps {
+interface AIArbLogoProps {
   variant?: "full" | "mark";
   size?: number;
   animated?: boolean;
   className?: string;
 }
 
-export function QwenpawLogo({
+export function AIArbLogo({
   variant = "full",
   size = 48,
   animated: _animated = false,
   className = "",
-}: QwenpawLogoProps) {
+}: AIArbLogoProps) {
   const markSize = variant === "mark" ? size : Math.round(size * 1.1);
   return (
     <span

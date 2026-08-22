@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Slack outbound message sender.
 
@@ -22,12 +22,17 @@ from urllib.parse import unquote, urlparse
 
 import aiohttp
 
+from aiarb.schemas import (
+    ContentType,
+    ImageContent,
+)
+
 from .constants import (
     SLACK_TEXT_LIMIT,
 )
 from .format import chunk_slack_text, markdown_to_slack_mrkdwn
 from .utils import SlackDeliveryError, is_slack_host, with_retry
-from qwenpaw.app.channels.utils import materialize_data_url
+from AIARB.app.channels.utils import materialize_data_url
 
 if TYPE_CHECKING:
     from slack_sdk.web.async_client import AsyncWebClient

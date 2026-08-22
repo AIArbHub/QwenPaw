@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.routers.project_directory import _validate_directory_name
+from aiarb.app.routers.project_directory import _validate_directory_name
 
 
 def test_validate_directory_name_trims_surrounding_whitespace() -> None:

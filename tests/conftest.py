@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name
 # pylint: disable=reimported,unused-argument,unnecessary-pass
 """
@@ -20,16 +20,16 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from qwenpaw.providers import provider_manager as _provider_manager_module
+from AIARB.providers import provider_manager as _provider_manager_module
 
 # Fixture data is loaded explicitly by tests, never collected as a suite.
 collect_ignore = ["fixtures"]
 
 
 @pytest.fixture(autouse=True)
-def capture_qwenpaw_logs(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Let caplog see qwenpaw records despite the app logger handler."""
-    monkeypatch.setattr(logging.getLogger("qwenpaw"), "propagate", True)
+def capture_AIARB_logs(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Let caplog see AIARB records despite the app logger handler."""
+    monkeypatch.setattr(logging.getLogger("AIARB"), "propagate", True)
 
 
 # =============================================================================
@@ -418,7 +418,7 @@ def mock_provider_factory():
 def pytest_configure(config: pytest.Config) -> None:
     """Disable telemetry in tests and the real app subprocesses they spawn."""
     patch = pytest.MonkeyPatch()
-    patch.setenv("QWENPAW_TELEMETRY_DISABLED", "1")
+    patch.setenv("AIARB_TELEMETRY_DISABLED", "1")
     config.add_cleanup(patch.undo)
 
 
@@ -461,7 +461,7 @@ def isolated_secret_dir(monkeypatch, tmp_path):
     This fixture ensures every test uses a clean temporary directory and
     a fresh ProviderManager singleton.
     """
-    secret_dir = tmp_path / ".qwenpaw.secret"
+    secret_dir = tmp_path / ".AIARB.secret"
     monkeypatch.setattr(_provider_manager_module, "SECRET_DIR", secret_dir)
     monkeypatch.setattr(
         _provider_manager_module.ProviderManager,

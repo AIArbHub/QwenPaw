@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 from __future__ import annotations
 
@@ -10,12 +10,12 @@ import types
 import click
 import pytest
 
-from qwenpaw.tauri import entry
-from qwenpaw.tauri.env import DESKTOP_CORS_ORIGINS_ENV
+from AIARB.tauri import entry
+from AIARB.tauri.env import DESKTOP_CORS_ORIGINS_ENV
 
 
 def test_install_desktop_runtime_preserves_existing_cors_values(monkeypatch):
-    monkeypatch.delitem(sys.modules, "qwenpaw.app._app", raising=False)
+    monkeypatch.delitem(sys.modules, "AIARB.app._app", raising=False)
     monkeypatch.setenv(
         DESKTOP_CORS_ORIGINS_ENV,
         "https://example.test,tauri://localhost",
@@ -29,19 +29,19 @@ def test_install_desktop_runtime_preserves_existing_cors_values(monkeypatch):
     assert "http://127.0.0.1:5173" not in origins
 
 
-def test_ensure_qwenpaw_app_not_loaded_rejects_late_cors(monkeypatch):
-    monkeypatch.setitem(sys.modules, "qwenpaw.app._app", object())
+def test_ensure_AIARB_app_not_loaded_rejects_late_cors(monkeypatch):
+    monkeypatch.setitem(sys.modules, "AIARB.app._app", object())
 
     with pytest.raises(RuntimeError, match="desktop CORS origins"):
-        entry._ensure_qwenpaw_app_not_loaded()
+        entry._ensure_AIARB_app_not_loaded()
 
 
-def test_sync_loaded_qwenpaw_constant_cors_origins(monkeypatch):
+def test_sync_loaded_AIARB_constant_cors_origins(monkeypatch):
     constant_module = types.SimpleNamespace(CORS_ORIGINS="")
-    monkeypatch.setitem(sys.modules, "qwenpaw.constant", constant_module)
+    monkeypatch.setitem(sys.modules, "AIARB.constant", constant_module)
     monkeypatch.setenv(DESKTOP_CORS_ORIGINS_ENV, "tauri://localhost")
 
-    entry._sync_loaded_qwenpaw_constant_cors_origins()
+    entry._sync_loaded_AIARB_constant_cors_origins()
 
     assert constant_module.CORS_ORIGINS == "tauri://localhost"
 
@@ -144,7 +144,7 @@ def test_main_aborts_unhandled_frozen_multiprocessing_child(
         sys,
         "argv",
         [
-            "qwenpaw-backend",
+            "AIARB-backend",
             "--multiprocessing-fork",
             "tracker_fd=6",
             "pipe_handle=8",
@@ -197,12 +197,12 @@ def test_main_supports_frozen_entry_without_package_context(
         "_run_backend_server",
         lambda level, instance: calls.append(level),
     )
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("AIARB.constant.WORKING_DIR", tmp_path)
     monkeypatch.setattr(
-        "qwenpaw.utils.platform.warn_unelevated_sandbox",
+        "AIARB.utils.platform.warn_unelevated_sandbox",
         lambda: calls.append("sandbox-check"),
     )
-    monkeypatch.delenv("QWENPAW_LOG_LEVEL", raising=False)
+    monkeypatch.delenv("AIARB_LOG_LEVEL", raising=False)
 
     entry.main()
 

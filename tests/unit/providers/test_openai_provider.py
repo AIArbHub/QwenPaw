@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 from __future__ import annotations
 
@@ -11,16 +11,14 @@ from agentscope.message import UserMsg
 import httpx
 import pytest
 
-from qwenpaw.agents.context.scroll.manager import ScrollContextManager
-import qwenpaw.providers.openai_provider as openai_provider_module
-from qwenpaw.providers.openai_provider import (
+import AIARB.providers.openai_provider as openai_provider_module
+from AIARB.providers.openai_provider import (
     KiloProvider,
     OpenCodeProvider,
     OpenAIProvider,
 )
-from qwenpaw.providers.provider import ModelInfo
-from qwenpaw.providers.services.azure import AzureOpenAIProvider
-from qwenpaw.providers.thinking import ThinkingControl
+from AIARB.providers.provider import ModelInfo
+from AIARB.providers.thinking import ThinkingControl
 
 
 def _make_provider(is_custom: bool = False) -> OpenAIProvider:

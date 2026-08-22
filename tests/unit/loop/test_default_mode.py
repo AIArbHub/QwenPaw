@@ -23,19 +23,15 @@ from agentscope.message import (
     UserMsg,
 )
 
-from qwenpaw.config.config import RubricGateConfig
-from qwenpaw.loop.gates import StopAction
-from qwenpaw.loop.gates import rubric as rubric_module
-from qwenpaw.loop.gates.doom_loop import DoomLoopGate
-from qwenpaw.loop.gates.iteration import IterationGate
-from qwenpaw.modes.default import DefaultMode
-from qwenpaw.providers import typesafe_provider
+from aiarb.loop.gates.doom_loop import DoomLoopGate
+from aiarb.loop.gates.iteration import IterationGate
+from aiarb.modes.default import DefaultMode
 
 
 @pytest.fixture(autouse=True)
 def _force_session_id():
     with patch(
-        "qwenpaw.loop.gates.loop_gate._session_id",
+        "aiarb.loop.gates.loop_gate._session_id",
         return_value="test-session",
     ):
         yield

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Yuanbao media upload: COS pre-signed upload via genUploadInfo API.
 
 Flow:
@@ -24,7 +24,7 @@ from urllib.parse import parse_qs, quote, urlparse
 
 import aiohttp
 
-from qwenpaw.app.channels.utils import (
+from AIARB.app.channels.utils import (
     file_url_to_local_path,
     parse_data_url_async,
 )

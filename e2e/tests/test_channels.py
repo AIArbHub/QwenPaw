@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Channels module end-to-end test cases.
+AIARB Channels module end-to-end test cases.
 
 Framework: pytest + Playwright + Page Object Pattern.
 Run: pytest tests/test_channels.py -v
@@ -69,7 +69,7 @@ class TestChannelListAndFilter:
         log_test_step("1. Open the Channels page and verify the page title")
         channels_page.open()
         page_title = channels_page.page.title()
-        assert "QwenPaw" in page_title or "Channels" in page_title, f"Unexpected page title: {page_title}"
+        assert "AIARB" in page_title or "Channels" in page_title, f"Unexpected page title: {page_title}"
 
         log_test_step("2. Verify the filter buttons are visible")
         assert channels_page.page.locator(channels_page.FILTER_ALL_BTN).first.is_visible(), "All filter button not shown"
@@ -292,7 +292,7 @@ class TestDiscordEnableDisable:
         logger.info(f"Drawer title: {drawer_title}")
 
         log_test_step("3. Read the current switch state")
-        switch = channels_page.page.locator('.qwenpaw-switch, .ant-switch').first
+        switch = channels_page.page.locator('.AIARB-switch, .ant-switch').first
         initial_checked = switch.get_attribute('aria-checked')
         logger.info(f"Initial switch aria-checked: {initial_checked}")
 
@@ -560,7 +560,7 @@ class TestMessageFilterSwitches:
                 channels_page.close_drawer()
                 continue
             target_switch = drawer_body.locator(
-                '.qwenpaw-form-item:has-text("Show Tool Call Information") '
+                '.AIARB-form-item:has-text("Show Tool Call Information") '
                 '[role="switch"]:visible'
             )
             # Console opens the presentation section by default. Other

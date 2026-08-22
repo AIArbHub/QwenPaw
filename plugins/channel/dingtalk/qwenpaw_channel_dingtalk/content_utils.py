@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """DingTalk content parsing and session helpers."""
 
 from __future__ import annotations
@@ -10,14 +10,14 @@ import re
 from typing import Any, Optional
 from urllib.parse import parse_qs, urlparse
 
-from qwenpaw.schemas import (
+from aiarb.schemas import (
     AudioContent,
     FileContent,
     ImageContent,
     VideoContent,
 )
 
-from qwenpaw.schemas import ContentType
+from AIARB.schemas import ContentType
 
 from .constants import (
     DINGTALK_SESSION_ID_SUFFIX_LEN,

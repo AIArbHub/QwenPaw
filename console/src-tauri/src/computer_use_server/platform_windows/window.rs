@@ -221,13 +221,13 @@ pub(crate) fn is_forbidden(window: &WindowInfo) -> bool {
     let title = window.title.to_ascii_lowercase();
     // Matched on the owning process name, not only the title: the self-ban must
     // hold even for a window whose title is empty or unexpected, so that the
-    // agent can never drive QwenPaw's own UI -- the approval prompt above all.
+    // agent can never drive AIArb's own UI -- the approval prompt above all.
     // The process image name is always available.
     let name = window.display_name.to_ascii_lowercase();
     class_name.contains("credential")
         || title.contains("windows security")
         || title.contains("credential")
-        || name.contains("qwenpaw")
+        || name.contains("aiarb")
 }
 
 /// Ask a window to close the same way its own title-bar button would.
@@ -300,11 +300,11 @@ mod tests {
     }
 
     #[test]
-    fn a_qwenpaw_window_is_forbidden_even_with_an_empty_title() {
+    fn a_aiarb_window_is_forbidden_even_with_an_empty_title() {
         // The self-ban must not hinge on the title: it can be absent, and a ban
         // that lapsed when the title was empty would let the agent reach
-        // QwenPaw's own approval prompt.
-        let win = window("", "qwenpaw-desktop", "Chrome_WidgetWin_1");
+        // AIArb's own approval prompt.
+        let win = window("", "aiarb-desktop", "Chrome_WidgetWin_1");
         assert!(is_forbidden(&win));
     }
 

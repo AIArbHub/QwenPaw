@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw MCP module P0 end-to-end tests
+AIARB MCP module P0 end-to-end tests
 
 Combined test design:
 - MCP-001: Page load + card info hard assertions + enable/disable toggle + state restore
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 MCP_URL = f"{config.base_url}/mcp"
 MCP_CARD_SELECTOR = 'div[class*="mcpGrid"] div[class*="card"]'
 TOGGLE_BTN_SELECTOR = '[role="switch"]'
-CREATE_BTN_SELECTOR = 'button.qwenpaw-btn-primary:has-text("创建客户端"), button.qwenpaw-btn-primary:has-text("Create Client"), button.qwenpaw-btn-primary:has-text("Create")'
+CREATE_BTN_SELECTOR = 'button.AIARB-btn-primary:has-text("创建客户端"), button.AIARB-btn-primary:has-text("Create Client"), button.AIARB-btn-primary:has-text("Create")'
 
 
 def navigate_to_mcp(page: Page):
@@ -187,7 +187,7 @@ class TestCreateMCPClient:
 
         # Step 4: Verify dialog title
         log_test_step("4. Verify dialog title")
-        modal_title = modal.locator('.qwenpaw-modal-title').first
+        modal_title = modal.locator('.AIARB-modal-title').first
         expect(modal_title).to_be_visible(timeout=3000)
         title_text = modal_title.inner_text()
         assert "创建客户端" in title_text or "Create" in title_text, f"Unexpected dialog title: {title_text}"
@@ -348,11 +348,11 @@ class TestMCPClientCreateAndDelete:
             # Step 6: Click confirm/create button
             log_test_step("6. Click confirm/create button")
             confirm_btn = modal.locator(
-                'button.qwenpaw-btn-primary:has-text("Create"), '
-                'button.qwenpaw-btn-primary:has-text("创建")'
+                'button.AIARB-btn-primary:has-text("Create"), '
+                'button.AIARB-btn-primary:has-text("创建")'
             ).first
             if not confirm_btn.is_visible():
-                confirm_btn = modal.locator('button.qwenpaw-btn-primary').last
+                confirm_btn = modal.locator('button.AIARB-btn-primary').last
             expect(confirm_btn).to_be_visible(timeout=5000)
             confirm_btn.click()
             page.wait_for_timeout(2000)
@@ -417,7 +417,7 @@ class TestMCPClientCreateAndDelete:
                                     page.wait_for_timeout(1000)
                                     confirm_delete_btn = page.locator(
                                         '[role="dialog"]:visible '
-                                        'button.qwenpaw-btn-primary'
+                                        'button.AIARB-btn-primary'
                                     ).first
                                     if confirm_delete_btn.is_visible():
                                         confirm_delete_btn.click()
@@ -469,7 +469,7 @@ class TestMcpClientEdit:
         page.wait_for_timeout(2000)
 
         log_test_step("Verify config Modal opened")
-        modal = page.locator('.qwenpaw-modal').last
+        modal = page.locator('.AIARB-modal').last
         expect(modal).to_be_visible(timeout=5000)
         logger.info("Config Modal opened")
 
@@ -487,7 +487,7 @@ class TestMcpClientEdit:
             page.wait_for_timeout(1500)
 
             log_test_step("Verify JSON edit area exists and test editing")
-            json_editor = modal.locator('textarea, .qwenpaw-input-textarea, [class*="editor"]').first
+            json_editor = modal.locator('textarea, .AIARB-input-textarea, [class*="editor"]').first
             if json_editor.count() > 0:
                 expect(json_editor).to_be_visible(timeout=5000)
                 tag_name = json_editor.evaluate('el => el.tagName')
@@ -520,7 +520,7 @@ class TestMcpClientEdit:
             logger.info(f"Modal content length: {len(modal_content)}")
 
         log_test_step("Close Modal")
-        close_btn = modal.locator('.qwenpaw-modal-close, button:has-text("Cancel"), button:has-text("取消"), button:has-text("Close"), button:has-text("关闭")').first
+        close_btn = modal.locator('.AIARB-modal-close, button:has-text("Cancel"), button:has-text("取消"), button:has-text("Close"), button:has-text("关闭")').first
         if close_btn.count() > 0:
             close_btn.click()
         else:
@@ -574,11 +574,11 @@ class TestMcpMultiProtocol:
         log_test_step("Verify create dialog/area")
         # Create uses JSON TextArea input; exclude hidden textareas
         # First search within the dialog/drawer context
-        modal_or_drawer = page.locator('.qwenpaw-modal, .ant-modal, .qwenpaw-drawer, .ant-drawer').last
+        modal_or_drawer = page.locator('.AIARB-modal, .ant-modal, .AIARB-drawer, .ant-drawer').last
         if modal_or_drawer.count() > 0:
             json_input = modal_or_drawer.locator(
                 'textarea:not([aria-hidden="true"]), '
-                '.qwenpaw-input-textarea textarea, '
+                '.AIARB-input-textarea textarea, '
                 '[class*="editor"], [class*="CodeMirror"]'
             ).first
         else:
@@ -604,7 +604,7 @@ class TestMcpMultiProtocol:
             page.wait_for_timeout(500)
         else:
             logger.info("No JSON input area found, may be using a different creation method")
-            modal = page.locator('.qwenpaw-modal, .ant-modal').last
+            modal = page.locator('.AIARB-modal, .ant-modal').last
             if modal.count() > 0:
                 modal_content = modal.inner_text()
                 logger.info(f"Dialog content length: {len(modal_content)}")

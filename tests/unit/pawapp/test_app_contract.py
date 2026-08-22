@@ -10,18 +10,18 @@ import pytest
 from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.exceptions import ConfigurationException
-from qwenpaw.pawapp import (
+from aiarb.exceptions import ConfigurationException
+from aiarb.pawapp import (
     DependencyHealth,
     DependencyProbe,
     ManagedService,
     ManagedServiceSpec,
     PawApp,
 )
-from qwenpaw.pawapp.app import _build_capability_router
-from qwenpaw.pawapp.context import ChatReply
-from qwenpaw.pawapp.deps import get_scoped_ctx
-from qwenpaw.pawapp import service as service_module
+from aiarb.pawapp.app import _build_capability_router
+from aiarb.pawapp.context import ChatReply
+from aiarb.pawapp.deps import get_scoped_ctx
+from aiarb.pawapp import service as service_module
 
 # Minimal loopback HTTP responder for managed-service fixtures. It is
 # deliberately raw-socket based: stdlib HTTPServer.server_bind() calls

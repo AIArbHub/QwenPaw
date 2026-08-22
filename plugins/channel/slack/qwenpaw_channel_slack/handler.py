@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-argument
 """Slack Socket Mode inbound event handler.
 
@@ -30,6 +30,14 @@ from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict, Optional
 
 import aiofiles
 import aiohttp
+
+from aiarb.schemas import (
+    AudioContent,
+    FileContent,
+    ImageContent,
+    TextContent,
+    VideoContent,
+)
 
 from .constants import (
     SLACK_DEDUP_MAX_ENTRIES,

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Unit tests for ``qwenpaw.app.routers.tool_calls`` session scoping."""
+"""Unit tests for ``aiarb.app.routers.tool_calls`` session scoping."""
 # pylint: disable=redefined-outer-name
 from __future__ import annotations
 
@@ -11,10 +11,10 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.routers.tool_calls import router as tool_calls_router
-from qwenpaw.tool_calls._context import ToolCallContext
-from qwenpaw.tool_calls._entry import ToolCallEntry, ToolCallStatus
-from qwenpaw.tool_calls._stream import ToolStream
+from aiarb.app.routers.tool_calls import router as tool_calls_router
+from aiarb.tool_calls._context import ToolCallContext
+from aiarb.tool_calls._entry import ToolCallEntry, ToolCallStatus
+from aiarb.tool_calls._stream import ToolStream
 
 
 @pytest.fixture

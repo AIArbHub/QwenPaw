@@ -1,4 +1,4 @@
-import {
+﻿import {
   BillingTag,
   CapabilityTags,
 } from "../../Settings/Models/components/modals/ModelCapabilityTags";
@@ -78,7 +78,7 @@ function publishActiveMaxInputLength(
   }
 }
 
-const RECENT_STORAGE_KEY = "qwenpaw_model_selector_recent";
+const RECENT_STORAGE_KEY = "AIARB_model_selector_recent";
 const DEFAULT_VISIBLE_MODELS = 5;
 const VIEW_MORE_STEP = 20;
 

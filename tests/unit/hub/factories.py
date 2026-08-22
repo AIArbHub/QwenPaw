@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Shared factories for QwenPaw Hub unit tests."""
+"""Shared factories for AIArb Hub unit tests."""
 
 from pathlib import Path
 
-from qwenpaw.hub.models import RuntimeRecord, RuntimeState
+from aiarb.hub.models import RuntimeRecord, RuntimeState
 
 
 def runtime_record(

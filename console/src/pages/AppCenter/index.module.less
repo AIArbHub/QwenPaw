@@ -1,4 +1,4 @@
-// App Center — warm-neutral, restrained visual language shared by the
+﻿// App Center — warm-neutral, restrained visual language shared by the
 // installed-apps view and the app market. Embedded PawApp runtime styles
 // (capsule button, embed frame) are intentionally left untouched.
 
@@ -45,7 +45,7 @@
   margin-bottom: 4px;
 
   :global(.ant-tabs-nav),
-  :global(.qwenpaw-tabs-nav) {
+  :global(.AIARB-tabs-nav) {
     margin-bottom: 20px;
 
     &::before {
@@ -56,7 +56,7 @@
   // Narrow screens: tabs stay reachable via horizontal scroll (antd default)
   // without shrinking below a comfortable touch size.
   :global(.ant-tabs-tab),
-  :global(.qwenpaw-tabs-tab) {
+  :global(.AIARB-tabs-tab) {
     padding: 8px 4px;
 
     @media (max-width: 639px) {
@@ -200,9 +200,9 @@
   }
 
   .emptyActions :global(.ant-btn),
-  .emptyActions :global(.qwenpaw-btn),
+  .emptyActions :global(.AIARB-btn),
   .cardActions :global(.ant-btn),
-  .cardActions :global(.qwenpaw-btn) {
+  .cardActions :global(.AIARB-btn) {
     min-height: var(--app-hit-touch);
   }
 }
@@ -247,10 +247,10 @@
     box-shadow: var(--app-shadow-sm);
   }
 
-  // The app configures antd with prefixCls="qwenpaw"; keep the ant-* alias
+  // The app configures antd with prefixCls="AIARB"; keep the ant-* alias
   // for safety in tests/storybook-like environments.
   :global(.ant-card-body),
-  :global(.qwenpaw-card-body) {
+  :global(.AIARB-card-body) {
     position: relative;
     height: 100%;
     min-height: 184px;
@@ -421,7 +421,7 @@
   gap: 8px;
 
   :global(.ant-btn),
-  :global(.qwenpaw-btn) {
+  :global(.AIARB-btn) {
     flex: 1;
     min-width: 0;
     border-radius: 10px;
@@ -432,7 +432,7 @@
 
   @media (max-width: 639px) {
     :global(.ant-btn),
-    :global(.qwenpaw-btn) {
+    :global(.AIARB-btn) {
       min-height: 36px;
     }
   }
@@ -487,17 +487,17 @@
 :global(.dark-mode) {
   .viewTabs {
     :global(.ant-tabs-tab),
-    :global(.qwenpaw-tabs-tab) {
+    :global(.AIARB-tabs-tab) {
       color: var(--app-text-secondary);
     }
 
     :global(.ant-tabs-tab-active .ant-tabs-tab-btn),
-    :global(.qwenpaw-tabs-tab-active .qwenpaw-tabs-tab-btn) {
+    :global(.AIARB-tabs-tab-active .AIARB-tabs-tab-btn) {
       color: var(--app-text);
     }
 
     :global(.ant-tabs-ink-bar),
-    :global(.qwenpaw-tabs-ink-bar) {
+    :global(.AIARB-tabs-ink-bar) {
       background: var(--app-accent);
     }
   }

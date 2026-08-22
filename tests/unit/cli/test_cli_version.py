@@ -5,8 +5,8 @@ from packaging.version import Version
 
 from click.testing import CliRunner
 
-from qwenpaw.__version__ import __version__
-from qwenpaw.cli.main import cli
+from aiarb.__version__ import __version__
+from aiarb.cli.main import cli
 
 
 def test_cli_version_option_outputs_current_version() -> None:

@@ -3,8 +3,8 @@
 
 import pytest
 
-from qwenpaw.agents.context.scroll.prompt import build_scroll_system_prompt
-from qwenpaw.agents.context.scroll.serialize import (
+from aiarb.agents.context.scroll.prompt import build_scroll_system_prompt
+from aiarb.agents.context.scroll.serialize import (
     HeadlineDeltaState,
     extract_headline,
     flush_headline_delta,

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Feishu native parsing, response cards and SDK lifecycle."""
 import asyncio
 import io
@@ -9,7 +9,7 @@ from types import SimpleNamespace as NS
 import httpx
 import pytest
 import pytest_asyncio
-from qwenpaw.channel_protocol.models import SendParams
+from AIARB.channel_protocol.models import SendParams
 from tests.channel_support.driver import bind, module
 
 pytestmark = pytest.mark.asyncio

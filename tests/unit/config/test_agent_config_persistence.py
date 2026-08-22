@@ -12,9 +12,9 @@ from threading import Lock
 
 import pytest
 
-from qwenpaw.config import config as config_module
-from qwenpaw.config import utils as config_utils
-from qwenpaw.config.config import (
+from aiarb.config import config as config_module
+from aiarb.config import utils as config_utils
+from aiarb.config.config import (
     AgentProfileConfig,
     AgentProfileRef,
     AgentsConfig,
@@ -22,9 +22,9 @@ from qwenpaw.config.config import (
     _migrate_access_control_fields,
     load_agent_config,
 )
-from qwenpaw.config.utils import read_last_dispatch, update_last_dispatch
-from qwenpaw.exceptions import AgentConfigConflictError
-from qwenpaw.utils.io_utils import write_json_atomic
+from aiarb.config.utils import read_last_dispatch, update_last_dispatch
+from aiarb.exceptions import AgentConfigConflictError
+from aiarb.utils.io_utils import write_json_atomic
 
 
 def _prepare_agent(
@@ -92,7 +92,7 @@ def test_acl_migration_keeps_legacy_field_when_state_write_fails(
             raise OSError("ACL state unavailable")
 
     monkeypatch.setattr(
-        "qwenpaw.app.channels.access_control.get_access_control_store",
+        "aiarb.app.channels.access_control.get_access_control_store",
         lambda _workspace_dir: FailingStore(),
     )
 

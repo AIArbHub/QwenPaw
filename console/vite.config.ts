@@ -1,4 +1,4 @@
-/// <reference types="vitest" />
+﻿/// <reference types="vitest" />
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
@@ -163,9 +163,9 @@ export default defineConfig(({ command, mode }) => {
     },
     build: {
       ...(desktop ? { outDir: "dist-tauri" } : {}),
-      // Output to QwenPaw's console directory,
+      // Output to AIARB's console directory,
       // so we don't need to copy files manually after build.
-      // outDir: path.resolve(__dirname, "../src/qwenpaw/console"),
+      // outDir: path.resolve(__dirname, "../src/AIARB/console"),
       // emptyOutDir: true,
       cssCodeSplit: true,
       sourcemap: mode !== "production" && !desktop,

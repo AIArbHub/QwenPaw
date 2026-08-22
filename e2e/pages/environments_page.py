@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Environments page object.
+AIARB Environments page object.
 
 Wraps all interactions on the environment variables configuration page and
 exposes business-level methods.
@@ -56,7 +56,7 @@ class EnvironmentsPage(BasePage):
     - Filter variables with the search box
     """
 
-    PAGE_TITLE = "QwenPaw Console"
+    PAGE_TITLE = "AIARB Console"
     PAGE_URL = f"{config.base_url}/environments"
 
     # ========== Selector definitions ==========
@@ -83,47 +83,47 @@ class EnvironmentsPage(BasePage):
     RESET_BTN = 'button[aria-label="Reset"]'
     SHOW_VALUE_BTN = 'button[aria-label="Show value"]'
 
-    # Editor Modal.  `ConfigProvider prefixCls="qwenpaw"` (console/src/App.tsx)
-    # makes antd emit `qwenpaw-*`; `ant-*` is kept as a degraded alternate
+    # Editor Modal.  `ConfigProvider prefixCls="AIARB"` (console/src/App.tsx)
+    # makes antd emit `AIARB-*`; `ant-*` is kept as a degraded alternate
     # because both prefixes ship in the stylesheet.
     #
     # All modal selectors are `:visible`-scoped: antd does not destroy a
     # closed Modal by default, so an unscoped `.first` could resolve to a
     # stale hidden node left over from a previous interaction.
-    MODAL = '.qwenpaw-modal:visible, .ant-modal:visible'
+    MODAL = '.AIARB-modal:visible, .ant-modal:visible'
     MODAL_TITLE = (
-        '.qwenpaw-modal:visible .qwenpaw-modal-title, '
+        '.AIARB-modal:visible .AIARB-modal-title, '
         '.ant-modal:visible .ant-modal-title'
     )
     MODAL_KEY_INPUT = (
-        '.qwenpaw-modal:visible input[placeholder="VARIABLE_NAME"], '
+        '.AIARB-modal:visible input[placeholder="VARIABLE_NAME"], '
         '.ant-modal:visible input[placeholder="VARIABLE_NAME"]'
     )
     MODAL_VALUE_INPUT = (
-        '.qwenpaw-modal:visible input[placeholder="value"], .ant-modal:visible input[placeholder="value"], '
-        '.qwenpaw-modal:visible input[placeholder="Value"], .ant-modal:visible input[placeholder="Value"]'
+        '.AIARB-modal:visible input[placeholder="value"], .ant-modal:visible input[placeholder="value"], '
+        '.AIARB-modal:visible input[placeholder="Value"], .ant-modal:visible input[placeholder="Value"]'
     )
     MODAL_OK_CANDIDATES = (
-        '.qwenpaw-modal:visible .qwenpaw-modal-footer button.qwenpaw-btn-primary',
+        '.AIARB-modal:visible .AIARB-modal-footer button.AIARB-btn-primary',
         '.ant-modal:visible .ant-modal-footer button.ant-btn-primary',
-        '.qwenpaw-modal:visible button:has-text("Apply now")',
+        '.AIARB-modal:visible button:has-text("Apply now")',
         '.ant-modal:visible button:has-text("Apply now")',
     )
     MODAL_CANCEL_CANDIDATES = (
-        '.qwenpaw-modal:visible .qwenpaw-modal-footer button:has-text("Cancel")',
+        '.AIARB-modal:visible .AIARB-modal-footer button:has-text("Cancel")',
         '.ant-modal:visible .ant-modal-footer button:has-text("Cancel")',
-        '.qwenpaw-modal:visible button:has-text("Cancel")',
+        '.AIARB-modal:visible button:has-text("Cancel")',
         '.ant-modal:visible button:has-text("Cancel")',
-        '.qwenpaw-modal:visible .qwenpaw-modal-close',
+        '.AIARB-modal:visible .AIARB-modal-close',
         '.ant-modal:visible .ant-modal-close',
     )
 
     # Confirm dialog (static `Modal.confirm`, same prefix via holderRender).
     # `:visible`-scoped for the same stale-DOM reason: a static dialog is
     # created per call and several methods confirm more than once.
-    CONFIRM_MODAL = '.qwenpaw-modal-confirm:visible, .ant-modal-confirm:visible'
+    CONFIRM_MODAL = '.AIARB-modal-confirm:visible, .ant-modal-confirm:visible'
     CONFIRM_BTNS_SCOPES = (
-        '.qwenpaw-modal-confirm-btns',
+        '.AIARB-modal-confirm-btns',
         '.ant-modal-confirm-btns',
     )
     # okButtonProps {danger: !reset} => dangerous on delete, primary on reset.
@@ -131,7 +131,7 @@ class EnvironmentsPage(BasePage):
 
     # Toasts (`useAppMessage()` → antd App context, same prefix).
     MESSAGE_NOTICE = (
-        '.qwenpaw-message-notice-content, .qwenpaw-message-custom-content, '
+        '.AIARB-message-notice-content, .AIARB-message-custom-content, '
         '.ant-message-notice-content, .ant-message-custom-content'
     )
 
@@ -252,7 +252,7 @@ class EnvironmentsPage(BasePage):
         dialog = self.page.locator(self.CONFIRM_MODAL).first
         candidates = []
         for scope in self.CONFIRM_BTNS_SCOPES:
-            prefix = "qwenpaw" if "qwenpaw" in scope else "ant"
+            prefix = "AIARB" if "AIARB" in scope else "ant"
             for style in self.CONFIRM_OK_STYLES:
                 candidates.append(dialog.locator(f"{scope} button.{prefix}-btn-{style}"))
         for candidate in candidates:

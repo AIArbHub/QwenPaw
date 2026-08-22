@@ -62,13 +62,13 @@ if sys.platform != "win32":
         sys.modules["msvcrt"] = _msvcrt
 # -- End stubs ---------------------------------------------------------------
 
-from qwenpaw.sandbox import (
+from aiarb.sandbox import (
     MountSpec,
     SandboxConfig,
     SandboxMode,
     create_sandbox,
 )
-from qwenpaw.sandbox.windows_unelevated_sandbox import (
+from aiarb.sandbox.windows_unelevated_sandbox import (
     _WC,
     WindowsUnelevatedSandbox,
     _build_shell_command_line,
@@ -85,9 +85,9 @@ from qwenpaw.sandbox.windows_unelevated_sandbox import (
 class TestFactoryRouting:
     """Test that create_sandbox routes allow_read_all=True non-admin here."""
 
-    @patch("qwenpaw.sandbox.config.sys")
+    @patch("aiarb.sandbox.config.sys")
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._is_admin",
+        "aiarb.sandbox.windows_unelevated_sandbox._is_admin",
         return_value=False,
     )
     def test_allow_read_all_non_admin_routes_to_unelevated(
@@ -105,11 +105,11 @@ class TestFactoryRouting:
         sandbox = create_sandbox(config)
         assert isinstance(sandbox, WindowsUnelevatedSandbox)
 
-    @patch("qwenpaw.sandbox.config.sys")
+    @patch("aiarb.sandbox.config.sys")
     def test_allow_read_all_false_does_not_route_here(self, mock_sys):
         """allow_read_all=False routes to AppContainerSandbox."""
         mock_sys.platform = "win32"
-        from qwenpaw.sandbox.windows_appcontainer_sandbox import (
+        from aiarb.sandbox.windows_appcontainer_sandbox import (
             WindowsAppContainerSandbox,
         )
 
@@ -324,9 +324,9 @@ class TestBaseEnvironment:
 
     @patch.dict("os.environ", {}, clear=True)
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox."
+        "aiarb.sandbox.windows_unelevated_sandbox."
         "_get_python_install_dir",
-        return_value=r"C:\QwenPaw\binaries\qwenpaw-backend",
+        return_value=r"C:\AIArb\binaries\aiarb-backend",
     )
     def test_does_not_inject_pythonhome(self, mock_python_dir):
         """A frozen backend directory must not become PYTHONHOME."""
@@ -403,10 +403,10 @@ class TestWindowsUnelevatedSandboxExecute:
         return sandbox
 
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._wait_and_read_process",
+        "aiarb.sandbox.windows_unelevated_sandbox._wait_and_read_process",
     )
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._create_process_as_user",
+        "aiarb.sandbox.windows_unelevated_sandbox._create_process_as_user",
     )
     def test_execute_success(self, mock_create, mock_wait):
         """Successful command returns exit_code=0, no violation."""
@@ -432,10 +432,10 @@ class TestWindowsUnelevatedSandboxExecute:
         assert result.timed_out is False
 
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._wait_and_read_process",
+        "aiarb.sandbox.windows_unelevated_sandbox._wait_and_read_process",
     )
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._create_process_as_user",
+        "aiarb.sandbox.windows_unelevated_sandbox._create_process_as_user",
     )
     def test_execute_violation_detected(self, mock_create, mock_wait):
         """Access denied in stderr → sandbox_violation is populated."""
@@ -460,10 +460,10 @@ class TestWindowsUnelevatedSandboxExecute:
         assert "Access is denied" in result.sandbox_violation
 
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._wait_and_read_process",
+        "aiarb.sandbox.windows_unelevated_sandbox._wait_and_read_process",
     )
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._create_process_as_user",
+        "aiarb.sandbox.windows_unelevated_sandbox._create_process_as_user",
     )
     def test_execute_timeout(self, mock_create, mock_wait):
         """Process exceeds timeout → timed_out=True."""
@@ -488,10 +488,10 @@ class TestWindowsUnelevatedSandboxExecute:
         assert result.timed_out is True
 
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._get_kernel32",
+        "aiarb.sandbox.windows_unelevated_sandbox._get_kernel32",
     )
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._create_process_as_user",
+        "aiarb.sandbox.windows_unelevated_sandbox._create_process_as_user",
     )
     def test_execute_oserror(self, mock_create, mock_kernel32_fn):
         """CreateProcess failure → exit_code=-1, error in stderr."""
@@ -507,10 +507,10 @@ class TestWindowsUnelevatedSandboxExecute:
         assert "CreateProcessAsUserW failed" in result.stderr
 
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._wait_and_read_process",
+        "aiarb.sandbox.windows_unelevated_sandbox._wait_and_read_process",
     )
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._create_process_as_user",
+        "aiarb.sandbox.windows_unelevated_sandbox._create_process_as_user",
     )
     def test_execute_chinese_violation(self, mock_create, mock_wait):
         """Chinese locale violation patterns are detected."""
@@ -533,10 +533,10 @@ class TestWindowsUnelevatedSandboxExecute:
         assert result.sandbox_violation is not None
 
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._wait_and_read_process",
+        "aiarb.sandbox.windows_unelevated_sandbox._wait_and_read_process",
     )
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._create_process_as_user",
+        "aiarb.sandbox.windows_unelevated_sandbox._create_process_as_user",
     )
     def test_execute_network_proxy_env(self, mock_create, mock_wait):
         """No network_allow → proxy env vars are injected."""
@@ -566,10 +566,10 @@ class TestWindowsUnelevatedSandboxExecute:
         assert captured_env["HTTPS_PROXY"] == "http://127.0.0.1:9"
 
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._wait_and_read_process",
+        "aiarb.sandbox.windows_unelevated_sandbox._wait_and_read_process",
     )
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._create_process_as_user",
+        "aiarb.sandbox.windows_unelevated_sandbox._create_process_as_user",
     )
     def test_execute_custom_cwd(self, mock_create, mock_wait):
         """Custom cwd is passed to process creation."""
@@ -607,7 +607,7 @@ class TestWindowsUnelevatedSandboxStop:
     """Test stop() releases token handles."""
 
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._get_kernel32",
+        "aiarb.sandbox.windows_unelevated_sandbox._get_kernel32",
     )
     def test_stop_closes_token(self, mock_kernel32_fn):
         """stop() closes the restricted token handle."""
@@ -633,7 +633,7 @@ class TestWindowsUnelevatedSandboxStop:
         assert sandbox._initialized is False
 
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._get_kernel32",
+        "aiarb.sandbox.windows_unelevated_sandbox._get_kernel32",
     )
     def test_stop_frees_cap_sid(self, mock_kernel32_fn):
         """stop() frees the capability SID pointer."""
@@ -666,14 +666,14 @@ class TestWindowsUnelevatedSandboxStop:
 class TestCreateSandboxWindowsDowngrade:
     """Test that WINDOWS mode downgrades on non-win32 platforms."""
 
-    @patch("qwenpaw.sandbox.config.sys")
+    @patch("aiarb.sandbox.config.sys")
     @patch(
-        "qwenpaw.sandbox.config.detect_platform_mode",
+        "aiarb.sandbox.config.detect_platform_mode",
         return_value=SandboxMode.NONE,
     )
     def test_windows_mode_on_linux_downgrades(self, mock_detect, mock_sys):
         """WINDOWS on Linux downgrades to platform default."""
-        from qwenpaw.sandbox.local_sandbox import NoneSandbox
+        from aiarb.sandbox.local_sandbox import NoneSandbox
 
         mock_sys.platform = "linux"
         config = SandboxConfig(

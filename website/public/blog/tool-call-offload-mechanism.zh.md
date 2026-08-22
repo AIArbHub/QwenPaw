@@ -1,18 +1,18 @@
 ---
-title: "让长工具不再卡住对话：QwenPaw 双 Deadline 工具调用与前台控制"
+title: "让长工具不再卡住对话：AIArb 双 Deadline 工具调用与前台控制"
 date: 2026-08-05
-author: QwenPaw Team
+author: AIArb Team
 tags: [ToolCoordinator, 双 Deadline, Offload, 后台工具, Console]
-excerpt: "QwenPaw 用 offload_deadline 与 kill_deadline 分离「何时离开前台」和「执行上限如何收尾」，配合 ToolCoordinator、Executor 与 Console，让长工具可转入后台、可延长、可取消。"
+excerpt: "AIArb 用 offload_deadline 与 kill_deadline 分离「何时离开前台」和「执行上限如何收尾」，配合 ToolCoordinator、Executor 与 Console，让长工具可转入后台、可延长、可取消。"
 ---
 
-# 让长工具不再卡住对话：QwenPaw 双 Deadline 工具调用与前台控制
+# 让长工具不再卡住对话：AIArb 双 Deadline 工具调用与前台控制
 
 当 Agent 执行长编译、远程 Agent 对话，或一条会跑很久的 shell 命令时，整段对话如果一直卡在「等待工具返回」，体验会立刻变差：用户看不到进展，也很难决定是继续等，还是先去做别的事。
 
 更麻烦的是：若只用**一个**超时时钟同时表达「该不该离开前台」和「该不该杀掉进程」，两套语义会互相踩踏——本该转入后台的时刻，可能被误当成硬取消；用户也难以在中途参与决策。
 
-QwenPaw 因此为工具调用引入**双 Deadline（双截止时间）**：
+AIArb 因此为工具调用引入**双 Deadline（双截止时间）**：
 
 - **`offload_deadline`**：对话前台还要不要被这次调用占住？可以离开前台时称为转入后台（offload）——工具继续跑，对话不必一直卡住。
 - **`kill_deadline`**：这次调用的**执行上限**。到点后 `ToolCoordinator` 发起取消并进入收尾（默认约 5 秒协作窗口，再必要时强制打断后台 task）；进程/请求的真正停止由 Executor 落实，而不是时钟一响立刻 SIGKILL。
@@ -398,6 +398,6 @@ flowchart TD
 
 ## 8. 总结
 
-QwenPaw 的工具调用生命周期由 `offload_deadline` 与 `kill_deadline` 共同刻画：前者决定何时离开对话前台，后者约束最长运行时间，并在到期后进入有界收尾。两套时钟分阶段写入——登记调用时先落 offload，工具真正开跑时再写入 kill。offload 的预算由 Coordinator 按工具侧解析超时得出，kill 由工具实现按本次调用的 `timeout` 写入。
+AIArb 的工具调用生命周期由 `offload_deadline` 与 `kill_deadline` 共同刻画：前者决定何时离开对话前台，后者约束最长运行时间，并在到期后进入有界收尾。两套时钟分阶段写入——登记调用时先落 offload，工具真正开跑时再写入 kill。offload 的预算由 Coordinator 按工具侧解析超时得出，kill 由工具实现按本次调用的 `timeout` 写入。
 
 `ToolCoordinator` 维护状态与截止时间，到期或用户取消时发出取消信号；工具实现在常见路径上监听该信号并停下进程或请求；Console 通过全局策略、控制面板与后台任务列表展示倒计时，支持运行中调整，并在转入后台后继续跟踪任务。全局策略默认为保持前台执行，亦可配置为自动转入后台；单次调用上还可手动转入、延长与取消。

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Monkey-patch hooks for tools, prompts, and mission mode."""
 
@@ -14,7 +14,7 @@ from .constants import (
     PLUGIN_DIR,
 )
 
-logger = logging.getLogger("qwenpaw").getChild(
+logger = logging.getLogger("AIARB").getChild(
     __name__.replace("plugin_cloudpaw.", ""),
 )
 
@@ -50,8 +50,8 @@ def _check_iac_model_configured() -> bool:
         if not _IAC_CODE_SETTINGS_PATH.exists():
             return False
         content = _IAC_CODE_SETTINGS_PATH.read_text(encoding="utf-8")
-        # If llm_source is qwenpaw, iac-code uses QwenPaw's model config
-        if "llm_source: qwenpaw" in content:
+        # If llm_source is AIARB, iac-code uses AIARB's model config
+        if "llm_source: AIARB" in content:
             return True
         return _parse_iac_settings(content)
     except Exception:
@@ -83,25 +83,25 @@ def _check_environment_ready() -> (
             "❌ 阿里云 AK-SK 未配置\n"
             f"   获取 AccessKey: {_AK_CONSOLE_URL}\n"
             "   配置命令:\n"
-            "     qwenpaw env set ALIBABA_CLOUD_ACCESS_KEY_ID <your-ak>\n"
-            "     qwenpaw env set ALIBABA_CLOUD_ACCESS_KEY_SECRET <your-sk>\n"
-            "     qwenpaw env set ALIBABA_CLOUD_REGION_ID cn-hangzhou",
+            "     AIARB env set ALIBABA_CLOUD_ACCESS_KEY_ID <your-ak>\n"
+            "     AIARB env set ALIBABA_CLOUD_ACCESS_KEY_SECRET <your-sk>\n"
+            "     AIARB env set ALIBABA_CLOUD_REGION_ID cn-hangzhou",
         )
 
-    # 3. QwenPaw model configured?
-    qwenpaw_model_ok = False
+    # 3. AIARB model configured?
+    AIARB_model_ok = False
     try:
-        from qwenpaw.providers.provider_manager import ProviderManager
+        from AIARB.providers.provider_manager import ProviderManager
 
         pm = ProviderManager()
         active_slot = pm.get_active_model()
         if active_slot and active_slot.provider_id and active_slot.model:
-            qwenpaw_model_ok = True
+            AIARB_model_ok = True
     except Exception:
         pass
-    if not qwenpaw_model_ok:
+    if not AIARB_model_ok:
         issues.append(
-            "❌ QwenPaw 模型未配置\n" + "   配置命令: qwenpaw models config",
+            "❌ AIARB 模型未配置\n" + "   配置命令: AIARB models config",
         )
 
     # 4. iac-code model configured?
@@ -143,7 +143,7 @@ _CLOUDPAW_BASE_SUPPLEMENT = _load_prompt_file("base_supplement.md")
 # ACP permission auto-approve for trusted runners (iac-code)
 # ---------------------------------------------------------------------------
 #
-# qwenpaw v1.1.7b1 `ACPAgentConfig.trusted` is *not* actually honoured by
+# AIARB v1.1.7b1 `ACPAgentConfig.trusted` is *not* actually honoured by
 # `ACPHostedClient.request_permission` — every edit / write / execute tool
 # call made by iac-code still suspends and waits for an external `respond`.
 # For CloudPaw the iac-code runner is a fully trusted backend (we explicitly
@@ -229,7 +229,7 @@ def setup_acp_auto_approve() -> None:
     Non-trusted runners keep the original suspend-and-wait flow intact.
     """
     try:
-        from qwenpaw.agents.acp.client import ACPHostedClient
+        from AIARB.agents.acp.client import ACPHostedClient
     except ImportError as exc:
         logger.error(
             "Cannot import ACPHostedClient; "
@@ -404,10 +404,10 @@ def _patch_build_toolkit() -> None:
     """Patch ``AgentBuilder.build_toolkit`` to inject CloudPaw tools for the
     orchestrator agent.
 
-    qwenpaw v2.0 builds the toolkit externally in
+    AIARB v2.0 builds the toolkit externally in
     ``AgentBuilder.build_toolkit``
     (the agent no longer constructs it internally), so the v1 patch on
-    ``QwenPawAgent._create_toolkit`` is dead. This wraps the new method and,
+    ``AIARBAgent._create_toolkit`` is dead. This wraps the new method and,
     when ``agent_id`` is the orchestrator, registers the four plugin tool
     functions through the toolkit's public interface.
 
@@ -423,7 +423,7 @@ def _patch_build_toolkit() -> None:
         )
         return
     try:
-        from qwenpaw.runtime.builder import AgentBuilder
+        from AIARB.runtime.builder import AgentBuilder
     except ImportError as exc:
         logger.error(
             "Cannot import AgentBuilder; tool injection skipped: %s",
@@ -493,14 +493,14 @@ def _patch_build_prompt() -> None:
     """Patch ``AgentBuilder.build_prompt`` to inject CloudPaw prompt sections
     for the orchestrator agent.
 
-    qwenpaw v2.0 assembles the system prompt in ``AgentBuilder.build_prompt``
+    AIARB v2.0 assembles the system prompt in ``AgentBuilder.build_prompt``
     (the agent no longer builds it internally), so the v1 patch on
-    ``QwenPawAgent._build_sys_prompt`` is dead. This wraps the new method:
+    ``AIARBAgent._build_sys_prompt`` is dead. This wraps the new method:
     when ``ctx.agent_id`` is the orchestrator, prepend the environment-
     readiness warning (if any) and append the CloudPaw base supplement.
     """
     try:
-        from qwenpaw.runtime.builder import AgentBuilder
+        from AIARB.runtime.builder import AgentBuilder
     except ImportError as exc:
         logger.error(
             "Cannot import AgentBuilder; prompt patch skipped: %s",
@@ -542,9 +542,9 @@ def setup_tool_and_prompt_hooks() -> None:
     """Monkey-patch the v2.0 ``AgentBuilder`` to add CloudPaw tools and
     prompt sections for the orchestrator agent.
 
-    qwenpaw v2.0 moved toolkit / system-prompt construction out of
-    ``QwenPawAgent`` (which now receives them externally from
-    :class:`AgentBuilder`). The v1 patches on ``QwenPawAgent._create_toolkit``
+    AIARB v2.0 moved toolkit / system-prompt construction out of
+    ``AIARBAgent`` (which now receives them externally from
+    :class:`AgentBuilder`). The v1 patches on ``AIARBAgent._create_toolkit``
     / ``_build_sys_prompt`` / ``interrupt`` are therefore dead; this function
     targets the new :class:`AgentBuilder` entry points instead. The
     ``interrupt``-time async-task cancellation patch was dropped because v2.0
@@ -565,7 +565,7 @@ def setup_mission_hooks() -> None:
     Note: the v1 ``_patch_stream_task_timeout`` patch is obsolete in v2.0.
     ``agent_app.stream_task_timeout`` no longer exists, and the orchestrator's
     IaC tool ``delegate_external_agent`` is not registered with any per-tool
-    default timeout in ``QwenPawAgent._register_tool_call_hooks`` — it runs
+    default timeout in ``AIARBAgent._register_tool_call_hooks`` — it runs
     uncapped, so long-running cloud provisioning is no longer at risk of the
     old 300s ceiling. No replacement patch is needed.
     """
@@ -582,8 +582,8 @@ def _patch_mission_master_prompt() -> None:
     builder is called unchanged.
     """
     try:
-        from qwenpaw.modes.mission import prompts as mission_prompts
-        from qwenpaw.modes.mission.prompts import (
+        from AIARB.modes.mission import prompts as mission_prompts
+        from AIARB.modes.mission.prompts import (
             WORKER_PROMPT_TEMPLATE,
             _build_git_sections,
             build_master_prompt as _original_build_master_prompt,
@@ -694,7 +694,7 @@ def _patch_mission_master_prompt() -> None:
     mission_prompts.build_master_prompt = _patched_build_master_prompt
 
     try:
-        from qwenpaw.modes.mission import handler as mission_handler
+        from AIARB.modes.mission import handler as mission_handler
 
         mission_handler.build_master_prompt = _patched_build_master_prompt
     except (ImportError, AttributeError):

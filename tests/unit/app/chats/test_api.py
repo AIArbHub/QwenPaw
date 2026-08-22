@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Ownership-boundary tests for the global chat API."""
 
 import asyncio
@@ -8,9 +8,9 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.chats import api as chats_api
-from qwenpaw.app.chats.api import get_chat, get_chat_status, list_chats
-from qwenpaw.app.chats.models import ChatSpec
+from AIARB.app.chats import api as chats_api
+from AIARB.app.chats.api import get_chat, get_chat_status, list_chats
+from AIARB.app.chats.models import ChatSpec
 
 
 def _chat(chat_id: str, *, app_id: str | None = None) -> ChatSpec:
@@ -108,7 +108,7 @@ async def test_delete_chat_stops_a_live_run():
     for good, so ``get_global_status()['running_task_count']`` stays
     inflated while the chat list can no longer show that chat (#7991).
     """
-    from qwenpaw.app.task_tracker import TaskTracker
+    from AIARB.app.task_tracker import TaskTracker
 
     tracker = TaskTracker()
     release = asyncio.Event()

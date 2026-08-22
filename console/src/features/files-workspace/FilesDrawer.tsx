@@ -30,8 +30,8 @@ import type { FilesWorkspaceScope } from "./filesWorkspaceScope";
 import { useMemoryTagSupport } from "./useMemoryTagSupport";
 import styles from "./FilesWorkspace.module.less";
 
-const PREVIEW_WIDTH_STORAGE_KEY = "qwenpaw-files-preview-width";
-const WORKSPACE_WIDTH_STORAGE_KEY = "qwenpaw-files-workspace-width";
+const PREVIEW_WIDTH_STORAGE_KEY = "aiarb-files-preview-width";
+const WORKSPACE_WIDTH_STORAGE_KEY = "aiarb-files-workspace-width";
 const MIN_DRAWER_WIDTH = 420;
 const MIN_CHAT_WIDTH = 420;
 const FilesWorkspace = lazy(() => import("./FilesWorkspace"));

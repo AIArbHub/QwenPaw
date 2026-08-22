@@ -7,7 +7,7 @@ from functools import partial
 import httpx
 import pytest
 
-from qwenpaw.cli import doctor_cmd
+from aiarb.cli import doctor_cmd
 
 
 @pytest.mark.parametrize(

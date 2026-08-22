@@ -1,15 +1,15 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for stop-handler result application."""
 from types import SimpleNamespace
 from typing import Any
 
 import pytest
 
-from qwenpaw.loop.gates.base import StopAction, StopHandlerResult
-from qwenpaw.loop.gates.handler import StopHandler
-from qwenpaw.loop.gates.runner import apply_stop_result, check_pending_gates
-from qwenpaw.modes.goal.gates import GoalTurnGate
-from qwenpaw.modes.goal.goal_mode import GoalSession
+from AIARB.loop.gates.base import StopAction, StopHandlerResult
+from AIARB.loop.gates.handler import StopHandler
+from AIARB.loop.gates.runner import apply_stop_result, check_pending_gates
+from AIARB.modes.goal.gates import GoalTurnGate
+from AIARB.modes.goal.goal_mode import GoalSession
 
 
 def _goal_handler(session: GoalSession) -> StopHandler:

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   App,
@@ -1619,7 +1619,7 @@ function SettingsPanel({
                             rules={[{ required: true }]}
                           >
                             {dockerSource === "custom" ? (
-                              <Input placeholder="registry.example.com/qwenpaw:v1" />
+                              <Input placeholder="registry.example.com/AIARB:v1" />
                             ) : dockerSource === "local" ? (
                               <Select
                                 options={localImageOptions}
@@ -1898,7 +1898,7 @@ function ImageSourceSelector({
       value: "docker_hub" as const,
       icon: Box,
       title: t("hub.settings.docker.dockerHub"),
-      description: "docker.io/agentscope/qwenpaw",
+      description: "docker.io/agentscope/AIARB",
     },
     {
       value: "aliyun_acr" as const,

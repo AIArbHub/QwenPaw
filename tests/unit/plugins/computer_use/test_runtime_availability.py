@@ -12,13 +12,13 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.app.computer_use import runtime as runtime_module
-from qwenpaw.app.computer_use.runtime import HostRuntimeProvider, RuntimeStatus
+from aiarb.app.computer_use import runtime as runtime_module
+from aiarb.app.computer_use.runtime import HostRuntimeProvider, RuntimeStatus
 
 _CONTROL_ENV = {
-    "QWENPAW_COMPUTER_USE_CONTROL_HOST": "127.0.0.1",
-    "QWENPAW_COMPUTER_USE_CONTROL_PORT": "51234",
-    "QWENPAW_COMPUTER_USE_CONTROL_TOKEN": "token",
+    "AIARB_COMPUTER_USE_CONTROL_HOST": "127.0.0.1",
+    "AIARB_COMPUTER_USE_CONTROL_PORT": "51234",
+    "AIARB_COMPUTER_USE_CONTROL_TOKEN": "token",
 }
 
 

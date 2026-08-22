@@ -1,4 +1,4 @@
-import { Cascade } from "@/components/interaction/Cascade";
+﻿import { Cascade } from "@/components/interaction/Cascade";
 import { SharedModal as Modal } from "@/components/interaction/SharedModal";
 import { useState, useCallback, useLayoutEffect, useRef } from "react";
 import { Button, Empty, Input, Select } from "@agentscope-ai/design";
@@ -384,8 +384,8 @@ function MCPPage() {
                     <Server size={17} />
                   </div>
                   <div>
-                    <h2>{t("mcp.qwenpawManaged")}</h2>
-                    <InlineHelp>{t("mcp.qwenpawManagedHint")}</InlineHelp>
+                    <h2>{t("mcp.AIARBManaged")}</h2>
+                    <InlineHelp>{t("mcp.AIARBManagedHint")}</InlineHelp>
                   </div>
                 </div>
                 {visibleClients.length === 0 ? (

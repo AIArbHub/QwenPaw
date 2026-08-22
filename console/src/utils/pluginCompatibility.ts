@@ -12,7 +12,7 @@ export function isMarketPluginCompatible(
   currentVersion: string | null,
 ): boolean {
   if (!currentVersion) return true;
-  const labels = entry.qwenpaw_compat_labels;
+  const labels = entry.aiarb_compat_labels;
   if (!labels || labels.length === 0) return true;
   const label = deriveCompatLabel(currentVersion);
   if (!label) return true;

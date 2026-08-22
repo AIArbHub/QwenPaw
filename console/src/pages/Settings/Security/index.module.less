@@ -1,4 +1,4 @@
-@import (reference) "../../../styles/settingsTabs.less";
+﻿@import (reference) "../../../styles/settingsTabs.less";
 
 .securityPage {
   height: 100%;
@@ -39,12 +39,12 @@
         box-shadow: none;
       }
 
-      :global(.qwenpaw-card-body),
+      :global(.AIARB-card-body),
       :global(.ant-card-body) {
         padding: 0;
         background: transparent !important;
 
-        > :global(.qwenpaw-spark-card-wrapper) {
+        > :global(.AIARB-spark-card-wrapper) {
           padding: 0;
         }
       }
@@ -83,13 +83,13 @@
     padding: 0 !important;
 
     :global {
-      .qwenpaw-spark-card-wrapper {
+      .AIARB-spark-card-wrapper {
         padding: 0 !important;
       }
 
-      .qwenpaw-table-wrapper
-        .qwenpaw-table-container
-        .qwenpaw-table-thead
+      .AIARB-table-wrapper
+        .AIARB-table-container
+        .AIARB-table-thead
         > tr
         > th {
         background: var(--app-surface-sunken) !important;
@@ -107,7 +107,7 @@
 .innerTabs {
   margin-top: 20px;
 
-  :global(.qwenpaw-tabs-nav) {
+  :global(.AIARB-tabs-nav) {
     margin-bottom: 16px;
 
     &::before {
@@ -115,7 +115,7 @@
     }
   }
 
-  :global(.qwenpaw-tabs-tab) {
+  :global(.AIARB-tabs-tab) {
     font-size: 13px;
     font-weight: 500;
     color: var(--app-text-secondary) !important;
@@ -125,11 +125,11 @@
     }
   }
 
-  :global(.qwenpaw-tabs-tab-active .qwenpaw-tabs-tab-btn) {
+  :global(.AIARB-tabs-tab-active .AIARB-tabs-tab-btn) {
     color: var(--app-accent) !important;
   }
 
-  :global(.qwenpaw-tabs-ink-bar) {
+  :global(.AIARB-tabs-ink-bar) {
     background: var(--app-accent) !important;
   }
 }
@@ -418,7 +418,7 @@
     overflow-x: auto;
 
     :global(.ant-table),
-    :global(.qwenpaw-table) {
+    :global(.AIARB-table) {
       min-width: 600px;
     }
   }
@@ -477,15 +477,15 @@
 }
 
 .mainTabs {
-  :global(.qwenpaw-card),
+  :global(.AIARB-card),
   :global(.ant-card) {
     box-shadow: none;
   }
-  :global(.qwenpaw-card-body),
+  :global(.AIARB-card-body),
   :global(.ant-card-body) {
     padding: 24px;
   }
-  :global(.qwenpaw-form-item-label > label),
+  :global(.AIARB-form-item-label > label),
   :global(.ant-form-item-label > label) {
     height: auto;
     white-space: normal;
@@ -496,7 +496,7 @@
   max-width: none;
 }
 @media (max-width: 600px) {
-  .mainTabs :global(.qwenpaw-card-body),
+  .mainTabs :global(.AIARB-card-body),
   .mainTabs :global(.ant-card-body) {
     padding: 16px;
   }

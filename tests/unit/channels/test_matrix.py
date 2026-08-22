@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Local Matrix API transport; actual nio/client/platform remain unmocked."""
 import asyncio
 import hashlib
@@ -7,8 +7,8 @@ from nio import AsyncClient
 from nio.crypto import ENCRYPTION_ENABLED, OlmDevice
 from pathlib import Path
 import pytest
-from qwenpaw.channel_protocol.models import SendParams
-from qwenpaw.utils.media_paths import file_url_to_path
+from AIARB.channel_protocol.models import SendParams
+from AIARB.utils.media_paths import file_url_to_path
 from tests.channel_support.driver import bind, module
 
 from aiohttp import web

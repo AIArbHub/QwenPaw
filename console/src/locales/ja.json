@@ -1,4 +1,4 @@
-{
+﻿{
   "accessibility": {
     "skipToContent": "メインコンテンツへスキップ"
   },
@@ -61,16 +61,16 @@
   },
   "desktop": {
     "update": {
-      "title": "QwenPaw を更新しますか？",
+      "title": "AIARB を更新しますか？",
       "otherWindows": "他に {{count}} 個のウィンドウが開いています。",
       "otherWindows_one": "他に {{count}} 個のウィンドウが開いています。",
       "otherWindows_other": "他に {{count}} 個のウィンドウが開いています。",
-      "description": "更新すると、すべての QwenPaw ウィンドウが閉じられ、実行中のタスクが中断されます。",
+      "description": "更新すると、すべての AIARB ウィンドウが閉じられ、実行中のタスクが中断されます。",
       "confirm": "閉じて更新",
       "preparing": "ウィンドウを閉じています…"
     },
     "closeWindow": {
-      "title": "QwenPaw を閉じますか？",
+      "title": "AIARB を閉じますか？",
       "description": "バックグラウンドではタスクが続行されます。完全に終了すると、実行中のタスクも終了します。",
       "remember": "選択を記憶する",
       "showWindow": "ウィンドウを表示",
@@ -79,7 +79,7 @@
       "keepRunning": "バックグラウンドで続行",
       "quitting": "終了中…",
       "stopService": "完全に終了",
-      "stopBlocked": "QwenPaw は他のウィンドウやアプリで使用中です。完全に終了する前に、それらを閉じてください。",
+      "stopBlocked": "AIARB は他のウィンドウやアプリで使用中です。完全に終了する前に、それらを閉じてください。",
       "preference": "ウィンドウを閉じる",
       "askEveryTime": "毎回確認する"
     }
@@ -118,9 +118,9 @@
     }
   },
   "portabilityImport": {
-    "qwenpawOnly": "インポートは QwenPaw バックエンドを使用するエージェントでのみ利用できます。QwenPaw エージェントを選択して続行してください。",
+    "AIARBOnly": "インポートは AIARB バックエンドを使用するエージェントでのみ利用できます。AIARB エージェントを選択して続行してください。",
     "title": "インポート",
-    "description": "他のアプリのデータを QwenPaw に取り込みます。取り込み元を選び、内容を確認して選択します。取り込みを開始するまで QwenPaw には書き込まれません。",
+    "description": "他のアプリのデータを AIARB に取り込みます。取り込み元を選び、内容を確認して選択します。取り込みを開始するまで AIARB には書き込まれません。",
     "steps": {
       "sources": "アプリ",
       "inventory": "内容を選択",
@@ -169,14 +169,14 @@
     "importing": "インポート中",
     "cancelling": "インポートを停止中",
     "cancellingHint": "互換性修復 Agent が安全に停止するのを待っています。",
-    "keepOpen": "各項目の状態を確認できます。処理中は QwenPaw を閉じないでください。",
+    "keepOpen": "各項目の状態を確認できます。処理中は AIARB を閉じないでください。",
     "details": "移行の詳細",
     "targetAgent": "インポート先エージェント：{{agent}}",
     "selectAllFailed": "失敗したツールをすべて選択",
     "retrySelected": "選択項目を再試行 ({{count}})",
-    "retryConfirm": "選択した {{count}} 件の失敗したツールを再試行しますか？既存の QwenPaw 項目は保持されます。",
+    "retryConfirm": "選択した {{count}} 件の失敗したツールを再試行しますか？既存の AIARB 項目は保持されます。",
     "pluginWarningTitle": "プラグイン実行の警告",
-    "pluginWarning": "これらのプラグインは Python 依存関係をインストールし、QwenPaw プロセスでコードを実行し、グローバルなツール、Hook、ルート、コマンドを登録する可能性があります。プラグインを選択すると、紐付く MCP の設定と認証情報もレビュー用に無効のままインポートされます。信頼できる提供元のプラグインのみをインポートしてください。",
+    "pluginWarning": "これらのプラグインは Python 依存関係をインストールし、AIARB プロセスでコードを実行し、グローバルなツール、Hook、ルート、コマンドを登録する可能性があります。プラグインを選択すると、紐付く MCP の設定と認証情報もレビュー用に無効のままインポートされます。信頼できる提供元のプラグインのみをインポートしてください。",
     "pluginWarningConfirm": "これらのプラグインの提供元を信頼し、依存関係のインストールとコード実行を許可します。",
     "pluginWarningAction": "確認してインポート",
     "done": "完了"
@@ -314,13 +314,13 @@
     "appInstalled": "アプリをインストールしました",
     "appInstallFailed": "アプリのインストールに失敗しました",
     "appCompatibilityWarningTitle": "アプリの互換性に関する警告",
-    "appCompatibilityWarningContent": "このアプリは QwenPaw {{labels}} 向けです。現在の QwenPaw バージョンは {{version}} です。インストールするとエラーが発生する可能性があります。続行しますか？",
+    "appCompatibilityWarningContent": "このアプリは AIARB {{labels}} 向けです。現在の AIARB バージョンは {{version}} です。インストールするとエラーが発生する可能性があります。続行しますか？",
     "appCompatibilityWarningConfirm": "それでもインストール",
-    "appCompatibilityUnverified": "現在の QwenPaw バージョンとの互換性を確認できません。",
+    "appCompatibilityUnverified": "現在の AIARB バージョンとの互換性を確認できません。",
     "restoreAll": "すべて復元",
     "returnToConsole": "コンソールに戻る",
     "desktopMode": "デスクトップモード",
-    "qwenpawMenu": "QwenPaw メニュー",
+    "AIARBMenu": "AIARB メニュー",
     "restoredAll": "すべてのアプリを復元しました",
     "sortBy": "並べ替え",
     "sortFree": "自由配置",
@@ -374,12 +374,12 @@
       "eyebrow": "エージェントアーキテクチャ",
       "typeTitle": "このエージェントの動作方式を選択",
       "typeDescription": "エージェントの種類は、Chat、Coding、Channel のすべての会話に適用されます。",
-      "nativeTitle": "QwenPaw ネイティブエージェント",
+      "nativeTitle": "AIARB ネイティブエージェント",
       "nativeBadge": "ネイティブ",
-      "nativeDescription": "設定済みの LLM、Skills、ツール、メモリ、QwenPaw ランタイムを使用します。",
+      "nativeDescription": "設定済みの LLM、Skills、ツール、メモリ、AIARB ランタイムを使用します。",
       "thirdPartyTitle": "サードパーティエージェント",
       "thirdPartyBadge": "サードパーティ",
-      "thirdPartyDescription": "QwenPaw モデルの代わりに、認証済みの外部エージェントランタイムを使用します。",
+      "thirdPartyDescription": "AIARB モデルの代わりに、認証済みの外部エージェントランタイムを使用します。",
       "providerTitle": "サードパーティエージェントを選択",
       "providerDescription": "認証情報はこのデバイスで共有されますが、プロジェクトと会話はエージェントごとに分離されます。",
       "codexHint": "ChatGPT OAuth · エージェントワークスペース",
@@ -387,7 +387,7 @@
       "account": "Codex アカウント",
       "qoderAccount": "Qoder アカウント",
       "binary": "Codex 実行ファイル",
-      "binaryHelp": "空欄の場合は Python SDK 付属の Codex CLI を優先し、単独インストールも自動検出します。手動で指定する場合は、macOS/Linux の codex または Windows の codex.exe のフルパスを入力してください。ChatGPT App やエディター拡張機能に内蔵されたバイナリはサポートされません。QwenPaw は CODEX_BINARY とバックエンドの PATH も参照します。",
+      "binaryHelp": "空欄の場合は Python SDK 付属の Codex CLI を優先し、単独インストールも自動検出します。手動で指定する場合は、macOS/Linux の codex または Windows の codex.exe のフルパスを入力してください。ChatGPT App やエディター拡張機能に内蔵されたバイナリはサポートされません。AIARB は CODEX_BINARY とバックエンドの PATH も参照します。",
       "binaryPlaceholder": "自動検出、または Codex 実行ファイルのパスを貼り付け",
       "qoderBinary": "Qoder 実行ファイル",
       "qoderBinaryHelp": "空欄の場合は Python SDK 同梱の qodercli を優先し、既存のインストールも自動検出します。手動指定では macOS/Linux の qodercli または Windows の qodercli.exe へのフルパスを入力してください。QODERCLI_PATH とバックエンドの PATH も参照します。",
@@ -403,10 +403,10 @@
       "defaultBadge": "デフォルト",
       "reasoningEffort": "推論レベル",
       "reasoningDefault": "モデルのデフォルトを使用",
-      "codexNotFound": "Codex runtime が見つかりません。qwenpaw[codex] をインストールするか、単独の Codex CLI を指定してください。",
-      "qoderNotFound": "Qoder runtime が見つかりません。qwenpaw[qoder] をインストールするか、qodercli を指定してください。",
+      "codexNotFound": "Codex runtime が見つかりません。AIARB[codex] をインストールするか、単独の Codex CLI を指定してください。",
+      "qoderNotFound": "Qoder runtime が見つかりません。AIARB[qoder] をインストールするか、qodercli を指定してください。",
       "chatSettingsHint": "Chat ツールバーでモデル、推論レベル、実行権限を選択します。",
-      "capabilityTitle": "QwenPaw の機能",
+      "capabilityTitle": "AIARB の機能",
       "inheritedSkills": "スキル",
       "inheritedMcp": "MCP サーバー",
       "runtimeInherited": "実行時に継承 · 新規セッション",
@@ -477,7 +477,7 @@
     "nameRequired": "エージェント名を入力してください",
     "namePlaceholder": "例：マイエージェント",
     "descriptionPlaceholder": "このエージェントの目的を簡単に説明してください...",
-    "workspaceHelp": "空欄のままにすると、~/.qwenpaw/workspaces/<id> に自動生成されます",
+    "workspaceHelp": "空欄のままにすると、~/.AIARB/workspaces/<id> に自動生成されます",
     "dragHandleTooltip": "ドラッグしてエージェントの順序を変更",
     "reorderSuccess": "エージェントの順序を保存しました",
     "reorderFailed": "エージェントの順序を保存できませんでした",
@@ -718,15 +718,15 @@
     "description": "エージェントのスキルと機能を管理します。",
     "preload": "プリロード",
     "preloadHint": "有効にすると、エージェントがこのスキルをプリロードし、会話中に探して読み込む必要がなくなります。",
-    "qwenpawManaged": "QwenPaw 管理",
-    "qwenpawManagedHint": "編集可能で、実行時に対応する外部エージェントへ反映されます。",
+    "AIARBManaged": "AIARB 管理",
+    "AIARBManagedHint": "編集可能で、実行時に対応する外部エージェントへ反映されます。",
     "providerManaged": "サードパーティエージェントのスキル",
     "providerManagedHint": "現在のサードパーティエージェントから検出され、読み取り専用で表示されます。",
     "providerOnly": "現在のサードパーティエージェントのみ",
     "readOnly": "読み取り専用",
     "noDescription": "説明はありません。",
     "providerSkillDetails": "サードパーティエージェント Skill の詳細",
-    "providerManagedDetailHint": "この Skill はサードパーティエージェントによって管理されています。QwenPaw では表示および使用できますが、変更はできません。",
+    "providerManagedDetailHint": "この Skill はサードパーティエージェントによって管理されています。AIARB では表示および使用できますが、変更はできません。",
     "provider": "サードパーティエージェント",
     "scope": "スコープ",
     "statusLabel": "ステータス",
@@ -757,7 +757,7 @@
     "pleaseInputName": "スキル名を入力してください",
     "pleaseInputContent": "スキルの内容を入力してください",
     "skillNamePlaceholder": "例: weather_query",
-    "contentPlaceholder": "---\nname: <スキル名> (必須)\ndescription: <スキルの説明> (必須)\nmetadata: { \"qwenpaw\": { \"emoji\": \"🔧\" } }\n---\n\nスキルの実装内容...\n\n# 例:\n# ---\n# name: cron\n# description: qwenpawコマンド経由でcronジョブを管理 - タスクの作成・照会・一時停止・再開・削除\n# metadata: { \"qwenpaw\": { \"emoji\": \"⏰\" } }\n# ---",
+    "contentPlaceholder": "---\nname: <スキル名> (必須)\ndescription: <スキルの説明> (必須)\nmetadata: { \"AIARB\": { \"emoji\": \"🔧\" } }\n---\n\nスキルの実装内容...\n\n# 例:\n# ---\n# name: cron\n# description: AIARBコマンド経由でcronジョブを管理 - タスクの作成・照会・一時停止・再開・削除\n# metadata: { \"AIARB\": { \"emoji\": \"⏰\" } }\n# ---",
     "createSuccess": "スキルを作成しました",
     "createFailed": "スキルの作成に失敗しました",
     "deleteConfirm": "このスキルを削除してもよろしいですか？",
@@ -977,8 +977,8 @@
   },
   "mcp": {
     "title": "MCPクライアント",
-    "qwenpawManaged": "QwenPaw 管理",
-    "qwenpawManagedHint": "統合コントロールプレーンで管理し、対応するサードパーティエージェントへ実行時に注入します。",
+    "AIARBManaged": "AIARB 管理",
+    "AIARBManagedHint": "統合コントロールプレーンで管理し、対応するサードパーティエージェントへ実行時に注入します。",
     "providerManaged": "{{provider}} ローカル MCP",
     "providerManagedHint": "サードパーティエージェント固有の設定から検出されます。読み取り専用で、そのエージェントだけで使用できます。",
     "providerOnly": "サードパーティエージェント限定",
@@ -1374,7 +1374,7 @@
     "importReviewBadge": "インポート後の確認が必要",
     "importReviewApprove": "確認を承認",
     "importReviewTitle": "インポートした定期タスクを確認",
-    "importReviewContent": "「{{name}}」の指示、作業ディレクトリ、権限を確認し、QwenPaw で安全に実行できると判断しましたか？承認後も無効のままです。有効化は別途行ってください。",
+    "importReviewContent": "「{{name}}」の指示、作業ディレクトリ、権限を確認し、AIARB で安全に実行できると判断しましたか？承認後も無効のままです。有効化は別途行ってください。",
     "importReviewConfirm": "確認を承認",
     "importReviewSuccess": "確認を承認しました。準備ができたら別途有効にしてください。",
     "importReviewFailed": "確認を承認できませんでした",
@@ -1554,7 +1554,7 @@
     "wechatBotTokenTooltip": "QRコードログイン後に取得したBearerトークン。空の場合は起動時にQRコードログインが案内されます。",
     "wechatBotTokenPlaceholder": "QRログイン後に自動入力、または手動で貼り付け",
     "wechatBotTokenFile": "Tokenファイルパス",
-    "wechatBotTokenFileTooltip": "Botトークンの保存パス。デフォルトは ~/.qwenpaw/wechat_bot_token",
+    "wechatBotTokenFileTooltip": "Botトークンの保存パス。デフォルトは ~/.AIARB/wechat_bot_token",
     "wechatMediaDir": "メディアディレクトリ",
     "wechatMessageMerge": "メッセージ統合",
     "wechatMessageMergeTooltip": "複数の返信メッセージを統合して送信し、WeChat の context_token あたり10件のメッセージ制限を回避します。遅延を0に設定すると、すべてのテキスト返信がリクエスト終了時に1つのメッセージに統合されます。正の遅延値（ミリ秒）は、その時間内の隣接メッセージを統合します。",
@@ -1630,7 +1630,7 @@
     "manualCredentials": "認証情報を手動入力",
     "presentationSettings": "メッセージ表示",
     "welcomeText": "ウェルカムメッセージ",
-    "welcomeTextPlaceholder": "こんにちは！QwenPawです。何かお手伝いできますか？",
+    "welcomeTextPlaceholder": "こんにちは！AIARBです。何かお手伝いできますか？",
     "welcomeTextTooltip": "ユーザーがその日初めてボットとの個別チャットを開いたときに自動送信します",
     "xiaoyiSetupGuide": "Huawei開発者プラットフォームでエージェントを作成し、AK/SKとエージェントIDを取得してください。AK/SKは認証情報管理ページにあります。",
     "fieldHomeserverURL": "ホームサーバーURL",
@@ -1679,8 +1679,8 @@
     "fieldWebSocketHost": "WebSocketホスト",
     "fieldWebSocketPort": "WebSocketポート",
     "matrixUserHelp": "完全なMXID（例：@bot:matrix.org）またはローカル名（例：bot）を入力できます。",
-    "matrixEncryptionHelp": "有効化後、Matrixクライアント（Elementなど）でデバイスを検証してください。",
-    "matrixDeviceHelp": "Matrixクライアントの固定デバイス名。空欄の場合は qwenpaw-worker。",
+    "matrixEncryptionHelp": "有効化後、Matrixクライアント（Elementなど）でデバイスを検証し、pip install matrix-nio[e2e] を実行してください。",
+    "matrixDeviceHelp": "Matrixクライアントの固定デバイス名。空欄の場合は AIARB-worker。",
     "messageTypeHelp": "markdown：通常のメッセージ、card：AI対話カード。",
     "scheduledMessageTypeHelp": "定期タスクの送信形式。チャットの形式とは独立しています。",
     "cardVariableHelp": "テンプレートの変数名と完全に一致させてください。",
@@ -1778,7 +1778,7 @@
     "noCustomVariables": "カスタム変数はまだありません。",
     "editVariable": "変数を編集",
     "applyNow": "今すぐ適用",
-    "applyHint": "現在の QwenPaw プロセスは即時更新されます。実行中の MCP には再読み込みが必要です。",
+    "applyHint": "現在の AIARB プロセスは即時更新されます。実行中の MCP には再読み込みが必要です。",
     "applied": "環境変数を適用しました",
     "appliedWithFailures": "保存しましたが、{{count}} 件の MCP を再読み込みできませんでした",
     "resetVariable": "変数をリセット",
@@ -1793,27 +1793,26 @@
     "restartNone": "再読み込みしない",
     "restartAllStdio": "すべての stdio MCP を再読み込み",
     "readonlyReason": {
-      "startup": "QwenPaw 起動時に確定",
+      "startup": "AIARB 起動時に確定",
       "agent_owned": "各エージェント設定で管理",
       "initial_default": "Agent 設定の初期値としてのみ使用"
     },
     "mutabilityDescription": {
-      "hot_runtime": "各操作の開始時に現在の QwenPaw プロセスから読み取ります。",
+      "hot_runtime": "各操作の開始時に現在の AIARB プロセスから読み取ります。",
       "hot_process": "os.getenv() で利用でき、今後の子プロセスに継承されます。",
-      "startup_only": "参照専用で、QwenPaw の実行中は変更できません。",
-      "internal": "QwenPaw が内部で管理します。"
+      "startup_only": "参照専用で、AIARB の実行中は変更できません。",
+      "internal": "AIARB が内部で管理します。"
     },
     "variableDescriptions": {
-      "QWENPAW_SHELL_MEMORY_LIMIT_MB": "シェルのプロセスツリーのメモリ保護：0 で無効、auto で利用可能なメモリの半分（最大 4096 MiB）を使用します。MiB 単位の上限を正の整数で指定することもできます。指定した上限も利用可能なメモリの半分を超えません。変更は次回のシェル呼び出しから適用され、実行中のコマンドは開始時の上限を維持します。定期的な監視による保護は、OS が強制する厳密なメモリ制限ではありません。",
-      "QWENPAW_LLM_STREAM_FIRST_CONTENT_TIMEOUT": "最初の有効なストリーム内容を待つ最大時間です。0 で監視を無効化します。",
-      "QWENPAW_LLM_STREAM_IDLE_TIMEOUT": "有効なストリームチャンク間の最大待機時間です。0 で監視を無効化します。"
+      "AIARB_LLM_STREAM_FIRST_CONTENT_TIMEOUT": "最初の有効なストリーム内容を待つ最大時間です。0 で監視を無効化します。",
+      "AIARB_LLM_STREAM_IDLE_TIMEOUT": "有効なストリームチャンク間の最大待機時間です。0 で監視を無効化します。"
     },
     "source": {
-      "user": "QwenPaw",
+      "user": "AIARB",
       "system": "システム",
       "default": "既定値"
     },
-    "qwenpawSettings": "QwenPaw の環境設定",
+    "AIARBSettings": "AIARB の環境設定",
     "emptyValue": "空の文字列"
   },
   "tokenUsage": {
@@ -2292,7 +2291,7 @@
     },
     "chatgpt": {
       "contextHelp": "アカウントの上限：{{maximum}} トークン、セッションの既定値：{{default}} トークン。",
-      "localHelp": "OpenAI のポリシーとローカル OAuth コールバックの制限により、QwenPaw とブラウザを同じコンピューターで実行する必要があります。",
+      "localHelp": "OpenAI のポリシーとローカル OAuth コールバックの制限により、AIARB とブラウザを同じコンピューターで実行する必要があります。",
       "account": "ChatGPT アカウント",
       "connected": "ChatGPT サブスクリプションに接続済み",
       "disconnected": "未接続",
@@ -2304,9 +2303,9 @@
       "accountActions": "ChatGPT アカウントの操作",
       "connectedShort": "接続済み",
       "signOut": "ログアウト",
-      "revokeWarning": "ローカルでログアウトしました。認可の取り消しを確認できませんでした。ChatGPT の設定で QwenPaw の接続を解除してください。",
+      "revokeWarning": "ローカルでログアウトしました。認可の取り消しを確認できませんでした。ChatGPT の設定で AIARB の接続を解除してください。",
       "modelHelp": "モデルは現在の ChatGPT アカウントから取得します。プランの利用枠またはクレジットを消費します。この接続ではサンプリングと出力トークン制限を設定できません。",
-      "oauthDescription": "ブラウザを開いて ChatGPT プランの利用を承認します。完了後、QwenPaw に戻ってください。"
+      "oauthDescription": "ブラウザを開いて ChatGPT プランの利用を承認します。完了後、AIARB に戻ってください。"
     },
     "providerVariants": {
       "chatgpt": "ChatGPT サブスクリプション"
@@ -2554,7 +2553,7 @@
       "enableRepetitionProtection": "反復保護を有効化",
       "removeRule": "ルールを削除",
       "custom": "カスタム",
-      "customDescription": "QwenPaw 組み込み Gate で保存可能なパイプラインを構築します。",
+      "customDescription": "AIARB 組み込み Gate で保存可能なパイプラインを構築します。",
       "duplicate": "複製",
       "delete": "削除",
       "displayName": "表示名",
@@ -2587,9 +2586,9 @@
       "completionRubricDescription": "ツール呼び出しのないテキスト応答で完了信号を確認します。",
       "completionRubricHelp": "ツール呼び出しのないテキスト応答後に実行します。完了時は完了信号を出力し、未完了時は最大判定回数に達するまで作業を続行します。",
       "completionPrompt": "完了判定プロンプト",
-      "completionPromptHelp": "完了と見なす条件を記述します。完了信号の出力指示は QwenPaw が自動的に挿入します。",
+      "completionPromptHelp": "完了と見なす条件を記述します。完了信号の出力指示は AIARB が自動的に挿入します。",
       "completionSignal": "完了信号",
-      "completionSignalHelp": "QwenPaw はこの信号と、この信号だけを出力する指示を判定プロンプトに挿入します。前後の空白と大文字小文字を無視した完全一致のみが Loop を終了します。",
+      "completionSignalHelp": "AIARB はこの信号と、この信号だけを出力する指示を判定プロンプトに挿入します。前後の空白と大文字小文字を無視した完全一致のみが Loop を終了します。",
       "removeCriterion": "基準 {{number}} を削除",
       "totalTokensHelp": "このターンで使用する入力・出力トークンの合計上限です。",
       "promptTokensHelp": "システム指示、会話履歴、ツール定義、ツール結果を含みます。",
@@ -2648,7 +2647,7 @@
       "advisorPlanDescription": "エージェントの最初のステップの前に、アドバイザーが計画を書きます。",
       "advisorPlanHelp": "計画は consult_advisor の呼び出しと結果としてエージェントのコンテキストに注入され、書かれている途中からチャットに表示されます。",
       "advisorFollowupTitle": "実行中の自動介入",
-      "advisorFollowupDescription": "QwenPaw がツール結果を監視し、エージェントが失敗し続けるとアドバイザーを呼びます。",
+      "advisorFollowupDescription": "AIARB がツール結果を監視し、エージェントが失敗し続けるとアドバイザーを呼びます。",
       "advisorFollowupHelp": "連続失敗、または直近ウィンドウ内の失敗が下の設定回数に達すると発動し、1 回の実行につき設定回数までです。介入のたびにカウンターはリセットされます。アドバイザーは CONTINUE か、修正計画付きの ADJUST で答えます。",
       "advisorOnDemandTitle": "オンデマンド相談",
       "advisorOnDemandDescription": "エージェントが consult_advisor ツールで自らアドバイザーに質問できます。",
@@ -2830,7 +2829,7 @@
     "dreamCronRequired": "ドリームを有効にする場合は Cron 式を入力してください",
     "dreamCronInvalid": "有効な5フィールドの Cron 式を入力してください",
     "autoMemorySearch": "自動記憶検索（Beta）",
-    "autoMemorySearchTooltip": "毎回の会話で記憶検索を自動実行します。各クエリで自動的に記憶検索機能を呼び出し、QwenPawがあなたをより理解できますが、トークン消費が増加します。",
+    "autoMemorySearchTooltip": "毎回の会話で記憶検索を自動実行します。各クエリで自動的に記憶検索機能を呼び出し、AIARBがあなたをより理解できますが、トークン消費が増加します。",
     "autoMaxResults": "自動検索の最大結果数",
     "autoMaxResultsTooltip": "自動記憶検索が有効な場合に返される最大結果数",
     "autoMaxResultsRequired": "最大結果数は必須です",
@@ -3144,7 +3143,7 @@
       },
       "migration_compat_inspect": {
         "name": "移行データを検査",
-        "description": "準備されたデータと現在の QwenPaw の機能を確認します。"
+        "description": "準備されたデータと現在の AIARB の機能を確認します。"
       },
       "migration_compat_read_file": {
         "name": "移行ファイルを読む",
@@ -3212,7 +3211,7 @@
       "title": "新しいバージョンが利用可能です: v{{version}}",
       "viewReleases": "リリースを見る",
       "installDesktopUpdate": "今すぐ更新",
-      "desktopInstallHint": "QwenPaw Desktop {{version}} のインストール準備が整いました。更新後にアプリが再起動します。",
+      "desktopInstallHint": "AIARB Desktop {{version}} のインストール準備が整いました。更新後にアプリが再起動します。",
       "checking": "更新を確認中…",
       "checkingHint": "最新バージョンを確認しています",
       "downloading": "更新をダウンロード中",
@@ -3229,7 +3228,7 @@
       "errors": {
         "network": "更新サーバーに接続できませんでした。インターネット接続を確認して再試行してください。",
         "signature": "更新ファイルの署名検証に失敗しました。もう一度ダウンロードしてください。",
-        "appLocation": "QwenPaw は読み取り専用の macOS の場所から実行されています。QwenPaw.app を Applications フォルダーへ移動し、そこから起動してからもう一度更新してください。",
+        "appLocation": "AIARB は読み取り専用の macOS の場所から実行されています。AIARB.app を Applications フォルダーへ移動し、そこから起動してからもう一度更新してください。",
         "other": "更新に失敗しました。"
       },
       "updateLater": "バックグラウンドでダウンロード",
@@ -3247,7 +3246,7 @@
     "quickMenu": {
       "settings": "設定",
       "appearance": "外観",
-      "about": "QwenPaw について"
+      "about": "AIARB について"
     },
     "collapse": "サイドバーを折りたたむ",
     "expand": "サイドバーを展開する",
@@ -3289,7 +3288,7 @@
     "descriptions": {
       "general": "言語、テーマ、アプリの動作",
       "navigation": "サイドバーの表示項目",
-      "agents": "QwenPaw、Codex、Qoder のプロファイル",
+      "agents": "AIARB、Codex、Qoder のプロファイル",
       "models": "プロバイダー、認証情報、モデルカタログ",
       "skillPool": "再利用可能なスキルと拡張機能",
       "channels": "IM とメッセージチャンネルを接続",
@@ -3751,7 +3750,7 @@
       "settings": "システム設定"
     },
     "actions": {
-      "backToQwenPaw": "QwenPawに戻る",
+      "backToAIARB": "AIARBに戻る",
       "useLightTheme": "ライトテーマを使用する",
       "useDarkTheme": "ダークテーマを使用する",
       "signOut": "サインアウト",
@@ -3817,9 +3816,9 @@
       "noFallback": "サンドボックスなしでは実行しない",
       "executionBlocked": "ランタイムの実行がブロックされています",
       "isolationTitle": "異常時に起動を拒否するローカル分離",
-      "isolationDescription": "ランタイム プロセス ツリー全体がサンドボックス化されます。ネイティブ分離プローブが失敗した場合、QwenPaw はその開始を拒否します。",
+      "isolationDescription": "ランタイム プロセス ツリー全体がサンドボックス化されます。ネイティブ分離プローブが失敗した場合、AIARB はその開始を拒否します。",
       "unavailableTitle": "セキュアなランタイム バックエンドが利用できない",
-      "unavailableDescription": "{{provisioner}} は利用できません: {{reason}} バックエンドのインストール、実行状態、システム設定を確認してから、QwenPaw Hub を再起動してください。",
+      "unavailableDescription": "{{provisioner}} は利用できません: {{reason}} バックエンドのインストール、実行状態、システム設定を確認してから、AIARB Hub を再起動してください。",
       "unavailableUserDescription": "ランタイムバックエンドは一時的に利用できません。管理者に連絡してください。",
       "preflightFailed": "セキュリティチェックに失敗しました。",
       "localEndpoint": "ローカルエンドポイント · {{endpoint}}",
@@ -3835,7 +3834,7 @@
       "rebuildTitle": "現在のイメージで {{id}} を再構築しますか?",
       "rebuildDescription": "コンテナはシステム設定のイメージを使用して置き換えられます。永続的なワークスペース、シークレット、バックアップは保持されます。",
       "emptyTitle": "ランタイムはまだありません",
-      "emptyDescription": "最初の分離されたローカル QwenPaw ランタイムを作成します。"
+      "emptyDescription": "最初の分離されたローカル AIARB ランタイムを作成します。"
     },
     "users": {
       "eyebrow": "アイデンティティとアクセス",
@@ -4114,7 +4113,7 @@
         "advancedLimits": "詳細設定 · レート制限",
         "shareLimits": "レート制限を共有する接続",
         "shareLimitsHint": "プロバイダーが接続間で制限を共有する場合のみ選択してください。リクエストと同時実行数を合算し、グループ内の最小の制限を適用します。メンバーのトークン予算には影響しません。",
-        "estimatedTokenLimits": "モデルの上限は完全には確認されていません。コンテキスト情報がない場合は、QwenPaw の既定値 131,072 トークンを使用します。出力上限を空欄にするとプロバイダーの既定値を使用します。実際の最大値は不明です。",
+        "estimatedTokenLimits": "モデルの上限は完全には確認されていません。コンテキスト情報がない場合は、AIARB の既定値 131,072 トークンを使用します。出力上限を空欄にするとプロバイダーの既定値を使用します。実際の最大値は不明です。",
         "independentLimits": "独立した制限（既定）",
         "rpm": "毎分のリクエスト上限",
         "concurrency": "同時実行数",
@@ -4359,7 +4358,7 @@
     }
   },
   "login": {
-    "title": "QwenPaw にログイン",
+    "title": "AIARB にログイン",
     "registerTitle": "アカウント作成",
     "firstUserHint": "管理者アカウントを作成して始めましょう",
     "usernamePlaceholder": "ユーザー名",
@@ -4434,14 +4433,14 @@
     "providerTypeLocalWhisperDesc": "ローカルにインストールされた openai-whisper Python ライブラリで文字起こしを実行します。ffmpeg と openai-whisper の両方のインストールが必要です。",
     "localWhisperReady": "ローカル Whisper は準備完了です。ffmpeg と openai-whisper がインストールされています。",
     "localWhisperMissing": "ローカル Whisper は準備ができていません。不足している依存関係をインストールしてください。",
-    "localWhisperMissingDesc": "ffmpeg: {{ffmpeg}} | openai-whisper: {{whisper}}。不足している依存関係をインストールしてください：ffmpeg（システムパッケージ）と openai-whisper（uv pip install openai-whisper、または QwenPaw を [whisper] エクストラ付きでインストール）。",
+    "localWhisperMissingDesc": "ffmpeg: {{ffmpeg}} | openai-whisper: {{whisper}}。不足している依存関係をインストールしてください：ffmpeg（システムパッケージ）と openai-whisper（uv pip install openai-whisper、または AIARB を [whisper] エクストラ付きでインストール）。",
     "providerLabel": "Whisper API プロバイダー",
     "providerDescription": "Whisper API による音声文字起こしに使用するプロバイダーを選択します。Whisper 対応エンドポイントを持つプロバイダーのみ表示されます。",
     "providerPlaceholder": "プロバイダーを選択...",
     "noProvidersWarning": "文字起こし対応のプロバイダーが見つかりません。音声文字起こしを有効にするには、OpenAI プロバイダーを設定してください。",
     "transcriptionInfoTitle": "文字起こしの仕組み",
     "transcriptionInfoDesc": "Whisper API 文字起こしは OpenAI 互換の /v1/audio/transcriptions エンドポイントを使用します。Whisper 対応エンドポイントを持つプロバイダー（例: OpenAI）の設定が必要です。上記で具体的なプロバイダーを選択して文字起こしを有効にしてください。",
-    "transcriptionInfoDescLocal": "ローカル Whisper 文字起こしは、お使いのマシン上で直接 openai-whisper ライブラリを実行します。ffmpeg（音声デコード用）と openai-whisper Python パッケージの両方のインストールが必要です。API キーやネットワーク接続は不要です。インストール：uv pip install 'qwenpaw[whisper]'。"
+    "transcriptionInfoDescLocal": "ローカル Whisper 文字起こしは、お使いのマシン上で直接 openai-whisper ライブラリを実行します。ffmpeg（音声デコード用）と openai-whisper Python パッケージの両方のインストールが必要です。API キーやネットワーク接続は不要です。インストール：uv pip install 'AIARB[whisper]'。"
   },
   "acp": {
     "title": "ACP プロトコル連携",
@@ -4593,7 +4592,7 @@
     "restoreModeCustomDesc": "復元する内容を選択します（特定のエージェント、設定など）；今回の復元範囲外の既存エージェントは削除されません",
     "restoreModeFullDisabled": "フルバックアップのみ",
     "defaultWorkspaceDir": "エージェントデフォルトワークスペースディレクトリ",
-    "defaultWorkspaceDirPlaceholder": "空欄の場合は ~/.qwenpaw/workspaces を使用",
+    "defaultWorkspaceDirPlaceholder": "空欄の場合は ~/.AIARB/workspaces を使用",
     "defaultWorkspaceDirHint": "エージェントの元のワークスペースパスが存在しない場合、エージェントは <デフォルトパス>/<エージェントID> に保存されます。存在する場合は元のパスが使用されます。",
     "restoreStrategy": "復元戦略",
     "restoreStrategyPreserve": "ローカルのセキュリティ設定と MCP を保持",
@@ -4884,7 +4883,7 @@
   "codingMode": {
     "title": "コーディングモード",
     "experimental": "実験的機能",
-    "experimentalDesc": "コーディングモードは QwenPaw を軽量な Web IDE に変換し、コードエディター、ファイルツリー、Git 統合、AI コーディング支援を提供します。",
+    "experimentalDesc": "コーディングモードは AIARB を軽量な Web IDE に変換し、コードエディター、ファイルツリー、Git 統合、AI コーディング支援を提供します。",
     "experimentalNote": "この機能は実験的であり、現在も積極的に開発中です。一部の機能は制限されているか、将来のアップデートで変更される場合があります。",
     "confirmBtn": "コーディングモードを有効にする",
     "enterTooltip": "コーディングモードに入る",
@@ -4920,7 +4919,7 @@
     "importing": "インポート中...",
     "dropFailed": "フォルダの読み取りに失敗",
     "workingDir": "作業ディレクトリ",
-    "importCopyNote": "フォルダは QwenPaw の管理対象プロジェクトライブラリにコピーされます。元のファイルは変更されません。",
+    "importCopyNote": "フォルダは AIARB の管理対象プロジェクトライブラリにコピーされます。元のファイルは変更されません。",
     "importCopyDesc": "インポートするとフォルダのコピーが作成され、Agent はコピー上で作業します。元のファイルは変更されません。元のディレクトリで直接作業するには「既定のワークスペース」を使用してください。",
     "openDirEmpty": "サブディレクトリがありません",
     "openDirHiddenFolders": "隠しフォルダ"

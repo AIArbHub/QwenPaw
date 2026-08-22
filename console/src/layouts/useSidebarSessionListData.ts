@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { IAgentScopeRuntimeWebUISession } from "@agentscope-ai/chat";
 import type { ChatStatus } from "../api/types/chat";
@@ -48,7 +48,7 @@ function sessionsEqual(
   return true;
 }
 
-/** Sessions from QwenPaw backend include extra fields beyond the runtime UI type */
+/** Sessions from AIARB backend include extra fields beyond the runtime UI type */
 export interface ExtendedChatSession extends IAgentScopeRuntimeWebUISession {
   realId?: string;
   sessionId?: string;
@@ -277,9 +277,9 @@ export function useSessionListData(
   // via DOM events and may not see currentSessionId change on errors.
   useEffect(() => {
     const onDone = () => setSwitchingSessionId(null);
-    window.addEventListener("qwenpaw:sidebar-switch-done", onDone);
+    window.addEventListener("AIARB:sidebar-switch-done", onDone);
     return () =>
-      window.removeEventListener("qwenpaw:sidebar-switch-done", onDone);
+      window.removeEventListener("AIARB:sidebar-switch-done", onDone);
   }, []);
 
   const handleDelete = useCallback(
@@ -330,7 +330,7 @@ export function useSessionListData(
       // Leave the deleted route before publishing the refreshed list. Otherwise
       // route resolution can request the removed Chat while navigation settles.
       if (isCurrentRouteRemoved) {
-        window.dispatchEvent(new CustomEvent("qwenpaw:sidebar-new-chat"));
+        window.dispatchEvent(new CustomEvent("AIARB:sidebar-new-chat"));
       }
 
       // Fetch fresh session list after deletion
@@ -400,7 +400,7 @@ export function useSessionListData(
           const isCurrentSession =
             sessionId === currentSessionId || backendId === currentSessionId;
           if (isCurrentSession) {
-            window.dispatchEvent(new CustomEvent("qwenpaw:sidebar-new-chat"));
+            window.dispatchEvent(new CustomEvent("AIARB:sidebar-new-chat"));
           }
         }
       } catch (err) {

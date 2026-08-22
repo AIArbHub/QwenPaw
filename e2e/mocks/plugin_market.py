@@ -23,7 +23,7 @@ INCOMPATIBLE_PLUGIN_NAME = "E2E Legacy Plugin"
 
 # Backend version reported to the frontend; deriveCompatLabel() turns it
 # into the "2.x" label used for the includes() check.
-MOCK_QWENPAW_VERSION = "2.0.0"
+MOCK_AIARB_VERSION = "2.0.0"
 
 _MARKET_PLUGINS = [
     {
@@ -40,7 +40,7 @@ _MARKET_PLUGINS = [
             "en": {"description": "Compatible test plugin", "category": "tools"},
             "zh": {"description": "兼容性测试插件", "category": "tools"},
         },
-        "qwenpaw_compat_labels": ["2.x"],
+        "aiarb_compat_labels": ["2.x"],
         "is_featured": False,
     },
     {
@@ -57,7 +57,7 @@ _MARKET_PLUGINS = [
             "en": {"description": "Incompatible test plugin", "category": "tools"},
             "zh": {"description": "不兼容测试插件", "category": "tools"},
         },
-        "qwenpaw_compat_labels": ["1.x"],
+        "aiarb_compat_labels": ["1.x"],
         "is_featured": False,
     },
 ]
@@ -86,7 +86,7 @@ def register(page: Page) -> None:
         route.fulfill(
             status=200,
             content_type="application/json",
-            body=json.dumps({"version": MOCK_QWENPAW_VERSION}),
+            body=json.dumps({"version": MOCK_AIARB_VERSION}),
         )
 
     def _handle_install(route):

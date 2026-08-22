@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.utils.http import (
+from aiarb.utils.http import (
     is_loopback_host,
     is_loopback_url,
     probe_host_for_bind_host,

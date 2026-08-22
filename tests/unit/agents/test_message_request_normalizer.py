@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for message_request_normalizer module."""
 
 # pylint: disable=redefined-outer-name,protected-access
@@ -16,7 +16,7 @@ from agentscope.message import (
     URLSource,
 )
 
-from qwenpaw.agents.utils.message_request_normalizer import (
+from AIARB.agents.utils.message_request_normalizer import (
     _clean_provider_specific_fields,
     _clone_msg,
     _clone_messages,
@@ -28,9 +28,9 @@ from qwenpaw.agents.utils.message_request_normalizer import (
     mark_media_omitted_after_overflow,
     normalize_messages_for_model_request,
 )
-from qwenpaw.constant import (
+from AIARB.constant import (
     MEDIA_UNSUPPORTED_PLACEHOLDER,
-    QWENPAW_MESSAGE_TAG_KEY,
+    AIARB_MESSAGE_TAG_KEY,
     SYNTHETIC_USER_MESSAGE_TAGS,
 )
 
@@ -757,12 +757,12 @@ def test_body_recovery_protects_real_turn_through_auto_continue(tag):
         name="user",
         role="user",
         content=[TextBlock(text="continue")],
-        metadata={QWENPAW_MESSAGE_TAG_KEY: tag},
+        metadata={AIARB_MESSAGE_TAG_KEY: tag},
     )
     history = [old, current, result, continuation]
     protected = [msg.model_dump() for msg in history[1:]]
     assert mark_media_omitted_after_overflow(history) == 1
-    assert old.metadata == {"qwenpaw_omitted_media_ids": [old.content[0].id]}
+    assert old.metadata == {"AIARB_omitted_media_ids": [old.content[0].id]}
     assert [msg.model_dump() for msg in history[1:]] == protected
     assert mark_media_omitted_after_overflow(history) == 0
 
@@ -803,7 +803,7 @@ def test_normalization_tolerates_legacy_media_shapes(metadata, content_kind):
 @pytest.mark.parametrize("content", [None, "plain text"])
 @pytest.mark.parametrize(
     "metadata",
-    [None, {"qwenpaw_omitted_media_ids": ["image"]}],
+    [None, {"AIARB_omitted_media_ids": ["image"]}],
 )
 def test_omission_ignores_nonlist_content(content, metadata):
     msg = Msg.model_construct(
@@ -827,7 +827,7 @@ def test_body_placeholder_keeps_mime_without_inventing_path():
                 source=Base64Source(media_type="image/png", data="eA=="),
             ),
         ],
-        metadata={"qwenpaw_omitted_media_ids": [None, "image"]},
+        metadata={"AIARB_omitted_media_ids": [None, "image"]},
     )
     result = normalize_messages_for_model_request(
         [msg],

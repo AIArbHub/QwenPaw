@@ -3,7 +3,7 @@
  *
  * Importing self-registers all builtins into routeRegistry. MainLayout's
  * `useRoutes()` snapshot returns them. Plugin routes are registered via
- * `QwenPaw.route.add(...)` into the same registry and treated uniformly.
+ * `AIArb.route.add(...)` into the same registry and treated uniformly.
  *
  * Lazy components use `lazyImportWithRetry` inline. The `/` redirect is a
  * named route with a tiny DefaultRedirect component so routeRegistry has a

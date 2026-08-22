@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """WeCom native SDK over loopback TLS: stream, media, routing and shutdown."""
 import asyncio
 import base64
@@ -13,7 +13,7 @@ import threading
 import pytest
 import pytest_asyncio
 from websockets.sync.server import serve
-from qwenpaw.channel_protocol.models import SendParams
+from AIARB.channel_protocol.models import SendParams
 from tests.channel_support.driver import bind, module
 
 pytestmark = pytest.mark.asyncio

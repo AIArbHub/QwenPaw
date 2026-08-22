@@ -5,8 +5,8 @@ blank_issues_enabled: true
 
 contact_links:
   - name: GitHub Discussions
-    url: https://github.com/agentscope-ai/QwenPaw/discussions
-    about: Ask questions, share ideas, or discuss QwenPaw here.
+    url: https://github.com/agentscope-ai/AIArb/discussions
+    about: Ask questions, share ideas, or discuss AIArb here.
   - name: View docs
-    url: https://qwenpaw.agentscope.io/
-    about: QwenPaw docs and guides.
+    url: https://aiarb.agentscope.io/
+    about: AIArb docs and guides.

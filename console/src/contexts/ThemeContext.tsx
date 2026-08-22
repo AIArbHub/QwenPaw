@@ -12,7 +12,7 @@ import { themeApi, type ThemeConfig } from "@/api/modules/theme";
 export type ThemeMode = "light" | "dark" | "system";
 export type ResolvedTheme = "light" | "dark";
 
-const STORAGE_KEY = "qwenpaw-theme";
+const STORAGE_KEY = "aiarb-theme";
 
 interface ThemeContextValue {
   /** User selected preference: light / dark / system */

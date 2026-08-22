@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Sessions module P0 end-to-end test cases.
+AIARB Sessions module P0 end-to-end test cases.
 
 P0 definition:
 - Core user flows
@@ -231,7 +231,7 @@ class TestSessionListFilterAndDetail:
             first_row.click()
             sessions_page.page.wait_for_timeout(2000)
             # Verify the detail panel or drawer opens
-            detail_panel = sessions_page.page.locator('.qwenpaw-drawer, .qwenpaw-modal, [class*="detail"]').first
+            detail_panel = sessions_page.page.locator('.AIARB-drawer, .AIARB-modal, [class*="detail"]').first
             if detail_panel.count() > 0 and detail_panel.is_visible(timeout=3000):
                 detail_text = detail_panel.text_content() or ""
                 assert len(detail_text) > 10, "Session detail content should not be empty"
@@ -365,7 +365,7 @@ class TestEditAndDeleteSession:
         # After selection, the batch-delete button should appear. Match its
         # label only: the Action column renders an in-row danger "Delete" link
         # button on every row, so the previous selector
-        # 'button.qwenpaw-btn-dangerous:has-text("Delete")' matched those 10
+        # 'button.AIARB-btn-dangerous:has-text("Delete")' matched those 10
         # buttons even with nothing selected -- the assertion always passed
         # (false green) and this step verified nothing.
         batch_btns = sessions_page.page.locator(sessions_page.BATCH_DELETE_BTN_STRICT)
@@ -457,7 +457,7 @@ class TestSessionEditAndSave:
         edit_btn = first_row.locator('button:has-text("Edit")').first
         if not edit_btn.is_visible():
             # Try the fixed column
-            fixed_row = sessions_page.page.locator('.qwenpaw-table-cell-fix-right button:has-text("Edit")').first
+            fixed_row = sessions_page.page.locator('.AIARB-table-cell-fix-right button:has-text("Edit")').first
             if fixed_row.is_visible():
                 edit_btn = fixed_row
         if not edit_btn.is_visible():
@@ -487,7 +487,7 @@ class TestSessionEditAndSave:
         log_test_step("6. Click the save button")
         save_btn = sessions_page.page.locator(sessions_page.FORM_SUBMIT_BTN).first
         if save_btn.count() == 0:
-            save_btn = sessions_page.page.locator('button:has-text("Save"), button.qwenpaw-btn-primary').first
+            save_btn = sessions_page.page.locator('button:has-text("Save"), button.AIARB-btn-primary').first
         if save_btn.count() > 0 and save_btn.is_visible():
             save_btn.click()
             logger.info("Clicked save button")
@@ -524,7 +524,7 @@ class TestSessionEditAndSave:
                 name_input.fill(original_name)
                 save_btn = sessions_page.page.locator(sessions_page.FORM_SUBMIT_BTN).first
                 if save_btn.count() == 0:
-                    save_btn = sessions_page.page.locator('button:has-text("Save"), button.qwenpaw-btn-primary').first
+                    save_btn = sessions_page.page.locator('button:has-text("Save"), button.AIARB-btn-primary').first
                 if save_btn.count() > 0:
                     save_btn.click()
                     expect(sessions_page.page.locator(sessions_page.SESSION_DRAWER).first).to_be_hidden(timeout=5000)
@@ -681,7 +681,7 @@ class TestSessionBatchDelete:
         # "Batch Delete (N)" via sessions.batchDeleteButton.
         # Match on that label: the Action column renders an in-row danger
         # "Delete" link button per row, so the old fallbacks
-        # 'button.qwenpaw-btn-dangerous:has-text("Delete")' and
+        # 'button.AIARB-btn-dangerous:has-text("Delete")' and
         # 'button:has-text("Delete")' matched 10 in-row buttons even with
         # nothing selected -- the assertion passed (false green) and the click
         # then went to a SINGLE-row delete instead of the batch one.
@@ -731,7 +731,7 @@ class TestSessionBatchDelete:
         # Explicitly wait for the dialog to appear
         modal_visible = False
         try:
-            modal = sessions_page.page.locator('.qwenpaw-modal, .ant-modal').first
+            modal = sessions_page.page.locator('.AIARB-modal, .ant-modal').first
             modal.wait_for(state="visible", timeout=5000)
             modal_visible = True
             logger.info("Confirm dialog appeared")
@@ -744,20 +744,20 @@ class TestSessionBatchDelete:
         confirm_btn = None
         confirm_selectors = [
             # Modal.confirm okType="danger" buttons
-            '.qwenpaw-modal-confirm-btns .qwenpaw-btn-dangerous',
-            '.qwenpaw-modal-confirm-btns .qwenpaw-btn-primary',
-            '.qwenpaw-modal .qwenpaw-btn-dangerous',
-            '.qwenpaw-modal .qwenpaw-btn-primary',
+            '.AIARB-modal-confirm-btns .AIARB-btn-dangerous',
+            '.AIARB-modal-confirm-btns .AIARB-btn-primary',
+            '.AIARB-modal .AIARB-btn-dangerous',
+            '.AIARB-modal .AIARB-btn-primary',
             # Original antd prefixes
             '.ant-modal-confirm-btns .ant-btn-dangerous',
             '.ant-modal-confirm-btns .ant-btn-primary',
             '.ant-modal .ant-btn-primary',
             # Generic text matchers
-            '.qwenpaw-modal button:has-text("OK")',
-            '.qwenpaw-modal button:has-text("Delete")',
+            '.AIARB-modal button:has-text("OK")',
+            '.AIARB-modal button:has-text("Delete")',
             '.ant-modal button:has-text("OK")',
             # Popconfirm or other confirm components
-            '.qwenpaw-popconfirm button.qwenpaw-btn-primary',
+            '.AIARB-popconfirm button.AIARB-btn-primary',
             'button:has-text("OK")',
         ]
         for selector in confirm_selectors:
@@ -875,8 +875,8 @@ def ensure_session_data(page: Page):
 
     existing_count = page.locator(
         "tbody tr:not([aria-hidden='true'])"
-        ":not(.qwenpaw-table-placeholder)"
-        ":not(.qwenpaw-table-measure-row)"
+        ":not(.AIARB-table-placeholder)"
+        ":not(.AIARB-table-measure-row)"
     ).count()
 
     needed = max(0, 3 - existing_count)
@@ -1019,7 +1019,7 @@ class TestSessionFilterByUseridAndChannel:
             "input[placeholder*='userid'], input[placeholder*='UserId'], "
             "input[placeholder*='ID'], input[placeholder*='id']"
         ).first
-        channel_select = page.locator(".qwenpaw-select, .ant-select").first
+        channel_select = page.locator(".AIARB-select, .ant-select").first
 
         # At least one filter control must exist
         has_userid_input = userid_input.count() > 0
@@ -1029,7 +1029,7 @@ class TestSessionFilterByUseridAndChannel:
         logger.info(f"Filter controls: UserID input={'yes' if has_userid_input else 'no'}, Channel selector={'yes' if has_channel_select else 'no'}")
 
         log_test_step("Get the initial session list")
-        session_row_selector = "tbody tr:not(.qwenpaw-table-placeholder):not(.qwenpaw-table-measure-row)"
+        session_row_selector = "tbody tr:not(.AIARB-table-placeholder):not(.AIARB-table-measure-row)"
         initial_sessions = page.locator(session_row_selector).all()
         initial_count = len(initial_sessions)
         assert initial_count > 0, "ensure_session_data fixture should have created test data, but session list is still empty"

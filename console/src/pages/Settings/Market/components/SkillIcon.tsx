@@ -1,9 +1,9 @@
-import { Puzzle } from "lucide-react";
+﻿import { Puzzle } from "lucide-react";
 import { useState } from "react";
 import styles from "./SkillIcon.module.less";
 
 const PROVIDER_FALLBACK: Record<string, { letter: string; color: string }> = {
-  qwenpaw: { letter: "Q", color: "#10b981" },
+  AIARB: { letter: "Q", color: "#10b981" },
   clawhub: { letter: "C", color: "#f59e0b" },
   modelscope: { letter: "M", color: "#4f46e5" },
   aliyun: { letter: "A", color: "#ff6a00" },

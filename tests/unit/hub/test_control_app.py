@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-"""Authorization tests for QwenPaw Hub control-plane APIs."""
+﻿# -*- coding: utf-8 -*-
+"""Authorization tests for AIARB Hub control-plane APIs."""
 
 from collections.abc import AsyncIterator, Iterator, Mapping
 import asyncio
@@ -25,31 +25,31 @@ from starlette.requests import ClientDisconnect
 from starlette.websockets import WebSocketDisconnect
 from websockets.sync.server import ServerConnection, serve
 
-from qwenpaw.__version__ import __version__
-from qwenpaw.hub.auth import HubAuthService, HubUser
-from qwenpaw.app.routers import files
-from qwenpaw.hub.config import (
+from AIARB.__version__ import __version__
+from AIARB.hub.auth import HubAuthService, HubUser
+from AIARB.app.routers import files
+from AIARB.hub.config import (
     AccessSecurityConfig,
     ControlPlaneConfig,
     HubConfig,
     RateLimitConfig,
     RuntimeProxyConfig,
 )
-from qwenpaw.hub.control_app import create_hub_app, run_hub_app
-from qwenpaw.hub.credentials import TenantCredentialVault
-from qwenpaw.hub.invitations import InvitationError, InvitationService
-from qwenpaw.hub.model_service.api_models import ConnectionBody
-from qwenpaw.hub.model_service.gateway import ModelGateway
-from qwenpaw.hub.model_service.listener import ModelListener
-from qwenpaw.hub.model_service.storage import GovernanceStore
-from qwenpaw.hub.provisioner import (
+from AIARB.hub.control_app import create_hub_app, run_hub_app
+from AIARB.hub.credentials import TenantCredentialVault
+from AIARB.hub.invitations import InvitationError, InvitationService
+from AIARB.hub.model_service.api_models import ConnectionBody
+from AIARB.hub.model_service.gateway import ModelGateway
+from AIARB.hub.model_service.listener import ModelListener
+from AIARB.hub.model_service.storage import GovernanceStore
+from AIARB.hub.provisioner import (
     RuntimeModelNetwork,
     RuntimeProvisioner,
     RuntimeProvisionerAvailability,
 )
-from qwenpaw.hub.models import RuntimeRecord, RuntimeState
-from qwenpaw.hub.registry import RuntimeRegistry
-from qwenpaw.hub.service import RuntimeService
+from AIARB.hub.models import RuntimeRecord, RuntimeState
+from AIARB.hub.registry import RuntimeRegistry
+from AIARB.hub.service import RuntimeService
 
 
 class _FakeProvisioner(RuntimeProvisioner):
@@ -100,7 +100,7 @@ class _FakeProvisioner(RuntimeProvisioner):
 
 class _ProxyStream(httpx.AsyncByteStream):
     async def __aiter__(self) -> AsyncIterator[bytes]:
-        yield b'{"product":"QwenPaw"}'
+        yield b'{"product":"AIARB"}'
 
 
 def _client(
@@ -124,11 +124,11 @@ def _client(
             runtime_id=record.runtime_id,
         )
         environment[
-            "QWENPAW_RUNTIME_INTERNAL_TOKEN"
+            "AIARB_RUNTIME_INTERNAL_TOKEN"
         ] = vault.get_or_create_runtime_secret(
             tenant_id=record.tenant_id,
             runtime_id=record.runtime_id,
-            name="QWENPAW_RUNTIME_INTERNAL_TOKEN",
+            name="AIARB_RUNTIME_INTERNAL_TOKEN",
         )
         return environment
 
@@ -260,7 +260,7 @@ def test_websocket_proxy_relays_real_text_and_binary_frames(
             thread.join(timeout=2)
 
     assert upstream_path == "/api/ws/echo?mode=test"
-    assert upstream_headers["x-qwenpaw-runtime-token"]
+    assert upstream_headers["x-AIARB-runtime-token"]
 
 
 def test_websocket_proxy_rejects_unavailable_runtime(tmp_path: Path) -> None:
@@ -395,7 +395,7 @@ def test_console_assets_use_precompression_and_immutable_cache(
     static_dir = tmp_path / "console"
     assets_dir = static_dir / "assets"
     assets_dir.mkdir(parents=True)
-    source = b"const product = 'QwenPaw';" * 100
+    source = b"const product = 'AIARB';" * 100
     asset = assets_dir / "index-contenthash.js"
     small_source = b"export const ready = true;"
     small_asset = assets_dir / "small-contenthash.js"
@@ -407,7 +407,7 @@ def test_console_assets_use_precompression_and_immutable_cache(
         "<div id='root'></div>",
         encoding="utf-8",
     )
-    monkeypatch.setenv("QWENPAW_CONSOLE_STATIC_DIR", str(static_dir))
+    monkeypatch.setenv("AIARB_CONSOLE_STATIC_DIR", str(static_dir))
 
     with _client(tmp_path) as client:
         compressed = client.get(
@@ -440,7 +440,7 @@ def test_public_bind_requires_initialized_admin(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_HUB_DIR", str(tmp_path))
+    monkeypatch.setenv("AIARB_HUB_DIR", str(tmp_path))
 
     with pytest.raises(ValueError, match="initialized, enabled administrator"):
         run_hub_app(
@@ -455,7 +455,7 @@ def test_public_bind_starts_after_admin_initialization(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_HUB_DIR", str(tmp_path))
+    monkeypatch.setenv("AIARB_HUB_DIR", str(tmp_path))
     database = tmp_path / "control.db"
     vault = TenantCredentialVault(
         database,
@@ -465,13 +465,13 @@ def test_public_bind_starts_after_admin_initialization(
     config_path = tmp_path / "hub.yaml"
     config_path.write_text(
         "version: 1\ncontrol_plane:\n"
-        "  public_base_url: http://qwenpaw.example.com",
+        "  public_base_url: http://AIARB.example.com",
         encoding="utf-8",
     )
 
     with (
-        patch("qwenpaw.hub.control_app.create_hub_app") as create_app,
-        patch("qwenpaw.hub.control_app.uvicorn.run") as uvicorn_run,
+        patch("AIARB.hub.control_app.create_hub_app") as create_app,
+        patch("AIARB.hub.control_app.uvicorn.run") as uvicorn_run,
     ):
         run_hub_app(
             host="::",
@@ -490,7 +490,7 @@ def test_public_bind_requires_public_base_url(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_HUB_DIR", str(tmp_path))
+    monkeypatch.setenv("AIARB_HUB_DIR", str(tmp_path))
     database = tmp_path / "control.db"
     vault = TenantCredentialVault(
         database,
@@ -824,7 +824,7 @@ def test_credential_api_never_returns_plaintext(tmp_path: Path) -> None:
 def test_standard_api_proxies_to_personal_runtime(tmp_path: Path) -> None:
     async def proxy_handler(request: httpx.Request) -> httpx.Response:
         assert request.url.path == "/api/runtime-probe"
-        assert request.headers["X-QwenPaw-Runtime-Token"]
+        assert request.headers["X-AIARB-Runtime-Token"]
         assert "authorization" not in request.headers
         return httpx.Response(
             200,
@@ -841,7 +841,7 @@ def test_standard_api_proxies_to_personal_runtime(tmp_path: Path) -> None:
         )
 
         assert response.status_code == 200
-        assert response.json() == {"product": "QwenPaw"}
+        assert response.json() == {"product": "AIARB"}
         runtimes = client.get(
             "/api/hub/runtimes",
             headers=_headers(token),
@@ -985,7 +985,7 @@ def test_model_network_snapshot_is_reused_for_credentials(
         )
         discover.assert_called_once_with()
         credentials = start.call_args.args[1]
-        assert credentials["QWENPAW_HUB_MODEL_URL"] == network.url(
+        assert credentials["AIARB_HUB_MODEL_URL"] == network.url(
             client.app.state.model_listener.port,
         )
 
@@ -1267,7 +1267,7 @@ def test_proxy_closes_upstream_client_when_request_disconnects(
     with _client(tmp_path) as client:
         token = _register(client, "owner")
         with patch(
-            "qwenpaw.hub.control_app.httpx.AsyncClient",
+            "AIARB.hub.control_app.httpx.AsyncClient",
             return_value=upstream_client,
         ):
             response = client.post(
@@ -1920,10 +1920,10 @@ def test_oauth_callback_route_is_stable_and_runtime_scoped(
 
     async def proxy_handler(request: httpx.Request) -> httpx.Response:
         if request.method == "POST":
-            callback_url = request.headers["X-QwenPaw-Hub-OAuth-Callback-Url"]
+            callback_url = request.headers["X-AIARB-Hub-OAuth-Callback-Url"]
             callback_urls.append(callback_url)
             assert callback_url.startswith(
-                "https://qwenpaw.example.com/base/",
+                "https://AIARB.example.com/base/",
             )
             assert callback_url != "https://attacker.example/callback"
             return httpx.Response(
@@ -1933,7 +1933,7 @@ def test_oauth_callback_route_is_stable_and_runtime_scoped(
             )
         assert request.url.path == callback_path
         assert request.url.query == b"code=code-value&state=state-value"
-        assert request.headers["X-QwenPaw-Runtime-Token"]
+        assert request.headers["X-AIARB-Runtime-Token"]
         return httpx.Response(
             200,
             text="callback complete",
@@ -1942,7 +1942,7 @@ def test_oauth_callback_route_is_stable_and_runtime_scoped(
 
     config = HubConfig(
         control_plane=ControlPlaneConfig(
-            public_base_url="https://qwenpaw.example.com/base",
+            public_base_url="https://AIARB.example.com/base",
         ),
     )
     transport = httpx.MockTransport(proxy_handler)
@@ -1952,7 +1952,7 @@ def test_oauth_callback_route_is_stable_and_runtime_scoped(
             start_path,
             headers={
                 **_headers(token),
-                "X-QwenPaw-Hub-OAuth-Callback-Url": (
+                "X-AIARB-Hub-OAuth-Callback-Url": (
                     "https://attacker.example/callback"
                 ),
             },
@@ -2068,7 +2068,7 @@ def test_hub_native_provider_dispatch_and_settlement(admin_client, protocol):
 
 def test_pawapp_cleanup_cors_uses_explicit_origins(tmp_path):
     origin = "http://localhost:5173"
-    with patch("qwenpaw.hub.control_app.CORS_ORIGINS", origin):
+    with patch("AIARB.hub.control_app.CORS_ORIGINS", origin):
         with _client(tmp_path) as client:
             headers = {
                 "Origin": origin,
@@ -2156,7 +2156,7 @@ def test_legacy_pawapp_grant_is_static_only(tmp_path):
         assert granted.status_code == 200
         assert client.get(
             "/api/pawapps/old_app/static/index.html",
-        ).json() == {"product": "QwenPaw"}
+        ).json() == {"product": "AIARB"}
         assert client.get("/api/agents").status_code == 401
         assert (
             client.get(
@@ -2173,7 +2173,7 @@ def test_hub_avatar_identity_is_scoped_to_authenticated_user(hub_client):
     endpoint = "/api/profile/avatars"
     data = (
         Path(__file__).resolve().parents[3]
-        / "console/public/qwenpaw-avatar.gif"
+        / "console/public/AIARB-avatar.gif"
     ).read_bytes()
     assert hub_client.get(endpoint).status_code == 401
     uploaded = hub_client.post(

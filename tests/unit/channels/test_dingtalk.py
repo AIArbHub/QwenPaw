@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """DingTalk native callbacks, sends, cards and SDK cleanup."""
 import asyncio
 import hashlib
@@ -9,9 +9,8 @@ import aiohttp
 import pytest
 import pytest_asyncio
 from dingtalk_stream import CallbackMessage
-from qwenpaw.app.channels.utils import split_text
-from qwenpaw.channel_protocol.models import ResponseFinishParams, SendParams
-from qwenpaw.channel_protocol.response_receipts import receipt_key
+from AIARB.channel_protocol.models import ResponseFinishParams, SendParams
+from AIARB.channel_protocol.response_receipts import receipt_key
 from tests.channel_support.driver import bind, module
 
 pytestmark = pytest.mark.asyncio

@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw E2E tests - Skill Pool P0 cases
+AIARB E2E tests - Skill Pool P0 cases
 
 Functional coverage:
 1. Skill pool page load
@@ -174,8 +174,8 @@ class TestSkillPoolInstall:
 
         log_test_step("Verify broadcast Modal opens")
         page.wait_for_timeout(500)
-        visible_modals = page.locator('.qwenpaw-modal:visible, .ant-modal:visible, [role="dialog"]:visible')
-        modal = visible_modals.last if visible_modals.count() > 0 else page.locator('.qwenpaw-modal, .ant-modal').last
+        visible_modals = page.locator('.AIARB-modal:visible, .ant-modal:visible, [role="dialog"]:visible')
+        modal = visible_modals.last if visible_modals.count() > 0 else page.locator('.AIARB-modal, .ant-modal').last
         expect(modal).to_be_visible(timeout=8000)
         modal_content = modal.inner_text()
         assert len(modal_content) > 10, "Broadcast Modal content is empty"
@@ -184,9 +184,9 @@ class TestSkillPoolInstall:
         log_test_step("Verify Modal has selection area and interact")
         # Actual UI uses custom pickerCard component instead of standard checkbox/select
         picker_cards = modal.locator('[class*=pickerCard]').all()
-        checkboxes = modal.locator('.qwenpaw-checkbox, .ant-checkbox, .qwenpaw-checkbox-wrapper').all()
-        selects = modal.locator('.qwenpaw-select, .ant-select').all()
-        lists = modal.locator('.qwenpaw-list-item, .ant-list-item, tr').all()
+        checkboxes = modal.locator('.AIARB-checkbox, .ant-checkbox, .AIARB-checkbox-wrapper').all()
+        selects = modal.locator('.AIARB-select, .ant-select').all()
+        lists = modal.locator('.AIARB-list-item, .ant-list-item, tr').all()
         total_interactive = len(picker_cards) + len(checkboxes) + len(selects) + len(lists)
         assert total_interactive > 0, "Broadcast Modal should have selectable elements (pickerCard/checkbox/select/list item)"
         logger.info(f"Modal contains {len(picker_cards)} pickerCards, {len(checkboxes)} checkboxes, {len(selects)} selects, {len(lists)} list items")
@@ -207,13 +207,13 @@ class TestSkillPoolInstall:
         confirm_btn = modal.locator(
             'button:has-text("OK"), button:has-text("确定"), '
             'button:has-text("Broadcast"), button:has-text("广播"), '
-            'button.qwenpaw-btn-primary'
+            'button.AIARB-btn-primary'
         ).first
         assert confirm_btn.count() > 0, "Confirm button should exist in broadcast Modal"
         logger.info("Confirm button exists")
 
         log_test_step("Close Modal")
-        close_btn = modal.locator('.qwenpaw-modal-close, button:has-text("Cancel"), button:has-text("取消")').first
+        close_btn = modal.locator('.AIARB-modal-close, button:has-text("Cancel"), button:has-text("取消")').first
         if close_btn.count() > 0:
             close_btn.click()
         else:
@@ -262,7 +262,7 @@ class TestSkillPoolBroadcast:
         page.wait_for_timeout(3000)
 
         # Wait for Modal to appear and grab the reference
-        modal_locator = page.locator('.qwenpaw-modal:visible, .ant-modal:visible, [role="dialog"]:visible')
+        modal_locator = page.locator('.AIARB-modal:visible, .ant-modal:visible, [role="dialog"]:visible')
         expect(modal_locator.first).to_be_visible(timeout=8000)
         modal = modal_locator.last
 
@@ -274,8 +274,8 @@ class TestSkillPoolBroadcast:
         if len(workspace_items) == 0:
             # Fallback: try standard component selectors
             workspace_items = modal.locator(
-                '.qwenpaw-checkbox-wrapper, .ant-checkbox-wrapper, '
-                '.qwenpaw-list-item, .ant-list-item'
+                '.AIARB-checkbox-wrapper, .ant-checkbox-wrapper, '
+                '.AIARB-list-item, .ant-list-item'
             ).all()
         assert len(workspace_items) > 0, "Broadcast Modal should have workspace/selection items"
         logger.info(f"Found {len(workspace_items)} workspace/selection items")
@@ -297,7 +297,7 @@ class TestSkillPoolBroadcast:
         confirm_btn = modal.locator(
             'button:has-text("OK"), button:has-text("确定"), '
             'button:has-text("Broadcast"), button:has-text("广播"), '
-            'button.qwenpaw-btn-primary'
+            'button.AIARB-btn-primary'
         ).first
         assert confirm_btn.count() > 0, "Confirm button not found in broadcast Modal"
         assert confirm_btn.is_enabled(), "Confirm button should be enabled after selecting workspaces"
@@ -354,7 +354,7 @@ class TestSkillPoolBatchDelete:
         page.wait_for_timeout(1500)
 
         log_test_step("Verify checkboxes appear and select one")
-        checkboxes = page.locator('.qwenpaw-checkbox, .ant-checkbox, .qwenpaw-checkbox-wrapper').all()
+        checkboxes = page.locator('.AIARB-checkbox, .ant-checkbox, .AIARB-checkbox-wrapper').all()
         assert len(checkboxes) > 0, "Checkboxes should appear in batch mode"
         logger.info(f"Found {len(checkboxes)} checkboxes in batch mode")
 
@@ -366,7 +366,7 @@ class TestSkillPoolBatchDelete:
         # Verify delete button appears and is enabled
         delete_btn = page.locator(
             'button:has-text("删除"), button:has-text("Delete"), '
-            'button.qwenpaw-btn-dangerous'
+            'button.AIARB-btn-dangerous'
         ).first
         if delete_btn.count() > 0 and delete_btn.is_visible(timeout=3000):
             assert delete_btn.is_enabled(), "Delete button should be enabled after selecting a skill"
@@ -375,7 +375,7 @@ class TestSkillPoolBatchDelete:
             # Verify select-all button exists
             select_all = page.locator(
                 'button:has-text("全选"), button:has-text("Select All"), '
-                '.qwenpaw-checkbox-wrapper:has-text("全选")'
+                '.AIARB-checkbox-wrapper:has-text("全选")'
             ).first
             if select_all.count() > 0:
                 logger.info("Select-all button exists")
@@ -494,9 +494,9 @@ This is a test skill uploaded via zip for E2E testing.
             log_test_step("7. Verify upload result")
             # Check for success message
             success_message = page.locator(
-                '.qwenpaw-message-success, '
-                '.qwenpaw-message-notice:has-text("成功"), '
-                '.qwenpaw-message-notice:has-text("success")'
+                '.AIARB-message-success, '
+                '.AIARB-message-notice:has-text("成功"), '
+                '.AIARB-message-notice:has-text("success")'
             ).first
             if success_message.is_visible():
                 logger.info("Detected upload success message")
@@ -537,7 +537,7 @@ This is a test skill uploaded via zip for E2E testing.
                         target_card.hover()
                         page.wait_for_timeout(500)
                         delete_btn = target_card.locator(
-                            'button.qwenpaw-btn-dangerous, '
+                            'button.AIARB-btn-dangerous, '
                             'button:has-text("删除"), '
                             'button:has-text("Delete"), '
                             'button:has(.anticon-delete)'
@@ -546,9 +546,9 @@ This is a test skill uploaded via zip for E2E testing.
                             delete_btn.click()
                             page.wait_for_timeout(1000)
                             confirm_btn = page.locator(
-                                '.qwenpaw-modal-confirm-btns button.qwenpaw-btn-dangerous, '
-                                '.qwenpaw-modal button.qwenpaw-btn-dangerous, '
-                                '.qwenpaw-modal button.qwenpaw-btn-primary'
+                                '.AIARB-modal-confirm-btns button.AIARB-btn-dangerous, '
+                                '.AIARB-modal button.AIARB-btn-dangerous, '
+                                '.AIARB-modal button.AIARB-btn-primary'
                             ).first
                             if confirm_btn.is_visible():
                                 confirm_btn.click()
@@ -603,7 +603,7 @@ class TestSkillPoolBuiltinImport:
         page.wait_for_timeout(2000)
 
         # Check if a dialog/drawer opened, or import ran directly
-        modal_or_drawer = page.locator('.qwenpaw-modal, .ant-modal, .qwenpaw-drawer, .ant-drawer, [role="dialog"]').last
+        modal_or_drawer = page.locator('.AIARB-modal, .ant-modal, .AIARB-drawer, .ant-drawer, [role="dialog"]').last
         if modal_or_drawer.count() > 0:
             try:
                 expect(modal_or_drawer).to_be_visible(timeout=5000)
@@ -614,7 +614,7 @@ class TestSkillPoolBuiltinImport:
                 logger.info("Dialog exists but not visible, may have auto-closed")
         else:
             # Possibly the click triggered import directly (no dialog)
-            success_msg = page.locator('.qwenpaw-message-success, .ant-message-success').first
+            success_msg = page.locator('.AIARB-message-success, .ant-message-success').first
             if success_msg.count() > 0:
                 logger.info("Builtin skill import executed (no dialog confirmation)")
             else:

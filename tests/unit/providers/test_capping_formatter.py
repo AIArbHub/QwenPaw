@@ -20,17 +20,7 @@ import random
 
 import pytest
 
-from agentscope.message import (
-    Base64Source,
-    DataBlock,
-    Msg,
-    TextBlock,
-    ToolCallBlock,
-    ToolResultBlock,
-    URLSource,
-)
-
-from qwenpaw.providers.capping_formatter import (
+from aiarb.providers.capping_formatter import (
     MAX_INLINE_MEDIA_BYTES,
     MAX_TOTAL_INLINE_MEDIA_BYTES,
     _CappingAnthropicFormatter,

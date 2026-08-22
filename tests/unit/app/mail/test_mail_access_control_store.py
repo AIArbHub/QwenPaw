@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.app.mail.mail_access_control import (
+from aiarb.app.mail.mail_access_control import (
     MailAccessControlStore,
     validate_acl_address,
 )
@@ -188,7 +188,7 @@ def test_pending_duplicate_uid_is_not_recorded_twice(tmp_path):
 def test_pending_write_failure_raises_and_rolls_back_memory(tmp_path):
     store = _store(tmp_path)
     with patch(
-        "qwenpaw.app.mail.mail_access_control.write_json_atomic",
+        "aiarb.app.mail.mail_access_control.write_json_atomic",
         side_effect=OSError("disk full"),
     ):
         with pytest.raises(RuntimeError, match="Could not persist"):

@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-# Build QwenPaw backend with PyInstaller for Tauri sidecar
+﻿#!/usr/bin/env bash
+# Build AIARB backend with PyInstaller for Tauri sidecar
 # Creates an onedir backend bundle with embedded Python runtime
 #
 # Usage:
@@ -21,10 +21,10 @@ RUNTIME_PYTHON_DIR="${PYTHON_RUNTIME_DIR}/python"
 NATIVE_HOST_PYTHON="${RUNTIME_PYTHON_DIR}/bin/python3"
 BUILD_VENV="${DIST}/pyinstaller-venv"
 PYTHON_BIN="${BUILD_VENV}/bin/python"
-VERSION=$(sed -n 's/^__version__[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' src/qwenpaw/__version__.py)
+VERSION=$(sed -n 's/^__version__[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' src/AIARB/__version__.py)
 
 echo "========================================="
-echo "QwenPaw PyInstaller Build"
+echo "AIARB PyInstaller Build"
 echo "========================================="
 echo "Version: ${VERSION}"
 echo "Repository: ${REPO_ROOT}"
@@ -118,7 +118,7 @@ mkdir -p "$DESKTOP_WHEELS"
 "$PYTHON_BIN" -m pip wheel --prefer-binary --wheel-dir "$DESKTOP_WHEELS" \
     ".[full]" "setuptools<82" wheel \
     -r "${REPO_ROOT}/scripts/pack-tauri/native-host-requirements.txt"
-HOST_WHEELS=("$DESKTOP_WHEELS"/qwenpaw-*.whl)
+HOST_WHEELS=("$DESKTOP_WHEELS"/AIARB-*.whl)
 [ "${#HOST_WHEELS[@]}" -eq 1 ] && [ -f "${HOST_WHEELS[0]}" ] || \
     { echo "Expected one host wheel"; exit 1; }
 HOST_WHEEL="${HOST_WHEELS[0]}"
@@ -143,7 +143,7 @@ echo ""
 echo "== Running PyInstaller =="
 echo "Building onedir backend bundle..."
 
-SPEC_FILE="${REPO_ROOT}/scripts/pack-tauri/qwenpaw.spec"
+SPEC_FILE="${REPO_ROOT}/scripts/pack-tauri/AIARB.spec"
 if [ ! -f "$SPEC_FILE" ]; then
     echo "ERROR: Spec file not found at ${SPEC_FILE}"
     exit 1
@@ -159,9 +159,9 @@ echo "PyInstaller build complete"
 echo ""
 
 # Verify output
-BACKEND_DIR="${DIST}/pyinstaller/qwenpaw-backend"
-BACKEND_EXE="${BACKEND_DIR}/qwenpaw-backend"
-CLI_EXE="${BACKEND_DIR}/qwenpaw"
+BACKEND_DIR="${DIST}/pyinstaller/AIARB-backend"
+BACKEND_EXE="${BACKEND_DIR}/AIARB-backend"
+CLI_EXE="${BACKEND_DIR}/AIARB"
 if [ ! -d "${BACKEND_DIR}" ]; then
     echo "ERROR: Backend bundle directory not found at ${BACKEND_DIR}"
     exit 1
@@ -175,7 +175,7 @@ if [ ! -f "${CLI_EXE}" ]; then
     exit 1
 fi
 "$PYTHON_BIN" "${REPO_ROOT}/scripts/pack-tauri/verify_model_catalog.py" \
-    "${BACKEND_DIR}/_internal/qwenpaw/providers/data"
+    "${BACKEND_DIR}/_internal/AIARB/providers/data"
 
 echo "Backend bundle created: ${BACKEND_DIR}"
 
@@ -186,12 +186,12 @@ echo ""
 
 # Copy to Tauri resources directory
 echo "== Copying to Tauri binaries directory =="
-DEST="${BINARIES_DIR}/qwenpaw-backend"
+DEST="${BINARIES_DIR}/AIARB-backend"
 rm -rf "${DEST}"
 mkdir -p "${DEST}"
 cp -R "${BACKEND_DIR}/." "${DEST}/"
-chmod +x "${DEST}/qwenpaw-backend"
-chmod +x "${DEST}/qwenpaw"
+chmod +x "${DEST}/AIARB-backend"
+chmod +x "${DEST}/AIARB"
 echo "Copied to: ${DEST}"
 echo ""
 

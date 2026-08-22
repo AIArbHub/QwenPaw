@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Tests for mode-owned handler selection and reset lifecycle."""
 
@@ -11,18 +11,18 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.loop.gates.base import (
+from AIARB.loop.gates.base import (
     StopAction,
     StopHandlerRegistration,
 )
-from qwenpaw.loop.gates.handler import StopHandler
-from qwenpaw.loop.gates.rubric import QualitativeRubricGate
-from qwenpaw.loop.gates.runner import _filter_by_scope
-from qwenpaw.modes.goal.goal_mode import GoalMode, GoalSession
-from qwenpaw.modes.mission import MissionMode
-from qwenpaw.modes.mission.gates import MissionGate
-from qwenpaw.modes.mission.state import write_loop_config, write_prd_json
-from qwenpaw.runtime.runtime import Runtime
+from AIARB.loop.gates.handler import StopHandler
+from AIARB.loop.gates.rubric import QualitativeRubricGate
+from AIARB.loop.gates.runner import _filter_by_scope
+from AIARB.modes.goal.goal_mode import GoalMode, GoalSession
+from AIARB.modes.mission import MissionMode
+from AIARB.modes.mission.gates import MissionGate
+from AIARB.modes.mission.state import write_loop_config, write_prd_json
+from AIARB.runtime.runtime import Runtime
 
 
 def _registration(
@@ -122,7 +122,7 @@ async def test_mission_turn_start_restores_persisted_session(tmp_path):
     )
 
     with patch(
-        "qwenpaw.loop.gates.loop_gate._session_id",
+        "AIARB.loop.gates.loop_gate._session_id",
         return_value="mission-session",
     ):
         await mode.on_turn_start(ctx)
@@ -158,7 +158,7 @@ async def test_mission_state_uses_session_lifecycle_and_reset(tmp_path):
     ctx = SimpleNamespace(mode_state={})
 
     with patch(
-        "qwenpaw.loop.gates.loop_gate._session_id",
+        "AIARB.loop.gates.loop_gate._session_id",
         return_value="mission-session",
     ):
         mode._gate.activate_for_mission(tmp_path)
@@ -217,26 +217,26 @@ async def test_qualitative_rubric_state_is_session_isolated():
     )
 
     with patch(
-        "qwenpaw.loop.gates.loop_gate._session_id",
+        "AIARB.loop.gates.loop_gate._session_id",
         return_value="session-a",
     ):
         first_a = await gate.check({})
 
     with patch(
-        "qwenpaw.loop.gates.loop_gate._session_id",
+        "AIARB.loop.gates.loop_gate._session_id",
         return_value="session-b",
     ):
         first_b = await gate.check({})
 
     with patch(
-        "qwenpaw.loop.gates.loop_gate._session_id",
+        "AIARB.loop.gates.loop_gate._session_id",
         return_value="session-a",
     ):
         gate.reset_session()
         next_a = await gate.check({})
 
     with patch(
-        "qwenpaw.loop.gates.loop_gate._session_id",
+        "AIARB.loop.gates.loop_gate._session_id",
         return_value="session-b",
     ):
         next_b = await gate.check({})
@@ -251,9 +251,9 @@ async def test_qualitative_rubric_state_is_session_isolated():
 @pytest.mark.parametrize(f"budget", [-1, 0, 100])
 async def test_goal_budget_survives_acp_usage_flush(budget):
     """Transport flush order cannot reset or double-count a goal budget."""
-    from qwenpaw.app.agent_context import scoped_session_id
-    from qwenpaw.modes.goal.gates import GoalBudgetGate
-    from qwenpaw.token_usage.model_wrapper import TokenRecordingModelWrapper
+    from AIARB.app.agent_context import scoped_session_id
+    from AIARB.modes.goal.gates import GoalBudgetGate
+    from AIARB.token_usage.model_wrapper import TokenRecordingModelWrapper
 
     mode = GoalMode()
     mode.default_max_tokens = budget
@@ -294,12 +294,12 @@ async def test_goal_budget_survives_acp_usage_flush(budget):
 @pytest.mark.parametrize(f"budget", [None, -1, 0, 100])
 def test_create_goal_keeps_request_session(budget):
     """Tool activation must share the runtime and model usage context."""
-    from qwenpaw.app.agent_context import (
+    from AIARB.app.agent_context import (
         get_current_session_id,
         scoped_session_id,
     )
-    from qwenpaw.modes.goal.tools import make_create_goal, make_get_goal
-    from qwenpaw.token_usage.counter import record_session_tokens
+    from AIARB.modes.goal.tools import make_create_goal, make_get_goal
+    from AIARB.token_usage.counter import record_session_tokens
 
     mode = GoalMode()
     mode.default_max_tokens = 200

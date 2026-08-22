@@ -21,7 +21,7 @@ from unittest.mock import AsyncMock, MagicMock
 import httpx
 import pytest
 
-import qwenpaw.agents.memory.reme_light_memory_manager as mgr
+import aiarb.agents.memory.reme_light_memory_manager as mgr
 
 ReMeLightMemoryManager = mgr.ReMeLightMemoryManager
 NO_MEMORY_RESULTS = mgr.NO_MEMORY_RESULTS

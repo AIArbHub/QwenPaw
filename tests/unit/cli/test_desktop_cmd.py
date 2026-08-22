@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for the legacy pywebview desktop bridge."""
 
 # pylint: disable=protected-access
@@ -13,8 +13,8 @@ import urllib.request
 
 import pytest
 
-from qwenpaw.cli import desktop_cmd, shutdown_cmd
-from qwenpaw.cli.desktop_cmd import _shutdown_backend_process
+from AIARB.cli import desktop_cmd, shutdown_cmd
+from AIARB.cli.desktop_cmd import _shutdown_backend_process
 
 
 class _Response(io.BytesIO):

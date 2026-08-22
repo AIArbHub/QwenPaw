@@ -1,6 +1,6 @@
-# 长期记忆
+﻿# 长期记忆
 
-QwenPaw 的长期记忆由工作区的文件系统和 [ReMe](https://github.com/agentscope-ai/ReMe) 个人知识库共同组成。其中，`MEMORY.md` 可由用户和 Agent 共同维护并按需读取；ReMe 则在后台把值得保留的对话和当前已接入的资料整理成结构化的 Markdown 记忆，逐步沉淀为个人知识库，并在需要时找回与当前问题有关的部分。
+AIARB 的长期记忆由工作区的文件系统和 [ReMe](https://github.com/agentscope-ai/ReMe) 个人知识库共同组成。其中，`MEMORY.md` 可由用户和 Agent 共同维护并按需读取；ReMe 则在后台把值得保留的对话和当前已接入的资料整理成结构化的 Markdown 记忆，逐步沉淀为个人知识库，并在需要时找回与当前问题有关的部分。
 
 简单来说，它像一位不会忘记研究过程、又能随时翻出证据的研究助理，主要做六件事：
 
@@ -12,13 +12,13 @@ QwenPaw 的长期记忆由工作区的文件系统和 [ReMe](https://github.com/
 6. **展开**：先返回最相关的片段，证据不足时再沿文件和链接继续阅读。
 
 <p align="center">
-  <img src="https://img.alicdn.com/imgextra/i3/O1CN01mG5Uot1GQdX33v4h4_!!6000000000617-55-tps-1200-640.svg" alt="QwenPaw 长期记忆从记录、整理到找回的完整循环" />
+  <img src="https://img.alicdn.com/imgextra/i3/O1CN01mG5Uot1GQdX33v4h4_!!6000000000617-55-tps-1200-640.svg" alt="AIARB 长期记忆从记录、整理到找回的完整循环" />
 </p>
 
 ## 可选的 PowerContext 后端
 
 `remelight` 仍是默认长期记忆后端。如需使用可选的 `powercontext` 后端，必须安装
-PowerContext memory 插件，并单独部署或启动 PowerContext Server；QwenPaw 不会自动下载或
+PowerContext memory 插件，并单独部署或启动 PowerContext Server；AIARB 不会自动下载或
 启动该服务。在源码目录中先构建并安装插件：
 
 ```bash
@@ -26,7 +26,7 @@ cd plugins/memory/powercontext/frontend
 npm install
 npm run build
 cd ../../../../
-qwenpaw plugin install plugins/memory/powercontext
+AIARB plugin install plugins/memory/powercontext
 ```
 
 本地服务默认地址为 `http://127.0.0.1:8000`。可使用以下命令安装并启动：
@@ -36,7 +36,7 @@ uv tool install "powercontext[cli,server] @ git+https://github.com/oceanbase/pow
 powercontext server run
 ```
 
-在 **Agent Config** 中选择 **PowerContext** 后，填写服务地址、可选 Bearer Token、记忆作用域、超时、自动检索结果数量和注入上下文预算。保存会安排 Agent 重载，无需重启整个 QwenPaw 进程。启用后，QwenPaw 会把当前回合经过长度限制的任务状态发送到所配置的服务，并在后续回合前检索相关记忆。该服务地址和作用域是数据边界，应只配置适合保存当前对话数据的服务和作用域。记忆作用域留空时，QwenPaw 会使用持久化的安装级默认值 `qwenpaw:<installation_id>:agent:<agent_id>`；即使两个独立安装使用相同 Agent ID 并连接同一个 PowerContext 服务，也会被隔离。只有希望多个 Agent 共享记忆时，才应填写相同的显式作用域。复制 QwenPaw 工作目录会同时复制安装身份；若复制品不应共享记忆，应在复制后设置不同的显式作用域。自动检索还会受总注入上下文预算限制（默认 12,000 UTF-8 字节），请求超时限制为 1–60 秒。
+在 **Agent Config** 中选择 **PowerContext** 后，填写服务地址、可选 Bearer Token、记忆作用域、超时、自动检索结果数量和注入上下文预算。保存会安排 Agent 重载，无需重启整个 AIARB 进程。启用后，AIARB 会把当前回合经过长度限制的任务状态发送到所配置的服务，并在后续回合前检索相关记忆。该服务地址和作用域是数据边界，应只配置适合保存当前对话数据的服务和作用域。记忆作用域留空时，AIARB 会使用持久化的安装级默认值 `AIARB:<installation_id>:agent:<agent_id>`；即使两个独立安装使用相同 Agent ID 并连接同一个 PowerContext 服务，也会被隔离。只有希望多个 Agent 共享记忆时，才应填写相同的显式作用域。复制 AIARB 工作目录会同时复制安装身份；若复制品不应共享记忆，应在复制后设置不同的显式作用域。自动检索还会受总注入上下文预算限制（默认 12,000 UTF-8 字节），请求超时限制为 1–60 秒。
 
 ### 网络与审批边界
 
@@ -78,18 +78,18 @@ powercontext server run
 插件配置必须放在 `memory_backend_configs.powercontext`；原先由核心定义的
 `powercontext_memory_config` 字段已不再支持。
 升级后的首次启动中，插件会将根配置中原有的 `powercontext_installation_id` 继承到
-QwenPaw 规范工作目录下的 `plugin-state/memory-powercontext/installation-id`。即使 Agent
+AIARB 规范工作目录下的 `plugin-state/memory-powercontext/installation-id`。即使 Agent
 使用自定义 workspace 路径，也能保持默认作用域以及对既有远程记忆的访问。
 
 ## 先理解它怎样工作
 
 假设你是一名金融分析师，正在持续研究新能源汽车产业链。几周内，你可能先后讨论过宁德时代的产品结构、动力电池价格、碳酸锂供需，以及“锂价下跌究竟利好电池厂还是会带来库存减值”这样的判断。
 
-这些信息如果只留在聊天记录里，很快就会被新的行情和新闻淹没。QwenPaw 的长期记忆会保留当时的研究现场，把反复验证的结论沉淀为个人知识库，并在下一次写报告时找回相关证据。
+这些信息如果只留在聊天记录里，很快就会被新的行情和新闻淹没。AIARB 的长期记忆会保留当时的研究现场，把反复验证的结论沉淀为个人知识库，并在下一次写报告时找回相关证据。
 
 ### 1. 记忆首先是你拥有的文件
 
-QwenPaw 和 ReMe 遵循 **Memory as File, File as Memory**。记忆不是藏在不可见的数据库中，而是保存在 Agent workspace 里的普通文件：
+AIARB 和 ReMe 遵循 **Memory as File, File as Memory**。记忆不是藏在不可见的数据库中，而是保存在 Agent workspace 里的普通文件：
 
 ```text
 workspace/
@@ -110,7 +110,7 @@ workspace/
 
 | 对象或机制                           | 定位与维护方式                                                                                              | 读取或检索方式                                                          |
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `MEMORY.md`                          | QwenPaw 管理的核心长期记忆；用户和主会话中的 Agent 都可以自由读取、编辑和更新                               | 通过文件工具按需读取；不属于 ReMe 的 `memory_search` 索引               |
+| `MEMORY.md`                          | AIARB 管理的核心长期记忆；用户和主会话中的 Agent 都可以自由读取、编辑和更新                               | 通过文件工具按需读取；不属于 ReMe 的 `memory_search` 索引               |
 | `memory/YYYY-MM-DD.md`               | 当天所有记忆笔记的索引页；ReMe 自动维护 `<!-- notes:auto -->` 区块，用户和主 Agent 可在自动区块之外补充内容 | 属于个人知识库，可被 `memory_search` 找到；也可直接读取并沿索引继续展开 |
 | `memory/YYYY-MM-DD/{name}.md`        | Auto-Memory 为一个 session 创建或更新的一条记忆笔记；`name` 是模型生成的稳定主题或事件名                    | 属于个人知识库；主 Agent 通常不需要主动管理                             |
 | `digest/` 中的所有 `.md`             | ReMe 管理的长期个人知识库；分为 `personal`、`procedure` 和 `wiki` 三类，并用 Wikilink 相互连接              | 属于 `memory_search` 的检索范围，可沿图谱继续展开                       |
@@ -229,7 +229,7 @@ Inbox 只用于查看运行结果；真正可编辑、可复用的记忆仍然�
 
 当前内置能力包括 **Daily Paper** 和 **Auto Fin**。
 
-启用 Daily Paper 后，QwenPaw 会从 Hugging Face Papers 的周榜和月榜中筛选与你关注主题相关的热门论文，保存原始 PDF，并生成三篇精读和一份每日简报。例如把主题设置为 `battery, lithium, energy storage`，就可以持续补充电池材料、寿命预测和储能技术相关研究。
+启用 Daily Paper 后，AIARB 会从 Hugging Face Papers 的周榜和月榜中筛选与你关注主题相关的热门论文，保存原始 PDF，并生成三篇精读和一份每日简报。例如把主题设置为 `battery, lithium, energy storage`，就可以持续补充电池材料、寿命预测和储能技术相关研究。
 
 - PDF 写入 `resource/papers/`；
 - 精读和简报写入 `memory/YYYY-MM-DD/`；
@@ -375,7 +375,7 @@ BM25 擅长“宁德时代”“CATL”“碳酸锂”这类明确名称；向�
 7. 你可以随时检查和修正 Markdown，修改后的内容继续参与后续协作。
 
 <p align="center">
-  <img src="https://img.alicdn.com/imgextra/i2/O1CN019aX2sCLIZvB6wGdo_!!6000000005818-0-tps-3418-1594.jpg" alt="QwenPaw 长期记忆控制台总览" />
+  <img src="https://img.alicdn.com/imgextra/i2/O1CN019aX2sCLIZvB6wGdo_!!6000000005818-0-tps-3418-1594.jpg" alt="AIARB 长期记忆控制台总览" />
 </p>
 
 ### 6. 实验效果：历史变长后还能找回来吗？
@@ -394,7 +394,7 @@ BM25 擅长“宁德时代”“CATL”“碳酸锂”这类明确名称；向�
 
 ## 参数配置
 
-默认的 `remelight` backend 在 QwenPaw 进程内运行，并复用当前 Agent 的模型完成记忆抽取和整理。你可以在控制台配置，也可以编辑 `agent.json` 中的 `running.reme_light_memory_config`。
+默认的 `remelight` backend 在 AIARB 进程内运行，并复用当前 Agent 的模型完成记忆抽取和整理。你可以在控制台配置，也可以编辑 `agent.json` 中的 `running.reme_light_memory_config`。
 
 ### 常用配置
 
@@ -474,7 +474,7 @@ BM25 擅长“宁德时代”“CATL”“碳酸锂”这类明确名称；向�
 `/reme auto_memory`、上下文压缩和 `/new` 都会向同一队列提交任务；每条状态记录
 会标明 `periodic`、`manual`、`compact` 或 `new` 触发来源。可在对话中使用
 `/auto_memory_status` 查看这些任务，使用 `/reme help` 查看运行时、聊天安全的 ReMe
-action 目录。QwenPaw 明确允许 `status`、`search`、`proactive`、`auto_memory`、
+action 目录。AIARB 明确允许 `status`、`search`、`proactive`、`auto_memory`、
 `auto_dream`、`daily_paper` 和 `auto_fin`；原始 vault 与索引维护 action 不能从
 聊天调用。关闭时会用同一个五秒 deadline 停止 worker、
 等待正在执行的 ReMe job 退出并关闭 ReMe；如果无法按时完成，则返回失败，而不会
@@ -513,7 +513,7 @@ POST /api/agents/{agentId}/memory/reindex/undo
 
 ## 其他 Memory Backend
 
-QwenPaw 的记忆系统采用可插拔的 Backend 架构。ReMeLight 仍是内置默认后端；ADBPG 和
+AIARB 的记忆系统采用可插拔的 Backend 架构。ReMeLight 仍是内置默认后端；ADBPG 和
 PowerContext 已拆分为可独立安装的插件。若 Agent 启动时所选插件缺失或加载失败，运行时会
 暂时使用 ReMeLight，并保留原 backend 选择和插件配置；日志会记录此次兜底。插件恢复后，
 重新加载 Agent 即可恢复原 backend。通过 `memory_manager_backend` 选择后端，插件拥有的每
@@ -521,7 +521,7 @@ Agent 配置统一保存在 `memory_backend_configs.<backend_id>`。
 
 ### ADBPG（AnalyticDB for PostgreSQL）
 
-基于云端向量数据库的长期记忆后端，适合需要跨设备共享、大规模语义检索的场景。QwenPaw 通过 ADBPG 记忆服务的 REST API 接入，无需安装额外数据库驱动。
+基于云端向量数据库的长期记忆后端，适合需要跨设备共享、大规模语义检索的场景。AIARB 通过 ADBPG 记忆服务的 REST API 接入，无需安装额外数据库驱动。
 
 **核心特点：**
 
@@ -539,12 +539,12 @@ cd plugins/memory/adbpg/frontend
 npm ci
 npm run build
 cd ../../../../
-qwenpaw plugin install plugins/memory/adbpg
+AIARB plugin install plugins/memory/adbpg
 ```
 
-发布的插件 ZIP 已包含配置界面，无需从源码构建。QwenPaw 运行时，可在 Console 插件页面
-上传 ZIP，或执行 `qwenpaw plugin install /path/to/memory-adbpg-1.0.0.zip`。从源码目录安装
-时，停止的 QwenPaw 需在安装后启动；运行中的 QwenPaw 会通过 API 热安装。
+发布的插件 ZIP 已包含配置界面，无需从源码构建。AIARB 运行时，可在 Console 插件页面
+上传 ZIP，或执行 `AIARB plugin install /path/to/memory-adbpg-1.0.0.zip`。从源码目录安装
+时，停止的 AIARB 需在安装后启动；运行中的 AIARB 会通过 API 热安装。
 
 然后进入 Agent 配置页面的「运行配置」标签，找到「长期记忆管理后端」下拉框，选择
 `adbpg`，并在 ADBPG 配置 Tab 中填写 `REST Base URL` 与 `REST API Key`。

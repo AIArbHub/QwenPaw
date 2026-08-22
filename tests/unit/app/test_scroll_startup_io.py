@@ -8,18 +8,37 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.agents.context.scroll.history import HistoryStore
-from qwenpaw.agents.context.scroll.sync import MIGRATION_KEY
-from qwenpaw.agents.context.types import LogEntry
-from qwenpaw.app.workspace import service_factories
+from aiarb.agents.context.scroll import sync as scroll_sync
+from aiarb.agents.context.scroll.history import HistoryStore
 
 
 @pytest.mark.asyncio
 async def test_agent_migration_cancellation_drains_worker(
     tmp_path,
     monkeypatch,
-):
-    history = HistoryStore(tmp_path / "history.db")
+) -> None:
+    """A populated legacy DB may build its date index in a worker thread."""
+    monkeypatch.setattr(
+        "aiarb.envs.load_envs_into_environ",
+        lambda: None,
+    )
+    app_module = importlib.import_module("aiarb.app._app")
+    startup_helper = app_module._sync_scroll_history_on_startup
+
+    db_path = tmp_path / "history.db"
+    legacy = HistoryStore(db_path)
+    with legacy._conn:  # pylint: disable=protected-access
+        legacy._conn.execute("DROP INDEX ch_created_at")
+        legacy._conn.executemany(
+            "INSERT INTO conversation_history"
+            "(session_id, kind, content, created_at) VALUES (?, ?, ?, ?)",
+            [
+                ("legacy", "model_turn", f"row-{index}", "2024-01-01")
+                for index in range(5000)
+            ],
+        )
+    legacy.close()
+
     started = threading.Event()
     stopped = threading.Event()
     config = SimpleNamespace(history_retention_days=0)

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * MenuBar.tsx — macOS-style top menu bar.
  *
  * Left: brand mark + current Space (agent) name + the focused app's title.
@@ -105,10 +105,10 @@ export default function MenuBar({ hidden = false }: { hidden?: boolean }) {
           <button
             type="button"
             className={styles.menubarBrand}
-            title={t("os.qwenpawMenu", "QwenPaw menu")}
-            aria-label={t("os.qwenpawMenu", "QwenPaw menu")}
+            title={t("os.AIARBMenu", "AIARB menu")}
+            aria-label={t("os.AIARBMenu", "AIARB menu")}
           >
-            <img src={`${import.meta.env.BASE_URL}qwenpaw.png`} alt="QwenPaw" />
+            <img src={`${import.meta.env.BASE_URL}AIARB.png`} alt="AIARB" />
           </button>
         </Dropdown>
         <Tooltip

@@ -2,7 +2,7 @@ export interface SkillChangeDetail {
   agentId: string;
 }
 
-const SKILL_CHANGE_EVENT = "qwenpaw:skills-changed";
+const SKILL_CHANGE_EVENT = "aiarb:skills-changed";
 
 export function notifySkillChange(agentId: string): void {
   if (typeof window === "undefined") return;

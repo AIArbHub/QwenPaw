@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name
 """Unit tests for the global settings router (/api/settings/language)."""
 from __future__ import annotations
@@ -12,7 +12,8 @@ import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from qwenpaw.app.routers.settings import _VALID_LANGUAGES, router
+from AIARB.app.routers.settings import _VALID_LANGUAGES, router
+from aiarb.app.routers.settings import router
 
 app = FastAPI()
 app.include_router(router, prefix="/api")
@@ -22,7 +23,7 @@ app.include_router(router, prefix="/api")
 def _use_tmp_settings(tmp_path: Path):
     """Redirect settings file to a temp directory for every test."""
     settings_file = tmp_path / "settings.json"
-    with patch("qwenpaw.app.routers.settings._SETTINGS_FILE", settings_file):
+    with patch("aiarb.app.routers.settings._SETTINGS_FILE", settings_file):
         yield settings_file
 
 

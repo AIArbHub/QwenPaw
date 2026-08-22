@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw built-in tools management module P0 end-to-end test cases.
+AIARB built-in tools management module P0 end-to-end test cases.
 
 Tool module tests:
 - TOOL-001: Page display + global toggle + tool card verification
@@ -430,14 +430,14 @@ class TestToolAsyncSwitch:
         page.wait_for_timeout(3000)
 
         log_test_step("Find tool cards")
-        tool_cards = page.locator('.qwenpaw-card, [class*="toolCard"]').all()
+        tool_cards = page.locator('.AIARB-card, [class*="toolCard"]').all()
         if len(tool_cards) == 0:
             pytest.skip("No tool cards found, skipping test")
         logger.info(f"Found {len(tool_cards)} tool cards")
 
         log_test_step("Find the async-execute toggle")
         async_switches = page.locator(
-            '.qwenpaw-switch, [class*="asyncSwitch"]'
+            '.AIARB-switch, [class*="asyncSwitch"]'
         ).all()
         assert len(async_switches) > 0, "Tools page should have toggle controls"
         logger.info(f"Found {len(async_switches)} toggles")

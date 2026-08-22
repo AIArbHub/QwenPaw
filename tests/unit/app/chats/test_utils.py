@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 import pytest
 from agentscope.message import Msg
 
-from qwenpaw.app.chats.utils import (
+from aiarb.app.chats.utils import (
     _abspath_from_url,
     _is_local_file_url,
     _normalize_msg_timestamp,
@@ -21,9 +21,9 @@ from qwenpaw.app.chats.utils import (
     clean_display_text,
     strip_injected_skill_block,
 )
-from qwenpaw.app.chats.title_generator import _clean_title
-from qwenpaw.constant import (
-    QWENPAW_MESSAGE_TAG_KEY,
+from aiarb.app.chats.title_generator import _clean_title
+from aiarb.constant import (
+    AIARB_MESSAGE_TAG_KEY,
     SCROLL_MEMORY_MESSAGE_TAG,
     SYNTHETIC_USER_MESSAGE_TAGS,
 )
@@ -193,7 +193,7 @@ def test_msg_to_message_omits_tagged_scroll_memory_placeholder():
             },
         ],
         metadata={
-            QWENPAW_MESSAGE_TAG_KEY: SCROLL_MEMORY_MESSAGE_TAG,
+            AIARB_MESSAGE_TAG_KEY: SCROLL_MEMORY_MESSAGE_TAG,
         },
     )
 
@@ -261,7 +261,7 @@ def test_msg_to_message_omits_synthetic_user_stubs():
             content=[
                 {"type": "text", "text": "Continue working on the task."},
             ],
-            metadata={QWENPAW_MESSAGE_TAG_KEY: tag},
+            metadata={AIARB_MESSAGE_TAG_KEY: tag},
         )
         assert not agentscope_msg_to_message(stub), tag
 
@@ -285,7 +285,7 @@ def test_msg_to_message_keeps_user_message_with_unknown_tag():
         name="user",
         role="user",
         content=[{"type": "text", "text": "real question"}],
-        metadata={QWENPAW_MESSAGE_TAG_KEY: "some_future_tag"},
+        metadata={AIARB_MESSAGE_TAG_KEY: "some_future_tag"},
     )
 
     [message] = agentscope_msg_to_message(user_msg)
@@ -300,7 +300,7 @@ def test_msg_to_message_keeps_assistant_message_with_synthetic_tag():
         name="assistant",
         role="assistant",
         content=[{"type": "text", "text": "still working"}],
-        metadata={QWENPAW_MESSAGE_TAG_KEY: tag},
+        metadata={AIARB_MESSAGE_TAG_KEY: tag},
     )
 
     [message] = agentscope_msg_to_message(assistant_msg)
@@ -325,7 +325,7 @@ def test_history_batch_hides_scroll_internals_but_keeps_transcript():
                 },
             ],
             metadata={
-                QWENPAW_MESSAGE_TAG_KEY: SCROLL_MEMORY_MESSAGE_TAG,
+                AIARB_MESSAGE_TAG_KEY: SCROLL_MEMORY_MESSAGE_TAG,
             },
         ),
         Msg(
@@ -372,7 +372,7 @@ def test_normalize_msg_timestamp_naive_process_utc_to_shanghai():
     """Docker/UTC process: naive wall clock is UTC (#6301)."""
     shanghai = ZoneInfo("Asia/Shanghai")
     with patch(
-        "qwenpaw.app.chats.utils._process_local_tz",
+        "aiarb.app.chats.utils._process_local_tz",
         return_value=ZoneInfo("UTC"),
     ):
         assert (
@@ -385,7 +385,7 @@ def test_normalize_msg_timestamp_naive_process_shanghai_no_drift():
     """Desktop Asia/Shanghai: naive wall clock stays on the same face."""
     shanghai = ZoneInfo("Asia/Shanghai")
     with patch(
-        "qwenpaw.app.chats.utils._process_local_tz",
+        "aiarb.app.chats.utils._process_local_tz",
         return_value=shanghai,
     ):
         assert (
@@ -418,11 +418,11 @@ def test_agentscope_msg_to_message_timestamp_uses_process_local_tz():
     shanghai = ZoneInfo("Asia/Shanghai")
     with (
         patch(
-            "qwenpaw.app.chats.utils.load_config",
+            "aiarb.app.chats.utils.load_config",
             return_value=SimpleNamespace(user_timezone="Asia/Shanghai"),
         ),
         patch(
-            "qwenpaw.app.chats.utils._process_local_tz",
+            "aiarb.app.chats.utils._process_local_tz",
             return_value=shanghai,
         ),
     ):
@@ -600,11 +600,11 @@ def test_agentscope_msg_to_message_exposes_finished_at():
     shanghai = ZoneInfo("Asia/Shanghai")
     with (
         patch(
-            "qwenpaw.app.chats.utils.load_config",
+            "aiarb.app.chats.utils.load_config",
             return_value=SimpleNamespace(user_timezone="Asia/Shanghai"),
         ),
         patch(
-            "qwenpaw.app.chats.utils._process_local_tz",
+            "aiarb.app.chats.utils._process_local_tz",
             return_value=shanghai,
         ),
     ):
@@ -626,11 +626,11 @@ def test_agentscope_msg_to_message_finished_at_none_when_absent():
     shanghai = ZoneInfo("Asia/Shanghai")
     with (
         patch(
-            "qwenpaw.app.chats.utils.load_config",
+            "aiarb.app.chats.utils.load_config",
             return_value=SimpleNamespace(user_timezone="Asia/Shanghai"),
         ),
         patch(
-            "qwenpaw.app.chats.utils._process_local_tz",
+            "aiarb.app.chats.utils._process_local_tz",
             return_value=shanghai,
         ),
     ):

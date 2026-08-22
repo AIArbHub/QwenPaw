@@ -12,9 +12,9 @@ from agentscope.message import (
     Msg,
 )
 
-from qwenpaw.agents.utils.as_msg_handler import AsMsgHandler
-from qwenpaw.agents.utils.estimate_token_counter import EstimatedTokenCounter
-from qwenpaw.agents.utils.media_token_estimate import (
+from aiarb.agents.utils.as_msg_handler import AsMsgHandler
+from aiarb.agents.utils.estimate_token_counter import EstimatedTokenCounter
+from aiarb.agents.utils.media_token_estimate import (
     IMAGE_FALLBACK_TOKENS,
     VIDEO_FALLBACK_TOKENS,
     estimate_inline_media_tokens,

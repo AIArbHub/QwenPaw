@@ -1,4 +1,4 @@
-/* Chat page root layout */
+﻿/* Chat page root layout */
 .chatPageRoot {
   height: 100%;
   width: 100%;
@@ -34,7 +34,7 @@
           button,
           input,
           .ant-select-selection-item,
-          .qwenpaw-select-selection-item
+          .AIARB-select-selection-item
         ) {
         font-size: inherit !important;
       }
@@ -58,7 +58,7 @@
     }
 
     [class$="-welcome-prompts-prompt-label"],
-    .qwenpaw-welcome-prompts-prompt-label {
+    .AIARB-welcome-prompts-prompt-label {
       font-size: var(--app-font-body) !important;
       line-height: 1.4 !important;
     }
@@ -292,26 +292,26 @@
     --chat-wide-gutter: clamp(20px, 2%, 32px);
 
     :global {
-      .qwenpaw-bubble-list,
-      .qwenpaw-chat-anywhere-input {
+      .AIARB-bubble-list,
+      .AIARB-chat-anywhere-input {
         box-sizing: border-box;
         width: 100%;
         padding-inline: var(--chat-wide-gutter) !important;
       }
 
-      .qwenpaw-bubble-list,
-      .qwenpaw-chat-anywhere-input-wrapper,
-      .qwenpaw-chat-anywhere-sender-wrapper {
+      .AIARB-bubble-list,
+      .AIARB-chat-anywhere-input-wrapper,
+      .AIARB-chat-anywhere-sender-wrapper {
         max-width: none !important;
       }
 
-      .qwenpaw-chat-anywhere-input-wrapper,
-      .qwenpaw-chat-anywhere-sender-wrapper {
+      .AIARB-chat-anywhere-input-wrapper,
+      .AIARB-chat-anywhere-sender-wrapper {
         box-sizing: border-box;
         width: 100%;
       }
 
-      .qwenpaw-chat-anywhere-sender-wrapper {
+      .AIARB-chat-anywhere-sender-wrapper {
         padding-inline: var(--chat-wide-gutter) !important;
       }
     }
@@ -370,43 +370,43 @@
   }
 
   .chatMessagesArea :global {
-    .qwenpaw-chat-anywhere,
-    .qwenpaw-chat-anywhere-layout,
-    .qwenpaw-chat-anywhere-layout-right,
-    .qwenpaw-chat-anywhere-chat,
-    .qwenpaw-chat-anywhere-message-list,
-    .qwenpaw-chat-anywhere-message-list-welcome,
-    .qwenpaw-chat-anywhere-welcome,
-    .qwenpaw-chat-anywhere-input,
-    .qwenpaw-chat-anywhere-input-wrapper,
-    .qwenpaw-chat-anywhere-sender-wrapper,
-    .qwenpaw-bubble-list {
+    .AIARB-chat-anywhere,
+    .AIARB-chat-anywhere-layout,
+    .AIARB-chat-anywhere-layout-right,
+    .AIARB-chat-anywhere-chat,
+    .AIARB-chat-anywhere-message-list,
+    .AIARB-chat-anywhere-message-list-welcome,
+    .AIARB-chat-anywhere-welcome,
+    .AIARB-chat-anywhere-input,
+    .AIARB-chat-anywhere-input-wrapper,
+    .AIARB-chat-anywhere-sender-wrapper,
+    .AIARB-bubble-list {
       width: 100%;
       min-width: 0 !important;
       max-width: 100% !important;
     }
 
-    .qwenpaw-chat-anywhere-layout-right-header,
-    .qwenpaw-chat-anywhere-default-header-right,
-    .qwenpaw-chat-anywhere-default-header-right > * {
+    .AIARB-chat-anywhere-layout-right-header,
+    .AIARB-chat-anywhere-default-header-right,
+    .AIARB-chat-anywhere-default-header-right > * {
       min-width: 0;
     }
 
-    .qwenpaw-chat-anywhere-default-header-right {
+    .AIARB-chat-anywhere-default-header-right {
       overflow: hidden;
     }
 
-    .qwenpaw-chat-anywhere-message-list .qwenpaw-bubble-list {
+    .AIARB-chat-anywhere-message-list .AIARB-bubble-list {
       box-sizing: border-box;
       padding-inline: 8px !important;
     }
 
-    .qwenpaw-chat-anywhere-input {
+    .AIARB-chat-anywhere-input {
       box-sizing: border-box;
       padding-inline: 8px !important;
     }
 
-    .qwenpaw-chat-anywhere-sender-wrapper {
+    .AIARB-chat-anywhere-sender-wrapper {
       box-sizing: border-box;
       padding: 0 8px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
     }
@@ -434,9 +434,9 @@
   /* Preserve the wide-mode gutter through the mobile breakpoint instead
    * of jumping from the fluid desktop value to the default 8px inset. */
   .chatMessagesArea.wideMode :global {
-    .qwenpaw-bubble-list,
-    .qwenpaw-chat-anywhere-input,
-    .qwenpaw-chat-anywhere-sender-wrapper {
+    .AIARB-bubble-list,
+    .AIARB-chat-anywhere-input,
+    .AIARB-chat-anywhere-sender-wrapper {
       padding-inline: var(--chat-wide-gutter) !important;
     }
   }
@@ -507,7 +507,7 @@
       flex: 0 0 auto;
     }
 
-    [data-qwenpaw-composer-submit="true"] {
+    [data-AIARB-composer-submit="true"] {
       width: 44px !important;
       min-width: 44px !important;
       height: 44px !important;
@@ -651,10 +651,10 @@
 }
 
 :global {
-  .qwenpaw-suggestion .qwenpaw-cascader-menu,
-  .qwenpaw-suggestion .ant-cascader-menu,
-  .ant-cascader-dropdown.qwenpaw-suggestion .qwenpaw-cascader-menu,
-  .ant-cascader-dropdown.qwenpaw-suggestion .ant-cascader-menu {
+  .AIARB-suggestion .AIARB-cascader-menu,
+  .AIARB-suggestion .ant-cascader-menu,
+  .ant-cascader-dropdown.AIARB-suggestion .AIARB-cascader-menu,
+  .ant-cascader-dropdown.AIARB-suggestion .ant-cascader-menu {
     height: auto !important;
     max-height: 210px;
     overflow-y: auto;
@@ -742,12 +742,12 @@
 /* Fix #6583: Keep enough attachment cards visible to verify a multi-file
  * selection, while bounding very large drops to three scrollable rows. */
 .chatMessagesArea :global {
-  .qwenpaw-sender-header .qwenpaw-attachment {
+  .AIARB-sender-header .AIARB-attachment {
     width: 100%;
     overflow: visible;
   }
 
-  .qwenpaw-sender-header .qwenpaw-attachment-list {
+  .AIARB-sender-header .AIARB-attachment-list {
     flex-wrap: wrap;
     align-content: flex-start;
     max-height: 208px;
@@ -760,7 +760,7 @@
 
 @media (max-width: 600px) {
   .chatMessagesArea :global {
-    .qwenpaw-sender-header .qwenpaw-attachment-list {
+    .AIARB-sender-header .AIARB-attachment-list {
       column-gap: 8px;
       padding-inline: 6px;
     }

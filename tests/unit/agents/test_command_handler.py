@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 import json
 import logging
@@ -9,15 +9,15 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from agentscope.message import HintBlock, Msg, TextBlock
 
-from qwenpaw.agents.command_handler import (
+from AIARB.agents.command_handler import (
     _MAX_REME_METADATA_CHARS,
     _MAX_REME_OUTPUT_CHARS,
     _REME_CHAT_SAFE_ACTIONS,
     CommandHandler,
 )
-from qwenpaw.agents.memory.dummy import NoopMemoryManager
-from qwenpaw.agents.middlewares import auto_memory_turn_state
-from qwenpaw.runtime.envelope import Envelope
+from AIARB.agents.memory.dummy import NoopMemoryManager
+from AIARB.agents.middlewares import auto_memory_turn_state
+from AIARB.runtime.envelope import Envelope
 
 
 class _ActionMemoryManager:
@@ -59,7 +59,7 @@ def _make_agent():
 
 def _msg(role: str, text: str, *, name: str | None = None, msg_id: str = ""):
     msg = Msg(
-        name=name or ("QwenPaw" if role == "assistant" else "user"),
+        name=name or ("AIARB" if role == "assistant" else "user"),
         role=role,
         content=[TextBlock(type="text", text=text)],
     )
@@ -79,11 +79,11 @@ async def test_agent_config_load_runs_in_worker_thread(monkeypatch) -> None:
         return SimpleNamespace()
 
     monkeypatch.setattr(
-        "qwenpaw.agents.command_handler.load_agent_config",
+        "AIARB.agents.command_handler.load_agent_config",
         load_config,
     )
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         state=SimpleNamespace(context=[]),
         agent_id="agent-1",
     )
@@ -97,7 +97,7 @@ async def test_agent_config_load_runs_in_worker_thread(monkeypatch) -> None:
 @pytest.mark.asyncio
 async def test_process_clear_returns_clear_history_metadata() -> None:
     agent = _make_agent()
-    handler = CommandHandler(agent_name="QwenPaw", agent=agent)
+    handler = CommandHandler(agent_name="AIARB", agent=agent)
 
     msg = await handler.handle_command("/clear")
 
@@ -114,7 +114,7 @@ async def test_clear_discards_pending_auto_memory_snapshots() -> None:
     state["search"] = {"turn_marker": "turn-1", "messages": []}
 
     await CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
     ).handle_command("/clear")
 
@@ -136,7 +136,7 @@ async def test_new_discards_auto_memory_state_after_summary_is_accepted() -> (
     memory_manager.submit_auto_memory = MagicMock()
 
     await CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     ).handle_command("/new")
@@ -159,7 +159,7 @@ async def test_clear_resets_stop_gates_and_pending_gate_state() -> None:
         agent=agent,
     )
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         prompt_context=ctx,
     )
@@ -175,7 +175,7 @@ async def test_clear_resets_pending_gate_state_without_context() -> None:
     """Conversation reset owns deferred state even without mode context."""
     agent = _make_agent()
     agent._gate_pending_stop = object()
-    handler = CommandHandler(agent_name="QwenPaw", agent=agent)
+    handler = CommandHandler(agent_name="AIARB", agent=agent)
 
     await handler.handle_command("/clear")
 
@@ -194,7 +194,7 @@ async def test_new_empty_resets_stop_gates() -> None:
         agent=agent,
     )
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         prompt_context=ctx,
     )
@@ -219,7 +219,7 @@ async def test_new_no_mem_mgr_resets_stop_gates() -> None:
         agent=agent,
     )
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         prompt_context=ctx,
     )
@@ -254,7 +254,7 @@ async def test_load_history_discards_previous_auto_memory_state(
         json.dumps(loaded_msg.to_dict(), ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
-    handler = CommandHandler(agent_name="QwenPaw", agent=agent)
+    handler = CommandHandler(agent_name="AIARB", agent=agent)
     handler._get_agent_config = lambda: SimpleNamespace(
         workspace_dir=str(tmp_path),
     )
@@ -279,7 +279,7 @@ async def test_system_prompt_command_returns_current_prompt() -> None:
 
     # pylint: disable=protected-access
     agent._get_system_prompt = _get_system_prompt
-    handler = CommandHandler(agent_name="QwenPaw", agent=agent)
+    handler = CommandHandler(agent_name="AIARB", agent=agent)
 
     msg = await handler.handle_command("/system_prompt")
 
@@ -293,7 +293,7 @@ async def test_auto_memory_status_lists_queued_tasks() -> None:
     memory_manager = MagicMock(enabled=True)
     memory_manager.list_auto_memory_tasks.return_value = []
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -318,7 +318,7 @@ async def test_reme_auto_dream_uses_cli_style_quoted_hint() -> None:
     )
     authorizer = AsyncMock(return_value=True)
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
         reme_action_authorizer=authorizer,
@@ -350,7 +350,7 @@ async def test_reme_preserves_typed_list_and_object_arguments() -> None:
         response=SimpleNamespace(success=True, answer="done", metadata={}),
     )
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -396,7 +396,7 @@ async def test_reme_runs_generation_actions(
     )
     authorizer = AsyncMock(return_value=True)
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
         reme_action_authorizer=authorizer,
@@ -415,7 +415,7 @@ async def test_reme_generation_action_requires_approval() -> None:
     memory_manager = _ActionMemoryManager("daily_paper")
     authorizer = AsyncMock(return_value=False)
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
         reme_action_authorizer=authorizer,
@@ -433,7 +433,7 @@ async def test_reme_help_lists_live_actions_and_adapter_arguments() -> None:
     agent = _make_agent()
     memory_manager = _ActionMemoryManager("status", "auto_memory")
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -476,7 +476,7 @@ async def test_reme_help_lists_only_explicitly_chat_safe_actions() -> None:
         *unsafe_actions,
     )
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -517,7 +517,7 @@ async def test_reme_blocks_actions_outside_chat_allowlist(action: str) -> None:
     agent = _make_agent()
     memory_manager = _ActionMemoryManager("search", action)
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -544,7 +544,7 @@ async def test_reme_help_sorts_arguments_and_bounds_output() -> None:
         },
     }
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -554,7 +554,7 @@ async def test_reme_help_sorts_arguments_and_bounds_output() -> None:
 
     assert "alpha=string* zebra=boolean" in text
     assert len(text) == _MAX_REME_OUTPUT_CHARS
-    assert text.endswith("ReMe output truncated by QwenPaw.")
+    assert text.endswith("ReMe output truncated by AIARB.")
 
 
 @pytest.mark.asyncio
@@ -573,7 +573,7 @@ async def test_reme_status_reports_memory_warning_and_metadata() -> None:
         ),
     )
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -592,7 +592,7 @@ async def test_reme_status_reports_memory_warning_and_metadata() -> None:
 @pytest.mark.asyncio
 async def test_reme_requires_memory_manager() -> None:
     agent = _make_agent()
-    handler = CommandHandler(agent_name="QwenPaw", agent=agent)
+    handler = CommandHandler(agent_name="AIARB", agent=agent)
 
     msg = await handler.handle_command("/reme status")
 
@@ -607,7 +607,7 @@ async def test_reme_reports_disabled_for_noop_manager(tmp_path) -> None:
         agent_id="default",
     )
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -631,7 +631,7 @@ async def test_reme_auto_memory_defaults_to_latest_reply_group() -> None:
     ]
     memory_manager = _ActionMemoryManager("auto_memory")
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -666,7 +666,7 @@ async def test_reme_auto_memory_count_and_hint_select_reply_groups() -> None:
     ]
     memory_manager = _ActionMemoryManager("auto_memory")
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -702,7 +702,7 @@ async def test_reme_auto_memory_falls_back_to_assistant_role() -> None:
     ]
     memory_manager = _ActionMemoryManager("auto_memory")
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -724,7 +724,7 @@ async def test_reme_auto_memory_rejects_invalid_count() -> None:
     agent = _make_agent()
     memory_manager = _ActionMemoryManager("auto_memory")
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -740,7 +740,7 @@ async def test_reme_rejects_unknown_action_and_malformed_arguments() -> None:
     agent = _make_agent()
     memory_manager = _ActionMemoryManager("search")
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -765,7 +765,7 @@ async def test_reme_optionally_renders_metadata() -> None:
         ),
     )
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -792,7 +792,7 @@ async def test_reme_bounds_the_complete_visible_response() -> None:
         ),
     )
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -801,7 +801,7 @@ async def test_reme_bounds_the_complete_visible_response() -> None:
     text = msg.get_text_content()
 
     assert len(text) == _MAX_REME_OUTPUT_CHARS
-    assert text.endswith("ReMe output truncated by QwenPaw.")
+    assert text.endswith("ReMe output truncated by AIARB.")
     assert msg.metadata == {"source": "memory"}
 
 
@@ -810,7 +810,7 @@ async def test_reme_bounds_caller_and_backend_controlled_errors() -> None:
     agent = _make_agent()
     memory_manager = _ActionMemoryManager("search")
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -829,7 +829,7 @@ async def test_reme_bounds_caller_and_backend_controlled_errors() -> None:
     for msg in (unknown, malformed, failed):
         text = msg.get_text_content()
         assert len(text) == _MAX_REME_OUTPUT_CHARS
-        assert text.endswith("ReMe output truncated by QwenPaw.")
+        assert text.endswith("ReMe output truncated by AIARB.")
 
 
 @pytest.mark.asyncio
@@ -840,7 +840,7 @@ async def test_reme_bounds_catalog_and_auto_memory_errors() -> None:
         side_effect=ValueError("x" * (_MAX_REME_OUTPUT_CHARS + 100)),
     )
     catalog_handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=catalog_manager,
     )
@@ -856,7 +856,7 @@ async def test_reme_bounds_catalog_and_auto_memory_errors() -> None:
         "x" * (_MAX_REME_OUTPUT_CHARS + 100),
     )
     auto_handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=auto_manager,
     )
@@ -865,7 +865,7 @@ async def test_reme_bounds_catalog_and_auto_memory_errors() -> None:
     for msg in (catalog_error, auto_error):
         text = msg.get_text_content()
         assert len(text) == _MAX_REME_OUTPUT_CHARS
-        assert text.endswith("ReMe output truncated by QwenPaw.")
+        assert text.endswith("ReMe output truncated by AIARB.")
 
 
 @pytest.mark.asyncio
@@ -895,7 +895,7 @@ async def test_reme_serializes_large_structured_values_off_event_loop(
         ),
     )
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         agent=agent,
         memory_manager=memory_manager,
     )
@@ -903,7 +903,7 @@ async def test_reme_serializes_large_structured_values_off_event_loop(
     msg = await handler.handle_command("/reme search show_metadata=true")
 
     assert len(msg.get_text_content()) == _MAX_REME_OUTPUT_CHARS
-    assert msg.metadata["qwenpaw_truncated"] is True
+    assert msg.metadata["AIARB_truncated"] is True
     assert (
         len(json.dumps(msg.metadata, ensure_ascii=False))
         <= _MAX_REME_METADATA_CHARS
@@ -925,7 +925,7 @@ def test_reme_output_truncation_accounts_for_suffix() -> None:
     )
 
     assert len(rendered) == _MAX_REME_OUTPUT_CHARS
-    assert rendered.endswith("ReMe output truncated by QwenPaw.")
+    assert rendered.endswith("ReMe output truncated by AIARB.")
     assert "```" not in rendered
 
 
@@ -956,7 +956,7 @@ async def test_compact_respects_disabled_config() -> None:
         summary="",
     )
     agent.compress_context = MagicMock()
-    handler = CommandHandler(agent_name="QwenPaw", agent=agent)
+    handler = CommandHandler(agent_name="AIARB", agent=agent)
     # pylint: disable=protected-access
     handler._get_agent_config = lambda: _make_config(compact_enabled=False)
 
@@ -983,7 +983,7 @@ async def test_compact_uses_manual_force_context_config() -> None:
     """Under scroll, manual /compact clones the live agent's context_config,
     dropping the auto trigger but leaving the reserve tail untouched so it
     matches the same recent-tail budget as auto compaction."""
-    from qwenpaw.agents.command_handler import _FORCE_TRIGGER_RATIO
+    from AIARB.agents.command_handler import _FORCE_TRIGGER_RATIO
 
     captured = {}
 
@@ -999,7 +999,7 @@ async def test_compact_uses_manual_force_context_config() -> None:
     )
     agent.context_config = _FakeCtxConfig(trigger_ratio=0.8, reserve_ratio=0.2)
     agent.compress_context = _compress_context
-    handler = CommandHandler(agent_name="QwenPaw", agent=agent)
+    handler = CommandHandler(agent_name="AIARB", agent=agent)
     # pylint: disable=protected-access
     handler._get_agent_config = lambda: _make_config(
         reserve_ratio=0.2,
@@ -1040,7 +1040,7 @@ async def test_scroll_compact_reply_hides_internal_state() -> None:
     agent.context_config = _FakeCtxConfig(trigger_ratio=0.8, reserve_ratio=0.2)
     agent.compress_context = _compress_context
     agent._context_manager = context_manager
-    handler = CommandHandler(agent_name="QwenPaw", agent=agent)
+    handler = CommandHandler(agent_name="AIARB", agent=agent)
     handler._get_agent_config = lambda: _make_config(strategy="scroll")
 
     msg = await handler.handle_command("/compact")
@@ -1070,7 +1070,7 @@ async def test_compact_str_reads_persisted_scroll_summary() -> None:
         },
     }
     handler = CommandHandler(
-        agent_name="QwenPaw",
+        agent_name="AIARB",
         state=state,
         scroll_state=scroll_state,
     )
@@ -1090,7 +1090,7 @@ async def test_compact_under_native_keeps_configured_reserve() -> None:
     reserve: native compaction is lossy (the non-reserved middle is summarized
     away), so it keeps the agent's configured reserve_ratio for the same
     recent-tail continuity as auto compaction."""
-    from qwenpaw.agents.command_handler import _FORCE_TRIGGER_RATIO
+    from AIARB.agents.command_handler import _FORCE_TRIGGER_RATIO
 
     captured = {}
 
@@ -1106,7 +1106,7 @@ async def test_compact_under_native_keeps_configured_reserve() -> None:
     )
     agent.context_config = _FakeCtxConfig(trigger_ratio=0.8, reserve_ratio=0.2)
     agent.compress_context = _compress_context
-    handler = CommandHandler(agent_name="QwenPaw", agent=agent)
+    handler = CommandHandler(agent_name="AIARB", agent=agent)
     # pylint: disable=protected-access
     handler._get_agent_config = lambda: _make_config(
         reserve_ratio=0.2,
@@ -1141,7 +1141,7 @@ async def test_compact_forwards_one_shot_redacted_instruction(
     )
     agent.context_config = _FakeCtxConfig(trigger_ratio=0.8, reserve_ratio=0.2)
     agent.compress_context = _compress_context
-    handler = CommandHandler(agent_name="QwenPaw", agent=agent)
+    handler = CommandHandler(agent_name="AIARB", agent=agent)
     handler._get_agent_config = lambda: _make_config(
         reserve_ratio=0.2,
         strategy="native",
@@ -1149,7 +1149,7 @@ async def test_compact_forwards_one_shot_redacted_instruction(
 
     with caplog.at_level(
         logging.INFO,
-        logger="qwenpaw.agents.command_handler",
+        logger="AIARB.agents.command_handler",
     ):
         await handler.handle_command(
             "/compact prioritize failures sk-ctx15fake9876543210ab",

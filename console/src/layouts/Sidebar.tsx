@@ -222,7 +222,16 @@ export default function Sidebar({
     [agents],
   );
   const backendCapabilities = useMemo(
-    () => getAgentMenuCapabilities(currentAgent),
+    () =>
+      currentAgent
+        ? {
+            ...currentAgent.backend_capabilities,
+            workspace_ui:
+              currentAgent.backend === "aiarb"
+                ? currentAgent.backend_capabilities?.workspace_ui ?? true
+                : false,
+          }
+        : undefined,
     [currentAgent],
   );
 
@@ -504,9 +513,9 @@ export default function Sidebar({
     }
     const onChatPage = location.pathname.startsWith("/chat");
     if (onChatPage) {
-      window.dispatchEvent(new CustomEvent("qwenpaw:sidebar-new-chat"));
+      window.dispatchEvent(new CustomEvent("aiarb:sidebar-new-chat"));
     } else {
-      sessionStorage.setItem("qwenpaw_pending_new_chat", "1");
+      sessionStorage.setItem("aiarb_pending_new_chat", "1");
       navigate("/chat");
     }
   }, [location.pathname, navigate]);

@@ -1,24 +1,24 @@
-# Standalone release pipeline for the QwenPaw-Data (qwenpaw-data) plugin.
+﻿# Standalone release pipeline for the AIARB-Data (AIARB-data) plugin.
 #
 # Unlike plugins-release.yml (which publishes ALL plugins on every main
-# QwenPaw GitHub Release), this workflow is driven by the qwenpaw-data plugin's
-# own version: it fires when plugins/apps/qwenpaw-data/plugin.json changes, and
+# AIARB GitHub Release), this workflow is driven by the AIARB-data plugin's
+# own version: it fires when plugins/apps/AIARB-data/plugin.json changes, and
 # only uploads to OSS when that version is not yet on the CDN. Can also be
 # run manually via the Actions tab (with an optional force flag).
 #
 # The full Data console is a reviewed snapshot tracked in this repository.
-# The qwenpaw-data-context console is generated separately, so the upload job
-# checks out public QwenPaw-Data at a pinned ref and runs sync-context-ui.sh
-# before building ui/dist. No QwenPaw-Data-Cloud access is needed. The packer's
+# The AIARB-data-context console is generated separately, so the upload job
+# checks out public AIARB-Data at a pinned ref and runs sync-context-ui.sh
+# before building ui/dist. No AIARB-Data-Cloud access is needed. The packer's
 # pack_requires validation fails the run if either console is incomplete.
 
-name: QwenPaw Data Plugin Release
+name: AIARB Data Plugin Release
 
 on:
   push:
     branches: [main]
     paths:
-      - "plugins/apps/qwenpaw-data/plugin.json"
+      - "plugins/apps/AIARB-data/plugin.json"
   workflow_dispatch:
     inputs:
       force:
@@ -27,7 +27,7 @@ on:
         type: boolean
         default: false
       data_ref:
-        description: "QwenPaw-Data ref to vendor the context console from"
+        description: "AIARB-Data ref to vendor the context console from"
         required: false
         type: string
 
@@ -42,8 +42,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  PLUGIN_DIR: plugins/apps/qwenpaw-data
-  PLUGIN_ID: qwenpaw-data
+  PLUGIN_DIR: plugins/apps/AIARB-data
+  PLUGIN_ID: AIARB-data
 
 jobs:
   check-version:
@@ -55,7 +55,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Read qwenpaw-data plugin version
+      - name: Read AIARB-data plugin version
         id: version
         run: |
           version=$(jq -r '.version' "${PLUGIN_DIR}/plugin.json")
@@ -64,7 +64,7 @@ jobs:
             exit 1
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "qwenpaw-data plugin version: $version"
+          echo "AIARB-data plugin version: $version"
 
       - name: Install ossutil
         run: |
@@ -107,8 +107,8 @@ jobs:
             exit 0
           fi
           if stat_out=$(ossutil stat \
-            "oss://qwenpaw-download/metadata/plugins/index.json" 2>&1); then
-            ossutil cp "oss://qwenpaw-download/metadata/plugins/index.json" \
+            "oss://AIARB-download/metadata/plugins/index.json" 2>&1); then
+            ossutil cp "oss://AIARB-download/metadata/plugins/index.json" \
               plugins-index.json
             published=$(jq -r --arg id "$file_id" '.files | has($id)' \
               plugins-index.json) || {
@@ -138,14 +138,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Checkout QwenPaw-Data (context console sources)
+      - name: Checkout AIARB-Data (context console sources)
         uses: actions/checkout@v4
         with:
-          repository: agentscope-ai/QwenPaw-Data
+          repository: agentscope-ai/AIARB-Data
           # Pinned for reproducible vendoring; bump together with the
           # plugin version, or override per-run via the data_ref input.
           ref: ${{ github.event.inputs.data_ref || 'v0.3.3' }}
-          path: qwenpaw-data
+          path: AIARB-data
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -157,7 +157,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-          cache-dependency-path: plugins/apps/qwenpaw-data/ui/package-lock.json
+          cache-dependency-path: plugins/apps/AIARB-data/ui/package-lock.json
 
       - name: Verify tracked Data console
         run: |
@@ -168,13 +168,13 @@ jobs:
 
       - name: Vendor the context console
         run: |
-          # Builds the qwenpaw-data-context frontend from the QwenPaw-Data
+          # Builds the AIARB-data-context frontend from the AIARB-Data
           # checkout, patches it for static hash routing, injects the auth
           # bridge, and lands the output in ui/public/context-console.
-          QWENPAW_DATA_SOURCE_DIR="${GITHUB_WORKSPACE}/qwenpaw-data" \
+          AIARB_DATA_SOURCE_DIR="${GITHUB_WORKSPACE}/AIARB-data" \
             "${PLUGIN_DIR}/scripts/sync-context-ui.sh"
 
-      - name: Build qwenpaw-data plugin frontend
+      - name: Build AIARB-data plugin frontend
         run: |
           npm --prefix "${PLUGIN_DIR}/ui" ci
           npm --prefix "${PLUGIN_DIR}/ui" run build
@@ -186,7 +186,7 @@ jobs:
             "${PLUGIN_DIR}/ui/public/data-console" \
             "${PLUGIN_DIR}/ui/dist/data-console"
 
-      - name: Pack qwenpaw-data plugin and build index
+      - name: Pack AIARB-data plugin and build index
         run: |
           # pack_requires in plugin.json makes this step fail loudly when
           # ui/dist or the vendored console assets are missing.
@@ -237,7 +237,7 @@ jobs:
             exit 1
           fi
           if forbidden=$(grep -E \
-            "^${PLUGIN_ID}/(assets/screenshots/|ui/(src|public|node_modules)/|\.venv-qwenpaw-data/|\.qwenpaw-data-dev/)" \
+            "^${PLUGIN_ID}/(assets/screenshots/|ui/(src|public|node_modules)/|\.venv-AIARB-data/|\.AIARB-data-dev/)" \
             <<< "$names"); then
             echo "ERROR: dev-only files leaked into the zip:" >&2
             echo "$forbidden" | head -20 >&2
@@ -260,7 +260,7 @@ jobs:
             -k ${{ secrets.OSS_ACCESS_KEY_SECRET }} \
             -L CH
 
-      - name: Sync qwenpaw-data plugin zip to OSS (long-cache, immutable)
+      - name: Sync AIARB-data plugin zip to OSS (long-cache, immutable)
         env:
           FORCE: ${{ github.event.inputs.force }}
         run: |
@@ -273,7 +273,7 @@ jobs:
             # risking an overwrite.
             if [[ "$FORCE" != "true" ]]; then
               if stat_out=$(ossutil stat \
-                "oss://qwenpaw-download/files/plugins/${rel}" 2>&1); then
+                "oss://AIARB-download/files/plugins/${rel}" 2>&1); then
                 echo "Skipping ${rel}: already published and immutable."
                 continue
               elif ! grep -qiE 'NoSuchKey|StatusCode=404' <<< "$stat_out"; then
@@ -284,7 +284,7 @@ jobs:
             fi
             echo "Uploading $f -> files/plugins/${rel}"
             ossutil cp "$f" \
-              "oss://qwenpaw-download/files/plugins/${rel}" \
+              "oss://AIARB-download/files/plugins/${rel}" \
               --acl public-read \
               --force \
               --meta "Cache-Control:public, max-age=31536000, immutable"
@@ -296,8 +296,8 @@ jobs:
           # yet" and shrink the authoritative file list to this plugin.
           # Only a confirmed NoSuchKey/404 may bootstrap an empty index.
           if stat_out=$(ossutil stat \
-            "oss://qwenpaw-download/metadata/plugins/index.json" 2>&1); then
-            ossutil cp "oss://qwenpaw-download/metadata/plugins/index.json" \
+            "oss://AIARB-download/metadata/plugins/index.json" 2>&1); then
+            ossutil cp "oss://AIARB-download/metadata/plugins/index.json" \
               existing-index.json
             python3 -c 'import json; json.load(open("existing-index.json"))' || {
               echo "ERROR: existing plugins index is not valid JSON." >&2
@@ -320,7 +320,7 @@ jobs:
       - name: Upload plugins index (short-cache)
         run: |
           ossutil cp dist/plugins/index.json \
-            "oss://qwenpaw-download/metadata/plugins/index.json" \
+            "oss://AIARB-download/metadata/plugins/index.json" \
             --acl public-read \
             --force \
             --meta "Cache-Control:public, max-age=60, must-revalidate"
@@ -330,8 +330,8 @@ jobs:
           # Same fail-closed rule for the top-level product index: only a
           # confirmed NoSuchKey/404 may bootstrap a fresh skeleton.
           if stat_out=$(ossutil stat \
-            "oss://qwenpaw-download/metadata/index.json" 2>&1); then
-            ossutil cp "oss://qwenpaw-download/metadata/index.json" \
+            "oss://AIARB-download/metadata/index.json" 2>&1); then
+            ossutil cp "oss://AIARB-download/metadata/index.json" \
               main-index.json
             python3 -c 'import json; json.load(open("main-index.json"))' || {
               echo "ERROR: existing main index is not valid JSON." >&2
@@ -357,7 +357,7 @@ jobs:
             --out   main-index.json
 
           ossutil cp main-index.json \
-            "oss://qwenpaw-download/metadata/index.json" \
+            "oss://AIARB-download/metadata/index.json" \
             --acl public-read \
             --force \
             --meta "Cache-Control:public, max-age=60, must-revalidate"
@@ -366,5 +366,5 @@ jobs:
         env:
           VERSION: ${{ needs.check-version.outputs.version }}
         run: |
-          echo "qwenpaw-data plugin ${VERSION} published. Index:"
+          echo "AIARB-data plugin ${VERSION} published. Index:"
           cat dist/plugins/index.json | python3 -m json.tool | head -40 || true

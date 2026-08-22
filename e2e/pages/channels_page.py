@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Channels page object.
+AIARB Channels page object.
 
 Wraps all interactions on the Channels page and exposes business-level methods.
 """
@@ -29,7 +29,7 @@ class ChannelsPage(BasePage):
     - Save/cancel channel configuration
     """
 
-    PAGE_TITLE = "QwenPaw Console"
+    PAGE_TITLE = "AIARB Console"
     PAGE_URL = f"{config.base_url}/channels"
 
     # ========== Selector definitions ==========
@@ -63,10 +63,10 @@ class ChannelsPage(BasePage):
     # `div[class*=availableItem]` (not the bare substring) avoids triple
     # matching on the item's name/action spans.
     CHANNEL_CARD = (
-        'div.qwenpaw-card[class*=channelCard], '
+        'div.AIARB-card[class*=channelCard], '
         'button[class*=availableItem]'
     )
-    CHANNEL_CARD_ENABLED = 'div.qwenpaw-card[class*=channelCard]'
+    CHANNEL_CARD_ENABLED = 'div.AIARB-card[class*=channelCard]'
     CHANNEL_CARD_DISABLED = 'button[class*=availableItem]'
 
     # Channel card content
@@ -80,21 +80,21 @@ class ChannelsPage(BasePage):
 
     # Edit drawer (match only the visible drawer to avoid strict mode violations)
     CHANNEL_DRAWER = '[role="dialog"]:visible'
-    DRAWER_TITLE = '[role="dialog"] .qwenpaw-modal-title'
-    DRAWER_CLOSE_BTN = '[role="dialog"] .qwenpaw-modal-close'
+    DRAWER_TITLE = '[role="dialog"] .AIARB-modal-title'
+    DRAWER_CLOSE_BTN = '[role="dialog"] .AIARB-modal-close'
 
     # Form fields
-    FORM_ITEM = '.ant-form-item, .qwenpaw-form-item'
-    FORM_LABEL = '.ant-form-item-label, .qwenpaw-form-item-label'
-    FORM_INPUT = 'input.ant-input, input.qwenpaw-input'
-    FORM_SWITCH = '.ant-switch, .qwenpaw-switch'
-    FORM_SELECT = '.ant-select-selector, .qwenpaw-select-selector'
-    FORM_SUBMIT_BTN = '.qwenpaw-drawer button:has-text("保 存"), .qwenpaw-drawer button:has-text("保存"), .qwenpaw-drawer button:has-text("Save"), .ant-drawer button:has-text("Save")'
-    FORM_CANCEL_BTN = '.qwenpaw-drawer button:has-text("取 消"), .qwenpaw-drawer button:has-text("取消"), .qwenpaw-drawer button:has-text("Cancel"), .ant-drawer button:has-text("Cancel")'
+    FORM_ITEM = '.ant-form-item, .AIARB-form-item'
+    FORM_LABEL = '.ant-form-item-label, .AIARB-form-item-label'
+    FORM_INPUT = 'input.ant-input, input.AIARB-input'
+    FORM_SWITCH = '.ant-switch, .AIARB-switch'
+    FORM_SELECT = '.ant-select-selector, .AIARB-select-selector'
+    FORM_SUBMIT_BTN = '.AIARB-drawer button:has-text("保 存"), .AIARB-drawer button:has-text("保存"), .AIARB-drawer button:has-text("Save"), .ant-drawer button:has-text("Save")'
+    FORM_CANCEL_BTN = '.AIARB-drawer button:has-text("取 消"), .AIARB-drawer button:has-text("取消"), .AIARB-drawer button:has-text("Cancel"), .ant-drawer button:has-text("Cancel")'
 
     # Channel-specific field selectors (composed dynamically per channel type)
-    BOT_PREFIX_INPUT = '.qwenpaw-drawer input[placeholder*="@bot"], .qwenpaw-drawer input[placeholder*="bot prefix" i], input[placeholder*="Bot Prefix" i], input[placeholder*="机器人前缀" i]'
-    ENABLE_TOGGLE = '.ant-switch, .qwenpaw-switch'
+    BOT_PREFIX_INPUT = '.AIARB-drawer input[placeholder*="@bot"], .AIARB-drawer input[placeholder*="bot prefix" i], input[placeholder*="Bot Prefix" i], input[placeholder*="机器人前缀" i]'
+    ENABLE_TOGGLE = '.ant-switch, .AIARB-switch'
 
     # Toast messages and loading state (inherited from BasePage; no redefinition needed)
 
@@ -358,7 +358,7 @@ class ChannelsPage(BasePage):
         logger.info(f"Toggling enable to: {enable}")
         # Locate the switch inside the drawer
         drawer = self.page.locator(self.CHANNEL_DRAWER)
-        switch = drawer.locator('.qwenpaw-switch, .ant-switch').first
+        switch = drawer.locator('.AIARB-switch, .ant-switch').first
 
         # Read the current state
         aria_checked = switch.get_attribute('aria-checked') or 'false'
@@ -398,7 +398,7 @@ class ChannelsPage(BasePage):
     def has_form_validation_errors(self) -> bool:
         """Check whether the form has validation errors."""
         errors = self.page.locator(
-            '.qwenpaw-form-item-explain-error, .ant-form-item-explain-error'
+            '.AIARB-form-item-explain-error, .ant-form-item-explain-error'
         )
         count = errors.count()
         if count > 0:

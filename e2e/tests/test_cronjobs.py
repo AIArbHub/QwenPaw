@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw CronJobs module P0 end-to-end test cases.
+AIARB CronJobs module P0 end-to-end test cases.
 
 P0 definition:
 - Core user flows
@@ -55,8 +55,8 @@ logger = logging.getLogger(__name__)
 #   query) while the E2E viewport is 1920 wide, so the desktop branch is the
 #   one that applies; the mobile variant has no label at all.
 CRONJOB_CREATE_BUTTON = (
-    '[class*="headerActions"] button.qwenpaw-btn-primary:has-text("Create Job"), '
-    '[class*="headerActions"] button.qwenpaw-btn-primary:has-text("创建任务"), '
+    '[class*="headerActions"] button.AIARB-btn-primary:has-text("Create Job"), '
+    '[class*="headerActions"] button.AIARB-btn-primary:has-text("创建任务"), '
     '[class*="headerActions"] button.ant-btn-primary:has-text("Create Job"), '
     '[class*="headerActions"] button.ant-btn-primary:has-text("创建任务")'
 )
@@ -270,13 +270,13 @@ class TestCronJobToggleAndExecute:
 
                 # Verify the run was triggered (confirm dialog or status notification)
                 confirm_or_msg = cronjobs_page.page.locator(
-                    '.qwenpaw-modal, .qwenpaw-message, .qwenpaw-notification'
+                    '.AIARB-modal, .AIARB-message, .AIARB-notification'
                 ).first
                 if confirm_or_msg.count() > 0 and confirm_or_msg.is_visible(timeout=3000):
                     logger.info("Run-now triggered (dialog/notification appeared)")
                     # If a confirm dialog appears, click confirm
                     confirm_btn = cronjobs_page.page.locator(
-                        '.qwenpaw-modal .qwenpaw-btn-primary, button:has-text("OK")'
+                        '.AIARB-modal .AIARB-btn-primary, button:has-text("OK")'
                     ).first
                     if confirm_btn.count() > 0 and confirm_btn.is_visible(timeout=1000):
                         confirm_btn.click()
@@ -380,14 +380,14 @@ class TestCronJobScheduleAndTaskType:
 
         log_test_step("5. Verify the schedule type selector exists")
         schedule_selector = cronjobs_page.page.locator(
-            '.qwenpaw-radio-group, .qwenpaw-select, [class*="scheduleType"], [class*="schedule"]'
+            '.AIARB-radio-group, .AIARB-select, [class*="scheduleType"], [class*="schedule"]'
         ).first
         expect(schedule_selector).to_be_visible(timeout=3000)
         logger.info("Schedule type selector exists")
 
         log_test_step("6. Select 'daily' and verify the time picker appears")
         daily_option = drawer.locator(
-            '.qwenpaw-radio-button-wrapper:has-text("Daily")'
+            '.AIARB-radio-button-wrapper:has-text("Daily")'
         )
         if daily_option.is_visible():
             daily_option.click()
@@ -398,20 +398,20 @@ class TestCronJobScheduleAndTaskType:
 
         log_test_step("7. Select 'weekly' and verify the weekday picker appears")
         weekly_option = drawer.locator(
-            '.qwenpaw-radio-button-wrapper:has-text("Weekly")'
+            '.AIARB-radio-button-wrapper:has-text("Weekly")'
         )
         if weekly_option.is_visible():
             weekly_option.click()
             cronjobs_page.page.wait_for_timeout(1000)
             weekday_selector = drawer.locator(
-                '.qwenpaw-checkbox-group:visible'
+                '.AIARB-checkbox-group:visible'
             )
             expect(weekday_selector).to_be_visible(timeout=3000)
             logger.info("After selecting weekly, weekday picker appeared")
 
         log_test_step("8. Select 'custom' and verify the cron expression input appears")
         custom_option = drawer.locator(
-            '.qwenpaw-radio-button-wrapper:has(input[value="custom"])'
+            '.AIARB-radio-button-wrapper:has(input[value="custom"])'
         )
         if custom_option.is_visible():
             custom_option.click()
@@ -425,14 +425,14 @@ class TestCronJobScheduleAndTaskType:
         log_test_step("9. Verify the task type selector exists (text/agent)")
         drawer.get_by_role("tab", name="Task Type").click()
         task_type_selector = drawer.locator(
-            '.qwenpaw-form-item:has-text("Task Type") .qwenpaw-select'
+            '.AIARB-form-item:has-text("Task Type") .AIARB-select'
         ).first
         expect(task_type_selector).to_be_visible(timeout=3000)
         logger.info("Task type selector exists")
 
         log_test_step("10. Select 'text' and verify the text input appears")
         text_option = cronjobs_page.page.locator(
-            '.qwenpaw-radio-label:has-text("text"), '
+            '.AIARB-radio-label:has-text("text"), '
             '[class*="radio"]:has-text("text")'
         ).first
         if text_option.is_visible():
@@ -446,7 +446,7 @@ class TestCronJobScheduleAndTaskType:
 
         log_test_step("11. Select 'agent' and verify the JSON input appears")
         agent_option = cronjobs_page.page.locator(
-            '.qwenpaw-radio-label:has-text("agent"), '
+            '.AIARB-radio-label:has-text("agent"), '
             '[class*="radio"]:has-text("agent")'
         ).first
         if agent_option.is_visible():
@@ -522,7 +522,7 @@ class TestCronjobScheduleTypeSwitch:
         assert drawer.count() > 0 and drawer.is_visible(), "Create-job dialog or drawer did not open"
 
         log_test_step("Verify form fields exist")
-        form_inputs = drawer.locator("input, textarea, .qwenpaw-select, .ant-select").all()
+        form_inputs = drawer.locator("input, textarea, .AIARB-select, .ant-select").all()
         assert len(form_inputs) > 0, "No input fields found in the create form"
         logger.info(f"Found {len(form_inputs)} form fields")
 
@@ -536,14 +536,14 @@ class TestCronjobScheduleTypeSwitch:
 
         log_test_step("Switch between current schedule frequency controls")
         weekly = drawer.locator(
-            '.qwenpaw-radio-button-wrapper:has-text("Weekly")'
+            '.AIARB-radio-button-wrapper:has-text("Weekly")'
         )
         advanced = drawer.locator(
-            '.qwenpaw-radio-button-wrapper:has(input[value="custom"])'
+            '.AIARB-radio-button-wrapper:has(input[value="custom"])'
         )
         weekly.click()
         expect(
-            drawer.locator('.qwenpaw-checkbox-group:visible')
+            drawer.locator('.AIARB-checkbox-group:visible')
         ).to_be_visible()
         advanced.click()
         expect(
@@ -551,7 +551,7 @@ class TestCronjobScheduleTypeSwitch:
         ).to_be_visible()
 
         log_test_step("Close the create dialog/drawer")
-        close_btn = drawer.locator("button:has-text('Cancel'), .ant-drawer-close, .ant-modal-close, .qwenpaw-modal-close").first
+        close_btn = drawer.locator("button:has-text('Cancel'), .ant-drawer-close, .ant-modal-close, .AIARB-modal-close").first
         if close_btn.count() > 0:
             close_btn.click()
             page.wait_for_timeout(1000)
@@ -700,7 +700,7 @@ class TestCronjobWeeklySchedule:
 
         log_test_step("Select Weekly frequency")
         weekly_option = drawer.locator(
-            '.qwenpaw-radio-button-wrapper:has-text("Weekly")'
+            '.AIARB-radio-button-wrapper:has-text("Weekly")'
         )
         expect(weekly_option).to_be_visible(timeout=3000)
         weekly_option.click()
@@ -747,7 +747,7 @@ class TestCronjobJsonParams:
         log_test_step("Open Task Type and switch request input to JSON mode")
         drawer.get_by_role("tab", name="Task Type").click()
         task_type = drawer.locator(
-            '.qwenpaw-form-item:has-text("Task Type") .qwenpaw-select'
+            '.AIARB-form-item:has-text("Task Type") .AIARB-select'
         ).first
         task_type.click()
         page.keyboard.press("End")
@@ -800,13 +800,13 @@ class TestCronjobTimezone:
 
         log_test_step("Find the timezone selector")
         timezone_select = drawer.locator(
-            '.qwenpaw-select:near(:text("Timezone"), 200), '
+            '.AIARB-select:near(:text("Timezone"), 200), '
             '[id*="timezone"], [name*="timezone"]'
         ).first
         if timezone_select.count() > 0:
             timezone_select.click()
             page.wait_for_timeout(500)
-            options = page.locator('.qwenpaw-select-item-option').all()
+            options = page.locator('.AIARB-select-item-option').all()
             assert len(options) > 0, "Timezone dropdown options should not be empty"
             logger.info(f"Found {len(options)} timezone options")
             page.keyboard.press("Escape")

@@ -76,14 +76,14 @@ function createChrome(storage) {
     },
     alarms: {
       onAlarm: listener,
-      async get() { return { name: "qwenpaw-native-watchdog" }; },
+      async get() { return { name: "aiarb-native-watchdog" }; },
       create() {},
     },
   };
 }
 
 function receiptKey(sessionId, commandId) {
-  return `qwenpawCommandReceipt:${encodeURIComponent(sessionId)}:${encodeURIComponent(commandId)}`;
+  return `aiarbCommandReceipt:${encodeURIComponent(sessionId)}:${encodeURIComponent(commandId)}`;
 }
 
 const storage = createStorage();
@@ -188,7 +188,7 @@ const scenarios = {
 
   async observed_states({ case: requestedCase }) {
     if (requestedCase === "evicted") {
-      storage.data.qwenpawCommandReceiptEvictions = [{
+      storage.data.aiarbCommandReceiptEvictions = [{
         sessionId: commandParams.sessionId,
         commandId: commandParams.commandId,
         commandFingerprint: commandParams.commandFingerprint,

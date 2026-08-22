@@ -1,8 +1,8 @@
-# Reusable "promote" step of the desktop release — runs ONLY after the release
+﻿# Reusable "promote" step of the desktop release — runs ONLY after the release
 # has been flipped to published (called by release.yml's post-finalize job).
 #
 # It promotes the already-uploaded versioned OSS files to `latest`, generates
-# and uploads the Tauri auto-update manifest (qwenpaw-tauri-latest.json), and
+# and uploads the Tauri auto-update manifest (AIARB-tauri-latest.json), and
 # refreshes the desktop + main index. Splitting this out of desktop-publish.yml
 # ensures existing users' auto-updater is never pointed at a version whose
 # release/PyPI/Docker publish might still have failed.
@@ -38,8 +38,8 @@ jobs:
     if: ${{ !inputs.dry_run }}
     runs-on: ubuntu-latest
     env:
-      OSS_BUCKET: ${{ vars.OSS_BUCKET || 'qwenpaw-download' }}
-      OSS_PUBLIC_BASE_URL: ${{ vars.OSS_PUBLIC_BASE_URL || 'https://download.qwenpaw.agentscope.io/files/apps/desktop' }}
+      OSS_BUCKET: ${{ vars.OSS_BUCKET || 'AIARB-download' }}
+      OSS_PUBLIC_BASE_URL: ${{ vars.OSS_PUBLIC_BASE_URL || 'https://download.AIARB.agentscope.io/files/apps/desktop' }}
       RELEASE_INFRA: ${{ github.workspace }}/.release-infra
     steps:
       - name: Checkout release target
@@ -56,7 +56,7 @@ jobs:
           path: .release-infra
           sparse-checkout: |
             scripts
-            src/qwenpaw/security
+            src/AIARB/security
           persist-credentials: false
 
       - name: Set up Python
@@ -101,7 +101,7 @@ jobs:
             -L CH
 
       - name: Promote versioned files to latest
-        if: hashFiles('QwenPaw-Desktop-Tauri-*/*') != ''
+        if: hashFiles('AIARB-Desktop-Tauri-*/*') != ''
         run: |
           VERSION="${{ steps.version.outputs.version }}"
 
@@ -129,18 +129,18 @@ jobs:
           }
 
           promote_latest \
-            "QwenPaw-Desktop-Tauri-Windows-*" \
-            "QwenPaw-Tauri-*-Windows-setup.exe" \
+            "AIARB-Desktop-Tauri-Windows-*" \
+            "AIARB-Tauri-*-Windows-setup.exe" \
             "win-tauri" \
-            "QwenPaw-Tauri-${VERSION}-Windows-setup.exe" \
-            "QwenPaw-Tauri-latest-Windows-setup.exe"
+            "AIARB-Tauri-${VERSION}-Windows-setup.exe" \
+            "AIARB-Tauri-latest-Windows-setup.exe"
 
           promote_latest \
-            "QwenPaw-Desktop-Tauri-macOS-*" \
-            "QwenPaw-Tauri-*-macOS.zip" \
+            "AIARB-Desktop-Tauri-macOS-*" \
+            "AIARB-Tauri-*-macOS.zip" \
             "mac-tauri" \
-            "QwenPaw-Tauri-${VERSION}-macOS.zip" \
-            "QwenPaw-Tauri-latest-macOS.zip"
+            "AIARB-Tauri-${VERSION}-macOS.zip" \
+            "AIARB-Tauri-latest-macOS.zip"
 
       - name: Link artifacts into updater-meta dirs for manifest generation
         if: hashFiles('tauri-updater-meta-*/tauri-*-updater.json') != ''
@@ -148,7 +148,7 @@ jobs:
           # The manifest generator expects the artifact binary alongside the
           # sidecar JSON.  After artifact splitting the exe lives in a separate
           # artifact directory, so we symlink it into the meta directory.
-          for f in QwenPaw-Desktop-Tauri-Windows-*/QwenPaw-Tauri-*-Windows-setup.exe; do
+          for f in AIARB-Desktop-Tauri-Windows-*/AIARB-Tauri-*-Windows-setup.exe; do
             [ -f "$f" ] && ln -sf "../$f" tauri-updater-meta-windows/ 2>/dev/null || true
           done
 
@@ -178,7 +178,7 @@ jobs:
             echo "No Tauri updater sidecars found, skipping OSS manifest"
             exit 0
           fi
-          NOTES="${RELEASE_BODY:-QwenPaw Desktop ${VERSION}}"
+          NOTES="${RELEASE_BODY:-AIARB Desktop ${VERSION}}"
           python "$RELEASE_INFRA/scripts/pack-tauri/generate_update_manifest.py" manifest \
             --version "$VERSION" \
             --base-url "$OSS_BASE" \
@@ -186,10 +186,10 @@ jobs:
             --target-base "darwin-aarch64=${OSS_BASE}/mac-tauri" \
             "${metadata_args[@]}" \
             --notes "$NOTES" \
-            --output qwenpaw-tauri-latest-oss.json
+            --output AIARB-tauri-latest-oss.json
           bash "$RELEASE_INFRA/scripts/pack/oss_copy_with_readback.sh" \
-            qwenpaw-tauri-latest-oss.json \
-            "oss://${OSS_BUCKET}/metadata/qwenpaw-tauri-latest.json"
+            AIARB-tauri-latest-oss.json \
+            "oss://${OSS_BUCKET}/metadata/AIARB-tauri-latest.json"
 
       - name: Update desktop index
         run: |
@@ -228,13 +228,13 @@ jobs:
 
           merge_tauri_metadata \
             "win-tauri-metadata.json" \
-            "QwenPaw-Desktop-Tauri-Windows-*" \
-            "QwenPaw-Tauri-*-Windows-setup.exe" \
+            "AIARB-Desktop-Tauri-Windows-*" \
+            "AIARB-Tauri-*-Windows-setup.exe" \
             "win-tauri"
           merge_tauri_metadata \
             "mac-tauri-metadata.json" \
-            "QwenPaw-Desktop-Tauri-macOS-*" \
-            "QwenPaw-Tauri-*-macOS.zip" \
+            "AIARB-Desktop-Tauri-macOS-*" \
+            "AIARB-Tauri-*-macOS.zip" \
             "mac-tauri"
 
           # Upload updated desktop/index.json

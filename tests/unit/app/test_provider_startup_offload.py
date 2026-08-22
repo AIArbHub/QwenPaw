@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for provider initialization during application startup."""
 
 import importlib
@@ -9,8 +9,9 @@ from unittest.mock import AsyncMock
 import pytest
 from fastapi import FastAPI
 
-import qwenpaw.backup._utils.safe_swap as safe_swap_module
-from qwenpaw.app import _app as app_module_for_source
+import AIARB.backup._utils.safe_swap as safe_swap_module
+from AIARB.app import _app as app_module_for_source
+import aiarb.backup._utils.safe_swap as safe_swap_module
 
 
 @pytest.mark.asyncio
@@ -19,7 +20,7 @@ async def test_lifespan_initializes_provider_manager_in_worker_thread(
 ) -> None:
     """Provider scanning must not run on the event-loop thread."""
     monkeypatch.setattr(safe_swap_module, "restore_process_lock", _nullcontext)
-    app_module_name = "qwenpaw.app._app"
+    app_module_name = "aiarb.app._app"
     previous_app_module = __import__("sys").modules.get(app_module_name)
     app_module = importlib.import_module(app_module_name)
     caller_thread = threading.get_ident()
@@ -88,7 +89,7 @@ async def test_lifespan_initializes_local_model_manager_in_worker_thread(
 ) -> None:
     """Local model config loading must not run on the event-loop thread."""
     monkeypatch.setattr(safe_swap_module, "restore_process_lock", _nullcontext)
-    app_module_name = "qwenpaw.app._app"
+    app_module_name = "aiarb.app._app"
     previous_app_module = __import__("sys").modules.get(app_module_name)
     app_module = importlib.import_module(app_module_name)
     caller_thread = threading.get_ident()

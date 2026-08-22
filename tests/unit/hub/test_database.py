@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-"""Tests for the stable QwenPaw Hub database shape."""
+﻿# -*- coding: utf-8 -*-
+"""Tests for the stable AIARB Hub database shape."""
 
 import sqlite3
 from contextlib import closing
@@ -8,13 +8,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from qwenpaw.hub import database as database_module
-from qwenpaw.hub.database import (
+from AIARB.hub import database as database_module
+from AIARB.hub.database import (
     HubExtensionStore,
     connect_hub_database,
     initialize_hub_database,
 )
-from qwenpaw.hub.registry import RuntimeRegistry
+from AIARB.hub.registry import RuntimeRegistry
 from tests.unit.hub.factories import runtime_record
 
 
@@ -107,7 +107,7 @@ def test_extension_documents_update_without_changing_core_tables(
     first_revision = store.put(
         resource_type="runtime",
         resource_id="runtime-a",
-        namespace="qwenpaw.monitoring",
+        namespace="AIARB.monitoring",
         key="prometheus",
         value={"enabled": True},
         schema_version=1,
@@ -115,7 +115,7 @@ def test_extension_documents_update_without_changing_core_tables(
     second_revision = store.put(
         resource_type="runtime",
         resource_id="runtime-a",
-        namespace="qwenpaw.monitoring",
+        namespace="AIARB.monitoring",
         key="prometheus",
         value={"enabled": True, "path": "/metrics"},
         schema_version=2,
@@ -126,7 +126,7 @@ def test_extension_documents_update_without_changing_core_tables(
     loaded = store.get(
         resource_type="runtime",
         resource_id="runtime-a",
-        namespace="qwenpaw.monitoring",
+        namespace="AIARB.monitoring",
         key="prometheus",
     )
     assert loaded is not None

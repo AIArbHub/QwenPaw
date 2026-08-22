@@ -1,4 +1,4 @@
-import { AgentGallery } from "./components/AgentGallery";
+﻿import { AgentGallery } from "./components/AgentGallery";
 import { useState, useRef } from "react";
 import { Button, Form } from "antd";
 import { useAppMessage } from "../../../hooks/useAppMessage";
@@ -45,7 +45,7 @@ export default function AgentsPage() {
       mail_mode: "none",
       mail_credential: undefined,
       mail_push: undefined,
-      backend: "qwenpaw",
+      backend: "AIARB",
     });
     setSelectedSkills([]);
     setModalVisible(true);
@@ -214,10 +214,10 @@ export default function AgentsPage() {
                 : {}),
               access_control_enabled: accessControlEnabled,
             };
-      // Mail is only supported for the qwenpaw backend; never submit
+      // Mail is only supported for the AIARB backend; never submit
       // mail config for third-party backends (the server rejects it).
       const mail =
-        values.backend === "qwenpaw" &&
+        values.backend === "AIARB" &&
         (mail_mode === "personal" || mail_mode === "dedicated")
           ? {
               is_new_account: mail_mode === "dedicated",
@@ -249,7 +249,7 @@ export default function AgentsPage() {
         const result = await agentsApi.createAgent({
           ...payload,
           language: i18n.language,
-          skill_names: values.backend === "qwenpaw" ? selectedSkills : [],
+          skill_names: values.backend === "AIARB" ? selectedSkills : [],
         });
         message.success(`${t("agent.createSuccess")} (ID: ${result.id})`);
       }

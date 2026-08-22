@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw E2E Test Framework - Utilities Module
+AIArb E2E Test Framework - Utilities Module
 """
 from utils.helpers import (
     take_screenshot,

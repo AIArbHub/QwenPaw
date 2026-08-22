@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
 Channel Contract Tests
 
@@ -40,10 +40,10 @@ class ChannelContractTest(BaseContractTest):
     @pytest.fixture(autouse=True)
     def _isolate_channel_config(self, monkeypatch):
         """Prevent contract construction from reading user configuration."""
-        from qwenpaw.config.config import Config
+        from AIARB.config.config import Config
 
         monkeypatch.setattr(
-            "qwenpaw.app.channels.base.load_config",
+            "AIARB.app.channels.base.load_config",
             Config,
         )
 

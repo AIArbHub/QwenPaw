@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-argument,wrong-import-position
 """Tests for tool-result pruning middleware."""
 
@@ -17,26 +17,26 @@ import pytest
 from agentscope.message import Msg, TextBlock, ToolResultBlock, ToolResultState
 from agentscope.tool import ToolChunk, ToolResponse
 
-from qwenpaw.agents.middlewares import (  # noqa: E402
+from AIARB.agents.middlewares import (  # noqa: E402
     ToolResultPruningMiddleware,
 )
-from qwenpaw.agents.tools.utils import (  # noqa: E402
+from AIARB.agents.tools.utils import (  # noqa: E402
     build_truncation_metadata,
     MAX_TRUNCATION_NOTICE_BYTES,
     ToolResultPruner,
     truncate_text_output,
     TRUNCATION_METADATA_KEY,
 )
-from qwenpaw.config.config import (  # noqa: E402
+from AIARB.config.config import (  # noqa: E402
     ContextCompactConfig,
     LightContextConfig,
     ScrollContextConfig,
     ToolResultPruningConfig,
 )
-from qwenpaw.constant import TRUNCATION_NOTICE_MARKER  # noqa: E402
-from qwenpaw.runtime.builder import AgentBuilder  # noqa: E402
-from qwenpaw.agents.react_agent import QwenPawAgent  # noqa: E402
-from qwenpaw.tool_calls import (  # noqa: E402
+from AIARB.constant import TRUNCATION_NOTICE_MARKER  # noqa: E402
+from AIARB.runtime.builder import AgentBuilder  # noqa: E402
+from AIARB.agents.react_agent import AIARBAgent  # noqa: E402
+from AIARB.tool_calls import (  # noqa: E402
     COORDINATOR_OWNED_EXEC_TIMEOUT_SECS,
     ToolCoordinator,
     ToolCoordinatorMiddleware,
@@ -74,7 +74,7 @@ async def test_scroll_artifact_retention_uses_tool_result_setting():
         ),
         scroll_config=ScrollContextConfig(history_retention_days=45),
     )
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIARBAgent)
     agent.__dict__.update(
         _governor=None,
         _context_manager=None,
@@ -84,12 +84,12 @@ async def test_scroll_artifact_retention_uses_tool_result_setting():
         ),
     )
 
-    await QwenPawAgent.close(agent)
+    await AIARBAgent.close(agent)
     assert offloader.retention_days == [7]
 
     lcc.scroll_config.history_retention_days = 0
     offloader.retention_days.clear()
-    await QwenPawAgent.close(agent)
+    await AIARBAgent.close(agent)
     assert offloader.retention_days == [7]
 
 
@@ -113,7 +113,7 @@ async def test_compactor_close_keeps_history_and_artifact_cleanup(
     )
     context_manager = types.SimpleNamespace(close=Mock())
     offloader = types.SimpleNamespace(cleanup_expired=Mock())
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIARBAgent)
     agent.__dict__.update(
         _decision_compactor=compactor,
         _context_manager=context_manager,
@@ -302,7 +302,7 @@ async def test_tool_response_write_failure_fails_open(
         raise OSError("disk full")
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.utils.save_text_output",
+        "AIARB.agents.tools.utils.save_text_output",
         fail_save,
     )
 
@@ -690,7 +690,7 @@ def test_spawn_subagent_hook_exposes_internal_timeout_cap():
         _get_tool_coordinator=lambda: coordinator,
     )
 
-    QwenPawAgent._register_tool_call_hooks(agent)
+    AIARBAgent._register_tool_call_hooks(agent)
 
     hook = coordinator.hooks.get("spawn_subagent")
     assert hook.default_timeout_secs is None
@@ -839,10 +839,10 @@ def test_explicit_legacy_scroll_tool_cap_warns_once_and_is_not_saved(
     caplog,
     monkeypatch,
 ):
-    import qwenpaw.config.config as config_module
+    import AIARB.config.config as config_module
 
     monkeypatch.setattr(config_module, "_legacy_scroll_tool_cap_warned", False)
-    with caplog.at_level(logging.WARNING, logger="qwenpaw.config.config"):
+    with caplog.at_level(logging.WARNING, logger="AIARB.config.config"):
         config = LightContextConfig(
             strategy="scroll",
             scroll_config={"tool_output_token_cap": 1200},
@@ -860,7 +860,7 @@ def test_explicit_legacy_scroll_tool_cap_warns_once_and_is_not_saved(
 
 
 def test_default_legacy_scroll_tool_cap_does_not_warn(caplog):
-    with caplog.at_level(logging.WARNING, logger="qwenpaw.config.config"):
+    with caplog.at_level(logging.WARNING, logger="AIARB.config.config"):
         LightContextConfig(strategy="scroll")
 
     assert "tool_output_token_cap is deprecated and ignored" not in caplog.text

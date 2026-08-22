@@ -1,10 +1,10 @@
-# QwenPaw Hub
+﻿# AIARB Hub
 
-QwenPaw Hub lets a team use QwenPaw on a shared server. Team members sign in at one address, but each person gets their own QwenPaw with separate workspaces, settings, credentials, and conversations.
+AIARB Hub lets a team use AIARB on a shared server. Team members sign in at one address, but each person gets their own AIARB with separate workspaces, settings, credentials, and conversations.
 
-If you only use QwenPaw on your own computer, keep using the desktop App. Deploy Hub only when you need to manage multiple users on a server.
+If you only use AIARB on your own computer, keep using the desktop App. Deploy Hub only when you need to manage multiple users on a server.
 
-> QwenPaw Hub is available in non-desktop installations starting with QwenPaw 2.2.0. The desktop edition is the single-user App and does not include Hub. Earlier versions do not have the `qwenpaw hub` command.
+> AIARB Hub is available in non-desktop installations starting with AIARB 2.2.0. The desktop edition is the single-user App and does not include Hub. Earlier versions do not have the `AIARB hub` command.
 
 > Hub 2.2.0 is an early release intended only for internal teams whose members trust one another. Even with HTTPS and remote access configured, do not operate the current version as a public multi-tenant service for unknown users.
 
@@ -12,7 +12,7 @@ If you only use QwenPaw on your own computer, keep using the desktop App. Deploy
 
 ## When to use Hub
 
-Hub is designed for companies, labs, and small teams that want to run QwenPaw for trusted members on their own server. Administrators can:
+Hub is designed for companies, labs, and small teams that want to run AIARB for trusted members on their own server. Administrators can:
 
 - create and manage accounts;
 - choose Local or Docker for all user runtimes;
@@ -20,22 +20,22 @@ Hub is designed for companies, labs, and small teams that want to run QwenPaw fo
 - set Docker images, resource limits, and access rules;
 - preserve user data and manage backups and upgrades centrally.
 
-Hub is self-hosted software, not a cloud service operated by the QwenPaw team. The server administrator can access the server, database, and backups, so users should only join a Hub run by themselves or an organization they trust.
+Hub is self-hosted software, not a cloud service operated by the AIARB team. The server administrator can access the server, database, and backups, so users should only join a Hub run by themselves or an organization they trust.
 
 ## Install
 
-Hub requires a non-desktop installation of QwenPaw 2.2.0 or later. We recommend installing the complete Hub dependencies for both Local and Docker runtimes:
+Hub requires a non-desktop installation of AIARB 2.2.0 or later. We recommend installing the complete Hub dependencies for both Local and Docker runtimes:
 
 ```bash
-pip install -U "qwenpaw[hub]"
+pip install -U "AIARB[hub]"
 ```
 
-If you only use the Local runtime, the base `qwenpaw` package is sufficient and the Docker SDK is not required. Without the complete Hub dependencies, the Docker runtime is shown as unavailable in the administration page.
+If you only use the Local runtime, the base `AIARB` package is sufficient and the Docker SDK is not required. Without the complete Hub dependencies, the Docker runtime is shown as unavailable in the administration page.
 
 Confirm that the command is available:
 
 ```bash
-qwenpaw hub --help
+AIARB hub --help
 ```
 
 ## First start
@@ -43,7 +43,7 @@ qwenpaw hub --help
 Initialize the first administrator directly in the server terminal:
 
 ```bash
-qwenpaw hub --init-admin admin
+AIARB hub --init-admin admin
 ```
 
 The command prompts for the password twice without displaying it, then exits. It only works while Hub has no users, so it cannot add administrators to an existing Hub.
@@ -53,7 +53,7 @@ After setting `public_base_url`, you can start the remote Hub directly without p
 Browser initialization remains available. First, start Hub on the loopback interface:
 
 ```bash
-qwenpaw hub --host 127.0.0.1 --port 8000
+AIARB hub --host 127.0.0.1 --port 8000
 ```
 
 Open `http://127.0.0.1:8000/` and register an account. The first registered account becomes the administrator.
@@ -82,7 +82,7 @@ Open **System Settings → Runtime** and select Local or Docker. The administrat
 
 ### Local
 
-Local uses the QwenPaw and Python environment installed on the host:
+Local uses the AIARB and Python environment installed on the host:
 
 - Linux requires an installed and working Bubblewrap (`bwrap`);
 - macOS requires a working system `sandbox-exec`;
@@ -119,7 +119,7 @@ Create `hub.yaml`:
 version: 1
 
 control_plane:
-  public_base_url: https://qwenpaw.example.com
+  public_base_url: https://AIARB.example.com
   registration:
     mode: closed
     default_role: user
@@ -134,7 +134,7 @@ capacity:
 Then start Hub:
 
 ```bash
-qwenpaw hub \
+AIARB hub \
   --host 0.0.0.0 \
   --port 8000 \
   --force-public \
@@ -164,7 +164,7 @@ Registration uses `control_plane.registration.mode`: `open`, `invite`, or `close
 
 For an internal team, disable self-registration and create accounts in **User Management**. If trusted members need to register themselves, restrict access to the entry point and enable registration rate limiting. Do not open registration to unknown users.
 
-After signing in, regular users go directly to their own QwenPaw Console. They can manage their conversations, files, model settings, and integration credentials. They cannot choose the runtime backend, Docker image, or resource limits.
+After signing in, regular users go directly to their own AIARB Console. They can manage their conversations, files, model settings, and integration credentials. They cannot choose the runtime backend, Docker image, or resource limits.
 
 Administrators can see each user's runtime and perform these actions:
 
@@ -182,10 +182,10 @@ Users can restart a failed or normally stopped runtime from their personal page.
 
 ## Where Hub stores data
 
-Hub stores data in `~/.qwenpaw/hub/` by default. If `QWENPAW_WORKING_DIR` is set, it uses `<QWENPAW_WORKING_DIR>/hub/` instead.
+Hub stores data in `~/.AIARB/hub/` by default. If `AIARB_WORKING_DIR` is set, it uses `<AIARB_WORKING_DIR>/hub/` instead.
 
 ```text
-<QWENPAW_WORKING_DIR>/hub/
+<AIARB_WORKING_DIR>/hub/
 ├── control.db
 ├── secrets/
 └── runtimes/
@@ -214,7 +214,7 @@ Before an upgrade:
 
 1. Stop Hub.
 2. Back up the complete `hub/` directory.
-3. Record the installed QwenPaw version.
+3. Record the installed AIARB version.
 4. Upgrade and restart Hub.
 5. Verify administrator login, user runtimes, streaming chat, and OAuth integrations.
 
@@ -222,7 +222,7 @@ Before an upgrade:
 
 ### Hub refuses to listen on an external address
 
-Run `qwenpaw hub --init-admin USERNAME` on the server, set `public_base_url`, and add `--force-public` when starting Hub. Alternatively, use an SSH tunnel to reach `127.0.0.1` and register the first administrator in a browser.
+Run `AIARB hub --init-admin USERNAME` on the server, set `public_base_url`, and add `--force-public` when starting Hub. Alternatively, use an SSH tunnel to reach `127.0.0.1` and register the first administrator in a browser.
 
 ### Existing runtimes still show Local after selecting Docker
 
@@ -232,7 +232,7 @@ Changing the global setting does not interrupt running runtimes. Restart the rel
 
 Enter the complete `Repository:Tag` shown by `docker image ls` and set the pull policy to `never`.
 
-### Sign-in succeeds, but the personal QwenPaw does not open
+### Sign-in succeeds, but the personal AIARB does not open
 
 Open **Runtimes** and inspect the user's state and latest error. Confirm that the selected Local or Docker backend is available, then try restarting the runtime.
 

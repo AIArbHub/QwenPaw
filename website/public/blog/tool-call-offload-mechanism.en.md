@@ -1,18 +1,18 @@
 ---
-title: "Long Tools Without Blocking Chat: Dual-Deadline Tool Calls and Foreground Control in QwenPaw"
+title: "Long Tools Without Blocking Chat: Dual-Deadline Tool Calls and Foreground Control in AIArb"
 date: 2026-08-05
-author: QwenPaw Team
+author: AIArb Team
 tags: [ToolCoordinator, Dual Deadline, Offload, Background Tools, Console]
-excerpt: "QwenPaw separates “when to leave the foreground” from “how the execution ceiling winds down” with offload_deadline and kill_deadline, backed by ToolCoordinator, Executor, and Console so long tools can be backgrounded, extended, or cancelled."
+excerpt: "AIArb separates “when to leave the foreground” from “how the execution ceiling winds down” with offload_deadline and kill_deadline, backed by ToolCoordinator, Executor, and Console so long tools can be backgrounded, extended, or cancelled."
 ---
 
-# Long Tools Without Blocking Chat: Dual-Deadline Tool Calls and Foreground Control in QwenPaw
+# Long Tools Without Blocking Chat: Dual-Deadline Tool Calls and Foreground Control in AIArb
 
 When an Agent runs a long compile, a remote Agent conversation, or a shell command that may take minutes, freezing the whole chat on “waiting for the tool” quickly hurts UX: users cannot see progress, and they cannot decide whether to keep waiting or do something else first.
 
 Worse, if a **single** timeout clock means both “leave the foreground?” and “kill the process?”, the two meanings collide—an offload moment can be mistaken for a hard cancel, and users have little room to intervene mid-flight.
 
-QwenPaw therefore introduces a **dual-deadline** lifecycle for tool calls:
+AIArb therefore introduces a **dual-deadline** lifecycle for tool calls:
 
 - **`offload_deadline`**: Should this call still occupy the chat foreground? Leaving that wait is **offload** (background)—the tool keeps running, but chat need not stay stuck.
 - **`kill_deadline`**: the call’s **execution ceiling**. When it fires, `ToolCoordinator` starts cancel and wind-down (about 5 seconds of grace by default, then force-interrupt the background task if needed). Actually stopping processes/requests is each tool implementation’s job—not an instant SIGKILL when the clock rings.
@@ -399,6 +399,6 @@ Each entry shows the tool name and duration: running rows show **Running** plus 
 
 ## 8. Takeaways
 
-QwenPaw’s tool-call lifecycle is shaped by `offload_deadline` and `kill_deadline`: the former decides when to leave the chat foreground; the latter bounds runtime and starts a bounded wind-down when due. The two clocks are written in stages—offload when the call is registered, kill when the tool actually starts. Offload is budgeted by the Coordinator from the resolved tool-side timeout; kill is written by the tool implementation from this call’s `timeout`.
+AIArb’s tool-call lifecycle is shaped by `offload_deadline` and `kill_deadline`: the former decides when to leave the chat foreground; the latter bounds runtime and starts a bounded wind-down when due. The two clocks are written in stages—offload when the call is registered, kill when the tool actually starts. Offload is budgeted by the Coordinator from the resolved tool-side timeout; kill is written by the tool implementation from this call’s `timeout`.
 
 `ToolCoordinator` maintains status and deadlines and signals cancel on due or user cancel; tool implementations listen for that signal on common paths and stop the process or request; Console exposes global policy, the control panel, and the background task list for countdowns, in-flight adjustments, and tracking after offload. The global policy defaults to Keep Foreground and can be set to Auto Offload to Background; a single call can also be moved, extended, or cancelled by hand.

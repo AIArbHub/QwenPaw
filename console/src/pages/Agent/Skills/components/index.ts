@@ -37,14 +37,14 @@ export interface SkillMarket {
 
 export const skillMarkets: SkillMarket[] = [
   {
-    key: "qwenpaw",
-    name: "QwenPaw",
+    key: "aiarb",
+    name: "AIArb",
     homepage: "https://platform.agentscope.io/skills",
     urlPrefix: "https://platform.agentscope.io/skills/",
     examples: [
       {
-        label: "qwenpaw-docs-zh",
-        url: "https://platform.agentscope.io/skills/@user/qwenpaw-docs-zh",
+        label: "aiarb-docs-zh",
+        url: "https://platform.agentscope.io/skills/@user/aiarb-docs-zh",
       },
     ],
   },

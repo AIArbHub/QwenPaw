@@ -1,10 +1,10 @@
-# QwenPaw Hub
+﻿# AIARB Hub
 
-QwenPaw Hub 用于在一台服务器上为团队提供 QwenPaw。团队成员通过同一个地址登录，但每个人使用自己的 QwenPaw，工作区、配置、凭据和会话分别保存。
+AIARB Hub 用于在一台服务器上为团队提供 AIARB。团队成员通过同一个地址登录，但每个人使用自己的 AIARB，工作区、配置、凭据和会话分别保存。
 
-如果只是自己在电脑上使用 QwenPaw，请继续使用桌面版 App。只有需要在服务器上统一管理多个用户时，才需要部署 Hub。
+如果只是自己在电脑上使用 AIARB，请继续使用桌面版 App。只有需要在服务器上统一管理多个用户时，才需要部署 Hub。
 
-> QwenPaw Hub 从 QwenPaw 2.2.0 版本开始在非桌面版中提供。桌面版是面向个人的 App，不包含 Hub；旧版本也没有 `qwenpaw hub` 命令。
+> AIARB Hub 从 AIARB 2.2.0 版本开始在非桌面版中提供。桌面版是面向个人的 App，不包含 Hub；旧版本也没有 `AIARB hub` 命令。
 
 > Hub 2.2.0 是一个早期版本，目前只面向成员彼此信任的内部团队。即使配置了 HTTPS 和公网访问，也不应将当前版本作为面向陌生用户的公网多租户服务。
 
@@ -12,7 +12,7 @@ QwenPaw Hub 用于在一台服务器上为团队提供 QwenPaw。团队成员通
 
 ## Hub 适合什么场景
 
-Hub 适合公司、实验室或小型团队在自己的服务器上为可信成员提供 QwenPaw。管理员可以：
+Hub 适合公司、实验室或小型团队在自己的服务器上为可信成员提供 AIARB。管理员可以：
 
 - 创建和管理账户；
 - 统一选择 Local 或 Docker 运行方式；
@@ -20,22 +20,22 @@ Hub 适合公司、实验室或小型团队在自己的服务器上为可信成�
 - 设置 Docker 镜像、资源上限和访问规则；
 - 保留用户数据，并集中完成备份和升级。
 
-Hub 是自托管软件，不是 QwenPaw 团队代为运营的云服务。服务器管理员能够访问服务器、数据库和备份，因此用户应只使用自己或可信组织部署的 Hub。
+Hub 是自托管软件，不是 AIARB 团队代为运营的云服务。服务器管理员能够访问服务器、数据库和备份，因此用户应只使用自己或可信组织部署的 Hub。
 
 ## 安装
 
-Hub 需要非桌面版 QwenPaw 2.2.0 或更高版本。推荐安装包含 Local 和 Docker 运行方式的完整 Hub 依赖：
+Hub 需要非桌面版 AIARB 2.2.0 或更高版本。推荐安装包含 Local 和 Docker 运行方式的完整 Hub 依赖：
 
 ```bash
-pip install -U "qwenpaw[hub]"
+pip install -U "AIARB[hub]"
 ```
 
-如果只使用 Local 运行方式，安装基础包 `qwenpaw` 即可，不要求安装 Docker SDK。未安装完整 Hub 依赖时，管理页面中的 Docker 运行方式会显示为不可用。
+如果只使用 Local 运行方式，安装基础包 `AIARB` 即可，不要求安装 Docker SDK。未安装完整 Hub 依赖时，管理页面中的 Docker 运行方式会显示为不可用。
 
 确认命令已经可用：
 
 ```bash
-qwenpaw hub --help
+AIARB hub --help
 ```
 
 ## 第一次启动
@@ -43,7 +43,7 @@ qwenpaw hub --help
 在服务器终端直接初始化第一个管理员：
 
 ```bash
-qwenpaw hub --init-admin admin
+AIARB hub --init-admin admin
 ```
 
 命令会隐藏输入并要求确认密码，成功后立即退出。它只允许在 Hub 还没有任何用户时执行，因此不会为已经初始化的 Hub 增加管理员。
@@ -53,7 +53,7 @@ qwenpaw hub --init-admin admin
 也可以继续使用浏览器初始化。先让 Hub 只监听本机地址：
 
 ```bash
-qwenpaw hub --host 127.0.0.1 --port 8000
+AIARB hub --host 127.0.0.1 --port 8000
 ```
 
 打开 `http://127.0.0.1:8000/` 并注册账户。第一个注册的账户会自动成为管理员。
@@ -82,7 +82,7 @@ ssh -L 8000:127.0.0.1:8000 user@example.com
 
 ### Local
 
-Local 直接使用宿主机上的 QwenPaw 和 Python 环境：
+Local 直接使用宿主机上的 AIARB 和 Python 环境：
 
 - Linux 需要安装并启用 Bubblewrap（`bwrap`）；
 - macOS 需要系统提供可用的 `sandbox-exec`；
@@ -119,7 +119,7 @@ Docker 模式要求 Hub 能访问运行 Linux 容器的 Docker Engine。Windows 
 version: 1
 
 control_plane:
-  public_base_url: https://qwenpaw.example.com
+  public_base_url: https://AIARB.example.com
   registration:
     mode: closed
     default_role: user
@@ -134,7 +134,7 @@ capacity:
 然后启动 Hub：
 
 ```bash
-qwenpaw hub \
+AIARB hub \
   --host 0.0.0.0 \
   --port 8000 \
   --force-public \
@@ -164,7 +164,7 @@ qwenpaw hub \
 
 团队内部使用时，建议关闭自助注册，由管理员在「用户管理」中创建账户。如果希望可信成员自行注册，应先限制入口访问范围并启用注册限流；不要向陌生用户开放注册。
 
-普通用户登录后会直接进入自己的 QwenPaw Console，可以管理自己的对话、文件、模型配置和集成凭据。用户不能选择运行方式、Docker 镜像或资源限制。
+普通用户登录后会直接进入自己的 AIARB Console，可以管理自己的对话、文件、模型配置和集成凭据。用户不能选择运行方式、Docker 镜像或资源限制。
 
 管理员可以查看每个用户的运行状态，并执行以下操作：
 
@@ -182,10 +182,10 @@ qwenpaw hub \
 
 ## 数据保存在哪里
 
-Hub 数据默认保存在 `~/.qwenpaw/hub/`。如果设置了 `QWENPAW_WORKING_DIR`，则保存在 `<QWENPAW_WORKING_DIR>/hub/`。
+Hub 数据默认保存在 `~/.AIARB/hub/`。如果设置了 `AIARB_WORKING_DIR`，则保存在 `<AIARB_WORKING_DIR>/hub/`。
 
 ```text
-<QWENPAW_WORKING_DIR>/hub/
+<AIARB_WORKING_DIR>/hub/
 ├── control.db
 ├── secrets/
 └── runtimes/
@@ -214,7 +214,7 @@ runtimes/
 
 1. 停止 Hub；
 2. 备份完整的 `hub/` 目录；
-3. 记录当前 QwenPaw 版本；
+3. 记录当前 AIARB 版本；
 4. 升级并重新启动；
 5. 检查管理员登录、用户环境、聊天流式响应和 OAuth 集成。
 
@@ -222,7 +222,7 @@ runtimes/
 
 ### Hub 拒绝监听外部地址
 
-先在服务器运行 `qwenpaw hub --init-admin USERNAME`，然后配置 `public_base_url`，并在启动时添加 `--force-public`。也可以通过 SSH 端口转发访问 `127.0.0.1`，在浏览器中完成第一个管理员注册。
+先在服务器运行 `AIARB hub --init-admin USERNAME`，然后配置 `public_base_url`，并在启动时添加 `--force-public`。也可以通过 SSH 端口转发访问 `127.0.0.1`，在浏览器中完成第一个管理员注册。
 
 ### 选择 Docker 后，已有环境仍显示 Local
 
@@ -232,7 +232,7 @@ runtimes/
 
 填写 `docker image ls` 中存在的完整 `Repository:Tag`，并将拉取策略设为 `never`。
 
-### 登录成功，但个人 QwenPaw 无法打开
+### 登录成功，但个人 AIARB 无法打开
 
 在「运行环境」中查看该用户的状态和最近错误。确认所选的 Local 或 Docker 环境可用，并尝试重启。
 

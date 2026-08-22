@@ -1,4 +1,4 @@
-@import (reference) "../../../styles/modelSurfaces.less";
+﻿@import (reference) "../../../styles/modelSurfaces.less";
 
 /* ---- Trigger button ---- */
 .trigger {
@@ -588,12 +588,12 @@
   background: var(--ms-surface);
 
   :global(.ant-segmented-group),
-  :global(.qwenpaw-segmented-group) {
+  :global(.AIARB-segmented-group) {
     gap: 3px;
   }
 
   :global(.ant-segmented-item),
-  :global(.qwenpaw-segmented-item) {
+  :global(.AIARB-segmented-item) {
     min-height: 28px;
     border: 1px solid transparent;
     border-radius: 6px;
@@ -603,13 +603,13 @@
   }
 
   :global(.ant-segmented-item-label),
-  :global(.qwenpaw-segmented-item-label) {
+  :global(.AIARB-segmented-item-label) {
     min-height: 28px;
     line-height: 28px;
   }
 
   :global(.ant-segmented-item-selected),
-  :global(.qwenpaw-segmented-item-selected) {
+  :global(.AIARB-segmented-item-selected) {
     border-color: color-mix(
       in srgb,
       var(--ms-accent) 42%,
@@ -626,7 +626,7 @@
   }
 
   :global(.ant-segmented-thumb),
-  :global(.qwenpaw-segmented-thumb) {
+  :global(.AIARB-segmented-thumb) {
     border: 1px solid color-mix(in srgb, var(--ms-accent) 42%, transparent) !important;
     border-radius: 6px;
     background: color-mix(
@@ -1638,7 +1638,7 @@
 .pickerOverlay {
   max-width: calc(100vw - 24px);
   :global(.ant-popover-inner),
-  :global(.qwenpaw-popover-inner) {
+  :global(.AIARB-popover-inner) {
     padding: 12px;
     border-radius: 20px;
     background: var(--app-surface);
@@ -1851,19 +1851,19 @@
 }
 
 // Keep popup geometry owned by the positioning engine; fade in place.
-:global(.qwenpaw-picker-fade-enter),
-:global(.qwenpaw-picker-fade-appear) {
+:global(.AIARB-picker-fade-enter),
+:global(.AIARB-picker-fade-appear) {
   opacity: 0;
 }
-:global(.qwenpaw-picker-fade-enter-active),
-:global(.qwenpaw-picker-fade-appear-active) {
+:global(.AIARB-picker-fade-enter-active),
+:global(.AIARB-picker-fade-appear-active) {
   opacity: 1;
   transition: opacity 150ms ease;
 }
-:global(.qwenpaw-picker-fade-leave) {
+:global(.AIARB-picker-fade-leave) {
   opacity: 1;
 }
-:global(.qwenpaw-picker-fade-leave-active) {
+:global(.AIARB-picker-fade-leave-active) {
   opacity: 0;
   transition: opacity 100ms ease;
   pointer-events: none;
@@ -1873,9 +1873,9 @@
   overscroll-behavior: contain;
 }
 @media (prefers-reduced-motion: reduce) {
-  :global(.qwenpaw-picker-fade-enter-active),
-  :global(.qwenpaw-picker-fade-appear-active),
-  :global(.qwenpaw-picker-fade-leave-active) {
+  :global(.AIARB-picker-fade-enter-active),
+  :global(.AIARB-picker-fade-appear-active),
+  :global(.AIARB-picker-fade-leave-active) {
     transition-duration: 0.01ms;
   }
 }

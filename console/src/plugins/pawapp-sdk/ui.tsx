@@ -26,10 +26,10 @@ function mountedComponent(
 }
 
 function requireChat() {
-  if (!window.QwenPaw.chat) {
+  if (!window.AIArb.chat) {
     throw new Error("PawApp chat UI capabilities are unavailable");
   }
-  return window.QwenPaw.chat;
+  return window.AIArb.chat;
 }
 
 type AppIdProvider = string | (() => string);

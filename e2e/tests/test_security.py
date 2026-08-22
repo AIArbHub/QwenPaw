@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Security module P0-level end-to-end test cases.
+AIARB Security module P0-level end-to-end test cases.
 
 Combined test cases:
 - SEC-001: Tool Guard tab display + switch toggle + File Guard tab switch
@@ -90,7 +90,7 @@ class TestSecurityToolGuardAndTabSwitch:
 
         # Step 5: Verify the Tool Guard enable switch and toggle it
         log_test_step("5. Verify the Tool Guard enable switch and toggle it")
-        tool_guard_switch = active_panel.locator('button.qwenpaw-switch[role="switch"]').first
+        tool_guard_switch = active_panel.locator('button.AIARB-switch[role="switch"]').first
         expect(tool_guard_switch).to_be_visible(timeout=5000)
 
         initial_checked = tool_guard_switch.get_attribute('aria-checked')
@@ -112,7 +112,7 @@ class TestSecurityToolGuardAndTabSwitch:
 
         # Step 6: Verify the protected-tools dropdown exists
         log_test_step("6. Verify the protected-tools dropdown exists")
-        protected_tools_select = active_panel.locator('.qwenpaw-select').first
+        protected_tools_select = active_panel.locator('.AIARB-select').first
         expect(protected_tools_select).to_be_visible(timeout=5000)
         logger.info("Protected-tools dropdown visible")
 
@@ -127,7 +127,7 @@ class TestSecurityToolGuardAndTabSwitch:
 
         # Step 8: Verify the File Guard enable switch
         log_test_step("8. Verify the File Guard enable switch")
-        file_guard_switch = file_guard_panel.locator('button.qwenpaw-switch[role="switch"]').first
+        file_guard_switch = file_guard_panel.locator('button.AIARB-switch[role="switch"]').first
         expect(file_guard_switch).to_be_visible(timeout=5000)
         file_guard_checked = file_guard_switch.get_attribute('aria-checked')
         logger.info(f"File Guard switch state: aria-checked={file_guard_checked}")
@@ -218,10 +218,10 @@ class TestSecurityFileGuardPathAndToolSelect:
 
         # Step 7: Click the protected-tools dropdown to expand it
         log_test_step("7. Click the protected-tools dropdown to expand it")
-        protected_tools_select = tool_guard_panel.locator('.qwenpaw-select').first
+        protected_tools_select = tool_guard_panel.locator('.AIARB-select').first
         expect(protected_tools_select).to_be_visible(timeout=5000)
         # Click the selector inside the Select to trigger the dropdown
-        select_selector = protected_tools_select.locator('.qwenpaw-select-selector').first
+        select_selector = protected_tools_select.locator('.AIARB-select-selector').first
         if select_selector.count() > 0 and select_selector.is_visible():
             select_selector.click()
         else:
@@ -229,9 +229,9 @@ class TestSecurityFileGuardPathAndToolSelect:
         page.wait_for_timeout(1500)
 
         # Verify dropdown options appear (the dropdown is rendered under body, not inside the panel)
-        dropdown = page.locator('.qwenpaw-select-dropdown:visible').first
+        dropdown = page.locator('.AIARB-select-dropdown:visible').first
         if dropdown.count() > 0 and dropdown.is_visible():
-            options = dropdown.locator('.qwenpaw-select-item').all()
+            options = dropdown.locator('.AIARB-select-item').all()
             assert len(options) >= 1, "Protected-tools dropdown options are empty"
             first_option_text = options[0].inner_text()
             assert len(first_option_text) > 0, "First option text is empty"
@@ -291,7 +291,7 @@ class TestSecurityConfigSaveAndPersist:
         tool_guard_panel = page.locator('[role="tabpanel"]:visible').first
         expect(tool_guard_panel).to_be_visible(timeout=5000)
 
-        tool_guard_switch = tool_guard_panel.locator('button.qwenpaw-switch[role="switch"]').first
+        tool_guard_switch = tool_guard_panel.locator('button.AIARB-switch[role="switch"]').first
         expect(tool_guard_switch).to_be_visible(timeout=5000)
 
         initial_checked = tool_guard_switch.get_attribute('aria-checked')
@@ -314,7 +314,7 @@ class TestSecurityConfigSaveAndPersist:
 
             # Step 5: Verify the save success toast
             log_test_step("5. Verify the save success toast")
-            success_msg = page.locator('.qwenpaw-message-success, .qwenpaw-message-notice-content:has-text("保存")').first
+            success_msg = page.locator('.AIARB-message-success, .AIARB-message-notice-content:has-text("保存")').first
             if success_msg.is_visible():
                 logger.info("Save success toast visible")
             else:
@@ -340,7 +340,7 @@ class TestSecurityConfigSaveAndPersist:
             ).first
             expect(tool_guard_panel_refreshed).to_be_visible(timeout=5000)
 
-            tool_guard_switch_refreshed = tool_guard_panel_refreshed.locator('button.qwenpaw-switch[role="switch"]').first
+            tool_guard_switch_refreshed = tool_guard_panel_refreshed.locator('button.AIARB-switch[role="switch"]').first
             expect(tool_guard_switch_refreshed).to_be_visible(timeout=5000)
 
             persisted_checked = tool_guard_switch_refreshed.get_attribute('aria-checked')
@@ -354,7 +354,7 @@ class TestSecurityConfigSaveAndPersist:
             try:
                 tool_guard_switch_refreshed = page.locator(
                     '[role="tabpanel"]:visible'
-                ).first.locator('button.qwenpaw-switch[role="switch"]').first
+                ).first.locator('button.AIARB-switch[role="switch"]').first
                 if tool_guard_switch_refreshed.is_visible():
                     current_state = tool_guard_switch_refreshed.get_attribute('aria-checked')
                     if current_state != initial_checked:
@@ -385,7 +385,7 @@ class TestSecurityConfigSaveAndPersist:
 
             # Step 10: Verify the Skill Scanner tab content loads
             log_test_step("10. Verify the Skill Scanner tab content loads")
-            skill_scanner_panel = page.locator('.qwenpaw-tabs-tabpane-active').first
+            skill_scanner_panel = page.locator('.AIARB-tabs-tabpane-active').first
             expect(skill_scanner_panel).to_be_visible(timeout=5000)
 
             # Verify the panel has content
@@ -438,13 +438,13 @@ class TestSecurityRuleCrud:
         tool_guard_tab.click()
         page.wait_for_timeout(1500)
 
-        tool_guard_panel = page.locator('.qwenpaw-tabs-tabpane-active').first
+        tool_guard_panel = page.locator('.AIARB-tabs-tabpane-active').first
         expect(tool_guard_panel).to_be_visible(timeout=5000)
         logger.info("Tool Guard tab activated")
 
         # Step 3: Ensure Tool Guard is enabled (otherwise rule operations are not available)
         log_test_step("3. Ensure Tool Guard is enabled")
-        tool_guard_switch = tool_guard_panel.locator('button.qwenpaw-switch[role="switch"]').first
+        tool_guard_switch = tool_guard_panel.locator('button.AIARB-switch[role="switch"]').first
         expect(tool_guard_switch).to_be_visible(timeout=5000)
 
         initial_checked = tool_guard_switch.get_attribute('aria-checked')
@@ -465,7 +465,7 @@ class TestSecurityRuleCrud:
 
             # Step 5: Verify the rule modal appears
             log_test_step("5. Verify the rule modal appears")
-            modal = page.locator('.qwenpaw-modal').first
+            modal = page.locator('.AIARB-modal').first
             expect(modal).to_be_visible(timeout=5000)
             logger.info("Rule modal opened")
 
@@ -489,7 +489,7 @@ class TestSecurityRuleCrud:
 
             # Step 7: Click the Confirm button to save the rule
             log_test_step("7. Click the Confirm button to save the rule")
-            confirm_btn = modal.locator('button.qwenpaw-btn-primary').first
+            confirm_btn = modal.locator('button.AIARB-btn-primary').first
             expect(confirm_btn).to_be_visible(timeout=5000)
             confirm_btn.click()
             page.wait_for_timeout(2000)
@@ -512,9 +512,9 @@ class TestSecurityRuleCrud:
 
             # Step 9: Verify the rule's severity tag (default HIGH)
             log_test_step("9. Verify the rule's severity tag")
-            severity_tag = rule_row.locator('.qwenpaw-tag:has-text("HIGH")').first
+            severity_tag = rule_row.locator('.AIARB-tag:has-text("HIGH")').first
             if severity_tag.count() == 0:
-                severity_tag = rule_row.locator('.qwenpaw-tag').first
+                severity_tag = rule_row.locator('.AIARB-tag').first
             assert severity_tag.count() > 0, "Rule row should contain a severity tag"
             expect(severity_tag).to_be_visible(timeout=5000)
             logger.info(f"Severity tag verified: {severity_tag.inner_text().strip()}")
@@ -522,7 +522,7 @@ class TestSecurityRuleCrud:
             # Step 10: Disable the rule
             log_test_step("10. Disable the rule")
             enable_switch = rule_row.locator(
-                'button.qwenpaw-switch[role="switch"]'
+                'button.AIARB-switch[role="switch"]'
             ).first
             expect(enable_switch).to_be_visible(timeout=5000)
 
@@ -532,7 +532,7 @@ class TestSecurityRuleCrud:
 
             # Re-fetch the switch element
             enable_switch = rule_row.locator(
-                'button.qwenpaw-switch[role="switch"]'
+                'button.AIARB-switch[role="switch"]'
             ).first
             after_disable = enable_switch.get_attribute('aria-checked')
             assert initial_switch_state != after_disable, "Rule switch did not toggle"
@@ -545,7 +545,7 @@ class TestSecurityRuleCrud:
 
             # Re-fetch the switch element (DOM may have updated)
             enable_switch = rule_row.locator(
-                'button.qwenpaw-switch[role="switch"]'
+                'button.AIARB-switch[role="switch"]'
             ).first
 
             after_enable = enable_switch.get_attribute('aria-checked')
@@ -569,7 +569,7 @@ class TestSecurityRuleCrud:
 
             # Step 13: Verify the edit modal appears
             log_test_step("13. Verify the edit modal appears")
-            edit_modal = page.locator('.qwenpaw-modal:visible').last
+            edit_modal = page.locator('.AIARB-modal:visible').last
             expect(edit_modal).to_be_visible(timeout=5000)
             logger.info("Edit modal opened")
 
@@ -601,7 +601,7 @@ class TestSecurityRuleCrud:
                         page.wait_for_timeout(1500)
                         confirm_delete_btn = page.locator(
                             '[role="dialog"]:visible '
-                            'button.qwenpaw-btn-primary'
+                            'button.AIARB-btn-primary'
                         ).last
                         if confirm_delete_btn.count() > 0:
                             confirm_delete_btn.click()
@@ -660,19 +660,19 @@ class TestSkillScannerModeSwitch:
         skill_scanner_tab.click()
         page.wait_for_timeout(1500)
 
-        skill_scanner_panel = page.locator('.qwenpaw-tabs-tabpane-active').first
+        skill_scanner_panel = page.locator('.AIARB-tabs-tabpane-active').first
         expect(skill_scanner_panel).to_be_visible(timeout=5000)
         logger.info("Skill Scanner tab activated")
 
         # Step 3: Verify the mode selector exists
         log_test_step("3. Verify the mode selector exists")
-        mode_select = skill_scanner_panel.locator('.qwenpaw-select').first
+        mode_select = skill_scanner_panel.locator('.AIARB-select').first
         expect(mode_select).to_be_visible(timeout=5000)
         logger.info("Mode selector visible")
 
         # Step 4: Record the current mode (used by the finally block to restore)
         log_test_step("4. Record the current mode")
-        current_mode_selector = mode_select.locator('.qwenpaw-select-selector').first
+        current_mode_selector = mode_select.locator('.AIARB-select-selector').first
         expect(current_mode_selector).to_be_visible(timeout=5000)
         original_mode_text = current_mode_selector.inner_text().strip()
         logger.info(f"Current mode: {original_mode_text}")
@@ -683,7 +683,7 @@ class TestSkillScannerModeSwitch:
             current_mode_selector.click()
             page.wait_for_timeout(1000)
 
-            block_option = page.locator('.qwenpaw-select-item:has-text("block"), .qwenpaw-select-item:has-text("Block")').first
+            block_option = page.locator('.AIARB-select-item:has-text("block"), .AIARB-select-item:has-text("Block")').first
             if block_option.count() > 0:
                 block_option.click()
                 page.wait_for_timeout(2000)
@@ -700,7 +700,7 @@ class TestSkillScannerModeSwitch:
             current_mode_selector.click()
             page.wait_for_timeout(1000)
 
-            warn_option = page.locator('.qwenpaw-select-item:has-text("warn"), .qwenpaw-select-item:has-text("Warn")').first
+            warn_option = page.locator('.AIARB-select-item:has-text("warn"), .AIARB-select-item:has-text("Warn")').first
             if warn_option.count() > 0:
                 warn_option.click()
                 page.wait_for_timeout(2000)
@@ -717,7 +717,7 @@ class TestSkillScannerModeSwitch:
             current_mode_selector.click()
             page.wait_for_timeout(1000)
 
-            off_option = page.locator('.qwenpaw-select-item:has-text("off"), .qwenpaw-select-item:has-text("Off")').first
+            off_option = page.locator('.AIARB-select-item:has-text("off"), .AIARB-select-item:has-text("Off")').first
             if off_option.count() > 0:
                 off_option.click()
                 page.wait_for_timeout(2000)
@@ -731,7 +731,7 @@ class TestSkillScannerModeSwitch:
 
             # Step 8: Verify the timeout-setting control exists
             log_test_step("8. Verify the timeout-setting control exists")
-            timeout_input = skill_scanner_panel.locator('input[type="number"], .qwenpaw-input-number input').first
+            timeout_input = skill_scanner_panel.locator('input[type="number"], .AIARB-input-number input').first
             if timeout_input.count() > 0:
                 expect(timeout_input).to_be_visible(timeout=5000)
                 logger.info("Timeout-setting control visible")
@@ -740,7 +740,7 @@ class TestSkillScannerModeSwitch:
 
             # Step 9: Verify the Scan Alerts tab exists
             log_test_step("9. Verify the Scan Alerts tab exists")
-            scan_alerts_tab = skill_scanner_panel.locator('[data-node-key="scanAlerts"] .qwenpaw-tabs-tab-btn, .qwenpaw-tabs-tab-btn:has-text("扫描警报"), .qwenpaw-tabs-tab-btn:has-text("Scan Alerts")').first
+            scan_alerts_tab = skill_scanner_panel.locator('[data-node-key="scanAlerts"] .AIARB-tabs-tab-btn, .AIARB-tabs-tab-btn:has-text("扫描警报"), .AIARB-tabs-tab-btn:has-text("Scan Alerts")').first
             if scan_alerts_tab.count() > 0:
                 expect(scan_alerts_tab).to_be_visible(timeout=5000)
                 logger.info("Scan Alerts tab visible")
@@ -749,7 +749,7 @@ class TestSkillScannerModeSwitch:
 
             # Step 10: Verify the Whitelist tab exists
             log_test_step("10. Verify the Whitelist tab exists")
-            whitelist_tab = skill_scanner_panel.locator('[data-node-key="whitelist"] .qwenpaw-tabs-tab-btn, .qwenpaw-tabs-tab-btn:has-text("白名单"), .qwenpaw-tabs-tab-btn:has-text("Whitelist")').first
+            whitelist_tab = skill_scanner_panel.locator('[data-node-key="whitelist"] .AIARB-tabs-tab-btn, .AIARB-tabs-tab-btn:has-text("白名单"), .AIARB-tabs-tab-btn:has-text("Whitelist")').first
             if whitelist_tab.count() > 0:
                 expect(whitelist_tab).to_be_visible(timeout=5000)
                 logger.info("Whitelist tab visible")
@@ -764,7 +764,7 @@ class TestSkillScannerModeSwitch:
                 try:
                     current_mode_selector.click()
                     page.wait_for_timeout(1000)
-                    restore_option = page.locator(f'.qwenpaw-select-item:has-text("{original_mode_text}")').first
+                    restore_option = page.locator(f'.AIARB-select-item:has-text("{original_mode_text}")').first
                     if restore_option.count() > 0:
                         restore_option.click()
                         page.wait_for_timeout(1000)
@@ -811,8 +811,8 @@ class TestDeniedToolsConfig:
             page.wait_for_timeout(1000)
 
         log_test_step("Ensure Tool Guard is enabled")
-        active_panel = page.locator('.qwenpaw-tabs-tabpane-active').first
-        guard_switch = active_panel.locator('.qwenpaw-switch').first
+        active_panel = page.locator('.AIARB-tabs-tabpane-active').first
+        guard_switch = active_panel.locator('.AIARB-switch').first
         if guard_switch.count() > 0:
             is_enabled = guard_switch.get_attribute("aria-checked") == "true"
             if not is_enabled:
@@ -824,8 +824,8 @@ class TestDeniedToolsConfig:
         # denied_tools is a Select mode="tags" component
         denied_tools_select = page.locator(
             '#denied_tools, '
-            '.qwenpaw-select:near(:text("Denied"), 200), '
-            '.qwenpaw-select:near(:text("拒绝"), 200)'
+            '.AIARB-select:near(:text("Denied"), 200), '
+            '.AIARB-select:near(:text("拒绝"), 200)'
         ).first
 
         if denied_tools_select.count() == 0:
@@ -843,7 +843,7 @@ class TestDeniedToolsConfig:
             page.wait_for_timeout(1000)
 
             # Look for dropdown options
-            options = page.locator('.qwenpaw-select-item-option').all()
+            options = page.locator('.AIARB-select-item-option').all()
             if len(options) > 0:
                 logger.info(f"Found {len(options)} selectable tool(s)")
                 # Select the first option
@@ -852,7 +852,7 @@ class TestDeniedToolsConfig:
                 logger.info("Added a tool to the denied list")
 
                 # Verify selection
-                selected_tags = page.locator('.qwenpaw-select-selection-item').all()
+                selected_tags = page.locator('.AIARB-select-selection-item').all()
                 assert len(selected_tags) > 0, "No selected tool tags found"
                 logger.info(f"Denied list contains {len(selected_tags)} tool(s)")
 
@@ -867,7 +867,7 @@ class TestDeniedToolsConfig:
                 logger.info("Entered a custom tool name")
         else:
             logger.info("Denied tools list Select not found; verify the page has related form fields")
-            form_items = active_panel.locator('.qwenpaw-form-item').all()
+            form_items = active_panel.locator('.AIARB-form-item').all()
             assert len(form_items) >= 2, f"Tool Guard form fields insufficient: {len(form_items)}"
             logger.info(f"Tool Guard has {len(form_items)} form field(s)")
 
@@ -910,15 +910,15 @@ class TestRulePreview:
             page.wait_for_timeout(1000)
 
         log_test_step("Find the rules table")
-        active_panel = page.locator('.qwenpaw-tabs-tabpane-active').first
-        rule_table = active_panel.locator('table, .qwenpaw-table').first
+        active_panel = page.locator('.AIARB-tabs-tabpane-active').first
+        rule_table = active_panel.locator('table, .AIARB-table').first
 
         if rule_table.count() > 0:
             expect(rule_table).to_be_visible(timeout=5000)
             logger.info("Found the rules table")
 
             # Count rule rows
-            rule_rows = active_panel.locator('table tbody tr, .qwenpaw-table-row').all()
+            rule_rows = active_panel.locator('table tbody tr, .AIARB-table-row').all()
             logger.info(f"Rules table contains {len(rule_rows)} rule(s)")
 
             log_test_step("Find the preview button")
@@ -933,7 +933,7 @@ class TestRulePreview:
                 page.wait_for_timeout(1500)
 
                 log_test_step("Verify the preview modal")
-                preview_modal = page.locator('.qwenpaw-modal').first
+                preview_modal = page.locator('.AIARB-modal').first
                 if preview_modal.count() > 0:
                     expect(preview_modal).to_be_visible(timeout=5000)
                     modal_content = preview_modal.inner_text()
@@ -941,7 +941,7 @@ class TestRulePreview:
                     logger.info(f"Preview modal opened, content length: {len(modal_content)}")
 
                     # Close the modal
-                    close_btn = preview_modal.locator('.qwenpaw-modal-close, button:has-text("Close"), button:has-text("关闭"), button:has-text("OK")').first
+                    close_btn = preview_modal.locator('.AIARB-modal-close, button:has-text("Close"), button:has-text("关闭"), button:has-text("OK")').first
                     if close_btn.count() > 0:
                         close_btn.click()
                         page.wait_for_timeout(500)
@@ -982,8 +982,8 @@ class TestSecurityBatchRuleToggle:
         page.wait_for_timeout(3000)
 
         log_test_step("Find the rules table")
-        active_panel = page.locator('.qwenpaw-tabs-tabpane-active').first
-        rule_switches = active_panel.locator('.qwenpaw-switch').all()
+        active_panel = page.locator('.AIARB-tabs-tabpane-active').first
+        rule_switches = active_panel.locator('.AIARB-switch').all()
         logger.info(f"Found {len(rule_switches)} rule switch(es)")
 
         if len(rule_switches) >= 2:

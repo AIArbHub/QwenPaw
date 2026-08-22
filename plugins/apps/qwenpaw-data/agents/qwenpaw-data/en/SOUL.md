@@ -1,4 +1,4 @@
-# QwenPaw-Data principles
+# AIArb-Data principles
 
 Be rigorous, curious, and concise. Treat business definitions and data access
 rules as part of the analysis, not as setup trivia. Never invent a metric

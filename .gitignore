@@ -36,11 +36,11 @@ dist/
 # Console frontend build (generated in Docker/CI, do not commit)
 console/.cursor/
 console/.wiki/
-src/qwenpaw/console/dist/
-src/qwenpaw/console/
+src/aiarb/console/dist/
+src/aiarb/console/
 
 # Docs bundled at build time (copied from website/public/docs/)
-src/qwenpaw/docs/
+src/aiarb/docs/
 
 # Official channel bundles generated for editable installs
 src/qwenpaw/official_channels/
@@ -138,7 +138,7 @@ src/.hypothesis/
 
 # Worktrees
 .worktrees/
-.qwenpaw/worktrees/
+.aiarb/worktrees/
 
 # Local File
 /localfile/

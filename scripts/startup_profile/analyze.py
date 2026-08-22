@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-QwenPaw Startup Performance Analyzer
+AIArb Startup Performance Analyzer
 
 Collects startup performance data and outputs JSON for visualization.
 """
@@ -25,7 +25,7 @@ def collect_import_time(output_dir):
         "-X",
         "importtime",
         "-m",
-        "qwenpaw",
+        "aiarb",
         "app",
         "--help",
     ]
@@ -107,8 +107,8 @@ def parse_import_log(log_file):
                     },
                 )
 
-    # Filter QwenPaw and third-party
-    qwenpaw = [i for i in imports if "qwenpaw" in i["package"]]
+    # Filter AIArb and third-party
+    aiarb = [i for i in imports if "aiarb" in i["package"]]
     third_party = [
         i
         for i in imports
@@ -118,24 +118,24 @@ def parse_import_log(log_file):
         not in ["io", "os", "sys", "time", "re", "abc", "typing"]
     ]
 
-    qwenpaw.sort(key=lambda x: x["cumulative_ms"], reverse=True)
+    aiarb.sort(key=lambda x: x["cumulative_ms"], reverse=True)
     third_party.sort(key=lambda x: x["cumulative_ms"], reverse=True)
 
-    total_qwenpaw = sum(
-        i["cumulative_ms"] for i in qwenpaw if i["package"].count(".") == 1
+    total_aiarb = sum(
+        i["cumulative_ms"] for i in aiarb if i["package"].count(".") == 1
     )
     total_third_party = sum(i["cumulative_ms"] for i in third_party[:10])
 
     print(
-        f"   ✓ {len(imports)} imports, {len(qwenpaw)} QwenPaw, {len(third_party)} third-party",
+        f"   ✓ {len(imports)} imports, {len(aiarb)} AIArb, {len(third_party)} third-party",
     )
 
     return {
-        "qwenpaw_imports": qwenpaw,
+        "aiarb_imports": aiarb,
         "third_party_imports": third_party,
         "summary": {
-            "total_ms": total_qwenpaw + total_third_party,
-            "total_qwenpaw_ms": total_qwenpaw,
+            "total_ms": total_aiarb + total_third_party,
+            "total_aiarb_ms": total_aiarb,
             "total_third_party_ms": total_third_party,
         },
     }
@@ -163,12 +163,12 @@ def parse_execution_trace(trace_file):
         ]
         functions.sort(key=lambda x: x["total_ms"], reverse=True)
 
-        qwenpaw_funcs = [f for f in functions if "qwenpaw" in f["function"]]
+        aiarb_funcs = [f for f in functions if "aiarb" in f["function"]]
 
-        print(f"   ✓ {len(functions)} functions, {len(qwenpaw_funcs)} QwenPaw")
+        print(f"   ✓ {len(functions)} functions, {len(aiarb_funcs)} AIArb")
 
         return {
-            "qwenpaw_functions": qwenpaw_funcs[:50],
+            "aiarb_functions": aiarb_funcs[:50],
             "metadata": data["metadata"],
             "execution_order": data["execution_order"],
         }
@@ -180,7 +180,7 @@ def parse_execution_trace(trace_file):
 def main():  # pylint: disable=too-many-statements
     """Main function."""
     print("=" * 60)
-    print("🐾 QwenPaw Startup Performance Analyzer")
+    print("🐾 AIArb Startup Performance Analyzer")
     print("=" * 60)
     print()
 

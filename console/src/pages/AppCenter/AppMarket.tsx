@@ -1,4 +1,4 @@
-/**
+﻿/**
  * AppMarket.tsx — App market view for the App Center.
  *
  * Reuses the existing plugin-market proxy (`/plugins/market/search`) and the
@@ -76,13 +76,13 @@ function LoadMoreSentinel({ onVisible }: { onVisible: () => void }) {
 // Curated featured apps use pinned artwork because the market API may not
 // provide an icon for them.
 const FEATURED_APP_ICONS: Record<string, string> = {
-  "@agentscope/qwenpaw-creator": `${import.meta.env.BASE_URL}creator-logo.png`,
+  "@agentscope/AIARB-creator": `${import.meta.env.BASE_URL}creator-logo.png`,
 };
 // The upstream market entry ships the same English text under every locale
 // key, so curated apps carry their real translations here (keyed by language
 // prefix). Falls back to the upstream locales for everything else.
 const FEATURED_APP_DESCRIPTIONS: Record<string, Record<string, string>> = {
-  "@agentscope/qwenpaw-creator": {
+  "@agentscope/AIARB-creator": {
     zh: "Agentic 视频创作平台。从一句创意生成短剧，或将已有素材剪成成片：编剧、导演、视觉、动效、剪辑等 Agent 协同完成策划、生成、剪辑与合成；项目中所见皆可选中交给 Agent 精准修改，每个关键决定都由你确认。",
     en: "An agentic video creation platform. Start from an idea or existing footage: an Agent team of screenwriting, directing, visual, motion, and editing Specialists handles planning, generation, editing, and composition; select anything in the project and hand it to the Agent for a precise change, with every key decision staying in your hands.",
   },
@@ -145,7 +145,7 @@ export function AppMarket({
   const [loadingMore, setLoadingMore] = useState(false);
   const [autoLoadBlocked, setAutoLoadBlocked] = useState(false);
   const [installingId, setInstallingId] = useState<string | null>(null);
-  const [qwenpawVersion, setQwenpawVersion] = useState<string | null>(null);
+  const [AIARBVersion, setAIARBVersion] = useState<string | null>(null);
   const [versionChecked, setVersionChecked] = useState(false);
   const installingIdRef = useRef<string | null>(null);
   const loadingMoreRef = useRef(false);
@@ -247,10 +247,10 @@ export function AppMarket({
     const controller = new AbortController();
     void rootApi
       .getVersion(controller.signal)
-      .then(({ version }) => setQwenpawVersion(version))
+      .then(({ version }) => setAIARBVersion(version))
       .catch((err) => {
         if (!(err instanceof DOMException && err.name === "AbortError")) {
-          setQwenpawVersion(null);
+          setAIARBVersion(null);
         }
       })
       .finally(() => {
@@ -305,7 +305,7 @@ export function AppMarket({
   const requestInstall = useCallback(
     (entry: MarketPluginEntry) => {
       if (installingIdRef.current !== null) return;
-      if (isMarketPluginCompatible(entry, qwenpawVersion)) {
+      if (isMarketPluginCompatible(entry, AIARBVersion)) {
         void handleInstall(entry);
         return;
       }
@@ -317,9 +317,9 @@ export function AppMarket({
         ),
         content: tRef.current("pluginManager.compatWarningContent", {
           defaultValue:
-            "This plugin is labeled for QwenPaw {{labels}}. Your QwenPaw version is {{version}}. Installing it may cause errors. Are you sure you want to continue?",
-          labels: entry.qwenpaw_compat_labels?.join(", ") ?? "unknown",
-          version: qwenpawVersion ?? "unknown",
+            "This plugin is labeled for AIARB {{labels}}. Your AIARB version is {{version}}. Installing it may cause errors. Are you sure you want to continue?",
+          labels: entry.AIARB_compat_labels?.join(", ") ?? "unknown",
+          version: AIARBVersion ?? "unknown",
         }),
         okText: tRef.current(
           "pluginManager.compatWarningConfirm",
@@ -329,7 +329,7 @@ export function AppMarket({
         onOk: () => handleInstall(entry),
       });
     },
-    [handleInstall, qwenpawVersion],
+    [handleInstall, AIARBVersion],
   );
 
   const loadNextPage = useCallback(() => {

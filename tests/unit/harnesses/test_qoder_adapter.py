@@ -30,22 +30,22 @@ from qoder_agent_sdk import (
     TextBlock,
 )
 
-from qwenpaw.harnesses.events import (
+from aiarb.harnesses.events import (
     HarnessAttachment,
     HarnessAttachmentKind,
     HarnessEventKind,
 )
-from qwenpaw.harnesses.base import HarnessOperationNotSupportedError
-from qwenpaw.harnesses.capabilities import (
+from aiarb.harnesses.base import HarnessOperationNotSupportedError
+from aiarb.harnesses.capabilities import (
     HarnessMCPServerDefinition,
     HarnessRuntimeCapabilities,
     HarnessSkillDefinition,
 )
-from qwenpaw.harnesses.qoder.adapter import QoderAdapter
-from qwenpaw.harnesses.qoder.projection import materialize_skill_plugin
-from qwenpaw.harnesses.registry import create_adapter, get_provider
-from qwenpaw.security.tool_guard.approval import ApprovalDecision
-from qwenpaw.utils.io_utils import write_json_atomic
+from aiarb.harnesses.qoder.adapter import QoderAdapter
+from aiarb.harnesses.qoder.projection import materialize_skill_plugin
+from aiarb.harnesses.registry import create_adapter, get_provider
+from aiarb.security.tool_guard.approval import ApprovalDecision
+from aiarb.utils.io_utils import write_json_atomic
 
 
 class FakeQoderClient:
@@ -138,7 +138,7 @@ def _executable(path: Path) -> Path:
 def test_skill_projection_uses_portable_copies_with_spaced_paths(
     tmp_path: Path,
 ) -> None:
-    skill_dir = tmp_path / "QwenPaw Skills" / "代码审查"
+    skill_dir = tmp_path / "AIArb Skills" / "代码审查"
     skill_dir.mkdir(parents=True)
     (skill_dir / "SKILL.md").write_text(
         "---\nname: review\ndescription: Review code\n---\n",
@@ -353,7 +353,7 @@ async def test_discovers_qoder_owned_skills_as_read_only(
                     "source": "user",
                 },
                 {
-                    "name": "qwenpaw-runtime:review",
+                    "name": "aiarb-runtime:review",
                     "description": "Projected Skill",
                     "source": "plugin",
                 },
@@ -384,7 +384,7 @@ async def test_discovers_qoder_owned_skills_as_read_only(
 
 
 @pytest.mark.asyncio
-async def test_turn_projects_qwenpaw_skills_and_mcp(
+async def test_turn_projects_aiarb_skills_and_mcp(
     tmp_path: Path,
 ) -> None:
     binary = _executable(tmp_path / "qodercli")
@@ -569,7 +569,7 @@ async def test_turn_accepts_an_attachment_without_text(
 
 
 @pytest.mark.asyncio
-async def test_qoder_approval_uses_qwenpaw_service(
+async def test_qoder_approval_uses_aiarb_service(
     tmp_path: Path,
 ) -> None:
     adapter = QoderAdapter(tmp_path)
@@ -600,7 +600,7 @@ async def test_qoder_approval_uses_qwenpaw_service(
     )()
 
     with patch(
-        "qwenpaw.harnesses.qoder.adapter.get_approval_service",
+        "aiarb.harnesses.qoder.adapter.get_approval_service",
         return_value=service,
     ):
         result = await adapter._approve_tool(
@@ -630,7 +630,7 @@ async def test_history_uses_persisted_qoder_session(tmp_path: Path) -> None:
     ]
 
     with patch(
-        "qwenpaw.harnesses.qoder.adapter.get_session_messages",
+        "aiarb.harnesses.qoder.adapter.get_session_messages",
         return_value=messages,
     ) as get_messages:
         history = await adapter.history("chat-1")
@@ -705,12 +705,12 @@ async def test_cli_timeout_reaps_process(tmp_path: Path) -> None:
     adapter = QoderAdapter(tmp_path, binary=str(binary))
     with (
         patch(
-            "qwenpaw.harnesses.qoder.adapter."
+            "aiarb.harnesses.qoder.adapter."
             "asyncio.create_subprocess_exec",
             return_value=process,
         ),
         patch(
-            "qwenpaw.harnesses.qoder.adapter._STATUS_TIMEOUT_SECONDS",
+            "aiarb.harnesses.qoder.adapter._STATUS_TIMEOUT_SECONDS",
             0.01,
         ),
         pytest.raises(asyncio.TimeoutError),

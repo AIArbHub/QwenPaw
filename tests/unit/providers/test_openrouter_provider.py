@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Tests for OpenRouter provider resource management."""
 
@@ -10,11 +10,11 @@ from unittest.mock import AsyncMock
 from agentscope.model import OpenAIChatModel
 import pytest
 
-import qwenpaw.providers.openrouter_provider as openrouter_provider_module
-from qwenpaw.providers.openrouter_provider import OpenRouterProvider
-from qwenpaw.providers.provider import ModelInfo
-from qwenpaw.providers.provider_manager import ProviderManager
-from qwenpaw.providers.thinking import ThinkingControl
+import AIARB.providers.openrouter_provider as openrouter_provider_module
+from AIARB.providers.openrouter_provider import OpenRouterProvider
+from AIARB.providers.provider import ModelInfo
+from AIARB.providers.provider_manager import ProviderManager
+from AIARB.providers.thinking import ThinkingControl
 
 
 def _make_provider() -> OpenRouterProvider:

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access,unused-argument
 """Tests for BaseMemoryManager abstract base class."""
 
@@ -9,8 +9,8 @@ import pytest
 from agentscope.message import Msg, TextBlock, ToolResultState
 from agentscope.tool import ToolChunk
 
-from qwenpaw.agents.memory import base_memory_manager
-from qwenpaw.constant import AUTO_MEMORY_SEARCH_BLOCK_IDS_KEY
+from AIARB.agents.memory import base_memory_manager
+from AIARB.constant import AUTO_MEMORY_SEARCH_BLOCK_IDS_KEY
 
 # ---------------------------------------------------------------------------
 # Concrete subclass for testing the abstract base
@@ -19,7 +19,7 @@ from qwenpaw.constant import AUTO_MEMORY_SEARCH_BLOCK_IDS_KEY
 
 def _make_concrete_class():
     """Return a minimal concrete subclass of BaseMemoryManager."""
-    from qwenpaw.agents.memory.base_memory_manager import (
+    from AIARB.agents.memory.base_memory_manager import (
         BaseMemoryManager,
     )
 

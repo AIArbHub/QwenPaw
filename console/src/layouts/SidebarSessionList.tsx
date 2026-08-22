@@ -357,7 +357,7 @@ export default function SidebarSessionList({
         onSessionClickProp(sessionId);
       } else {
         window.dispatchEvent(
-          new CustomEvent("qwenpaw:sidebar-select-session", {
+          new CustomEvent("aiarb:sidebar-select-session", {
             detail: { sessionId },
           }),
         );
@@ -490,7 +490,7 @@ export default function SidebarSessionList({
     if (onNewChat) {
       onNewChat();
     } else {
-      window.dispatchEvent(new CustomEvent("qwenpaw:sidebar-new-chat"));
+      window.dispatchEvent(new CustomEvent("aiarb:sidebar-new-chat"));
     }
   }, [onNewChat]);
 

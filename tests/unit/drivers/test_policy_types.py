@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.drivers.constants import (
+from aiarb.drivers.constants import (
     POLICY_EFFECT_ALLOW,
     POLICY_EFFECT_ASK,
     POLICY_EFFECT_DENY,
     POLICY_TARGET_WILDCARD,
 )
-from qwenpaw.drivers.errors import DriverCardError
-from qwenpaw.drivers.policy_types import (
+from aiarb.drivers.errors import DriverCardError
+from aiarb.drivers.policy_types import (
     DriverPolicy,
     PolicyCondition,
     PolicyPrincipal,

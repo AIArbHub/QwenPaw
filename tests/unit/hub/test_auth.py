@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-"""Tests for QwenPaw Hub users, roles, and token invalidation."""
+﻿# -*- coding: utf-8 -*-
+"""Tests for AIARB Hub users, roles, and token invalidation."""
 
 import json
 import sqlite3
@@ -10,8 +10,8 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.hub.auth import HubAuthService, HubDatabaseBusyError
-from qwenpaw.hub.credentials import TenantCredentialVault
+from AIARB.hub.auth import HubAuthService, HubDatabaseBusyError
+from AIARB.hub.credentials import TenantCredentialVault
 
 
 def _auth_service(tmp_path: Path) -> HubAuthService:

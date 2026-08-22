@@ -11,16 +11,16 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.harnesses.base import HarnessAdapter
-from qwenpaw.harnesses.events import (
+from aiarb.harnesses.base import HarnessAdapter
+from aiarb.harnesses.events import (
     HarnessAttachment,
     HarnessAttachmentKind,
     HarnessEvent,
     HarnessEventKind,
     HarnessProvider,
 )
-from qwenpaw.harnesses.runtime import HarnessRuntime
-from qwenpaw.schemas import (
+from aiarb.harnesses.runtime import HarnessRuntime
+from aiarb.schemas import (
     AgentRequest,
     FileContent,
     ImageContent,
@@ -165,7 +165,7 @@ async def test_runtime_recreates_adapter_when_binary_changes(
     runtime = HarnessRuntime(tmp_path)
 
     with patch(
-        "qwenpaw.harnesses.runtime.create_adapter",
+        "aiarb.harnesses.runtime.create_adapter",
         side_effect=lambda *_args, **_kwargs: FakeAdapter(),
     ):
         first = await runtime.adapter("codex", {"binary": "/first/codex"})
@@ -178,7 +178,7 @@ async def test_runtime_recreates_adapter_when_binary_changes(
 
 
 @pytest.mark.asyncio
-async def test_runtime_emits_qwenpaw_envelopes(tmp_path: Path) -> None:
+async def test_runtime_emits_aiarb_envelopes(tmp_path: Path) -> None:
     runtime = HarnessRuntime(tmp_path)
     adapter = FakeAdapter()
     runtime._adapters["codex"] = adapter

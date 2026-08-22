@@ -65,7 +65,7 @@ const SendFileCard: React.FC<SendFileCardProps> = ({
             target
               ? (trigger) => {
                   window.dispatchEvent(
-                    new CustomEvent("qwenpaw:open-file-preview", {
+                    new CustomEvent("aiarb:open-file-preview", {
                       detail: { target, trigger },
                     }),
                   );

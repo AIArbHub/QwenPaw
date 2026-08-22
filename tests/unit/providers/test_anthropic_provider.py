@@ -6,8 +6,8 @@ import time
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
-import qwenpaw.providers.anthropic_provider as anthropic_provider_module
-from qwenpaw.providers.anthropic_provider import AnthropicProvider
+import aiarb.providers.anthropic_provider as anthropic_provider_module
+from aiarb.providers.anthropic_provider import AnthropicProvider
 
 
 def _make_provider(is_custom: bool = False) -> AnthropicProvider:

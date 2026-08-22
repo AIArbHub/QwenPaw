@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+﻿import { useState, useEffect, useCallback, useRef } from "react";
 import { Modal } from "@agentscope-ai/design";
 import { useAppMessage } from "../../../hooks/useAppMessage";
 import api from "../../../api";
@@ -45,7 +45,7 @@ export function useSkills() {
   const { t } = useTranslation();
   const { selectedAgent, agents } = useAgentStore();
   const selectedAgentInfo = agents.find((item) => item.id === selectedAgent);
-  const selectedBackend = selectedAgentInfo?.backend ?? "qwenpaw";
+  const selectedBackend = selectedAgentInfo?.backend ?? "AIARB";
   const canDiscoverProviderSkills = Boolean(
     selectedAgentInfo?.backend_capabilities?.provider_skills_discovery,
   );
@@ -164,7 +164,7 @@ export function useSkills() {
         if (!isCurrentRequest()) return;
 
         let discoveredSkills: HarnessDiscoveredSkill[] = [];
-        if (requestedBackend !== "qwenpaw" && discoverProviderSkills) {
+        if (requestedBackend !== "AIARB" && discoverProviderSkills) {
           try {
             const result = await harnessApi.listSkills(requestedBackend);
             if (!isCurrentRequest()) return;

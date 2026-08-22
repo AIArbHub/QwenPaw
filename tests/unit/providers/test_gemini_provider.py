@@ -10,8 +10,8 @@ import pytest
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 
-import qwenpaw.providers.gemini_provider as gemini_provider_module
-from qwenpaw.providers.gemini_provider import GeminiProvider
+import aiarb.providers.gemini_provider as gemini_provider_module
+from aiarb.providers.gemini_provider import GeminiProvider
 
 
 def _make_provider(**overrides) -> GeminiProvider:
@@ -41,13 +41,13 @@ def test_chat_model_configures_persistent_client_headers(monkeypatch) -> None:
     monkeypatch.setattr(gemini_provider_module.genai, "Client", create_client)
 
     model = _make_provider(
-        custom_headers={"X-QwenPaw-Test": "enabled"},
+        custom_headers={"X-AIArb-Test": "enabled"},
     ).get_chat_model_instance("gemini-2.5-flash")
 
     assert model.client is fake_client
     assert len(captured) == 1
     assert captured[0]["http_options"].headers == {
-        "X-QwenPaw-Test": "enabled",
+        "X-AIArb-Test": "enabled",
     }
 
 
@@ -448,7 +448,7 @@ def test_normalize_models_display_name_with_models_prefix() -> None:
 
 
 def test_sanitize_replaces_standalone_null_type() -> None:
-    from qwenpaw.providers.gemini_provider import _sanitize_schema_for_gemini
+    from aiarb.providers.gemini_provider import _sanitize_schema_for_gemini
 
     schema = {
         "type": "object",
@@ -463,7 +463,7 @@ def test_sanitize_replaces_standalone_null_type() -> None:
 
 
 def test_sanitize_handles_anyOf_with_null() -> None:
-    from qwenpaw.providers.gemini_provider import _sanitize_schema_for_gemini
+    from aiarb.providers.gemini_provider import _sanitize_schema_for_gemini
 
     schema = {
         "type": "object",
@@ -478,7 +478,7 @@ def test_sanitize_handles_anyOf_with_null() -> None:
 
 
 def test_sanitize_handles_anyOf_with_annotated_null() -> None:
-    from qwenpaw.providers.gemini_provider import _sanitize_schema_for_gemini
+    from aiarb.providers.gemini_provider import _sanitize_schema_for_gemini
 
     schema = {
         "type": "object",
@@ -496,7 +496,7 @@ def test_sanitize_handles_anyOf_with_annotated_null() -> None:
 
 
 def test_sanitize_nested_standalone_null() -> None:
-    from qwenpaw.providers.gemini_provider import _sanitize_schema_for_gemini
+    from aiarb.providers.gemini_provider import _sanitize_schema_for_gemini
 
     schema = {
         "type": "object",
@@ -516,7 +516,7 @@ def test_sanitize_nested_standalone_null() -> None:
 
 
 def test_sanitize_removes_additional_properties() -> None:
-    from qwenpaw.providers.gemini_provider import _sanitize_schema_for_gemini
+    from aiarb.providers.gemini_provider import _sanitize_schema_for_gemini
 
     schema = {
         "type": "object",
@@ -528,7 +528,7 @@ def test_sanitize_removes_additional_properties() -> None:
 
 
 def test_sanitize_all_null_anyOf_becomes_object() -> None:
-    from qwenpaw.providers.gemini_provider import _sanitize_schema_for_gemini
+    from aiarb.providers.gemini_provider import _sanitize_schema_for_gemini
 
     schema = {
         "anyOf": [{"type": "null"}, {"type": "null"}],

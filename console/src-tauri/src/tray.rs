@@ -1,4 +1,4 @@
-//! System tray integration for the desktop shell.
+﻿//! System tray integration for the desktop shell.
 
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Mutex;
@@ -25,7 +25,7 @@ const CLOSE_ACK_TIMEOUT: Duration = Duration::from_millis(1500);
 
 /// Emitted to the frontend when the user closes the window, asking it to honor
 /// the remembered preference or show the close prompt.
-pub(crate) const CLOSE_REQUESTED_EVENT: &str = "qwenpaw-close-requested";
+pub(crate) const CLOSE_REQUESTED_EVENT: &str = "AIARB-close-requested";
 
 #[derive(Clone)]
 struct TrayMenuItems {
@@ -84,14 +84,14 @@ pub(crate) fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Erro
             approvals: approvals.clone(),
             quit: quit.clone(),
             stop_blocked:
-                "QwenPaw is still in use in other windows or apps. Close them before quitting completely."
+                "AIARB is still in use in other windows or apps. Close them before quitting completely."
                     .into(),
         });
     }
 
     let mut tray = TrayIconBuilder::new()
         .menu(&menu)
-        .tooltip("QwenPaw Desktop")
+        .tooltip("AIARB Desktop")
         .on_menu_event(|app, event| match event.id().as_ref() {
             SHOW_MENU_ID => show_main_window(app),
             APPROVALS_MENU_ID => {

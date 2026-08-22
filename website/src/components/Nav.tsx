@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Menu,
@@ -9,7 +9,7 @@ import {
   ChevronDown,
   ChartNoAxesCombined,
 } from "lucide-react";
-import { QwenpawMascot } from "./QwenpawMascot";
+import { AIARBMascot } from "./AIARBMascot";
 import { useTranslation } from "react-i18next";
 import { useSiteLanguage } from "@/i18n/SiteLanguageContext";
 import { useSiteConfig } from "@/config-context";
@@ -133,7 +133,7 @@ export function Nav() {
           aria-label={projectName}
         >
           <span className="nav-brand-logo -mt-1 flex">
-            <QwenpawMascot size={120} />
+            <AIARBMascot size={120} />
           </span>
         </Link>
         <div className="nav-links hidden min-[641px]:flex min-[641px]:min-w-0 min-[641px]:flex-1 min-[641px]:items-center min-[641px]:justify-end min-[641px]:gap-3 lg:gap-5 xl:gap-6">
@@ -215,11 +215,11 @@ export function Nav() {
                     <CommunityBenefitsTriggerLabel badgeAfter />
                   </a>
                   <a
-                    href="https://github.com/agentscope-ai/QwenPaw"
+                    href="https://github.com/agentscope-ai/AIARB"
                     target="_blank"
                     rel="noopener noreferrer"
                     className={exploreMenuItemClass}
-                    title="QwenPaw on GitHub"
+                    title="AIARB on GitHub"
                     onClick={() => setExploreOpen(false)}
                   >
                     <GitHubIcon />
@@ -314,12 +314,12 @@ export function Nav() {
           <BlogIcon size={18} aria-hidden /> {t("nav.blog")}
         </Link>
         <a
-          href="https://github.com/agentscope-ai/QwenPaw"
+          href="https://github.com/agentscope-ai/AIARB"
           target="_blank"
           rel="noopener noreferrer"
           className={navLinkOrangeClass}
           onClick={() => setOpen(false)}
-          title="QwenPaw on GitHub"
+          title="AIARB on GitHub"
         >
           <GitHubIcon /> {t("nav.github")}
         </a>

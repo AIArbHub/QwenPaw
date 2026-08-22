@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-argument
 """Tests for bounded recovery from context and request body overflow."""
 
@@ -24,26 +24,26 @@ from agentscope.state import AgentState
 from google.genai import errors as genai_errors
 from PIL import Image
 
-from qwenpaw.agents import prompt
-from qwenpaw.agents.context.visual_compression.runtime.middleware import (
+from AIARB.agents import prompt
+from AIARB.agents.context.visual_compression.runtime.middleware import (
     VisualCompressionMiddleware,
 )
-from qwenpaw.agents.model_factory import (
+from AIARB.agents.model_factory import (
     _count_wire_media_blocks,
     _create_file_block_support_formatter,
 )
-from qwenpaw.agents.react_agent import QwenPawAgent
-from qwenpaw.agents.utils.message_request_normalizer import (
+from AIARB.agents.react_agent import AIARBAgent
+from AIARB.agents.utils.message_request_normalizer import (
     mark_media_omitted_after_overflow,
 )
-from qwenpaw.providers.capping_formatter import (
+from AIARB.providers.capping_formatter import (
     _CappingAnthropicFormatter,
     _CappingDashScopeFormatter,
     _CappingGeminiFormatter,
     _CappingOpenAIFormatter,
     _CappingOpenAIResponseFormatter,
 )
-from qwenpaw.providers.error_utils import is_request_body_too_large
+from AIARB.providers.error_utils import is_request_body_too_large
 
 
 class _ContextOverflowError(Exception):
@@ -85,7 +85,7 @@ class _NoOpScrollManager(_ScrollManager):
 
 
 def _agent(*, context_manager=None):
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIARBAgent)
     agent._context_manager = context_manager
     agent.state = SimpleNamespace(context=["old-1", "old-2"])
     agent._prepare_model_input = AsyncMock(
@@ -307,7 +307,7 @@ def test_context_overflow_classifier_requires_400_and_specific_marker(
     expected,
 ):
     exc = Exception(message)
-    assert QwenPawAgent._is_context_overflow_error(exc) is expected
+    assert AIARBAgent._is_context_overflow_error(exc) is expected
 
 
 @pytest.mark.parametrize(
@@ -333,13 +333,13 @@ def test_context_overflow_classifier_supports_gemini_client_error(message):
             },
         },
     )
-    assert QwenPawAgent._is_context_overflow_error(exc) is True
+    assert AIARBAgent._is_context_overflow_error(exc) is True
 
 
 def test_context_overflow_classifier_supports_aiohttp_response_status():
     exc = Exception("context length exceeded")
     exc.response = SimpleNamespace(status=400)
-    assert QwenPawAgent._is_context_overflow_error(exc) is True
+    assert AIARBAgent._is_context_overflow_error(exc) is True
 
 
 class _BodyOverflowError(Exception):
@@ -383,7 +383,7 @@ def _media_history():
 
 
 def _media_agent(history):
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIARBAgent)
     agent.state = AgentState(context=history)
     agent._context_manager = None
     agent.formatter = _create_file_block_support_formatter(
@@ -425,7 +425,7 @@ def test_body_limit_classifier(status, message, expected):
     error = _BodyOverflowError(status, message)
     assert is_request_body_too_large(error) is expected
     if expected:
-        assert QwenPawAgent._is_context_overflow_error(error) is False
+        assert AIARBAgent._is_context_overflow_error(error) is False
 
 
 @pytest.mark.parametrize(
@@ -544,9 +544,9 @@ async def test_body_recovery_rebuilds_once_without_scroll(
         original_content
     )
     assert [msg.metadata for msg in agent.state.context] == [
-        {"qwenpaw_omitted_media_ids": ["upload"]},
+        {"AIARB_omitted_media_ids": ["upload"]},
         {
-            "qwenpaw_omitted_media_ids": [
+            "AIARB_omitted_media_ids": [
                 "background",
                 *[f"result-{i}" for i in range(6)],
             ],

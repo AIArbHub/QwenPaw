@@ -8,8 +8,8 @@
  * showed a completion time only seconds after the user sent the message.
  *
  * The backend now stamps ``finished_at`` on REPLY_END and exposes it in
- * message metadata (see ``src/qwenpaw/runtime/executor.py`` and
- * ``src/qwenpaw/app/chats/utils.py``). These tests pin the frontend half:
+ * message metadata (see ``src/aiarb/runtime/executor.py`` and
+ * ``src/aiarb/app/chats/utils.py``). These tests pin the frontend half:
  * ``buildResponseCard`` must prefer ``metadata.finished_at`` for
  * ``completed_at`` and fall back to ``timestamp`` when it is absent
  * (legacy sessions).

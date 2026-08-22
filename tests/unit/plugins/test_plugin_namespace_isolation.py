@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access
 """Tests for per-plugin bare-import namespace isolation (#6683).
 
@@ -83,7 +83,7 @@ for _mod_name in _AGENTSCOPE_STUBS:
 @pytest.fixture()
 def fresh_registry():
     """Create a fresh PluginRegistry (bypass singleton)."""
-    from qwenpaw.plugins.registry import PluginRegistry
+    from AIARB.plugins.registry import PluginRegistry
 
     old_instance = PluginRegistry._instance
     PluginRegistry._instance = None
@@ -95,7 +95,7 @@ def fresh_registry():
 @pytest.fixture()
 def loader(fresh_registry, tmp_path):
     """Create a PluginLoader wired to the fresh registry."""
-    from qwenpaw.plugins.loader import PluginLoader
+    from AIARB.plugins.loader import PluginLoader
 
     ldr = PluginLoader(plugin_dirs=[tmp_path])
     ldr.registry = fresh_registry
@@ -136,7 +136,7 @@ def _write_manifest(
         "name": plugin_dir.name,
         "version": "1.0.0",
         "entry": {"backend": backend_entry},
-        "qwenpaw_version": {"min": "0.1.0", "max": "99.0.0"},
+        "AIARB_version": {"min": "0.1.0", "max": "99.0.0"},
     }
     (plugin_dir / "plugin.json").write_text(
         json.dumps(manifest),
@@ -146,8 +146,8 @@ def _write_manifest(
 
 
 async def _load(loader, plugin_dir: Path, backend_entry: str = "plugin.py"):
-    from qwenpaw.plugins.architecture import PluginManifest
-    from qwenpaw.plugins.loader import _manifest_as_dict
+    from AIARB.plugins.architecture import PluginManifest
+    from AIARB.plugins.loader import _manifest_as_dict
 
     manifest = PluginManifest.from_dict(
         json.loads((plugin_dir / "plugin.json").read_text(encoding="utf-8")),
@@ -225,8 +225,8 @@ def test_cache_refresh_failure_preserves_other_operations(
     caplog,
     operation,
 ):
-    from qwenpaw.plugins.loader import _publish_plugin_site_path
-    from qwenpaw.plugins.module_isolation import clear_plugin_bytecode
+    from AIARB.plugins.loader import _publish_plugin_site_path
+    from AIARB.plugins.module_isolation import clear_plugin_bytecode
 
     def fail_refresh():
         raise TypeError("incompatible cache hook")
@@ -243,7 +243,7 @@ def test_cache_refresh_failure_preserves_other_operations(
         assert not cache.exists()
     else:
         monkeypatch.setattr(sys, "path", list(sys.path))
-        monkeypatch.setenv("QWENPAW_PLUGIN_SITE", "previous")
+        monkeypatch.setenv("AIARB_PLUGIN_SITE", "previous")
         site = str(tmp_path)
         _publish_plugin_site_path((site, [site, *sys.path]))
         assert sys.path[0] == site
@@ -402,7 +402,7 @@ class TestBareImportNamespaceIsolation:
 
     @pytest.mark.asyncio
     async def test_nested_entry_dir_imports(self, loader, tmp_path):
-        """The qwenpaw-creator layout: entry at ``backend/main.py`` with
+        """The AIARB-creator layout: entry at ``backend/main.py`` with
         bare imports resolving against ``backend/``."""
         plugin_dir = tmp_path / "nested-entry"
         backend = plugin_dir / "backend"
@@ -806,7 +806,7 @@ class TestBareImportNamespaceIsolation:
         tmp_path,
     ):
         """A failed load must remove the plugin's import redirection."""
-        from qwenpaw.plugins.module_isolation import get_namespace_finder
+        from AIARB.plugins.module_isolation import get_namespace_finder
 
         plugin_dir = tmp_path / "fail-ns"
         plugin_dir.mkdir()
@@ -958,7 +958,7 @@ class TestFallthroughIsolation:
         monkeypatch,
     ):
         """Load-end cleanup must not normalize every preloaded module."""
-        from qwenpaw.plugins import module_isolation
+        from AIARB.plugins import module_isolation
 
         plugin_dir = tmp_path / "incremental-sweep"
         _write_manifest(plugin_dir)
@@ -967,7 +967,7 @@ class TestFallthroughIsolation:
             encoding="utf-8",
         )
 
-        stable_name = "_qwenpaw_unchanged_module_probe"
+        stable_name = "_AIARB_unchanged_module_probe"
         stable_module = types.ModuleType(stable_name)
         stable_path = str(tmp_path.parent / "stable_module.py")
         stable_module.__file__ = stable_path
@@ -990,11 +990,11 @@ class TestFallthroughIsolation:
 
     def test_incremental_sweep_restores_replaced_binding(self, tmp_path):
         """A plugin-local replacement must not erase an older binding."""
-        from qwenpaw.plugins.module_isolation import sweep_bare_tree_modules
+        from AIARB.plugins.module_isolation import sweep_bare_tree_modules
 
         plugin_dir = tmp_path / "restore-binding"
         plugin_dir.mkdir()
-        module_name = "_qwenpaw_replaced_module_probe"
+        module_name = "_AIARB_replaced_module_probe"
         previous = types.ModuleType(module_name)
         replacement = types.ModuleType(module_name)
         replacement.__file__ = str(plugin_dir / "replacement.py")

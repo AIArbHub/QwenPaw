@@ -1,27 +1,27 @@
-import { createRoot } from "react-dom/client";
+﻿import { createRoot } from "react-dom/client";
 
 import { App } from "./App";
 import styles from "./styles.css?inline";
 
 function installStyles(): () => void {
   const element = document.createElement("style");
-  element.dataset.qwenpawDataApp = "true";
+  element.dataset.AIARBDataApp = "true";
   element.textContent = styles;
   document.head.appendChild(element);
   return () => element.remove();
 }
 
 try {
-  const factory = window.QwenPaw?.paw;
+  const factory = window.AIARB?.paw;
   if (!factory) {
     throw new Error(
-      "This QwenPaw-Data build requires the app-scoped PawApp SDK",
+      "This AIARB-Data build requires the app-scoped PawApp SDK",
     );
   }
-  const paw = factory.forApp("qwenpaw-data");
+  const paw = factory.forApp("AIARB-data");
   paw.ui.registerPage({
-    path: "/apps/qwenpaw-data",
-    label: "QwenPaw-Data",
+    path: "/apps/AIARB-data",
+    label: "AIARB-Data",
     icon: "📊",
     priority: 20,
     mount(container) {
@@ -35,5 +35,5 @@ try {
     },
   });
 } catch (error) {
-  console.error("[qwenpaw-data] Could not register the native app", error);
+  console.error("[AIARB-data] Could not register the native app", error);
 }

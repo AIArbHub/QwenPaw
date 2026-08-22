@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Trusted request-scoped project directory overrides."""
 
 from __future__ import annotations
@@ -10,9 +10,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.agents.acp.meta import ACP_PROJECT_DIR_META_KEY
-from qwenpaw.config.config import AgentProfileConfig
-from qwenpaw.runtime.builder import AgentBuilder
+from AIARB.agents.acp.meta import ACP_PROJECT_DIR_META_KEY
+from AIARB.config.config import AgentProfileConfig
+from AIARB.runtime.builder import AgentBuilder
 
 
 def test_session_project_override_uses_canonical_request_key(tmp_path):
@@ -56,7 +56,7 @@ def test_request_project_ignores_non_directory(tmp_path):
     assert updated is config
 
 
-@pytest.mark.usefixtures("capture_qwenpaw_logs")
+@pytest.mark.usefixtures("capture_AIARB_logs")
 def test_request_project_warns_for_unsupported_config(
     caplog,
     tmp_path,
@@ -93,7 +93,7 @@ def test_normal_prompt_includes_workspace_fallback_as_project(tmp_path):
     # Nothing is configured, so project and workspace are the same path.
     # The directory block then names it once as the working directory
     # rather than printing it twice under two labels, which would invite
-    # the model to treat internal QwenPaw state as project content.
+    # the model to treat internal AIARB state as project content.
     assert "Working directory:" in prompt
 
 

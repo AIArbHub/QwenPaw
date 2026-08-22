@@ -6,10 +6,10 @@ const defaultConfig = {
     // Runtime theme colors are normalized before they are passed to it.
     colorPrimary: "#FF7F16",
     darkMode: false,
-    prefix: "qwenpaw",
+    prefix: "aiarb",
     leftHeader: {
       logo: "",
-      title: "Work with QwenPaw",
+      title: "Work with AIArb",
     },
     bubbleList: {
       userMessageAnchors: {

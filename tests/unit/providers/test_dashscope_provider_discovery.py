@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 from __future__ import annotations
 
 import httpx
 import pytest
 
-from qwenpaw.providers import dashscope_discovery
-from qwenpaw.providers.dashscope_provider import DashScopeProvider
-from qwenpaw.providers.provider import ModelInfo
+from AIARB.providers import dashscope_discovery
+from AIARB.providers.dashscope_provider import DashScopeProvider
+from AIARB.providers.provider import ModelInfo
 
 
 def test_dashscope_excludes_non_chat_catalog_entries() -> None:
@@ -34,7 +34,7 @@ async def test_dashscope_fetch_models_filters_non_chat_entries(
         response.raise_for_status()
 
     monkeypatch.setattr(
-        f"qwenpaw.providers.dashscope_provider.fetch_directory",
+        f"AIARB.providers.dashscope_provider.fetch_directory",
         unavailable,
     )
 
@@ -47,7 +47,7 @@ async def test_dashscope_fetch_models_filters_non_chat_entries(
         ]
 
     monkeypatch.setattr(
-        "qwenpaw.providers.openai_provider.OpenAIProvider.fetch_models",
+        "AIARB.providers.openai_provider.OpenAIProvider.fetch_models",
         fetch_models,
     )
 

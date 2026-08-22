@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-"""Tests for tenant-qualified QwenPaw Hub credential storage."""
+﻿# -*- coding: utf-8 -*-
+"""Tests for tenant-qualified AIARB Hub credential storage."""
 
 import os
 import sys
@@ -8,9 +8,9 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.hub.credentials import TenantCredentialVault
-from qwenpaw.hub.local_provisioner import LocalProcessRuntimeProvisioner
-from qwenpaw.utils.runtime_environment import system_environment
+from AIARB.hub.credentials import TenantCredentialVault
+from AIARB.hub.local_provisioner import LocalProcessRuntimeProvisioner
+from AIARB.utils.runtime_environment import system_environment
 from tests.unit.hub.factories import runtime_record as _record
 
 
@@ -113,7 +113,7 @@ def test_windows_runtime_redirects_user_profile(
         "PYTHONPATH",
         "HOME",
         "TMPDIR",
-        "QWENPAW_WORKING_DIR",
+        "AIARB_WORKING_DIR",
         "LD_PRELOAD",
         "DYLD_INSERT_LIBRARIES",
     ],
@@ -157,7 +157,7 @@ def test_runtime_boundary_secret_ignores_tenant_planted_value(
     vault.put(
         tenant_id="tenant-a",
         scope="runtime:runtime-a",
-        name="QWENPAW_RUNTIME_INTERNAL_TOKEN",
+        name="AIARB_RUNTIME_INTERNAL_TOKEN",
         value="tenant-known-token",
         trusted=True,
     )
@@ -165,7 +165,7 @@ def test_runtime_boundary_secret_ignores_tenant_planted_value(
     secret = vault.get_or_create_runtime_secret(
         tenant_id="tenant-a",
         runtime_id="runtime-a",
-        name="QWENPAW_RUNTIME_INTERNAL_TOKEN",
+        name="AIARB_RUNTIME_INTERNAL_TOKEN",
     )
 
     assert secret != "tenant-known-token"
@@ -173,7 +173,7 @@ def test_runtime_boundary_secret_ignores_tenant_planted_value(
         vault.get(
             tenant_id="tenant-a",
             scope="runtime:runtime-a",
-            name="QWENPAW_RUNTIME_INTERNAL_TOKEN",
+            name="AIARB_RUNTIME_INTERNAL_TOKEN",
         )
         is None
     )
@@ -181,7 +181,7 @@ def test_runtime_boundary_secret_ignores_tenant_planted_value(
         vault.get_runtime_secret(
             tenant_id="tenant-a",
             runtime_id="runtime-a",
-            name="QWENPAW_RUNTIME_INTERNAL_TOKEN",
+            name="AIARB_RUNTIME_INTERNAL_TOKEN",
         )
         == secret
     )
@@ -199,19 +199,19 @@ def test_local_runtime_filters_untrusted_control_environment(
         record,
         {
             "PYTHONPATH": "/",
-            "QWENPAW_WORKING_DIR": "/other-tenant",
-            "QWENPAW_RUNTIME_API_URL": "http://other-tenant:9002",
-            "QWENPAW_RUNTIME_INTERNAL_TOKEN": "boundary-token",
-            "QWENPAW_AUTH_ENABLED": "false",
+            "AIARB_WORKING_DIR": "/other-tenant",
+            "AIARB_RUNTIME_API_URL": "http://other-tenant:9002",
+            "AIARB_RUNTIME_INTERNAL_TOKEN": "boundary-token",
+            "AIARB_AUTH_ENABLED": "false",
             "OPENAI_API_KEY": "tenant-key",
         },
     )
 
     assert environment.get("PYTHONPATH") != "/"
-    assert environment["QWENPAW_WORKING_DIR"] == str(record.working_dir)
-    assert environment["QWENPAW_RUNTIME_INTERNAL_TOKEN"] == "boundary-token"
-    assert environment["QWENPAW_AUTH_ENABLED"] == "true"
-    assert environment["QWENPAW_RUNTIME_API_URL"] == (
+    assert environment["AIARB_WORKING_DIR"] == str(record.working_dir)
+    assert environment["AIARB_RUNTIME_INTERNAL_TOKEN"] == "boundary-token"
+    assert environment["AIARB_AUTH_ENABLED"] == "true"
+    assert environment["AIARB_RUNTIME_API_URL"] == (
         f"http://{record.host}:{record.port}"
     )
     assert environment["OPENAI_API_KEY"] == "tenant-key"
@@ -278,8 +278,8 @@ def test_user_runtime_does_not_inherit_host_environment(tmp_path, monkeypatch):
     assert "PIP_TARGET" not in result
     assert "/host/python/bin" not in result["PATH"]
     assert result["HOME"] == str(record.working_dir)
-    assert result["QWENPAW_DISABLE_KEYRING"] == "1"
+    assert result["AIARB_DISABLE_KEYRING"] == "1"
 
     assert "VIRTUAL_ENV" not in result
-    assert result["QWENPAW_RUNTIME_PROVISIONER"] == "local"
+    assert result["AIARB_RUNTIME_PROVISIONER"] == "local"
     assert not (record.working_dir / ".venv").exists()

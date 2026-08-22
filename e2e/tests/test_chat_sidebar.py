@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Chat sidebar & multi-tab end-to-end tests (Sprint 4).
+AIARB Chat sidebar & multi-tab end-to-end tests (Sprint 4).
 
 Cases:
 - SIDEBAR-001  P1  test_sidebar_date_groups_and_collapse   (upstream #5643)
@@ -12,7 +12,7 @@ buckets are otherwise impossible to construct. All assertions stay UI-side.
 
 MULTITAB-001 uses two real pages in the SAME browser context (Web Locks
 are shared per origin per context): the first page grabs the
-``qwenpaw:queue-owner:<sessionId>`` lock, the second becomes queue-only
+``AIARB:queue-owner:<sessionId>`` lock, the second becomes queue-only
 and must render the info banner in the sender area.
 """
 from __future__ import annotations
@@ -88,7 +88,7 @@ class TestSidebarDateGroups:
         # before the app boots so the date buckets under test are rendered.
         page.add_init_script(
             "try { localStorage.setItem("
-            "'qwenpaw_session_group_mode', 'date'); }"
+            "'AIARB_session_group_mode', 'date'); }"
             " catch (e) {}"
         )
         chat = ChatPage(page)

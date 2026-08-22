@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from qwenpaw.governance.detectors import (
+from aiarb.governance.detectors import (
     GuardFinding,
     _COMPILED_CACHE,
     _get_compiled_patterns,
@@ -275,7 +275,7 @@ class TestDetectDangerousPatterns:
         Content-based keying is immune: the rules differ in patterns, so
         each compiles fresh regardless of address.
         """
-        from qwenpaw.governance import detectors
+        from aiarb.governance import detectors
 
         rule_a = _FakeDetectionRule(
             id="PIPE_TO_SHELL",
@@ -321,7 +321,7 @@ class TestDetectDangerousPatterns:
         distinguish from the original object) is exercised deterministically,
         not left to GC timing.
         """
-        from qwenpaw.governance import detectors
+        from aiarb.governance import detectors
 
         # Pin id() to a constant: v1 and v2 share an "address", forcing the
         # failure mode where an id()-keyed cache treats the reloaded rule as

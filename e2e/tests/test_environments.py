@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Environments module end-to-end test cases.
+AIARB Environments module end-to-end test cases.
 
 Rebuilt for the unified environment management page (#7538, commit 76bfb704).
 That change replaced the editable-table model with a read-oriented catalogue:
@@ -75,8 +75,8 @@ IDENTITY_CODE = 'div[class*="__identity__"] code'
 # Anchor on the visible label rather than a class hash.  The pre-#7538
 # fallback `button:has-text("添加变量")` could never match an en-US console.
 ADD_VARIABLE_BTN = 'button:has-text("Add Variable")'
-# Modal shell. `ConfigProvider prefixCls="qwenpaw"` (console/src/App.tsx) makes
-# antd emit `qwenpaw-modal-*`; `ant-modal-*` is kept as a degraded alternate
+# Modal shell. `ConfigProvider prefixCls="AIARB"` (console/src/App.tsx) makes
+# antd emit `AIARB-modal-*`; `ant-modal-*` is kept as a degraded alternate
 # because both prefixes ship in the stylesheet.
 #
 # Every modal selector below is `:visible`-scoped.  antd does not destroy a
@@ -85,20 +85,20 @@ ADD_VARIABLE_BTN = 'button:has-text("Add Variable")'
 # dialog then triggers another one), so an unscoped `.first` could resolve to
 # a stale hidden node left over from the previous interaction and make a
 # `to_be_visible()` assertion fail for a reason unrelated to the product.
-MODAL = '.qwenpaw-modal:visible, .ant-modal:visible'
-MODAL_TITLE = '.qwenpaw-modal:visible .qwenpaw-modal-title, .ant-modal:visible .ant-modal-title'
-MODAL_FOOTER = '.qwenpaw-modal:visible .qwenpaw-modal-footer, .ant-modal:visible .ant-modal-footer'
+MODAL = '.AIARB-modal:visible, .ant-modal:visible'
+MODAL_TITLE = '.AIARB-modal:visible .AIARB-modal-title, .ant-modal:visible .ant-modal-title'
+MODAL_FOOTER = '.AIARB-modal:visible .AIARB-modal-footer, .ant-modal:visible .ant-modal-footer'
 # Modal form inputs.  Key placeholder is the literal "VARIABLE_NAME"
 # (index.tsx passes it as a plain string, not through i18n); the Value
 # placeholder comes from `environments.valuePlaceholder` = "value", with
 # "Value" kept as a tolerant alternate in case that copy changes case.
 MODAL_KEY_INPUT = (
-    '.qwenpaw-modal:visible input[placeholder="VARIABLE_NAME"], '
+    '.AIARB-modal:visible input[placeholder="VARIABLE_NAME"], '
     '.ant-modal:visible input[placeholder="VARIABLE_NAME"]'
 )
 MODAL_VALUE_INPUT = (
-    '.qwenpaw-modal:visible input[placeholder="value"], .ant-modal:visible input[placeholder="value"], '
-    '.qwenpaw-modal:visible input[placeholder="Value"], .ant-modal:visible input[placeholder="Value"]'
+    '.AIARB-modal:visible input[placeholder="value"], .ant-modal:visible input[placeholder="value"], '
+    '.AIARB-modal:visible input[placeholder="Value"], .ant-modal:visible input[placeholder="Value"]'
 )
 # Primary footer button = okText "Apply now".
 #
@@ -108,30 +108,30 @@ MODAL_VALUE_INPUT = (
 # one.  `modal_ok_button()` below walks the candidates in the intended
 # priority instead.
 MODAL_OK_CANDIDATES = (
-    '.qwenpaw-modal:visible .qwenpaw-modal-footer button.qwenpaw-btn-primary',
+    '.AIARB-modal:visible .AIARB-modal-footer button.AIARB-btn-primary',
     '.ant-modal:visible .ant-modal-footer button.ant-btn-primary',
-    '.qwenpaw-modal:visible button:has-text("Apply now")',
+    '.AIARB-modal:visible button:has-text("Apply now")',
     '.ant-modal:visible button:has-text("Apply now")',
 )
 # cancelText "Cancel"; the header close icon is the last resort (SparkModal
 # passes `closeIcon: null` and renders its own, so this may not exist).
 MODAL_CANCEL_CANDIDATES = (
-    '.qwenpaw-modal:visible .qwenpaw-modal-footer button:has-text("Cancel")',
+    '.AIARB-modal:visible .AIARB-modal-footer button:has-text("Cancel")',
     '.ant-modal:visible .ant-modal-footer button:has-text("Cancel")',
-    '.qwenpaw-modal:visible button:has-text("Cancel")',
+    '.AIARB-modal:visible button:has-text("Cancel")',
     '.ant-modal:visible button:has-text("Cancel")',
-    '.qwenpaw-modal:visible .qwenpaw-modal-close',
+    '.AIARB-modal:visible .AIARB-modal-close',
     '.ant-modal:visible .ant-modal-close',
 )
 # `Modal.confirm` is a static antd call; design's ConfigProvider feeds it the
 # same prefix through `holderRender`, which is the anchor already proven green
-# in this suite (e2e/pages/chat_page.py `.qwenpaw-modal-confirm-btns`).
+# in this suite (e2e/pages/chat_page.py `.AIARB-modal-confirm-btns`).
 # Same `:visible` rationale as above, and even more so here: a static confirm
 # dialog is created fresh per call.
-CONFIRM_MODAL = '.qwenpaw-modal-confirm:visible, .ant-modal-confirm:visible'
-CONFIRM_TITLE = '.qwenpaw-modal-confirm-title, .ant-modal-confirm-title'
-CONFIRM_CONTENT = '.qwenpaw-modal-confirm-content, .ant-modal-confirm-content'
-CONFIRM_BTNS = '.qwenpaw-modal-confirm-btns, .ant-modal-confirm-btns'
+CONFIRM_MODAL = '.AIARB-modal-confirm:visible, .ant-modal-confirm:visible'
+CONFIRM_TITLE = '.AIARB-modal-confirm-title, .ant-modal-confirm-title'
+CONFIRM_CONTENT = '.AIARB-modal-confirm-content, .ant-modal-confirm-content'
+CONFIRM_BTNS = '.AIARB-modal-confirm-btns, .ant-modal-confirm-btns'
 # Row action buttons carry aria-labels from `common.*`: Edit / Delete / Reset.
 EDIT_BTN_BY_LABEL = 'button[aria-label="Edit"]'
 DELETE_BTN_BY_LABEL = 'button[aria-label*="Delete"], button[aria-label*="删除"]'
@@ -141,14 +141,14 @@ SHOW_VALUE_BTN_BY_LABEL = 'button[aria-label="Show value"]'
 SEARCH_INPUT = 'input[aria-label="Search variables"]'
 # Toasts come from `useAppMessage()` (antd App context) with the same prefix.
 MESSAGE_NOTICE = (
-    '.qwenpaw-message-notice-content, .qwenpaw-message-custom-content, '
+    '.AIARB-message-notice-content, .AIARB-message-custom-content, '
     '.ant-message-notice-content, .ant-message-custom-content'
 )
 MESSAGE_ERROR = (
-    '.qwenpaw-message-error, .ant-message-error'
+    '.AIARB-message-error, .ant-message-error'
 )
 MESSAGE_SUCCESS = (
-    '.qwenpaw-message-success, .ant-message-success'
+    '.AIARB-message-success, .ant-message-success'
 )
 # New-version validation copy.  `environments.keyRequired` ("Key is required")
 # is no longer referenced by this page: an empty key falls through the same
@@ -328,7 +328,7 @@ def confirm_button(page: Page, ok: bool = True) -> Locator:
     """
     dialog = page.locator(CONFIRM_MODAL).first
     candidates: list[Locator] = []
-    for prefix in ("qwenpaw", "ant"):
+    for prefix in ("AIARB", "ant"):
         buttons_scope = f".{prefix}-modal-confirm-btns"
         if ok:
             for style in ("dangerous", "primary"):
@@ -846,7 +846,7 @@ class TestEditEnvironment:
                 f"Value not updated in the input: got {value_input.input_value()!r}"
             )
             close_btn = page.locator(
-                '.qwenpaw-modal:visible .qwenpaw-modal-close, '
+                '.AIARB-modal:visible .AIARB-modal-close, '
                 '[role="dialog"] button[aria-label="Close"]'
             ).first
             expect(close_btn).to_be_visible(timeout=5000)
@@ -1319,7 +1319,7 @@ class TestEnvVarKeyValidation:
     3. Cleanup
 
     Note: validation moved from a per-row form field (which rendered
-    `.qwenpaw-form-item-explain-error` under the input) to a gate inside
+    `.AIARB-form-item-explain-error` under the input) to a gate inside
     `saveEditor`, which reports through a toast and keeps the Modal open.
     The assertions follow the gate: `saveEditor` rejects anything that fails
     `/^[A-Za-z_][A-Za-z0-9_]*$/` before any request is sent.

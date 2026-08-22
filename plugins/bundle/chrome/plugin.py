@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import logging
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 
 # Kept for the milestone-A bridge wiring contract.  A semantic dispatcher is
 # deliberately not registered until the later control milestone.

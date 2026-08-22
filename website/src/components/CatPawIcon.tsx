@@ -1,5 +1,5 @@
 /**
- * QwenPaw branding logo (logo.png). Favicon uses qwenpaw-symbol.svg.
+ * AIArb branding logo (logo.png). Favicon uses aiarb-symbol.svg.
  */
 interface CatPawIconProps {
   size: number;

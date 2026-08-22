@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+﻿import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   getApiUrl,
   getApiToken,
@@ -32,8 +32,8 @@ describe("getApiUrl", () => {
   });
 
   it("supports an API under a reverse-proxy path prefix", () => {
-    setViteBase("/qwenpaw");
-    expect(getApiUrl("/models")).toBe("/qwenpaw/api/models");
+    setViteBase("/AIARB");
+    expect(getApiUrl("/models")).toBe("/AIARB/api/models");
   });
 
   it("correctly handles nested paths", () => {
@@ -50,7 +50,7 @@ describe("getApiToken", () => {
   });
 
   it("returns token from localStorage when present", () => {
-    localStorage.setItem("qwenpaw_auth_token", "stored-token");
+    localStorage.setItem("AIARB_auth_token", "stored-token");
     expect(getApiToken()).toBe("stored-token");
   });
 
@@ -69,7 +69,7 @@ describe("setAuthToken / clearAuthToken", () => {
 
   it("setAuthToken writes to localStorage", () => {
     setAuthToken("my-token");
-    expect(localStorage.getItem("qwenpaw_auth_token")).toBe("my-token");
+    expect(localStorage.getItem("AIARB_auth_token")).toBe("my-token");
   });
 
   it("clearAuthToken clears cross-origin browser grants", async () => {
@@ -77,9 +77,9 @@ describe("setAuthToken / clearAuthToken", () => {
     const request = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValue(new Response());
-    localStorage.setItem("qwenpaw_auth_token", "my-token");
+    localStorage.setItem("AIARB_auth_token", "my-token");
     clearAuthToken();
-    expect(localStorage.getItem("qwenpaw_auth_token")).toBeNull();
+    expect(localStorage.getItem("AIARB_auth_token")).toBeNull();
     await updateBrowserSession(async () => undefined);
     expect(request).toHaveBeenCalledWith(
       "http://localhost:8088/api/hub/pawapps/sessions",

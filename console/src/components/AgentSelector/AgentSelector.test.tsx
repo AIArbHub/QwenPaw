@@ -203,7 +203,7 @@ describe("AgentSelector", () => {
       ...agents,
       {
         id: "datapaw",
-        name: "QwenPaw-Data",
+        name: "AIArb-Data",
         enabled: true,
         pinned: true,
         description: "",
@@ -218,7 +218,7 @@ describe("AgentSelector", () => {
 
     await user.click(screen.getByRole("combobox"));
 
-    expect(screen.queryByText("QwenPaw-Data")).not.toBeInTheDocument();
+    expect(screen.queryByText("AIArb-Data")).not.toBeInTheDocument();
   });
 
   it("leaves a persisted app-managed agent selection for default Chat", async () => {
@@ -227,7 +227,7 @@ describe("AgentSelector", () => {
       ...agents,
       {
         id: "datapaw",
-        name: "QwenPaw-Data",
+        name: "AIArb-Data",
         enabled: true,
         pinned: true,
         description: "",

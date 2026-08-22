@@ -4,13 +4,13 @@
 import pytest
 from starlette.requests import Request
 
-from qwenpaw.app.routers.mcp_oauth import _redirect_uri
+from aiarb.app.routers.mcp_oauth import _redirect_uri
 
 
 def test_mcp_oauth_uses_managed_callback_when_injected(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "runtime-token")
+    monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "runtime-token")
     request = Request(
         {
             "type": "http",
@@ -19,8 +19,8 @@ def test_mcp_oauth_uses_managed_callback_when_injected(
             "path": "/api/mcp/oauth/start/client",
             "headers": [
                 (
-                    b"x-qwenpaw-hub-oauth-callback-url",
-                    b"https://qwenpaw.example.com/callback/relay",
+                    b"x-aiarb-hub-oauth-callback-url",
+                    b"https://aiarb.example.com/callback/relay",
                 ),
             ],
             "server": ("127.0.0.1", 30000),
@@ -28,5 +28,5 @@ def test_mcp_oauth_uses_managed_callback_when_injected(
     )
 
     assert _redirect_uri(request) == (
-        "https://qwenpaw.example.com/callback/relay"
+        "https://aiarb.example.com/callback/relay"
     )

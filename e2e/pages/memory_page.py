@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Long-term Memory page object.
+AIARB Long-term Memory page object.
 
 Wraps backend API helpers for daily memory file CRUD and the running
 config (which holds ``reme_light_memory_config``), plus locator
@@ -120,9 +120,9 @@ class MemoryPage(BasePage):
             "      state: { selectedAgent: a, agents: [], lastChatIdByAgent: {} },"
             "      version: 0"
             "    });"
-            "    try { localStorage.setItem('qwenpaw-last-used-agent', a); } catch (e) {}"
-            "    try { localStorage.setItem('qwenpaw-agent-storage', blob); } catch (e) {}"
-            "    try { sessionStorage.setItem('qwenpaw-agent-storage', blob); } catch (e) {}"
+            "    try { localStorage.setItem('AIARB-last-used-agent', a); } catch (e) {}"
+            "    try { localStorage.setItem('AIARB-agent-storage', blob); } catch (e) {}"
+            "    try { sessionStorage.setItem('AIARB-agent-storage', blob); } catch (e) {}"
             "  } catch (e) {}"
             "})();"
         )

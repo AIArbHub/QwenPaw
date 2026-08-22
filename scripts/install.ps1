@@ -1,9 +1,9 @@
-# QwenPaw Installer for Windows (self-contained: includes uv download via GitHub)
+﻿# AIARB Installer for Windows (self-contained: includes uv download via GitHub)
 # Usage: irm <url>/install.ps1 | iex
 #    or: .\install.ps1 [-Version X.Y.Z] [-FromSource] [-SourceDir DIR]
 #                            [-Extras "dev,whisper"] [-UvPath PATH]
 #
-# Installs QwenPaw into ~/.qwenpaw with a uv-managed Python environment.
+# Installs AIARB into ~/.AIARB with a uv-managed Python environment.
 # Users do NOT need Python pre-installed — uv handles everything.
 #
 # uv is obtained automatically (no action required from the user):
@@ -28,22 +28,22 @@ param(
 $ErrorActionPreference = "Stop"
 
 # ── Defaults ──────────────────────────────────────────────────────────────────
-$QwenpawHome     = if ($env:QWENPAW_HOME) { $env:QWENPAW_HOME } else { Join-Path $HOME ".qwenpaw" }
-$QwenpawVenv     = Join-Path $QwenpawHome "venv"
-$QwenpawBin      = Join-Path $QwenpawHome "bin"
+$AIARBHome     = if ($env:AIARB_HOME) { $env:AIARB_HOME } else { Join-Path $HOME ".AIARB" }
+$AIARBVenv     = Join-Path $AIARBHome "venv"
+$AIARBBin      = Join-Path $AIARBHome "bin"
 $PythonVersion = "3.12"
-$QwenpawRepo     = "https://github.com/agentscope-ai/QwenPaw.git"
+$AIARBRepo     = "https://github.com/agentscope-ai/AIARB.git"
 
 # ── Colors ────────────────────────────────────────────────────────────────────
-function Write-Info { param([string]$Message) Write-Host "[qwenpaw] " -ForegroundColor Green  -NoNewline; Write-Host $Message }
-function Write-Warn { param([string]$Message) Write-Host "[qwenpaw] " -ForegroundColor Yellow -NoNewline; Write-Host $Message }
-function Write-Err  { param([string]$Message) Write-Host "[qwenpaw] " -ForegroundColor Red    -NoNewline; Write-Host $Message }
+function Write-Info { param([string]$Message) Write-Host "[AIARB] " -ForegroundColor Green  -NoNewline; Write-Host $Message }
+function Write-Warn { param([string]$Message) Write-Host "[AIARB] " -ForegroundColor Yellow -NoNewline; Write-Host $Message }
+function Write-Err  { param([string]$Message) Write-Host "[AIARB] " -ForegroundColor Red    -NoNewline; Write-Host $Message }
 function Stop-WithError { param([string]$Message) Write-Err $Message; exit 1 }
 
 # ── Help ──────────────────────────────────────────────────────────────────────
 if ($Help) {
     @"
-QwenPaw Installer for Windows
+AIARB Installer for Windows
 
 Usage: .\install.ps1 [OPTIONS]
 
@@ -58,14 +58,14 @@ Options:
   -Help                 Show this help
 
 Environment:
-  QWENPAW_HOME            Installation directory (default: ~/.qwenpaw)
+  AIARB_HOME            Installation directory (default: ~/.AIARB)
 "@
     exit 0
 }
 
-Write-Host "[qwenpaw] " -ForegroundColor Green -NoNewline
-Write-Host "Installing QwenPaw into " -NoNewline
-Write-Host "$QwenpawHome" -ForegroundColor White
+Write-Host "[AIARB] " -ForegroundColor Green -NoNewline
+Write-Host "Installing AIARB into " -NoNewline
+Write-Host "$AIARBHome" -ForegroundColor White
 
 # ── Execution Policy Check ────────────────────────────────────────────────────
 $policy = Get-ExecutionPolicy
@@ -202,22 +202,22 @@ if ([version]$Matches[1] -lt [version]"0.13.4") {
 }
 
 # ── Step 2: Create / update virtual environment ──────────────────────────────
-if (Test-Path $QwenpawVenv) {
+if (Test-Path $AIARBVenv) {
     Write-Info "Existing environment found, upgrading..."
 } else {
     Write-Info "Creating Python $PythonVersion environment..."
 }
 
-uv venv $QwenpawVenv --python $PythonVersion --quiet --clear --seed
+uv venv $AIARBVenv --python $PythonVersion --quiet --clear --seed
 if ($LASTEXITCODE -ne 0) { Stop-WithError "Failed to create virtual environment" }
 
-$VenvPython = Join-Path $QwenpawVenv "Scripts\python.exe"
+$VenvPython = Join-Path $AIARBVenv "Scripts\python.exe"
 if (-not (Test-Path $VenvPython)) { Stop-WithError "Failed to create virtual environment" }
 
 $pyVersion = & $VenvPython --version 2>&1
 Write-Info "Python environment ready ($pyVersion)"
 
-# ── Step 3: Install QwenPaw ────────────────────────────────────────────────────
+# ── Step 3: Install AIARB ────────────────────────────────────────────────────
 $ExtrasSuffix = ""
 if ($Extras) { $ExtrasSuffix = "[$Extras]" }
 
@@ -228,7 +228,7 @@ function Prepare-Console {
     param([string]$RepoDir)
 
     $consoleSrc  = Join-Path $RepoDir "console\dist"
-    $consoleDest = Join-Path $RepoDir "src\qwenpaw\console"
+    $consoleDest = Join-Path $RepoDir "src\AIARB\console"
 
     # Already populated
     if (Test-Path (Join-Path $consoleDest "index.html")) { $script:ConsoleAvailable = $true; return }
@@ -282,19 +282,19 @@ function Prepare-Console {
 function Cleanup-Console {
     param([string]$RepoDir)
     if ($script:ConsoleCopied) {
-        $consoleDest = Join-Path $RepoDir "src\qwenpaw\console"
+        $consoleDest = Join-Path $RepoDir "src\AIARB\console"
         if (Test-Path $consoleDest) {
             Remove-Item -Path "$consoleDest\*" -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
 }
 
-$VenvQwenpaw = Join-Path $QwenpawVenv "Scripts\qwenpaw.exe"
+$VenvAIARB = Join-Path $AIARBVenv "Scripts\AIARB.exe"
 
 if ($FromSource) {
     if ($SourceDir) {
         $SourceDir = (Resolve-Path $SourceDir).Path
-        Write-Info "Installing QwenPaw from local source: $SourceDir"
+        Write-Info "Installing AIARB from local source: $SourceDir"
         Prepare-Console $SourceDir
         Write-Info "Installing package from source..."
         uv pip install "pip>=26.2.2" "certifi>=2026.10.19" "${SourceDir}${ExtrasSuffix}" --python $VenvPython
@@ -302,12 +302,12 @@ if ($FromSource) {
         Cleanup-Console $SourceDir
     } else {
         if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-            Stop-WithError "git is required for -FromSource without a local directory. Please install Git from https://git-scm.com/ or pass a local path: .\install.ps1 -FromSource -SourceDir C:\path\to\QwenPaw"
+            Stop-WithError "git is required for -FromSource without a local directory. Please install Git from https://git-scm.com/ or pass a local path: .\install.ps1 -FromSource -SourceDir C:\path\to\AIARB"
         }
-        Write-Info "Installing QwenPaw from source (GitHub)..."
-        $cloneDir = Join-Path $env:TEMP "qwenpaw-install-$(Get-Random)"
+        Write-Info "Installing AIARB from source (GitHub)..."
+        $cloneDir = Join-Path $env:TEMP "AIARB-install-$(Get-Random)"
         try {
-            git clone --depth 1 $QwenpawRepo $cloneDir
+            git clone --depth 1 $AIARBRepo $cloneDir
             if ($LASTEXITCODE -ne 0) { Stop-WithError "Failed to clone repository" }
             Prepare-Console $cloneDir
             Write-Info "Installing package from source..."
@@ -320,56 +320,56 @@ if ($FromSource) {
         }
     }
 } else {
-    $package = "qwenpaw"
-    if ($Version) { $package = "qwenpaw==$Version" }
+    $package = "AIARB"
+    if ($Version) { $package = "AIARB==$Version" }
 
     $prereleaseArgs = @()
     if ($Prerelease) { $prereleaseArgs = @("--prerelease=allow") }
 
     Write-Info "Installing ${package}${ExtrasSuffix} from PyPI..."
-    uv pip install "pip>=26.2.2" "certifi>=2026.10.19" "${package}${ExtrasSuffix}" --python $VenvPython --quiet --refresh-package qwenpaw @prereleaseArgs
+    uv pip install "pip>=26.2.2" "certifi>=2026.10.19" "${package}${ExtrasSuffix}" --python $VenvPython --quiet --refresh-package AIARB @prereleaseArgs
     if ($LASTEXITCODE -ne 0) { Stop-WithError "Installation failed" }
 }
 
 # Verify the CLI entry point exists
-if (-not (Test-Path $VenvQwenpaw)) { Stop-WithError "Installation failed: qwenpaw CLI not found in venv" }
+if (-not (Test-Path $VenvAIARB)) { Stop-WithError "Installation failed: AIARB CLI not found in venv" }
 $SelectedExtras = @($Extras -split ',' | ForEach-Object { $_.Trim().ToLowerInvariant() })
 if ($SelectedExtras -contains 'channels' -or $SelectedExtras -contains 'full') {
-    & $VenvQwenpaw plugins preset apply channels-full --offline
+    & $VenvAIARB plugins preset apply channels-full --offline
     if ($LASTEXITCODE -ne 0) { Stop-WithError "Channel preset setup failed" }
 }
-$CliHelp = & $VenvQwenpaw --help
+$CliHelp = & $VenvAIARB --help
 if ($LASTEXITCODE -ne 0) { Stop-WithError "Command discovery failed" }
 if ($CliHelp -match '^\s+plugins(\s|$)') {
-    $PluginHelp = & $VenvQwenpaw plugins --help
+    $PluginHelp = & $VenvAIARB plugins --help
     if ($LASTEXITCODE -ne 0) { Stop-WithError "Plugin command discovery failed" }
     if ($PluginHelp -match 'prepare-upgrade') {
-        & $VenvQwenpaw plugins prepare-upgrade
+        & $VenvAIARB plugins prepare-upgrade
         if ($LASTEXITCODE -ne 0) { Stop-WithError "Enabled channel preparation failed" }
     }
 }
 
-Write-Info "QwenPaw installed successfully"
+Write-Info "AIARB installed successfully"
 
 # Check console availability (for PyPI installs, check the installed package)
 if (-not $script:ConsoleAvailable) {
-    $consoleCheck = & $VenvPython -c "import importlib.resources, qwenpaw; p=importlib.resources.files('qwenpaw')/'console'/'index.html'; print('yes' if p.is_file() else 'no')" 2>&1
+    $consoleCheck = & $VenvPython -c "import importlib.resources, AIARB; p=importlib.resources.files('AIARB')/'console'/'index.html'; print('yes' if p.is_file() else 'no')" 2>&1
     if ($consoleCheck -eq "yes") { $script:ConsoleAvailable = $true }
 }
 
 # ── Step 4: Create wrapper scripts ───────────────────────────────────────────
-New-Item -ItemType Directory -Path $QwenpawBin -Force | Out-Null
+New-Item -ItemType Directory -Path $AIARBBin -Force | Out-Null
 
-$wrapperPath = Join-Path $QwenpawBin "qwenpaw.ps1"
+$wrapperPath = Join-Path $AIARBBin "AIARB.ps1"
 $wrapperContent = @'
-# QwenPaw CLI wrapper — delegates to the uv-managed environment.
+# AIARB CLI wrapper — delegates to the uv-managed environment.
 $ErrorActionPreference = "Stop"
 
-$QwenpawHome = if ($env:QWENPAW_HOME) { $env:QWENPAW_HOME } else { Join-Path $HOME ".qwenpaw" }
-$RealBin   = Join-Path $QwenpawHome "venv\Scripts\qwenpaw.exe"
+$AIARBHome = if ($env:AIARB_HOME) { $env:AIARB_HOME } else { Join-Path $HOME ".AIARB" }
+$RealBin   = Join-Path $AIARBHome "venv\Scripts\AIARB.exe"
 
 if (-not (Test-Path $RealBin)) {
-    Write-Error "QwenPaw environment not found at $QwenpawHome\venv"
+    Write-Error "AIARB environment not found at $AIARBHome\venv"
     Write-Error "Please reinstall: irm <install-url> | iex"
     exit 1
 }
@@ -381,15 +381,15 @@ Set-Content -Path $wrapperPath -Value $wrapperContent -Encoding UTF8
 Write-Info "Wrapper created at $wrapperPath"
 
 # Also create a .cmd wrapper for use from cmd.exe
-$cmdWrapperPath = Join-Path $QwenpawBin "qwenpaw.cmd"
+$cmdWrapperPath = Join-Path $AIARBBin "AIARB.cmd"
 $cmdWrapperContent = @"
 @echo off
-REM QwenPaw CLI wrapper — delegates to the uv-managed environment.
-set "QWENPAW_HOME=%QWENPAW_HOME%"
-if "%QWENPAW_HOME%"=="" set "QWENPAW_HOME=%USERPROFILE%\.qwenpaw"
-set "REAL_BIN=%QWENPAW_HOME%\venv\Scripts\qwenpaw.exe"
+REM AIARB CLI wrapper — delegates to the uv-managed environment.
+set "AIARB_HOME=%AIARB_HOME%"
+if "%AIARB_HOME%"=="" set "AIARB_HOME=%USERPROFILE%\.AIARB"
+set "REAL_BIN=%AIARB_HOME%\venv\Scripts\AIARB.exe"
 if not exist "%REAL_BIN%" (
-    echo Error: QwenPaw environment not found at %QWENPAW_HOME%\venv >&2
+    echo Error: AIARB environment not found at %AIARB_HOME%\venv >&2
     echo Please reinstall: irm ^<install-url^> ^| iex >&2
     exit /b 1
 )
@@ -400,7 +400,7 @@ Set-Content -Path $cmdWrapperPath -Value $cmdWrapperContent -Encoding UTF8
 Write-Info "CMD wrapper created at $cmdWrapperPath"
 
 # ──Step 5: Update PATH via User Environment Variable ────────────────────────
-$targetPath = $QwenpawBin
+$targetPath = $AIARBBin
 $registryPath = "HKCU:\Environment"
 $registryName = "Path"
 
@@ -453,7 +453,7 @@ if (-not $isAlreadyAdded) {
         Write-Host "   Reason: $errorMsg"
         Write-Host "   Context: Your system policy strictly blocks environment modifications."
         Write-Host ""
-        Write-Host "ACTION REQUIRED: You must manually add the path to use QwenPaw."
+        Write-Host "ACTION REQUIRED: You must manually add the path to use AIARB."
         Write-Host "   Target Path: $targetPath"
         Write-Host ""
         Write-Host "Manual Steps (User Variables):"
@@ -478,10 +478,10 @@ if (-not $isAlreadyAdded) {
 
 # ── Done ──────────────────────────────────────────────────────────────────────
 Write-Host ""
-Write-Host "QwenPaw installed successfully!" -ForegroundColor Green
+Write-Host "AIARB installed successfully!" -ForegroundColor Green
 Write-Host ""
 
-Write-Host "  Install location:  " -NoNewline; Write-Host "$QwenpawHome" -ForegroundColor White
+Write-Host "  Install location:  " -NoNewline; Write-Host "$AIARBHome" -ForegroundColor White
 Write-Host "  Python:            " -NoNewline; Write-Host "$pyVersion"  -ForegroundColor White
 if ($script:ConsoleAvailable) {
     Write-Host "  Console (web UI):  " -NoNewline; Write-Host "available"     -ForegroundColor Green
@@ -493,11 +493,11 @@ Write-Host ""
 
 Write-Host "To get started, open a new terminal and run:"
 Write-Host ""
-Write-Host "  qwenpaw init" -ForegroundColor White -NoNewline; Write-Host "       # first-time setup"
-Write-Host "  qwenpaw app"  -ForegroundColor White -NoNewline; Write-Host "        # start QwenPaw"
+Write-Host "  AIARB init" -ForegroundColor White -NoNewline; Write-Host "       # first-time setup"
+Write-Host "  AIARB app"  -ForegroundColor White -NoNewline; Write-Host "        # start AIARB"
 Write-Host ""
 Write-Host "To upgrade later, re-run this installer."
 Write-Host "To uninstall, run: " -NoNewline
-Write-Host "qwenpaw uninstall" -ForegroundColor White
+Write-Host "AIARB uninstall" -ForegroundColor White
 
 } @args

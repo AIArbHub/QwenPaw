@@ -110,9 +110,9 @@ fn host_control_request(
     action: &str,
     lease_id: Option<&str>,
 ) -> Result<Value, (&'static str, String)> {
-    let host = std::env::var("QWENPAW_COMPUTER_USE_CONTROL_HOST").unwrap_or_default();
-    let token = std::env::var("QWENPAW_COMPUTER_USE_CONTROL_TOKEN").unwrap_or_default();
-    let port = std::env::var("QWENPAW_COMPUTER_USE_CONTROL_PORT")
+    let host = std::env::var("AIARB_COMPUTER_USE_CONTROL_HOST").unwrap_or_default();
+    let token = std::env::var("AIARB_COMPUTER_USE_CONTROL_TOKEN").unwrap_or_default();
+    let port = std::env::var("AIARB_COMPUTER_USE_CONTROL_PORT")
         .ok()
         .and_then(|value| value.parse::<u16>().ok());
     if host != "127.0.0.1" || token.is_empty() || port.is_none() {
@@ -315,7 +315,7 @@ fn integer_param(params: &Map<String, Value>, key: &str) -> Result<i64, (&'stati
 /// `EVFILT_PROC`/`NOTE_EXIT` filter and terminates the helper when the host
 /// exits, preventing orphaned helpers.
 pub(super) fn spawn_parent_death_watch() {
-    let parent = std::env::var("QWENPAW_CU_HOST_PID")
+    let parent = std::env::var("AIARB_CU_HOST_PID")
         .ok()
         .and_then(|value| value.parse::<libc::pid_t>().ok())
         .filter(|pid| *pid > 1)

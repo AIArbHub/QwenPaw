@@ -4,7 +4,7 @@ import {
 } from "../files-workspace/filesWorkspaceScope";
 
 const PROJECT_DIRECTORY_CHANGED_EVENT =
-  "qwenpaw:files-project-directory-changed";
+  "aiarb:files-project-directory-changed";
 
 interface ProjectDirectoryChangeOptions {
   /** Persistence confirms the existing selection without discarding edits. */

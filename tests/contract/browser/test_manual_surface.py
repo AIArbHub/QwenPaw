@@ -2,8 +2,8 @@
 """Every locator call named in the manual must exist on LocatorView."""
 import re
 
-from qwenpaw.browser.sdk import facade
-from qwenpaw.browser.sdk.contracts import LocatorView
+from aiarb.browser.sdk import facade
+from aiarb.browser.sdk.contracts import LocatorView
 
 _MANUAL = "".join(
     value

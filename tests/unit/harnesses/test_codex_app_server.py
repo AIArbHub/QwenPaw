@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for Codex app-server JSON-RPC request handling."""
 
 # pylint: disable=protected-access
@@ -12,7 +12,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.harnesses.codex.app_server import (
+from AIARB.harnesses.codex.app_server import (
     CodexAppServerClient,
     _STDIO_STREAM_LIMIT_BYTES,
 )
@@ -49,7 +49,7 @@ async def test_app_server_uses_large_bounded_stdio_limit(monkeypatch) -> None:
     )
     create = AsyncMock(return_value=process)
     monkeypatch.setattr(
-        "qwenpaw.harnesses.codex.app_server.resolve_codex_binary_info",
+        "AIARB.harnesses.codex.app_server.resolve_codex_binary_info",
         lambda _binary: SimpleNamespace(path=Path("/tmp/codex")),
     )
     monkeypatch.setattr(asyncio, "create_subprocess_exec", create)

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Tests for unified tool governance registration (issue #6114)."""
 
@@ -11,16 +11,16 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.agents.tools.delegate_external_agent import (
+from AIARB.agents.tools.delegate_external_agent import (
     delegate_external_agent,
 )
-from qwenpaw.agents.tools.file_io import append_file
-from qwenpaw.config.config import (
+from AIARB.agents.tools.file_io import append_file
+from AIARB.config.config import (
     ToolsConfig,
     _default_builtin_tools,
     _reset_builtin_tools_cache_for_tests,
 )
-from qwenpaw.governance.policy import (
+from AIARB.governance.policy import (
     DEFAULT_USER_RULES,
     GovernanceAction,
     GovernancePolicy,
@@ -29,7 +29,7 @@ from qwenpaw.governance.policy import (
     _auto_default_user_rules,
     get_default_user_rules,
 )
-from qwenpaw.governance.tool_registry import (
+from AIARB.governance.tool_registry import (
     DEFAULT_REGISTRY,
     GovernanceRegistrationConflict,
     ToolRegistry,
@@ -40,7 +40,7 @@ from qwenpaw.governance.tool_registry import (
     validate_tool_type,
     _collect_governance_gaps,
 )
-from qwenpaw.plugins.api import (
+from AIARB.plugins.api import (
     PluginApi,
     _TOOL_PLUGIN_OWNERS,
     _bridge_to_runtime,
@@ -49,9 +49,9 @@ from qwenpaw.plugins.api import (
     _unbridge_from_runtime,
     release_tool_ownership_for_plugin,
 )
-from qwenpaw.runtime.tool_registry import ToolRegistry as RuntimeToolRegistry
-from qwenpaw.plugins.registry import PluginRegistry
-from qwenpaw.runtime.tool_registry import ToolDescriptor, ToolGovernanceSpec
+from AIARB.runtime.tool_registry import ToolRegistry as RuntimeToolRegistry
+from AIARB.plugins.registry import PluginRegistry
+from AIARB.runtime.tool_registry import ToolDescriptor, ToolGovernanceSpec
 
 
 def _tc(tool_name: str, target: str = "") -> ToolCallSpec:
@@ -152,7 +152,7 @@ class TestBuiltinDescriptorGovernance:
             ),
         )
         with patch(
-            "qwenpaw.runtime.tool_registry.get_builtin_tool_funcs",
+            "AIARB.runtime.tool_registry.get_builtin_tool_funcs",
             return_value=[fn],
         ):
             gaps = _collect_governance_gaps(registry)
@@ -181,7 +181,7 @@ class TestBuiltinDescriptorGovernance:
         """Memory manager tools must pass governance Phase 0.
 
         They are dynamically supplied by a selected ``BaseMemoryManager``
-        rather than collected from ``qwenpaw.agents.tools``.  Keep their
+        rather than collected from ``AIARB.agents.tools``.  Keep their
         governance identities in the central dynamic-tool registration list.
         """
         expected_mappings = {
@@ -288,7 +288,7 @@ class TestLazyRegistryConcurrency:
         """Double-checked locking must yield one shared registry instance."""
         import time
 
-        from qwenpaw.governance import tool_registry as tr
+        from AIARB.governance import tool_registry as tr
 
         # pylint: disable=protected-access
         proxy = tr._LazyDefaultRegistry()
@@ -570,8 +570,8 @@ class TestRegisterToolRollback:
         failure_point,
         error,
     ):
-        from qwenpaw.agents import tools
-        from qwenpaw.plugins.workspace_projector import ProjectionError
+        from AIARB.agents import tools
+        from AIARB.plugins.workspace_projector import ProjectionError
 
         plugin_id = "__ut_rollback_fail__"
         tool_name = "__ut_rollback_tool__"
@@ -602,7 +602,7 @@ class TestRegisterToolRollback:
             hooks = preg.get_startup_hooks()
             assert len(hooks) == 1
             with patch(
-                f"qwenpaw.plugins.api.{failure_point}",
+                f"AIARB.plugins.api.{failure_point}",
                 side_effect=error,
             ), pytest.raises(ProjectionError, match=str(error)):
                 await hooks[0].callback()
@@ -657,12 +657,12 @@ class TestLoaderGovernanceLifecycle:
 
     @pytest.mark.asyncio
     async def test_unload_plugin_allows_metadata_change_reinstall(self):
-        from qwenpaw.plugins.architecture import (
+        from AIARB.plugins.architecture import (
             PluginEntryPoints,
             PluginManifest,
             PluginRecord,
         )
-        from qwenpaw.plugins.loader import PluginLoader
+        from AIARB.plugins.loader import PluginLoader
 
         plugin_id = "__ut_loader_hot__"
         tool_name = "__ut_loader_hot_tool__"
@@ -723,12 +723,12 @@ class TestLoaderGovernanceLifecycle:
     @pytest.mark.asyncio
     async def test_unload_clears_runtime_and_rebridge_replaces_func(self):
         """Successful unload must unbridge; rebridge must replace old func."""
-        from qwenpaw.plugins.architecture import (
+        from AIARB.plugins.architecture import (
             PluginEntryPoints,
             PluginManifest,
             PluginRecord,
         )
-        from qwenpaw.plugins.loader import PluginLoader
+        from AIARB.plugins.loader import PluginLoader
 
         plugin_id = "__ut_loader_runtime__"
         tool_name = "__ut_loader_runtime_tool__"
@@ -817,12 +817,12 @@ class TestLoaderGovernanceLifecycle:
 
     @pytest.mark.asyncio
     async def test_unload_allows_other_plugin_to_reuse_name(self):
-        from qwenpaw.plugins.architecture import (
+        from AIARB.plugins.architecture import (
             PluginEntryPoints,
             PluginManifest,
             PluginRecord,
         )
-        from qwenpaw.plugins.loader import PluginLoader
+        from AIARB.plugins.loader import PluginLoader
 
         plugin_a = "__ut_loader_a__"
         plugin_b = "__ut_loader_b__"
@@ -885,12 +885,12 @@ class TestLoaderGovernanceLifecycle:
         # pylint: disable=too-many-statements
         import sys
 
-        from qwenpaw.plugins.architecture import (
+        from AIARB.plugins.architecture import (
             PluginEntryPoints,
             PluginManifest,
             PluginRecord,
         )
-        from qwenpaw.plugins.loader import PluginLoader
+        from AIARB.plugins.loader import PluginLoader
 
         attacker = "__ut_loader_attacker__"
         victim = "__ut_loader_victim__"
@@ -916,7 +916,7 @@ class TestLoaderGovernanceLifecycle:
 
         old = PluginRegistry._instance
         PluginRegistry._instance = None
-        tools_module = sys.modules["qwenpaw.agents.tools"]
+        tools_module = sys.modules["AIARB.agents.tools"]
         had_foreign_attr = hasattr(tools_module, foreign_tool)
         try:
             preg = PluginRegistry()

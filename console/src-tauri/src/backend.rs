@@ -1,4 +1,4 @@
-//! Native desktop client for a shared, independently owned Agent Host.
+﻿//! Native desktop client for a shared, independently owned Agent Host.
 
 use std::{
     sync::{
@@ -20,7 +20,7 @@ mod status;
 use status::{Phase, Snapshot, Status};
 
 pub(crate) const OTHER_CLIENTS_ERROR: &str =
-    "Other clients are still using QwenPaw. Close them before stopping the service.";
+    "Other clients are still using AIARB. Close them before stopping the service.";
 
 #[derive(Default)]
 pub(crate) struct BackendState {
@@ -71,7 +71,7 @@ pub(crate) fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Erro
             .targets([
                 Target::new(TargetKind::Stdout),
                 Target::new(TargetKind::LogDir {
-                    file_name: Some("qwenpaw-desktop".into()),
+                    file_name: Some("AIARB-desktop".into()),
                 }),
             ])
             .level(desktop_log_level())
@@ -255,7 +255,7 @@ async fn attach(app: &tauri::AppHandle) -> Result<(), String> {
 }
 
 fn desktop_log_level() -> log::LevelFilter {
-    if std::env::var("QWENPAW_DESKTOP_DEBUG").is_ok_and(|value| {
+    if std::env::var("AIARB_DESKTOP_DEBUG").is_ok_and(|value| {
         matches!(
             value.to_ascii_lowercase().as_str(),
             "1" | "true" | "yes" | "on"

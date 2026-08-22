@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Runtime Config page object.
+AIARB Runtime Config page object.
 
 Wraps all interactions on the Runtime Config (Agent Config) page and exposes business-level methods.
 """
@@ -27,7 +27,7 @@ class RuntimeConfigPage(BasePage):
     - Save configuration
     """
 
-    PAGE_TITLE = "QwenPaw Console"
+    PAGE_TITLE = "AIARB Console"
     PAGE_URL = f"{config.base_url}/agent-config"
 
     # ========== Selector definitions ==========
@@ -46,13 +46,13 @@ class RuntimeConfigPage(BasePage):
     TOOL_EXECUTION_LEVEL_TAB = '[role="tab"]:has-text("Execution")'
 
     # Active panel
-    ACTIVE_PANEL = '.qwenpaw-tabs-tabpane-active'
+    ACTIVE_PANEL = '.AIARB-tabs-tabpane-active'
 
     # Language dropdown
-    LANGUAGE_SELECT = '.qwenpaw-select'
+    LANGUAGE_SELECT = '.AIARB-select'
 
     # Timezone display
-    TIMEZONE_DISPLAY = '.qwenpaw-select-selection-item'
+    TIMEZONE_DISPLAY = '.AIARB-select-selection-item'
 
     # ReAct tab form fields
     MAX_ITERS_INPUT = '#max_iters'
@@ -61,16 +61,16 @@ class RuntimeConfigPage(BasePage):
     MAX_INPUT_LENGTH_INPUT = '#max_input_length'
 
     # Save button
-    SAVE_BTN = 'button.qwenpaw-btn-primary:has-text("保存"), button:has-text("保 存")'
+    SAVE_BTN = 'button.AIARB-btn-primary:has-text("保存"), button:has-text("保 存")'
     RESET_BTN = 'button:has-text("重置"), button:has-text("重 置")'
 
     # Card title
-    CARD_TITLE = '.qwenpaw-spark-title'
+    CARD_TITLE = '.AIARB-spark-title'
 
     # Generic form elements
-    SWITCH = '.qwenpaw-switch'
-    INPUT_NUMBER = '.qwenpaw-input-number-input'
-    SLIDER = '.qwenpaw-slider'
+    SWITCH = '.AIARB-switch'
+    INPUT_NUMBER = '.AIARB-input-number-input'
+    SLIDER = '.AIARB-slider'
 
     # ========== Navigation methods ==========
 
@@ -249,7 +249,7 @@ class RuntimeConfigPage(BasePage):
         """Get the current memory manager backend."""
         select = self.page.locator(self.MEMORY_BACKEND_SELECT).first
         if select.is_visible():
-            selection = select.locator('.qwenpaw-select-selection-item').first
+            selection = select.locator('.AIARB-select-selection-item').first
             return selection.inner_text() if selection.is_visible() else ""
         return ""
 
@@ -317,9 +317,9 @@ class RuntimeConfigPage(BasePage):
         self.page.wait_for_timeout(1000)
 
         # Pick the option
-        dropdown = self.page.locator('.qwenpaw-select-dropdown:visible').first
+        dropdown = self.page.locator('.AIARB-select-dropdown:visible').first
         if dropdown.is_visible():
-            option = dropdown.locator(f'.qwenpaw-select-item-option:has-text("{language}")').first
+            option = dropdown.locator(f'.AIARB-select-item-option:has-text("{language}")').first
             expect(option).to_be_visible(timeout=self.timeout)
             option.click()
             self.page.wait_for_timeout(500)
@@ -333,7 +333,7 @@ class RuntimeConfigPage(BasePage):
     def get_current_language(self) -> str:
         """Get the currently selected language."""
         language_select = self.get_language_select()
-        selection_item = language_select.locator('.qwenpaw-select-selection-item').first
+        selection_item = language_select.locator('.AIARB-select-selection-item').first
         return selection_item.inner_text()
 
     # ========== Timezone operations ==========
@@ -345,7 +345,7 @@ class RuntimeConfigPage(BasePage):
         # Timezone is the second select
         if len(selects) >= 2:
             return selects[1]
-        return selects[0] if len(selects) > 0 else self.page.locator('.qwenpaw-select').last
+        return selects[0] if len(selects) > 0 else self.page.locator('.AIARB-select').last
 
     def get_current_timezone(self) -> str:
         """Get the current timezone."""
@@ -377,6 +377,6 @@ class RuntimeConfigPage(BasePage):
 
     def assert_config_saved(self) -> "RuntimeConfigPage":
         """Assert the configuration was saved successfully."""
-        error_msg = self.page.locator('.qwenpaw-message-error')
+        error_msg = self.page.locator('.AIARB-message-error')
         assert error_msg.count() == 0, "An error message appeared after saving"
         return self

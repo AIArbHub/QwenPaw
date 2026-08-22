@@ -227,15 +227,15 @@ describe("osWindowStore", () => {
       // Flush the open() write, then clear the stored value so the burst
       // below is observable in isolation.
       vi.advanceTimersByTime(300);
-      window.localStorage.removeItem("qwenpaw-os-windows");
+      window.localStorage.removeItem("aiarb-os-windows");
       for (let i = 0; i < 30; i += 1) {
         s().move("core.chat", 100 + i, 100);
       }
       // Mid-burst: no write per pointermove-driven update.
-      expect(window.localStorage.getItem("qwenpaw-os-windows")).toBeNull();
+      expect(window.localStorage.getItem("aiarb-os-windows")).toBeNull();
       vi.advanceTimersByTime(300);
       // One write after the burst, carrying the final geometry.
-      const stored = window.localStorage.getItem("qwenpaw-os-windows");
+      const stored = window.localStorage.getItem("aiarb-os-windows");
       expect(stored).toContain('"x":129');
     } finally {
       vi.useRealTimers();

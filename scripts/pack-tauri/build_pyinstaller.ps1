@@ -1,4 +1,4 @@
-# Build QwenPaw backend with PyInstaller for Tauri sidecar (Windows)
+﻿# Build AIARB backend with PyInstaller for Tauri sidecar (Windows)
 # Creates an onedir backend bundle with embedded Python runtime
 #
 # Usage:
@@ -24,7 +24,7 @@ $RUNTIME_PYTHON_DIR = Join-Path $PYTHON_RUNTIME_DIR "python"
 $NATIVE_HOST_PYTHON = Join-Path $RUNTIME_PYTHON_DIR "python.exe"
 $BUILD_VENV = Join-Path $DIST "pyinstaller-venv"
 $PYTHON_BIN = Join-Path $BUILD_VENV "Scripts\python.exe"
-$VERSION_FILE = "src\qwenpaw\__version__.py"
+$VERSION_FILE = "src\AIARB\__version__.py"
 
 # Extract version
 if (Test-Path $VERSION_FILE) {
@@ -39,7 +39,7 @@ if (Test-Path $VERSION_FILE) {
 }
 
 Write-Host "=========================================" -ForegroundColor Cyan
-Write-Host "QwenPaw PyInstaller Build - Windows" -ForegroundColor Cyan
+Write-Host "AIARB PyInstaller Build - Windows" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host "Version: $VERSION"
 Write-Host "Repository: $REPO_ROOT"
@@ -176,7 +176,7 @@ New-Item -ItemType Directory -Force -Path $DESKTOP_WHEELS | Out-Null
     ".[full]" "setuptools<82" wheel `
     -r (Join-Path $REPO_ROOT "scripts\pack-tauri\native-host-requirements.txt")
 Assert-LastExit "Desktop dependency wheel build failed"
-$HOST_WHEELS = @(Get-ChildItem $DESKTOP_WHEELS -Filter "qwenpaw-*.whl")
+$HOST_WHEELS = @(Get-ChildItem $DESKTOP_WHEELS -Filter "AIARB-*.whl")
 if ($HOST_WHEELS.Count -ne 1) { throw "Expected one host wheel" }
 $HOST_WHEEL = $HOST_WHEELS[0].FullName
 
@@ -203,7 +203,7 @@ if (-not (Test-PythonImport "from acp import Agent")) {
 Write-Host "== Running PyInstaller ==" -ForegroundColor Yellow
 Write-Host "Building onedir backend bundle..."
 
-$SPEC_FILE = Join-Path $REPO_ROOT "scripts\pack-tauri\qwenpaw.spec"
+$SPEC_FILE = Join-Path $REPO_ROOT "scripts\pack-tauri\AIARB.spec"
 if (-not (Test-Path $SPEC_FILE)) {
     Write-Host "ERROR: Spec file not found at $SPEC_FILE" -ForegroundColor Red
     exit 1
@@ -223,9 +223,9 @@ Write-Host "PyInstaller build complete" -ForegroundColor Green
 Write-Host ""
 
 # Verify output
-$BACKEND_DIR = Join-Path $DIST "pyinstaller\qwenpaw-backend"
-$BACKEND_EXE = Join-Path $BACKEND_DIR "qwenpaw-backend.exe"
-$CLI_EXE = Join-Path $BACKEND_DIR "qwenpaw.exe"
+$BACKEND_DIR = Join-Path $DIST "pyinstaller\AIARB-backend"
+$BACKEND_EXE = Join-Path $BACKEND_DIR "AIARB-backend.exe"
+$CLI_EXE = Join-Path $BACKEND_DIR "AIARB.exe"
 if (-not (Test-Path $BACKEND_DIR)) {
     Write-Host "ERROR: Backend bundle directory not found at $BACKEND_DIR" -ForegroundColor Red
     exit 1
@@ -240,7 +240,7 @@ if (-not (Test-Path $CLI_EXE)) {
 }
 & $PYTHON_BIN `
     (Join-Path $PSScriptRoot "verify_model_catalog.py") `
-    (Join-Path $BACKEND_DIR "_internal\qwenpaw\providers\data")
+    (Join-Path $BACKEND_DIR "_internal\AIARB\providers\data")
 Assert-LastExit "Model catalog verification failed"
 
 Write-Host "Backend bundle created: $BACKEND_DIR" -ForegroundColor Green
@@ -252,7 +252,7 @@ Write-Host ""
 
 # Copy to Tauri resources directory
 Write-Host "== Copying to Tauri binaries directory ==" -ForegroundColor Yellow
-$DEST = Join-Path $BINARIES_DIR "qwenpaw-backend"
+$DEST = Join-Path $BINARIES_DIR "AIARB-backend"
 New-Item -ItemType Directory -Force -Path $DEST | Out-Null
 Get-ChildItem -LiteralPath $DEST -Force | Remove-Item -Recurse -Force
 Copy-Item -Recurse -Force (Join-Path $BACKEND_DIR "*") $DEST
@@ -307,13 +307,13 @@ Assert-LastExit "Failed to stage bundled Node runtime"
 Write-Host "== Building Computer Use helper ==" -ForegroundColor Yellow
 $CARGO_BIN = (Get-Command cargo -ErrorAction SilentlyContinue).Source
 if (-not $CARGO_BIN) {
-    throw "cargo not found; Rust toolchain is required to build qwenpaw-computer-use-helper"
+    throw "cargo not found; Rust toolchain is required to build AIARB-computer-use-helper"
 }
 $TAURI_DIR = Join-Path $REPO_ROOT "console\src-tauri"
 Push-Location $TAURI_DIR
 try {
-    & $CARGO_BIN build --release --bin qwenpaw-computer-use-helper
-    Assert-LastExit "Failed to build qwenpaw-computer-use-helper"
+    & $CARGO_BIN build --release --bin AIARB-computer-use-helper
+    Assert-LastExit "Failed to build AIARB-computer-use-helper"
 } finally {
     Pop-Location
 }
@@ -321,11 +321,11 @@ $TARGET_DIR = if ($env:CARGO_TARGET_DIR) { $env:CARGO_TARGET_DIR } else { Join-P
 if (-not [System.IO.Path]::IsPathRooted($TARGET_DIR)) {
     $TARGET_DIR = Join-Path $TAURI_DIR $TARGET_DIR
 }
-$COMPUTER_USE_HELPER_EXE = Join-Path $TARGET_DIR "release\qwenpaw-computer-use-helper.exe"
+$COMPUTER_USE_HELPER_EXE = Join-Path $TARGET_DIR "release\AIARB-computer-use-helper.exe"
 if (-not (Test-Path $COMPUTER_USE_HELPER_EXE)) {
     throw "Computer Use helper executable not found at $COMPUTER_USE_HELPER_EXE"
 }
-$COMPUTER_USE_HELPER_DEST = Join-Path $DEST "qwenpaw-computer-use-helper.exe"
+$COMPUTER_USE_HELPER_DEST = Join-Path $DEST "AIARB-computer-use-helper.exe"
 Copy-Item -Force $COMPUTER_USE_HELPER_EXE $COMPUTER_USE_HELPER_DEST
 Write-Host "Computer Use helper staged: $COMPUTER_USE_HELPER_DEST" -ForegroundColor Green
 Write-Host ""

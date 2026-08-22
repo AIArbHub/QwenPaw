@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Review prompt templates for QwenPaw AI Review Bot (enhanced).
+"""Review prompt templates for AIArb AI Review Bot (enhanced).
 
 The review methodology, coding standards, and anti-pattern checklist
 live in the workspace persona files (SOUL.md, AGENTS.md) written by

@@ -58,7 +58,7 @@ export default function CloudBackupConfigModal({
       const fullConfig: CloudBackupConfig = {
         provider: values.provider ?? null,
         enabled: values.enabled ?? false,
-        remote_prefix: values.remote_prefix ?? "qwenpaw-backups",
+        remote_prefix: values.remote_prefix ?? "aiarb-backups",
         auto_sync: values.auto_sync ?? false,
         sync_on_schedule: values.sync_on_schedule ?? false,
         sync_schedule_cron: values.sync_schedule_cron ?? "0 3 * * *",
@@ -96,7 +96,7 @@ export default function CloudBackupConfigModal({
       const fullConfig: CloudBackupConfig = {
         provider: values.provider ?? null,
         enabled: values.enabled ?? false,
-        remote_prefix: values.remote_prefix ?? "qwenpaw-backups",
+        remote_prefix: values.remote_prefix ?? "aiarb-backups",
         auto_sync: values.auto_sync ?? false,
         sync_on_schedule: values.sync_on_schedule ?? false,
         sync_schedule_cron: values.sync_schedule_cron ?? "0 3 * * *",

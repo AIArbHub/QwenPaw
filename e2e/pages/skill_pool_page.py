@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Skill Pool page object.
+AIARB Skill Pool page object.
 
 Wraps interactions on the Skill Pool page (``/skill-pool``), including the
 skill auto-sync affordances added in upstream #5639:
@@ -9,9 +9,9 @@ skill auto-sync affordances added in upstream #5639:
 - the hover-revealed single automation quick action,
 - the independent built-in Auto Update and Auto Sync detail settings.
 
-Selectors target the real post-#5639 DOM: antd ``prefixCls`` is ``qwenpaw``
+Selectors target the real post-#5639 DOM: antd ``prefixCls`` is ``AIARB``
 and component-local styles are CSS-Module hashed class names, matched via
-``[class*=basename]`` substrings (never the stale ``.qwenpaw-card`` stub).
+``[class*=basename]`` substrings (never the stale ``.AIARB-card`` stub).
 """
 from __future__ import annotations
 
@@ -58,7 +58,7 @@ class SkillPoolPage(BasePage):
     # desktop. Anchor the editor on its edit-only Auto Sync control so other
     # dialogs cannot satisfy these selectors.
     DRAWER = '[role="dialog"]:has([data-testid="auto-sync-switch"])'
-    DRAWER_TITLE = f'{DRAWER} .qwenpaw-modal-title'
+    DRAWER_TITLE = f'{DRAWER} .AIARB-modal-title'
     AUTO_SYNC_SWITCH = f'{DRAWER} [data-testid="auto-sync-switch"]'
     # Target-agent multi-select is rendered ONLY after the switch is ON; anchor
     # on its placeholder text (unique) so we don't match other selects.
@@ -69,7 +69,7 @@ class SkillPoolPage(BasePage):
         ':has-text("所有已安装该技能的智能体")'
     )
     SAVE_BTN = (
-        f'{DRAWER} .qwenpaw-modal-footer button.qwenpaw-btn-primary'
+        f'{DRAWER} .AIARB-modal-footer button.AIARB-btn-primary'
     )
     CANCEL_BTN = (
         f'{DRAWER} button:has-text("Cancel"), '

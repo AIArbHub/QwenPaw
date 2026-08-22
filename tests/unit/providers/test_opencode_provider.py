@@ -1,23 +1,23 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for the OpenCode built-in provider."""
 # pylint: disable=protected-access
 
 import pytest
 
-from qwenpaw.providers.provider_catalog import (
+from AIARB.providers.provider_catalog import (
     KILO_MODELS,
 )
-from qwenpaw.providers.provider_manager import (
+from AIARB.providers.provider_manager import (
     OPENCODE_MODELS,
     PROVIDER_OPENCODE,
     ProviderManager,
 )
-from qwenpaw.providers.adapters.request_context import (
+from AIARB.providers.adapters.request_context import (
     model_session,
     session_header,
 )
-from qwenpaw.providers.anthropic_provider import AnthropicProvider
-from qwenpaw.providers.openai_provider import OpenAIProvider
+from AIARB.providers.anthropic_provider import AnthropicProvider
+from AIARB.providers.openai_provider import OpenAIProvider
 
 
 class TestOpenCodeProvider:
@@ -121,7 +121,7 @@ class TestOpenCodeSessionHeaderOnClient:
     ``prepare_request`` adds the header to model calls, but
     ``check_connection`` / ``check_model_connection`` build their own SDK
     client through ``_client()``; without the header OpenCode Go rejects
-    them with ``400 MissingSessionID`` (QwenPaw#7599).
+    them with ``400 MissingSessionID`` (AIARB#7599).
     """
 
     HEADER = "x-opencode-session"
