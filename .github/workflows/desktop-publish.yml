@@ -63,8 +63,8 @@ jobs:
     if: ${{ !inputs.dry_run }}
     runs-on: ubuntu-latest
     env:
-      OSS_BUCKET: ${{ vars.OSS_BUCKET || 'aiarb-download' }}
-      OSS_PUBLIC_BASE_URL: ${{ vars.OSS_PUBLIC_BASE_URL || 'https://download.aiarb.agentscope.io/files/apps/desktop' }}
+      OSS_BUCKET: ${{ vars.OSS_BUCKET || 'qwenpaw-download' }}
+      OSS_PUBLIC_BASE_URL: ${{ vars.OSS_PUBLIC_BASE_URL || 'https://download.qwenpaw.agentscope.io/files/apps/desktop' }}
     steps:
       - name: Checkout (for scripts)
         uses: actions/checkout@v4
@@ -172,7 +172,7 @@ jobs:
             --force
 
       # NOTE: the `latest` files, the updater manifest
-      # (aiarb-tauri-latest.json) and the index are intentionally NOT uploaded
+      # (qwenpaw-tauri-latest.json) and the index are intentionally NOT uploaded
       # here. They are promoted only AFTER the release is flipped to published —
       # see desktop-promote.yml — so existing users' auto-updater is never
       # pointed at a version whose release might still fail to publish.

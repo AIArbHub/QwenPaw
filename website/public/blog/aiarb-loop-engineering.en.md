@@ -213,6 +213,6 @@ From repeating "keep going" in prompts to saving work policy as a reusable modeâ
 
 ## Further Reading
 
-- [AIArb Loop Engineering documentation](https://aiarb.agentscope.io/docs/loop-engineering)
-- [AIArb v2.0.1 release notes](https://aiarb.agentscope.io/release-notes#v2.0.1)
+- [AIArb Loop Engineering documentation](https://qwenpaw.agentscope.io/docs/loop-engineering)
+- [AIArb v2.0.1 release notes](https://qwenpaw.agentscope.io/release-notes#v2.0.1)
 - [AIArb GitHub repository](https://github.com/agentscope-ai/AIArb)

@@ -8,11 +8,11 @@ related:
   items:
     - label: "Plugin"
       name: "AIArb Pet"
-      href: "https://platform.agentscope.io/plugins/aiarb-pet"
+      href: "https://platform.agentscope.io/plugins/qwenpaw-pet"
       description: "The official desktop pet plugin that forwards AIArb backend lifecycle events to AIArb Pet Desktop."
     - label: "Built-in Skill"
       name: "make-skill"
-      href: "https://aiarb.agentscope.io/docs/skills#Create-from-current-session-via-make-skill-Beta"
+      href: "https://qwenpaw.agentscope.io/docs/skills#Create-from-current-session-via-make-skill-Beta"
       description: "Turns the workflow and experience from the current session into a reusable Skill. In this post, it is used to package the desktop-pet creation workflow as a reusable Skill."
 ---
 

@@ -187,7 +187,7 @@ def build_env_context(
         "- GitHub: https://github.com/agentscope-ai/AIArb",
     )
     parts.append(
-        "- Docs: https://aiarb.agentscope.io/",
+        "- Docs: https://qwenpaw.agentscope.io/",
     )
     user_tz = load_config().user_timezone or "UTC"
     try:

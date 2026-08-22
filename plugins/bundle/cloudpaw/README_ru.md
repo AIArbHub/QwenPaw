@@ -38,7 +38,7 @@ CloudPaw полностью работает в вашей собственно�
 | **Python** | 3.10 ~ 3.13 |
 | **Аккаунт Alibaba Cloud** | Требуется Access Key для облачных операций |
 
-> Информацию об установке AIArb см. в [Быстром старте AIArb](https://aiarb.agentscope.io/docs/quickstart). Если версия AIArb ниже v1.1.7, сначала обновите: `pip install --upgrade aiarb>=1.1.7`.
+> Информацию об установке AIArb см. в [Быстром старте AIArb](https://qwenpaw.agentscope.io/docs/quickstart). Если версия AIArb ниже v1.1.7, сначала обновите: `pip install --upgrade aiarb>=1.1.7`.
 
 ### 1. Установка плагина CloudPaw
 
@@ -63,7 +63,7 @@ aiarb plugin install /path/to/cloudpaw
 
 #### ① Модель AIArb
 
-Настройте провайдера LLM и API Key в консоли: Настройки → Модели. См. [документацию по моделям AIArb](https://aiarb.agentscope.io/docs/models).
+Настройте провайдера LLM и API Key в консоли: Настройки → Модели. См. [документацию по моделям AIArb](https://qwenpaw.agentscope.io/docs/models).
 
 #### ② Учётные данные Alibaba Cloud
 

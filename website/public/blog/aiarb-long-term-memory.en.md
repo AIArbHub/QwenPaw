@@ -329,4 +329,4 @@ It does not merely “remember more.” It develops a better understanding of yo
 Learn more:
 
 - [ReMe GitHub](https://github.com/agentscope-ai/ReMe)
-- [AIArb long-term memory documentation](https://aiarb.agentscope.io/docs/memory)
+- [AIArb long-term memory documentation](https://qwenpaw.agentscope.io/docs/memory)

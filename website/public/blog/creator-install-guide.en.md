@@ -11,7 +11,7 @@ excerpt: "Explore the core capabilities of AIArb Creator, then install, configur
 
 > **AIArb Creator** is an agentic video creation platform. Turn a single idea into a short-form drama, or edit existing footage into a finished video, with a team of agents collaborating throughout the process while every key decision remains in your hands.
 >
-> This guide introduces Creator's core capabilities and walks you through installation and first launch in seven steps. For instructions on installing AIArb itself, visit the [AIArb website](https://aiarb.agentscope.io/).
+> This guide introduces Creator's core capabilities and walks you through installation and first launch in seven steps. For instructions on installing AIArb itself, visit the [AIArb website](https://qwenpaw.agentscope.io/).
 
 ![AIArb Creator product demo](https://cloud.video.taobao.com/vod/QrQ22smEYzVP5QtchnWO6ix6caO84v72wVKmqDmRoDY.mp4)
 
@@ -45,7 +45,7 @@ Creator includes native integration with [Qwen-MM-Plugins](https://github.com/Qw
 
 ## Before You Begin: Open AIArb
 
-Install AIArb by following the [Quick Start guide](https://aiarb.agentscope.io/#aiarb-quickstart). AIArb supports pip, the one-click script, Docker, cloud deployment, and desktop installation. Then start it from a terminal. The console opens automatically in your browser:
+Install AIArb by following the [Quick Start guide](https://qwenpaw.agentscope.io/#qwenpaw-quickstart). AIArb supports pip, the one-click script, Docker, cloud deployment, and desktop installation. Then start it from a terminal. The console opens automatically in your browser:
 
 ```bash
 # Start AIArb (listens on 127.0.0.1:8088 by default)

@@ -441,7 +441,7 @@ jobs:
             AIArb-[0-9]*-macOS.zip
             AIArb-Tauri-*-Windows-setup.exe
             AIArb-Tauri-*-macOS.zip
-            aiarb-tauri-latest.json
+            qwenpaw-tauri-latest.json
           fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -457,8 +457,8 @@ jobs:
       needs.build-tauri-macos.result == 'success'
     runs-on: ubuntu-latest
     env:
-      OSS_BUCKET: ${{ vars.OSS_BUCKET || 'aiarb-download' }}
-      OSS_PUBLIC_BASE_URL: ${{ vars.OSS_PUBLIC_BASE_URL || 'https://download.aiarb.agentscope.io/files/apps/desktop' }}
+      OSS_BUCKET: ${{ vars.OSS_BUCKET || 'qwenpaw-download' }}
+      OSS_PUBLIC_BASE_URL: ${{ vars.OSS_PUBLIC_BASE_URL || 'https://download.qwenpaw.agentscope.io/files/apps/desktop' }}
     steps:
       - name: Checkout (for scripts)
         uses: actions/checkout@v4
@@ -701,9 +701,9 @@ jobs:
             --target-base "darwin-aarch64=${OSS_BASE}/mac-tauri" \
             "${metadata_args[@]}" \
             --notes "$NOTES" \
-            --output aiarb-tauri-latest-oss.json
-          ossutil cp aiarb-tauri-latest-oss.json \
-            "oss://${OSS_BUCKET}/metadata/aiarb-tauri-latest.json" \
+            --output qwenpaw-tauri-latest-oss.json
+          ossutil cp qwenpaw-tauri-latest-oss.json \
+            "oss://${OSS_BUCKET}/metadata/qwenpaw-tauri-latest.json" \
             --acl public-read \
             --force
 

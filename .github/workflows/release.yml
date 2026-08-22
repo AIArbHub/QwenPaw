@@ -426,7 +426,7 @@ jobs:
     needs: [resolve, build-wheel, verify-web, build-desktop, build-plugins, build-docker]
     runs-on: ubuntu-latest
     env:
-      OSS_BUCKET: ${{ vars.OSS_BUCKET || 'aiarb-download' }}
+      OSS_BUCKET: ${{ vars.OSS_BUCKET || 'qwenpaw-download' }}
     steps:
       - uses: actions/checkout@v4
         with:

@@ -31,11 +31,11 @@ class AzureBotChannelPlugin:
             ),
             doc_url={
                 "zh": (
-                    "https://aiarb.agentscope.io/docs/channels/"
+                    "https://qwenpaw.agentscope.io/docs/channels/"
                     "?lang=zh#Azure-BotMicrosoft-机器人服务"
                 ),
                 "en": (
-                    "https://aiarb.agentscope.io/docs/channels/"
+                    "https://qwenpaw.agentscope.io/docs/channels/"
                     "?lang=en#Azure-Bot-Microsoft-Bot-Service"
                 ),
             },

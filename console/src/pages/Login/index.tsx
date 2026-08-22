@@ -307,7 +307,7 @@ export default function LoginPage() {
             </a>
             <span aria-hidden="true" />
             <a
-              href="https://aiarb.agentscope.io/"
+              href="https://qwenpaw.agentscope.io/"
               target="_blank"
               rel="noopener noreferrer"
             >

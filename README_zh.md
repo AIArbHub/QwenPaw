@@ -4,7 +4,7 @@
 
 [![GitHub 仓库](https://img.shields.io/badge/GitHub-仓库-black.svg?logo=github)](https://github.com/agentscope-ai/AIArb)
 [![PyPI](https://img.shields.io/pypi/v/aiarb?color=3775A9&label=PyPI&logo=pypi)](https://pypi.org/project/aiarb/)
-[![文档](https://img.shields.io/badge/文档-在线-green.svg?logo=readthedocs&label=Docs)](https://aiarb.agentscope.io/)
+[![文档](https://img.shields.io/badge/文档-在线-green.svg?logo=readthedocs&label=Docs)](https://qwenpaw.agentscope.io/)
 [![Python 版本](https://img.shields.io/badge/python-3.11%20~%20%3C3.14-blue.svg?logo=python&label=Python)](https://www.python.org/downloads/)
 [![最后提交](https://img.shields.io/github/last-commit/agentscope-ai/AIArb)](https://github.com/agentscope-ai/AIArb)
 [![许可证](https://img.shields.io/badge/license-Apache%202.0-red.svg?logo=apache&label=%E8%AE%B8%E5%8F%AF%E8%AF%81)](LICENSE)
@@ -19,7 +19,7 @@
 
 <a href="https://trendshift.io/repositories/25882" target="_blank"><img src="https://trendshift.io/api/badge/trendshift/repositories/25882/daily" alt="agentscope-ai%2FAIArb | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
-[[文档](https://aiarb.agentscope.io/)] [[English](README.md)] [[日本語](README_ja.md)] [[Русский](README_ru.md)]
+[[文档](https://qwenpaw.agentscope.io/)] [[English](README.md)] [[日本語](README_ja.md)] [[Русский](README_ru.md)]
 
 <p align="center">
   <img src="https://gw.alicdn.com/imgextra/i1/O1CN01sens5C1TuwioeGexL_!!6000000002443-55-tps-771-132.svg" alt="AIArb Logo" width="120">
@@ -60,9 +60,9 @@
 
 ## 新闻
 
-- [2026-08-13] **v2.1.0** | AIArb OS Shell、统一文件工作区、AIArb Creator、Codex/Qoder 智能体接入、Browser-use、Computer-use、工作区检查点和长对话任务续接等。[v2.1.0 发布说明 →](https://aiarb.agentscope.io/release-notes#v2.1.0)
+- [2026-08-13] **v2.1.0** | AIArb OS Shell、统一文件工作区、AIArb Creator、Codex/Qoder 智能体接入、Browser-use、Computer-use、工作区检查点和长对话任务续接等。[v2.1.0 发布说明 →](https://qwenpaw.agentscope.io/release-notes#v2.1.0)
 
-- [2026-07-24] **v2.0.1** | PawApp 小程序平台、用户可编辑 Agent Mode、Oh-My-Paw plugins、[ReMe](https://github.com/agentscope-ai/ReMe) 记忆增强、桌面端用户体验增强等。[v2.0.1 发布说明 →](https://aiarb.agentscope.io/release-notes#v2.0.1)
+- [2026-07-24] **v2.0.1** | PawApp 小程序平台、用户可编辑 Agent Mode、Oh-My-Paw plugins、[ReMe](https://github.com/agentscope-ai/ReMe) 记忆增强、桌面端用户体验增强等。[v2.0.1 发布说明 →](https://qwenpaw.agentscope.io/release-notes#v2.0.1)
 
 - [2026-07-10] **v2.0.0 — AIArb 2.0 正式发布** 🎉 | 基于 AgentScope 2.0 全面重构，带来 Agent OS 架构、Loop Engineering、Scroll 上下文、[ReMe](https://github.com/agentscope-ai/ReMe) v0.4 自进化个人知识库与内置终端界面。
 
@@ -75,15 +75,15 @@
   | **[ReMe](https://github.com/agentscope-ai/ReMe) v0.4 自进化个人知识库** | 持续将对话与资料转化为可读、可编辑、可检索、相互链接的 Markdown 记忆。 |
   | **终端界面（TUI）** | 全屏终端对话——与控制台和频道共享同一智能体、记忆与会话。 |
 
-  基于 Agent OS，我们将陆续推出开箱即用的 AIArb 应用小程序——如 **AIArb Creator**、**AIArb Insight** 等，敬请期待。 [v2.0.0 发布说明 →](https://aiarb.agentscope.io/release-notes#v2.0.0)
+  基于 Agent OS，我们将陆续推出开箱即用的 AIArb 应用小程序——如 **AIArb Creator**、**AIArb Insight** 等，敬请期待。 [v2.0.0 发布说明 →](https://qwenpaw.agentscope.io/release-notes#v2.0.0)
 
-- [2026-06-17] **v1.1.12 — 模型页面大改版 & 简洁模式** | 全新模型页面 Provider 聚合设计；新增简洁模式，扁平化导航。[v1.1.12 发布说明 →](https://aiarb.agentscope.io/release-notes#v1.1.12)
+- [2026-06-17] **v1.1.12 — 模型页面大改版 & 简洁模式** | 全新模型页面 Provider 聚合设计；新增简洁模式，扁平化导航。[v1.1.12 发布说明 →](https://qwenpaw.agentscope.io/release-notes#v1.1.12)
 
 - [2026-06-11] **AgentScope 体验平台上线** — 支持免费部署 AIArb、插件分享与 Skill 市场。[立即体验 →](https://platform.agentscope.io/)
 
-- [2026-06-10] **v1.1.11** — 免费模型 OAuth、插件市场、MCP 工具白名单。[v1.1.11 发布说明 →](https://aiarb.agentscope.io/release-notes#v1.1.11)
+- [2026-06-10] **v1.1.11** — 免费模型 OAuth、插件市场、MCP 工具白名单。[v1.1.11 发布说明 →](https://qwenpaw.agentscope.io/release-notes#v1.1.11)
 
-[全部发布说明 →](https://aiarb.agentscope.io/release-notes)
+[全部发布说明 →](https://qwenpaw.agentscope.io/release-notes)
 
 ---
 
@@ -117,7 +117,7 @@ aiarb init --defaults
 aiarb app
 ```
 
-然后在浏览器中打开控制台 **http://127.0.0.1:8088/** 配置模型。若要在钉钉、飞书、微信等 app 内对话，请参考 [频道配置](https://aiarb.agentscope.io/docs/channels) 文档。
+然后在浏览器中打开控制台 **http://127.0.0.1:8088/** 配置模型。若要在钉钉、飞书、微信等 app 内对话，请参考 [频道配置](https://qwenpaw.agentscope.io/docs/channels) 文档。
 
 ![Console](https://img.alicdn.com/imgextra/i2/O1CN01EP1ra01iOAcBvF0TC_!!6000000004402-2-tps-3822-2070.png)
 
@@ -130,19 +130,19 @@ aiarb app
 **macOS / Linux：**
 
 ```bash
-curl -fsSL https://aiarb.agentscope.io/install.sh | bash
+curl -fsSL https://qwenpaw.agentscope.io/install.sh | bash
 ```
 
 **Windows (CMD):**
 
 ```CMD
-curl -fsSL https://aiarb.agentscope.io/install.bat -o install.bat && install.bat
+curl -fsSL https://qwenpaw.agentscope.io/install.bat -o install.bat && install.bat
 ```
 
 **Windows（PowerShell）：**
 
 ```powershell
-irm https://aiarb.agentscope.io/install.ps1 | iex
+irm https://qwenpaw.agentscope.io/install.ps1 | iex
 ```
 
 > **注意**：安装程序将自动检查 uv 状态，若未安装则尝试自动下载配置。如遇自动安装失败，请遵循屏幕提示操作，或执行 `python -m pip install -U uv`，然后重新运行安装程序。
@@ -295,7 +295,7 @@ docker run -p 127.0.0.1:8088:8088 \
 
 #### 下载
 
-从 [官方下载页](https://aiarb.agentscope.io/downloads) 下载桌面应用（Tauri 版）：
+从 [官方下载页](https://qwenpaw.agentscope.io/downloads) 下载桌面应用（Tauri 版）：
 - **Windows**：`AIArb-Tauri-<version>-Windows-setup.exe`
 - **macOS**：`AIArb-Tauri-<version>-macOS.zip`（推荐 Apple Silicon）
 
@@ -325,7 +325,7 @@ docker run -p 127.0.0.1:8088:8088 \
   `xattr -cr "/Applications/AIArb Desktop.app"`
   （或使用解压后的 `.app` 路径）。这会清除「从互联网下载」的隔离标志，使警告通常不会出现，但不如使用 **右键 → 打开** 安全和可控。
 
-详细使用说明、故障排除和常见问题，请参见 [桌面应用指南](https://aiarb.agentscope.io/docs/desktop)。
+详细使用说明、故障排除和常见问题，请参见 [桌面应用指南](https://qwenpaw.agentscope.io/docs/desktop)。
 
 ---
 
@@ -333,10 +333,10 @@ docker run -p 127.0.0.1:8088:8088 \
 
 安装完成后，在 **控制台 → 设置 → 模型** 中配置模型，然后探索：
 
-- [添加 Skills](https://aiarb.agentscope.io/docs/skills) 扩展能力（PDF、Office、浏览器、新闻等）
-- [配置频道](https://aiarb.agentscope.io/docs/channels) 连接钉钉、飞书、Discord 等
-- [配置 Cron](https://aiarb.agentscope.io/docs/cron) 实现定时任务与自动化
-- 查看完整 [快速开始指南](https://aiarb.agentscope.io/docs/quickstart) 了解所有选项与验证步骤
+- [添加 Skills](https://qwenpaw.agentscope.io/docs/skills) 扩展能力（PDF、Office、浏览器、新闻等）
+- [配置频道](https://qwenpaw.agentscope.io/docs/channels) 连接钉钉、飞书、Discord 等
+- [配置 Cron](https://qwenpaw.agentscope.io/docs/cron) 实现定时任务与自动化
+- 查看完整 [快速开始指南](https://qwenpaw.agentscope.io/docs/quickstart) 了解所有选项与验证步骤
 
 ---
 
@@ -350,7 +350,7 @@ aiarb tui --resume <id>   # 恢复之前的某个会话
 aiarb .                   # 在当前代码仓库中启动（Coding 模式）
 ```
 
-支持流式回复、斜杠命令（`/help`、`/resume`、`/theme`，以及智能体自身的 `/model`、`/clear` 等）、把文件 / 长文本作为附件粘贴，以及行内工具授权提示。详见 [终端界面指南](https://aiarb.agentscope.io/docs/tui)。
+支持流式回复、斜杠命令（`/help`、`/resume`、`/theme`，以及智能体自身的 `/model`、`/clear` 等）、把文件 / 长文本作为附件粘贴，以及行内工具授权提示。详见 [终端界面指南](https://qwenpaw.agentscope.io/docs/tui)。
 
 ![AIArb 终端界面](https://img.alicdn.com/imgextra/i2/O1CN01IULzib1TRAzigIcqG_!!6000000002378-2-tps-2350-1312.png)
 
@@ -358,7 +358,7 @@ aiarb .                   # 在当前代码仓库中启动（Coding 模式）
 
 ## API Key
 
-若使用**云端大模型 API**（如 DashScope / 通义千问、OpenAI、Anthropic、Google Gemini、DeepSeek、Kimi、OpenRouter 等），在开始对话前必须配置 API Key。未配置有效 Key 前，AIArb 无法正常工作。详情请参考 [官方文档](https://aiarb.agentscope.io/docs/models)。
+若使用**云端大模型 API**（如 DashScope / 通义千问、OpenAI、Anthropic、Google Gemini、DeepSeek、Kimi、OpenRouter 等），在开始对话前必须配置 API Key。未配置有效 Key 前，AIArb 无法正常工作。详情请参考 [官方文档](https://qwenpaw.agentscope.io/docs/models)。
 
 **配置方式：**
 
@@ -366,13 +366,13 @@ aiarb .                   # 在当前代码仓库中启动（Coding 模式）
 2. **`aiarb init`** — 运行 `aiarb init` 时，会引导你配置 LLM 提供商与 API Key。按提示选择提供商并填写 Key 即可。
 3. **环境变量** — 使用 DashScope 时，可在终端或工作目录下的 `.env` 文件中设置 `DASHSCOPE_API_KEY`。
 
-其他工具所需密钥（如网页搜索的 `TAVILY_API_KEY`）可在控制台 **设置 → 环境变量** 中配置，详见 [配置](https://aiarb.agentscope.io/docs/config)。
+其他工具所需密钥（如网页搜索的 `TAVILY_API_KEY`）可在控制台 **设置 → 环境变量** 中配置，详见 [配置](https://qwenpaw.agentscope.io/docs/config)。
 
 > **仅用本地模型？** 若使用 [本地模型](#本地模型)（AIArb Local / Ollama / LM Studio），则**无需**任何 API Key。
 
 ## 本地模型
 
-AIArb 可在本机完全本地运行大模型，无需 API Key 或云端服务。详情请见 [官方文档](https://aiarb.agentscope.io/docs/models)。
+AIArb 可在本机完全本地运行大模型，无需 API Key 或云端服务。详情请见 [官方文档](https://qwenpaw.agentscope.io/docs/models)。
 
 AIArb 还提供 **AIArb-Flash** 系列 — 面向 Agent 场景专项训练的 2B / 4B / 9B 模型，提供 Q4 与 Q8 量化版本。可在 [ModelScope](https://www.modelscope.cn/organization/AgentScope?tab=model) 与 [Hugging Face](https://huggingface.co/agentscope-ai/models) 获取。
 
@@ -394,7 +394,7 @@ AIArb 内置四层核心安全防护：
 - **Skill Scanner** — 激活前扫描，支持 block / warn / off 模式与白名单。检测提示词注入、硬编码密钥、数据外泄等风险。
 - **Access Policy** — 声明式访问策略，对每次能力调用裁定放行(allow)、拒绝(deny)或请求人工审批(ask)，支持工具级粒度和来源感知匹配。
 
-详见 [安全文档](https://aiarb.agentscope.io/docs/security)。
+详见 [安全文档](https://qwenpaw.agentscope.io/docs/security)。
 
 ---
 
@@ -402,41 +402,41 @@ AIArb 内置四层核心安全防护：
 
 | 主题                                                                 | 说明                                             |
 | -------------------------------------------------------------------- | ------------------------------------------------ |
-| [项目介绍](https://aiarb.agentscope.io/docs/intro)                 | AIArb 是什么、怎么用                           |
-| [快速开始](https://aiarb.agentscope.io/docs/quickstart)            | 安装与运行（本地或魔搭创空间）                   |
-| [控制台](https://aiarb.agentscope.io/docs/console)                 | Web 界面：对话与智能体配置                       |
-| [终端界面（TUI）](https://aiarb.agentscope.io/docs/tui)            | 终端全屏对话，与控制台共用同一智能体             |
-| [桌面应用](https://aiarb.agentscope.io/docs/desktop)               | 桌面应用安装与使用                               |
-| [模型](https://aiarb.agentscope.io/docs/models)                    | 配置云端、本地与自定义提供商                     |
-| [频道配置](https://aiarb.agentscope.io/docs/channels)              | 钉钉、飞书、QQ、Discord、iMessage 等             |
-| [Skills](https://aiarb.agentscope.io/docs/skills)                  | 扩展与自定义能力                                 |
-| [插件系统](https://aiarb.agentscope.io/docs/plugins)               | 插件体系与 Plugin Market                         |
-| [MCP 和工具](https://aiarb.agentscope.io/docs/mcp)                 | 管理 MCP 客户端                                  |
-| [Persona](https://aiarb.agentscope.io/docs/persona)                | 智能体人格定制（SOUL / PROFILE）                 |
-| [记忆](https://aiarb.agentscope.io/docs/memory)                    | 基于本地、可编辑、可检索且相互链接的 Markdown 记忆构建自进化个人知识库，由 [ReMe](https://github.com/agentscope-ai/ReMe) 驱动 |
+| [项目介绍](https://qwenpaw.agentscope.io/docs/intro)                 | AIArb 是什么、怎么用                           |
+| [快速开始](https://qwenpaw.agentscope.io/docs/quickstart)            | 安装与运行（本地或魔搭创空间）                   |
+| [控制台](https://qwenpaw.agentscope.io/docs/console)                 | Web 界面：对话与智能体配置                       |
+| [终端界面（TUI）](https://qwenpaw.agentscope.io/docs/tui)            | 终端全屏对话，与控制台共用同一智能体             |
+| [桌面应用](https://qwenpaw.agentscope.io/docs/desktop)               | 桌面应用安装与使用                               |
+| [模型](https://qwenpaw.agentscope.io/docs/models)                    | 配置云端、本地与自定义提供商                     |
+| [频道配置](https://qwenpaw.agentscope.io/docs/channels)              | 钉钉、飞书、QQ、Discord、iMessage 等             |
+| [Skills](https://qwenpaw.agentscope.io/docs/skills)                  | 扩展与自定义能力                                 |
+| [插件系统](https://qwenpaw.agentscope.io/docs/plugins)               | 插件体系与 Plugin Market                         |
+| [MCP 和工具](https://qwenpaw.agentscope.io/docs/mcp)                 | 管理 MCP 客户端                                  |
+| [Persona](https://qwenpaw.agentscope.io/docs/persona)                | 智能体人格定制（SOUL / PROFILE）                 |
+| [记忆](https://qwenpaw.agentscope.io/docs/memory)                    | 基于本地、可编辑、可检索且相互链接的 Markdown 记忆构建自进化个人知识库，由 [ReMe](https://github.com/agentscope-ai/ReMe) 驱动 |
 | [ReMe 文档](https://docs.agentscope.io/reme/latest/zh/overview)      | ReMe 官方概览与文档                              |
-| [记忆进化与主动交互](https://aiarb.agentscope.io/docs/memory-evolving-and-proactive) | 智能体记忆进化与主动交互                 |
-| [上下文](https://aiarb.agentscope.io/docs/context)                 | 基于滚动的上下文管理                             |
-| [魔法命令](https://aiarb.agentscope.io/docs/commands)              | 无需等待 AI 理解即可控制对话状态                 |
-| [心跳](https://aiarb.agentscope.io/docs/heartbeat)                 | 定时自检与摘要                                   |
-| [Cron / 定时任务](https://aiarb.agentscope.io/docs/cron)           | 定时任务与自动化                                 |
-| [多智能体](https://aiarb.agentscope.io/docs/multi-agent)           | 创建多个智能体并启用协作                         |
-| [安全](https://aiarb.agentscope.io/docs/security)                    | Sandbox、Tool Guard、File Guard、Skill Scanner、Access Policy |
-| [备份与恢复](https://aiarb.agentscope.io/docs/backup)              | 数据备份与恢复                                   |
-| [配置与工作目录](https://aiarb.agentscope.io/docs/config)          | 工作目录与配置文件                               |
-| [REST API](https://aiarb.agentscope.io/docs/api-tutorial)          | 用于集成与自动化的 HTTP API                      |
-| [ACP 集成](https://aiarb.agentscope.io/docs/acp-integration)       | Agent Communication Protocol 集成                |
-| [CLI](https://aiarb.agentscope.io/docs/cli)                        | 初始化、定时任务、Skills、清理                   |
-| [Agent 团队实践](https://aiarb.agentscope.io/docs/practice-agent-team) | 多智能体团队部署指南                         |
-| [FAQ](https://aiarb.agentscope.io/docs/faq)                        | 常见问题与故障排查                               |
+| [记忆进化与主动交互](https://qwenpaw.agentscope.io/docs/memory-evolving-and-proactive) | 智能体记忆进化与主动交互                 |
+| [上下文](https://qwenpaw.agentscope.io/docs/context)                 | 基于滚动的上下文管理                             |
+| [魔法命令](https://qwenpaw.agentscope.io/docs/commands)              | 无需等待 AI 理解即可控制对话状态                 |
+| [心跳](https://qwenpaw.agentscope.io/docs/heartbeat)                 | 定时自检与摘要                                   |
+| [Cron / 定时任务](https://qwenpaw.agentscope.io/docs/cron)           | 定时任务与自动化                                 |
+| [多智能体](https://qwenpaw.agentscope.io/docs/multi-agent)           | 创建多个智能体并启用协作                         |
+| [安全](https://qwenpaw.agentscope.io/docs/security)                    | Sandbox、Tool Guard、File Guard、Skill Scanner、Access Policy |
+| [备份与恢复](https://qwenpaw.agentscope.io/docs/backup)              | 数据备份与恢复                                   |
+| [配置与工作目录](https://qwenpaw.agentscope.io/docs/config)          | 工作目录与配置文件                               |
+| [REST API](https://qwenpaw.agentscope.io/docs/api-tutorial)          | 用于集成与自动化的 HTTP API                      |
+| [ACP 集成](https://qwenpaw.agentscope.io/docs/acp-integration)       | Agent Communication Protocol 集成                |
+| [CLI](https://qwenpaw.agentscope.io/docs/cli)                        | 初始化、定时任务、Skills、清理                   |
+| [Agent 团队实践](https://qwenpaw.agentscope.io/docs/practice-agent-team) | 多智能体团队部署指南                         |
+| [FAQ](https://qwenpaw.agentscope.io/docs/faq)                        | 常见问题与故障排查                               |
 
-完整文档：[aiarb.agentscope.io/docs](https://aiarb.agentscope.io/docs)
+完整文档：[qwenpaw.agentscope.io/docs](https://qwenpaw.agentscope.io/docs)
 
 ---
 
 ## 常见问题
 
-更多常见问题、故障排查技巧和已知问题，请访问 **[FAQ 页面](https://aiarb.agentscope.io/docs/faq)**。
+更多常见问题、故障排查技巧和已知问题，请访问 **[FAQ 页面](https://qwenpaw.agentscope.io/docs/faq)**。
 
 ---
 
