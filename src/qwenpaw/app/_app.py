@@ -578,6 +578,14 @@ async def lifespan(  # pylint: disable=too-many-statements,too-many-branches
 
     _bg_task = asyncio.create_task(_background_startup())
 
+    # Start cloud backup scheduled sync loop
+    try:
+        from ..cloud.sync import start_scheduled_sync
+
+        start_scheduled_sync()
+    except Exception:
+        logger.warning("Failed to start cloud backup scheduled sync", exc_info=True)
+
     try:
         yield
     finally:
@@ -586,6 +594,14 @@ async def lifespan(  # pylint: disable=too-many-statements,too-many-branches
             _bg_task.cancel()
             with suppress(asyncio.CancelledError):
                 await _bg_task
+
+        # Stop cloud backup scheduled sync loop
+        try:
+            from ..cloud.sync import stop_scheduled_sync
+
+            await stop_scheduled_sync()
+        except Exception:
+            logger.warning("Failed to stop cloud backup scheduled sync", exc_info=True)
 
         await _stop_browser_runtime(app)
         from ..agents.tools import shutdown_browser_runtime
