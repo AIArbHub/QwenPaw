@@ -325,7 +325,7 @@ jobs:
               comment += `Thanks so much for your contribution! We'd love to invite you to join the official AIArb developer group!\n\n`;
               comment += `你可以在我们的文档页面的 "Developer Community" 部分找到 Discord 和钉钉群链接：\n`;
               comment += `You can find the Discord and DingTalk group links under the "Developer Community" section on our docs page:\n`;
-              comment += `https://aiarb.agentscope.io/docs/community\n\n`;
+              comment += `https://qwenpaw.agentscope.io/docs/community\n\n`;
               comment += `我们真诚地感谢你的热情，也期待你未来的更多贡献！😊\n`;
               comment += `We truly appreciate your enthusiasm—and look forward to your future contributions! 😊\n\n`;
               comment += `我们会尽快审查你的 PR。\n`;
@@ -406,7 +406,7 @@ jobs:
 
               comment += `### 🙌 Join Developer Community\n\n`;
               comment += `Thanks so much for your contribution! We'd love to invite you to join the official AIArb developer group! You can find the Discord and DingTalk group links under the "Developer Community" section on our docs page:\n`;
-              comment += `https://aiarb.agentscope.io/docs/community\n\n`;
+              comment += `https://qwenpaw.agentscope.io/docs/community\n\n`;
               comment += `We truly appreciate your enthusiasm—and look forward to your future contributions! 😊\n\n`;
               comment += `We'll review your PR soon.\n\n`;
 

@@ -16,7 +16,7 @@
 
 本文档说明如何在 Windows 和 macOS 系统上安装和使用 AIArb Desktop 桌面应用。
 
-[releases]: https://aiarb.agentscope.io/downloads
+[releases]: https://qwenpaw.agentscope.io/downloads
 
 ## 特别说明
 

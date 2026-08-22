@@ -52,7 +52,7 @@ _AIARB_ENV_BLOCK = re.compile(
 )
 _AIARB_ENV_MARKERS = (
     "- GitHub: https://github.com/agentscope-ai/AIArb",
-    "- Docs: https://aiarb.agentscope.io/",
+    "- Docs: https://qwenpaw.agentscope.io/",
     "- Current date:",
 )
 

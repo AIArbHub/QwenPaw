@@ -4,7 +4,7 @@
 
 Thank you for your interest in contributing to AIArb! AIArb is an open-source **personal AI assistant** that runs in your own environment—on your machine or in the cloud. It connects to DingTalk, Feishu, QQ, Discord, iMessage, and other chat apps, supports scheduled tasks and heartbeat, and extends its capabilities through **Skills**. We warmly welcome contributions that help make AIArb more useful for everyone: whether you add a new channel, a new model provider, a Skill, improve docs, or fix bugs.
 
-**Quick links:** [GitHub](https://github.com/agentscope-ai/AIArb) · [Docs](https://aiarb.agentscope.io/) · [License: Apache 2.0](LICENSE)
+**Quick links:** [GitHub](https://github.com/agentscope-ai/AIArb) · [Docs](https://qwenpaw.agentscope.io/) · [License: Apache 2.0](LICENSE)
 
 ---
 
@@ -195,7 +195,7 @@ If you add or change platform support, please test on the affected OS and mentio
 ### Other Contributions
 
 - **MCP (Model Context Protocol):** AIArb supports runtime **MCP tool** discovery and hot-plug. Contributing new MCP servers or tools (or docs on how to attach them) helps users extend the agent without changing core code.
-- **Documentation:** Fixes and improvements to [the docs](https://aiarb.agentscope.io/) (under `website/public/docs/`) and README are always welcome.
+- **Documentation:** Fixes and improvements to [the docs](https://qwenpaw.agentscope.io/) (under `website/public/docs/`) and README are always welcome.
 - **Bug fixes and refactors:** Small fixes, clearer error messages, and refactors that keep behavior the same are valuable. Prefer opening an issue for larger refactors so we can align on approach.
 - **Examples and workflows:** Tutorials or example workflows (e.g. “daily digest to DingTalk”, “local model + cron”) can be documented or linked from the repo/docs.
 - **Any other useful things!**

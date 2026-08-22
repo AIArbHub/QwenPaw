@@ -16,7 +16,7 @@
 
 This guide explains how to install and use the AIArb Desktop application on Windows and macOS.
 
-[releases]: https://aiarb.agentscope.io/downloads
+[releases]: https://qwenpaw.agentscope.io/downloads
 
 ## Important Notice
 

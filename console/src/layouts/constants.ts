@@ -14,16 +14,16 @@ export const getWebsiteLang = (lang: string): string =>
   lang.startsWith("zh") ? "zh" : "en";
 
 export const getDocsUrl = (lang: string): string =>
-  `https://aiarb.agentscope.io/docs/intro?lang=${getWebsiteLang(lang)}`;
+  `https://qwenpaw.agentscope.io/docs/intro?lang=${getWebsiteLang(lang)}`;
 
 export const getFaqUrl = (lang: string): string =>
-  `https://aiarb.agentscope.io/docs/faq?lang=${getWebsiteLang(lang)}`;
+  `https://qwenpaw.agentscope.io/docs/faq?lang=${getWebsiteLang(lang)}`;
 
 export const getReleaseNotesUrl = (lang: string): string =>
-  `https://aiarb.agentscope.io/release-notes?lang=${getWebsiteLang(lang)}`;
+  `https://qwenpaw.agentscope.io/release-notes?lang=${getWebsiteLang(lang)}`;
 
 export const getFeatureDemosUrl = (lang: string): string =>
-  `https://aiarb.agentscope.io/docs/functiondemo?lang=${getWebsiteLang(
+  `https://qwenpaw.agentscope.io/docs/functiondemo?lang=${getWebsiteLang(
     lang,
   )}`;
 

@@ -12,15 +12,15 @@ Please check the [Comparison](/docs/comparison) page for detailed feature compar
 ### How to install AIArb
 
 AIArb supports multiple installation methods. See
-[Quick Start](https://aiarb.agentscope.io/docs/quickstart) for details:
+[Quick Start](https://qwenpaw.agentscope.io/docs/quickstart) for details:
 
 1. One-line installer (sets up Python automatically)
 
 ```
 # macOS / Linux:
-curl -fsSL https://aiarb.agentscope.io/install.sh | bash
+curl -fsSL https://qwenpaw.agentscope.io/install.sh | bash
 # Windows (PowerShell):
-irm https://aiarb.agentscope.io/install.ps1 | iex
+irm https://qwenpaw.agentscope.io/install.ps1 | iex
 # For latest instructions, refer to docs and prefer pip if needed.
 ```
 
@@ -107,7 +107,7 @@ docker run -p 127.0.0.1:8088:8088 \
   agentscope/aiarb:latest
 ```
 
-5. If using the Desktop app (Tauri build), it ships with a built-in in-app updater: on startup it automatically checks for new versions and prompts you in the UI, where you can choose "Install and Restart" to update now or "Update Later" to download in the background. You can also grab the latest build manually from the download page: https://aiarb.agentscope.io/downloads
+5. If using the Desktop app (Tauri build), it ships with a built-in in-app updater: on startup it automatically checks for new versions and prompts you in the UI, where you can choose "Install and Restart" to update now or "Update Later" to download in the background. You can also grab the latest build manually from the download page: https://qwenpaw.agentscope.io/downloads
 
 After upgrading, restart the service with `aiarb app`.
 
@@ -129,7 +129,7 @@ aiarb app
 
 The default Console URL is `http://127.0.0.1:8088/`. After quick init, you can
 open Console and customize settings. See
-[Quick Start](https://aiarb.agentscope.io/docs/quickstart).
+[Quick Start](https://qwenpaw.agentscope.io/docs/quickstart).
 
 ### Port 8088 conflict on Windows
 
@@ -254,13 +254,13 @@ AIArb is open source. Official repository:
 
 ### Where to check latest version upgrade details
 
-See the site [Release notes](https://aiarb.agentscope.io/release-notes/?lang=en)
+See the site [Release notes](https://qwenpaw.agentscope.io/release-notes/?lang=en)
 or AIArb GitHub [Releases](https://github.com/agentscope-ai/AIArb/releases).
 
 ### How to configure models
 
 In Console, go to **Settings → Models** to configure. See the
-[Models](https://aiarb.agentscope.io/docs/models) doc for details:
+[Models](https://qwenpaw.agentscope.io/docs/models) doc for details:
 
 - Cloud models: enter the provider API key (e.g. ModelScope, DashScope, or a
   custom provider).
@@ -273,7 +273,7 @@ To use a different model per agent, switch the agent with the selector at the to
 agent.
 
 You can also use `aiarb models` for setup, downloads, and switching. See
-[CLI → Models and environment variables → aiarb models](https://aiarb.agentscope.io/docs/cli#aiarb-models).
+[CLI → Models and environment variables → aiarb models](https://qwenpaw.agentscope.io/docs/cli#qwenpaw-models).
 
 ### How to use AIArb-Flash series models
 
@@ -446,12 +446,12 @@ If a scheduled task does not run as expected, try the following:
 Go to **Agent -> Skills** in Console. You can enable/disable Skills, and add
 Skills through the **Add Skill** entry (create, upload via zip/URL, or browse
 the Skill Market). See
-[Skills](https://aiarb.agentscope.io/docs/skills).
+[Skills](https://qwenpaw.agentscope.io/docs/skills).
 
 ### How to configure MCP
 
 Go to **Agent -> MCP** in Console. You can enable/disable/delete/create MCP
-clients there. See [MCP](https://aiarb.agentscope.io/docs/mcp).
+clients there. See [MCP](https://qwenpaw.agentscope.io/docs/mcp).
 
 ### Common errors
 

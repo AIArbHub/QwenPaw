@@ -30,7 +30,7 @@ describe("isSupportedSkillUrl", () => {
   it.each([
     [
       "aiarb readable URL",
-      "https://platform.agentscope.io/skills/@user/aiarb-docs-zh",
+      "https://platform.agentscope.io/skills/@user/qwenpaw-docs-zh",
       true,
     ],
     [

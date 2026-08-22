@@ -38,7 +38,7 @@ CloudPaw はお客様自身の環境で完全に動作し、データの安全�
 | **Python** | 3.10 ~ 3.13 |
 | **Alibaba Cloud アカウント** | クラウド操作に Access Key が必要 |
 
-> AIArb のインストールについては [AIArb クイックスタート](https://aiarb.agentscope.io/docs/quickstart) を参照してください。AIArb のバージョンが v1.1.7 未満の場合は、まずアップグレードしてください：`pip install --upgrade aiarb>=1.1.7`。
+> AIArb のインストールについては [AIArb クイックスタート](https://qwenpaw.agentscope.io/docs/quickstart) を参照してください。AIArb のバージョンが v1.1.7 未満の場合は、まずアップグレードしてください：`pip install --upgrade aiarb>=1.1.7`。
 
 ### 1. CloudPaw プラグインのインストール
 
@@ -63,7 +63,7 @@ CloudPaw をインストールした後、以下の設定を完了してくだ�
 
 #### ① AIArb モデル
 
-コンソールの「設定」→「モデル」で LLM プロバイダーと API Key を設定します。[AIArb モデル設定ドキュメント](https://aiarb.agentscope.io/docs/models) を参照してください。
+コンソールの「設定」→「モデル」で LLM プロバイダーと API Key を設定します。[AIArb モデル設定ドキュメント](https://qwenpaw.agentscope.io/docs/models) を参照してください。
 
 #### ② Alibaba Cloud 認証情報
 

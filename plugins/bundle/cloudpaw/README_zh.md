@@ -38,7 +38,7 @@ CloudPaw 完全部署在您自己的环境中，数据安全可控。
 | **Python** | 3.10 ~ 3.13 |
 | **阿里云账号** | 需要 Access Key（用于操作云资源） |
 
-> AIArb 的安装方式请参阅 [AIArb 快速开始文档](https://aiarb.agentscope.io/docs/quickstart)。如果已有 AIArb 但版本低于 v1.1.7，请先升级：`pip install --upgrade aiarb>=1.1.7`。
+> AIArb 的安装方式请参阅 [AIArb 快速开始文档](https://qwenpaw.agentscope.io/docs/quickstart)。如果已有 AIArb 但版本低于 v1.1.7，请先升级：`pip install --upgrade aiarb>=1.1.7`。
 
 ### 1. 安装 CloudPaw 插件
 
@@ -63,7 +63,7 @@ aiarb plugin install /path/to/cloudpaw
 
 #### ① AIArb 模型
 
-在控制台 「设置」 → 「模型」 中配置 LLM 提供商和 API Key，详见 [AIArb 模型配置文档](https://aiarb.agentscope.io/docs/models)。
+在控制台 「设置」 → 「模型」 中配置 LLM 提供商和 API Key，详见 [AIArb 模型配置文档](https://qwenpaw.agentscope.io/docs/models)。
 
 #### ② 阿里云凭证
 
