@@ -1,4 +1,4 @@
-import { Progress } from "antd";
+﻿import { Progress } from "antd";
 import { useTranslation } from "react-i18next";
 import styles from "./BackendLoadingPage.module.less";
 type BackendReadyStatus = "checking" | "ready" | "timeout" | "error";
@@ -49,8 +49,8 @@ export default function BackendLoadingPage({
     <div className={styles.page}>
       <div className={styles.card}>
         <img
-          src={`${import.meta.env.BASE_URL}qwenpaw.png`}
-          alt="QwenPaw"
+          src={`${import.meta.env.BASE_URL}AIARB.png`}
+          alt="AIARB"
           className={styles.logo}
         />
 

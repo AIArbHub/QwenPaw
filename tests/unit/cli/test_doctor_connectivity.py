@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.cli import doctor_connectivity
-from qwenpaw.config.config import OneBotConfig, TelegramConfig
+from aiarb.cli import doctor_connectivity
+from aiarb.config.config import OneBotConfig, TelegramConfig
 
 
 def test_probe_telegram_uses_custom_base_url(monkeypatch) -> None:

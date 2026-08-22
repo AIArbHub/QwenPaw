@@ -9,12 +9,12 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.app.driver_config_service import DriverConfigService
-from qwenpaw.drivers.constants import (
+from aiarb.app.driver_config_service import DriverConfigService
+from aiarb.drivers.constants import (
     CREDENTIAL_ALIAS_STATIC,
     CREDENTIAL_KIND_STATIC,
 )
-from qwenpaw.drivers.contracts import (
+from aiarb.drivers.contracts import (
     CredentialRef,
     DriverCard,
     DriverPolicy,
@@ -22,8 +22,8 @@ from qwenpaw.drivers.contracts import (
     PolicyRule,
     PolicyTarget,
 )
-from qwenpaw.drivers.credentials.types import CredentialRecord
-from qwenpaw.harnesses.capabilities import HarnessCapabilityResolver
+from aiarb.drivers.credentials.types import CredentialRecord
+from aiarb.harnesses.capabilities import HarnessCapabilityResolver
 
 
 def _write_skill(

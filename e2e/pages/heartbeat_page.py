@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Heartbeat page object.
+AIARB Heartbeat page object.
 
 Wraps all interactions on the Heartbeat page and exposes business-level methods.
 """
@@ -30,7 +30,7 @@ class HeartbeatPage(BasePage):
     - Save configuration
     """
     
-    PAGE_TITLE = "QwenPaw Console"
+    PAGE_TITLE = "AIARB Console"
     PAGE_URL = f"{config.base_url}/heartbeat"
     PAGE_HEADER = "h1, h2, [class*=title], [class*=header]"
     
@@ -39,14 +39,14 @@ class HeartbeatPage(BasePage):
     PAGE_LOAD_INDICATOR = '[role="switch"][aria-label]'
 
     # Configuration card
-    CONFIG_CARD = ".ant-card, .qwenpaw-card, [class*=card]"
-    CONFIG_FORM = ".ant-form, .qwenpaw-form"
+    CONFIG_CARD = ".ant-card, .AIARB-card, [class*=card]"
+    CONFIG_FORM = ".ant-form, .AIARB-form"
 
     ENABLED_SWITCH = (
         '[role="switch"][aria-label="Enable heartbeat"], '
         '[role="switch"][aria-label="开启心跳"]'
     )
-    ENABLED_LABEL = '.ant-form-item:has-text("Enable"), .ant-form-item:has-text("启用"), .qwenpaw-form-item:has-text("启用"), .qwenpaw-form-item:has-text("开启")'
+    ENABLED_LABEL = '.ant-form-item:has-text("Enable"), .ant-form-item:has-text("启用"), .AIARB-form-item:has-text("启用"), .AIARB-form-item:has-text("开启")'
 
     # Interval configuration.
     # v2.0.0 (PR #5557) added a sibling `#timeoutSeconds` InputNumber to the
@@ -63,17 +63,17 @@ class HeartbeatPage(BasePage):
     )
 
     # Scheduled time
-    TIME_PICKER = '.ant-picker-input > input, .qwenpaw-picker-input > input'
-    TIME_PICKER_PANEL = '.ant-picker-panel, .qwenpaw-picker-panel'
+    TIME_PICKER = '.ant-picker-input > input, .AIARB-picker-input > input'
+    TIME_PICKER_PANEL = '.ant-picker-panel, .AIARB-picker-panel'
 
     # Skill configuration
-    SKILL_SELECT = '.ant-select[data-placeholder*="Skill" i], .ant-select:has-text("skill"), .qwenpaw-select[data-placeholder*="技能" i], .qwenpaw-select:has-text("技能")'
+    SKILL_SELECT = '.ant-select[data-placeholder*="Skill" i], .ant-select:has-text("skill"), .AIARB-select[data-placeholder*="技能" i], .AIARB-select:has-text("技能")'
 
     # The redesigned form persists changes through useAutoSave.
     SAVE_BTN = 'form[class*="schedule"]'
 
     # Status indicator
-    STATUS_INDICATOR = '.ant-badge-status, .qwenpaw-badge-status, .status-indicator'
+    STATUS_INDICATOR = '.ant-badge-status, .AIARB-badge-status, .status-indicator'
 
     # ========== Navigation methods ==========
     
@@ -108,7 +108,7 @@ class HeartbeatPage(BasePage):
         """Return whether the heartbeat is enabled."""
         switch = self.page.locator(self.ENABLED_SWITCH)
         if switch.count() > 0:
-            return switch.evaluate("el => el.classList.contains('ant-switch-checked') || el.classList.contains('qwenpaw-switch-checked') || el.getAttribute('aria-checked') === 'true'")
+            return switch.evaluate("el => el.classList.contains('ant-switch-checked') || el.classList.contains('AIARB-switch-checked') || el.getAttribute('aria-checked') === 'true'")
         return False
     
     def get_interval(self) -> Dict[str, Any]:
@@ -265,6 +265,6 @@ class HeartbeatPage(BasePage):
 
     def assert_config_saved(self) -> "HeartbeatPage":
         """Assert the configuration was saved (no error message on the page)."""
-        error_msg = self.page.locator('.ant-message-error, .qwenpaw-message-error')
+        error_msg = self.page.locator('.ant-message-error, .AIARB-message-error')
         assert error_msg.count() == 0, "Error message appeared after save"
         return self

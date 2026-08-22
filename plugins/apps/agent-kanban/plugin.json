@@ -1,4 +1,4 @@
-{
+﻿{
   "id": "agent-kanban",
   "name": "Agent Kanban",
   "version": "0.1.1",
@@ -7,13 +7,13 @@
     "zh-CN": "用于创建 Issue、指派 Agent、自动执行任务并实时查看输出的协作看板。",
     "en-US": "A Kanban board to create issues, assign them to agents, auto-run them via the assigned agent, and watch their output stream in real time."
   },
-  "author": "QwenPaw Team",
+  "author": "AIARB Team",
   "type": "app",
   "entry": {
     "backend": "backend/main.py",
     "frontend": "ui/index.js"
   },
-  "qwenpaw_version": {
+  "AIARB_version": {
     "min": "2.0.1"
   },
   "meta": {

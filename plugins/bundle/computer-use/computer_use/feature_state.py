@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _default_state_path() -> Path:
-    from qwenpaw.constant import WORKING_DIR
+    from aiarb.constant import WORKING_DIR
 
     return (
         Path(WORKING_DIR)

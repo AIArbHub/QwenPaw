@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=unused-argument
 """Tests for provider discovery policy and model visibility preferences."""
 
@@ -6,16 +6,16 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock
 
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.provider import ModelInfo
-from qwenpaw.providers.provider_catalog import BUILTIN_PROVIDERS
-from qwenpaw.providers.provider_discovery_policy import (
+from AIARB.providers.openai_provider import OpenAIProvider
+from AIARB.providers.provider import ModelInfo
+from AIARB.providers.provider_catalog import BUILTIN_PROVIDERS
+from AIARB.providers.provider_discovery_policy import (
     apply_custom_discovery_policy,
     BUILTIN_DISCOVERY_POLICIES,
     CUSTOM_CHAT_MODEL_NAMES,
     CUSTOM_DISCOVERY_POLICIES,
 )
-from qwenpaw.providers.provider_manager import ProviderManager
+from AIARB.providers.provider_manager import ProviderManager
 
 
 def test_every_builtin_provider_has_discovery_policy() -> None:

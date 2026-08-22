@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Slack native callbacks and sends through an SDK boundary."""
 
 import asyncio
@@ -245,9 +245,9 @@ async def test_unknown_stream_retires_to_durable_receipt(
     unknown_at,
 ):
     import json
-    import qwenpaw.channel_protocol.shared_response_driver as shared
+    import AIARB.channel_protocol.shared_response_driver as shared
     from tests.channel_support.protocol import finish, open_route
-    from qwenpaw.plugins.execution.errors import RpcError
+    from AIARB.plugins.execution.errors import RpcError
 
     monkeypatch.setattr(shared, "_MAX_ROUTES", 1)
     driver = module("slack").SlackDriver()

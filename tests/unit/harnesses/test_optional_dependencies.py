@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for optional third-party agent dependencies."""
 
 from __future__ import annotations
@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.harnesses.base import MissingDependencyAdapter
-from qwenpaw.harnesses.registry import create_adapter
+from AIARB.harnesses.base import MissingDependencyAdapter
+from AIARB.harnesses.registry import create_adapter
 
 
 def test_codex_and_qoder_sdks_are_optional_and_in_full() -> None:
@@ -25,8 +25,8 @@ def test_codex_and_qoder_sdks_are_optional_and_in_full() -> None:
     assert extras["codex"] == ["openai-codex==0.144.4"]
     assert extras["qoder"] == ["qoder-agent-sdk==1.0.9"]
     assert extras["full"] == [
-        "qwenpaw[channels]",
-        "qwenpaw[qwenpaw-data,hub,local,whisper,codex,qoder]",
+        "AIARB[channels]",
+        "AIARB[AIARB-data,hub,local,whisper,codex,qoder]",
     ]
 
 
@@ -37,7 +37,7 @@ async def test_missing_qoder_sdk_does_not_break_provider_creation(
 ) -> None:
     monkeypatch.delitem(
         sys.modules,
-        "qwenpaw.harnesses.qoder.adapter",
+        "AIARB.harnesses.qoder.adapter",
         raising=False,
     )
     monkeypatch.setitem(sys.modules, "qoder_agent_sdk", None)
@@ -48,4 +48,4 @@ async def test_missing_qoder_sdk_does_not_break_provider_creation(
     assert isinstance(adapter, MissingDependencyAdapter)
     assert status.available is False
     assert status.installed is False
-    assert status.error == "Install qwenpaw[qoder] to enable Qoder."
+    assert status.error == "Install AIARB[qoder] to enable Qoder."

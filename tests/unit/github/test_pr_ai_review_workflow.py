@@ -39,7 +39,7 @@ def test_ai_reviewer_and_publisher_capabilities_are_isolated() -> None:
     publisher_steps = str(publisher["steps"])
     assert all("run" not in step for step in publisher["steps"])
     assert "review_runner.py" not in publisher_steps
-    assert "Start QwenPaw server" not in publisher_steps
+    assert "Start AIArb server" not in publisher_steps
 
 
 def test_publisher_rejects_a_stale_review_before_writing() -> None:

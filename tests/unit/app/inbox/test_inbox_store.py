@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access,unused-argument
-"""Unit tests for qwenpaw.app.inbox_store.
+"""Unit tests for aiarb.app.inbox_store.
 
 Real file IO through a monkeypatched ``_INBOX_PATH`` -- no over-mocking.
 Covers: append_event, list_events filters/pagination, mark_read,
@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.app import inbox_store
+from aiarb.app import inbox_store
 
 # p0: critical user flows (CRUD, pagination, mark_read); p2: error paths
 pytestmark = [

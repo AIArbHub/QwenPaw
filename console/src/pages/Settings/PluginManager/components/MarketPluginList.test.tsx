@@ -45,7 +45,7 @@ vi.mock("../hooks/useMarketPlugins", () => ({
     hasMore: hoisted.hasMore,
     autoLoadBlocked: false,
     installingId: null,
-    qwenpawVersion: "2.0.0",
+    aiarbVersion: "2.0.0",
     isCompatible: () => true,
     handleSearch: vi.fn(),
     handleCategoryChange: vi.fn(),
@@ -60,7 +60,7 @@ vi.mock("../hooks/useMarketPlugins", () => ({
 
 function makePlugin(
   detailsUrl: string,
-  qwenpawCompatLabels?: string[],
+  aiarbCompatLabels?: string[],
 ): MarketPluginEntry {
   return {
     id: "@agentscope/demo",
@@ -72,7 +72,7 @@ function makePlugin(
     downloads: 10,
     view_count: 20,
     details_url: detailsUrl,
-    qwenpaw_compat_labels: qwenpawCompatLabels,
+    aiarb_compat_labels: aiarbCompatLabels,
     locales: {
       en: {
         description: "Demo description",
@@ -143,7 +143,7 @@ describe("MarketPluginList", () => {
     expect(invoke).not.toHaveBeenCalled();
   });
 
-  it("shows the QwenPaw compatibility versions returned by the market", () => {
+  it("shows the AIArb compatibility versions returned by the market", () => {
     hoisted.plugins.push(
       makePlugin("https://platform.agentscope.io/plugins/agentscope/demo", [
         "1.x",
@@ -153,7 +153,7 @@ describe("MarketPluginList", () => {
 
     render(<MarketPluginList onInstalled={vi.fn()} />);
 
-    expect(screen.getByText("QwenPaw 1.x, 2.x")).toBeInTheDocument();
+    expect(screen.getByText("AIArb 1.x, 2.x")).toBeInTheDocument();
   });
 
   it("renders cards by default and keeps the existing list view available", () => {

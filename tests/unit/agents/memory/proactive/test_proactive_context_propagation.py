@@ -19,11 +19,11 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from qwenpaw.agents.memory.proactive.proactive_responder import (
+from aiarb.agents.memory.proactive.proactive_responder import (
     generate_proactive_response,
 )
-from qwenpaw.app.agent_context import get_current_agent_id
-from qwenpaw.config.context import get_current_workspace_dir
+from aiarb.app.agent_context import get_current_agent_id
+from aiarb.config.context import get_current_workspace_dir
 
 
 def _workspace(agent_id: str, workspace_dir: Path) -> SimpleNamespace:
@@ -48,17 +48,17 @@ async def test_generate_proactive_response_sets_agent_id_and_workspace_dir(
 
     with (
         patch(
-            "qwenpaw.agents.memory.proactive.proactive_responder"
+            "aiarb.agents.memory.proactive.proactive_responder"
             "._initialize_single_proactive_agent",
             AsyncMock(return_value=SimpleNamespace()),
         ),
         patch(
-            "qwenpaw.agents.memory.proactive.proactive_responder"
+            "aiarb.agents.memory.proactive.proactive_responder"
             ".build_proactive_memory_context",
             fake_build_context,
         ),
         patch(
-            "qwenpaw.agents.memory.proactive.proactive_responder"
+            "aiarb.agents.memory.proactive.proactive_responder"
             "._was_interrupted",
             AsyncMock(return_value=True),
         ),

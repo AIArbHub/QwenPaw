@@ -10,9 +10,9 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 # pylint: disable=no-name-in-module
-from qwenpaw.app.interaction import InteractionManager
+from aiarb.app.interaction import InteractionManager
 
-logger = logging.getLogger("qwenpaw").getChild(
+logger = logging.getLogger("aiarb").getChild(
     "plugin.cloudpaw.routers.interaction",
 )
 

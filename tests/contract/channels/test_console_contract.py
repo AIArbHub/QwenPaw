@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Behavioral contract for Console lifecycle, input and output."""
 
 from __future__ import annotations
@@ -7,8 +7,8 @@ import json
 
 import pytest
 
-from qwenpaw.app.channels.renderer import ChannelDisplayConfig
-from qwenpaw.schemas import (
+from AIARB.app.channels.renderer import ChannelDisplayConfig
+from AIARB.schemas import (
     AudioContent,
     ContentType,
     Event,
@@ -44,7 +44,7 @@ class TestConsoleChannelContract(ChannelContractTest):
 
     def create_instance(self):
         """Provide a ConsoleChannel instance for contract testing."""
-        from qwenpaw.app.channels.console.channel import ConsoleChannel
+        from AIARB.app.channels.console.channel import ConsoleChannel
 
         return ConsoleChannel(
             process=reply,
@@ -58,8 +58,8 @@ class TestConsoleChannelContract(ChannelContractTest):
         )
 
     def test_default_config_and_policy(self):
-        from qwenpaw.app.channels.console.channel import ConsoleChannel
-        from qwenpaw.config.config import ConsoleConfig
+        from AIARB.app.channels.console.channel import ConsoleChannel
+        from AIARB.config.config import ConsoleConfig
 
         channel = ConsoleChannel.from_config(
             reply,
@@ -118,7 +118,7 @@ class TestConsoleChannelContract(ChannelContractTest):
                 "sender_id": "u1",
                 "content_parts": [TextContent(text="hi")],
                 "meta": {"k": "v", "request_context": {"foo": "bar"}},
-                "message_metadata": {"qwenpaw_client_message_id": "client-2"},
+                "message_metadata": {"AIARB_client_message_id": "client-2"},
             },
         )
         assert request.channel == "console"
@@ -138,7 +138,7 @@ class TestConsoleChannelContract(ChannelContractTest):
         )
         assert empty_request.request_context == {"foo": "bar"}
         assert request.input[0].metadata == {
-            "qwenpaw_client_message_id": "client-2",
+            "AIARB_client_message_id": "client-2",
         }
         assert (
             instance.build_agent_request_from_native(None).channel == "console"

@@ -10,7 +10,7 @@ from textual.geometry import Offset
 from textual.screen import Screen
 from textual.widget import Widget
 
-from qwenpaw.cli.tui import compat
+from aiarb.cli.tui import compat
 
 
 def test_hit_testing_ignores_detached_widget(monkeypatch):

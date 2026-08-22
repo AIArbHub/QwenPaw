@@ -3,8 +3,8 @@
 
 # pylint: disable=protected-access
 
-from qwenpaw.providers.modelscope_provider import ModelScopeProvider
-from qwenpaw.providers.provider import ModelInfo
+from aiarb.providers.modelscope_provider import ModelScopeProvider
+from aiarb.providers.provider import ModelInfo
 
 
 def test_modelscope_filters_non_chat_catalog_entries() -> None:
@@ -35,7 +35,7 @@ async def test_modelscope_fetch_models_filters_catalog(monkeypatch) -> None:
         ]
 
     monkeypatch.setattr(
-        "qwenpaw.providers.openai_provider.OpenAIProvider.fetch_models",
+        "aiarb.providers.openai_provider.OpenAIProvider.fetch_models",
         fetch_models,
     )
     models = await provider.fetch_models()

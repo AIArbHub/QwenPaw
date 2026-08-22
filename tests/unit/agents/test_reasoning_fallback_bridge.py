@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Model→event bridge tests for fallback transparency metadata.
 
 The pinned agentscope release drops ``ChatResponse.metadata`` when it
-converts model output into agent events, so ``QwenPawAgent._reasoning``
+converts model output into agent events, so ``AIARBAgent._reasoning``
 re-attaches the fallback data published by ``FallbackChatModel`` through
 the request sink.  These tests cover that real chain: a model that
 actually falls back during ``Agent._reasoning`` and events that leave
-``QwenPawAgent._reasoning`` carrying the notice.
+``AIARBAgent._reasoning`` carrying the notice.
 """
 
 from __future__ import annotations
@@ -21,9 +21,9 @@ from agentscope.message import AssistantMsg, Msg
 from agentscope.model import ChatModelBase
 from agentscope.model._model_response import ChatResponse
 
-from qwenpaw.agents.react_agent import QwenPawAgent
-from qwenpaw.loop.gates import StopAction
-from qwenpaw.providers.fallback_chat_model import FallbackChatModel
+from AIARB.agents.react_agent import AIARBAgent
+from AIARB.loop.gates import StopAction
+from AIARB.providers.fallback_chat_model import FallbackChatModel
 
 
 class _FakeModel(ChatModelBase):
@@ -49,9 +49,9 @@ class _HttpError(Exception):
         self.status_code = status_code
 
 
-def _bare_agent(model: ChatModelBase) -> QwenPawAgent:
+def _bare_agent(model: ChatModelBase) -> AIARBAgent:
     """Build a minimal agent without running heavy __init__."""
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIARBAgent)
     agent.model = model
     agent._context_manager = None
 
@@ -97,7 +97,7 @@ async def test_reasoning_events_carry_fallback_metadata(
 
     monkeypatch.setattr(Agent, "_reasoning", fake_base_reasoning)
     monkeypatch.setattr(
-        "qwenpaw.loop.gates.runner.check_pending_gates",
+        "AIARB.loop.gates.runner.check_pending_gates",
         lambda _agent: None,
     )
 
@@ -108,15 +108,15 @@ async def test_reasoning_events_carry_fallback_metadata(
     assert len(events) == 1
     assert len(messages) == 1
 
-    event_notices = events[0].metadata["qwenpaw_model_fallbacks"]
+    event_notices = events[0].metadata["AIARB_model_fallbacks"]
     assert len(event_notices) == 1
     assert event_notices[0]["type"] == "model_fallback"
     assert event_notices[0]["to_model_id"] == "fallback"
-    actual = events[0].metadata["qwenpaw_actual_model"]
+    actual = events[0].metadata["AIARB_actual_model"]
     assert actual["model_id"] == "fallback"
 
     # The persisted assistant message carries the notice as well.
-    msg_notices = messages[0].metadata["qwenpaw_model_fallbacks"]
+    msg_notices = messages[0].metadata["AIARB_model_fallbacks"]
     assert len(msg_notices) == 1
     assert msg_notices[0]["to_model_id"] == "fallback"
 
@@ -143,7 +143,7 @@ async def test_reasoning_events_stay_clean_without_fallback(
 
     monkeypatch.setattr(Agent, "_reasoning", fake_base_reasoning)
     monkeypatch.setattr(
-        "qwenpaw.loop.gates.runner.check_pending_gates",
+        "AIARB.loop.gates.runner.check_pending_gates",
         lambda _agent: None,
     )
 
@@ -151,4 +151,4 @@ async def test_reasoning_events_stay_clean_without_fallback(
 
     for evt in outputs:
         metadata = getattr(evt, "metadata", None) or {}
-        assert "qwenpaw_model_fallbacks" not in metadata
+        assert "AIARB_model_fallbacks" not in metadata

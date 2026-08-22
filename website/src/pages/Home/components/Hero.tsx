@@ -64,7 +64,7 @@ export function Hero() {
   }, [showIdle, idlePlayedOnce]);
 
   const scrollToQuickStart = () => {
-    const section = document.getElementById("qwenpaw-quickstart");
+    const section = document.getElementById("aiarb-quickstart");
     if (!section) return;
     section.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -79,7 +79,7 @@ export function Hero() {
     <>
       <motion.section
         className="relative text-center"
-        aria-labelledby="qwenpaw-hero-heading"
+        aria-labelledby="aiarb-hero-heading"
         variants={container}
         initial="hidden"
         animate="visible"
@@ -101,7 +101,7 @@ export function Hero() {
             />
           </div>
           <h1
-            id="qwenpaw-hero-heading"
+            id="aiarb-hero-heading"
             className="font-newsreader font-semibold leading-[1.1] tracking-[-0.02em] text-(--color-text) sm:leading-[1.08] text-[32px] md:text-[48px] md:leading-[1.06]"
           >
             <span className="font-newsreader font-medium whitespace-pre-wrap">
@@ -189,7 +189,7 @@ export function Hero() {
             >
               <img
                 src="https://img.alicdn.com/imgextra/i3/O1CN01C57zol1ud4um3nSMH_!!6000000006059-2-tps-1930-1202.png"
-                alt="QwenPaw console preview"
+                alt="AIArb console preview"
                 className="block h-auto max-h-full w-full object-top md:h-full md:object-cover"
                 loading="lazy"
               />

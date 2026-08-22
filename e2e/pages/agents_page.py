@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Agents management page object.
+AIARB Agents management page object.
 
 Wraps all interactions on the agent management page and exposes business-level
 methods.
@@ -33,7 +33,7 @@ class AgentsPage(BasePage):
     - Manage agent files
     """
 
-    PAGE_TITLE = "QwenPaw Console"
+    PAGE_TITLE = "AIARB Console"
     PAGE_URL = f"{config.base_url}/agents"
 
     # ========== Selector definitions ==========
@@ -86,29 +86,29 @@ class AgentsPage(BasePage):
     REFRESH_BTN = 'button:has(.anticon-reload), button:has(.spark-icon-spark-refresh-line)'
 
     # Create/edit form
-    FORM_DIALOG = '.qwenpaw-modal, [role="dialog"]'
-    FORM_TITLE = '.qwenpaw-modal-header-title, .qwenpaw-spark-title'
+    FORM_DIALOG = '.AIARB-modal, [role="dialog"]'
+    FORM_TITLE = '.AIARB-modal-header-title, .AIARB-spark-title'
     FORM_NAME_INPUT = 'input#name, input[placeholder*="My Agent"]'
     FORM_DESC_INPUT = 'textarea#description, textarea[placeholder*="describe"]'
     FORM_WORKSPACE_INPUT = 'input#workspace_dir'
-    FORM_SKILLS_SELECT = '.qwenpaw-form-item:has-text("Skills") .qwenpaw-select-selector'
-    FORM_SUBMIT_BTN = '.qwenpaw-modal-footer button.qwenpaw-btn-primary, button:has-text("保存"), button:has-text("Save")'
-    FORM_CANCEL_BTN = '.qwenpaw-modal-footer button.qwenpaw-btn-default, button:has-text("取消"), button:has-text("Cancel")'
+    FORM_SKILLS_SELECT = '.AIARB-form-item:has-text("Skills") .AIARB-select-selector'
+    FORM_SUBMIT_BTN = '.AIARB-modal-footer button.AIARB-btn-primary, button:has-text("保存"), button:has-text("Save")'
+    FORM_CANCEL_BTN = '.AIARB-modal-footer button.AIARB-btn-default, button:has-text("取消"), button:has-text("Cancel")'
 
     # Delete confirmation (Popconfirm bubble)
-    DELETE_CONFIRM_DIALOG = '.qwenpaw-popconfirm'
-    DELETE_CONFIRM_BTN = '.qwenpaw-popconfirm-buttons button.qwenpaw-btn-primary'
-    DELETE_CANCEL_BTN = '.qwenpaw-popconfirm-buttons button.qwenpaw-btn-default'
+    DELETE_CONFIRM_DIALOG = '.AIARB-popconfirm'
+    DELETE_CONFIRM_BTN = '.AIARB-popconfirm-buttons button.AIARB-btn-primary'
+    DELETE_CANCEL_BTN = '.AIARB-popconfirm-buttons button.AIARB-btn-default'
 
     # Agent detail
-    AGENT_DETAIL_TAB = '.qwenpaw-tabs-tab-btn'
-    AGENT_DETAIL_PANEL = '.qwenpaw-tabs-tabpane-active'
-    AGENT_FILES_LIST = '[class*=fileList], .qwenpaw-list'
-    AGENT_FILE_ITEM = '[class*=fileItem], .qwenpaw-list-item'
+    AGENT_DETAIL_TAB = '.AIARB-tabs-tab-btn'
+    AGENT_DETAIL_PANEL = '.AIARB-tabs-tabpane-active'
+    AGENT_FILES_LIST = '[class*=fileList], .AIARB-list'
+    AGENT_FILE_ITEM = '[class*=fileItem], .AIARB-list-item'
 
     # Empty state
-    EMPTY_STATE = '.qwenpaw-empty, [class*=empty]'
-    EMPTY_STATE_TEXT = '.qwenpaw-empty-description, .qwenpaw-empty-desc'
+    EMPTY_STATE = '.AIARB-empty, [class*=empty]'
+    EMPTY_STATE_TEXT = '.AIARB-empty-description, .AIARB-empty-desc'
 
     # Toast messages (inherited from BasePage, no redefinition needed)
 
@@ -351,7 +351,7 @@ class AgentsPage(BasePage):
         agent_row = self.find_agent_by_name(agent_name)
         if agent_row:
             agent_row.locator('button[class*="open"]').first.click()
-            detail = self.page.locator('.qwenpaw-modal:visible').first
+            detail = self.page.locator('.AIARB-modal:visible').first
             expect(detail).to_be_visible(timeout=5000)
             delete_btn = detail.locator(self.DELETE_BTN).first
             delete_btn.click()

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Inbound media localization for the OneBot channel."""
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from typing import Any
 import aiofiles
 import aiohttp
 
-from qwenpaw.app.channels.utils import file_url_to_local_path
+from AIARB.app.channels.utils import file_url_to_local_path
 from .codec import _run_in_thread
 
 logger = logging.getLogger(__name__)

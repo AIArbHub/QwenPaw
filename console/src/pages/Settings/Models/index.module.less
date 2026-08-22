@@ -1,4 +1,4 @@
-@import (reference) "../../../styles/contentStates.less";
+﻿@import (reference) "../../../styles/contentStates.less";
 
 @import (reference) "../../../styles/modelSurfaces.less";
 @import (reference) "../../../styles/scaledTypography.less";
@@ -36,9 +36,9 @@
 
 .settingsPage
   :global(
-    .qwenpaw-table-wrapper
-      .qwenpaw-table-container
-      .qwenpaw-table-thead
+    .AIARB-table-wrapper
+      .AIARB-table-container
+      .AIARB-table-thead
       > tr
       > th
   ) {
@@ -3023,7 +3023,7 @@
 .modelManageModal,
 .modelConfirmModal {
   :global(.ant-modal-content),
-  :global(.qwenpaw-modal-content) {
+  :global(.AIARB-modal-content) {
     border: 1px solid var(--app-border);
     border-radius: 20px;
     background: var(--app-surface);
@@ -3032,13 +3032,13 @@
   }
 
   :global(.ant-modal-header),
-  :global(.qwenpaw-modal-header) {
+  :global(.AIARB-modal-header) {
     margin-bottom: 18px;
     background: transparent;
   }
 
   :global(.ant-modal-title),
-  :global(.qwenpaw-modal-title) {
+  :global(.AIARB-modal-title) {
     color: var(--app-text);
     font-size: 18px;
     font-weight: 600;
@@ -3046,7 +3046,7 @@
   }
 
   :global(.ant-modal-footer),
-  :global(.qwenpaw-modal-footer) {
+  :global(.AIARB-modal-footer) {
     margin-top: 20px;
     padding-top: 16px;
     border-top: 1px solid var(--app-border-subtle);
@@ -3055,7 +3055,7 @@
 
 .modelManageModal {
   :global(.ant-modal-close),
-  :global(.qwenpaw-modal-close) {
+  :global(.AIARB-modal-close) {
     color: var(--app-text-tertiary);
     border-radius: 10px;
     transition:
@@ -3064,7 +3064,7 @@
   }
 
   :global(.ant-modal-close:hover),
-  :global(.qwenpaw-modal-close:hover) {
+  :global(.AIARB-modal-close:hover) {
     color: var(--app-text);
     background: var(--app-accent-soft);
   }
@@ -3072,7 +3072,7 @@
 
 .modelConfirmModal {
   :global(.ant-modal-confirm-body),
-  :global(.qwenpaw-modal-confirm-body) {
+  :global(.AIARB-modal-confirm-body) {
     color: var(--app-text-secondary);
   }
 }
@@ -3114,7 +3114,7 @@
   .modelManageModal,
   .modelConfirmModal {
     :global(.ant-modal-content),
-    :global(.qwenpaw-modal-content) {
+    :global(.AIARB-modal-content) {
       border-radius: 16px;
     }
   }

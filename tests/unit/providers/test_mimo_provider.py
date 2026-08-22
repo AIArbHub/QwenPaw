@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,unused-argument,protected-access
 # pylint: disable=no-name-in-module
 """Tests for the Xiaomi MiMo built-in providers (Standard API + Token Plan)."""
@@ -7,12 +7,12 @@ from __future__ import annotations
 
 import pytest
 
-import qwenpaw.providers.provider_manager as provider_manager_module
-from qwenpaw.config.config import ModelSlotConfig
-from qwenpaw.providers.mimo_provider import MiMoProvider
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.provider import ModelInfo
-from qwenpaw.providers.provider_manager import (
+import AIARB.providers.provider_manager as provider_manager_module
+from AIARB.config.config import ModelSlotConfig
+from AIARB.providers.mimo_provider import MiMoProvider
+from AIARB.providers.openai_provider import OpenAIProvider
+from AIARB.providers.provider import ModelInfo
+from AIARB.providers.provider_manager import (
     MIMO_MODELS,
     MIMO_TOKENPLAN_MODELS,
     PROVIDER_MIMO,
@@ -106,7 +106,7 @@ def test_mimo_models_attributes() -> None:
 @pytest.fixture
 def isolated_secret_dir(monkeypatch, tmp_path):
     """Provide an isolated secret dir for provider tests."""
-    secret_dir = tmp_path / ".qwenpaw.secret"
+    secret_dir = tmp_path / ".AIARB.secret"
     monkeypatch.setattr(provider_manager_module, "SECRET_DIR", secret_dir)
     return secret_dir
 
@@ -216,7 +216,7 @@ def test_mimo_provider_filters_non_chat_models(
 
     # The reuse of OpenAIProvider._is_non_chat_model must classify MiMo's
     # non-chat models as non-chat (token keywords include asr/tts).
-    from qwenpaw.providers.openai_provider import _is_non_chat_model
+    from AIARB.providers.openai_provider import _is_non_chat_model
 
     for mid in chat_ids:
         assert _is_non_chat_model(mid) is False, mid

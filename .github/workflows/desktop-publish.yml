@@ -1,4 +1,4 @@
-# Reusable "publish" half of the desktop release: take the desktop artifacts
+﻿# Reusable "publish" half of the desktop release: take the desktop artifacts
 # produced by desktop-build.yml (same run) and publish them.
 #
 # Called by release.yml during the gated publish phase. Performs two things:
@@ -58,7 +58,7 @@ jobs:
           path: .release-infra
           sparse-checkout: |
             scripts
-            src/qwenpaw/security
+            src/AIARB/security
           persist-credentials: false
 
       - name: Download and verify desktop installers
@@ -71,9 +71,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           shopt -s nullglob
-          mv QwenPaw-Desktop-Tauri-Windows-*/QwenPaw-Tauri-*-Windows-setup.exe . 2>/dev/null || true
-          mv QwenPaw-Desktop-Tauri-macOS-*/QwenPaw-Tauri-*-macOS.zip . 2>/dev/null || true
-          files=(QwenPaw-Tauri-*-Windows-setup.exe QwenPaw-Tauri-*-macOS.zip)
+          mv AIARB-Desktop-Tauri-Windows-*/AIARB-Tauri-*-Windows-setup.exe . 2>/dev/null || true
+          mv AIARB-Desktop-Tauri-macOS-*/AIARB-Tauri-*-macOS.zip . 2>/dev/null || true
+          files=(AIARB-Tauri-*-Windows-setup.exe AIARB-Tauri-*-macOS.zip)
           if [ ${#files[@]} -eq 0 ]; then
             echo "::error::No desktop installers found to attach to the release"
             exit 1
@@ -89,8 +89,8 @@ jobs:
     if: ${{ !inputs.dry_run }}
     runs-on: ubuntu-latest
     env:
-      OSS_BUCKET: ${{ vars.OSS_BUCKET || 'qwenpaw-download' }}
-      OSS_PUBLIC_BASE_URL: ${{ vars.OSS_PUBLIC_BASE_URL || 'https://download.qwenpaw.agentscope.io/files/apps/desktop' }}
+      OSS_BUCKET: ${{ vars.OSS_BUCKET || 'AIARB-download' }}
+      OSS_PUBLIC_BASE_URL: ${{ vars.OSS_PUBLIC_BASE_URL || 'https://download.AIARB.agentscope.io/files/apps/desktop' }}
       RELEASE_INFRA: ${{ github.workspace }}/.release-infra
     steps:
       - name: Checkout release target
@@ -105,7 +105,7 @@ jobs:
           path: .release-infra
           sparse-checkout: |
             scripts
-            src/qwenpaw/security
+            src/AIARB/security
           persist-credentials: false
 
       - name: Set up Python
@@ -154,7 +154,7 @@ jobs:
         # manifest and index are promoted AFTER the release is published — see
         # desktop-promote.yml — so the auto-updater is never pointed at a version
         # whose release/PyPI/Docker publish might still fail.
-        if: hashFiles('QwenPaw-Desktop-Tauri-*/*') != ''
+        if: hashFiles('AIARB-Desktop-Tauri-*/*') != ''
         run: |
           VERSION="${{ steps.version.outputs.version }}"
 
@@ -189,17 +189,17 @@ jobs:
           }
 
           upload_versioned \
-            "QwenPaw-Desktop-Tauri-Windows-*" \
-            "QwenPaw-Tauri-*-Windows-setup.exe" \
+            "AIARB-Desktop-Tauri-Windows-*" \
+            "AIARB-Tauri-*-Windows-setup.exe" \
             "win-tauri" \
-            "QwenPaw-Tauri-${VERSION}-Windows-setup.exe" \
+            "AIARB-Tauri-${VERSION}-Windows-setup.exe" \
             "win-tauri-metadata.json"
 
           upload_versioned \
-            "QwenPaw-Desktop-Tauri-macOS-*" \
-            "QwenPaw-Tauri-*-macOS.zip" \
+            "AIARB-Desktop-Tauri-macOS-*" \
+            "AIARB-Tauri-*-macOS.zip" \
             "mac-tauri" \
-            "QwenPaw-Tauri-${VERSION}-macOS.zip" \
+            "AIARB-Tauri-${VERSION}-macOS.zip" \
             "mac-tauri-metadata.json"
 
       - name: Upload Tauri macOS updater archive to OSS
@@ -207,17 +207,17 @@ jobs:
         if: hashFiles('tauri-updater-meta-macos/*.app.tar.gz') != ''
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          APP_TAR_GZ=$(find tauri-updater-meta-macos -name "QwenPaw-Tauri-*-macOS.app.tar.gz" | head -1)
+          APP_TAR_GZ=$(find tauri-updater-meta-macos -name "AIARB-Tauri-*-macOS.app.tar.gz" | head -1)
           if [ -z "$APP_TAR_GZ" ]; then
             echo "No macOS .app.tar.gz found, skipping"
             exit 0
           fi
           bash "$RELEASE_INFRA/scripts/pack/oss_copy_with_readback.sh" \
             "$APP_TAR_GZ" \
-            "oss://${OSS_BUCKET}/files/apps/desktop/mac-tauri/QwenPaw-Tauri-${VERSION}-macOS.app.tar.gz"
+            "oss://${OSS_BUCKET}/files/apps/desktop/mac-tauri/AIARB-Tauri-${VERSION}-macOS.app.tar.gz"
 
       # NOTE: the `latest` files, the updater manifest
-      # (qwenpaw-tauri-latest.json) and the index are intentionally NOT uploaded
+      # (AIARB-tauri-latest.json) and the index are intentionally NOT uploaded
       # here. They are promoted only AFTER the release is flipped to published —
       # see desktop-promote.yml — so existing users' auto-updater is never
       # pointed at a version whose release might still fail to publish.

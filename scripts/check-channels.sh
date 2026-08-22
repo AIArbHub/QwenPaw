@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 # Check built-in console contracts and official channel plugin unit tests.
 # Usage: ./scripts/check-channels.sh [all|<channel>|--changed|-c]
 set -euo pipefail
@@ -28,7 +28,7 @@ PY
 )"
 SPECS="$(
     while IFS=$'\t' read -r key source_dir contract; do
-        [ -n "$key" ] && printf '%s\tsrc/qwenpaw/app/channels/%s\t%s\n' "$key" "$source_dir" "$contract"
+        [ -n "$key" ] && printf '%s\tsrc/AIARB/app/channels/%s\t%s\n' "$key" "$source_dir" "$contract"
     done <<<"$REGISTRY_SPECS"
     printf '%s\n' "$PLUGIN_SPECS"
 )"
@@ -62,7 +62,7 @@ if [ "$TARGET" = "--changed" ] || [ "$TARGET" = "-c" ]; then
         esac
     done <<<"$CHANGED_FILES"
     # Shared protocol, execution, host and test helpers affect every driver.
-    if grep -qE '^(src/qwenpaw/(channel_protocol/|plugins/(execution/|(channel_[^/]+|_?channels|official_channels|official_channel_catalog|official_execution_context|execution_backend)\.py$)|config/channel_config_compat\.py$|app/channels/[^/]+\.py$)|tests/(channel_support/|conftest\.py$|unit/channels/(conftest|__init__)\.py$|contract(/channels)?/__init__\.py$)|scripts/(check-channels\.sh|check_channel_contracts\.py)$)' <<<"$CHANGED_FILES"; then
+    if grep -qE '^(src/AIARB/(channel_protocol/|plugins/(execution/|(channel_[^/]+|_?channels|official_channels|official_channel_catalog|official_execution_context|execution_backend)\.py$)|config/channel_config_compat\.py$|app/channels/[^/]+\.py$)|tests/(channel_support/|conftest\.py$|unit/channels/(conftest|__init__)\.py$|contract(/channels)?/__init__\.py$)|scripts/(check-channels\.sh|check_channel_contracts\.py)$)' <<<"$CHANGED_FILES"; then
         TARGET="all"
     else
         while IFS= read -r changed; do
@@ -101,10 +101,10 @@ import os
 from pathlib import Path
 
 import pytest
-import qwenpaw
+import AIARB
 
 source_root = (Path(os.environ["PROJECT_ROOT"]) / "src").resolve()
-module_path = Path(qwenpaw.__file__).resolve()
+module_path = Path(AIARB.__file__).resolve()
 raise SystemExit(0 if module_path.is_relative_to(source_root) else 1)
 '; then
     echo "Installing dependencies..."

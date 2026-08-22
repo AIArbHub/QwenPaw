@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # White-box assertions and pytest fixture parameters are intentional.
 # pylint: disable=protected-access
 """Model-card capabilities determine legal provider wire settings."""
@@ -8,19 +8,19 @@ from unittest.mock import AsyncMock
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.hub.model_service.protocol import upstream_payload
-from qwenpaw.providers.adapters.wire_protocol import WireProtocol
+from AIARB.hub.model_service.protocol import upstream_payload
+from AIARB.providers.adapters.wire_protocol import WireProtocol
 
-from qwenpaw.providers.model_info import ModelInfo
-from qwenpaw.providers.provider import agent_thinking_level
-from qwenpaw.providers.provider_catalog import (
+from AIARB.providers.model_info import ModelInfo
+from AIARB.providers.provider import agent_thinking_level
+from AIARB.providers.provider_catalog import (
     PROVIDER_ANTHROPIC,
     PROVIDER_DASHSCOPE,
     PROVIDER_GEMINI,
     PROVIDER_OPENAI,
     PROVIDER_OPENAI_RESPONSE,
 )
-from qwenpaw.providers.thinking import (
+from AIARB.providers.thinking import (
     ThinkingControl,
     ThinkingPreference,
     resolve_thinking,

@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Skills page object.
+AIARB Skills page object.
 
 Wraps all interactions on the Skills page and exposes business-level methods.
 """
@@ -29,7 +29,7 @@ class SkillsPage(BasePage):
     - Search skills
     """
 
-    PAGE_TITLE = "QwenPaw Console"
+    PAGE_TITLE = "AIARB Console"
     SKILLS_URL = f"{config.base_url}/skills"
     PAGE_URL = SKILLS_URL
 
@@ -40,8 +40,8 @@ class SkillsPage(BasePage):
     PAGE_LOAD_INDICATOR = SKILL_PAGE_CONTAINER
 
     # Skill card selectors
-    SKILL_CARD_SELECTOR = ".qwenpaw-card"
-    SWITCH_SELECTOR = '.qwenpaw-switch'
+    SKILL_CARD_SELECTOR = ".AIARB-card"
+    SWITCH_SELECTOR = '.AIARB-switch'
 
     # Search input
     SEARCH_INPUT = (
@@ -75,7 +75,7 @@ class SkillsPage(BasePage):
     def get_skill_name(self, card: Locator) -> str:
         """Return the skill name for a card."""
         # Try to read the title from the card
-        title_element = card.locator('.ant-card-meta-title, .qwenpaw-card-meta-title, h3, h4, [class*="title"]').first
+        title_element = card.locator('.ant-card-meta-title, .AIARB-card-meta-title, h3, h4, [class*="title"]').first
         if title_element.count() > 0:
             return title_element.inner_text()
 
@@ -95,7 +95,7 @@ class SkillsPage(BasePage):
         switch = card.locator(self.SWITCH_SELECTOR).first
         if switch.count() > 0:
             return switch.evaluate(
-                "el => el.classList.contains('qwenpaw-switch-checked') || "
+                "el => el.classList.contains('AIARB-switch-checked') || "
                 "el.classList.contains('ant-switch-checked') || "
                 "el.getAttribute('aria-checked') === 'true'"
             )

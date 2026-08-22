@@ -1,22 +1,22 @@
 [package]
-name = "qwenpaw-desktop"
+name = "aiarb-desktop"
 version = "0.1.0"
-description = "QwenPaw Desktop Tauri shell that wraps the QwenPaw Console frontend and runs the Python FastAPI backend as a local sidecar process."
-authors = ["QwenPaw Contributors"]
+description = "AIArb Desktop Tauri shell that wraps the AIArb Console frontend and runs the Python FastAPI backend as a local sidecar process."
+authors = ["AIArb Contributors"]
 license = "Apache-2.0"
-repository = "https://github.com/agentscope-ai/QwenPaw"
+repository = "https://github.com/agentscope-ai/AIArb"
 edition = "2021"
 rust-version = "1.77.2"
-default-run = "qwenpaw-desktop"
+default-run = "aiarb-desktop"
 autobins = false
 
 [[bin]]
-name = "qwenpaw-desktop"
+name = "aiarb-desktop"
 path = "src/main.rs"
 
 [[bin]]
-name = "qwenpaw-computer-use-helper"
-path = "src/bin/qwenpaw-computer-use-helper.rs"
+name = "aiarb-computer-use-helper"
+path = "src/bin/aiarb-computer-use-helper.rs"
 
 [lib]
 name = "app_lib"

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Feishu channel constants."""
 
 # Token cache: refresh 1 min before expire
@@ -44,7 +44,7 @@ FEISHU_STREAM_ELEMENT_ID = "streaming_content"
 # CardKit requires <= 20 chars, starting with a letter.
 FEISHU_REASONING_PANEL_ELEMENT_ID = "reasoning_panel"
 
-# Header label of the reasoning panel. Deliberately English: QwenPaw ships
+# Header label of the reasoning panel. Deliberately English: AIARB ships
 # internationally, and the collapsed state is conveyed by the arrow icon
 # instead of by state-dependent copy.
 FEISHU_REASONING_PANEL_TITLE = "Thinking"

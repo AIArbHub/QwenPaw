@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Consistency guards for legacy channel shape declarations.
 
 ``ChannelConfig`` retains legacy config shapes while official channels
@@ -17,10 +17,10 @@ from __future__ import annotations
 
 from typing import get_args
 
-from qwenpaw.app.channels.registry import _BUILTIN_SPECS
-from qwenpaw.app.routers.config import _channel_config_class
-from qwenpaw.config.config import ChannelConfig, ChannelConfigUnion
-from qwenpaw.plugins.official_channel_catalog import official_channel_owners
+from AIARB.app.channels.registry import _BUILTIN_SPECS
+from AIARB.app.routers.config import _channel_config_class
+from AIARB.config.config import ChannelConfig, ChannelConfigUnion
+from AIARB.plugins.official_channel_catalog import official_channel_owners
 
 
 def _declared_config_classes() -> set[type]:

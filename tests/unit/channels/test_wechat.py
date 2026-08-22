@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """iLink login, native messages, media and polling lifecycle."""
 import asyncio
 import base64
@@ -11,7 +11,7 @@ import httpx
 import pytest
 import pytest_asyncio
 
-from qwenpaw.channel_protocol.models import SendParams
+from AIARB.channel_protocol.models import SendParams
 from tests.channel_support.driver import bind, module
 
 pytestmark = pytest.mark.asyncio
@@ -260,18 +260,18 @@ async def test_auth_admission_scans_off_loop_and_releases_claims(
     import sys
     from types import SimpleNamespace
 
-    from qwenpaw.app.channels import wechat_auth_custody as custody
-    from qwenpaw.app.channels.isolated_proxy import IsolatedChannelProxy
-    from qwenpaw.app.channels.manager import ChannelManager
-    from qwenpaw.config.config import (
+    from AIARB.app.channels import wechat_auth_custody as custody
+    from AIARB.app.channels.isolated_proxy import IsolatedChannelProxy
+    from AIARB.app.channels.manager import ChannelManager
+    from AIARB.config.config import (
         Config,
         AgentProfileConfig,
         AgentProfileRef,
         save_agent_config,
     )
-    from qwenpaw.config.utils import load_config, save_config
-    from qwenpaw.plugins.architecture import PluginManifest
-    from qwenpaw.plugins.channel_adapter import (
+    from AIARB.config.utils import load_config, save_config
+    from AIARB.plugins.architecture import PluginManifest
+    from AIARB.plugins.channel_adapter import (
         ChannelRuntimeSettings,
         describe_channel,
     )
@@ -322,7 +322,7 @@ async def test_auth_admission_scans_off_loop_and_releases_claims(
         runtime_settings=ChannelRuntimeSettings(
             python_executable=sys.executable,
             support_root=source.parents[2] / "src",
-            qwenpaw_version="test",
+            AIARB_version="test",
             selected_channels=frozenset({"wechat"}),
         ),
     )

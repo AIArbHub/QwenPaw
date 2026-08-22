@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for memory backend configuration defaults."""
 
 import pytest
 from pydantic import ValidationError
 
-from qwenpaw.config.config import (
+from AIARB.config.config import (
     AgentsRunningConfig,
     EmbeddingModelConfig,
     ReMeLightMemoryConfig,

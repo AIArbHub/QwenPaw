@@ -5,7 +5,7 @@ import click
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli.cron_cmd import (
+from aiarb.cli.cron_cmd import (
     _build_spec_from_cli,
     _resolve_update_spec,
     cron_group,

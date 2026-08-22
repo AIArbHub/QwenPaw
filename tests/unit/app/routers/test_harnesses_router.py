@@ -11,9 +11,9 @@ from unittest.mock import AsyncMock
 import pytest
 from fastapi import HTTPException, Request
 
-from qwenpaw.app.routers import harnesses
-from qwenpaw.harnesses.base import HarnessOperationNotSupportedError
-from qwenpaw.harnesses.events import HarnessProvider
+from aiarb.app.routers import harnesses
+from aiarb.harnesses.base import HarnessOperationNotSupportedError
+from aiarb.harnesses.events import HarnessProvider
 
 
 @pytest.mark.parametrize(
@@ -33,7 +33,7 @@ async def test_capability_endpoints_degrade_when_codex_cli_is_missing(
 ) -> None:
     adapter = AsyncMock()
     install_message = (
-        "Codex runtime not found. Install qwenpaw[codex] or provide a "
+        "Codex runtime not found. Install aiarb[codex] or provide a "
         "standalone Codex CLI."
     )
     adapter.capability_unavailable_message = install_message
@@ -66,7 +66,7 @@ async def test_status_endpoint_returns_actionable_codex_install_message(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     install_message = (
-        "Codex runtime not found. Install qwenpaw[codex] or provide a "
+        "Codex runtime not found. Install aiarb[codex] or provide a "
         "standalone Codex CLI."
     )
     adapter = AsyncMock()

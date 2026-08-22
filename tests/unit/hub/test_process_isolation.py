@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for fail-closed Hub runtime process isolation."""
 
 import mimetypes
@@ -13,12 +13,12 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.hub.local_provisioner import (
+from AIARB.hub.local_provisioner import (
     LocalProcessRuntimeProvisioner,
     allocate_loopback_port,
 )
-from qwenpaw.hub.models import RuntimeRecord, RuntimeState
-from qwenpaw.hub.process_isolation import (
+from AIARB.hub.models import RuntimeRecord, RuntimeState
+from AIARB.hub.process_isolation import (
     IsolatedLaunch,
     LinuxBubblewrapIsolator,
     MacOSSeatbeltIsolator,
@@ -155,7 +155,7 @@ def test_linux_command_mounts_only_runtime_root_writable(
     isolator = LinuxBubblewrapIsolator("/usr/bin/bwrap")
     monkeypatch.setattr(isolator, "_probe", lambda *args: None)
 
-    launch = isolator.prepare(record, ["python", "-m", "qwenpaw"], {})
+    launch = isolator.prepare(record, ["python", "-m", "AIARB"], {})
 
     args = launch.command
     tmp_index = next(
@@ -184,9 +184,9 @@ def test_linux_command_mounts_only_runtime_root_writable(
     assert mounts["/"][1] < tmp_index < mounts[workspace][1]
     assert args[args.index("--chdir") + 1] == workspace
     assert launch.environment["HOME"] == workspace
-    assert launch.environment["QWENPAW_WORKING_DIR"] == workspace
+    assert launch.environment["AIARB_WORKING_DIR"] == workspace
     assert str(record.working_dir.parent.parent) not in args
-    assert str(repository / "packages" / "qwenpawmail-mcp" / "src") in (
+    assert str(repository / "packages" / "AIARBmail-mcp" / "src") in (
         read_only_sources
     )
     assert ("/etc", "/etc") not in {
@@ -213,7 +213,7 @@ def test_linux_command_mounts_resolver_at_standard_path(
 
     launch = isolator.prepare(
         _record(tmp_path),
-        ["python", "-m", "qwenpaw"],
+        ["python", "-m", "AIARB"],
         {},
     )
 
@@ -248,7 +248,7 @@ def test_linux_command_mounts_python_base_prefix(
 
     launch = isolator.prepare(
         _record(tmp_path),
-        [str(venv_executable), "-m", "qwenpaw"],
+        [str(venv_executable), "-m", "AIARB"],
         {},
     )
 
@@ -274,7 +274,7 @@ def test_linux_command_never_mounts_pythonpath(
 
     launch = isolator.prepare(
         _record(tmp_path),
-        ["python", "-m", "qwenpaw"],
+        ["python", "-m", "AIARB"],
         {"PYTHONPATH": f"{Path('/')}:{other_tenant}"},
     )
 
@@ -404,12 +404,12 @@ def test_provisioner_launches_through_injected_isolator(
 
     started = provisioner.start(
         _record(tmp_path),
-        {"QWENPAW_RUNTIME_INTERNAL_TOKEN": "secret"},
+        {"AIARB_RUNTIME_INTERNAL_TOKEN": "secret"},
     )
 
     assert isolator.called is True
     assert started.state is RuntimeState.RUNNING
-    assert isolator.environment["QWENPAW_RUNTIME_API_URL"] == (
+    assert isolator.environment["AIARB_RUNTIME_API_URL"] == (
         f"http://{started.host}:{started.port}"
     )
     provisioner.close()
@@ -423,20 +423,20 @@ def test_windows_runtime_uses_outbound_reverse_tunnel(
     isolator = _WindowsRecordingIsolator()
     provisioner = LocalProcessRuntimeProvisioner(isolator=isolator)
     monkeypatch.setattr(
-        "qwenpaw.hub.local_provisioner.WindowsReverseTunnelBroker",
+        "AIARB.hub.local_provisioner.WindowsReverseTunnelBroker",
         _TunnelBroker,
     )
     monkeypatch.setattr(provisioner, "_wait_until_ready", lambda *_: None)
 
     started = provisioner.start(
         _record(tmp_path),
-        {"QWENPAW_RUNTIME_INTERNAL_TOKEN": "secret"},
+        {"AIARB_RUNTIME_INTERNAL_TOKEN": "secret"},
     )
 
     command = isolator.command
     separator = command.index("--")
     assert command[command.index("-m") + 1] == (
-        "qwenpaw.hub.windows_runtime_bridge"
+        "AIARB.hub.windows_runtime_bridge"
     )
     assert command[command.index("--control-port") + 1] == "9100"
     assert command[command.index("--token") + 1] == "tunnel-token"
@@ -444,11 +444,11 @@ def test_windows_runtime_uses_outbound_reverse_tunnel(
         sys.executable,
         "-P",
         "-m",
-        "qwenpaw",
+        "AIARB",
     ]
     assert command[command.index("--host", separator) + 1] == "127.0.0.1"
     internal_port = command[command.index("--target-port") + 1]
-    assert isolator.environment["QWENPAW_RUNTIME_API_URL"] == (
+    assert isolator.environment["AIARB_RUNTIME_API_URL"] == (
         f"http://127.0.0.1:{internal_port}"
     )
     assert started.port == 9001
@@ -500,7 +500,7 @@ def test_local_readiness_ignores_optional_integration_health(
     )
 
     assert requests[0].full_url == "http://127.0.0.1:9001/api/version"
-    assert requests[0].get_header("X-qwenpaw-runtime-token") == (
+    assert requests[0].get_header("X-AIARB-runtime-token") == (
         "runtime-token"
     )
 
@@ -536,11 +536,11 @@ def test_runtime_parent_thread_survives_request_worker(
         return _Process()
 
     monkeypatch.setattr(
-        "qwenpaw.hub.local_provisioner.subprocess.Popen",
+        "AIARB.hub.local_provisioner.subprocess.Popen",
         popen,
     )
     monkeypatch.setattr(
-        "qwenpaw.hub.local_provisioner.os.killpg",
+        "AIARB.hub.local_provisioner.os.killpg",
         lambda *_: None,
         raising=False,
     )
@@ -550,7 +550,7 @@ def test_runtime_parent_thread_survives_request_worker(
         target=lambda: results.append(
             provisioner.start(
                 _record(tmp_path),
-                {"QWENPAW_RUNTIME_INTERNAL_TOKEN": "secret"},
+                {"AIARB_RUNTIME_INTERNAL_TOKEN": "secret"},
             ),
         ),
     )
@@ -569,18 +569,18 @@ def test_runtime_parent_thread_survives_request_worker(
 @pytest.mark.skipif(sys.platform != "darwin", reason="Requires Seatbelt")
 def test_macos_sandbox_cli_can_reach_only_its_runtime(tmp_path, monkeypatch):
     """Run the actual CLI inside its server's native sandbox."""
-    from qwenpaw.plugins import dependency_maintenance as maintenance
-    from qwenpaw.plugins.channel_bootstrap import plugin_runtime_site
+    from AIARB.plugins import dependency_maintenance as maintenance
+    from AIARB.plugins.channel_bootstrap import plugin_runtime_site
 
     state = tmp_path / "dependency-state"
     monkeypatch.setattr(maintenance, "_STATE_ROOT", state)
-    monkeypatch.setenv("QWENPAW_DEPENDENCY_STATE_DIR", str(state))
+    monkeypatch.setenv("AIARB_DEPENDENCY_STATE_DIR", str(state))
     shared = Path(sys.base_prefix)
     reader_site = Path(
         next(path for path in sys.path if Path(path).name == "site-packages"),
     )
     monkeypatch.setattr(
-        "qwenpaw.plugins.execution.environment.shared_dependency_paths",
+        "AIARB.plugins.execution.environment.shared_dependency_paths",
         lambda: (shared, reader_site),
     )
     foreign_scope = "f" * 64
@@ -606,7 +606,7 @@ def test_macos_sandbox_cli_can_reach_only_its_runtime(tmp_path, monkeypatch):
     overlay.mkdir(parents=True, exist_ok=True)
     environment = LocalProcessRuntimeProvisioner.runtime_environment(
         record,
-        {"QWENPAW_RUNTIME_INTERNAL_TOKEN": "sandbox-test-token"},
+        {"AIARB_RUNTIME_INTERNAL_TOKEN": "sandbox-test-token"},
     )
     environment["PYTHONPATH"] = str(
         Path(__file__).resolve().parents[3] / "src",
@@ -622,7 +622,7 @@ def test_macos_sandbox_cli_can_reach_only_its_runtime(tmp_path, monkeypatch):
             import socket
             import os
             from pathlib import Path
-            from qwenpaw.plugins import dependency_maintenance as maintenance
+            from AIARB.plugins import dependency_maintenance as maintenance
             assert maintenance.state_root() == Path({str(state)!r})
             scope = maintenance.reader_scope()
             assert len(scope) == 64
@@ -664,15 +664,15 @@ def test_macos_sandbox_cli_can_reach_only_its_runtime(tmp_path, monkeypatch):
             with maintenance.file_lock(maintenance._gate(overlay)):
                 maintenance.marker(overlay).write_text("private")
                 maintenance.marker(overlay).unlink()
-            from qwenpaw.agents.tools.shell import _execute_in_sandbox
-            from qwenpaw.sandbox import SandboxConfig, SandboxMode
+            from AIARB.agents.tools.shell import _execute_in_sandbox
+            from AIARB.sandbox import SandboxConfig, SandboxMode
             from http.server import BaseHTTPRequestHandler
             from socketserver import TCPServer
             from threading import Thread
 
             class Handler(BaseHTTPRequestHandler):
                 def do_GET(self):
-                    token = self.headers.get("X-QwenPaw-Runtime-Token")
+                    token = self.headers.get("X-AIARB-Runtime-Token")
                     assert token == "sandbox-test-token"
                     self.send_response(200)
                     self.end_headers()
@@ -695,7 +695,7 @@ def test_macos_sandbox_cli_can_reach_only_its_runtime(tmp_path, monkeypatch):
                     workspace_dir={str(record.working_dir)!r},
                 )
                 result = asyncio.run(_execute_in_sandbox(
-                    "qwenpaw agents list", config, 30,
+                    "AIARB agents list", config, 30,
                     {str(record.working_dir)!r}, dict(os.environ),
                 ))
                 assert result.exit_code == 0, result.stderr
@@ -708,8 +708,8 @@ def test_macos_sandbox_cli_can_reach_only_its_runtime(tmp_path, monkeypatch):
             [sys.executable, "-c", script],
             environment,
         )
-        assert launch.environment["QWENPAW_DEPENDENCY_STATE_DIR"] == str(state)
-        assert len(launch.environment["QWENPAW_DEPENDENCY_READER_SCOPE"]) == 64
+        assert launch.environment["AIARB_DEPENDENCY_STATE_DIR"] == str(state)
+        assert len(launch.environment["AIARB_DEPENDENCY_READER_SCOPE"]) == 64
         result = subprocess.run(
             launch.command,
             env=launch.environment,
@@ -739,16 +739,16 @@ def test_linux_runtime_filesystem_is_shared_and_persistent(
     other = _record(tmp_path, runtime_id="other-user")
     environment = LocalProcessRuntimeProvisioner.runtime_environment(
         record,
-        {"QWENPAW_RUNTIME_INTERNAL_TOKEN": "sandbox-test-token"},
+        {"AIARB_RUNTIME_INTERNAL_TOKEN": "sandbox-test-token"},
     )
     script = textwrap.dedent(
         f"""
         import asyncio
         import os
         from pathlib import Path
-        from qwenpaw.agents.tools.file_io import write_file
-        from qwenpaw.agents.tools.shell import _execute_in_sandbox
-        from qwenpaw.sandbox import SandboxConfig, SandboxMode
+        from AIARB.agents.tools.file_io import write_file
+        from AIARB.agents.tools.shell import _execute_in_sandbox
+        from AIARB.sandbox import SandboxConfig, SandboxMode
 
         assert Path.cwd() == Path('{workspace}')
         assert Path.home() == Path('{workspace}')
@@ -767,7 +767,7 @@ def test_linux_runtime_filesystem_is_shared_and_persistent(
             'python -c "from pathlib import Path; '
             "assert Path('/user-created/from-shell').read_text() == 'shell'; "
             "Path('/user-created/from-python').write_text('python')" + '" && '
-            'qwenpaw --version'
+            'AIARB --version'
         )
         result = asyncio.run(_execute_in_sandbox(
             command, config, 30, '{workspace}', dict(os.environ),

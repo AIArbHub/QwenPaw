@@ -24,11 +24,11 @@ from qoder_agent_sdk import (
     UserMessage,
 )
 
-from qwenpaw.harnesses.events import (
+from aiarb.harnesses.events import (
     HarnessEventKind,
     HarnessHistoryKind,
 )
-from qwenpaw.harnesses.qoder.event_mapper import (
+from aiarb.harnesses.qoder.event_mapper import (
     QoderEventMapper,
     history_items,
 )

@@ -1,10 +1,10 @@
-# Install Tauri via NSIS, launch the shell, and wait for the backend.
+﻿# Install Tauri via NSIS, launch the shell, and wait for the backend.
 # Outputs BASE_URL to $env:GITHUB_ENV for subsequent steps.
 $ErrorActionPreference = "Stop"
 
 # 1. Run NSIS silent install (matches real user installer).
 #    /S = silent, run the installer to completion before continuing.
-$installer = Get-ChildItem dist/QwenPaw-Tauri-*-Windows-setup.exe |
+$installer = Get-ChildItem dist/AIARB-Tauri-*-Windows-setup.exe |
   Select-Object -First 1
 if (-not $installer) { throw "NSIS installer not found in dist/" }
 Write-Host "Installing $($installer.Name) silently..."
@@ -27,12 +27,12 @@ foreach ($hive in @("HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
                     "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
                     "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall")) {
   $reg = Get-ChildItem $hive -ErrorAction SilentlyContinue |
-    Where-Object { (Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue).DisplayName -match "QwenPaw" } |
+    Where-Object { (Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue).DisplayName -match "AIARB" } |
     Select-Object -First 1
   if ($reg) {
     $loc = (Get-ItemProperty $reg.PSPath).InstallLocation
     if ($loc -and (Test-Path $loc)) {
-      $found = Get-ChildItem -Path $loc -Filter "qwenpaw-desktop.exe" `
+      $found = Get-ChildItem -Path $loc -Filter "AIARB-desktop.exe" `
         -Recurse -Depth 3 -ErrorAction SilentlyContinue |
         Select-Object -First 1
       if ($found) { $tauriExe = $found.FullName; break }
@@ -43,14 +43,14 @@ foreach ($hive in @("HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
 # Fallback: search known install candidate directories.
 if (-not $tauriExe) {
   $candidateRoots = @(
-    (Join-Path $env:LOCALAPPDATA "QwenPaw Desktop"),
-    (Join-Path $env:LOCALAPPDATA "Programs\QwenPaw Desktop"),
-    (Join-Path $env:ProgramFiles "QwenPaw Desktop"),
-    (Join-Path ${env:ProgramFiles(x86)} "QwenPaw Desktop")
+    (Join-Path $env:LOCALAPPDATA "AIARB Desktop"),
+    (Join-Path $env:LOCALAPPDATA "Programs\AIARB Desktop"),
+    (Join-Path $env:ProgramFiles "AIARB Desktop"),
+    (Join-Path ${env:ProgramFiles(x86)} "AIARB Desktop")
   )
   foreach ($root in $candidateRoots) {
     if (Test-Path $root) {
-      $found = Get-ChildItem -Path $root -Filter "qwenpaw-desktop.exe" `
+      $found = Get-ChildItem -Path $root -Filter "AIARB-desktop.exe" `
         -Recurse -Depth 3 -ErrorAction SilentlyContinue |
         Select-Object -First 1
       if ($found) { $tauriExe = $found.FullName; break }
@@ -60,11 +60,11 @@ if (-not $tauriExe) {
 
 if (-not $tauriExe) {
   Write-Host "=== DEBUG: install location not found ==="
-  Write-Host "Registry entries matching QwenPaw:"
+  Write-Host "Registry entries matching AIARB:"
   foreach ($hive in @("HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
                       "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall")) {
     Get-ChildItem $hive -ErrorAction SilentlyContinue |
-      Where-Object { (Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue).DisplayName -match "QwenPaw" } |
+      Where-Object { (Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue).DisplayName -match "AIARB" } |
       ForEach-Object { Write-Host "  $((Get-ItemProperty $_.PSPath).InstallLocation)" }
   }
   throw "Tauri exe not found after NSIS install"
@@ -86,15 +86,15 @@ if ($wv2Files) {
 #    Playwright can connect_over_cdp() to the real embedded webview.
 $cdpPort = 9222
 $env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = "--remote-debugging-port=$cdpPort"
-$stdoutLog = Join-Path $env:RUNNER_TEMP "qwenpaw-desktop-stdout.log"
-$stderrLog = Join-Path $env:RUNNER_TEMP "qwenpaw-desktop-stderr.log"
-$workingDir = Join-Path $env:USERPROFILE ".qwenpaw"
-$env:QWENPAW_WORKING_DIR = $workingDir
+$stdoutLog = Join-Path $env:RUNNER_TEMP "AIARB-desktop-stdout.log"
+$stderrLog = Join-Path $env:RUNNER_TEMP "AIARB-desktop-stderr.log"
+$workingDir = Join-Path $env:USERPROFILE ".AIARB"
+$env:AIARB_WORKING_DIR = $workingDir
 $desktop = Start-Process -FilePath $tauriExe -PassThru `
   -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
 
 function Write-DesktopDiagnostics {
-  $logDir = Join-Path $env:RUNNER_TEMP "qwenpaw-desktop-logs"
+  $logDir = Join-Path $env:RUNNER_TEMP "AIARB-desktop-logs"
   New-Item -ItemType Directory -Force -Path $logDir | Out-Null
   $config = Get-Content console/src-tauri/tauri.conf.json -Raw | ConvertFrom-Json
   $nativeLogs = Join-Path $env:LOCALAPPDATA "$($config.identifier)\logs"
@@ -115,13 +115,13 @@ function Write-DesktopDiagnostics {
   }
   Write-Host "=== Desktop process snapshot ==="
   Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
-    Where-Object { $_.Name -in @("qwenpaw-desktop.exe", "qwenpaw-backend.exe") } |
+    Where-Object { $_.Name -in @("AIARB-desktop.exe", "AIARB-backend.exe") } |
     Select-Object -Property @("Name", "ProcessId", "ParentProcessId", "CommandLine") |
     Format-List | Out-String | Write-Host
 }
 
 # 4. Wait for the sidecar to write the port file and respond.
-#    The sidecar writes desktop_port at WORKING_DIR root (~/.qwenpaw),
+#    The sidecar writes desktop_port at WORKING_DIR root (~/.AIARB),
 #    not inside the workspace dir.
 $portFile = Join-Path $workingDir "desktop_port"
 $port = $null

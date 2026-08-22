@@ -1,4 +1,4 @@
-export const QWENPAW_CLIENT_MESSAGE_ID_KEY = "qwenpaw_client_message_id";
+export const AIARB_CLIENT_MESSAGE_ID_KEY = "aiarb_client_message_id";
 
 /** Backend history wraps the original user metadata in an outer envelope. */
 export function extractClientMessageId(metadata: unknown): string | undefined {
@@ -36,7 +36,7 @@ export function attachClientMessageId(
     ...message,
     metadata: {
       ...metadata,
-      [QWENPAW_CLIENT_MESSAGE_ID_KEY]: clientMessageId,
+      [AIARB_CLIENT_MESSAGE_ID_KEY]: clientMessageId,
     },
   };
 }

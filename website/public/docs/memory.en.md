@@ -1,6 +1,6 @@
-# Long-Term Memory
+﻿# Long-Term Memory
 
-QwenPaw's long-term memory combines the workspace file system with a [ReMe](https://github.com/agentscope-ai/ReMe) personal knowledge base. The user and Agent can maintain `MEMORY.md` together and read it on demand. In the background, ReMe turns useful conversations and currently supported resources into structured Markdown memories, gradually consolidates them into a personal knowledge base, and retrieves the parts relevant to the current question when needed.
+AIARB's long-term memory combines the workspace file system with a [ReMe](https://github.com/agentscope-ai/ReMe) personal knowledge base. The user and Agent can maintain `MEMORY.md` together and read it on demand. In the background, ReMe turns useful conversations and currently supported resources into structured Markdown memories, gradually consolidates them into a personal knowledge base, and retrieves the parts relevant to the current question when needed.
 
 In plain language, it works like a research assistant that remembers how an analysis developed and can bring back the evidence. It does six things:
 
@@ -12,14 +12,14 @@ In plain language, it works like a research assistant that remembers how an anal
 6. **Expand** from the best excerpts into linked files only when more evidence is needed.
 
 <p align="center">
-  <img src="https://img.alicdn.com/imgextra/i3/O1CN01mG5Uot1GQdX33v4h4_!!6000000000617-55-tps-1200-640.svg" alt="The complete QwenPaw long-term memory loop" />
+  <img src="https://img.alicdn.com/imgextra/i3/O1CN01mG5Uot1GQdX33v4h4_!!6000000000617-55-tps-1200-640.svg" alt="The complete AIARB long-term memory loop" />
 </p>
 
 ## Optional PowerContext Backend
 
 `remelight` remains the default long-term-memory backend. To use the optional
 `powercontext` backend, install the PowerContext memory plugin and deploy or
-start a PowerContext Server separately. QwenPaw does not download or start the
+start a PowerContext Server separately. AIARB does not download or start the
 server automatically. From a source checkout, build and install the plugin:
 
 ```bash
@@ -27,7 +27,7 @@ cd plugins/memory/powercontext/frontend
 npm install
 npm run build
 cd ../../../../
-qwenpaw plugin install plugins/memory/powercontext
+AIARB plugin install plugins/memory/powercontext
 ```
 
 For a local server, the default endpoint is `http://127.0.0.1:8000`. Install
@@ -40,17 +40,17 @@ powercontext server run
 
 In **Agent Config**, select **PowerContext**, then set its Server URL, optional
 Bearer token, memory scope, timeout, automatic-search result limit, and
-injected-context budget. Saving schedules an Agent reload; a full QwenPaw
-process restart is not required. When selected, QwenPaw sends the current
+injected-context budget. Saving schedules an Agent reload; a full AIARB
+process restart is not required. When selected, AIARB sends the current
 turn's bounded task state to that configured service
 and retrieves relevant memories before later turns. Treat the endpoint and
 scope as a data boundary: choose a service and scope that are appropriate for
 the conversation data you intend to persist. Leave the memory scope empty to
 use the persisted per-installation default
-`qwenpaw:<installation_id>:agent:<agent_id>`, which isolates independently
-created QwenPaw installations even when they use the same Agent ID and
+`AIARB:<installation_id>:agent:<agent_id>`, which isolates independently
+created AIARB installations even when they use the same Agent ID and
 PowerContext service. Enter the same explicit scope for multiple agents only
-when you intend to share their memories. Cloning a QwenPaw working directory
+when you intend to share their memories. Cloning a AIARB working directory
 also copies its installation identity; configure an explicit distinct scope
 after cloning when the clone must not share memory. Automatic retrieval also
 has a configurable total injected-context budget (12,000 UTF-8 bytes by
@@ -105,7 +105,7 @@ Plugin configuration belongs under `memory_backend_configs.powercontext`; the
 former core-owned `powercontext_memory_config` field is no longer supported.
 On first start after an upgrade, the plugin adopts the former root
 `powercontext_installation_id` into
-`plugin-state/memory-powercontext/installation-id` under the canonical QwenPaw
+`plugin-state/memory-powercontext/installation-id` under the canonical AIARB
 working directory. This preserves the default scope and existing remote
 memories even when an Agent uses a custom workspace path.
 
@@ -113,11 +113,11 @@ memories even when an Agent uses a custom workspace path.
 
 Imagine you are a financial analyst researching the electric-vehicle supply chain. Over several weeks, you discuss CATL's product mix, battery-cell pricing, lithium-carbonate supply and demand, and whether falling lithium prices help battery makers or create inventory write-downs.
 
-If those details remain only in chat logs, the next wave of prices and news soon buries them. QwenPaw preserves the research context, consolidates repeatedly tested conclusions into a personal knowledge base, and retrieves the relevant evidence when you write the next report.
+If those details remain only in chat logs, the next wave of prices and news soon buries them. AIARB preserves the research context, consolidates repeatedly tested conclusions into a personal knowledge base, and retrieves the relevant evidence when you write the next report.
 
 ### 1. Memory Starts as Files You Own
 
-QwenPaw and ReMe follow **Memory as File, File as Memory**. Memory is stored as ordinary files in the Agent workspace rather than hidden in an opaque database:
+AIARB and ReMe follow **Memory as File, File as Memory**. Memory is stored as ordinary files in the Agent workspace rather than hidden in an opaque database:
 
 ```text
 workspace/
@@ -138,7 +138,7 @@ workspace/
 
 | Object or mechanism                         | Role and maintenance                                                                                                                                       | How it enters context or retrieval                                                                                            |
 | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `MEMORY.md`                                 | Core long-term memory managed by QwenPaw; both the user and Agent in the main session may freely edit it                                                   | Read on demand with file tools; it is not part of ReMe's `memory_search` index                                                |
+| `MEMORY.md`                                 | Core long-term memory managed by AIARB; both the user and Agent in the main session may freely edit it                                                   | Read on demand with file tools; it is not part of ReMe's `memory_search` index                                                |
 | `memory/YYYY-MM-DD.md`                      | Index page for all memory notes that day; ReMe maintains its `<!-- notes:auto -->` block, while the user and main Agent may add content outside that block | Part of the personal knowledge base; searchable with `memory_search`, directly readable, and usable for progressive expansion |
 | `memory/YYYY-MM-DD/{name}.md`               | One memory note that Auto-Memory creates or updates for one session; `name` is a stable topic or event name generated by the model                         | Part of the personal knowledge base; the main Agent normally does not manage it directly                                      |
 | All `.md` files under `digest/`             | ReMe's durable personal knowledge base, divided into `personal`, `procedure`, and `wiki`, with Wikilinks between nodes                                     | Searchable by `memory_search` and expandable through the graph                                                                |
@@ -257,7 +257,7 @@ An analyst's knowledge comes not only from conversation but also from papers, ne
 
 The current built-in capabilities are **Daily Paper** and **Auto Fin**.
 
-When Daily Paper is enabled, QwenPaw selects popular papers related to your interests from the Hugging Face Papers weekly and monthly rankings, saves the source PDFs, and produces three detailed readings plus a daily brief. Setting topics such as `battery, lithium, energy storage`, for example, can continuously add research on battery materials, life prediction, and energy-storage technology.
+When Daily Paper is enabled, AIARB selects popular papers related to your interests from the Hugging Face Papers weekly and monthly rankings, saves the source PDFs, and produces three detailed readings plus a daily brief. Setting topics such as `battery, lithium, energy storage`, for example, can continuously add research on battery materials, life prediction, and energy-storage technology.
 
 - PDFs go to `resource/papers/`;
 - readings and the brief go to `memory/YYYY-MM-DD/`;
@@ -414,7 +414,7 @@ Returning to the financial-analyst example:
 7. You can inspect and correct the Markdown at any time, and those edits guide future work.
 
 <p align="center">
-  <img src="https://img.alicdn.com/imgextra/i2/O1CN019aX2sCLIZvB6wGdo_!!6000000005818-0-tps-3418-1594.jpg" alt="QwenPaw long-term memory Console overview" />
+  <img src="https://img.alicdn.com/imgextra/i2/O1CN019aX2sCLIZvB6wGdo_!!6000000005818-0-tps-3418-1594.jpg" alt="AIARB long-term memory Console overview" />
 </p>
 
 ### 6. Results: Can It Recall from a Long History?
@@ -433,7 +433,7 @@ These numbers do not represent every real-world workload, and they depend on the
 
 ## Configuration Reference
 
-The default `remelight` backend runs inside the QwenPaw process and reuses the current Agent's model for memory extraction and consolidation. Configure it in the Console or under `running.reme_light_memory_config` in `agent.json`.
+The default `remelight` backend runs inside the AIARB process and reuses the current Agent's model for memory extraction and consolidation. Configure it in the Console or under `running.reme_light_memory_config` in `agent.json`.
 
 ### Common Configuration
 
@@ -514,7 +514,7 @@ capture, `/reme auto_memory`, context compaction, and `/new` all submit work to
 this same queue; each status record identifies its `periodic`, `manual`,
 `compact`, or `new` trigger. Use `/auto_memory_status` to inspect these tasks
 from a conversation. Run `/reme help` to inspect the live, chat-safe ReMe
-action catalog. QwenPaw explicitly allows `status`, `search`, `proactive`,
+action catalog. AIARB explicitly allows `status`, `search`, `proactive`,
 `auto_memory`, `auto_dream`, `daily_paper`, and `auto_fin`; raw vault and index
 maintenance actions are not callable from chat.
 Shutdown uses one five-second deadline to stop this worker,
@@ -555,7 +555,7 @@ Undo restores the previous Embedding configuration that matches the existing vec
 
 ## Other Memory Backends
 
-QwenPaw's memory system uses a pluggable backend architecture. ReMeLight remains
+AIARB's memory system uses a pluggable backend architecture. ReMeLight remains
 the built-in default; ADBPG and PowerContext are independently installable
 plugins. If the selected plugin is missing or fails to load when an Agent
 starts, the runtime temporarily uses ReMeLight while preserving the configured
@@ -566,7 +566,7 @@ are stored under `memory_backend_configs.<backend_id>`.
 
 ### ADBPG (AnalyticDB for PostgreSQL)
 
-A long-term memory backend backed by a cloud vector database. It is suitable for scenarios that need cross-device sharing or large-scale semantic retrieval. QwenPaw connects through the ADBPG memory service REST API, so no additional database driver is required.
+A long-term memory backend backed by a cloud vector database. It is suitable for scenarios that need cross-device sharing or large-scale semantic retrieval. AIARB connects through the ADBPG memory service REST API, so no additional database driver is required.
 
 **Key features:**
 
@@ -584,13 +584,13 @@ cd plugins/memory/adbpg/frontend
 npm ci
 npm run build
 cd ../../../../
-qwenpaw plugin install plugins/memory/adbpg
+AIARB plugin install plugins/memory/adbpg
 ```
 
 A published plugin ZIP includes the configuration UI, so no source build is
-needed. With QwenPaw running, upload it from the Console's plugin page or run
-`qwenpaw plugin install /path/to/memory-adbpg-1.0.0.zip`. For source-directory
-installation, start QwenPaw afterward if it was stopped; a running QwenPaw uses
+needed. With AIARB running, upload it from the Console's plugin page or run
+`AIARB plugin install /path/to/memory-adbpg-1.0.0.zip`. For source-directory
+installation, start AIARB afterward if it was stopped; a running AIARB uses
 the hot-install API.
 
 Then open the agent's "Running Config" tab in the Console, locate the

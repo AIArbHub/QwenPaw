@@ -1,27 +1,27 @@
 ---
-title: "QwenPaw Creator: From Installation to Your First Creation"
+title: "AIArb Creator: From Installation to Your First Creation"
 date: 2026-08-19
-author: QwenPaw Team
-tags: [QwenPaw Creator, Video Creation, Installation Guide, Agentic Workflow]
+author: AIArb Team
+tags: [AIArb Creator, Video Creation, Installation Guide, Agentic Workflow]
 cover: https://img.alicdn.com/imgextra/i3/O1CN01BrV3VrZ2axF5qXky_!!6000000006553-2-tps-2880-1620.png
-excerpt: "Explore the core capabilities of QwenPaw Creator, then install, configure, and open it for the first time in seven steps."
+excerpt: "Explore the core capabilities of AIArb Creator, then install, configure, and open it for the first time in seven steps."
 ---
 
-# QwenPaw Creator: From Installation to Your First Creation
+# AIArb Creator: From Installation to Your First Creation
 
-> **QwenPaw Creator** is an agentic video creation platform. Turn a single idea into a short-form drama, or edit existing footage into a finished video, with a team of agents collaborating throughout the process while every key decision remains in your hands.
+> **AIArb Creator** is an agentic video creation platform. Turn a single idea into a short-form drama, or edit existing footage into a finished video, with a team of agents collaborating throughout the process while every key decision remains in your hands.
 >
-> This guide introduces Creator's core capabilities and walks you through installation and first launch in seven steps. For instructions on installing QwenPaw itself, visit the [QwenPaw website](https://qwenpaw.agentscope.io/).
+> This guide introduces Creator's core capabilities and walks you through installation and first launch in seven steps. For instructions on installing AIArb itself, visit the [AIArb website](https://aiarb.agentscope.io/).
 
-![QwenPaw Creator product demo](https://cloud.video.taobao.com/vod/QrQ22smEYzVP5QtchnWO6ix6caO84v72wVKmqDmRoDY.mp4)
+![AIArb Creator product demo](https://cloud.video.taobao.com/vod/QrQ22smEYzVP5QtchnWO6ix6caO84v72wVKmqDmRoDY.mp4)
 
-_QwenPaw Creator product demo: from an initial idea to the video creation workflow._
+_AIArb Creator product demo: from an initial idea to the video creation workflow._
 
 The red boxes and numbered circles in the screenshots (1, 2, 3, and so on) mark the controls to use in each step.
 
 ---
 
-## What Is QwenPaw Creator?
+## What Is AIArb Creator?
 
 In Creator, you define the goal, provide source material, and guide the creative direction. A team of agents handles planning, generation, editing, and composition, returning control to you at every important decision point.
 
@@ -43,13 +43,13 @@ Creator includes native integration with [Qwen-MM-Plugins](https://github.com/Qw
 
 ---
 
-## Before You Begin: Open QwenPaw
+## Before You Begin: Open AIArb
 
-Install QwenPaw by following the [Quick Start guide](https://qwenpaw.agentscope.io/#qwenpaw-quickstart). QwenPaw supports pip, the one-click script, Docker, cloud deployment, and desktop installation. Then start it from a terminal. The console opens automatically in your browser:
+Install AIArb by following the [Quick Start guide](https://aiarb.agentscope.io/#aiarb-quickstart). AIArb supports pip, the one-click script, Docker, cloud deployment, and desktop installation. Then start it from a terminal. The console opens automatically in your browser:
 
 ```bash
-# Start QwenPaw (listens on 127.0.0.1:8088 by default)
-qwenpaw app
+# Start AIArb (listens on 127.0.0.1:8088 by default)
+aiarb app
 
 # If the browser does not open automatically, open the URL manually
 open http://127.0.0.1:8088
@@ -61,9 +61,9 @@ open http://127.0.0.1:8088
 
 ## Step 1: Open the Main Interface
 
-After QwenPaw starts, the console opens automatically on the Chat page.
+After AIArb starts, the console opens automatically on the Chat page.
 
-![Step 1: QwenPaw main interface](https://img.alicdn.com/imgextra/i2/O1CN01fvYmw40BXLL5qXky_!!6000000007717-2-tps-2880-1620.png)
+![Step 1: AIArb main interface](https://img.alicdn.com/imgextra/i2/O1CN01fvYmw40BXLL5qXky_!!6000000007717-2-tps-2880-1620.png)
 
 _Red marker 1: the Apps entry in the left navigation._
 
@@ -81,7 +81,7 @@ _Red marker 1: the Apps menu item. If no apps have been installed yet, the page 
 
 ## Step 3: Select Creator and Choose Install
 
-Open the **Official Apps** tab, find the **QwenPaw Creator** card, and select **Install** in the lower-right corner of the card (marker 1).
+Open the **Official Apps** tab, find the **AIArb Creator** card, and select **Install** in the lower-right corner of the card (marker 1).
 
 ![Step 3: Creator card on the Official Apps tab](https://img.alicdn.com/imgextra/i4/O1CN01MFQj17c3uGC5qXky_!!6000000001609-2-tps-2880-1620.png)
 
@@ -101,7 +101,7 @@ _Red marker 1: the Install button in its Installing state._
 
 ## Step 5: Confirm Successful Installation
 
-When installation finishes, a green check notification at the top of the page confirms **Installed: QwenPaw Creator**.
+When installation finishes, a green check notification at the top of the page confirms **Installed: AIArb Creator**.
 
 ![Step 5: Installation success notification](https://img.alicdn.com/imgextra/i3/O1CN01khWNWYm8iTG5qXky_!!6000000004768-2-tps-2880-1620.png)
 

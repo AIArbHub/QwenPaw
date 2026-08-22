@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access,unused-argument
 """Unit tests for the durable :class:`HistoryStore`.
 
@@ -18,11 +18,11 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.agents.context.scroll.history import (
+from AIARB.agents.context.scroll.history import (
     HistoryStore,
     HistorySchemaError,
 )
-from qwenpaw.agents.context.types import LogEntry
+from AIARB.agents.context.types import LogEntry
 
 
 @pytest.fixture
@@ -534,7 +534,7 @@ class _NoFTSConn:
         return getattr(self._real, name)
 
 
-@pytest.mark.usefixtures("capture_qwenpaw_logs")
+@pytest.mark.usefixtures("capture_AIARB_logs")
 def test_init_fts_degrades_and_warns_without_fts5(tmp_path: Path, caplog):
     """A SQLite build without FTS5 must not break the store: history.db still
     works and search degrades to LIKE, with one warning logged."""

@@ -1,14 +1,14 @@
-# Context Management
+﻿# Context Management
 
 ## Overview
 
-QwenPaw's default context strategy is **scroll**: older turns are not summarized and discarded. They are written to a durable SQLite history store, evicted from the live model window when needed, and represented by a compact in-context index that can be expanded on demand.
+AIARB's default context strategy is **scroll**: older turns are not summarized and discarded. They are written to a durable SQLite history store, evicted from the live model window when needed, and represented by a compact in-context index that can be expanded on demand.
 
 Scroll is the user-facing default. Existing `strategy: "native"` configurations remain accepted for backward compatibility and fallback, but strategy switching is not exposed in the Console.
 
 ## The Three Memory Systems
 
-QwenPaw organizes memory into three complementary systems, loosely mirroring human memory, each owned by a different subsystem:
+AIARB organizes memory into three complementary systems, loosely mirroring human memory, each owned by a different subsystem:
 
 | System              | What it is                                                                                                                               | Documented in                   |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
@@ -53,7 +53,7 @@ Key properties:
 - **No lossy-summary dependency**: raw evicted content remains authoritative in `history.db` and the `EvictionIndex`. A continuation summary is only a compact task-state cache; a failed update preserves the previous valid summary and never blocks eviction.
 - **Recallable raw history**: each index line carries a `seq` span. The agent can call `recall_history(op="expand", lo, hi)` to read the full original rows (or `ms.expand(lo, hi)` in the `recall_history_python` REPL).
 - **Cross-session memory**: history rows include `session_id` and `agent_id`, so recall can search this agent's past sessions and, when explicitly widened, other agents in the same workspace.
-- **Fallback-safe**: if scroll cannot be wired or its recall tools cannot run safely, QwenPaw falls back to native context management instead of evicting history that cannot be recalled.
+- **Fallback-safe**: if scroll cannot be wired or its recall tools cannot run safely, AIARB falls back to native context management instead of evicting history that cannot be recalled.
 
 Index tiers roll up only when they reach their 10-block capacity; pressure does not compact the index early. Scroll enters pre-trimming only when input is **strictly above** the automatic trigger (80% by default); input exactly at or below the trigger stops without folding tool results or evicting dialogue. Above the trigger, Scroll batch-folds eligible completed-turn tool results (long text or acknowledged inline media) except those in the active turn and the five newest results globally, then recounts once. If the context is now at or below the trigger, it stops; otherwise it proceeds with normal eviction. After rebuilding, completed-result folding remains the final pressure valve above `max(trigger, reserve)`. If the input still exceeds the effective hard limit, Scroll batch-folds acknowledged old active-turn results and recounts once. Explicit `/compact` skips the pre-trim stage and performs the requested eviction.
 
@@ -77,7 +77,7 @@ Index tiers roll up only when they reach their 10-block capacity; pressure does 
 | `headline`                                      | Optional model-written task-state milestone used as an index leaf.          |
 | `blocks`, `metadata`, `created_at`, `dedup_key` | Full serialized blocks, metadata, timestamp, and idempotency key.           |
 
-If SQLite FTS5 is available, QwenPaw also keeps a `conversation_history_fts` index over `content`. Without FTS5, recall search degrades to a slower `LIKE` scan.
+If SQLite FTS5 is available, AIARB also keeps a `conversation_history_fts` index over `content`. Without FTS5, recall search degrades to a slower `LIKE` scan.
 
 Instance backups preserve the history store while the service is running. See
 [Backup & Restore](./backup).
@@ -188,7 +188,7 @@ Each `⟦ … ⟧` leaf in the index is a model-written task-state headline. The
 
 ### Recall API
 
-The recall API is the interface to episodic memory: it reads back the durable, verbatim history that working-memory eviction left behind. When scroll is active, QwenPaw injects two tools:
+The recall API is the interface to episodic memory: it reads back the durable, verbatim history that working-memory eviction left behind. When scroll is active, AIARB injects two tools:
 
 - **`recall_history`** — the structured front door for the common reads. Each call is a bound, read-only query executed in-process, so it needs no sandbox and no approval on any platform:
 
@@ -228,9 +228,9 @@ A failed cell is unmistakable: the observation leads with a `RECALL FAILED — t
 
 Search (both `recall_history(op="search")` and `ms.search`) also never echoes the agent back at itself: the recall tool's own source/output rows are kept out of the results, and so is the current **active turn** (the latest user request and the reply being written) — otherwise a multi-round recall would top-k-match the previous round's quoted findings instead of the real history. Earlier evicted turns of the same session remain searchable, and `ms.expand` / `ms.recall_tool` stay unfiltered (verbatim replay is their point).
 
-Security note: `recall_history_python` runs model-authored Python. It normally requires sandbox injection from the governance layer. (`recall_history` is unaffected: it never executes model-authored code, so it still runs when no sandbox backend is available or sandboxing is disabled. QwenPaw supports native Windows sandbox backends; WSL2 itself is not a prerequisite for sandboxing.) If no sandbox is available, the REPL fails closed unless both are true:
+Security note: `recall_history_python` runs model-authored Python. It normally requires sandbox injection from the governance layer. (`recall_history` is unaffected: it never executes model-authored code, so it still runs when no sandbox backend is available or sandboxing is disabled. AIARB supports native Windows sandbox backends; WSL2 itself is not a prerequisite for sandboxing.) If no sandbox is available, the REPL fails closed unless both are true:
 
-- environment variable `QWENPAW_ALLOW_UNSANDBOXED_RECALL` is truthy
+- environment variable `AIARB_ALLOW_UNSANDBOXED_RECALL` is truthy
 - `running.light_context_config.scroll_config.allow_unsandboxed = true`
 
 Unsandboxed recall executes arbitrary host Python as the agent user and should only be used in trusted local development.
@@ -245,7 +245,7 @@ Tool results are handled by one mechanism:
 
 Scroll no longer has a separate token-based tool-result cap. All live previews use `pruning_recent_msg_max_bytes`. At the automatic compression trigger, Scroll batch-replaces eligible completed-turn results (long text or acknowledged inline media) with an exact `recall_history` pointer, while preserving the active turn and five newest results, then recounts once. After eviction it can apply the same recovery-pointer fold to remaining completed results above the pressure target. Legacy tier settings are ignored by Scroll.
 
-When unified pruning is enabled, QwenPaw makes AgentScope's built-in token-based tool-result cap non-binding. This prevents a second truncation pass from replacing the byte-bounded preview and discarding its block-scoped recovery metadata. If unified pruning is disabled, AgentScope's default cap remains active as a safety net.
+When unified pruning is enabled, AIARB makes AgentScope's built-in token-based tool-result cap non-binding. This prevents a second truncation pass from replacing the byte-bounded preview and discarding its block-scoped recovery metadata. If unified pruning is disabled, AgentScope's default cap remains active as a safety net.
 
 `scroll_config.tool_output_token_cap` is accepted only so existing configuration files continue to load. It is ignored and an explicitly configured value produces a migration warning; replace it with `tool_result_pruning_config.pruning_recent_msg_max_bytes`, whose unit is bytes rather than model-estimated tokens. Disabling `tool_result_pruning_config.enabled` also disables Scroll's execution-time per-result bound.
 
@@ -347,13 +347,13 @@ Selected exact values, such as paths and version numbers, are kept in a textual 
 
 It works alongside the existing context strategy and long-term memory. It does not delete chat history, rewrite stored conversations, or save the generated images to local storage.
 
-QwenPaw only applies Visual Compact when the context is long enough and the visual replacement is expected to save tokens. Short requests or requests without a worthwhile saving are left unchanged.
+AIARB only applies Visual Compact when the context is long enough and the visual replacement is expected to save tokens. Short requests or requests without a worthwhile saving are left unchanged.
 
 ### Model requirement
 
 Visual Compact requires a **native multimodal model that accepts image input**, such as `qwen3.6-plus`. A multimodal provider, a model name that suggests vision support, or a compatibility layer that can transport images is not sufficient by itself.
 
-Use the multimodal capability test in model settings to confirm that the selected model can actually read images. If QwenPaw cannot explicitly confirm image support, Visual Compact is skipped safely.
+Use the multimodal capability test in model settings to confirm that the selected model can actually read images. If AIARB cannot explicitly confirm image support, Visual Compact is skipped safely.
 
 ### Enable Visual Compact
 
@@ -375,8 +375,8 @@ Higher intensity does not mean better answers. Actual savings also depend on the
 Visual Compact is most useful for long-running conversations, tool-heavy tasks, and sessions where large tool outputs or older context create significant input-token pressure.
 
 - **How to check**
-  1. Set the `QWENPAW_LOG_LEVEL` environment variable to `debug`, then restart QwenPaw.
-  2. After completing a long request, open `qwenpaw.log` in the working directory (or use `/daemon logs`) and search for `Visual Compact transform`.
+  1. Set the `AIARB_LOG_LEVEL` environment variable to `debug`, then restart AIARB.
+  2. After completing a long request, open `AIARB.log` in the working directory (or use `/daemon logs`) and search for `Visual Compact transform`.
   3. `applied=true` means visual compression was applied to that request. `estimated_saved_tokens` and `estimated_savings_pct` show the estimated number and percentage of tokens saved.
 - **Keep in mind**
   - These values are calculated from local token and image-cost estimates. They are not exact usage or billing totals reported by the provider.
@@ -400,7 +400,7 @@ In **Agent → Configuration → Context management → Decision model compactio
 limits. Select an agent decision model in Model settings, or configure a global default decision model.
 The current implementation supports the TypeSafe decision provider.
 
-QwenPaw reuses its provider model factory, saved credentials and request headers, and lends the same
+AIARB reuses its provider model factory, saved credentials and request headers, and lends the same
 decision model instance to ReMe. No separate ReMe API key is needed. Requires ReMe 0.4.2.0.
 
 Disabled by default, this enhancement supports both `scroll` and `native`, independently of long-term memory
@@ -414,11 +414,11 @@ become previews with `recall_history` (Scroll) or `read_file` (native) recovery 
 existing retention periods: recovery is available while the originals remain. Bounded conversation evidence is
 sent to the configured decision provider.
 
-QwenPaw verifies that only permitted outputs change and that actual model input tokens decrease, including
+AIARB verifies that only permitted outputs change and that actual model input tokens decrease, including
 system prompt and tools. If the context reaches its trigger budget, eviction is avoided; otherwise normal
 compaction continues with any verified savings. Archive/provider failure, timeout, invalid proposals or no
 savings continue normal compaction. Cancellation propagates without committing an incomplete proposal.
-QwenPaw closes its decision model client after ReMe drains calls.
+AIARB closes its decision model client after ReMe drains calls.
 
 Set `decision_compact_config` under the agent's `running.light_context_config`:
 

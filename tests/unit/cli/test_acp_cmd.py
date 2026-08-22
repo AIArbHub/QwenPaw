@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
-"""Tests for the ``qwenpaw acp`` CLI command."""
+"""Tests for the ``aiarb acp`` CLI command."""
 from __future__ import annotations
 
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli.acp_cmd import acp_cmd
+from aiarb.cli.acp_cmd import acp_cmd
 
 
 @pytest.mark.parametrize(f"budget", [None, -1, 100])
 def test_acp_cmd_passes_local_diagnostics(monkeypatch, tmp_path, budget):
     captured = {}
 
-    async def fake_run_qwenpaw_agent(**kwargs):
+    async def fake_run_aiarb_agent(**kwargs):
         captured.update(kwargs)
 
     monkeypatch.setattr(
-        "qwenpaw.agents.acp.server.run_qwenpaw_agent",
-        fake_run_qwenpaw_agent,
+        "aiarb.agents.acp.server.run_aiarb_agent",
+        fake_run_aiarb_agent,
     )
 
     result = CliRunner().invoke(

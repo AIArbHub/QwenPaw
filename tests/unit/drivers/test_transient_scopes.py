@@ -12,18 +12,18 @@ from typing import ClassVar
 
 import pytest
 
-from qwenpaw.drivers.capabilities import (
+from aiarb.drivers.capabilities import (
     CapabilityExposure,
     DriverCapability,
     DriverInvocation,
     DriverInvocationResult,
     format_capability_id,
 )
-from qwenpaw.drivers.constants import DRIVER_SCOPE_CONTEXT_KEY
-from qwenpaw.drivers.contracts import DriverCard
-from qwenpaw.drivers.credentials.store import AsyncCredentialStore
-from qwenpaw.drivers.handler import DriverHandler
-from qwenpaw.drivers.manager import DriverManager
+from aiarb.drivers.constants import DRIVER_SCOPE_CONTEXT_KEY
+from aiarb.drivers.contracts import DriverCard
+from aiarb.drivers.credentials.store import AsyncCredentialStore
+from aiarb.drivers.handler import DriverHandler
+from aiarb.drivers.manager import DriverManager
 
 
 class _FakeHandler(DriverHandler):

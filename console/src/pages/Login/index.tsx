@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+﻿import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button, Checkbox, Form, Input, Modal } from "antd";
@@ -194,7 +194,7 @@ export default function LoginPage() {
             src={`${import.meta.env.BASE_URL}${
               isDark ? "logo-dark.svg" : "logo-light.svg"
             }`}
-            alt="QwenPaw"
+            alt="AIARB"
             style={{ height: 48, marginBottom: 12 }}
           />
           <h2 className={styles.loginTitle}>
@@ -311,7 +311,7 @@ export default function LoginPage() {
         {isHub && (
           <nav className={styles.hubLinks} aria-label={t("login.hubLinks")}>
             <a
-              href="https://github.com/agentscope-ai/QwenPaw"
+              href="https://github.com/agentscope-ai/AIARB"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -320,7 +320,7 @@ export default function LoginPage() {
             </a>
             <span aria-hidden="true" />
             <a
-              href="https://qwenpaw.agentscope.io/"
+              href="https://AIARB.agentscope.io/"
               target="_blank"
               rel="noopener noreferrer"
             >

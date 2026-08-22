@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Unit tests for the ``web_search`` builtin-tool Console config plumbing
-in ``qwenpaw.app.routers.tools``.
+in ``aiarb.app.routers.tools``.
 
 Covers:
 - ``_builtin_credential_ref`` ref derivation (provider present/blank/tavily)
@@ -19,14 +19,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from fastapi import HTTPException
 import pytest
 
-from qwenpaw.app.routers.tools import (
+from aiarb.app.routers.tools import (
     ToolConfigUpdate,
     _builtin_credential_ref,
     get_tool_config,
     update_tool_config,
 )
-from qwenpaw.drivers.credentials.types import CredentialRecord
-from qwenpaw.security.secret_store import mask_secret_value
+from aiarb.drivers.credentials.types import CredentialRecord
+from aiarb.security.secret_store import mask_secret_value
 
 
 def _workspace(agent_id: str = "default") -> SimpleNamespace:
@@ -78,15 +78,15 @@ async def test_get_tool_config_reads_credential_and_masks() -> None:
 
     with (
         patch(
-            "qwenpaw.plugins.registry.PluginRegistry",
+            "aiarb.plugins.registry.PluginRegistry",
             return_value=registry,
         ),
         patch(
-            "qwenpaw.app.agent_context.get_agent_for_request",
+            "aiarb.app.agent_context.get_agent_for_request",
             AsyncMock(return_value=_workspace()),
         ),
         patch(
-            "qwenpaw.app.driver_config_service.DriverConfigService"
+            "aiarb.app.driver_config_service.DriverConfigService"
             ".load_optional_credential",
             AsyncMock(return_value=record),
         ),
@@ -107,15 +107,15 @@ async def test_get_tool_config_blank_provider_skips_credential_lookup() -> None:
 
     with (
         patch(
-            "qwenpaw.plugins.registry.PluginRegistry",
+            "aiarb.plugins.registry.PluginRegistry",
             return_value=registry,
         ),
         patch(
-            "qwenpaw.app.agent_context.get_agent_for_request",
+            "aiarb.app.agent_context.get_agent_for_request",
             AsyncMock(return_value=_workspace()),
         ),
         patch(
-            "qwenpaw.app.driver_config_service.DriverConfigService"
+            "aiarb.app.driver_config_service.DriverConfigService"
             ".load_optional_credential",
             load_credential,
         ),
@@ -132,15 +132,15 @@ async def test_get_tool_config_no_stored_key_omits_api_key() -> None:
 
     with (
         patch(
-            "qwenpaw.plugins.registry.PluginRegistry",
+            "aiarb.plugins.registry.PluginRegistry",
             return_value=registry,
         ),
         patch(
-            "qwenpaw.app.agent_context.get_agent_for_request",
+            "aiarb.app.agent_context.get_agent_for_request",
             AsyncMock(return_value=_workspace()),
         ),
         patch(
-            "qwenpaw.app.driver_config_service.DriverConfigService"
+            "aiarb.app.driver_config_service.DriverConfigService"
             ".load_optional_credential",
             AsyncMock(return_value=None),
         ),
@@ -201,15 +201,15 @@ async def test_get_tool_config_provider_query_wins_over_saved_config() -> None:
 
     with (
         patch(
-            "qwenpaw.plugins.registry.PluginRegistry",
+            "aiarb.plugins.registry.PluginRegistry",
             return_value=registry,
         ),
         patch(
-            "qwenpaw.app.agent_context.get_agent_for_request",
+            "aiarb.app.agent_context.get_agent_for_request",
             AsyncMock(return_value=_workspace()),
         ),
         patch(
-            "qwenpaw.app.driver_config_service.DriverConfigService"
+            "aiarb.app.driver_config_service.DriverConfigService"
             ".load_optional_credential",
             load_credential,
         ),
@@ -239,24 +239,24 @@ async def _update(
 ):
     with (
         patch(
-            "qwenpaw.plugins.registry.PluginRegistry",
+            "aiarb.plugins.registry.PluginRegistry",
             return_value=registry,
         ),
         patch(
-            "qwenpaw.app.agent_context.get_agent_for_request",
+            "aiarb.app.agent_context.get_agent_for_request",
             AsyncMock(return_value=_workspace()),
         ),
         patch(
-            "qwenpaw.app.driver_config_service.DriverConfigService"
+            "aiarb.app.driver_config_service.DriverConfigService"
             ".load_optional_credential",
             load_optional_credential,
         ),
         patch(
-            "qwenpaw.app.driver_config_service.DriverConfigService"
+            "aiarb.app.driver_config_service.DriverConfigService"
             ".credential_store",
             new_callable=lambda: property(lambda self: credential_store),
         ),
-        patch("qwenpaw.app.routers.tools.schedule_agent_reload"),
+        patch("aiarb.app.routers.tools.schedule_agent_reload"),
     ):
         return await update_tool_config(
             tool_name="web_search",
@@ -408,25 +408,25 @@ async def test_update_tool_config_config_failure_leaves_credential_untouched() -
 
     with (
         patch(
-            "qwenpaw.plugins.registry.PluginRegistry",
+            "aiarb.plugins.registry.PluginRegistry",
             return_value=registry,
         ),
         patch(
-            "qwenpaw.app.agent_context.get_agent_for_request",
+            "aiarb.app.agent_context.get_agent_for_request",
             AsyncMock(return_value=_workspace()),
         ),
         patch(
-            "qwenpaw.app.driver_config_service.DriverConfigService"
+            "aiarb.app.driver_config_service.DriverConfigService"
             ".load_optional_credential",
             AsyncMock(return_value=None),
         ),
         patch(
-            "qwenpaw.app.driver_config_service.DriverConfigService"
+            "aiarb.app.driver_config_service.DriverConfigService"
             ".credential_store",
             new_callable=lambda: property(lambda self: credential_store),
         ),
         patch(
-            "qwenpaw.app.routers.tools.update_agent_config_async",
+            "aiarb.app.routers.tools.update_agent_config_async",
             update_config,
         ),
     ):
@@ -455,25 +455,25 @@ async def test_update_tool_config_credential_failure_rolls_back_config() -> None
 
     with (
         patch(
-            "qwenpaw.plugins.registry.PluginRegistry",
+            "aiarb.plugins.registry.PluginRegistry",
             return_value=registry,
         ),
         patch(
-            "qwenpaw.app.agent_context.get_agent_for_request",
+            "aiarb.app.agent_context.get_agent_for_request",
             AsyncMock(return_value=_workspace()),
         ),
         patch(
-            "qwenpaw.app.driver_config_service.DriverConfigService"
+            "aiarb.app.driver_config_service.DriverConfigService"
             ".load_optional_credential",
             AsyncMock(return_value=None),
         ),
         patch(
-            "qwenpaw.app.driver_config_service.DriverConfigService"
+            "aiarb.app.driver_config_service.DriverConfigService"
             ".credential_store",
             new_callable=lambda: property(lambda self: credential_store),
         ),
         patch(
-            "qwenpaw.app.routers.tools.update_agent_config_async",
+            "aiarb.app.routers.tools.update_agent_config_async",
             update_config,
         ),
     ):

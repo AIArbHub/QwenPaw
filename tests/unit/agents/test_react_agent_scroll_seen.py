@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-argument
 """Tests for Scroll's successful-model-input acknowledgement hook."""
 from types import SimpleNamespace
@@ -9,9 +9,9 @@ from agentscope.event import ModelCallEndEvent
 from agentscope.message import HintBlock, Msg, TextBlock
 from agentscope.model import FinishedReason
 
-from qwenpaw.agents.react_agent import QwenPawAgent
-from qwenpaw.loop.gates import StopAction, StopHandlerResult
-from qwenpaw.providers.model_capability_cache import get_capability_cache
+from AIARB.agents.react_agent import AIARBAgent
+from AIARB.loop.gates import StopAction, StopHandlerResult
+from AIARB.providers.model_capability_cache import get_capability_cache
 
 
 _AUDIO_MODAL_ERROR = (
@@ -31,7 +31,7 @@ _AUDIO_INPUT_PART_ERROR = (
 
 
 class SeenTracker:
-    """Minimal Scroll manager surface used by ``QwenPawAgent._reasoning``."""
+    """Minimal Scroll manager surface used by ``AIARBAgent._reasoning``."""
 
     def __init__(self) -> None:
         self.acknowledged: list[set[str]] = []
@@ -73,9 +73,9 @@ class ThinkingOmissionModel:
         return True
 
 
-def make_agent(tracker: SeenTracker) -> QwenPawAgent:
+def make_agent(tracker: SeenTracker) -> AIARBAgent:
     """Build only the attributes the reasoning wrapper reads."""
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIARBAgent)
     agent._context_manager = tracker
     agent._gate_pending_stop = None
     agent._request_context = {}
@@ -97,7 +97,7 @@ def make_agent(tracker: SeenTracker) -> QwenPawAgent:
 
 def test_thinking_omissions_delegate_to_model_wrapper() -> None:
     """Fallback-aware model interfaces take precedence over one formatter."""
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIARBAgent)
     model = ThinkingOmissionModel()
     agent.model = model
     agent.formatter = SimpleNamespace()
@@ -106,7 +106,7 @@ def test_thinking_omissions_delegate_to_model_wrapper() -> None:
 
     assert applied is True
     assert model.ids == {"thinking-1"}
-    assert not hasattr(agent.formatter, "_qwenpaw_omit_thinking_ids")
+    assert not hasattr(agent.formatter, "_AIARB_omit_thinking_ids")
 
 
 async def test_successful_model_call_acknowledges_input_results(monkeypatch):
@@ -177,7 +177,7 @@ async def test_interrupted_model_call_does_not_acknowledge_results(
 
 async def test_compress_context_forwards_one_shot_instructions():
     tracker = CompressionTracker()
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIARBAgent)
     agent._context_manager = tracker
     agent._compress_context_middlewares = []
     agent.state = SimpleNamespace(context=[])
@@ -199,10 +199,10 @@ async def test_audio_modal_error_strips_audio_and_retries_once(
     agent.model = SimpleNamespace(model_key="dashscope:qwen3.7-plus")
     agent._uses_request_time_media_normalization = lambda: True
     agent.formatter = SimpleNamespace(
-        _qwenpaw_last_wire_media_count=1,
-        _qwenpaw_last_wire_audio_count=1,
-        _qwenpaw_force_strip_media=False,
-        _qwenpaw_force_strip_audio=False,
+        _AIARB_last_wire_media_count=1,
+        _AIARB_last_wire_audio_count=1,
+        _AIARB_force_strip_media=False,
+        _AIARB_force_strip_audio=False,
     )
     calls = 0
 
@@ -211,8 +211,8 @@ async def test_audio_modal_error_strips_audio_and_retries_once(
         calls += 1
         if calls == 1:
             raise RuntimeError(_AUDIO_MODAL_ERROR)
-        assert agent.formatter._qwenpaw_force_strip_audio is True
-        assert agent.formatter._qwenpaw_force_strip_media is False
+        assert agent.formatter._AIARB_force_strip_audio is True
+        assert agent.formatter._AIARB_force_strip_media is False
         yield Msg(
             name="agent",
             role="assistant",
@@ -236,8 +236,8 @@ async def test_audio_modal_error_strips_audio_and_retries_once(
             )
             is True
         )
-        assert agent.formatter._qwenpaw_force_strip_audio is False
-        assert agent.formatter._qwenpaw_force_strip_media is False
+        assert agent.formatter._AIARB_force_strip_audio is False
+        assert agent.formatter._AIARB_force_strip_media is False
     finally:
         cache.clear()
 
@@ -260,5 +260,5 @@ def test_audio_fallback_error_classifies_unknown_audio_parts(
 ) -> None:
     """Recognize unsupported input_audio variants without broad 422 matches."""
     assert (
-        QwenPawAgent._is_audio_fallback_error(RuntimeError(error)) is expected
+        AIARBAgent._is_audio_fallback_error(RuntimeError(error)) is expected
     )

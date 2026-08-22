@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Local test runner script for QwenPaw project.
+Local test runner script for AIArb project.
 
 Usage:
     python scripts/run_tests.py [OPTIONS]
@@ -120,7 +120,7 @@ def run_pytest(
     if coverage:
         cmd.extend(
             [
-                "--cov=src/qwenpaw",
+                "--cov=src/aiarb",
                 "--cov-report=html",
                 "--cov-report=term-missing",
             ],
@@ -222,7 +222,7 @@ def run_integrated_tests(
 def main() -> int:
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="QwenPaw test runner",
+        description="AIArb test runner",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
@@ -277,7 +277,7 @@ def main() -> int:
     run_all = args.all or (args.unit is None and not args.integrated)
 
     print()
-    print_info("QwenPaw Test Runner")
+    print_info("AIArb Test Runner")
     print("===================")
     print()
 

@@ -85,6 +85,6 @@ export const useOsIcons = create<OsIconStore>()(
         }),
       reset: () => set({ positions: {}, layout: "free" }),
     }),
-    { name: "qwenpaw.os.iconPositions" },
+    { name: "aiarb.os.iconPositions" },
   ),
 );

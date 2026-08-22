@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw Coding Mode end-to-end tests.
+AIArb Coding Mode end-to-end tests.
 
 Cases:
     - CODE-001 P0  test_enter_and_exit_coding_mode
@@ -226,7 +226,7 @@ class TestChatInCodingMode:
     embedded chat panel works end-to-end with an LLM. We don't assert
     on the response text content — only that an AI bubble appears.
 
-    Skipped when ``QWENPAW_DASHSCOPE_API_KEY`` is unset (handled by
+    Skipped when ``AIARB_DASHSCOPE_API_KEY`` is unset (handled by
     ``conftest.pytest_collection_modifyitems``).
     """
 
@@ -263,7 +263,7 @@ class TestChatInCodingMode:
             coding_page.open_chat()
             coding_page.page.wait_for_timeout(3000)
             chat_input = coding_page.page.locator(
-                '.qwenpaw-sender textarea:visible, .qwenpaw-sender [role="textbox"]:visible'
+                '.aiarb-sender textarea:visible, .qwenpaw-sender [role="textbox"]:visible'
             ).first
             expect(chat_input).to_be_visible(timeout=coding_page.timeout)
             chat_input.fill(
@@ -271,13 +271,13 @@ class TestChatInCodingMode:
                 "Reply in one short sentence."
             )
             send_btn = coding_page.page.locator(
-                "button.qwenpaw-sender-actions-btn.qwenpaw-btn-primary"
+                "button.aiarb-sender-actions-btn.aiarb-btn-primary"
             ).first
             send_btn.click()
 
             log_test_step("4. Wait for at least one AI bubble to appear")
             ai_bubble = coding_page.page.locator(
-                ".qwenpaw-bubble.qwenpaw-bubble-start"
+                ".aiarb-bubble.aiarb-bubble-start"
             ).first
             expect(ai_bubble).to_be_visible(timeout=120000)
 

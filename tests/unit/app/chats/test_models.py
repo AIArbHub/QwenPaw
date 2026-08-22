@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from qwenpaw.app.chats.models import (
+from aiarb.app.chats.models import (
     ChatGroup,
     ChatGroupKind,
     ChatGroupUpdate,

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for the thin Computer Use protocol adapter."""
 
 # Tests reach into module internals to pin the protocol contract, and their
@@ -34,23 +34,24 @@ from computer_use.transport.base import (
     ComputerUseTransport,
     ReverseRequestHandler,
 )
-from qwenpaw.app.computer_use import (
+from aiarb.app.computer_use import (
     HostRuntimeProvider,
     set_current_computer_use_turn_id,
 )
-from qwenpaw.app.computer_use import runtime as runtime_module
+from AIARB.app.computer_use import runtime as runtime_module
 from tests.unit.plugins.timing import WAIT_TIMEOUT
+from aiarb.app.computer_use import runtime as runtime_module
 
 
 @pytest.fixture(autouse=True)
 def _reset_host_runtime(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     for name in (
-        "QWENPAW_COMPUTER_USE_PIPE",
-        "QWENPAW_COMPUTER_USE_CAPABILITY",
-        "QWENPAW_COMPUTER_USE_PROTOCOL",
-        "QWENPAW_COMPUTER_USE_CONTROL_HOST",
-        "QWENPAW_COMPUTER_USE_CONTROL_PORT",
-        "QWENPAW_COMPUTER_USE_CONTROL_TOKEN",
+        "AIARB_COMPUTER_USE_PIPE",
+        "AIARB_COMPUTER_USE_CAPABILITY",
+        "AIARB_COMPUTER_USE_PROTOCOL",
+        "AIARB_COMPUTER_USE_CONTROL_HOST",
+        "AIARB_COMPUTER_USE_CONTROL_PORT",
+        "AIARB_COMPUTER_USE_CONTROL_TOKEN",
     ):
         monkeypatch.delenv(name, raising=False)
     HostRuntimeProvider._capability = None
@@ -82,9 +83,9 @@ def test_host_runtime_requests_a_capability_only_when_needed(
 
     server = threading.Thread(target=_serve_once)
     server.start()
-    monkeypatch.setenv("QWENPAW_COMPUTER_USE_CONTROL_HOST", "127.0.0.1")
-    monkeypatch.setenv("QWENPAW_COMPUTER_USE_CONTROL_PORT", str(port))
-    monkeypatch.setenv("QWENPAW_COMPUTER_USE_CONTROL_TOKEN", token)
+    monkeypatch.setenv("AIARB_COMPUTER_USE_CONTROL_HOST", "127.0.0.1")
+    monkeypatch.setenv("AIARB_COMPUTER_USE_CONTROL_PORT", str(port))
+    monkeypatch.setenv("AIARB_COMPUTER_USE_CONTROL_TOKEN", token)
 
     assert HostRuntimeProvider.is_available() is True
     assert received == {}

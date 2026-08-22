@@ -15,20 +15,20 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.app.task_tracker import TaskTracker
-from qwenpaw.checkpoints import policy as checkpoint_policy
-from qwenpaw.runtime.commands.control.checkpoint_handler import (
+from aiarb.app.task_tracker import TaskTracker
+from aiarb.checkpoints import policy as checkpoint_policy
+from aiarb.runtime.commands.control.checkpoint_handler import (
     CheckpointCommandHandler,
 )
-from qwenpaw.checkpoints.service import CheckpointService
-from qwenpaw.checkpoints.policy import (
+from aiarb.checkpoints.service import CheckpointService
+from aiarb.checkpoints.policy import (
     ref_session_key,
     session_file_path,
     session_key,
 )
-from qwenpaw.checkpoints.models import CheckpointError
-from qwenpaw.checkpoints.runtime import RUNTIME
-from qwenpaw.checkpoints.repository import CheckpointRepository
+from aiarb.checkpoints.models import CheckpointError
+from aiarb.checkpoints.runtime import RUNTIME
+from aiarb.checkpoints.repository import CheckpointRepository
 
 pytestmark = pytest.mark.skipif(
     shutil.which("git") is None,

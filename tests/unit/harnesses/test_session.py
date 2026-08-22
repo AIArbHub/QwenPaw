@@ -6,10 +6,10 @@ from pathlib import Path
 import pytest
 from agentscope.state import AgentState
 
-from qwenpaw.app.chats.session import SafeJSONSession
-from qwenpaw.app.chats.utils import agentscope_msg_to_message
-from qwenpaw.harnesses.session import HarnessSessionBridge
-from qwenpaw.schemas import (
+from aiarb.app.chats.session import SafeJSONSession
+from aiarb.app.chats.utils import agentscope_msg_to_message
+from aiarb.harnesses.session import HarnessSessionBridge
+from aiarb.schemas import (
     AgentRequest,
     AgentResponse,
     AudioContent,

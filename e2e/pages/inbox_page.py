@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Inbox page object.
+AIARB Inbox page object.
 
 Inbox is a file-backed event store + per-run trace store + an in-memory
 approval queue. The first two are seedable on disk so the full UI and
@@ -53,12 +53,12 @@ class InboxPage(BasePage):
     )
 
     TAB_PUSH = (
-        '.qwenpaw-tabs-tab:has-text("Push Messages"), '
-        '.qwenpaw-tabs-tab:has-text("推送消息")'
+        '.AIARB-tabs-tab:has-text("Push Messages"), '
+        '.AIARB-tabs-tab:has-text("推送消息")'
     )
     TAB_APPROVALS = (
-        '.qwenpaw-tabs-tab:has-text("Approvals"), '
-        '.qwenpaw-tabs-tab:has-text("审批")'
+        '.AIARB-tabs-tab:has-text("Approvals"), '
+        '.AIARB-tabs-tab:has-text("审批")'
     )
 
     # CSS Modules class names are hashed but they all carry the
@@ -77,7 +77,7 @@ class InboxPage(BasePage):
     )
 
     # Detail modal
-    DETAIL_MODAL = '.qwenpaw-modal'
+    DETAIL_MODAL = '.AIARB-modal'
 
     # Batch toolbar
     BATCH_ENTER_BTN = (
@@ -93,8 +93,8 @@ class InboxPage(BasePage):
         'button:has-text("批量删除")'
     )
     POPCONFIRM_OK = (
-        '.qwenpaw-popconfirm button.qwenpaw-btn-primary, '
-        '.qwenpaw-popover button.qwenpaw-btn-primary'
+        '.AIARB-popconfirm button.AIARB-btn-primary, '
+        '.AIARB-popover button.AIARB-btn-primary'
     )
 
     EMPTY_PUSH = (
@@ -102,7 +102,7 @@ class InboxPage(BasePage):
     )
 
     # Per-card delete (Trash icon, antd Button danger => -dangerous class)
-    CARD_DELETE_BTN = 'button.qwenpaw-btn-dangerous'
+    CARD_DELETE_BTN = 'button.AIARB-btn-dangerous'
 
     # Toolbar "Mark all read" button
     MARK_ALL_READ_BTN = (
@@ -248,9 +248,9 @@ class InboxPage(BasePage):
             "      state: { selectedAgent: a, agents: [], lastChatIdByAgent: {} },"
             "      version: 0"
             "    });"
-            "    try { localStorage.setItem('qwenpaw-last-used-agent', a); } catch (e) {}"
-            "    try { localStorage.setItem('qwenpaw-agent-storage', blob); } catch (e) {}"
-            "    try { sessionStorage.setItem('qwenpaw-agent-storage', blob); } catch (e) {}"
+            "    try { localStorage.setItem('AIARB-last-used-agent', a); } catch (e) {}"
+            "    try { localStorage.setItem('AIARB-agent-storage', blob); } catch (e) {}"
+            "    try { sessionStorage.setItem('AIARB-agent-storage', blob); } catch (e) {}"
             "  } catch (e) {}"
             "})();"
         )

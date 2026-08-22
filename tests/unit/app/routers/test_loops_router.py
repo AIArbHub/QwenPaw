@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for custom loop mode persistence endpoints."""
 # pylint: disable=redefined-outer-name
 from __future__ import annotations
@@ -10,22 +10,22 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.routers.loops import router
-from qwenpaw.app.agent_context import get_current_session_id
-from qwenpaw.config.config import (
+from AIARB.app.routers.loops import router
+from AIARB.app.agent_context import get_current_session_id
+from AIARB.config.config import (
     CustomLoopModeConfig,
     GateInstanceConfig,
     LoopConfig,
 )
-from qwenpaw.app.workspace.workspace_plugins import WorkspacePlugins
-from qwenpaw.modes.base import AgentMode
-from qwenpaw.modes.default import DefaultMode as BuiltinDefaultMode
-from qwenpaw.runtime.slash_command_registry import CommandSpec
-from qwenpaw.modes.custom_loop.mode import (
+from AIARB.app.workspace.workspace_plugins import WorkspacePlugins
+from AIARB.modes.base import AgentMode
+from AIARB.modes.default import DefaultMode as BuiltinDefaultMode
+from AIARB.runtime.slash_command_registry import CommandSpec
+from AIARB.modes.custom_loop.mode import (
     DeclarativeLoopMode,
     LoopModeActivationStore,
 )
-from qwenpaw.modes.mission import MissionMode
+from AIARB.modes.mission import MissionMode
 
 
 def _mode(mode_id: str = "quality") -> CustomLoopModeConfig:
@@ -63,11 +63,11 @@ def client(workspace: SimpleNamespace):
     app.include_router(router, prefix="/api")
     with (
         patch(
-            "qwenpaw.app.routers.loops.get_agent_for_request",
+            "AIARB.app.routers.loops.get_agent_for_request",
             new=AsyncMock(return_value=workspace),
         ),
-        patch("qwenpaw.app.routers.loops.save_agent_config") as save,
-        patch("qwenpaw.app.routers.loops.schedule_agent_reload") as reload,
+        patch("AIARB.app.routers.loops.save_agent_config") as save,
+        patch("AIARB.app.routers.loops.schedule_agent_reload") as reload,
     ):
         yield TestClient(app), save, reload
 
@@ -372,8 +372,8 @@ def test_create_rejects_unicode_casefold_name(client, workspace) -> None:
 def test_loop_catalog_lists_advisor_mode(client, workspace) -> None:
     """Advisor Mode is selectable from the composer like /goal once it is
     switched on for the agent."""
-    from qwenpaw.config.config import AgentProfileConfig
-    from qwenpaw.modes.advisor import AdvisorMode
+    from AIARB.config.config import AgentProfileConfig
+    from AIARB.modes.advisor import AdvisorMode
 
     cfg = AgentProfileConfig(id="default", name="Agent")
     cfg.running = workspace.config.running
@@ -398,8 +398,8 @@ def test_loop_catalog_hides_modes_switched_off_for_the_agent(
 ) -> None:
     """Advisor is offered in the composer only once it is switched on for
     the agent."""
-    from qwenpaw.config.config import AgentProfileConfig
-    from qwenpaw.modes.advisor import AdvisorMode
+    from AIARB.config.config import AgentProfileConfig
+    from AIARB.modes.advisor import AdvisorMode
 
     cfg = AgentProfileConfig(id="default", name="Agent")
     cfg.running = workspace.config.running

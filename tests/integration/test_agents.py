@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.constant import BUILTIN_QA_AGENT_ID
+from aiarb.constant import BUILTIN_QA_AGENT_ID
 from tests.integration.helpers import wait_for_agent_startup
 
 _AGENT_PROFILE_TOP_LEVEL_KEYS = (

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 from __future__ import annotations
 
@@ -14,8 +14,8 @@ from agentscope.model import OpenAIResponseModel
 from agentscope.tool import ToolChoice
 from openai import APIError, BadRequestError
 
-from qwenpaw.providers.multimodal_prober import _PROBE_VIDEO_URL
-from qwenpaw.providers.openai_response_provider import (
+from AIARB.providers.multimodal_prober import _PROBE_VIDEO_URL
+from AIARB.providers.openai_response_provider import (
     OpenAIResponseModelCompat,
     OpenAIResponseProvider,
     _extract_reasoning_text,

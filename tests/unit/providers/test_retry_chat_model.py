@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,too-few-public-methods
 from __future__ import annotations
 
@@ -19,12 +19,12 @@ from agentscope.message import (
 from agentscope.model._model_response import ChatResponse
 from agentscope.tool import Toolkit
 
-from qwenpaw.agents import model_factory
-from qwenpaw.providers.capping_formatter import _CappingOpenAIFormatter
-from qwenpaw.providers.model_capability_cache import get_capability_cache
-from qwenpaw.providers.model_error_policy import RETRYABLE_STATUS_CODES
-from qwenpaw.providers.rate_limiter import LLMRateLimiter, _limiters
-from qwenpaw.providers.retry_chat_model import (
+from AIARB.agents import model_factory
+from AIARB.providers.capping_formatter import _CappingOpenAIFormatter
+from AIARB.providers.model_capability_cache import get_capability_cache
+from AIARB.providers.model_error_policy import RETRYABLE_STATUS_CODES
+from AIARB.providers.rate_limiter import LLMRateLimiter, _limiters
+from AIARB.providers.retry_chat_model import (
     RetryChatModel,
     RetryConfig,
     RateLimitConfig,
@@ -41,7 +41,7 @@ from qwenpaw.providers.retry_chat_model import (
     _normalize_rate_limit_config,
     _normalize_retry_config,
 )
-from qwenpaw.token_usage.model_wrapper import TokenRecordingModelWrapper
+from AIARB.token_usage.model_wrapper import TokenRecordingModelWrapper
 
 
 async def _failing_reasoning_stream() -> AsyncGenerator[Any, None]:
@@ -241,7 +241,7 @@ class _IdleStreamModel:
 
 
 async def test_wrapped_model_exposes_formatter_and_model_name() -> None:
-    """AgentScope attributes stay visible through both QwenPaw wrappers."""
+    """AgentScope attributes stay visible through both AIARB wrappers."""
     formatter = SimpleNamespace(supported_input_media_types=[])
     provider_model = SimpleNamespace(
         credential=None,
@@ -704,7 +704,7 @@ async def test_stream_timeout_reads_environment_after_model_creation(
             acquire_timeout=10.0,
         ),
     )
-    monkeypatch.setenv("QWENPAW_LLM_STREAM_FIRST_CONTENT_TIMEOUT", "0.01")
+    monkeypatch.setenv("AIARB_LLM_STREAM_FIRST_CONTENT_TIMEOUT", "0.01")
 
     try:
         result = await model(messages=[])
@@ -760,7 +760,7 @@ async def test_stream_idle_timeout_does_not_retry_after_output() -> None:
         assert exc_info.value.timeout_seconds == 0.15
         assert str(exc_info.value) == (
             "LLM stream for unit:idle-stream-test produced no content for "
-            "0.15s. Set QWENPAW_LLM_STREAM_IDLE_TIMEOUT to adjust this "
+            "0.15s. Set AIARB_LLM_STREAM_IDLE_TIMEOUT to adjust this "
             "timeout"
         )
         assert _limiters[model.model_key].stats()["current_in_flight"] == 0
@@ -815,7 +815,7 @@ async def test_slow_stream_close_continues_in_background(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.providers.retry_chat_model._STREAM_CLEANUP_TIMEOUT",
+        "AIARB.providers.retry_chat_model._STREAM_CLEANUP_TIMEOUT",
         0.02,
     )
     model = RetryChatModel(
@@ -847,7 +847,7 @@ async def test_deferred_cleanup_quarantines_model_without_retry(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.providers.retry_chat_model._STREAM_CLEANUP_TIMEOUT",
+        "AIARB.providers.retry_chat_model._STREAM_CLEANUP_TIMEOUT",
         0.02,
     )
     _limiters.clear()
@@ -921,17 +921,17 @@ async def test_deferred_cleanup_allows_recovery_after_quarantine_timeout(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.providers.retry_chat_model._STREAM_CLEANUP_TIMEOUT",
+        "AIARB.providers.retry_chat_model._STREAM_CLEANUP_TIMEOUT",
         0.01,
     )
     monkeypatch.setattr(
-        "qwenpaw.providers.retry_chat_model."
+        "AIARB.providers.retry_chat_model."
         "_STREAM_CLEANUP_QUARANTINE_TIMEOUT",
         0.02,
     )
     clock = {"now": 0.0}
     monkeypatch.setattr(
-        "qwenpaw.providers.retry_chat_model.monotonic",
+        "AIARB.providers.retry_chat_model.monotonic",
         lambda: clock["now"],
     )
     _limiters.clear()
@@ -1050,7 +1050,7 @@ async def test_empty_chunks_do_not_reset_stream_idle_timeout() -> None:
         assert contents
         assert all(content == [] for content in contents)
         assert exc_info.value.timeout_seconds == 0.15
-        assert "QWENPAW_LLM_STREAM_FIRST_CONTENT_TIMEOUT" in str(
+        assert "AIARB_LLM_STREAM_FIRST_CONTENT_TIMEOUT" in str(
             exc_info.value,
         )
         assert state["started"].is_set() is True
@@ -1419,8 +1419,8 @@ def test_inject_reasoning_content_empty_list() -> None:
 
 def test_enable_reasoning_fallback_for_agentscope_messages() -> None:
     formatter = SimpleNamespace(
-        _qwenpaw_supports_reasoning_content_fallback=True,
-        _qwenpaw_require_reasoning_content=False,
+        _AIARB_supports_reasoning_content_fallback=True,
+        _AIARB_require_reasoning_content=False,
     )
     provider_model = SimpleNamespace(formatter=formatter)
     token_wrapper = SimpleNamespace(_model=provider_model)
@@ -1440,7 +1440,7 @@ def test_enable_reasoning_fallback_for_agentscope_messages() -> None:
     )
 
     assert result is True
-    assert formatter._qwenpaw_require_reasoning_content is True
+    assert formatter._AIARB_require_reasoning_content is True
     assert len(messages[0].content) == 1
     assert isinstance(messages[0].content[0], TextBlock)
     assert messages[0].content[0].text == "previous reply"
@@ -1448,8 +1448,8 @@ def test_enable_reasoning_fallback_for_agentscope_messages() -> None:
 
 def test_enabled_reasoning_fallback_allows_concurrent_retry() -> None:
     formatter = SimpleNamespace(
-        _qwenpaw_supports_reasoning_content_fallback=True,
-        _qwenpaw_require_reasoning_content=True,
+        _AIARB_supports_reasoning_content_fallback=True,
+        _AIARB_require_reasoning_content=True,
     )
     model = SimpleNamespace(formatter=formatter)
     messages = [
@@ -1467,7 +1467,7 @@ def test_enabled_reasoning_fallback_allows_concurrent_retry() -> None:
         (),
         {"messages": messages},
     )
-    assert formatter._qwenpaw_require_reasoning_content is True
+    assert formatter._AIARB_require_reasoning_content is True
 
 
 def test_reasoning_fallback_rejects_unsupported_formatter() -> None:
@@ -1718,8 +1718,8 @@ async def test_stream_recovers_agentscope_msg_via_formatter_fallback() -> None:
             "real tool reasoning",
             " ",
         ]
-        assert inner.formatter._qwenpaw_require_reasoning_content is True
-        assert inner.formatter._qwenpaw_omit_thinking_ids == set()
+        assert inner.formatter._AIARB_require_reasoning_content is True
+        assert inner.formatter._AIARB_omit_thinking_ids == set()
         assert cache.get(model_key, "needs_reasoning_content") is True
         assert [block.type for block in messages[0].content] == [
             "thinking",

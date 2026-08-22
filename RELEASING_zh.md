@@ -1,8 +1,8 @@
-# 发布 QwenPaw
+# 发布 AIArb
 
 _English: [RELEASING.md](RELEASING.md)_
 
-QwenPaw 一个版本会发布四种产物——**PyPI** wheel、**Docker** 镜像、**桌面**应用
+AIArb 一个版本会发布四种产物——**PyPI** wheel、**Docker** 镜像、**桌面**应用
 （Tauri，Windows + macOS）和**插件**包。它们由一个统一编排的 workflow 一起发布：
 任一产物失败都会拦下整个发布，绝不会出现"Web 版发了、却没有对应桌面版"这种情况。
 
@@ -49,7 +49,7 @@ QwenPaw 一个版本会发布四种产物——**PyPI** wheel、**Docker** 镜�
      gh release create v2.0.0-beta.8 --draft --prerelease \
        --target main --title "v2.0.0-beta.8" --notes "..."
      ```
-   - tag 应与 `src/qwenpaw/__version__.py` 对应（`resolve` 会用 `packaging` 归一化校验，
+   - tag 应与 `src/aiarb/__version__.py` 对应（`resolve` 会用 `packaging` 归一化校验，
      不一致直接 fail；如 tag `v2.0.1-beta.1` 须匹配版本 `2.0.1b1`）。
    - 建议建草稿时用 `--target <sha>` 钉住 commit。若用 `--target main`，则建草稿到运行
      workflow 之间**不要**再往 main 合入，否则构建的是更新后的 main HEAD。
@@ -72,7 +72,7 @@ QwenPaw 一个版本会发布四种产物——**PyPI** wheel、**Docker** 镜�
 
 - 预发布判定是**基于 tag** 的：tag 含 `beta`/`alpha`/`rc`/`dev` 即为预发布
   （所以用 `-beta.N` 写法）；`stable` 与 `.postN` 会更新 Docker 的 `latest` 标签。
-- **官网**（GitHub Pages，`qwenpaw.agentscope.io`）只在**正式版**与 `.postN` 部署；
+- **官网**（GitHub Pages，`aiarb.agentscope.io`）只在**正式版**与 `.postN` 部署；
   预发布跳过，保证官网只展示 GA 版本。
 - ⚠️ 桌面 OSS 的 `latest` 文件与 Tauri 自动更新清单目前对**每个**版本（含 beta）
   都会更新（与之前 `desktop-release.yml` 行为一致，本次未改）。让桌面
@@ -90,10 +90,10 @@ release 就仍是草稿。
 | `finalize` 失败 | 产物都发了但 release 没翻 | 重跑 `finalize`，或手动 `gh release edit <tag> --draft=false --target <sha>`（或 UI 点 *Publish*）。 |
 | `duty-issue` 失败 | release 已发布，只是缺验收 issue | 重跑该 job，或用 `tag` 手动 dispatch `release-duty.yml`。不阻塞发布。 |
 | `promote-desktop` 失败 | release 已发布，但桌面 `latest` 文件 / 更新清单 / index 未刷新（存量用户的自动更新暂时看不到新版；版本化下载仍可用） | 重跑该 job，幂等（`ossutil cp --force`）。对首装用户不阻塞。 |
-| `deploy-website` 失败（仅正式/post） | release 已发布，但官网（`qwenpaw.agentscope.io`）仍是旧版本 | 重跑该 job，或手动 dispatch `deploy-website.yml`（workflow_dispatch）。幂等、不阻塞。 |
+| `deploy-website` 失败（仅正式/post） | release 已发布，但官网（`aiarb.agentscope.io`）仍是旧版本 | 重跑该 job，或手动 dispatch `deploy-website.yml`（workflow_dispatch）。幂等、不阻塞。 |
 | "Multiple draft releases found" | 存在多个草稿 | 重跑 *Run workflow* 时显式填 `tag`。 |
 | "No draft release found" / "not a draft" | 没有草稿，或 tag 填错 | 先建草稿 / 改正 tag，再重跑。 |
-| resolve 拒绝该 tag（版本不匹配） | 草稿 tag 与 `src/qwenpaw/__version__.py` 不一致 | 让 tag 与版本对齐（`packaging` 归一化，如 `v2.0.1-beta.1` ↔ `2.0.1b1`），再重跑。 |
+| resolve 拒绝该 tag（版本不匹配） | 草稿 tag 与 `src/aiarb/__version__.py` 不一致 | 让 tag 与版本对齐（`packaging` 归一化，如 `v2.0.1-beta.1` ↔ `2.0.1b1`），再重跑。 |
 
 ## 回退到旧流程
 
@@ -111,5 +111,5 @@ Release **点 Publish**（或 `gh release create ...`），会在 `release: publ
 草稿翻牌、duty issue 仍会真实执行。（在 fork 上这些只影响 fork 自己的 release 页面。）
 
 注意：桌面构建的 装 → 启 → 问答 UI 验证在 `dry_run` 下**仍会真跑**，需要
-`QWENPAW_DASHSCOPE_API_KEY` secret——`dry_run` 只跳过 resolve 阶段的 fail-fast 检查，
+`AIARB_DASHSCOPE_API_KEY` secret——`dry_run` 只跳过 resolve 阶段的 fail-fast 检查，
 不跳过验证本身。

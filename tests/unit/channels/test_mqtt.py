@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """MQTT subscriptions, native payloads and confirmed delivery."""
 
 import json
@@ -6,9 +6,9 @@ from types import SimpleNamespace as NS
 
 import pytest
 from tests.channel_support.driver import bind, module
-from qwenpaw.channel_protocol import shared_response_driver
-from qwenpaw.channel_protocol.response_lifecycle import ResponseStateError
-from qwenpaw.channel_protocol.response_receipts import receipt_key
+from AIARB.channel_protocol import shared_response_driver
+from AIARB.channel_protocol.response_lifecycle import ResponseStateError
+from AIARB.channel_protocol.response_receipts import receipt_key
 from tests.channel_support.protocol import eventually, finish, open_route, send
 
 

@@ -3,13 +3,13 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.drivers.capabilities import DriverInvocation
-from qwenpaw.drivers.contracts import CredentialRef, DriverCard, PolicyRule
-from qwenpaw.drivers.credentials.store import AsyncCredentialStore
-from qwenpaw.drivers.credentials.types import CredentialRecord
-from qwenpaw.drivers.handlers.mcp import MCPDriverHandler
-from qwenpaw.drivers.manager import DriverManager
-from qwenpaw.drivers.storage import card_path, dump_card
+from aiarb.drivers.capabilities import DriverInvocation
+from aiarb.drivers.contracts import CredentialRef, DriverCard, PolicyRule
+from aiarb.drivers.credentials.store import AsyncCredentialStore
+from aiarb.drivers.credentials.types import CredentialRecord
+from aiarb.drivers.handlers.mcp import MCPDriverHandler
+from aiarb.drivers.manager import DriverManager
+from aiarb.drivers.storage import card_path, dump_card
 from tests.integration.driver_mcp_fakes import (
     FakeStdIOClient,
     patch_mcp_runtime_clients,

@@ -1,4 +1,4 @@
-import { ChatSessionActivation } from "./components/ChatSessionActivation";
+﻿import { ChatSessionActivation } from "./components/ChatSessionActivation";
 import {
   ChatSessionTransition,
   ReadyChatWelcome,
@@ -63,7 +63,7 @@ import {
 import {
   attachClientMessageId,
   createClientMessageId,
-  QWENPAW_CLIENT_MESSAGE_ID_KEY,
+  AIARB_CLIENT_MESSAGE_ID_KEY,
 } from "../../utils/clientMessageId";
 import defaultConfig, { getDefaultConfig } from "./OptionsPanel/defaultConfig";
 import { chatApi } from "../../api/modules/chat";
@@ -290,7 +290,7 @@ import {
   holdOwnershipLock,
 } from "../../stores/messageQueueStore";
 import {
-  requiresQwenPawModel,
+  requiresAIARBModel,
   supportsAgentAttachments,
 } from "../../utils/agentBackend";
 
@@ -517,7 +517,7 @@ async function startBackgroundQueue(
                   {
                     role: "user",
                     metadata: {
-                      [QWENPAW_CLIENT_MESSAGE_ID_KEY]: clientMessageId,
+                      [AIARB_CLIENT_MESSAGE_ID_KEY]: clientMessageId,
                     },
                     content: [
                       { type: "text", text: item.text },
@@ -881,7 +881,7 @@ function useMultimodalCapabilities(
   locationPathname: string,
   _isChatActive: () => boolean,
   selectedAgent: string,
-  usesQwenPawBackend: boolean,
+  usesAIARBBackend: boolean,
   sessionId: string,
   chatId: string | null | undefined,
 ) {
@@ -916,7 +916,7 @@ function useMultimodalCapabilities(
       supportsImage: false,
       supportsVideo: false,
     };
-    if (!usesQwenPawBackend) {
+    if (!usesAIARBBackend) {
       updateCapsIfChanged(noCaps);
       return;
     }
@@ -954,7 +954,7 @@ function useMultimodalCapabilities(
     sessionId,
     chatId,
     updateCapsIfChanged,
-    usesQwenPawBackend,
+    usesAIARBBackend,
   ]);
 
   // Fetch caps on mount and whenever refreshKey changes
@@ -1371,9 +1371,9 @@ export default function ChatPage() {
         trigger: customEvent.detail.trigger ?? null,
       });
     };
-    window.addEventListener("qwenpaw:open-file-preview", openPreview);
+    window.addEventListener("AIARB:open-file-preview", openPreview);
     return () =>
-      window.removeEventListener("qwenpaw:open-file-preview", openPreview);
+      window.removeEventListener("AIARB:open-file-preview", openPreview);
   }, [dispatchFilesDrawer]);
 
   const handleInternalFileLink = useCallback(
@@ -1418,13 +1418,13 @@ export default function ChatPage() {
     }>
   >([]);
   const selectedAgentInfo = agents.find((agent) => agent.id === selectedAgent);
-  const selectedAgentBackend = selectedAgentInfo?.backend ?? "qwenpaw";
+  const selectedAgentBackend = selectedAgentInfo?.backend ?? "AIARB";
   const backendCapabilities = selectedAgentInfo?.backend_capabilities;
-  const usesQwenPawBackend = requiresQwenPawModel(selectedAgentBackend);
+  const usesAIARBBackend = requiresAIARBModel(selectedAgentBackend);
   // An Advisor conversation runs two models, so its pill shows the pair.
   const advisorConversation = useIsAdvisorConversation();
   useAdvisorDecisionAvailability({
-    active: usesQwenPawBackend && advisorConversation && !isSessionTransition,
+    active: usesAIARBBackend && advisorConversation && !isSessionTransition,
     agentId: selectedAgent,
     sessionId: queueSessionId,
     chatId: backendChatId,
@@ -1482,7 +1482,7 @@ export default function ChatPage() {
   const captureRequestContext = useCallback(
     (context?: Record<string, unknown>) => ({
       ...context,
-      ...(usesQwenPawBackend
+      ...(usesAIARBBackend
         ? {
             approval_level:
               decisionModelEnabledRef.current === false &&
@@ -1495,7 +1495,7 @@ export default function ChatPage() {
         ? { backend_controls: { ...backendControlsRef.current } }
         : {}),
     }),
-    [usesQwenPawBackend, runningConfigApprovalLevel],
+    [usesAIARBBackend, runningConfigApprovalLevel],
   );
 
   // Track pending attachments for queue support
@@ -2013,7 +2013,7 @@ export default function ChatPage() {
   );
 
   useEffect(() => {
-    if (!usesQwenPawBackend) {
+    if (!usesAIARBBackend) {
       setChatSkills([]);
       return;
     }
@@ -2035,7 +2035,7 @@ export default function ChatPage() {
     return () => {
       cancelled = true;
     };
-  }, [selectedAgent, usesQwenPawBackend]);
+  }, [selectedAgent, usesAIARBBackend]);
 
   const isChatActiveRef = useRef(false);
   const isChatActivePage =
@@ -2298,7 +2298,7 @@ export default function ChatPage() {
     location.pathname,
     isChatActive,
     selectedAgent,
-    usesQwenPawBackend,
+    usesAIARBBackend,
     queueSessionId,
     backendChatId,
   );
@@ -2452,7 +2452,7 @@ export default function ChatPage() {
         queueKey,
         resolveIdentity: (id) => sessionApi.getSessionIdentity(id),
         prepareQuery: (query) =>
-          usesQwenPawBackend ? prepareLoopModeMessage(query) : query,
+          usesAIARBBackend ? prepareLoopModeMessage(query) : query,
         requestContext: captureRequestContext(),
         queueFullMessage: t("chat.queue.queueFull", { max: MAX_QUEUE_SIZE }),
         staleMessage: t("chat.pluginSubmission.staleConversation"),
@@ -2465,7 +2465,7 @@ export default function ChatPage() {
     queueKey,
     sdkSessionAdapter,
     captureRequestContext,
-    usesQwenPawBackend,
+    usesAIARBBackend,
     t,
   ]);
 
@@ -2943,7 +2943,7 @@ export default function ChatPage() {
       // Clean up the queue and abort any in-flight background send for the
       // removed session so stale items don't linger in storage or get sent
       // after the conversation is deleted. Navigation to a fresh chat is
-      // owned by the delete handlers (via the "qwenpaw:sidebar-new-chat"
+      // owned by the delete handlers (via the "AIARB:sidebar-new-chat"
       // event), so this callback stays focused on resource cleanup and can
       // run regardless of which session is currently active.
       try {
@@ -3258,7 +3258,7 @@ export default function ChatPage() {
         headers["X-Agent-Id"] = entrySnapshot.agentId;
       }
 
-      if (usesQwenPawBackend) {
+      if (usesAIARBBackend) {
         try {
           const activeModels = await loadSessionModel(entrySnapshot.agentId, {
             sessionId: fallbackLocalChatId || "new",
@@ -3362,14 +3362,14 @@ export default function ChatPage() {
         requestSnapshot.agentId,
         clientMessageId,
         extLists[ChatList.requestPayloadTransforms],
-        usesQwenPawBackend
+        usesAIARBBackend
           ? { approval_level: approvalAtSubmission }
           : { backend_controls: controlsAtSubmission },
       );
       let projectSessionId: string | null = null;
       let appliedProjectDir: string | null = null;
 
-      if (usesQwenPawBackend) {
+      if (usesAIARBBackend) {
         projectSessionId =
           fallbackLocalChatId ?? String(requestBody.session_id || "new");
         const pendingRequest = withPendingSessionSettings(
@@ -3443,7 +3443,7 @@ export default function ChatPage() {
 
       return wrapChatResponseUsageStream(response, chatRef, usageTurn);
     },
-    [extLists, selectedAgent, runningConfigApprovalLevel, usesQwenPawBackend],
+    [extLists, selectedAgent, runningConfigApprovalLevel, usesAIARBBackend],
   );
 
   const handleFileUpload = useCallback(
@@ -3456,7 +3456,7 @@ export default function ChatPage() {
       const { file, onSuccess, onError, onProgress } = options;
       try {
         // Warn when model has no multimodal support
-        if (usesQwenPawBackend && !multimodalCaps.supportsMultimodal) {
+        if (usesAIARBBackend && !multimodalCaps.supportsMultimodal) {
           message.warning(t("chat.attachments.multimodalWarning"));
         } else if (
           multimodalCaps.supportsImage &&
@@ -3498,7 +3498,7 @@ export default function ChatPage() {
         onError?.(e instanceof Error ? e : new Error(String(e)));
       }
     },
-    [multimodalCaps, t, usesQwenPawBackend],
+    [multimodalCaps, t, usesAIARBBackend],
   );
 
   const compactSender = filesDrawerState.kind === "workspace";
@@ -3541,7 +3541,7 @@ export default function ChatPage() {
         description: t("chat.commands.clear.description"),
       },
     ];
-    const nativeCommands: CommandSuggestion[] = usesQwenPawBackend
+    const nativeCommands: CommandSuggestion[] = usesAIARBBackend
       ? [
           {
             command: "/compact",
@@ -3570,9 +3570,9 @@ export default function ChatPage() {
       loopAvailableModes.map((mode) => mode.slash_command).filter(Boolean),
     );
     // Loop/plugin modes (goal, mission, OMP, custom) share GET /loops with
-    // LoopModeSelector; include them in the slash menu when the QwenPaw
+    // LoopModeSelector; include them in the slash menu when the AIARB
     // backend is active. Empty slash_command (default mode) is skipped.
-    const loopSuggestions: CommandSuggestion[] = usesQwenPawBackend
+    const loopSuggestions: CommandSuggestion[] = usesAIARBBackend
       ? buildLoopSlashSuggestions(
           loopAvailableModes,
           reservedCommands,
@@ -3632,7 +3632,7 @@ export default function ChatPage() {
         Boolean(chatLoadingRef.current) ||
         useMessageQueueStore.getState().getQueue(queueKey).length > 0 ||
         autoSendTimerRef.current !== null;
-      if (!queueBusy() && usesQwenPawBackend && backendChatId) {
+      if (!queueBusy() && usesAIARBBackend && backendChatId) {
         try {
           // Completed SSE can precede TaskTracker cleanup. Retain upstream's
           // admission check so a send in that gap joins the durable queue.
@@ -3655,7 +3655,7 @@ export default function ChatPage() {
           message.warning(t("chat.queue.queueFull", { max: MAX_QUEUE_SIZE }));
           return false;
         }
-        const queueText = usesQwenPawBackend
+        const queueText = usesAIARBBackend
           ? prepareLoopModeMessage(val)
           : val;
         useMessageQueueStore.getState().enqueue(queueKey, {
@@ -3692,7 +3692,7 @@ export default function ChatPage() {
         return { proceed: false, clear: sameVisit };
       }
 
-      const prepared = usesQwenPawBackend
+      const prepared = usesAIARBBackend
         ? beginLoopModeSubmission(data.query)
         : data.query;
       // Consume this submission before model lookup, session allocation or
@@ -3820,7 +3820,7 @@ export default function ChatPage() {
         return resolved.map((s) => ({ label: s.label, value: s.value }));
       },
     );
-    const activePluginSuggestions = usesQwenPawBackend ? pluginSuggestions : [];
+    const activePluginSuggestions = usesAIARBBackend ? pluginSuggestions : [];
 
     const wrapActionSpec = (
       pluginId: string,
@@ -4014,8 +4014,8 @@ export default function ChatPage() {
       },
       welcome: {
         ...i18nConfig.welcome,
-        nick: extNick ?? "QwenPaw",
-        avatar: extAvatar ?? `${import.meta.env.BASE_URL}qwenpaw.png`,
+        nick: extNick ?? "AIARB",
+        avatar: extAvatar ?? `${import.meta.env.BASE_URL}AIARB.png`,
         ...(extGreeting !== undefined ? { greeting: extGreeting } : {}),
         ...(extDescription !== undefined
           ? { description: extDescription }
@@ -4073,7 +4073,7 @@ export default function ChatPage() {
                 onTranscription={handleWhisperTranscription}
               />
             ) : null}
-            {usesQwenPawBackend && (
+            {usesAIARBBackend && (
               <LoopModeSelector
                 className={isMobile ? styles.mobileComposerControl : undefined}
                 compact={isMobile}
@@ -4081,7 +4081,7 @@ export default function ChatPage() {
                 agentId={selectedAgent}
               />
             )}
-            {usesQwenPawBackend && !isSessionTransition ? (
+            {usesAIARBBackend && !isSessionTransition ? (
               advisorConversation ? (
                 <AdvisorModelsPill />
               ) : (
@@ -4104,7 +4104,7 @@ export default function ChatPage() {
               compactSender ? styles.compactSenderAffix : ""
             }`}
           >
-            {(usesQwenPawBackend || backendCapabilities?.context_usage) && (
+            {(usesAIARBBackend || backendCapabilities?.context_usage) && (
               <span className={styles.senderContextAffix}>
                 <ContextUsageIndicator
                   onCompact={handleCompactCommand}
@@ -4112,7 +4112,7 @@ export default function ChatPage() {
                 />
               </span>
             )}
-            {usesQwenPawBackend && !isSessionTransition && (
+            {usesAIARBBackend && !isSessionTransition && (
               <SessionProjectDirectory
                 scope={sessionScope}
                 compact={isMobile || compactSender}
@@ -4126,7 +4126,7 @@ export default function ChatPage() {
                   .join(" ")}
               />
             )}
-            {usesQwenPawBackend ? (
+            {usesAIARBBackend ? (
               <ApprovalLevelToggle
                 sessionId={queueKey}
                 runningConfigApprovalLevel={runningConfigApprovalLevel}
@@ -4457,7 +4457,7 @@ export default function ChatPage() {
           },
           ...pluginActions,
         ],
-        replace: !usesQwenPawBackend,
+        replace: !usesAIARBBackend,
         right: false,
       },
       requestActions: {
@@ -4517,7 +4517,7 @@ export default function ChatPage() {
     backendCapabilities,
     backendCommands,
     approvalPresets,
-    usesQwenPawBackend,
+    usesAIARBBackend,
     supportsAttachments,
     runningConfigApprovalLevel,
     captureRequestContext,
@@ -4619,7 +4619,7 @@ export default function ChatPage() {
           </div>
 
           {/* Rate-limit guidance banner */}
-          {usesQwenPawBackend && rateLimitAlternatives.length > 0 && (
+          {usesAIARBBackend && rateLimitAlternatives.length > 0 && (
             <div className={styles.rateLimitBanner}>
               <span className={styles.rateLimitText}>
                 {t("chat.rateLimitMessage")}
@@ -4748,7 +4748,7 @@ export default function ChatPage() {
           />
 
           <Modal
-            open={usesQwenPawBackend && showModelPrompt}
+            open={usesAIARBBackend && showModelPrompt}
             closable={false}
             footer={null}
             width={480}

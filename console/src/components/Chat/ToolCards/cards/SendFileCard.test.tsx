@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -79,7 +79,7 @@ describe("SendFileCard", () => {
   it("opens the file preview once the user expands the card", () => {
     userExpanded.current = true;
     const listener = vi.fn();
-    window.addEventListener("qwenpaw:open-file-preview", listener);
+    window.addEventListener("AIARB:open-file-preview", listener);
 
     render(<SendFileCard content={sentFile} />);
     fireEvent.click(screen.getByRole("button", { name: "open file" }));
@@ -96,7 +96,7 @@ describe("SendFileCard", () => {
       artifactUrl: "/api/files/preview/hello.txt",
     });
 
-    window.removeEventListener("qwenpaw:open-file-preview", listener);
+    window.removeEventListener("AIARB:open-file-preview", listener);
     userExpanded.current = false;
   });
 });

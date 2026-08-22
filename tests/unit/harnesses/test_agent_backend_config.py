@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """Tests for agent-level runtime backend configuration."""
 
-from qwenpaw.config.config import AgentProfileConfig
-from qwenpaw.harnesses.registry import get_provider
+from aiarb.config.config import AgentProfileConfig
+from aiarb.harnesses.registry import get_provider
 
 
-def test_agent_backend_defaults_to_qwenpaw() -> None:
+def test_agent_backend_defaults_to_aiarb() -> None:
     config = AgentProfileConfig(id="agent-1", name="Agent")
 
-    assert config.backend == "qwenpaw"
+    assert config.backend == "aiarb"
 
 
 def test_codex_backend_uses_the_agent_workspace() -> None:

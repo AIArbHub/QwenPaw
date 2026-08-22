@@ -3,7 +3,7 @@ import type * as ReactNS from "react";
 import { resolveLocale, t, type ComputerUseLocale } from "./locale";
 import manifest from "../../plugin.json";
 
-const host = window.QwenPaw.host;
+const host = window.AIArb.host;
 const React: typeof ReactNS = host.React;
 const {
   Badge,
@@ -478,13 +478,13 @@ function ComputerUsePage() {
   );
 }
 
-window.QwenPaw.chat?.approval.render(
+window.AIArb.chat?.approval.render(
   "computer-use",
   "computer_use_app_access",
   ComputerUseApprovalCard,
 );
 
-window.QwenPaw.registerRoutes?.("computer-use", [
+window.AIArb.registerRoutes?.("computer-use", [
   {
     path: "/plugin/computer-use",
     component: ComputerUsePage,

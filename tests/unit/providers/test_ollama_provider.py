@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 from __future__ import annotations
 
 from agentscope.model import OpenAIChatModel
 import pytest
 
-from qwenpaw.providers.ollama_provider import OllamaProvider
-from qwenpaw.providers.provider import ModelInfo
-from qwenpaw.providers.thinking import ThinkingControl
+from AIARB.providers.ollama_provider import OllamaProvider
+from AIARB.providers.provider import ModelInfo
+from AIARB.providers.thinking import ThinkingControl
 
 
 def _make_provider(base_url: str = "http://localhost:11434") -> OllamaProvider:
@@ -129,7 +129,7 @@ def test_client_uses_single_v1_suffix(monkeypatch, base_url: str) -> None:
             captured["timeout"] = timeout
 
     monkeypatch.setattr(
-        "qwenpaw.providers.ollama_provider.AsyncOpenAI",
+        "AIARB.providers.ollama_provider.AsyncOpenAI",
         FakeAsyncOpenAI,
     )
 
@@ -163,7 +163,7 @@ def test_get_chat_model_instance_uses_single_v1_suffix(
             captured.append(kwargs)
 
     monkeypatch.setattr(
-        "qwenpaw.providers.openai_chat_model_compat.OpenAIChatModelCompat",
+        "AIARB.providers.openai_chat_model_compat.OpenAIChatModelCompat",
         FakeCompat,
     )
 

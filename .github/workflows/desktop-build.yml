@@ -1,4 +1,4 @@
-# Reusable "prepare" half of the desktop release: build the Tauri desktop
+﻿# Reusable "prepare" half of the desktop release: build the Tauri desktop
 # packages (Windows + macOS), run the install/launch/chat UI verification,
 # and upload the installers + updater sidecars as run artifacts.
 #
@@ -106,7 +106,7 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         run: |
-          $output = "dist/QwenPaw-Tauri-${{ steps.version.outputs.version }}-Windows-setup.exe"
+          $output = "dist/AIARB-Tauri-${{ steps.version.outputs.version }}-Windows-setup.exe"
           if ([string]::IsNullOrWhiteSpace($env:TAURI_SIGNING_PRIVATE_KEY)) {
             $installer = Get-ChildItem `
               "console/src-tauri/target/release/bundle/nsis/*-setup.exe" |
@@ -129,7 +129,7 @@ jobs:
         timeout-minutes: 10
         uses: ./.github/actions/verify-tauri-windows
         with:
-          dashscope-api-key: ${{ secrets.QWENPAW_DASHSCOPE_API_KEY }}
+          dashscope-api-key: ${{ secrets.AIARB_DASHSCOPE_API_KEY }}
 
       - name: Stop desktop server (Tauri Windows)
         if: always()
@@ -137,21 +137,21 @@ jobs:
         run: |
           $ErrorActionPreference = "Continue"
           # Kill the Tauri shell and its sidecar subprocess by name.
-          Get-Process -Name "qwenpaw-desktop" -ErrorAction SilentlyContinue |
+          Get-Process -Name "AIARB-desktop" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
-          Get-Process -Name "qwenpaw-backend" -ErrorAction SilentlyContinue |
+          Get-Process -Name "AIARB-backend" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
           Start-Sleep -Seconds 2
-          Get-Process -Name "qwenpaw-desktop" -ErrorAction SilentlyContinue |
+          Get-Process -Name "AIARB-desktop" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
-          Get-Process -Name "qwenpaw-backend" -ErrorAction SilentlyContinue |
+          Get-Process -Name "AIARB-backend" -ErrorAction SilentlyContinue |
             Stop-Process -Force -ErrorAction SilentlyContinue
           exit 0
 
       - name: Generate desktop artifact checksum (Tauri Windows)
         shell: pwsh
         run: |
-          $artifacts = @(Get-ChildItem "dist/QwenPaw-Tauri-*-Windows-setup.exe")
+          $artifacts = @(Get-ChildItem "dist/AIARB-Tauri-*-Windows-setup.exe")
           if ($artifacts.Count -ne 1) {
             throw "Expected exactly one Windows installer, found $($artifacts.Count)"
           }
@@ -160,7 +160,7 @@ jobs:
           "$hash  $($artifact.Name)" | Set-Content -Encoding ascii "$($artifact.FullName).sha256"
 
           $updaterSignatures = @(Get-ChildItem `
-            "dist/QwenPaw-Tauri-*-Windows-setup.exe.sig" `
+            "dist/AIARB-Tauri-*-Windows-setup.exe.sig" `
             -ErrorAction SilentlyContinue)
           $updaterMetadata = @(Get-ChildItem `
             "dist/tauri-windows-*-updater.json" `
@@ -184,9 +184,9 @@ jobs:
         with:
           name: desktop-verify-logs-tauri-windows-${{ steps.version.outputs.version }}
           path: |
-            ${{ runner.temp }}/qwenpaw-desktop-stdout.log
-            ${{ runner.temp }}/qwenpaw-desktop-stderr.log
-            ${{ runner.temp }}/qwenpaw-desktop-logs/
+            ${{ runner.temp }}/AIARB-desktop-stdout.log
+            ${{ runner.temp }}/AIARB-desktop-stderr.log
+            ${{ runner.temp }}/AIARB-desktop-logs/
           if-no-files-found: ignore
           retention-days: 7
 
@@ -202,19 +202,19 @@ jobs:
       - name: Upload Tauri Windows artifact
         uses: actions/upload-artifact@v4
         with:
-          name: QwenPaw-Desktop-Tauri-Windows-${{ steps.version.outputs.version }}
+          name: AIARB-Desktop-Tauri-Windows-${{ steps.version.outputs.version }}
           path: |
-            dist/QwenPaw-Tauri-*-Windows-setup.exe
-            dist/QwenPaw-Tauri-*-Windows-setup.exe.sha256
+            dist/AIARB-Tauri-*-Windows-setup.exe
+            dist/AIARB-Tauri-*-Windows-setup.exe.sha256
 
       - name: Upload Tauri Windows updater metadata
-        if: hashFiles('dist/QwenPaw-Tauri-*-Windows-setup.exe.sig') != ''
+        if: hashFiles('dist/AIARB-Tauri-*-Windows-setup.exe.sig') != ''
         uses: actions/upload-artifact@v4
         with:
           name: tauri-updater-meta-windows
           path: |
-            dist/QwenPaw-Tauri-*-Windows-setup.exe.sig
-            dist/QwenPaw-Tauri-*-Windows-setup.exe.sig.sha256
+            dist/AIARB-Tauri-*-Windows-setup.exe.sig
+            dist/AIARB-Tauri-*-Windows-setup.exe.sig.sha256
             dist/tauri-windows-x86_64-updater.json
             dist/tauri-windows-x86_64-updater.json.sha256
 
@@ -289,17 +289,17 @@ jobs:
         timeout-minutes: 10
         uses: ./.github/actions/verify-tauri-macos
         with:
-          dashscope-api-key: ${{ secrets.QWENPAW_DASHSCOPE_API_KEY }}
+          dashscope-api-key: ${{ secrets.AIARB_DASHSCOPE_API_KEY }}
 
       - name: Stop desktop server (Tauri macOS)
         if: always()
         run: |
           # Kill the Tauri shell and its sidecar subprocess.
-          pkill -f "QwenPaw Desktop" 2>/dev/null || true
-          pkill -f "qwenpaw-backend" 2>/dev/null || true
+          pkill -f "AIARB Desktop" 2>/dev/null || true
+          pkill -f "AIARB-backend" 2>/dev/null || true
           sleep 2
-          pkill -9 -f "QwenPaw Desktop" 2>/dev/null || true
-          pkill -9 -f "qwenpaw-backend" 2>/dev/null || true
+          pkill -9 -f "AIARB Desktop" 2>/dev/null || true
+          pkill -9 -f "AIARB-backend" 2>/dev/null || true
           # Best-effort: kill anything sitting on the detected port.
           if [ -n "${BASE_URL:-}" ]; then
             PORT="${BASE_URL##*:}"
@@ -310,7 +310,7 @@ jobs:
       - name: Generate desktop artifact checksum (Tauri macOS)
         run: |
           shopt -s nullglob
-          artifacts=(dist/QwenPaw-Tauri-*-macOS.zip)
+          artifacts=(dist/AIARB-Tauri-*-macOS.zip)
           if [ ${#artifacts[@]} -ne 1 ]; then
             echo "::error::Expected exactly one macOS ZIP, found ${#artifacts[@]}"
             exit 1
@@ -321,8 +321,8 @@ jobs:
             shasum -a 256 "$(basename "$artifact")" > "$(basename "$artifact").sha256"
           )
 
-          updater_archives=(dist/QwenPaw-Tauri-*-macOS.app.tar.gz)
-          updater_signatures=(dist/QwenPaw-Tauri-*-macOS.app.tar.gz.sig)
+          updater_archives=(dist/AIARB-Tauri-*-macOS.app.tar.gz)
+          updater_signatures=(dist/AIARB-Tauri-*-macOS.app.tar.gz.sig)
           updater_metadata=(dist/tauri-darwin-*-updater.json)
           if [ ${#updater_archives[@]} -gt 1 ]; then
             echo "::error::Expected at most one macOS updater archive, found ${#updater_archives[@]}"
@@ -351,9 +351,9 @@ jobs:
         with:
           name: desktop-verify-logs-tauri-macos-${{ steps.version.outputs.version }}
           path: |
-            ${{ runner.temp }}/qwenpaw-desktop-stdout.log
-            ${{ runner.temp }}/qwenpaw-desktop-stderr.log
-            ~/Library/Logs/com.qwenpaw.desktop/
+            ${{ runner.temp }}/AIARB-desktop-stdout.log
+            ${{ runner.temp }}/AIARB-desktop-stderr.log
+            ~/Library/Logs/com.AIARB.desktop/
           if-no-files-found: ignore
           retention-days: 7
 
@@ -369,20 +369,20 @@ jobs:
       - name: Upload Tauri macOS artifact
         uses: actions/upload-artifact@v4
         with:
-          name: QwenPaw-Desktop-Tauri-macOS-${{ steps.version.outputs.version }}
+          name: AIARB-Desktop-Tauri-macOS-${{ steps.version.outputs.version }}
           path: |
-            dist/QwenPaw-Tauri-*-macOS.zip
-            dist/QwenPaw-Tauri-*-macOS.zip.sha256
+            dist/AIARB-Tauri-*-macOS.zip
+            dist/AIARB-Tauri-*-macOS.zip.sha256
 
       - name: Upload Tauri macOS updater metadata
-        if: hashFiles('dist/QwenPaw-Tauri-*-macOS.app.tar.gz.sig') != ''
+        if: hashFiles('dist/AIARB-Tauri-*-macOS.app.tar.gz.sig') != ''
         uses: actions/upload-artifact@v4
         with:
           name: tauri-updater-meta-macos
           path: |
-            dist/QwenPaw-Tauri-*-macOS.app.tar.gz
-            dist/QwenPaw-Tauri-*-macOS.app.tar.gz.sha256
-            dist/QwenPaw-Tauri-*-macOS.app.tar.gz.sig
-            dist/QwenPaw-Tauri-*-macOS.app.tar.gz.sig.sha256
+            dist/AIARB-Tauri-*-macOS.app.tar.gz
+            dist/AIARB-Tauri-*-macOS.app.tar.gz.sha256
+            dist/AIARB-Tauri-*-macOS.app.tar.gz.sig
+            dist/AIARB-Tauri-*-macOS.app.tar.gz.sig.sha256
             dist/tauri-darwin-*-updater.json
             dist/tauri-darwin-*-updater.json.sha256

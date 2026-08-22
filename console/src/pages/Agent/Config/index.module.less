@@ -1,4 +1,4 @@
-@import (reference) "../../../styles/scaledTypography.less";
+﻿@import (reference) "../../../styles/scaledTypography.less";
 
 .configPage {
   .scaled-control-typography();
@@ -10,11 +10,11 @@
   overflow: hidden;
 
   :global {
-    .qwenpaw-slider-track {
+    .AIARB-slider-track {
       background-color: var(--app-accent);
     }
 
-    .qwenpaw-slider .qwenpaw-slider-handle::after {
+    .AIARB-slider .AIARB-slider-handle::after {
       box-shadow: 0 0 0 2px var(--app-accent);
     }
   }
@@ -830,7 +830,7 @@
   padding: 2px 0 4px;
 
   :global(.ant-alert),
-  :global(.qwenpaw-alert) {
+  :global(.AIARB-alert) {
     margin-top: 12px;
   }
 }
@@ -1219,13 +1219,13 @@
   background: var(--app-fill-faint);
 
   :global(.ant-segmented-item),
-  :global(.qwenpaw-segmented-item) {
+  :global(.AIARB-segmented-item) {
     border-radius: 7px;
     font-weight: 500;
   }
 
   :global(.ant-segmented-thumb),
-  :global(.qwenpaw-segmented-thumb) {
+  :global(.AIARB-segmented-thumb) {
     border-radius: 7px;
     box-shadow: var(--app-shadow-sm);
   }
@@ -1270,7 +1270,7 @@
 .reactAgentField {
   margin-bottom: 0 !important;
   :global(.ant-select),
-  :global(.qwenpaw-select) {
+  :global(.AIARB-select) {
     min-height: 76px;
   }
 }
@@ -1487,9 +1487,9 @@
   width: 144px;
 }
 .memoryToggleRow > :global(.ant-switch),
-.memoryToggleRow > :global(.qwenpaw-switch),
+.memoryToggleRow > :global(.AIARB-switch),
 .memoryToggleRow > :global(.ant-flex),
-.memoryToggleRow > :global(.qwenpaw-flex) {
+.memoryToggleRow > :global(.AIARB-flex) {
   flex-shrink: 0;
 }
 .memorySourceHeader {
@@ -1500,24 +1500,24 @@
   background: transparent !important;
   border: 0 !important;
   :global(.ant-collapse-header),
-  :global(.qwenpaw-collapse-header) {
+  :global(.AIARB-collapse-header) {
     padding: 16px 0 !important;
     background: transparent !important;
   }
   :global(.ant-collapse-content-box),
-  :global(.qwenpaw-collapse-content-box) {
+  :global(.AIARB-collapse-content-box) {
     padding: 0 0 16px !important;
   }
 }
 .memoryConfigPanel {
   :global(.ant-form-item-row),
-  :global(.qwenpaw-form-item-row) {
+  :global(.AIARB-form-item-row) {
     flex-flow: row nowrap;
     align-items: center;
     gap: 24px;
   }
   :global(.ant-form-item-label),
-  :global(.qwenpaw-form-item-label) {
+  :global(.AIARB-form-item-label) {
     flex: 1 1 auto !important;
     width: auto !important;
     min-width: 0;
@@ -1526,7 +1526,7 @@
     white-space: normal;
   }
   :global(.ant-form-item-control),
-  :global(.qwenpaw-form-item-control) {
+  :global(.AIARB-form-item-control) {
     flex: 0 1 280px !important;
     width: auto !important;
     min-width: 144px;
@@ -1542,12 +1542,12 @@
 }
 @media (max-width: 600px) {
   .memoryConfigPanel :global(.ant-form-item-row),
-  .memoryConfigPanel :global(.qwenpaw-form-item-row) {
+  .memoryConfigPanel :global(.AIARB-form-item-row) {
     flex-wrap: wrap;
     gap: 8px;
   }
   .memoryConfigPanel :global(.ant-form-item-control),
-  .memoryConfigPanel :global(.qwenpaw-form-item-control) {
+  .memoryConfigPanel :global(.AIARB-form-item-control) {
     flex-basis: 100% !important;
   }
 }
@@ -1556,9 +1556,9 @@
 .memorySectionHeader {
   justify-content: space-between;
   > :global(.ant-switch),
-  > :global(.qwenpaw-switch),
+  > :global(.AIARB-switch),
   > :global(.ant-flex),
-  > :global(.qwenpaw-flex) {
+  > :global(.AIARB-flex) {
     flex-shrink: 0;
   }
 }
@@ -1571,13 +1571,13 @@
     grid-column: 1 / -1;
   }
   :global(.ant-form-item-row),
-  :global(.qwenpaw-form-item-row) {
+  :global(.AIARB-form-item-row) {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
   }
   :global(.ant-form-item-control),
-  :global(.qwenpaw-form-item-control) {
+  :global(.AIARB-form-item-control) {
     flex: 1 1 auto !important;
     min-width: 0;
   }
@@ -1585,20 +1585,20 @@
 .embeddingTuning {
   background: transparent !important;
   :global(.ant-collapse-item),
-  :global(.qwenpaw-collapse-item),
+  :global(.AIARB-collapse-item),
   :global(.ant-collapse-content),
-  :global(.qwenpaw-collapse-content) {
+  :global(.AIARB-collapse-content) {
     background: transparent !important;
   }
   border-top: 1px solid var(--app-border-subtle) !important;
   border-radius: 0 !important;
   :global(.ant-collapse-header),
-  :global(.qwenpaw-collapse-header) {
+  :global(.AIARB-collapse-header) {
     align-items: center !important;
     padding: 20px 0 !important;
   }
   :global(.ant-collapse-content-box),
-  :global(.qwenpaw-collapse-content-box) {
+  :global(.AIARB-collapse-content-box) {
     padding: 0 0 20px !important;
   }
 }

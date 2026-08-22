@@ -5,8 +5,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.agents.memory import embedding_model as module
-from qwenpaw.config.config import EmbeddingModelConfig
+from aiarb.agents.memory import embedding_model as module
+from aiarb.config.config import EmbeddingModelConfig
 
 
 def _config(**overrides) -> EmbeddingModelConfig:

@@ -1,25 +1,25 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(cd "$APP_DIR/../../.." && pwd)"
-QWENPAW_DATA_SOURCE_DIR="${QWENPAW_DATA_SOURCE_DIR:-$HOME/dev/QwenPaw-Data}"
-# Prefer the workspace CLI: a PATH-installed qwenpaw may come from another
+AIARB_DATA_SOURCE_DIR="${AIARB_DATA_SOURCE_DIR:-$HOME/dev/AIARB-Data}"
+# Prefer the workspace CLI: a PATH-installed AIARB may come from another
 # checkout whose plugin validation rejects this app's imports.
-if [[ -z "${QWENPAW_BIN:-}" && -x "$REPO_ROOT/.venv/bin/qwenpaw" ]]; then
-  QWENPAW_BIN="$REPO_ROOT/.venv/bin/qwenpaw"
+if [[ -z "${AIARB_BIN:-}" && -x "$REPO_ROOT/.venv/bin/AIARB" ]]; then
+  AIARB_BIN="$REPO_ROOT/.venv/bin/AIARB"
 fi
-QWENPAW_BIN="${QWENPAW_BIN:-qwenpaw}"
-QWENPAW_HOST="${QWENPAW_HOST:-127.0.0.1}"
-QWENPAW_PORT="${QWENPAW_PORT:-8089}"
-if [[ -n "${QWENPAW_WORKING_DIR:-}" ]]; then
-  WORKING_DIR="$QWENPAW_WORKING_DIR"
+AIARB_BIN="${AIARB_BIN:-AIARB}"
+AIARB_HOST="${AIARB_HOST:-127.0.0.1}"
+AIARB_PORT="${AIARB_PORT:-8089}"
+if [[ -n "${AIARB_WORKING_DIR:-}" ]]; then
+  WORKING_DIR="$AIARB_WORKING_DIR"
 elif [[ -d "$HOME/.copaw" ]]; then
   WORKING_DIR="$HOME/.copaw"
 else
-  WORKING_DIR="$HOME/.qwenpaw"
+  WORKING_DIR="$HOME/.AIARB"
 fi
 WORKING_DIR="${WORKING_DIR/#\~/$HOME}"
 
@@ -30,23 +30,23 @@ python3 "$SCRIPT_DIR/verify-data-console.py" \
   --canonical-bridge "$SCRIPT_DIR/data-console/paw-bridge.js" \
   --canonical-patch "$SCRIPT_DIR/data-console/patches/console-embed.patch"
 
-echo "==> Building the QwenPaw-Data native UI"
+echo "==> Building the AIARB-Data native UI"
 (cd "$APP_DIR/ui" && npm install --ignore-scripts --no-audit --no-fund && npm run build)
 
-STAGE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/qwenpaw-data-app.XXXXXX")"
+STAGE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/AIARB-data-app.XXXXXX")"
 trap 'rm -rf "$STAGE_DIR"' EXIT
 mkdir -p "$STAGE_DIR/backend" "$STAGE_DIR/ui/dist" \
-  "$STAGE_DIR/agents/qwenpaw-data/en"
+  "$STAGE_DIR/agents/AIARB-data/en"
 cp "$APP_DIR/plugin.json" "$APP_DIR/requirements.txt" "$APP_DIR/__init__.py" "$STAGE_DIR/"
 cp "$APP_DIR"/backend/*.py "$STAGE_DIR/backend/"
 mkdir -p "$STAGE_DIR/backend/bridge"
 cp "$APP_DIR"/backend/bridge/*.py "$STAGE_DIR/backend/bridge/"
-cp "$APP_DIR/agents/qwenpaw-data/en/PROFILE.md" \
-  "$APP_DIR/agents/qwenpaw-data/en/SOUL.md" "$STAGE_DIR/agents/qwenpaw-data/en/"
+cp "$APP_DIR/agents/AIARB-data/en/PROFILE.md" \
+  "$APP_DIR/agents/AIARB-data/en/SOUL.md" "$STAGE_DIR/agents/AIARB-data/en/"
 cp "$APP_DIR/ui/dist/index.js" "$APP_DIR/ui/dist/index.js.map" "$STAGE_DIR/ui/dist/"
 LOGO_ASSET="$APP_DIR/ui/dist/app/logo-mark-v4.png"
 if [[ ! -f "$LOGO_ASSET" ]]; then
-  echo "Required QwenPaw-Data logo asset was not built: $LOGO_ASSET" >&2
+  echo "Required AIARB-Data logo asset was not built: $LOGO_ASSET" >&2
   exit 1
 fi
 mkdir -p "$STAGE_DIR/ui/dist/app"
@@ -69,16 +69,16 @@ cp -R "$DATA_CONSOLE_DIR" "$STAGE_DIR/ui/dist/data-console"
 
 # Hot-install against the configured instance. The CLI's hot-install path
 # routes via config.json's last_api (ignoring --host/--port), which can point
-# at a different running QwenPaw instance; talk to the API directly instead.
+# at a different running AIARB instance; talk to the API directly instead.
 install_plugin() {
   local source_path="$1"
   local response
   if ! response=$(curl -sf --max-time 180 \
-    -X POST "http://$QWENPAW_HOST:$QWENPAW_PORT/api/plugins/install" \
+    -X POST "http://$AIARB_HOST:$AIARB_PORT/api/plugins/install" \
     -H 'Content-Type: application/json' \
     -d "{\"source\":\"$source_path\",\"force\":true}"); then
     echo "Hot-install failed against" \
-      "http://$QWENPAW_HOST:$QWENPAW_PORT — is QwenPaw running there?" >&2
+      "http://$AIARB_HOST:$AIARB_PORT — is AIARB running there?" >&2
     exit 1
   fi
   echo "✅ Hot-installed: $response" | head -c 200
@@ -88,13 +88,13 @@ install_plugin() {
 echo "==> Installing the staged PawApp"
 install_plugin "$STAGE_DIR"
 
-INSTALLED_APP="$WORKING_DIR/plugins/qwenpaw-data"
+INSTALLED_APP="$WORKING_DIR/plugins/AIARB-data"
 if [[ ! -d "$INSTALLED_APP" ]]; then
-  echo "Installed QwenPaw-Data directory was not found: $INSTALLED_APP" >&2
+  echo "Installed AIARB-Data directory was not found: $INSTALLED_APP" >&2
   exit 1
 fi
 
-mkdir -p "$INSTALLED_APP/.qwenpaw-data-dev"
+mkdir -p "$INSTALLED_APP/.AIARB-data-dev"
 link_path() {
   local source_path="$1"
   local target_path="$2"
@@ -105,17 +105,17 @@ link_path() {
   ln -sfn "$source_path" "$target_path"
 }
 
-link_path "$QWENPAW_DATA_SOURCE_DIR/.venv" "$INSTALLED_APP/.venv-qwenpaw-data"
-link_path "$QWENPAW_DATA_SOURCE_DIR" "$INSTALLED_APP/.qwenpaw-data-dev/source"
+link_path "$AIARB_DATA_SOURCE_DIR/.venv" "$INSTALLED_APP/.venv-AIARB-data"
+link_path "$AIARB_DATA_SOURCE_DIR" "$INSTALLED_APP/.AIARB-data-dev/source"
 link_path \
-  "$QWENPAW_DATA_SOURCE_DIR/packages/qwenpaw-data-skills/skills" \
-  "$INSTALLED_APP/.qwenpaw-data-dev/skills"
+  "$AIARB_DATA_SOURCE_DIR/packages/AIARB-data-skills/skills" \
+  "$INSTALLED_APP/.AIARB-data-dev/skills"
 
-# The first install imports the backend before the .qwenpaw-data-dev symlinks
+# The first install imports the backend before the .AIARB-data-dev symlinks
 # exist, so skills resolve as unavailable. Reinstalling from the installed
 # directory itself skips the copy (source == target) and only re-imports,
 # which picks the symlinks up.
 echo "==> Reloading the app so it picks up the dev symlinks"
 install_plugin "$INSTALLED_APP"
 
-echo "==> QwenPaw-Data installed. Start QwenPaw and open /apps/qwenpaw-data"
+echo "==> AIARB-Data installed. Start AIARB and open /apps/AIARB-data"

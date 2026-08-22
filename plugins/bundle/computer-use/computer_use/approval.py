@@ -7,12 +7,12 @@ import asyncio
 from collections.abc import Mapping
 from typing import Any
 
-from qwenpaw.app.approvals import ApprovalRequestSummary, get_approval_service
-from qwenpaw.config.context import (
+from aiarb.app.approvals import ApprovalRequestSummary, get_approval_service
+from aiarb.config.context import (
     get_current_session_id as get_tool_session_id,
 )
-from qwenpaw.constant import TOOL_GUARD_APPROVAL_TIMEOUT_SECONDS
-from qwenpaw.security.tool_guard.approval import ApprovalDecision
+from aiarb.constant import TOOL_GUARD_APPROVAL_TIMEOUT_SECONDS
+from aiarb.security.tool_guard.approval import ApprovalDecision
 
 from .access import (
     AppApprovalRequest,
@@ -24,7 +24,7 @@ _POST_APPROVAL_SETTLE_SECONDS = 0.8
 
 def _agent_context():
     """Load request-scoped context only while resolving an approval."""
-    from qwenpaw.app import agent_context
+    from aiarb.app import agent_context
 
     return agent_context
 

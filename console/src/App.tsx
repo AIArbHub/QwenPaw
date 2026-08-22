@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "antd-style";
+﻿import { createGlobalStyle } from "antd-style";
 import {
   ConfigProvider,
   bailianDarkTheme,
@@ -556,8 +556,8 @@ function AppInner({
       <PressFeedback />
       <ConfigProvider
         {...selectedTheme}
-        prefix="qwenpaw"
-        prefixCls="qwenpaw"
+        prefix="AIARB"
+        prefixCls="AIARB"
         // Spark keys its App by locale. Keep that boundary stable and update
         // Ant Design's context below it so unsent attachments survive.
         locale={enUS}

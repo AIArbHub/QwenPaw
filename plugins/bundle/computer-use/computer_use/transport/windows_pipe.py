@@ -19,7 +19,7 @@ from collections.abc import Callable, Mapping
 from ctypes import wintypes
 from typing import Any
 
-from qwenpaw.app.computer_use.runtime import RuntimeCapability
+from aiarb.app.computer_use.runtime import RuntimeCapability
 
 from ..protocol import ComputerUseProtocolError, approval_reply
 from .base import ComputerUseTransport, ReverseRequestHandler

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Slack channel utility functions.
 
 Pure helpers with no side effects — string manipulation, session-id
@@ -13,7 +13,7 @@ import os
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 
-from qwenpaw.channel_protocol.outbound_budget import (
+from AIARB.channel_protocol.outbound_budget import (
     await_send,
     retry_delay_fits,
 )

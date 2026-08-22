@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   IAgentScopeRuntimeWebUICreateSessionResult,
   IAgentScopeRuntimeWebUISession,
   IAgentScopeRuntimeWebUISessionAPI,
@@ -329,7 +329,7 @@ const convertMessages = (
     if (messages[i].role === ROLE_USER) {
       const user = messages[i++];
       const meta = user.metadata as Record<string, any> | undefined;
-      terminal = (meta?.metadata ?? meta)?.qwenpaw_turn_state;
+      terminal = (meta?.metadata ?? meta)?.AIARB_turn_state;
       result.push(buildUserCard(user));
     }
     const startIdx = i;
@@ -436,7 +436,7 @@ const resolveRealId = (
 // Per-session user message persistence (survives page refresh)
 // ---------------------------------------------------------------------------
 
-const STORAGE_PREFIX = "qwenpaw_pending_user_msg_";
+const STORAGE_PREFIX = "AIARB_pending_user_msg_";
 
 /** Shape stored in localStorage. Backward compat: old format was plain text. */
 interface PendingUserMsg {

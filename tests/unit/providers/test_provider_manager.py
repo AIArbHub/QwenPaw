@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,unused-argument,protected-access
 from __future__ import annotations
 
@@ -11,32 +11,32 @@ from types import SimpleNamespace
 
 import pytest
 
-import qwenpaw.providers.capability_baseline as capability_baseline_module
-import qwenpaw.providers.provider_manager as provider_manager_module
-import qwenpaw.providers.provider_persistence as provider_persistence_module
-from qwenpaw.config.config import ModelSlotConfig
-from qwenpaw.exceptions import ModelNotFoundException, ProviderError
-from qwenpaw.local_models.llamacpp import LlamaCppServerSetupResult
-from qwenpaw.providers.anthropic_provider import AnthropicProvider
-from qwenpaw.providers.gemini_provider import GeminiProvider
-from qwenpaw.providers.capping_formatter import (
+import AIARB.providers.capability_baseline as capability_baseline_module
+import AIARB.providers.provider_manager as provider_manager_module
+import AIARB.providers.provider_persistence as provider_persistence_module
+from AIARB.config.config import ModelSlotConfig
+from AIARB.exceptions import ModelNotFoundException, ProviderError
+from AIARB.local_models.llamacpp import LlamaCppServerSetupResult
+from AIARB.providers.anthropic_provider import AnthropicProvider
+from AIARB.providers.gemini_provider import GeminiProvider
+from AIARB.providers.capping_formatter import (
     _CappingAnthropicFormatter,
     _CappingGeminiFormatter,
     _CappingOpenAIFormatter,
 )
-from qwenpaw.providers.context_windows import DEFAULT_CONTEXT_WINDOW
-from qwenpaw.providers.openai_provider import (
+from AIARB.providers.context_windows import DEFAULT_CONTEXT_WINDOW
+from AIARB.providers.openai_provider import (
     OpenCodeProvider,
     OpenAIProvider,
 )
-from qwenpaw.providers.openai_response_provider import OpenAIResponseProvider
-from qwenpaw.providers.openrouter_provider import OpenRouterProvider
-from qwenpaw.providers.provider import (
+from AIARB.providers.openai_response_provider import OpenAIResponseProvider
+from AIARB.providers.openrouter_provider import OpenRouterProvider
+from AIARB.providers.provider import (
     ModelConnectionResult,
     ModelInfo,
     ProviderInfo,
 )
-from qwenpaw.providers.provider_manager import ProviderManager
+from AIARB.providers.provider_manager import ProviderManager
 
 
 def _install_v210_provider_fixture(
@@ -117,7 +117,7 @@ LEGACY_PROVIDER = {
 
 @pytest.fixture
 def isolated_secret_dir(monkeypatch, tmp_path):
-    secret_dir = tmp_path / ".qwenpaw.secret"
+    secret_dir = tmp_path / ".AIARB.secret"
     monkeypatch.setattr(provider_manager_module, "SECRET_DIR", secret_dir)
     return secret_dir
 
@@ -843,9 +843,9 @@ async def test_resume_local_model_restores_server_and_runtime_state(
     isolated_secret_dir,
 ) -> None:
     manager = ProviderManager()
-    model_id = "AgentScope/QwenPaw-Flash-2B-Q4_K_M"
+    model_id = "AgentScope/AIARB-Flash-2B-Q4_K_M"
     manager.update_provider(
-        "qwenpaw-local",
+        "AIARB-local",
         {
             "base_url": "http://127.0.0.1:9000/v1",
             "extra_models": [
@@ -857,7 +857,7 @@ async def test_resume_local_model_restores_server_and_runtime_state(
         },
     )
     manager.active_model = ModelSlotConfig(
-        provider_id="qwenpaw-local",
+        provider_id="AIARB-local",
         model=model_id,
     )
     manager.save_active_model(manager.active_model)
@@ -893,7 +893,7 @@ async def test_resume_local_model_restores_server_and_runtime_state(
 
     await manager._resume_local_model(local_manager)
 
-    provider = manager.get_provider("qwenpaw-local")
+    provider = manager.get_provider("AIARB-local")
 
     assert local_manager.restored_model_id == model_id
     assert provider is not None
@@ -4185,7 +4185,7 @@ async def test_activate_model_clears_rejects_media_for_selected_model(
     monkeypatch,
 ) -> None:
     """Re-selecting a model drops its stale rejects_media entry."""
-    from qwenpaw.providers.model_capability_cache import (
+    from AIARB.providers.model_capability_cache import (
         ModelCapabilityCache,
         get_capability_cache,
     )
@@ -4220,7 +4220,7 @@ async def test_activate_model_preserves_other_models_and_capabilities(
     monkeypatch,
 ) -> None:
     """Activating one model must not evict capabilities of other models."""
-    from qwenpaw.providers.model_capability_cache import (
+    from AIARB.providers.model_capability_cache import (
         ModelCapabilityCache,
         get_capability_cache,
     )

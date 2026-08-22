@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access
-"""Tests for qwenpaw.security.tool_guard.engine."""
+"""Tests for aiarb.security.tool_guard.engine."""
 from __future__ import annotations
 
 import os
@@ -8,12 +8,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from qwenpaw.security.tool_guard.engine import (
+from aiarb.security.tool_guard.engine import (
     ToolGuardEngine,
     _guard_enabled,
     get_guard_engine,
 )
-from qwenpaw.security.tool_guard.models import (
+from aiarb.security.tool_guard.models import (
     GuardFinding,
     GuardSeverity,
     GuardThreatCategory,
@@ -66,7 +66,7 @@ def _make_finding(
 @pytest.fixture(autouse=True)
 def _reset_singleton():
     """Reset the module-level singleton before and after each test."""
-    import qwenpaw.security.tool_guard.engine as eng_mod
+    import aiarb.security.tool_guard.engine as eng_mod
 
     eng_mod._engine_instance = None
     yield
@@ -99,32 +99,32 @@ def engine_with_defaults():
 class TestGuardEnabled:
     """Tests for the _guard_enabled() free function."""
 
-    @patch("qwenpaw.security.tool_guard.engine.EnvVarLoader")
+    @patch("aiarb.security.tool_guard.engine.EnvVarLoader")
     def test_enabled_when_env_var_is_true_string(self, mock_loader):
         mock_loader.get_str.return_value = "true"
         assert _guard_enabled() is True
 
-    @patch("qwenpaw.security.tool_guard.engine.EnvVarLoader")
+    @patch("aiarb.security.tool_guard.engine.EnvVarLoader")
     def test_enabled_when_env_var_is_false_string(self, mock_loader):
         mock_loader.get_str.return_value = "false"
         assert _guard_enabled() is False
 
-    @patch("qwenpaw.security.tool_guard.engine.EnvVarLoader")
+    @patch("aiarb.security.tool_guard.engine.EnvVarLoader")
     def test_enabled_defaults_to_true_when_no_env_no_config(self, mock_loader):
         mock_loader.get_str.return_value = ""
         with patch(
-            "qwenpaw.config.load_config",
+            "aiarb.config.load_config",
             side_effect=Exception("no config"),
         ):
             assert _guard_enabled() is True
 
-    @patch("qwenpaw.security.tool_guard.engine.EnvVarLoader")
+    @patch("aiarb.security.tool_guard.engine.EnvVarLoader")
     def test_enabled_reads_from_config_when_no_env(self, mock_loader):
         mock_loader.get_str.return_value = ""
         mock_cfg = MagicMock()
         mock_cfg.security.tool_guard.enabled = False
         with patch(
-            "qwenpaw.config.load_config",
+            "aiarb.config.load_config",
             return_value=mock_cfg,
         ):
             assert _guard_enabled() is False
@@ -496,7 +496,7 @@ class TestToolGuardEngineGuard:
 
 class TestGetGuardEngine:
     @patch(
-        "qwenpaw.security.tool_guard.engine.ToolGuardEngine",
+        "aiarb.security.tool_guard.engine.ToolGuardEngine",
         autospec=True,
     )
     def test_returns_singleton_instance(self, MockEngine):
@@ -506,7 +506,7 @@ class TestGetGuardEngine:
         assert result is MockEngine.return_value
 
     @patch(
-        "qwenpaw.security.tool_guard.engine.ToolGuardEngine",
+        "aiarb.security.tool_guard.engine.ToolGuardEngine",
         autospec=True,
     )
     def test_returns_same_instance_on_multiple_calls(self, MockEngine):
@@ -568,7 +568,7 @@ class TestSharedSafetyAutoDenyIntegration:
     """finding → should_auto_deny_result for default catastrophic policy."""
 
     def _engine_with_shared_safety(self) -> ToolGuardEngine:
-        from qwenpaw.security.tool_guard.guardians.rule_guardian import (
+        from aiarb.security.tool_guard.guardians.rule_guardian import (
             SharedSafetyToolGuardian,
         )
 

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Tests for packaged and remotely updated model catalogs."""
 
@@ -10,12 +10,12 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.providers import model_catalog
-from qwenpaw.providers.model_metadata import (
+from AIARB.providers import model_catalog
+from AIARB.providers.model_metadata import (
     model_metadata,
     provider_catalog_models,
 )
-from qwenpaw.providers.provider import ModelInfo
+from AIARB.providers.provider import ModelInfo
 
 
 def _write_catalog(

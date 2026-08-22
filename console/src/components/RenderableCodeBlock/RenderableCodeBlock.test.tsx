@@ -136,7 +136,7 @@ describe("RenderableCodeBlock", () => {
       container.querySelector("[data-language='typescript']"),
     ).toHaveTextContent("const answer = 42;");
     expect(container.querySelector("section")).toHaveClass(
-      "qwenpaw-code-block",
+      "aiarb-code-block",
     );
     expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Copy" })).toBeEnabled();
@@ -169,7 +169,7 @@ describe("RenderableCodeBlock", () => {
 
   it("releases download URLs after the browser can start the download", () => {
     vi.useFakeTimers();
-    const createObjectURL = vi.fn(() => "blob:qwenpaw-code");
+    const createObjectURL = vi.fn(() => "blob:aiarb-code");
     const revokeObjectURL = vi.fn();
     const anchorClick = vi
       .spyOn(HTMLAnchorElement.prototype, "click")
@@ -190,7 +190,7 @@ describe("RenderableCodeBlock", () => {
     expect(revokeObjectURL).not.toHaveBeenCalled();
 
     vi.runOnlyPendingTimers();
-    expect(revokeObjectURL).toHaveBeenCalledWith("blob:qwenpaw-code");
+    expect(revokeObjectURL).toHaveBeenCalledWith("blob:aiarb-code");
   });
 
   it.each([
@@ -199,7 +199,7 @@ describe("RenderableCodeBlock", () => {
   ] as const)(
     "uses the %s syntax theme without an inner code background",
     (theme, color, isDark) => {
-      localStorage.setItem("qwenpaw-theme", theme);
+      localStorage.setItem("aiarb-theme", theme);
       const { container } = render(
         <ThemeProvider>
           <RenderableCodeBlock block lang="python">

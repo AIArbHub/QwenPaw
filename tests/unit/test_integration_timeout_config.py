@@ -5,7 +5,7 @@ import pytest
 
 from tests.integration.helpers import app_startup_wait_timeout
 
-_TIMEOUT_ENV = f"QWENPAW_INTEGRATION_HTTP_{'TIMEOUT'}"
+_TIMEOUT_ENV = f"AIARB_INTEGRATION_HTTP_{'TIMEOUT'}"
 
 
 def test_app_startup_wait_timeout_uses_integration_timeout(

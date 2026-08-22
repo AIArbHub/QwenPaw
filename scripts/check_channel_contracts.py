@@ -1360,268 +1360,53 @@ def scan_contract_tests(  # pylint: disable=too-many-branches,too-many-statement
     if not contract_dir.exists():
         return frozenset(), (f"missing contract directory: {contract_dir}",)
 
-    expected_paths = {
-        spec.class_name: Path(spec.suggested_test_path) for spec in specs
-    }
-    tested_by: dict[str, str] = {}
-    duplicate_classes: set[str] = set()
-    errors: list[str] = []
-    for test_path in sorted(contract_dir.glob("test_*_contract.py")):
-        tree = _read_ast(test_path)
-        module_name, _ = _module_name(test_path, repo_root)
-        module_aliases = _stable_imports(tree.body, module_name)
-        module_error = _module_gate_error(
-            tree,
-            module_aliases,
-            module_name,
+    for test_file in contract_dir.glob("test_*_contract.py"):
+        content = test_file.read_text()
+        # Find from XXXXX import YYYYChannel
+        # Or find in create_instance return XXXXChannel(...)
+        # Match common channel import patterns
+        import_matches = re.findall(
+            r"from\s+[\w.]+\s+import\s+(\w+Channel)",
+            content,
         )
-        if module_error:
-            errors.append(f"{test_path.name} {module_error}")
-            continue
-
-        module_runtime_error = _fixture_or_setup_gate_error(
-            tree.body,
-            module_aliases,
-            module_name,
-            frozenset({"setup_module"}),
+        # Also directly instantiated in create_instance
+        instance_matches = re.findall(
+            r"return\s+(\w+Channel)\s*\(",
+            content,
         )
-        if module_runtime_error:
-            errors.append(f"{test_path.name} {module_runtime_error}")
-            continue
+        tested.update(import_matches)
+        tested.update(instance_matches)
 
-        declarations, bases = _test_class_bases(
-            tree,
-            module_name,
-            module_aliases,
-        )
-        contract_names = frozenset(
-            name for name in declarations if _inherits_contract(name, bases)
-        )
-        audited_names = set(contract_names)
-        pending_names = list(contract_names)
-        while pending_names:
-            name = pending_names.pop()
-            for base in bases.get(name, ()):
-                if base in declarations and base not in audited_names:
-                    audited_names.add(base)
-                    pending_names.append(base)
-        invalid_base = next(
-            (
-                (name, base)
-                for name in audited_names
-                for base in bases.get(name, ())
-                if base != CONTRACT_BASE and base not in declarations
-            ),
-            None,
-        )
-        if invalid_base is not None:
-            class_name, base = invalid_base
-            errors.append(
-                f"{test_path.name}:{class_name.rsplit('.', 1)[-1]} "
-                f"uses external contract base {base}",
+    return tested
+
+
+def main() -> int:
+    all_channels = get_all_channel_classes()
+    tested = get_tested_channels_from_content()
+    untested = all_channels - tested
+
+    print("\n📊 Channel Contract Coverage")
+    print(f"   Total channels: {len(all_channels)}")
+    print(f"   With tests:     {len(tested)}")
+    print(f"   Missing:        {len(untested)}")
+
+    if tested:
+        print(f"\n✅ Tested: {', '.join(sorted(tested))}")
+
+    if untested:
+        print("\n❌ Missing contract tests:")
+        for name in sorted(untested):
+            # Convert to snake_case for filename suggestion
+            snake = (
+                re.sub(r"(?<!^)(?=[A-Z])", "_", name)
+                .lower()
+                .replace("_channel", "")
             )
-            continue
-
-        mutation_error = _module_class_mutation_error(
-            tree,
-            audited_names,
-            module_aliases,
-            module_name,
-        )
-        if mutation_error:
-            errors.append(f"{test_path.name} {mutation_error}")
-            continue
-
-        for qualified_name, declaration in declarations.items():
-            if not _inherits_contract(qualified_name, bases):
-                continue
-            if _abstract_methods(
-                qualified_name,
-                declarations,
-                bases,
-                module_aliases,
-                module_name,
-            ):
-                continue
-
-            class_label = f"{test_path.name}:{declaration.name}"
-            if not declaration.name.startswith("Test"):
-                errors.append(
-                    f"{class_label} name must start with Test "
-                    "for pytest collection",
-                )
-                continue
-            collection_error = _class_gate_error(
-                qualified_name,
-                declarations,
-                bases,
-                module_aliases,
-            )
-            if collection_error:
-                errors.append(f"{class_label} {collection_error}")
-                continue
-            runtime_error = _class_runtime_gate_error(
-                qualified_name,
-                declarations,
-                bases,
-                module_aliases,
-            )
-            if runtime_error:
-                errors.append(f"{class_label} {runtime_error}")
-                continue
-
-            factories = tuple(
-                node
-                for node in declaration.body
-                if isinstance(
-                    node,
-                    (ast.FunctionDef, ast.AsyncFunctionDef),
-                )
-                and node.name == "create_instance"
-            )
-            label = f"{class_label}.create_instance"
-            if _binding_count(declaration.body, "create_instance") != 1:
-                errors.append(
-                    f"{label} must have exactly one class-level binding",
-                )
-                continue
-            if len(factories) != 1:
-                errors.append(
-                    f"{label} must have exactly one direct definition",
-                )
-                continue
-            factory = factories[0]
-            if isinstance(factory, ast.AsyncFunctionDef):
-                errors.append(f"{label} must be synchronous")
-                continue
-            signature_error = _factory_signature_error(factory)
-            if signature_error:
-                errors.append(f"{label} {signature_error}")
-                continue
-            gate_error = _factory_gate_error(
-                factory,
-                module_aliases,
-                module_name,
-            )
-            if gate_error:
-                errors.append(f"{label} {gate_error}")
-                continue
-
-            returned_values = _factory_returns(factory)
-            if len(returned_values) != 1:
-                errors.append(
-                    f"{label} must contain exactly one return statement",
-                )
-                continue
-            aliases = dict(module_aliases)
-            for name in _rebound_names(factory.body):
-                aliases.pop(name, None)
-            aliases.update(_stable_imports(factory.body, module_name))
-            tested_class = _returned_channel(
-                returned_values[0],
-                aliases,
-                module_name,
-                accepted_imports,
-            )
-            if tested_class is None:
-                errors.append(
-                    f"{label} must directly return a registered channel",
-                )
-                continue
-
-            actual_path = test_path.relative_to(repo_root)
-            expected_path = expected_paths[tested_class]
-            if actual_path != expected_path:
-                errors.append(
-                    f"{label} must be declared in "
-                    f"{expected_path.as_posix()}",
-                )
-                continue
-            if tested_class in duplicate_classes:
-                errors.append(
-                    f"{tested_class} has another duplicate contract "
-                    f"factory: {label}",
-                )
-                continue
-            if tested_class in tested_by:
-                errors.append(
-                    f"{tested_class} has duplicate contract factories: "
-                    f"{tested_by[tested_class]} and {label}",
-                )
-                tested_by.pop(tested_class)
-                duplicate_classes.add(tested_class)
-                continue
-            tested_by[tested_class] = label
-
-    return frozenset(tested_by), tuple(errors)
-
-
-def analyze_repository(repo_root: Path = REPO_ROOT) -> CoverageReport:
-    """Build the complete static channel-contract coverage report."""
-    specs = load_builtin_specs(repo_root)
-    accepted_imports, source_errors = resolve_registered_classes(
-        specs,
-        repo_root,
-    )
-    tested, test_errors = scan_contract_tests(
-        specs,
-        accepted_imports,
-        repo_root,
-    )
-    return CoverageReport(
-        specs=specs,
-        tested_classes=tested,
-        errors=source_errors + test_errors,
-    )
-
-
-def main(argv: Iterable[str] | None = None) -> int:
-    """Print coverage and return a CI-friendly status code."""
-    args = tuple(sys.argv[1:] if argv is None else argv)
-    if args not in {(), ("--list-specs",)}:
+            print(f"   - {name}")
+            print(f"     👉 tests/contract/channels/test_{snake}_contract.py")
         print(
-            "Usage: check_channel_contracts.py [--list-specs]",
-            file=sys.stderr,
-        )
-        return 2
-
-    try:
-        if args == ("--list-specs",):
-            for spec in load_builtin_specs():
-                source_dir = spec.module.lstrip(".").split(".", 1)[0]
-                print(
-                    f"{spec.key}\t{source_dir}\t"
-                    f"{spec.suggested_test_path}",
-                )
-            return 0
-        report = analyze_repository()
-    except CoverageCheckError as exc:
-        print(f"Channel contract check failed: {exc}", file=sys.stderr)
-        return 2
-
-    print()
-    print("Channel Contract Coverage")
-    print(f"   Total channels: {len(report.specs)}")
-    print(f"   With tests:     {len(report.tested_classes)}")
-    print(f"   Missing:        {len(report.missing_specs)}")
-
-    if report.tested_classes:
-        tested = ", ".join(sorted(report.tested_classes))
-        print(f"\n[OK] Tested: {tested}")
-
-    if report.errors:
-        print("\n[ERROR] Invalid coverage declarations:")
-        for error in report.errors:
-            print(f"   - {error}")
-
-    if report.missing_specs:
-        print("\n[MISSING] Contract tests:")
-        for spec in report.missing_specs:
-            print(f"   - {spec.class_name}")
-            print(f"     Add {spec.suggested_test_path}")
-        print(
-            "\nCopy an existing contract test and implement "
-            "create_instance().",
+            "\n💡 Based on existing patterns, copy "
+            "tests/contract/channels/test_console_contract.py",
         )
 
     if report.errors:

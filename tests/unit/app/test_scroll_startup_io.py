@@ -11,8 +11,8 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.agents.context.scroll import sync as scroll_sync
-from qwenpaw.agents.context.scroll.history import HistoryStore
+from aiarb.agents.context.scroll import sync as scroll_sync
+from aiarb.agents.context.scroll.history import HistoryStore
 
 
 @pytest.mark.asyncio
@@ -22,10 +22,10 @@ async def test_scroll_schema_migration_does_not_block_startup_loop(
 ) -> None:
     """A populated legacy DB may build its date index in a worker thread."""
     monkeypatch.setattr(
-        "qwenpaw.envs.load_envs_into_environ",
+        "aiarb.envs.load_envs_into_environ",
         lambda: None,
     )
-    app_module = importlib.import_module("qwenpaw.app._app")
+    app_module = importlib.import_module("aiarb.app._app")
     startup_helper = app_module._sync_scroll_history_on_startup
 
     db_path = tmp_path / "history.db"

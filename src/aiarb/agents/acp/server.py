@@ -1,0 +1,1921 @@
+﻿# -*- coding: utf-8 -*-
+"""AIARB ACP Agent server.
+
+Exposes AIARB as an ACP-compliant agent that external clients
+(Zed, OpenCode, etc.) can connect to via stdio JSON-RPC.
+
+Uses the full ``Workspace`` lifecycle so the ACP agent has exactly
+the same capabilities as the web console (MCP tools, memory,
+sub-agent delegation, etc.).
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+import os
+import sys
+from pathlib import Path
+from typing import Any
+from uuid import uuid4
+
+import anthropic
+import openai
+from google.genai import errors as genai_errors
+
+from acp import (
+    Agent,
+    InitializeResponse,
+    LoadSessionResponse,
+    NewSessionResponse,
+    PromptResponse,
+    RequestError,
+    SetSessionModelResponse,
+    run_agent,
+    start_tool_call,
+    text_block,
+    tool_content,
+    update_agent_message,
+    update_agent_thought,
+    update_tool_call,
+)
+from acp.interfaces import Client
+from acp.schema import (
+    AgentCapabilities,
+    AgentMessageChunk,
+    AudioContentBlock,
+    AvailableCommand,
+    AvailableCommandsUpdate,
+    ClientCapabilities,
+    CloseSessionResponse,
+    EmbeddedResourceContentBlock,
+    ImageContentBlock,
+    Implementation,
+    ListSessionsResponse,
+    McpCapabilities,
+    ModelInfo as ACPModelInfo,
+    PermissionOption,
+    ResourceContentBlock,
+    ResumeSessionResponse,
+    SessionCapabilities,
+    SessionCloseCapabilities,
+    SessionConfigOptionSelect,
+    SessionConfigSelectOption,
+    SessionInfo,
+    SessionListCapabilities,
+    SessionModelState,
+    SessionResumeCapabilities,
+    SetSessionConfigOptionResponse,
+    TextContentBlock,
+    ToolCallUpdate,
+    UsageUpdate,
+)
+from AIARB.schemas import (
+    AgentRequest,
+    Message,
+    MessageType,
+    RunStatus,
+)
+
+from ...__version__ import __version__
+from ...constant import WORKING_DIR
+from ...config.config import (
+    AgentProfileConfig,
+    ModelSlotConfig,
+    load_agent_config,
+    update_agent_config_async,
+)
+from ...drivers.constants import DRIVER_SCOPE_CONTEXT_KEY
+from ...exceptions import AppBaseException
+from ...providers.provider_manager import ProviderManager
+from ...plugins.registry import PluginRegistry
+from ...modes.catalog import resolve_loop_mode
+from ...utils.io_utils import run_sync_io
+from .meta import (
+    ACP_APPROVAL_EXPIRES_AT_META_KEY,
+    ACP_EPHEMERAL_META_KEY,
+    ACP_PROJECT_DIR_META_KEY,
+)
+from .runtime_provider import (
+    RUNTIME_OPENAI_PROVIDER_ID,
+    OpenAIRuntimeProviderConfig,
+)
+from .session_mcp import (
+    ACP_MCP_SERVER_TYPES,
+    acp_mcp_scope_id,
+    build_acp_mcp_driver_cards,
+)
+
+logger = logging.getLogger(__name__)
+
+ACP_ERROR_META_KEY = "AIARB.error"
+ACP_AGENT_META_KEY = "AIARB.agent"
+_ACP_RUNTIME_MODEL_SLOT_KEY = "AIARB.runtime_model_slot"
+
+_GENERIC_PROMPT_ERROR = (
+    "AIARB failed to process the request. Check server logs for details."
+)
+_ACP_KEEPALIVE_SECONDS = 20.0
+ACP_KEEPALIVE_META_KEY = "AIARB.keepalive"
+
+
+class ACPClientDisconnected(ConnectionError):
+    """Raised when an ACP transport write observes a closed connection."""
+
+
+def _is_transport_close(exc: BaseException) -> bool:
+    """Return whether *exc* is an ACP transport closure at the entry point."""
+    if isinstance(
+        exc,
+        (
+            ACPClientDisconnected,
+            BrokenPipeError,
+            ConnectionResetError,
+            ConnectionAbortedError,
+        ),
+    ):
+        return True
+    if isinstance(exc, OSError):
+        if exc.errno in {32, 10053, 10054, 10058}:
+            return True
+        message = str(exc).lower()
+        return any(
+            marker in message
+            for marker in (
+                f"connection closed",
+                f"transport closed",
+                f"connection reset",
+                f"broken pipe",
+            )
+        )
+    return False
+
+
+def silence_stdout() -> None:
+    """Point fd 1 at devnull so interpreter exit cannot flush a dead pipe."""
+    try:
+        descriptor = sys.stdout.fileno()
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        try:
+            os.dup2(devnull, descriptor)
+        finally:
+            os.close(devnull)
+    except (OSError, ValueError, AttributeError):
+        pass
+
+
+def _is_provider_error(exc: BaseException) -> bool:
+    """Return whether *exc* came from a supported model provider SDK."""
+    return isinstance(
+        exc,
+        (openai.APIError, anthropic.APIError, genai_errors.APIError),
+    )
+
+
+def _prompt_failure_stop_reason(exc: BaseException) -> str | None:
+    """Return a stop reason only for confirmed task-level failures.
+
+    Unexpected exceptions must keep the original JSON-RPC error contract so
+    that internal bugs are not silently converted into a normal 0-score turn.
+    """
+    if isinstance(exc, ACPClientDisconnected):
+        return f"end_turn"
+    if isinstance(exc, Exception) and _is_provider_error(exc):
+        from ...providers.model_error_policy import classify_model_error
+
+        if classify_model_error(exc).kind == f"content_safety":
+            return f"refusal"
+    return None
+
+
+PromptBlocks = list[
+    TextContentBlock
+    | ImageContentBlock
+    | AudioContentBlock
+    | ResourceContentBlock
+    | EmbeddedResourceContentBlock
+]
+
+
+def _extract_text(
+    blocks: PromptBlocks,
+) -> str:
+    """Pull plain text from ACP prompt content blocks."""
+    parts: list[str] = []
+    for block in blocks:
+        if isinstance(block, dict):
+            text = block.get("text", "")
+        elif isinstance(block, TextContentBlock):
+            text = block.text
+        else:
+            text = getattr(block, "text", "")
+        if text:
+            parts.append(str(text))
+    return "\n".join(parts)
+
+
+class _EnvelopeTracker:
+    """Track state needed to convert ``stream_query`` envelopes to ACP updates.
+
+    ``stream_query`` emits ``TextContent(delta=True, object="content")`` for
+    both text and thinking blocks — the only distinguisher is ``msg_id``.
+    This tracker remembers which ``msg_id`` values belong to reasoning
+    messages so text deltas and thinking deltas route correctly.
+    """
+
+    def __init__(self) -> None:
+        self._reasoning_msg_ids: set[str] = set()
+        self._streamed_text_msg_ids: set[str] = set()
+        self._active_tool_calls: dict[str, str] = {}
+
+    @staticmethod
+    def _tool_raw_input(data: dict[str, Any]) -> Any:
+        arguments = data.get("arguments")
+        if arguments is None:
+            return None
+        if isinstance(arguments, str):
+            stripped = arguments.strip()
+            if not stripped:
+                return None
+            try:
+                return json.loads(stripped)
+            except ValueError:
+                return stripped
+        return arguments
+
+    @staticmethod
+    def _tool_result_status(data: dict[str, Any]) -> str:
+        state = str(data.get("state") or "").strip().lower()
+        if state in {
+            "cancelled",
+            "denied",
+            "error",
+            "failed",
+            "interrupted",
+        }:
+            return "failed"
+        return "completed"
+
+    # pylint: disable=too-many-return-statements, too-many-branches
+    def process(
+        self,
+        event: Any,
+    ) -> list[Any]:
+        """Convert one envelope event into zero or more ACP updates."""
+        obj = getattr(event, "object", None)
+
+        if obj == "content":
+            text = getattr(event, "text", "") or ""
+            if not text:
+                return []
+            msg_id = getattr(event, "msg_id", None)
+            is_delta = getattr(event, "delta", False)
+            if is_delta and msg_id:
+                self._streamed_text_msg_ids.add(msg_id)
+            elif msg_id in self._streamed_text_msg_ids:
+                return []
+            if msg_id in self._reasoning_msg_ids:
+                return [update_agent_thought(text_block(text))]
+            return [update_agent_message(text_block(text))]
+
+        if obj == "message":
+            msg_type = getattr(event, "type", None)
+            if hasattr(msg_type, "value"):
+                msg_type = msg_type.value
+            status = getattr(event, "status", None)
+            msg_id = getattr(event, "id", None)
+
+            if msg_type == MessageType.REASONING.value:
+                if msg_id:
+                    self._reasoning_msg_ids.add(msg_id)
+                return []
+
+            if msg_type == f"heartbeat":
+                return [
+                    update_tool_call(call_id, status=f"in_progress")
+                    for call_id in self._active_tool_calls
+                ]
+
+            if (
+                msg_type == MessageType.PLUGIN_CALL.value
+                and status == RunStatus.Completed
+            ):
+                for c in getattr(event, "content", []) or []:
+                    data = getattr(c, "data", None)
+                    if isinstance(data, dict):
+                        call_id = str(
+                            data.get("call_id") or uuid4().hex[:8],
+                        )
+                        # Only stable IDs can match completion events.
+                        if data.get(f"call_id"):
+                            self._active_tool_calls[call_id] = str(
+                                data.get("name") or "tool",
+                            )
+                        return [
+                            start_tool_call(
+                                call_id,
+                                str(data.get("name") or "tool"),
+                                status="in_progress",
+                                raw_input=self._tool_raw_input(data),
+                            ),
+                        ]
+                return []
+
+            if msg_type == MessageType.PLUGIN_CALL_OUTPUT.value:
+                if status == RunStatus.Completed:
+                    for c in getattr(event, "content", []) or []:
+                        data = getattr(c, "data", None)
+                        if isinstance(data, dict):
+                            call_id = str(
+                                data.get("call_id") or uuid4().hex[:8],
+                            )
+                            self._active_tool_calls.pop(call_id, None)
+                            return [
+                                update_tool_call(
+                                    call_id,
+                                    status=self._tool_result_status(data),
+                                    content=[
+                                        tool_content(
+                                            text_block(
+                                                str(data.get("output") or ""),
+                                            ),
+                                        ),
+                                    ],
+                                    raw_output=data.get("output"),
+                                ),
+                            ]
+                return []
+
+            return []
+
+        return []
+
+
+class AIARBACPAgent(Agent):
+    """ACP Agent backed by a full ``Workspace``.
+
+    Instead of creating a bare ``AgentRunner``, this class boots a
+    complete ``Workspace`` — the same lifecycle the web console uses —
+    so MCP tools, memory, chat persistence, sub-agent calls, etc. are
+    all available.
+    """
+
+    _conn: Client
+
+    MODE_CONFIG_ID = "mode"
+    MODE_DEFAULT = "default"
+    MODE_BYPASS = "bypassPermissions"
+
+    def __init__(
+        self,
+        agent_id: str | None = None,
+        workspace_dir: Path | None = None,
+        local_diagnostics: bool = False,
+        runtime_provider: OpenAIRuntimeProviderConfig | None = None,
+        agent_mode: str | None = None,
+        goal_token_budget: int = 0,
+    ):
+        self._agent_id = agent_id
+        self._workspace_dir = workspace_dir
+        self._local_diagnostics = local_diagnostics
+        self._runtime_provider = runtime_provider
+        # Runtime loop mode (e.g. "goal"); distinct from the ACP session
+        # config option "mode" (MODE_CONFIG_ID), which is a permission mode.
+        self._agent_mode = agent_mode
+        self._goal_token_budget = goal_token_budget
+        self._agent_mode_started: set[str] = set()
+        self._stop_gate_workspace: tuple[str, Any] | None = None
+        self._runtime_provider_manager: ProviderManager | None = None
+        self._runtime_provider_instance: Any | None = None
+        self._previous_active_model: ModelSlotConfig | None = None
+        self._sessions: dict[str, dict[str, Any]] = {}
+        self._cancel_events: dict[str, asyncio.Event] = {}
+        self._prompt_tasks: dict[str, asyncio.Task[Any]] = {}
+        self._workspace: Any | None = None
+        self._workspace_ready = False
+        self._workspace_lock = asyncio.Lock()
+        self._app_services: Any | None = None
+        self._app_services_started = False
+
+    def on_connect(self, conn: Client) -> None:
+        self._conn = conn
+
+    # ------------------------------------------------------------------
+    # Workspace bootstrap (mirrors the web-app lifespan)
+    # ------------------------------------------------------------------
+
+    def _resolve_agent_id(self) -> str:
+        """Return the effective agent id."""
+        if self._agent_id is not None:
+            return self._agent_id
+
+        from ...config.utils import load_config
+
+        config = load_config()
+        agents_cfg = getattr(config, "agents", None)
+        if agents_cfg is not None:
+            aid = getattr(agents_cfg, "active_agent", None)
+            if aid:
+                return aid
+        return "default"
+
+    def _resolve_workspace_dir(
+        self,
+        agent_id: str,
+    ) -> Path:
+        """Return the effective workspace directory."""
+        if self._workspace_dir is not None:
+            return self._workspace_dir
+        return WORKING_DIR / "workspaces" / agent_id
+
+    def _session_info(
+        self,
+        *,
+        cwd: str,
+        session_id: str,
+        meta: dict[str, Any],
+    ) -> dict[str, Any]:
+        info: dict[str, Any] = {
+            "cwd": cwd,
+            "user_id": f"acp_{session_id[:8]}",
+            "mode": AIARBACPAgent.MODE_DEFAULT,
+            DRIVER_SCOPE_CONTEXT_KEY: acp_mcp_scope_id(session_id),
+        }
+        project_dir = meta.get(ACP_PROJECT_DIR_META_KEY)
+        if project_dir is None:
+            project_dir = cwd
+        if isinstance(project_dir, str) and project_dir.strip():
+            info[ACP_PROJECT_DIR_META_KEY] = project_dir
+        if (
+            meta.get(ACP_EPHEMERAL_META_KEY) is True
+            or self._runtime_provider is not None
+        ):
+            info[ACP_EPHEMERAL_META_KEY] = True
+        if self._runtime_provider is not None:
+            info[
+                _ACP_RUNTIME_MODEL_SLOT_KEY
+            ] = self._runtime_provider.model_slot
+        return info
+
+    async def _install_runtime_provider(self) -> None:
+        """Register the process-scoped provider without persisting it."""
+        if self._runtime_provider is None:
+            return
+        if self._runtime_provider_manager is not None:
+            return
+
+        manager = await run_sync_io(ProviderManager.get_instance)
+        if manager.get_provider(RUNTIME_OPENAI_PROVIDER_ID) is not None:
+            raise RuntimeError(
+                f"Provider {RUNTIME_OPENAI_PROVIDER_ID!r} already exists",
+            )
+
+        provider = self._runtime_provider.build_provider()
+        self._previous_active_model = manager.active_model
+        manager.custom_providers[RUNTIME_OPENAI_PROVIDER_ID] = provider
+        manager.active_model = self._runtime_provider.model_slot
+        self._runtime_provider_manager = manager
+        self._runtime_provider_instance = provider
+
+    def _remove_runtime_provider(self) -> None:
+        """Remove the process-scoped provider and its credentials."""
+        manager = self._runtime_provider_manager
+        if manager is None:
+            return
+
+        provider = manager.custom_providers.get(
+            RUNTIME_OPENAI_PROVIDER_ID,
+        )
+        if provider is self._runtime_provider_instance:
+            manager.custom_providers.pop(
+                RUNTIME_OPENAI_PROVIDER_ID,
+                None,
+            )
+        manager.active_model = self._previous_active_model
+        self._runtime_provider_manager = None
+        self._runtime_provider_instance = None
+        self._previous_active_model = None
+
+    async def _ensure_app_services(self) -> Any:
+        """Create and start ACP-local cross-workspace services."""
+        if self._app_services is None:
+            from ...app.app_services import AppServiceManager
+
+            self._app_services = AppServiceManager()
+        if not self._app_services_started:
+            await self._app_services.start()
+            self._app_services_started = True
+        return self._app_services
+
+    @staticmethod
+    def _build_bootstrap_kwargs(app_services: Any) -> dict[str, Any]:
+        """Build bootstrap kwargs using the shared factory.
+
+        ACP-specific HITL tool commands are passed via extra_command_specs.
+        """
+        from ...app.workspace.bootstrap_factory import (
+            WorkspaceBootstrapFactory,
+        )
+
+        extra_command_specs: list[Any] = []
+        try:
+            from ...app.app_services._builtin_tool_commands import (
+                build_tool_command_specs,
+            )
+
+            extra_command_specs.extend(
+                build_tool_command_specs(app_services.tool_coordinator),
+            )
+        except Exception:
+            logger.debug(
+                "ACP bootstrap: HITL tool commands skipped",
+                exc_info=True,
+            )
+
+        return WorkspaceBootstrapFactory.build_bootstrap_kwargs(
+            app_services,
+            extra_command_specs=(
+                extra_command_specs if extra_command_specs else None
+            ),
+        )
+
+    async def _ensure_workspace(self) -> Any:
+        """Boot a full ``Workspace`` (once) and return it.
+
+        Protected by ``_workspace_lock`` so concurrent callers (e.g.
+        multiple ``_advertise_commands`` tasks) don't race to create
+        duplicate workspaces.
+        """
+        if self._workspace is not None and self._workspace_ready:
+            return self._workspace
+
+        async with self._workspace_lock:
+            # Double-check after acquiring the lock.
+            if self._workspace is not None and self._workspace_ready:
+                return self._workspace
+
+            from ...app.workspace.workspace import Workspace
+
+            agent_id = await run_sync_io(self._resolve_agent_id)
+            workspace_dir = self._resolve_workspace_dir(agent_id)
+
+            workspace = Workspace(
+                agent_id=agent_id,
+                workspace_dir=str(workspace_dir),
+                mode_config_overrides={
+                    f"goal": {f"max_tokens": self._goal_token_budget},
+                },
+            )
+            app_services = await self._ensure_app_services()
+            workspace.bootstrap_plugins(
+                **self._build_bootstrap_kwargs(app_services),
+            )
+            workspace.set_app_services(app_services)
+            try:
+                await workspace.start()
+                self._install_stop_gate_bridge(agent_id, workspace)
+            except BaseException:
+                try:
+                    await workspace.stop(final=True)
+                except Exception:
+                    logger.exception(f"ACP workspace startup cleanup failed")
+                raise
+
+            self._workspace = workspace
+            self._workspace_ready = True
+            logger.info(
+                "AIARB ACP Agent workspace started:"
+                " agent_id=%s workspace=%s",
+                agent_id,
+                workspace_dir,
+            )
+            return workspace
+
+    def _install_stop_gate_bridge(self, agent_id: str, workspace: Any) -> None:
+        """Register ACP stop gates without replacing the app's manager.
+
+        ReAct resolves handlers by agent ID through PluginRegistry. ACP
+        owns this standalone workspace registration until shutdown.
+        """
+        PluginRegistry().register_stop_workspace(agent_id, workspace)
+        self._stop_gate_workspace = (agent_id, workspace)
+
+    async def _shutdown_workspace(self) -> None:
+        """Gracefully stop the workspace."""
+        if self._stop_gate_workspace is not None:
+            PluginRegistry().unregister_stop_workspace(
+                *self._stop_gate_workspace,
+            )
+            self._stop_gate_workspace = None
+        if self._workspace is not None:
+            try:
+                await self._workspace.stop(final=True)
+            except Exception:
+                logger.exception(
+                    "Error stopping ACP workspace",
+                )
+            self._workspace = None
+            self._workspace_ready = False
+        if self._app_services is not None and self._app_services_started:
+            try:
+                await self._app_services.stop()
+            except Exception:
+                logger.exception("Error stopping ACP app services")
+            self._app_services_started = False
+        self._remove_runtime_provider()
+
+    # ------------------------------------------------------------------
+    # ACP protocol methods
+    # ------------------------------------------------------------------
+
+    async def initialize(  # pylint: disable=unused-argument
+        self,
+        protocol_version: int,
+        client_capabilities: ClientCapabilities | None = None,
+        client_info: Implementation | None = None,
+        **kwargs: Any,
+    ) -> InitializeResponse:
+        logger.info(
+            "ACP initialize: version=%d client=%s",
+            protocol_version,
+            client_info,
+        )
+        return InitializeResponse(
+            protocol_version=protocol_version,
+            agent_capabilities=AgentCapabilities(
+                load_session=True,
+                mcp_capabilities=McpCapabilities(
+                    http=True,
+                    sse=True,
+                ),
+                session_capabilities=SessionCapabilities(
+                    close=SessionCloseCapabilities(),
+                    list=SessionListCapabilities(),
+                    resume=SessionResumeCapabilities(),
+                ),
+            ),
+            agent_info=Implementation(
+                name="AIARB",
+                title="AIARB",
+                version=__version__,
+            ),
+        )
+
+    async def new_session(  # pylint: disable=unused-argument
+        self,
+        cwd: str,
+        mcp_servers: list[ACP_MCP_SERVER_TYPES] | None = None,
+        **kwargs: Any,
+    ) -> NewSessionResponse:
+        session_id = uuid4().hex
+        self._sessions[session_id] = self._session_info(
+            cwd=cwd,
+            session_id=session_id,
+            meta=kwargs,
+        )
+        try:
+            await self._sync_session_mcp(session_id, mcp_servers)
+        except BaseException:
+            self._sessions.pop(session_id, None)
+            await self._remove_session_mcp(session_id)
+            raise
+        logger.info(
+            "ACP new_session: id=%s cwd=%s",
+            session_id,
+            cwd,
+        )
+        asyncio.create_task(self._advertise_commands(session_id))
+        return NewSessionResponse(
+            session_id=session_id,
+            config_options=self._build_config_options(session_id),
+            models=await self._build_model_state(),
+            field_meta=await run_sync_io(self._session_meta),
+        )
+
+    async def load_session(  # pylint: disable=unused-argument
+        self,
+        cwd: str,
+        session_id: str,
+        mcp_servers: list[ACP_MCP_SERVER_TYPES] | None = None,
+        **kwargs: Any,
+    ) -> LoadSessionResponse | None:
+        session_meta = await run_sync_io(self._session_meta)
+        previous_session = self._sessions.get(session_id)
+        self._sessions[session_id] = self._session_info(
+            cwd=cwd,
+            session_id=session_id,
+            meta=kwargs,
+        )
+        try:
+            await self._sync_session_mcp(session_id, mcp_servers)
+        except BaseException:
+            if previous_session is None:
+                self._sessions.pop(session_id, None)
+            else:
+                self._sessions[session_id] = previous_session
+            raise
+        # A loaded session already had its first message, so the mode
+        # prefix must not apply to any subsequent prompt.
+        self._agent_mode_started.add(session_id)
+        logger.info(
+            "ACP load_session: id=%s cwd=%s",
+            session_id,
+            cwd,
+        )
+        asyncio.create_task(self._advertise_commands(session_id))
+        return LoadSessionResponse(field_meta=session_meta)
+
+    async def prompt(  # pylint: disable=too-many-locals,unused-argument
+        # pylint: disable=too-many-branches,too-many-statements
+        self,
+        prompt: PromptBlocks,
+        session_id: str,
+        message_id: str | None = None,
+        **kwargs: Any,
+    ) -> PromptResponse:
+        logger.info(
+            "ACP prompt: session=%s",
+            session_id,
+        )
+
+        text = _extract_text(prompt)
+        if not text:
+            return PromptResponse(stop_reason="end_turn")
+
+        session_info = self._sessions.get(
+            session_id,
+            {},
+        )
+        user_id = session_info.get(
+            "user_id",
+            f"acp_{session_id[:8]}",
+        )
+
+        active_prompt = self._prompt_tasks.get(session_id)
+        if active_prompt is not None and not active_prompt.done():
+            raise RequestError.invalid_params(
+                {f"details": f"This session already has an active prompt"},
+            )
+
+        cancel_event = asyncio.Event()
+        self._cancel_events[session_id] = cancel_event
+        prompt_task = asyncio.current_task()
+        if prompt_task is not None:
+            self._prompt_tasks[session_id] = prompt_task
+        approval_bridge = asyncio.create_task(
+            self._bridge_approval_requests(session_id),
+        )
+
+        was_cancelled = False
+        consumer_stopped = False
+        terminal: list[tuple[str, Any]] = []
+        loop = asyncio.get_running_loop()
+        last_emit = loop.time()
+        queue: asyncio.Queue[tuple[str, Any]] = asyncio.Queue(maxsize=1)
+
+        def _finish(kind: str, payload: Any = None) -> None:
+            """Publish a terminal state without waiting for queue capacity."""
+            try:
+                queue.put_nowait((kind, payload))
+            except asyncio.QueueFull:
+                terminal[:] = [(kind, payload)]
+
+        async def _pump() -> None:
+            """Consume the whole turn in one task so ContextVars persist."""
+            tracker = _EnvelopeTracker()
+            outcome: tuple[str, Any] = (f"end", None)
+            try:
+                workspace = await self._ensure_workspace()
+                agent_id = await run_sync_io(self._resolve_agent_id)
+                prompt_text = self._apply_agent_mode(
+                    text,
+                    session_id,
+                    workspace,
+                )
+                request_context = self._build_request_context(session_info)
+
+                request = AgentRequest(
+                    input=[
+                        Message(
+                            role="user",
+                            content=[
+                                {"type": "text", "text": prompt_text},
+                            ],
+                        ),
+                    ],
+                    session_id=session_id,
+                    user_id=user_id,
+                    agent_id=agent_id,
+                    request_context=request_context or None,
+                    model_slot_override=session_info.get(
+                        _ACP_RUNTIME_MODEL_SLOT_KEY,
+                    ),
+                )
+
+                events_since_yield = 0
+                async for event in workspace.stream_query(request):
+                    if getattr(event, f"object", None) == f"response":
+                        status = getattr(event, f"status", None)
+                        if status == RunStatus.Failed:
+                            outcome = (
+                                f"error",
+                                RuntimeError(
+                                    f"Workspace failed: {event.error}",
+                                ),
+                            )
+                        elif status == RunStatus.Cancelled:
+                            outcome = (f"cancelled", None)
+                    for upd in tracker.process(event):
+                        await queue.put(("update", upd))
+                    events_since_yield += 1
+                    if events_since_yield >= 64:
+                        # Ready, unmapped events need explicit fairness too.
+                        events_since_yield = 0
+                        await asyncio.sleep(0)
+            except asyncio.CancelledError:
+                if consumer_stopped:
+                    raise
+                outcome = (f"cancelled", None)
+            except Exception as exc:
+                # Native runtimes may emit a failure then re-raise its cause.
+                # Preserve typed errors rather than classifying envelope text.
+                outcome = (f"error", exc)
+            finally:
+                if not consumer_stopped:
+                    _finish(*outcome)
+
+        pump_task = asyncio.create_task(_pump())
+
+        try:
+            while True:
+                if terminal and queue.empty():
+                    kind, payload = terminal.pop()
+                else:
+                    timeout = max(
+                        0.0,
+                        _ACP_KEEPALIVE_SECONDS - (loop.time() - last_emit),
+                    )
+                    try:
+                        kind, payload = await asyncio.wait_for(
+                            queue.get(),
+                            timeout=timeout,
+                        )
+                    except asyncio.TimeoutError:
+                        await self._emit_keepalive(session_id)
+                        last_emit = loop.time()
+                        continue
+
+                if kind == f"end":
+                    break
+                if kind == f"cancelled":
+                    was_cancelled = True
+                    logger.info(
+                        "ACP prompt cancelled by runtime: session=%s",
+                        session_id,
+                    )
+                    break
+                if kind == f"error":
+                    raise payload
+
+                await self._send_update(session_id, payload)
+                last_emit = loop.time()
+
+                if await self._emit_usage_if_available(session_id):
+                    last_emit = loop.time()
+
+                if cancel_event.is_set():
+                    was_cancelled = True
+                    logger.info(
+                        "ACP prompt cancelled: session=%s",
+                        session_id,
+                    )
+                    break
+        except asyncio.CancelledError:
+            was_cancelled = True
+            logger.info(
+                "ACP prompt task cancelled: session=%s",
+                session_id,
+            )
+        except RequestError:
+            logger.exception(
+                "ACP prompt request error: session=%s",
+                session_id,
+            )
+            raise
+        except Exception as exc:
+            logger.exception(
+                "ACP prompt error: session=%s",
+                session_id,
+            )
+            if not isinstance(exc, ACPClientDisconnected):
+                await self._report_prompt_error(session_id, exc)
+            stop_reason = _prompt_failure_stop_reason(exc)
+            if stop_reason is None:
+                raise RequestError.internal_error(
+                    {"details": "AIARB runtime failed"},
+                ) from None
+            return PromptResponse(stop_reason=stop_reason)
+        finally:
+            consumer_stopped = True
+            if not pump_task.done():
+                pump_task.cancel()
+                await asyncio.gather(pump_task, return_exceptions=True)
+            await self._stop_approval_bridge(approval_bridge)
+            self._cancel_events.pop(session_id, None)
+            self._prompt_tasks.pop(session_id, None)
+
+        try:
+            await self._emit_usage_if_available(session_id)
+        except ACPClientDisconnected:
+            logger.info(f"ACP client disconnected before final usage")
+
+        stop_reason = "cancelled" if was_cancelled else "end_turn"
+        return PromptResponse(stop_reason=stop_reason)
+
+    def _apply_agent_mode(
+        self,
+        text: str,
+        session_id: str,
+        workspace: Any,
+    ) -> str:
+        """Prefix the session's first message with the mode command.
+
+        Only the first user message of a session gets the prefix (for
+        example ``/goal``); messages that already start with a slash
+        command are left untouched so explicit commands always win.
+        Later messages and resumed sessions are never prefixed.
+        """
+        if self._agent_mode is None or self._agent_mode == f"code":
+            return text
+        if session_id in self._agent_mode_started:
+            return text
+        if text.lstrip().startswith(f"/"):
+            self._agent_mode_started.add(session_id)
+            return text
+        try:
+            mode = resolve_loop_mode(workspace, self._agent_mode)
+        except ValueError as exc:
+            raise RequestError.invalid_params(
+                {f"agent_mode": self._agent_mode, f"details": str(exc)},
+            ) from exc
+        self._agent_mode_started.add(session_id)
+        if not mode.slash_command:
+            return text
+        return f"/{mode.slash_command} {text}"
+
+    async def close_session(  # pylint: disable=unused-argument
+        self,
+        session_id: str,
+        **kwargs: Any,
+    ) -> CloseSessionResponse | None:
+        logger.info("ACP close_session: session=%s", session_id)
+        await self._cancel_active_prompt(session_id)
+        await self._cancel_pending_approvals(session_id)
+        await self._remove_session_mcp(session_id)
+        self._sessions.pop(session_id, None)
+        self._agent_mode_started.discard(session_id)
+        self._cancel_events.pop(session_id, None)
+        self._prompt_tasks.pop(session_id, None)
+        return CloseSessionResponse()
+
+    async def list_sessions(  # pylint: disable=unused-argument
+        self,
+        cursor: str | None = None,
+        cwd: str | None = None,
+        **kwargs: Any,
+    ) -> ListSessionsResponse:
+        logger.info("ACP list_sessions: cwd=%s", cwd)
+        sessions: list[SessionInfo] = []
+        for sid, info in self._sessions.items():
+            sess_cwd = info.get("cwd", "")
+            if cwd is not None and sess_cwd != cwd:
+                continue
+            sessions.append(
+                SessionInfo(
+                    session_id=sid,
+                    cwd=sess_cwd,
+                    title=f"ACP session {sid[:8]}",
+                ),
+            )
+        return ListSessionsResponse(sessions=sessions)
+
+    async def resume_session(  # pylint: disable=unused-argument
+        self,
+        cwd: str,
+        session_id: str,
+        mcp_servers: list[ACP_MCP_SERVER_TYPES] | None = None,
+        **kwargs: Any,
+    ) -> ResumeSessionResponse:
+        logger.info(
+            "ACP resume_session: id=%s cwd=%s",
+            session_id,
+            cwd,
+        )
+        previous_session = self._sessions.get(session_id)
+        if previous_session is None:
+            candidate_session = self._session_info(
+                cwd=cwd,
+                session_id=session_id,
+                meta=kwargs,
+            )
+        else:
+            candidate_session = dict(previous_session)
+            candidate_session["cwd"] = cwd
+            project_dir = kwargs.get(ACP_PROJECT_DIR_META_KEY)
+            if isinstance(project_dir, str) and project_dir.strip():
+                candidate_session[ACP_PROJECT_DIR_META_KEY] = project_dir
+        self._sessions[session_id] = candidate_session
+        try:
+            await self._sync_session_mcp(session_id, mcp_servers)
+        except BaseException:
+            if previous_session is None:
+                self._sessions.pop(session_id, None)
+            else:
+                self._sessions[session_id] = previous_session
+            raise
+        # A resumed session already had its first message, so the mode
+        # prefix must not apply to any subsequent prompt.
+        self._agent_mode_started.add(session_id)
+        return ResumeSessionResponse()
+
+    async def set_session_model(  # pylint: disable=unused-argument
+        self,
+        model_id: str,
+        session_id: str,
+        **kwargs: Any,
+    ) -> SetSessionModelResponse | None:
+        logger.info(
+            "ACP set_session_model: session=%s model=%s",
+            session_id,
+            model_id,
+        )
+        try:
+            model_slot = await self._switch_model(model_id)
+        except Exception as exc:
+            logger.exception(
+                "Failed to switch model to %s",
+                model_id,
+            )
+            raise RequestError.invalid_params(
+                {
+                    "model_id": model_id,
+                    "details": str(exc),
+                },
+            ) from None
+        session_info = self._sessions.get(session_id)
+        if session_info is not None:
+            session_info[_ACP_RUNTIME_MODEL_SLOT_KEY] = model_slot
+        logger.info(
+            "Model switched to %s for agent %s",
+            model_id,
+            await run_sync_io(self._resolve_agent_id),
+        )
+        return SetSessionModelResponse()
+
+    async def set_config_option(  # pylint: disable=unused-argument
+        self,
+        config_id: str,
+        session_id: str,
+        value: str | bool,
+        **kwargs: Any,
+    ) -> SetSessionConfigOptionResponse | None:
+        logger.info(
+            "ACP set_config_option: session=%s config=%s value=%s",
+            session_id,
+            config_id,
+            value,
+        )
+        if config_id == self.MODE_CONFIG_ID:
+            if value not in (self.MODE_DEFAULT, self.MODE_BYPASS):
+                raise ValueError(
+                    f"Invalid mode value: {value!r}. "
+                    f"Must be '{self.MODE_DEFAULT}' or "
+                    f"'{self.MODE_BYPASS}'.",
+                )
+            str_value = str(value)
+            if str_value == self.MODE_BYPASS:
+                logger.warning(
+                    "Tool guard DISABLED for session %s — all tool "
+                    "calls will bypass security checks.",
+                    session_id,
+                )
+            if session_id in self._sessions:
+                self._sessions[session_id]["mode"] = str_value
+            return SetSessionConfigOptionResponse(
+                config_options=self._build_config_options(session_id),
+            )
+        return None
+
+    async def cancel(  # pylint: disable=unused-argument
+        self,
+        session_id: str,
+        **kwargs: Any,
+    ) -> None:
+        logger.info(
+            "ACP cancel: session=%s",
+            session_id,
+        )
+        await self._cancel_active_prompt(session_id)
+        await self._cancel_pending_approvals(session_id)
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    async def _cancel_all_prompts(self) -> None:
+        """Cancel every active prompt before workspace shutdown."""
+        for session_id in list(self._prompt_tasks):
+            await self._cancel_active_prompt(session_id)
+
+    async def _cancel_active_prompt(self, session_id: str) -> None:
+        """Cancel and await the active prompt for one ACP session."""
+        event = self._cancel_events.get(session_id)
+        if event is not None:
+            event.set()
+
+        prompt_task = self._prompt_tasks.get(session_id)
+        current_task = asyncio.current_task()
+        if (
+            prompt_task is None
+            or prompt_task is current_task
+            or prompt_task.done()
+        ):
+            return
+
+        prompt_task.cancel()
+        try:
+            await prompt_task
+        except asyncio.CancelledError:
+            pass
+        except Exception:
+            logger.exception(
+                "ACP prompt failed while cancelling session=%s",
+                session_id,
+            )
+
+    def _build_request_context(
+        self,
+        session_info: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Build the runtime request context for one ACP session."""
+        request_context: dict[str, Any] = {}
+        if self._agent_mode == f"code":
+            request_context[f"coding_mode"] = True
+        if session_info.get("mode", self.MODE_DEFAULT) == self.MODE_BYPASS:
+            request_context["_headless_tool_guard"] = "false"
+
+        project_dir = session_info.get(ACP_PROJECT_DIR_META_KEY)
+        if isinstance(project_dir, str) and project_dir.strip():
+            request_context["project_dir"] = project_dir
+
+        if session_info.get(ACP_EPHEMERAL_META_KEY) is True:
+            request_context[ACP_EPHEMERAL_META_KEY] = True
+
+        driver_scope_id = session_info.get(DRIVER_SCOPE_CONTEXT_KEY)
+        if isinstance(driver_scope_id, str) and driver_scope_id:
+            request_context[DRIVER_SCOPE_CONTEXT_KEY] = driver_scope_id
+        return request_context
+
+    async def _sync_session_mcp(
+        self,
+        session_id: str,
+        mcp_servers: list[ACP_MCP_SERVER_TYPES] | None,
+    ) -> None:
+        """Replace the transient MCP Drivers owned by one ACP session."""
+        scope_id = acp_mcp_scope_id(session_id)
+        session_info = self._sessions.get(session_id)
+        if session_info is not None:
+            session_info[DRIVER_SCOPE_CONTEXT_KEY] = scope_id
+
+        if session_info is None:
+            raise RuntimeError(
+                f"ACP session {session_id!r} is not registered",
+            )
+        session_cwd = session_info.get("cwd")
+        if not isinstance(session_cwd, str):
+            raise ValueError("ACP session cwd must be a string")
+        cards = build_acp_mcp_driver_cards(
+            session_id,
+            mcp_servers,
+            session_cwd=session_cwd,
+        )
+        if not cards and self._workspace is None:
+            return
+
+        workspace = await self._ensure_workspace()
+        driver_manager = getattr(workspace, "driver_manager", None)
+        if driver_manager is None:
+            raise RuntimeError(
+                "AIARB workspace has no DriverManager for ACP MCP",
+            )
+        await driver_manager.replace_transient_drivers(scope_id, cards)
+
+    async def _remove_session_mcp(self, session_id: str) -> None:
+        """Remove transient MCP Drivers for one ACP session if initialized."""
+        workspace = self._workspace
+        if workspace is None:
+            return
+        driver_manager = getattr(workspace, "driver_manager", None)
+        if driver_manager is None:
+            return
+        await driver_manager.remove_transient_drivers(
+            acp_mcp_scope_id(session_id),
+        )
+
+    async def _bridge_approval_requests(
+        self,
+        session_id: str,
+        *,
+        poll_interval: float = 0.25,
+    ) -> None:
+        """Bridge AIARB ApprovalService waits to ACP permission prompts."""
+        from ...app.approvals import get_approval_service
+
+        svc = get_approval_service()
+        seen: set[str] = set()
+        while True:
+            pending_by_root = await svc.get_pending_by_root_session(
+                session_id,
+            )
+            pending_direct = await svc.get_all_pending_by_session(session_id)
+            pending_by_id = {
+                p.request_id: p for p in [*pending_by_root, *pending_direct]
+            }
+
+            for pending in pending_by_id.values():
+                if pending.request_id in seen:
+                    continue
+                seen.add(pending.request_id)
+                await self._request_approval_decision(session_id, pending)
+
+            await asyncio.sleep(poll_interval)
+
+    async def _request_approval_decision(
+        self,
+        session_id: str,
+        pending: Any,
+    ) -> None:
+        """Ask the ACP client to approve/deny a AIARB pending approval."""
+        from ...app.approvals import ApprovalActor, get_approval_service
+        from ...security.tool_guard.approval import (
+            ApprovalDecision,
+            ApprovalScope,
+        )
+
+        svc = get_approval_service()
+        # The bridge only receives approvals discovered under this ACP
+        # session. Preserve the pending requester's full identity when the
+        # client's permission response is resolved by the shared service.
+        actor = ApprovalActor(
+            session_id=pending.session_id,
+            root_session_id=pending.root_session_id,
+            user_id=pending.user_id,
+            channel=pending.channel,
+            agent_id=pending.agent_id,
+        )
+        permission_task: asyncio.Task | None = None
+        try:
+            permission_task = asyncio.create_task(
+                self._conn.request_permission(
+                    session_id=session_id,
+                    tool_call=ToolCallUpdate(
+                        _meta=self._approval_tool_meta(pending),
+                        tool_call_id=pending.request_id,
+                        title=(
+                            f"{pending.tool_name} requires approval "
+                            f"({pending.severity})"
+                        ),
+                        kind=self._approval_tool_kind(pending.tool_name),
+                        raw_input=self._approval_tool_input(pending),
+                    ),
+                    options=self._approval_options(pending),
+                ),
+            )
+            pending_future = getattr(pending, "future", None)
+            if isinstance(pending_future, asyncio.Future):
+                done, _pending_tasks = await asyncio.wait(
+                    {permission_task, pending_future},
+                    return_when=asyncio.FIRST_COMPLETED,
+                )
+                if pending_future in done and not permission_task.done():
+                    cancel_reason = self._pending_cancel_reason(
+                        pending_future,
+                    )
+                    logger.info(
+                        "ACP approval request %s before client response: "
+                        "request=%s",
+                        cancel_reason,
+                        pending.request_id[:8],
+                    )
+                    permission_task.cancel(cancel_reason)
+                    try:
+                        await permission_task
+                    except asyncio.CancelledError:
+                        pass
+                    return
+
+            response = await permission_task
+        except Exception:
+            logger.exception(
+                "ACP approval bridge failed for request=%s",
+                pending.request_id[:8],
+            )
+            await svc.resolve_request(
+                pending.request_id,
+                ApprovalDecision.DENIED,
+                actor=actor,
+            )
+            return
+        finally:
+            if permission_task is not None and not permission_task.done():
+                permission_task.cancel()
+                await asyncio.gather(permission_task, return_exceptions=True)
+
+        option_id = self._permission_option_id(response)
+        if option_id == "allow_once":
+            decision = ApprovalDecision.APPROVED
+            scope = ApprovalScope.EXACT
+        elif option_id == "allow_always":
+            decision = ApprovalDecision.APPROVED
+            scope = ApprovalScope.SIMILAR
+        else:
+            decision = ApprovalDecision.DENIED
+            scope = None
+        await svc.resolve_request(
+            pending.request_id,
+            decision,
+            scope=scope,
+            actor=actor,
+        )
+
+    @staticmethod
+    def _pending_cancel_reason(pending_future: asyncio.Future) -> str:
+        """Why a pending approval resolved before the client answered.
+
+        Timeouts resolve the shared future with TIMEOUT. Also handle futures
+        cancelled by another caller before reading their result, so a
+        CancelledError cannot escape and kill the approval polling loop.
+        """
+        from ...security.tool_guard.approval import ApprovalDecision
+
+        if pending_future.cancelled():
+            return "timeout"
+        try:
+            if pending_future.result() == ApprovalDecision.TIMEOUT:
+                return "timeout"
+        except Exception:  # noqa: BLE001 - best-effort UX hint
+            pass
+        return "resolved"
+
+    @staticmethod
+    def _approval_options(pending: Any) -> list[PermissionOption]:
+        """Build ACP permission options for a pending AIARB approval."""
+        display = AIARBACPAgent._approval_display(pending)
+        if (
+            display.get("is_generalized")
+            and display.get("similar_target")
+            and display.get("similar_target") != display.get("exact_target")
+        ):
+            return [
+                PermissionOption(
+                    option_id="allow_once",
+                    name="Allow Exact This Session",
+                    kind="allow_once",
+                ),
+                PermissionOption(
+                    option_id="allow_always",
+                    name="Allow Pattern This Session",
+                    kind="allow_always",
+                ),
+                PermissionOption(
+                    option_id="deny",
+                    name="Deny",
+                    kind="reject_once",
+                ),
+            ]
+        return [
+            PermissionOption(
+                option_id="allow_once",
+                name="Allow Exact This Session",
+                kind="allow_once",
+            ),
+            PermissionOption(
+                option_id="deny",
+                name="Deny",
+                kind="reject_once",
+            ),
+        ]
+
+    @staticmethod
+    def _approval_tool_meta(pending: Any) -> dict[str, Any]:
+        """Return ACP metadata for approval prompt rendering."""
+        created_at = getattr(pending, "created_at", None)
+        timeout_seconds = getattr(pending, "timeout_seconds", None)
+        if not isinstance(created_at, (int, float)):
+            return {}
+        if not isinstance(timeout_seconds, (int, float)):
+            return {}
+        return {
+            ACP_APPROVAL_EXPIRES_AT_META_KEY: created_at + timeout_seconds,
+        }
+
+    @staticmethod
+    def _approval_tool_input(pending: Any) -> dict[str, Any] | None:
+        """Return the original guarded tool parameters for ACP display."""
+        extra = getattr(pending, "extra", None)
+        if not isinstance(extra, dict):
+            return None
+        tool_call = extra.get("tool_call")
+        if not isinstance(tool_call, dict):
+            return None
+        raw_input = tool_call.get("input")
+        if not isinstance(raw_input, dict):
+            return None
+        result = dict(raw_input)
+        display = AIARBACPAgent._approval_display(pending)
+        if display.get("is_generalized") and (
+            display.get("exact_target") or display.get("similar_target")
+        ):
+            result.setdefault("approve_exact_target", display["exact_target"])
+            result.setdefault(
+                "approve_pattern_target",
+                display["similar_target"],
+            )
+        return result
+
+    @staticmethod
+    def _approval_display(pending: Any) -> dict[str, Any]:
+        try:
+            from ...app.approvals.display import approval_display_fields
+
+            return approval_display_fields(pending)
+        except Exception:
+            logger.debug("failed to read approval display metadata")
+            return {}
+
+    @staticmethod
+    def _permission_option_id(response: Any) -> str | None:
+        outcome = getattr(response, "outcome", None)
+        if isinstance(outcome, dict):
+            option_id = outcome.get("option_id") or outcome.get("optionId")
+        else:
+            option_id = getattr(outcome, "option_id", None) or getattr(
+                outcome,
+                "optionId",
+                None,
+            )
+        return str(option_id) if option_id else None
+
+    @staticmethod
+    def _approval_tool_kind(tool_name: str) -> str:
+        lowered = tool_name.lower()
+        if "shell" in lowered or "command" in lowered or "execute" in lowered:
+            return "execute"
+        return "other"
+
+    @staticmethod
+    async def _stop_approval_bridge(task: asyncio.Task[Any]) -> None:
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+        except Exception:
+            logger.debug(
+                "ACP approval bridge stopped with error",
+                exc_info=True,
+            )
+
+    @staticmethod
+    async def _cancel_pending_approvals(session_id: str) -> None:
+        try:
+            from ...app.approvals import get_approval_service
+
+            await get_approval_service().cancel_all_pending_by_root_session(
+                session_id,
+            )
+        except Exception:
+            logger.debug(
+                "Failed to cancel ACP pending approvals for session=%s",
+                session_id,
+                exc_info=True,
+            )
+
+    async def _send_update(self, session_id: str, update: Any) -> None:
+        """Send an ACP update, surfacing transport closure as a typed error."""
+        try:
+            await self._conn.session_update(
+                session_id=session_id,
+                update=update,
+            )
+        except OSError as exc:
+            if not _is_transport_close(exc):
+                raise
+            raise ACPClientDisconnected(f"ACP transport closed") from exc
+
+    async def _emit_usage_if_available(
+        self,
+        session_id: str,
+    ) -> bool:
+        """Send a usage chunk if new usage data is available."""
+        usage_meta = self._pop_session_usage(session_id)
+        if usage_meta:
+            await self._send_update(
+                session_id,
+                AgentMessageChunk(
+                    sessionUpdate="agent_message_chunk",
+                    content=text_block(""),
+                    field_meta=usage_meta,
+                ),
+            )
+            # Also surface the *current* context occupancy (prompt size vs.
+            # window) over the native ACP ``usage_update`` channel so the TUI
+            # can render a live context-usage bar. ``used`` is the tokens in
+            # context right now (the last call's input); ``size`` is the model
+            # context window. This is distinct from the cumulative ``tok``
+            # tallies carried in the chunk meta above. We emit even with 0s so
+            # the bar clears deterministically when the window or occupancy
+            # becomes unknown (e.g. after a model switch) — the TUI treats 0 as
+            # "hide the bar".
+            usage = usage_meta.get("usage", {})
+            used = int(usage.get("inputTokens", 0) or 0)
+            size = int(usage.get("contextSize", 0) or 0)
+            # Carry the compaction threshold (if known) via ``_meta`` so the
+            # TUI can mark it; usage_update has no field for it. Only attach it
+            # when there's a meaningful bar to mark.
+            ratio = usage.get("compactRatio")
+            field_meta = None
+            valid_ratio = isinstance(ratio, (int, float)) and 0 < ratio < 1
+            if used > 0 and size > 0 and valid_ratio:
+                field_meta = {"compactRatio": float(ratio)}
+            await self._send_update(
+                session_id,
+                UsageUpdate(
+                    sessionUpdate="usage_update",
+                    used=used,
+                    size=size,
+                    field_meta=field_meta,
+                ),
+            )
+            return True
+        return False
+
+    async def _emit_keepalive(self, session_id: str) -> None:
+        """Send a transport-only frame when events did not map to ACP."""
+        await self._send_update(
+            session_id,
+            AgentMessageChunk(
+                sessionUpdate="agent_message_chunk",
+                content=text_block(""),
+                field_meta={ACP_KEEPALIVE_META_KEY: True},
+            ),
+        )
+
+    @staticmethod
+    def _pop_session_usage(
+        session_id: str,
+    ) -> dict[str, Any] | None:
+        """Retrieve and clear token usage recorded for *session_id*.
+
+        Returns a ``_meta``-shaped dict with ``usage`` keys,
+        matching the format used by QwenCode, or ``None`` if no
+        usage was recorded.
+        """
+        try:
+            from ...token_usage.model_wrapper import (
+                TokenRecordingModelWrapper,
+            )
+
+            raw = TokenRecordingModelWrapper.pop_usage_for_session(
+                session_id,
+            )
+        except Exception:
+            return None
+        if not raw:
+            return None
+        return {
+            "usage": {
+                "inputTokens": raw.get("prompt_tokens", 0),
+                "outputTokens": raw.get("completion_tokens", 0),
+                "totalTokens": raw.get("total_tokens", 0),
+                "model": raw.get("model_name") or "",
+                # Context window, so the UI can show how full the *current*
+                # context is (inputTokens / contextSize). 0 = unknown.
+                "contextSize": raw.get("context_size", 0),
+                # Auto-compaction threshold (0-1) so the UI can mark it.
+                # None when compaction is disabled/unknown.
+                "compactRatio": raw.get("compact_threshold"),
+            },
+        }
+
+    def _get_session_mode(self, session_id: str) -> str:
+        """Return the current mode for *session_id*."""
+        info = self._sessions.get(session_id)
+        if info is not None:
+            return info.get("mode", self.MODE_DEFAULT)
+        return self.MODE_DEFAULT
+
+    def _session_meta(self) -> dict[str, Any] | None:
+        """Return session ``_meta`` with the resolved AIARB agent id."""
+        try:
+            agent_id = self._resolve_agent_id()
+        except Exception:
+            logger.exception("ACP: failed to resolve agent id for _meta")
+            return None
+        return {ACP_AGENT_META_KEY: agent_id} if agent_id else None
+
+    async def _build_model_state(self) -> SessionModelState | None:
+        """Build the ACP ``SessionModelState`` from the provider manager.
+
+        Collects all available models across all providers and determines
+        the current active model so ACP clients can present a model
+        selector to users.
+        """
+        try:
+            if self._runtime_provider is not None:
+                slot = self._runtime_provider.model_slot
+                model_id = f"{slot.provider_id}:{slot.model}"
+                return SessionModelState(
+                    available_models=[
+                        ACPModelInfo(
+                            model_id=model_id,
+                            name=slot.model,
+                        ),
+                    ],
+                    current_model_id=model_id,
+                )
+
+            manager = await run_sync_io(ProviderManager.get_instance)
+            agent_id = await run_sync_io(self._resolve_agent_id)
+            agent_config = await run_sync_io(load_agent_config, agent_id)
+            provider_infos = await manager.list_provider_info()
+
+            available_models: list[ACPModelInfo] = []
+            for pinfo in provider_infos:
+                for model in pinfo.models + pinfo.extra_models:
+                    available_models.append(
+                        ACPModelInfo(
+                            model_id=f"{pinfo.id}:{model.id}",
+                            name=model.name,
+                        ),
+                    )
+
+            active = agent_config.active_model
+            if active and active.provider_id and active.model:
+                current_model_id = f"{active.provider_id}:{active.model}"
+            else:
+                current_model_id = ""
+                logger.warning(
+                    "ACP: no active model configured for agent %s",
+                    agent_id,
+                )
+
+            return SessionModelState(
+                available_models=available_models,
+                current_model_id=current_model_id,
+            )
+        except Exception:
+            logger.exception(
+                "ACP: failed to build model state",
+            )
+            return None
+
+    def _build_available_commands(
+        self,
+    ) -> list[AvailableCommand]:
+        """Build slash-command list from workspace registry.
+
+        Uses ``advertisable_commands()`` to dynamically query registered
+        commands with non-empty ``help_text``, excluding daemon commands
+        and ACP-native affordances.
+        """
+        # Commands that are intentionally hidden from autocomplete because
+        # the TUI handles them locally or ACP exposes a clearer native
+        # affordance.
+        _ACP_NATIVE_AFFORDANCES = frozenset(
+            {
+                "approval",
+                "approve",
+                "deny",
+                "new",
+                "stop",
+            },
+        )
+
+        ws = self._workspace
+        if ws is None:
+            return []
+
+        registry = getattr(
+            getattr(ws, "plugins", None),
+            "slash_command_registry",
+            None,
+        )
+        if registry is None:
+            return []
+
+        commands = [
+            AvailableCommand(name=name, description=desc)
+            for name, desc in registry.advertisable_commands(
+                exclude_categories=frozenset({"daemon"}),
+                exclude_names=_ACP_NATIVE_AFFORDANCES,
+            )
+        ]
+        return commands
+
+    async def _report_prompt_error(
+        self,
+        session_id: str,
+        exc: BaseException,
+    ) -> None:
+        """Surface a prompt failure to ACP clients as a visible message."""
+        try:
+            await self._send_update(
+                session_id,
+                AgentMessageChunk(
+                    sessionUpdate="agent_message_chunk",
+                    content=text_block(
+                        f"Error: {self._safe_prompt_error_text(exc)}",
+                    ),
+                    field_meta={ACP_ERROR_META_KEY: True},
+                ),
+            )
+        except ACPClientDisconnected:
+            logger.info(
+                "ACP client disconnected before error report: session=%s",
+                session_id,
+            )
+        except Exception:
+            logger.exception(
+                "ACP: failed to report prompt error to client (session=%s)",
+                session_id,
+            )
+
+    def _safe_prompt_error_text(self, exc: BaseException) -> str:
+        """Return a client-safe prompt error message."""
+        if isinstance(exc, AppBaseException) and exc.message:
+            return str(exc.message)
+        if self._local_diagnostics:
+            return str(exc) or exc.__class__.__name__
+        return _GENERIC_PROMPT_ERROR
+
+    async def _advertise_commands(self, session_id: str) -> None:
+        """Send the ``available_commands_update`` for a session.
+
+        Awaits ``_ensure_workspace()`` so the registry is fully
+        populated before querying.  Since this method runs inside an
+        ``asyncio.create_task`` (not awaited by the session handler),
+        the wait does not block ``new_session`` / ``load_session``.
+        """
+        try:
+            await self._ensure_workspace()
+            await self._conn.session_update(
+                session_id=session_id,
+                update=AvailableCommandsUpdate(
+                    sessionUpdate="available_commands_update",
+                    available_commands=self._build_available_commands(),
+                ),
+            )
+        except Exception:
+            logger.exception(
+                "ACP: failed to advertise available commands (session=%s)",
+                session_id,
+            )
+
+    def _build_config_options(
+        self,
+        session_id: str,
+    ) -> list[SessionConfigOptionSelect]:
+        """Return the current set of session config options."""
+        current_mode = self._get_session_mode(session_id)
+        return [
+            SessionConfigOptionSelect(
+                type="select",
+                id=self.MODE_CONFIG_ID,
+                name="Session Mode",
+                category="mode",
+                description=(
+                    "Controls tool guard and permission behavior. "
+                    "'Bypass Permissions' disables all security checks."
+                ),
+                current_value=current_mode,
+                options=[
+                    SessionConfigSelectOption(
+                        value=self.MODE_DEFAULT,
+                        name="Default",
+                        description=("Normal mode with Tool Guard enabled"),
+                    ),
+                    SessionConfigSelectOption(
+                        value=self.MODE_BYPASS,
+                        name="Bypass Permissions",
+                        description=("Skip all tool guard security checks"),
+                    ),
+                ],
+            ),
+        ]
+
+    async def _switch_model(
+        self,
+        model_spec: str,
+    ) -> ModelSlotConfig:
+        """Switch the active model for the current agent.
+
+        Validates the provider/model pair exists, then writes the
+        choice into ``agent.json`` so ``create_model_and_formatter``
+        picks it up on the next ``prompt()`` call.  The global
+        ``ProviderManager`` state is **not** modified — the change
+        is scoped to this agent only.
+
+        *model_spec* should be ``"provider_id:model_id"``.
+        Falls back to treating the whole string as *model_id* with
+        an automatic provider search.
+        """
+        if self._runtime_provider is not None:
+            expected = self._runtime_provider.model
+            qualified = f"{RUNTIME_OPENAI_PROVIDER_ID}:{expected}"
+            if model_spec not in {expected, qualified}:
+                raise ValueError(
+                    f"Runtime model must be {expected!r}",
+                )
+            return self._runtime_provider.model_slot
+
+        if ":" in model_spec:
+            provider_id, model_id = model_spec.split(":", 1)
+        else:
+            provider_id, model_id = "", model_spec
+
+        manager = await run_sync_io(ProviderManager.get_instance)
+
+        if provider_id:
+            provider = await run_sync_io(manager.get_provider, provider_id)
+            if not provider:
+                raise ValueError(
+                    f"Provider {provider_id!r} not found",
+                )
+            if not provider.has_model(model_id):
+                raise ValueError(
+                    f"Model {model_id!r} not found in "
+                    f"provider {provider_id!r}",
+                )
+        else:
+            all_infos = await manager.list_provider_info()
+            matched = False
+            for pinfo in all_infos:
+                all_models = list(pinfo.models) + list(
+                    pinfo.extra_models,
+                )
+                if any(m.id == model_id for m in all_models):
+                    provider_id = pinfo.id
+                    matched = True
+                    break
+            if not matched:
+                raise ValueError(
+                    f"Model {model_id!r} not found in any provider",
+                )
+
+        agent_id = await run_sync_io(self._resolve_agent_id)
+        slot = ModelSlotConfig(provider_id=provider_id, model=model_id)
+
+        def select_model(config: AgentProfileConfig) -> None:
+            config.active_model = slot
+
+        await update_agent_config_async(agent_id, select_model)
+        return slot
+
+
+async def run_AIARB_agent(
+    agent_id: str | None = None,
+    workspace_dir: Path | None = None,
+    local_diagnostics: bool = False,
+    runtime_provider: OpenAIRuntimeProviderConfig | None = None,
+    agent_mode: str | None = None,
+    goal_token_budget: int = 0,
+) -> None:
+    """Entry point: run AIARB as an ACP agent over stdio."""
+    agent = AIARBACPAgent(
+        agent_id=agent_id,
+        workspace_dir=workspace_dir,
+        local_diagnostics=local_diagnostics,
+        runtime_provider=runtime_provider,
+        agent_mode=agent_mode,
+        goal_token_budget=goal_token_budget,
+    )
+    try:
+        # pylint: disable=protected-access
+        await agent._install_runtime_provider()
+        try:
+            await run_agent(agent, use_unstable_protocol=True)
+        except OSError as exc:
+            # run_agent owns the ACP stdio connection; task-level failures are
+            # already converted inside prompt() and cannot reach this boundary.
+            if not _is_transport_close(exc):
+                raise
+            logger.info("ACP client disconnected; shutting down cleanly")
+    finally:
+        try:
+            # pylint: disable=protected-access
+            await agent._cancel_all_prompts()
+        except Exception:
+            logger.exception("ACP: failed to cancel active prompts")
+        await agent._shutdown_workspace()  # pylint: disable=protected-access

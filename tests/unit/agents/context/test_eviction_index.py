@@ -6,7 +6,7 @@ Covers cap-driven carry, lossless span/headline bookkeeping, the checkpoint
 round-trip, and the rendered map.
 """
 
-from qwenpaw.agents.context.scroll.eviction_index import (
+from aiarb.agents.context.scroll.eviction_index import (
     EvictionIndex,
     Leaf,
     _TIER_CAP,

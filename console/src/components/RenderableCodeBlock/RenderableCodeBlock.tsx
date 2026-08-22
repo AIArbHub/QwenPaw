@@ -164,7 +164,7 @@ function SourceOnlyBlock({
 }) {
   return (
     <section
-      className={`${styles.block} qwenpaw-code-block`}
+      className={`${styles.block} aiarb-code-block`}
       data-language={language || "text"}
     >
       <header className={styles.sourceHeader}>
@@ -262,7 +262,7 @@ function RenderableBlock({
 
   return (
     <section
-      className={`${styles.block} qwenpaw-code-block`}
+      className={`${styles.block} aiarb-code-block`}
       data-language={language}
     >
       <header className={styles.header}>

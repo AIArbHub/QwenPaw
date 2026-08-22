@@ -3,15 +3,15 @@
 
 from pathlib import Path
 
-from qwenpaw.browser.sdk.facade import _build_manual_text
+from aiarb.browser.sdk.facade import _build_manual_text
 
 
 BEGIN = "<!-- BEGIN GENERATED: browser-manual -->"
 END = "<!-- END GENERATED: browser-manual -->"
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = [
-    ROOT / "src/qwenpaw/agents/skills/browser-en/SKILL.md",
-    ROOT / "src/qwenpaw/agents/skills/browser-zh/SKILL.md",
+    ROOT / "src/aiarb/agents/skills/browser-en/SKILL.md",
+    ROOT / "src/aiarb/agents/skills/browser-zh/SKILL.md",
 ]
 
 

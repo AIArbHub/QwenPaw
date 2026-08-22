@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access,import-outside-toplevel
 """Unit tests for plugin API extensions: #8, #10, #16.
 
@@ -50,7 +50,7 @@ def fresh_registry():
         ``pytest-xdist``).  It mutates the class-level ``_instance``
         attribute without locking.  Only use with sequential test runs.
     """
-    from qwenpaw.plugins.registry import PluginRegistry
+    from AIARB.plugins.registry import PluginRegistry
 
     # Force a new instance by clearing the singleton
     old_instance = PluginRegistry._instance
@@ -64,7 +64,7 @@ def fresh_registry():
 @pytest.fixture()
 def plugin_api(fresh_registry):
     """Create a PluginApi instance with a fresh registry."""
-    from qwenpaw.plugins.api import PluginApi
+    from AIARB.plugins.api import PluginApi
 
     api = PluginApi("test-plugin", config={}, manifest={"id": "test-plugin"})
     api.set_registry(fresh_registry)
@@ -76,7 +76,7 @@ class TestSlashCommandLifecycle:
 
     @staticmethod
     def _workspace(agent_id="ws-1"):
-        from qwenpaw.runtime.slash_command_registry import SlashCommandRegistry
+        from AIARB.runtime.slash_command_registry import SlashCommandRegistry
 
         return SimpleNamespace(
             agent_id=agent_id,
@@ -113,8 +113,8 @@ class TestSlashCommandLifecycle:
         fresh_registry,
         caplog,
     ):
-        from qwenpaw.runtime.slash_command_registry import CommandSpec
-        from qwenpaw.plugins.workspace_projector import ProjectionError
+        from AIARB.runtime.slash_command_registry import CommandSpec
+        from AIARB.plugins.workspace_projector import ProjectionError
 
         workspace = self._workspace()
         original = CommandSpec(name="reserved", handler=MagicMock())
@@ -123,7 +123,7 @@ class TestSlashCommandLifecycle:
             SimpleNamespace(agents={workspace.agent_id: workspace}),
         )
         plugin_api.register_slash_command("reserved", MagicMock())
-        with caplog.at_level(logging.ERROR, logger="qwenpaw.plugins.api"):
+        with caplog.at_level(logging.ERROR, logger="AIARB.plugins.api"):
             with pytest.raises(ProjectionError):
                 await fresh_registry.projector.project(
                     "slash_command",
@@ -147,8 +147,8 @@ class TestSlashCommandLifecycle:
         plugin_api,
         fresh_registry,
     ):
-        from qwenpaw.runtime.slash_command_registry import CommandSpec
-        from qwenpaw.plugins.workspace_projector import ProjectionError
+        from AIARB.runtime.slash_command_registry import CommandSpec
+        from AIARB.plugins.workspace_projector import ProjectionError
 
         first = self._workspace("ws-1")
         second = self._workspace("ws-2")
@@ -184,13 +184,13 @@ class TestSlashCommandLifecycle:
         fresh_registry,
         tmp_path,
     ):
-        from qwenpaw.plugins.architecture import (
+        from AIARB.plugins.architecture import (
             PluginEntryPoints,
             PluginManifest,
             PluginRecord,
         )
-        from qwenpaw.plugins.loader import PluginLoader
-        from qwenpaw.runtime.slash_command_registry import CommandSpec
+        from AIARB.plugins.loader import PluginLoader
+        from AIARB.runtime.slash_command_registry import CommandSpec
 
         workspace = self._workspace()
         commands = workspace.plugins.slash_command_registry
@@ -321,8 +321,8 @@ class TestUninstallHook:
     @pytest.mark.asyncio
     async def test_unload_plugin_calls_uninstall_hooks(self, fresh_registry):
         """PluginLoader.unload_plugin executes uninstall hooks."""
-        from qwenpaw.plugins.loader import PluginLoader
-        from qwenpaw.plugins.architecture import (
+        from AIARB.plugins.loader import PluginLoader
+        from AIARB.plugins.architecture import (
             PluginManifest,
             PluginRecord,
             PluginEntryPoints,
@@ -367,8 +367,8 @@ class TestUninstallHook:
     @pytest.mark.asyncio
     async def test_uninstall_hook_async_callback(self, fresh_registry):
         """Async uninstall hook callbacks are properly awaited."""
-        from qwenpaw.plugins.loader import PluginLoader
-        from qwenpaw.plugins.architecture import (
+        from AIARB.plugins.loader import PluginLoader
+        from AIARB.plugins.architecture import (
             PluginManifest,
             PluginRecord,
             PluginEntryPoints,
@@ -408,8 +408,8 @@ class TestUninstallHook:
     @pytest.mark.asyncio
     async def test_uninstall_hook_error_isolated(self, fresh_registry):
         """Errors in uninstall hooks don't crash the unload flow."""
-        from qwenpaw.plugins.loader import PluginLoader
-        from qwenpaw.plugins.architecture import (
+        from AIARB.plugins.loader import PluginLoader
+        from AIARB.plugins.architecture import (
             PluginManifest,
             PluginRecord,
             PluginEntryPoints,
@@ -463,7 +463,7 @@ class TestPluginValidatorImports:
         before exec_module, cleanup in finally, and sanitized module
         name from plugin_id with hyphens.
         """
-        from qwenpaw.plugins.validation import validate_plugin_module
+        from AIARB.plugins.validation import validate_plugin_module
 
         with tempfile.TemporaryDirectory() as tmpdir:
             plugin_dir = Path(tmpdir) / "my-datapaw"
@@ -496,7 +496,7 @@ class TestPluginValidatorImports:
 
     def test_cli_validate_cleans_sys_modules_on_error(self):
         """sys.modules cleanup happens even when validation fails."""
-        from qwenpaw.plugins.validation import validate_plugin_module
+        from AIARB.plugins.validation import validate_plugin_module
 
         with tempfile.TemporaryDirectory() as tmpdir:
             plugin_dir = Path(tmpdir) / "bad-plugin"
@@ -538,7 +538,7 @@ class TestRegisterSkillProvider:
         fresh_registry,
     ):
         """register_skill_provider uses install-layer teardown, not hooks."""
-        from qwenpaw.plugins.lifecycle import PluginInstance
+        from AIARB.plugins.lifecycle import PluginInstance
 
         inst = PluginInstance("test-plugin")
         plugin_api.bind_instance(inst)
@@ -601,11 +601,11 @@ class TestRegisterSkillProvider:
         monkeypatch,
     ):
         """Skill copy goes through provision_files (hash / create branch)."""
-        from qwenpaw.plugins.lifecycle import PluginInstance
-        from qwenpaw.plugins.provision import load_inventory
+        from AIARB.plugins.lifecycle import PluginInstance
+        from AIARB.plugins.provision import load_inventory
 
         monkeypatch.setattr(
-            "qwenpaw.constant.WORKING_DIR",
+            "AIARB.constant.WORKING_DIR",
             tmp_path / "work",
         )
         inst = PluginInstance("test-plugin")
@@ -692,7 +692,7 @@ class TestFireWorkspaceCreatedHooks:
             callback=sync_hook,
         )
 
-        from qwenpaw.app.multi_agent_manager import MultiAgentManager
+        from AIARB.app.multi_agent_manager import MultiAgentManager
 
         await MultiAgentManager._fire_workspace_created_hooks(
             {"agent_id": "a1", "workspace_dir": "/tmp/ws"},
@@ -719,7 +719,7 @@ class TestFireWorkspaceCreatedHooks:
             callback=async_hook,
         )
 
-        from qwenpaw.app.multi_agent_manager import MultiAgentManager
+        from AIARB.app.multi_agent_manager import MultiAgentManager
 
         await MultiAgentManager._fire_workspace_created_hooks(
             {"agent_id": "a2", "workspace_dir": "/tmp/ws2"},
@@ -755,7 +755,7 @@ class TestFireWorkspaceCreatedHooks:
             priority=20,
         )
 
-        from qwenpaw.app.multi_agent_manager import MultiAgentManager
+        from AIARB.app.multi_agent_manager import MultiAgentManager
 
         await MultiAgentManager._fire_workspace_created_hooks(
             {"agent_id": "a3", "workspace_dir": "/tmp/ws3"},

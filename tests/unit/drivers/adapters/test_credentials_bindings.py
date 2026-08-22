@@ -3,12 +3,12 @@
 
 from __future__ import annotations
 
-from qwenpaw.drivers.adapters.mcp_binding import (
+from aiarb.drivers.adapters.mcp_binding import (
     binding_plain_keys,
     binding_to_response,
 )
-from qwenpaw.drivers.credentials.bindings import resolve_binding
-from qwenpaw.drivers.credentials.types import ResolvedCredential
+from aiarb.drivers.credentials.bindings import resolve_binding
+from aiarb.drivers.credentials.types import ResolvedCredential
 
 
 def _env_credential(value: str) -> ResolvedCredential:
@@ -71,9 +71,9 @@ def test_resolve_binding_skips_empty_format_result() -> None:
 
 def test_resolve_binding_keeps_public_literal() -> None:
     """Public literal headers pass through unchanged."""
-    binding = {"X-Client-Name": {"source": "literal", "value": "qwenpaw"}}
+    binding = {"X-Client-Name": {"source": "literal", "value": "aiarb"}}
     resolved = resolve_binding(binding, {})
-    assert resolved == {"X-Client-Name": "qwenpaw"}
+    assert resolved == {"X-Client-Name": "aiarb"}
 
 
 _ENV_REF_BINDING = {
@@ -200,7 +200,7 @@ def test_resolve_binding_skips_unknown_source() -> None:
 def test_resolve_value_source_direct_contract() -> None:
     """Direct contract of the shared resolver: literal passthrough, unknown
     source -> None, empty credential value -> None (no empty headers)."""
-    from qwenpaw.drivers.credentials.bindings import _resolve_value_source
+    from aiarb.drivers.credentials.bindings import _resolve_value_source
 
     assert (
         _resolve_value_source({"source": "literal", "value": "v"}, {}) == "v"

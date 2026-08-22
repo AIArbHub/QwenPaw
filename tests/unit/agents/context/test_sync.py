@@ -18,14 +18,14 @@ from types import SimpleNamespace
 import pytest
 from agentscope.message import Msg, TextBlock, ToolCallBlock, ToolResultBlock
 
-from qwenpaw.agents.context.scroll.history import HistoryStore
-from qwenpaw.agents.context.scroll import sync as sync_mod
-from qwenpaw.agents.context.scroll.sync import (
+from aiarb.agents.context.scroll.history import HistoryStore
+from aiarb.agents.context.scroll import sync as sync_mod
+from aiarb.agents.context.scroll.sync import (
     MANIFEST_NAME,
     sync_all_scroll_agents,
     sync_sessions_to_history,
 )
-from qwenpaw.agents.context.types import LogEntry
+from aiarb.agents.context.types import LogEntry
 
 
 def _sample_msgs() -> list[Msg]:
@@ -924,8 +924,8 @@ def _stub_config_loaders(
     )
     profiles = {"a1": SimpleNamespace(workspace_dir=str(workspace))}
     config = SimpleNamespace(agents=SimpleNamespace(profiles=profiles))
-    import qwenpaw.config as cfg
-    import qwenpaw.config.config as cfgcfg
+    import aiarb.config as cfg
+    import aiarb.config.config as cfgcfg
 
     monkeypatch.setattr(cfg, "load_config", lambda: config, raising=False)
     monkeypatch.setattr(
@@ -936,7 +936,7 @@ def _stub_config_loaders(
     )
 
 
-@pytest.mark.usefixtures("capture_qwenpaw_logs")
+@pytest.mark.usefixtures("capture_aiarb_logs")
 def test_first_run_emits_console_notice_then_stays_quiet(
     monkeypatch,
     caplog,
@@ -972,7 +972,7 @@ def test_first_run_emits_console_notice_then_stays_quiet(
     assert not [r for r in caplog.records if "first run" in r.getMessage()]
 
 
-@pytest.mark.usefixtures("capture_qwenpaw_logs")
+@pytest.mark.usefixtures("capture_aiarb_logs")
 def test_startup_blocks_auto_created_empty_chat_registry(
     monkeypatch,
     caplog,
@@ -999,7 +999,7 @@ def test_startup_blocks_auto_created_empty_chat_registry(
     assert not (workspace / "history.db").exists()
 
 
-@pytest.mark.usefixtures("capture_qwenpaw_logs")
+@pytest.mark.usefixtures("capture_aiarb_logs")
 def test_blocked_registry_does_not_purge_existing_history(
     monkeypatch,
     tmp_path: Path,
@@ -1038,7 +1038,7 @@ def test_blocked_registry_does_not_purge_existing_history(
     assert count == 1
 
 
-@pytest.mark.usefixtures("capture_qwenpaw_logs")
+@pytest.mark.usefixtures("capture_aiarb_logs")
 def test_blocked_registry_does_not_quarantine_corrupt_history(
     monkeypatch,
     tmp_path: Path,

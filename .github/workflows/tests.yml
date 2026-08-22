@@ -1,4 +1,4 @@
-name: Tests
+﻿name: Tests
 
 on:
   push:
@@ -186,7 +186,7 @@ jobs:
         if: matrix.python-version == '3.11'
         shell: bash
         env:
-          QWENPAW_LOCAL_RUNTIME_E2E: '1'
+          AIARB_LOCAL_RUNTIME_E2E: '1'
         run: |
           python -m pip install --no-deps --force-reinstall .
           pytest tests/e2e/test_hub_local_runtime.py -v
@@ -356,7 +356,7 @@ jobs:
         shell: bash
         run: |
           # The SPA catch-all route is registered only when the console
-          # static directory exists (src/qwenpaw/app/_app.py resolves it and
+          # static directory exists (src/AIARB/app/_app.py resolves it and
           # gates `if os.path.isdir(...)`). Production wheels always ship it,
           # so API routing tests expect the "with build" behaviour: GET on a
           # missing /api resource is answered 404 by the catch-all. Without
@@ -427,7 +427,7 @@ jobs:
           # parallel the default HTTP timeouts are too tight and
           # intermittently surface as ``httpx.ReadTimeout`` (e.g. the real
           # plugin install on macOS). Lift the floor on non-Linux runners.
-          QWENPAW_INTEGRATION_HTTP_TIMEOUT: ${{ matrix.os != 'ubuntu-latest' && '120' || '' }}
+          AIARB_INTEGRATION_HTTP_TIMEOUT: ${{ matrix.os != 'ubuntu-latest' && '120' || '' }}
         run: |
           # Phase-1 simplification (plan v1.6, item 1-4): subprocess coverage
           # removed from the PR gate; nightly keeps integration coverage via

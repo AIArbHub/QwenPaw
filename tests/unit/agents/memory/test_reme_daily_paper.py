@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Focused tests for scheduled ReMe actions and memory guidance."""
 
@@ -8,15 +8,15 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from qwenpaw.agents.memory.prompts import build_memory_guidance_prompt
-from qwenpaw.agents.memory.reme_light_memory_manager import (
+from aiarb.agents.memory.prompts import build_memory_guidance_prompt
+from aiarb.agents.memory.reme_light_memory_manager import (
     ReMeLightMemoryManager,
 )
-from qwenpaw.config.config import ReMeLightMemoryConfig
+from AIARB.config.config import ReMeLightMemoryConfig
 
 
 @pytest.mark.asyncio
-async def test_daily_paper_runs_with_qwenpaw_model_and_defaults() -> None:
+async def test_daily_paper_runs_with_aiarb_model_and_defaults() -> None:
     manager = ReMeLightMemoryManager.__new__(ReMeLightMemoryManager)
     manager.run_action = AsyncMock(
         return_value=SimpleNamespace(success=True, answer="done"),
@@ -120,8 +120,10 @@ async def test_daily_paper_reports_the_real_execution_failure() -> None:
     manager._llm_job_lock = asyncio.Lock()
     manager._lifecycle_operation = None
     manager._active_reme_jobs = 0
-    manager._update_qwenpaw_model = AsyncMock()
+    manager._update_AIARB_model = AsyncMock()
     manager._load_memory_config = lambda: SimpleNamespace(
+    manager._update_aiarb_model = AsyncMock()
+    manager.get_memory_config = lambda: SimpleNamespace(
         daily_paper_use_hf_mirror=True,
         daily_paper_topics="",
     )
@@ -147,7 +149,7 @@ async def test_daily_paper_result_is_delivered_to_inbox() -> None:
     )
 
     with patch(
-        "qwenpaw.agents.memory.reme_light_memory_manager."
+        "aiarb.agents.memory.reme_light_memory_manager."
         "append_inbox_event",
         new_callable=AsyncMock,
         return_value={"id": "event-1"},
@@ -193,7 +195,7 @@ def test_memory_prompt_omits_disabled_search_tool() -> None:
     )
 
     config_loader = (
-        "qwenpaw.agents.memory.reme_light_memory_manager.load_agent_config"
+        "aiarb.agents.memory.reme_light_memory_manager.load_agent_config"
     )
     with patch(
         config_loader,
@@ -221,7 +223,7 @@ def test_memory_prompt_includes_enabled_search_tool() -> None:
     )
 
     with patch(
-        "qwenpaw.agents.memory.reme_light_memory_manager.load_agent_config",
+        "aiarb.agents.memory.reme_light_memory_manager.load_agent_config",
         return_value=agent_config,
     ):
         prompt = manager.get_memory_prompt()
@@ -304,7 +306,7 @@ async def test_automatic_search_works_when_agent_tool_is_hidden() -> None:
     manager._load_memory_config = lambda: memory_config
 
     with patch(
-        "qwenpaw.agents.memory.reme_light_memory_manager."
+        "aiarb.agents.memory.reme_light_memory_manager."
         "load_agent_config_async",
         AsyncMock(return_value=agent_config),
     ):

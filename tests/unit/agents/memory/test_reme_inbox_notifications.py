@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from qwenpaw.agents.memory.reme_light_memory_manager import (
+from aiarb.agents.memory.reme_light_memory_manager import (
     ReMeLightMemoryManager,
 )
 from qwenpaw.agents.memory.reme_inbox import build_payload, emit_job_result
@@ -270,7 +270,7 @@ async def test_memory_inbox_only_suppresses_successful_noops(
     manager = _manager()
 
     with patch(
-        "qwenpaw.agents.memory.reme_light_memory_manager.append_inbox_event",
+        "aiarb.agents.memory.reme_light_memory_manager.append_inbox_event",
         new_callable=AsyncMock,
         return_value={"id": "event-1", "status": "success"},
     ) as append_event:

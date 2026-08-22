@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 export const COMMUNITY_BENEFITS_URL =
-  "https://opc.aliyun.com/qwenpaw?utm_content=g_1000415374";
+  "https://opc.aliyun.com/aiarb?utm_content=g_1000415374";
 
 export function CommunityBenefitsTriggerLabel({
   className = "",

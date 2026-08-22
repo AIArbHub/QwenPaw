@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+﻿import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChatAnywhereSessionsState } from "@agentscope-ai/chat";
 import sessionApi from "../../sessionApi";
@@ -93,7 +93,7 @@ const ChatSessionInitializer: React.FC = () => {
             if (!controller.signal.aborted) {
               sessionApi.finishSessionSwitch();
               window.dispatchEvent(
-                new CustomEvent("qwenpaw:sidebar-switch-done"),
+                new CustomEvent("AIARB:sidebar-switch-done"),
               );
             }
           });
@@ -109,16 +109,16 @@ const ChatSessionInitializer: React.FC = () => {
     };
 
     window.addEventListener(
-      "qwenpaw:sidebar-select-session",
+      "AIARB:sidebar-select-session",
       handleSelectSession,
     );
-    window.addEventListener("qwenpaw:sidebar-new-chat", handleNewChat);
+    window.addEventListener("AIARB:sidebar-new-chat", handleNewChat);
 
     // Check for pending new-chat flag set by Sidebar when navigating from
     // another page. Must be deferred so the library has initialized.
-    const pendingNewChat = sessionStorage.getItem("qwenpaw_pending_new_chat");
+    const pendingNewChat = sessionStorage.getItem("AIARB_pending_new_chat");
     if (pendingNewChat) {
-      sessionStorage.removeItem("qwenpaw_pending_new_chat");
+      sessionStorage.removeItem("AIARB_pending_new_chat");
       requestAnimationFrame(() => handleNewChat());
     }
 
@@ -135,10 +135,10 @@ const ChatSessionInitializer: React.FC = () => {
       }
       switchControllerRef.current = null;
       window.removeEventListener(
-        "qwenpaw:sidebar-select-session",
+        "AIARB:sidebar-select-session",
         handleSelectSession,
       );
-      window.removeEventListener("qwenpaw:sidebar-new-chat", handleNewChat);
+      window.removeEventListener("AIARB:sidebar-new-chat", handleNewChat);
     };
   }, [navigate]);
 

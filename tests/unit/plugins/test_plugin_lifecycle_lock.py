@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Per-plugin lifecycle lock serializes load/unload/reinstall."""
 
@@ -9,25 +9,25 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.governance.tool_registry import (
+from AIARB.governance.tool_registry import (
     DEFAULT_REGISTRY,
     register_tool_governance,
 )
-from qwenpaw.plugins.api import (
+from AIARB.plugins.api import (
     _TOOL_PLUGIN_OWNERS,
     release_tool_ownership_for_plugin,
 )
-from qwenpaw.plugins.architecture import (
+from AIARB.plugins.architecture import (
     PluginEntryPoints,
     PluginManifest,
     PluginRecord,
 )
-from qwenpaw.plugins.loader import (
+from AIARB.plugins.loader import (
     PluginLoader,
     _norm_realpath,
     resolved_plugin_manifest_path,
 )
-from qwenpaw.plugins.registry import PluginRegistry
+from AIARB.plugins.registry import PluginRegistry
 
 
 def test_norm_realpath_applies_normcase(tmp_path: Path):

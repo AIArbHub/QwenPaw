@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Scroll construction, workspace ownership and cancellation regressions."""
 
@@ -9,13 +9,13 @@ from types import SimpleNamespace
 import pytest
 from agentscope.message import ToolResultState
 
-import qwenpaw.agents.context as context_mod
-from qwenpaw.runtime.builder import AgentBuilder, _resolve_react_iterations
-from qwenpaw.agents.context.types import LogEntry
-from qwenpaw.app.multi_agent_manager import MultiAgentManager
-from qwenpaw.app.workspace.workspace import Workspace
-from qwenpaw.config.config import LightContextConfig
-from qwenpaw.utils.io_utils import run_sync_io
+import AIARB.agents.context as context_mod
+from AIARB.runtime.builder import AgentBuilder, _resolve_react_iterations
+from AIARB.agents.context.types import LogEntry
+from AIARB.app.multi_agent_manager import MultiAgentManager
+from AIARB.app.workspace.workspace import Workspace
+from AIARB.config.config import LightContextConfig
+from AIARB.utils.io_utils import run_sync_io
 
 
 def _history_workspace(tmp_path, filename="history.db", strategy="scroll"):
@@ -172,7 +172,7 @@ async def test_final_stop_cancels_request_and_persists_history(
         assert "agent" not in multi.agents
         assert not multi._agent_stop_tasks
         assert not await ws.task_tracker.has_active_tasks()
-        from qwenpaw.agents.context.scroll.history import HistoryStore
+        from AIARB.agents.context.scroll.history import HistoryStore
 
         reopened = HistoryStore(store.path)
         try:
@@ -192,7 +192,7 @@ async def test_runtime_fts_corruption_is_repaired_on_next_borrow(
     recall_kind,
 ):
     ws = _history_workspace(tmp_path)
-    monkeypatch.setenv("QWENPAW_ALLOW_UNSANDBOXED_RECALL", "true")
+    monkeypatch.setenv("AIARB_ALLOW_UNSANDBOXED_RECALL", "true")
     ws.config.running.light_context_config.scroll_config.allow_unsandboxed = (
         True
     )
@@ -347,6 +347,8 @@ def test_only_internal_migration_can_raise_react_iterations():
         )
         == 4_000
     )
+import aiarb.agents.context as context_mod
+from aiarb.runtime.builder import AgentBuilder
 
 
 @pytest.mark.asyncio

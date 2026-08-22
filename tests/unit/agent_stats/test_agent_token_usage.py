@@ -10,13 +10,13 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from qwenpaw.agent_stats.models import AgentStatsSummary
-from qwenpaw.agent_stats.service import (
+from aiarb.agent_stats.models import AgentStatsSummary
+from aiarb.agent_stats.service import (
     AgentStatsService,
     _process_session_file,
 )
-from qwenpaw.token_usage.manager import TokenUsageStats, TokenUsageSummary
-from qwenpaw.token_usage.turn_usage import TURN_USAGE_META_KEY
+from aiarb.token_usage.manager import TokenUsageStats, TokenUsageSummary
+from aiarb.token_usage.turn_usage import TURN_USAGE_META_KEY
 
 
 def _empty_daily(date_str: str) -> dict:
@@ -388,7 +388,7 @@ class TestAgentStatsServiceAgentTokens:
         mock_manager.get_summary = AsyncMock(return_value=global_summary)
 
         with patch(
-            "qwenpaw.agent_stats.service.get_token_usage_manager",
+            "aiarb.agent_stats.service.get_token_usage_manager",
             return_value=mock_manager,
         ):
             summary = await AgentStatsService().get_summary(
@@ -457,7 +457,7 @@ class TestAgentStatsServiceAgentTokens:
         mock_manager.get_summary = AsyncMock(return_value=empty_global)
 
         with patch(
-            "qwenpaw.agent_stats.service.get_token_usage_manager",
+            "aiarb.agent_stats.service.get_token_usage_manager",
             return_value=mock_manager,
         ):
             summary_a = await AgentStatsService().get_summary(

@@ -1,4 +1,4 @@
-import {
+﻿import {
   prepareBrowserSession,
   usesBrowserSession,
 } from "./pawapp-sdk/browserSession";
@@ -6,7 +6,7 @@ import {
  * hostExternals.ts
  *
  * Exposes shared host dependencies and a reactive plugin registry on
- * `window.QwenPaw` so plugin bundles can register routes and tool renderers
+ * `window.AIARB` so plugin bundles can register routes and tool renderers
  * without bundling their own copies of React / antd.
  *
  * Call `installHostExternals()` once at application startup (main.tsx).
@@ -23,10 +23,10 @@ import {
   buildMenuNamespace,
   buildRouteNamespace,
   buildSlotNamespace,
-  type QwenPawAuditNamespace,
-  type QwenPawMenuNamespace,
-  type QwenPawRouteNamespace,
-  type QwenPawSlotNamespace,
+  type AIARBAuditNamespace,
+  type AIARBMenuNamespace,
+  type AIARBRouteNamespace,
+  type AIARBSlotNamespace,
 } from "./registry/sdk";
 import { menuRegistry, routeRegistry } from "./registry/store";
 import type {
@@ -34,8 +34,8 @@ import type {
   HostAgentInfo,
   HostSessionInfo,
   HostThemeMode,
-  QwenPawChatNamespace,
-} from "./types/qwenpaw";
+  AIARBChatNamespace,
+} from "./types/AIARB";
 import { pawSdkFactory } from "./pawapp-sdk";
 import type { PawSdkFactory } from "./pawapp-sdk/types";
 import {
@@ -47,7 +47,7 @@ import {
 // Public types
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Shared host dependencies exposed to plugin bundles via `window.QwenPaw.host`. */
+/** Shared host dependencies exposed to plugin bundles via `window.AIARB.host`. */
 export interface HostExternals {
   React: typeof React;
   ReactDOM: typeof ReactDOM;
@@ -197,15 +197,15 @@ export interface WindowNamespace {
     renderers: Record<string, React.FC<any>>,
   ) => void;
   /** Console-wide plugin Menu API. Attached by installHostExternals(). */
-  menu?: QwenPawMenuNamespace;
+  menu?: AIARBMenuNamespace;
   /** Console-wide plugin Route API. */
-  route?: QwenPawRouteNamespace;
+  route?: AIARBRouteNamespace;
   /** Console-wide plugin Slot API (header.left, sider.bottom, …). */
-  slot?: QwenPawSlotNamespace;
+  slot?: AIARBSlotNamespace;
   /** Chat-surface customization API. Attached by installHostSdk(). */
-  chat?: QwenPawChatNamespace;
+  chat?: AIARBChatNamespace;
   /** Override audit log (debug). Attached by installHostExternals(). */
-  audit?: QwenPawAuditNamespace;
+  audit?: AIARBAuditNamespace;
   /** App-scoped PawApp SDK. */
   paw?: PawSdkFactory;
   /** Memory backend configuration UI contributed by memory plugins. */
@@ -214,7 +214,7 @@ export interface WindowNamespace {
 
 declare global {
   interface Window {
-    QwenPaw: WindowNamespace;
+    AIARB: WindowNamespace;
   }
 }
 
@@ -246,12 +246,12 @@ function ensurePluginsGroup(): void {
 }
 
 export function installHostExternals(): void {
-  if (!window.QwenPaw) {
-    (window as any).QwenPaw = {} as WindowNamespace;
+  if (!window.AIARB) {
+    (window as any).AIARB = {} as WindowNamespace;
   }
 
-  if (!window.QwenPaw.host) {
-    window.QwenPaw.host = {
+  if (!window.AIARB.host) {
+    window.AIARB.host = {
       React,
       ReactDOM,
       antd,
@@ -267,13 +267,13 @@ export function installHostExternals(): void {
   }
 
   // ── Console-wide extension API ─────────────────────────────────────────
-  if (!window.QwenPaw.menu) window.QwenPaw.menu = buildMenuNamespace();
-  if (!window.QwenPaw.route) window.QwenPaw.route = buildRouteNamespace();
-  if (!window.QwenPaw.slot) window.QwenPaw.slot = buildSlotNamespace();
-  if (!window.QwenPaw.audit) window.QwenPaw.audit = buildAuditNamespace();
-  if (!window.QwenPaw.paw) window.QwenPaw.paw = pawSdkFactory;
-  if (!window.QwenPaw.memoryBackends) {
-    window.QwenPaw.memoryBackends = memoryBackendNamespace;
+  if (!window.AIARB.menu) window.AIARB.menu = buildMenuNamespace();
+  if (!window.AIARB.route) window.AIARB.route = buildRouteNamespace();
+  if (!window.AIARB.slot) window.AIARB.slot = buildSlotNamespace();
+  if (!window.AIARB.audit) window.AIARB.audit = buildAuditNamespace();
+  if (!window.AIARB.paw) window.AIARB.paw = pawSdkFactory;
+  if (!window.AIARB.memoryBackends) {
+    window.AIARB.memoryBackends = memoryBackendNamespace;
   }
 
   // ── Back-compat shim ───────────────────────────────────────────────────
@@ -285,8 +285,8 @@ export function installHostExternals(): void {
   // EXCEPTION: PawApp routes (path starting with `/apps/`) register the
   // route only — NO sidebar menu entry. PawApps are reachable exclusively
   // through the App Center, which renders them inline via routeRegistry.
-  if (!window.QwenPaw.registerRoutes) {
-    window.QwenPaw.registerRoutes = (pluginId, routes) => {
+  if (!window.AIARB.registerRoutes) {
+    window.AIARB.registerRoutes = (pluginId, routes) => {
       for (const r of routes) {
         const id = `legacy:${pluginId}:${r.path.replace(/^\//, "")}`;
         routeRegistry.add(pluginId, {
@@ -338,8 +338,8 @@ export function installHostExternals(): void {
     };
   }
 
-  if (!window.QwenPaw.registerToolRender) {
-    window.QwenPaw.registerToolRender = (pluginId, renderers) => {
+  if (!window.AIARB.registerToolRender) {
+    window.AIARB.registerToolRender = (pluginId, renderers) => {
       pluginSystem.addToolRenderers(pluginId, renderers);
       console.info(
         `[plugin:${pluginId}] registerToolRender → ${Object.keys(

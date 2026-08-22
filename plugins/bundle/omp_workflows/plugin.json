@@ -4,12 +4,12 @@
   "version": "0.1.1",
   "type": "bundle",
   "description": "Oh My Paw workflow modes: Autopilot, Ralph, UltraQA, Ultrawork, Team",
-  "author": "QwenPaw Team",
+  "author": "AIArb Team",
   "entry": {
     "backend": "plugin.py"
   },
   "dependencies": [],
-  "qwenpaw_version": {
+  "aiarb_version": {
     "min": "2.0.0",
     "max": "3.0.0"
   }

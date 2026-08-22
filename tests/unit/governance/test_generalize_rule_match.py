@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Standalone test suite for ``generalize_rule_match``.
 
@@ -24,8 +24,8 @@ import asyncio
 
 import pytest
 
-from qwenpaw.agents import model_factory
-from qwenpaw.governance import generalize as g
+from aiarb.agents import model_factory
+from aiarb.governance import generalize as g
 
 
 # ---------------------------------------------------------------------------
@@ -681,7 +681,9 @@ class TestOpenAIChatModelCompatDisableThinking:
     they all build an ``OpenAIChatModelCompat``."""
 
     def test_unknown_control_does_not_guess_wire_params(self):
-        from qwenpaw.providers.openai_chat_model_compat import (
+        from AIARB.providers.openai_chat_model_compat import (
+    def test_translates_to_extra_body(self):
+        from aiarb.providers.openai_chat_model_compat import (
             OpenAIChatModelCompat,
         )
 
@@ -700,7 +702,7 @@ class TestOpenAIChatModelCompatDisableThinking:
         ],
     )
     def test_uses_declared_wire_params(self, translated):
-        from qwenpaw.providers.openai_chat_model_compat import (
+        from AIARB.providers.openai_chat_model_compat import (
             OpenAIChatModelCompat,
         )
 
@@ -711,7 +713,7 @@ class TestOpenAIChatModelCompatDisableThinking:
         assert kwargs == translated
 
     def test_neutral_flag_is_never_reintroduced(self):
-        from qwenpaw.providers.openai_chat_model_compat import (
+        from AIARB.providers.openai_chat_model_compat import (
             OpenAIChatModelCompat,
         )
 
@@ -725,7 +727,7 @@ class TestOpenAIChatModelCompatDisableThinking:
         assert kwargs == {"reasoning_effort": "none"}
 
     def test_noop_when_flag_absent(self):
-        from qwenpaw.providers.openai_chat_model_compat import (
+        from aiarb.providers.openai_chat_model_compat import (
             OpenAIChatModelCompat,
         )
 
@@ -736,7 +738,7 @@ class TestOpenAIChatModelCompatDisableThinking:
         assert kwargs == {"temperature": 0.7}
 
     def test_merges_existing_extra_body(self):
-        from qwenpaw.providers.openai_chat_model_compat import (
+        from aiarb.providers.openai_chat_model_compat import (
             OpenAIChatModelCompat,
         )
 

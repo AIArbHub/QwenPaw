@@ -5,10 +5,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.app.chats.manager import ChatManager
-from qwenpaw.app.chats.models import ChatSpec
-from qwenpaw.app.chats.repo import JsonChatRepository
-from qwenpaw.pawapp.context import PawAppContext
+from aiarb.app.chats.manager import ChatManager
+from aiarb.app.chats.models import ChatSpec
+from aiarb.app.chats.repo import JsonChatRepository
+from aiarb.pawapp.context import PawAppContext
 
 
 class _WorkspaceRegistry:

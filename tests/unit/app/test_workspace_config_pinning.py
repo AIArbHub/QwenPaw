@@ -16,9 +16,9 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.app.workspace.workspace import Workspace
-from qwenpaw.config import utils as config_utils
-from qwenpaw.config.config import (
+from aiarb.app.workspace.workspace import Workspace
+from aiarb.config import utils as config_utils
+from aiarb.config.config import (
     AgentProfileConfig,
     AgentProfileRef,
     AgentsConfig,

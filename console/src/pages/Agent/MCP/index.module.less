@@ -1,4 +1,4 @@
-@import (reference) "../../../styles/scaledTypography.less";
+﻿@import (reference) "../../../styles/scaledTypography.less";
 
 .mcpPage {
   .scaled-control-typography();
@@ -198,7 +198,7 @@
     opacity 0.2s ease-in-out,
     transform 0.2s ease-in-out;
 
-  :global(.qwenpaw-card-body) {
+  :global(.AIARB-card-body) {
     padding: 0 !important;
   }
 
@@ -642,7 +642,7 @@
     gap: 2px;
   }
 
-  :global(.qwenpaw-segmented-group) {
+  :global(.AIARB-segmented-group) {
     gap: 2px;
   }
 
@@ -653,7 +653,7 @@
     box-shadow: none;
   }
 
-  :global(.qwenpaw-segmented-thumb) {
+  :global(.AIARB-segmented-thumb) {
     border: 1px solid var(--mcp-policy-segment-border);
     border-radius: 7px;
     background: var(--mcp-policy-segment-bg);
@@ -669,7 +669,7 @@
       background-color 0.18s ease;
   }
 
-  :global(.qwenpaw-segmented-item) {
+  :global(.AIARB-segmented-item) {
     border-radius: 7px;
     color: var(--app-text-secondary);
     font-weight: 500;
@@ -684,7 +684,7 @@
     line-height: 1.5;
   }
 
-  :global(.qwenpaw-segmented-item-label) {
+  :global(.AIARB-segmented-item-label) {
     min-height: max(28px, calc(28px * var(--app-font-scale)));
     padding: 0 16px;
     line-height: 1.5;
@@ -696,7 +696,7 @@
     box-shadow: inset 0 0 0 1px var(--mcp-policy-segment-border);
   }
 
-  :global(.qwenpaw-segmented-item-selected) {
+  :global(.AIARB-segmented-item-selected) {
     color: var(--mcp-policy-segment-text);
     background: var(--mcp-policy-segment-bg);
     box-shadow: inset 0 0 0 1px var(--mcp-policy-segment-border);
@@ -732,7 +732,7 @@
   overflow: hidden;
 
   :global(.ant-tag),
-  :global(.qwenpaw-tag) {
+  :global(.AIARB-tag) {
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -977,7 +977,7 @@
 :global(.dark-mode) {
   .accessPolicySegmented {
     :global(.ant-segmented-item-selected),
-    :global(.qwenpaw-segmented-item-selected) {
+    :global(.AIARB-segmented-item-selected) {
       color: var(--app-text) !important;
     }
   }
@@ -985,12 +985,12 @@
 
 @media (max-width: 768px) {
   .mcpPage :global(.ant-btn),
-  .mcpPage :global(.qwenpaw-btn) {
+  .mcpPage :global(.AIARB-btn) {
     min-height: var(--app-hit-touch);
   }
 
   .mcpPage :global(.ant-btn-icon-only),
-  .mcpPage :global(.qwenpaw-btn-icon-only) {
+  .mcpPage :global(.AIARB-btn-icon-only) {
     min-width: var(--app-hit-touch);
   }
 
@@ -1005,7 +1005,7 @@
     }
 
     :global(.ant-btn),
-    :global(.qwenpaw-btn) {
+    :global(.AIARB-btn) {
       width: 100%;
     }
   }

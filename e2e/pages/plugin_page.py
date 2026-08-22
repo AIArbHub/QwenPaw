@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Plugin Manager page object.
+AIARB Plugin Manager page object.
 
 Wraps:
 - Navigation to ``/plugin-manager``
@@ -49,16 +49,16 @@ class PluginPage(BasePage):
         'button:has-text("安装插件")'
     )
     TAB_INSTALLED = (
-        '.qwenpaw-tabs-tab:has-text("Installed"), '
-        '.qwenpaw-tabs-tab:has-text("已安装")'
+        '.AIARB-tabs-tab:has-text("Installed"), '
+        '.AIARB-tabs-tab:has-text("已安装")'
     )
     TAB_OFFICIAL = (
-        '.qwenpaw-tabs-tab:has-text("Official"), '
-        '.qwenpaw-tabs-tab:has-text("官方")'
+        '.AIARB-tabs-tab:has-text("Official"), '
+        '.AIARB-tabs-tab:has-text("官方")'
     )
     TAB_MARKET = (
-        '.qwenpaw-tabs-tab:has-text("Plugin Market"), '
-        '.qwenpaw-tabs-tab:has-text("插件市场")'
+        '.AIARB-tabs-tab:has-text("Plugin Market"), '
+        '.AIARB-tabs-tab:has-text("插件市场")'
     )
 
     # ----- Plugin Market compatibility (upstream #5661) -----
@@ -81,7 +81,7 @@ class PluginPage(BasePage):
     # gives every pane a STABLE id ``rc-tabs-<n>-panel-<key>`` (key comes
     # from the Tabs items, here "market"), while the ``-active`` class is
     # only swapped after a React commit (~90 ms in the probe). During
-    # that window ``.qwenpaw-tabs-tabpane-active`` still names the OLD
+    # that window ``.AIARB-tabs-tabpane-active`` still names the OLD
     # pane, so a locator resolved then pins the hidden Installed pane's
     # toggle and Playwright keeps retrying that same hidden handle for
     # the whole timeout (nightly 2026-10-15: "112 x element is not
@@ -106,9 +106,9 @@ class PluginPage(BasePage):
         '[id$="panel-market"] span[aria-label*="List view"], '
         '[id$="panel-market"] span[aria-label*="列表"]'
     )
-    # antd Tag with prefixCls=qwenpaw; text is "QwenPaw <labels>"
-    COMPAT_TAG_GREEN = '.qwenpaw-tag-green:has-text("QwenPaw")'
-    COMPAT_TAG_ORANGE = '.qwenpaw-tag-orange:has-text("QwenPaw")'
+    # antd Tag with prefixCls=AIARB; text is "AIARB <labels>"
+    COMPAT_TAG_GREEN = '.AIARB-tag-green:has-text("AIARB")'
+    COMPAT_TAG_ORANGE = '.AIARB-tag-orange:has-text("AIARB")'
     MARKET_INSTALL_BTN = (
         '[class*="catalogActions"] button:has-text("Install"), '
         '[class*="catalogActions"] button:has-text("安装"), '
@@ -116,14 +116,14 @@ class PluginPage(BasePage):
         '[class*="cardActions"] button:has-text("安装")'
     )
     # Modal.confirm for incompatible installs
-    COMPAT_MODAL = '.qwenpaw-modal-confirm'
+    COMPAT_MODAL = '.AIARB-modal-confirm'
     COMPAT_MODAL_TITLE = (
-        '.qwenpaw-modal-confirm-title:has-text("Compatibility Warning"), '
-        '.qwenpaw-modal-confirm-title:has-text("兼容性警告")'
+        '.AIARB-modal-confirm-title:has-text("Compatibility Warning"), '
+        '.AIARB-modal-confirm-title:has-text("兼容性警告")'
     )
     COMPAT_MODAL_OK = (
-        '.qwenpaw-modal-confirm-btns button:has-text("Install anyway"), '
-        '.qwenpaw-modal-confirm-btns button:has-text("仍然安装")'
+        '.AIARB-modal-confirm-btns button:has-text("Install anyway"), '
+        '.AIARB-modal-confirm-btns button:has-text("仍然安装")'
     )
 
     # Empty-state text inside the installed table
@@ -151,9 +151,9 @@ class PluginPage(BasePage):
             "      state: { selectedAgent: a, agents: [], lastChatIdByAgent: {} },"
             "      version: 0"
             "    });"
-            "    try { localStorage.setItem('qwenpaw-last-used-agent', a); } catch (e) {}"
-            "    try { localStorage.setItem('qwenpaw-agent-storage', blob); } catch (e) {}"
-            "    try { sessionStorage.setItem('qwenpaw-agent-storage', blob); } catch (e) {}"
+            "    try { localStorage.setItem('AIARB-last-used-agent', a); } catch (e) {}"
+            "    try { localStorage.setItem('AIARB-agent-storage', blob); } catch (e) {}"
+            "    try { sessionStorage.setItem('AIARB-agent-storage', blob); } catch (e) {}"
             "  } catch (e) {}"
             "})();"
         )

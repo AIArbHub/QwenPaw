@@ -38,7 +38,7 @@ export const useOsPlugins = create<PluginStore>()(
       installAll: () => set({ installed: OS_APPS.map((a) => a.routeId) }),
     }),
     {
-      name: "qwenpaw-os-installed",
+      name: "aiarb-os-installed",
       version: 1,
       migrate: (persisted) => {
         const prev = (persisted ?? {}) as Partial<PluginStore>;

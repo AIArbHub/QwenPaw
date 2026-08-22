@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
-import type { QwenPawDataHandoff, QwenPawDataSdk } from "./qwenpaw-host";
+﻿import { useEffect, useMemo, useState } from "react";
+import type { AIARBDataHandoff, AIARBDataSdk } from "./AIARB-host";
 import { EmbeddedDataConsole } from "./EmbeddedDataConsole";
 
-export function dataRouteFromHandoff(handoff: QwenPawDataHandoff): string {
+export function dataRouteFromHandoff(handoff: AIARBDataHandoff): string {
   const project = handoff.context.project_ref;
   if (
-    handoff.target_app_id !== "qwenpaw-data" ||
-    project.app_id !== "qwenpaw-data" ||
+    handoff.target_app_id !== "AIARB-data" ||
+    project.app_id !== "AIARB-data" ||
     project.kind !== "analysis-session"
   ) {
     throw new Error("unsupported_data_handoff");
@@ -23,9 +23,9 @@ export function dataRouteFromHandoff(handoff: QwenPawDataHandoff): string {
  * branding, language, model setup (Agent Configuration), channels, and
  * the DataBridge service configuration. The shell only mounts it.
  */
-export function App({ paw }: { paw?: QwenPawDataSdk } = {}) {
+export function App({ paw }: { paw?: AIARBDataSdk } = {}) {
   const sdk = useMemo(
-    () => paw ?? window.QwenPaw?.paw?.forApp("qwenpaw-data"),
+    () => paw ?? window.AIARB?.paw?.forApp("AIARB-data"),
     [paw],
   );
   const handoffId = new URLSearchParams(window.location.search).get("handoff");
@@ -55,14 +55,14 @@ export function App({ paw }: { paw?: QwenPawDataSdk } = {}) {
   }, [handoffId, sdk]);
 
   return (
-    <div className="qwenpaw-data-app">
-      <main className="qwenpaw-data-main">
+    <div className="AIARB-data-app">
+      <main className="AIARB-data-main">
         {route && <EmbeddedDataConsole route={route} active />}
         {!route && !error && (
-          <p className="qwenpaw-data-handoff">Opening analysis…</p>
+          <p className="AIARB-data-handoff">Opening analysis…</p>
         )}
         {error && (
-          <p className="qwenpaw-data-handoff" role="alert">
+          <p className="AIARB-data-handoff" role="alert">
             This analysis link is unavailable.
           </p>
         )}

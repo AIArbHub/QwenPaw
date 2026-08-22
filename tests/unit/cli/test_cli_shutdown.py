@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli.main import cli
-from qwenpaw.cli import shutdown_cmd as shutdown_cmd_module
-from qwenpaw.cli.shutdown_cmd import (
+from AIARB.cli.main import cli
+from AIARB.cli import shutdown_cmd as shutdown_cmd_module
+from AIARB.cli.shutdown_cmd import (
     _find_windows_wrapper_ancestor_pids,
     _signal_process_windows,
     _terminate_pid,
@@ -15,23 +15,23 @@ from qwenpaw.cli.shutdown_cmd import (
 
 def test_shutdown_command_stops_backend_and_frontend(monkeypatch) -> None:
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._listening_pids_for_port",
+        "AIARB.cli.shutdown_cmd._listening_pids_for_port",
         lambda _port: {1001},
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._find_frontend_dev_pids",
+        "AIARB.cli.shutdown_cmd._find_frontend_dev_pids",
         lambda: {2002},
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._find_desktop_wrapper_pids",
+        "AIARB.cli.shutdown_cmd._find_desktop_wrapper_pids",
         set,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._find_windows_wrapper_ancestor_pids",
+        "AIARB.cli.shutdown_cmd._find_windows_wrapper_ancestor_pids",
         lambda _pids: set(),
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._terminate_pid",
+        "AIARB.cli.shutdown_cmd._terminate_pid",
         lambda _pid: True,
     )
 
@@ -44,23 +44,23 @@ def test_shutdown_command_stops_backend_and_frontend(monkeypatch) -> None:
 
 def test_shutdown_command_reports_failure(monkeypatch) -> None:
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._listening_pids_for_port",
+        "AIARB.cli.shutdown_cmd._listening_pids_for_port",
         lambda _port: {1001},
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._find_frontend_dev_pids",
+        "AIARB.cli.shutdown_cmd._find_frontend_dev_pids",
         set,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._find_desktop_wrapper_pids",
+        "AIARB.cli.shutdown_cmd._find_desktop_wrapper_pids",
         set,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._find_windows_wrapper_ancestor_pids",
+        "AIARB.cli.shutdown_cmd._find_windows_wrapper_ancestor_pids",
         lambda _pids: set(),
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._terminate_pid",
+        "AIARB.cli.shutdown_cmd._terminate_pid",
         lambda _pid: False,
     )
 
@@ -72,26 +72,26 @@ def test_shutdown_command_reports_failure(monkeypatch) -> None:
 
 def test_shutdown_command_reports_nothing_found(monkeypatch) -> None:
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._listening_pids_for_port",
+        "AIARB.cli.shutdown_cmd._listening_pids_for_port",
         lambda _port: set(),
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._find_frontend_dev_pids",
+        "AIARB.cli.shutdown_cmd._find_frontend_dev_pids",
         set,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._find_desktop_wrapper_pids",
+        "AIARB.cli.shutdown_cmd._find_desktop_wrapper_pids",
         set,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._find_windows_wrapper_ancestor_pids",
+        "AIARB.cli.shutdown_cmd._find_windows_wrapper_ancestor_pids",
         lambda _pids: set(),
     )
 
     result = CliRunner().invoke(cli, ["shutdown"])
 
     assert result.exit_code != 0
-    assert "No running QwenPaw" in result.output
+    assert "No running AIARB" in result.output
 
 
 def test_shutdown_command_stops_windows_wrapper_ancestors(monkeypatch) -> None:
@@ -101,25 +101,25 @@ def test_shutdown_command_stops_windows_wrapper_ancestors(monkeypatch) -> None:
         termination_order.append(pid)
         return True
 
-    monkeypatch.setattr("qwenpaw.cli.shutdown_cmd.sys.platform", "win32")
+    monkeypatch.setattr("AIARB.cli.shutdown_cmd.sys.platform", "win32")
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._listening_pids_for_port",
+        "AIARB.cli.shutdown_cmd._listening_pids_for_port",
         lambda _port: {24692},
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._find_frontend_dev_pids",
+        "AIARB.cli.shutdown_cmd._find_frontend_dev_pids",
         set,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._find_desktop_wrapper_pids",
+        "AIARB.cli.shutdown_cmd._find_desktop_wrapper_pids",
         set,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._find_windows_wrapper_ancestor_pids",
+        "AIARB.cli.shutdown_cmd._find_windows_wrapper_ancestor_pids",
         lambda _pids: {1052},
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._terminate_pid",
+        "AIARB.cli.shutdown_cmd._terminate_pid",
         terminate_pid,
     )
 
@@ -135,21 +135,21 @@ def test_terminate_pid_force_kills_on_windows(monkeypatch) -> None:
     calls: list[tuple[int, bool]] = []
     waits = iter([False, True])
 
-    monkeypatch.setattr("qwenpaw.cli.shutdown_cmd.sys.platform", "win32")
+    monkeypatch.setattr("AIARB.cli.shutdown_cmd.sys.platform", "win32")
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._pid_exists",
+        "AIARB.cli.shutdown_cmd._pid_exists",
         lambda _pid: True,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._signal_process_windows",
+        "AIARB.cli.shutdown_cmd._signal_process_windows",
         lambda _pid: False,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._terminate_process_tree_windows",
+        "AIARB.cli.shutdown_cmd._terminate_process_tree_windows",
         lambda pid, force=False, **_kwargs: calls.append((pid, force)),
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._wait_for_pid_exit",
+        "AIARB.cli.shutdown_cmd._wait_for_pid_exit",
         lambda _pid, _timeout, _interval: next(waits),
     )
 
@@ -162,25 +162,25 @@ def test_terminate_pid_uses_windows_fallback(monkeypatch) -> None:
     waits = iter([False, False, True])
     fallback_calls: list[int] = []
 
-    monkeypatch.setattr("qwenpaw.cli.shutdown_cmd.sys.platform", "win32")
+    monkeypatch.setattr("AIARB.cli.shutdown_cmd.sys.platform", "win32")
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._pid_exists",
+        "AIARB.cli.shutdown_cmd._pid_exists",
         lambda _pid: True,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._signal_process_windows",
+        "AIARB.cli.shutdown_cmd._signal_process_windows",
         lambda _pid: False,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._terminate_process_tree_windows",
+        "AIARB.cli.shutdown_cmd._terminate_process_tree_windows",
         lambda pid, force=False, **_kwargs: calls.append((pid, force)),
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._force_terminate_windows_process",
+        "AIARB.cli.shutdown_cmd._force_terminate_windows_process",
         fallback_calls.append,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._wait_for_pid_exit",
+        "AIARB.cli.shutdown_cmd._wait_for_pid_exit",
         lambda _pid, _timeout, _interval: next(waits),
     )
 
@@ -197,21 +197,21 @@ def test_terminate_pid_requests_graceful_windows_shutdown(monkeypatch) -> None:
         signals.append(pid)
         return True
 
-    monkeypatch.setattr("qwenpaw.cli.shutdown_cmd.sys.platform", "win32")
+    monkeypatch.setattr("AIARB.cli.shutdown_cmd.sys.platform", "win32")
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._pid_exists",
+        "AIARB.cli.shutdown_cmd._pid_exists",
         lambda _pid: True,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._signal_process_windows",
+        "AIARB.cli.shutdown_cmd._signal_process_windows",
         signal_process,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._terminate_process_tree_windows",
+        "AIARB.cli.shutdown_cmd._terminate_process_tree_windows",
         lambda pid, force=False, **_kwargs: force_calls.append((pid, force)),
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._wait_for_pid_exit",
+        "AIARB.cli.shutdown_cmd._wait_for_pid_exit",
         lambda _pid, _timeout, _interval: True,
     )
 
@@ -267,10 +267,10 @@ def test_signal_process_windows_prefers_named_event(monkeypatch) -> None:
 
 
 def test_pid_exists_uses_windows_snapshot(monkeypatch) -> None:
-    monkeypatch.setattr("qwenpaw.cli.shutdown_cmd.sys.platform", "win32")
+    monkeypatch.setattr("AIARB.cli.shutdown_cmd.sys.platform", "win32")
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._windows_process_snapshot",
-        lambda: {29104: (1, "qwenpaw.exe", "qwenpaw app")},
+        "AIARB.cli.shutdown_cmd._windows_process_snapshot",
+        lambda: {29104: (1, "AIARB.exe", "AIARB app")},
     )
 
     assert (
@@ -288,12 +288,12 @@ def test_pid_exists_uses_windows_snapshot(monkeypatch) -> None:
 
 
 def test_find_windows_wrapper_ancestor_pids(monkeypatch) -> None:
-    monkeypatch.setattr("qwenpaw.cli.shutdown_cmd.sys.platform", "win32")
+    monkeypatch.setattr("AIARB.cli.shutdown_cmd.sys.platform", "win32")
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._windows_process_snapshot",
+        "AIARB.cli.shutdown_cmd._windows_process_snapshot",
         lambda: {
-            24692: (1052, "python.exe", "python -m uvicorn qwenpaw.app"),
-            1052: (900, "qwenpaw.exe", ""),
+            24692: (1052, "python.exe", "python -m uvicorn AIARB.app"),
+            1052: (900, "AIARB.exe", ""),
             900: (4, "powershell.exe", "powershell"),
         },
     )
@@ -310,17 +310,17 @@ def test_terminate_pid_force_kills_on_unix(monkeypatch) -> None:
         wait_calls.append((timeout, interval))
         return next(waits)
 
-    monkeypatch.setattr("qwenpaw.cli.shutdown_cmd.sys.platform", "darwin")
+    monkeypatch.setattr("AIARB.cli.shutdown_cmd.sys.platform", "darwin")
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._pid_exists",
+        "AIARB.cli.shutdown_cmd._pid_exists",
         lambda _pid: True,
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._signal_process_tree_unix",
+        "AIARB.cli.shutdown_cmd._signal_process_tree_unix",
         lambda pid, sig: calls.append((pid, sig)),
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.shutdown_cmd._wait_for_pid_exit",
+        "AIARB.cli.shutdown_cmd._wait_for_pid_exit",
         wait_for_exit,
     )
 

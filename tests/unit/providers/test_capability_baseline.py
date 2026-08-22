@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.providers import capability_baseline
-from qwenpaw.providers.capability_baseline import (
+from aiarb.providers import capability_baseline
+from aiarb.providers.capability_baseline import (
     ExpectedCapability,
     ExpectedCapabilityRegistry,
     compare_probe_result,

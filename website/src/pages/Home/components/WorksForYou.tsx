@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+﻿import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -40,12 +40,12 @@ const cards: CardConfig[] = [
   {
     key: "mail",
     icon: MailFeatureIcon,
-    href: "/blog/qwenpaw-mailbox",
+    href: "/blog/AIARB-mailbox",
   },
   {
     key: "data",
     icon: DataFeatureIcon,
-    href: "https://github.com/agentscope-ai/QwenPaw-Data",
+    href: "https://github.com/agentscope-ai/AIARB-Data",
     external: true,
   },
   {
@@ -204,11 +204,11 @@ export function WorksForYou() {
       initial={reduceMotion ? false : { opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      aria-labelledby="qwenpaw-works-heading"
+      aria-labelledby="AIARB-works-heading"
     >
       <div className="mx-auto max-w-7xl">
         <h2
-          id="qwenpaw-works-heading"
+          id="AIARB-works-heading"
           className="font-newsreader text-3xl leading-[1.2] font-semibold text-(--color-text) sm:text-[2rem] md:text-4xl"
         >
           {t("worksForYou.title")}
@@ -219,7 +219,7 @@ export function WorksForYou() {
 
         <div className="relative mt-8 py-8 md:mt-12 md:py-12">
           <div
-            className="pointer-events-none absolute left-1/2 top-0 h-px w-screen -translate-x-1/2 animate-[qwenpaw-dash-move-right_1s_linear_infinite]"
+            className="pointer-events-none absolute left-1/2 top-0 h-px w-screen -translate-x-1/2 animate-[AIARB-dash-move-right_1s_linear_infinite]"
             style={{
               background:
                 "repeating-linear-gradient(to right, rgba(255,157,77,0.45) 0 8px, transparent 8px 16px)",
@@ -273,7 +273,7 @@ export function WorksForYou() {
           </div>
 
           <div
-            className="pointer-events-none absolute bottom-0 left-1/2 h-px w-screen -translate-x-1/2 animate-[qwenpaw-dash-move-left_1s_linear_infinite]"
+            className="pointer-events-none absolute bottom-0 left-1/2 h-px w-screen -translate-x-1/2 animate-[AIARB-dash-move-left_1s_linear_infinite]"
             style={{
               background:
                 "repeating-linear-gradient(to right, rgba(255,157,77,0.45) 0 8px, transparent 8px 16px)",

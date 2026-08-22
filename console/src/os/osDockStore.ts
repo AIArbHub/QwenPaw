@@ -49,7 +49,7 @@ export const useOsDock = create<OsDockStore>()(
       reset: () => set({ pinned: [...DEFAULT_DOCK_APPS] }),
     }),
     {
-      name: "qwenpaw.os.dock",
+      name: "aiarb.os.dock",
       merge: (persisted, current) => {
         const stored = persisted as Partial<OsDockStore> | undefined;
         return {

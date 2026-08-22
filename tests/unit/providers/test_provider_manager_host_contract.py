@@ -13,13 +13,13 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-import qwenpaw.providers as providers_pkg
-from qwenpaw.providers.provider_manager import ProviderManager
-from qwenpaw.providers.provider_manager_discovery import (
+import aiarb.providers as providers_pkg
+from aiarb.providers.provider_manager import ProviderManager
+from aiarb.providers.provider_manager_discovery import (
     ProviderManagerDiscoveryMixin,
 )
-from qwenpaw.providers.provider_manager_host import ProviderManagerHost
-from qwenpaw.providers.provider_manager_persistence import (
+from aiarb.providers.provider_manager_host import ProviderManagerHost
+from aiarb.providers.provider_manager_persistence import (
     ProviderManagerPersistenceMixin,
 )
 

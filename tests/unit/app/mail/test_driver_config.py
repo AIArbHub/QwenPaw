@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import sys
@@ -6,15 +6,15 @@ import sys
 import pytest
 import yaml
 
-from qwenpaw.app.mail import driver_config
-from qwenpaw.config.config import AgentMailConfig, AgentMailCredential
+from AIARB.app.mail import driver_config
+from AIARB.config.config import AgentMailConfig, AgentMailCredential
 
 
 @pytest.mark.parametrize(
     ("backend_name", "cli_name"),
     [
-        ("qwenpaw-backend", "qwenpaw"),
-        ("qwenpaw-backend.exe", "qwenpaw.exe"),
+        ("AIARB-backend", "AIARB"),
+        ("AIARB-backend.exe", "AIARB.exe"),
     ],
 )
 def test_driver_card_uses_bundled_cli_when_frozen(
@@ -23,26 +23,26 @@ def test_driver_card_uses_bundled_cli_when_frozen(
     backend_name,
     cli_name,
 ):
-    monkeypatch.delenv("QWENPAWMAIL_PYTHON", raising=False)
+    monkeypatch.delenv("AIARBMAIL_PYTHON", raising=False)
     monkeypatch.setattr(sys, "frozen", True, raising=False)
     monkeypatch.setattr(sys, "executable", str(tmp_path / backend_name))
 
-    assert driver_config.generate_qwenpawmail_driver_card(tmp_path)
+    assert driver_config.generate_AIARBmail_driver_card(tmp_path)
 
-    card_path = tmp_path / "drivers" / "mcp" / "qwenpawmail.yaml"
+    card_path = tmp_path / "drivers" / "mcp" / "AIARBmail.yaml"
     card = yaml.safe_load(card_path.read_text(encoding="utf-8"))
     assert card["endpoint"]["command"] == str(tmp_path / cli_name)
     assert card["endpoint"]["args"] == ["--internal-mail-mcp"]
 
 
 def test_frozen_driver_card_preserves_python_override(monkeypatch):
-    monkeypatch.setenv("QWENPAWMAIL_PYTHON", "/custom/bin/python")
+    monkeypatch.setenv("AIARBMAIL_PYTHON", "/custom/bin/python")
     monkeypatch.setattr(sys, "frozen", True, raising=False)
 
-    command, args = driver_config.resolve_qwenpawmail_endpoint()
+    command, args = driver_config.resolve_AIARBmail_endpoint()
 
     assert command == "/custom/bin/python"
-    assert args == ["-m", "qwenpawmail_mcp"]
+    assert args == ["-m", "AIARBmail_mcp"]
 
 
 @pytest.mark.parametrize(
@@ -56,7 +56,7 @@ def test_frozen_driver_card_preserves_python_override(monkeypatch):
         ),
     ],
 )
-def test_build_qwenpawmail_env_login_address(name, domain, expected):
+def test_build_AIARBmail_env_login_address(name, domain, expected):
     """A name that is already a full address must not gain another domain."""
     mail = AgentMailConfig(
         is_new_account=False,
@@ -66,5 +66,5 @@ def test_build_qwenpawmail_env_login_address(name, domain, expected):
             auth_code="a" * 16,
         ),
     )
-    env = driver_config.build_qwenpawmail_env(mail)
-    assert env["QWENPAWMAIL_EMAIL"] == expected
+    env = driver_config.build_AIARBmail_env(mail)
+    assert env["AIARBMAIL_EMAIL"] == expected

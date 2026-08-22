@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import sys
 
 import pytest
 
-from qwenpaw.tauri import sidecar_logging as tauri_logging
+from AIARB.tauri import sidecar_logging as tauri_logging
 
 
 def _patch_stdio(monkeypatch):
@@ -41,7 +41,7 @@ def sidecar_env(monkeypatch, tmp_path):
     if tauri_logging._CRASH_FD is not None:
         os.close(tauri_logging._CRASH_FD)
         tauri_logging._CRASH_FD = None
-    for name in ("qwenpaw", "apscheduler"):
+    for name in ("AIARB", "apscheduler"):
         logger = logging.getLogger(name)
         for handler in list(logger.handlers):
             base = getattr(handler, "baseFilename", None)
@@ -80,7 +80,7 @@ def test_install_sidecar_logging_writes_startup_context_and_tees_output(
     sys.stderr.flush()
 
     content = log_path.read_text(encoding="utf-8")
-    assert "qwenpaw tauri sidecar" in content
+    assert "AIARB tauri sidecar" in content
     assert "stdout hello" in content
     assert "stderr hello" in content
     assert primary_stdout.getvalue().strip() == "stdout hello"
@@ -92,19 +92,19 @@ def test_install_sidecar_logging_writes_startup_context_and_tees_output(
     assert crash_fd == tauri_logging._CRASH_FD
     crash_path = log_path.with_name("desktop-crash.log")
     assert os.path.samestat(os.fstat(crash_fd), os.stat(crash_path))
-    assert "qwenpaw tauri sidecar" in crash_path.read_text(encoding="utf-8")
+    assert "AIARB tauri sidecar" in crash_path.read_text(encoding="utf-8")
 
 
 def test_sidecar_log_rotates_with_teed_output(monkeypatch, sidecar_env):
     log_path, _ = sidecar_env
     _patch_stdio(monkeypatch)
-    monkeypatch.setenv("QWENPAW_LOG_MAX_SIZE", "2KB")
-    monkeypatch.setenv("QWENPAW_LOG_MAX_BACKUPS", "2")
+    monkeypatch.setenv("AIARB_LOG_MAX_SIZE", "2KB")
+    monkeypatch.setenv("AIARB_LOG_MAX_BACKUPS", "2")
 
     tauri_logging.install_sidecar_logging(log_path)
     for i in range(200):
         print(f"filler line {i:04d} " + "x" * 40)
-        logging.getLogger("qwenpaw.tauri").info("record %d", i)
+        logging.getLogger("AIARB.tauri").info("record %d", i)
     print("after-rotation marker")
 
     backup = log_path.with_name("desktop.log.1")
@@ -130,7 +130,7 @@ def test_handler_stream_replaces_unencodable_text(monkeypatch, sidecar_env):
 def test_oversized_crash_log_rotates_at_startup(monkeypatch, sidecar_env):
     log_path, faulthandler_calls = sidecar_env
     _patch_stdio(monkeypatch)
-    monkeypatch.setenv("QWENPAW_LOG_MAX_SIZE", "1KB")
+    monkeypatch.setenv("AIARB_LOG_MAX_SIZE", "1KB")
     crash_path = log_path.with_name("desktop-crash.log")
     old_trace = "Fatal Python error: old trace\n" * 40
     crash_path.write_text(old_trace, encoding="utf-8")
@@ -141,7 +141,7 @@ def test_oversized_crash_log_rotates_at_startup(monkeypatch, sidecar_env):
     assert backup.read_text(encoding="utf-8") == old_trace
     content = crash_path.read_text(encoding="utf-8")
     assert "old trace" not in content
-    assert "qwenpaw tauri sidecar" in content
+    assert "AIARB tauri sidecar" in content
     # faulthandler must get the fresh file, not the rotated one.
     assert os.path.samestat(
         os.fstat(faulthandler_calls[0]["file"]),
@@ -153,13 +153,13 @@ _STARTUP_CRASH_SCRIPT = """
 import faulthandler, logging, sys
 from pathlib import Path
 import uvicorn
-from qwenpaw.tauri.sidecar_logging import install_sidecar_logging
+from AIARB.tauri.sidecar_logging import install_sidecar_logging
 
 install_sidecar_logging(Path(sys.argv[1]))
 # Same order as the desktop entry point: uvicorn.Config runs dictConfig,
 # which closes every logging handler created so far.
 uvicorn.Config(lambda scope, receive, send: None, log_level="info")
-logging.getLogger("qwenpaw.tauri").info("record after uvicorn config")
+logging.getLogger("AIARB.tauri").info("record after uvicorn config")
 print("stdout after uvicorn config", flush=True)
 faulthandler._sigsegv()
 """
@@ -167,7 +167,7 @@ faulthandler._sigsegv()
 
 def test_logs_survive_uvicorn_logging_config_until_native_crash(tmp_path):
     log_path = tmp_path / "desktop.log"
-    env = {**os.environ, "QWENPAW_WORKING_DIR": str(tmp_path / "home")}
+    env = {**os.environ, "AIARB_WORKING_DIR": str(tmp_path / "home")}
     src_dir = Path(tauri_logging.__file__).resolve().parents[2]
     env["PYTHONPATH"] = os.pathsep.join(
         filter(None, [str(src_dir), env.get("PYTHONPATH")]),

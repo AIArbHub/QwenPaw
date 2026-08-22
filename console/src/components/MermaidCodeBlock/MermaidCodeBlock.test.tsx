@@ -20,8 +20,8 @@ describe("MermaidCodeBlock", () => {
     mermaidMocks.render.mockClear();
   });
 
-  it("uses readable QwenPaw colors for light and dark themes", async () => {
-    localStorage.setItem("qwenpaw-theme", "light");
+  it("uses readable AIArb colors for light and dark themes", async () => {
+    localStorage.setItem("aiarb-theme", "light");
     const light = render(
       <ThemeProvider>
         <MermaidCodeBlock chart="graph TD; A-->B" />
@@ -40,7 +40,7 @@ describe("MermaidCodeBlock", () => {
     );
     light.unmount();
 
-    localStorage.setItem("qwenpaw-theme", "dark");
+    localStorage.setItem("aiarb-theme", "dark");
     render(
       <ThemeProvider>
         <MermaidCodeBlock chart="graph TD; A-->B" />

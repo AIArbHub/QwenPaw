@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Signed Twilio call admission and real ConversationRelay turn lifecycle."""
 import asyncio
 from contextlib import asynccontextmanager
@@ -11,7 +11,7 @@ from twilio.request_validator import RequestValidator
 from yarl import URL
 import pytest
 import pytest_asyncio
-from qwenpaw.channel_protocol.models import (
+from AIARB.channel_protocol.models import (
     InboundEvent,
     SendParams,
     ResponseFinishParams,
@@ -80,8 +80,8 @@ class Manager:
 
 def bridge_headers(original):
     return {
-        "X-Qwenpaw-Ingress-Token": BINDING["bridge_token"],
-        "X-Qwenpaw-Ingress-Original-URL": original,
+        "X-AIARB-Ingress-Token": BINDING["bridge_token"],
+        "X-AIARB-Ingress-Original-URL": original,
     }
 
 

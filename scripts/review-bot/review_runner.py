@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""QwenPaw AI Review Bot - Main runner script.
+"""AIArb AI Review Bot - Main runner script.
 
 This script runs inside GitHub Actions to:
 1. Read PR number and repo from environment variables
-2. Send a task prompt to the local QwenPaw instance
-3. QwenPaw autonomously fetches PR data via `gh` CLI
+2. Send a task prompt to the local AIArb instance
+3. AIArb autonomously fetches PR data via `gh` CLI
 4. Parse the response and output verdict + review text
 """
 import contextlib
@@ -30,15 +30,15 @@ import httpx
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # pylint: disable=wrong-import-position
 from prompts import build_review_prompt  # noqa: E402
-from qwenpaw.agents.tools.agent_management import (  # noqa: E402
+from aiarb.agents.tools.agent_management import (  # noqa: E402
     extract_agent_text_content,
     parse_agent_sse_line,
 )
 
 # pylint: enable=wrong-import-position
 
-QWENPAW_URL = os.environ.get("QWENPAW_URL", "http://localhost:8088")
-CHAT_ENDPOINT = f"{QWENPAW_URL}/api/console/chat"
+AIARB_URL = os.environ.get("AIARB_URL", "http://localhost:8088")
+CHAT_ENDPOINT = f"{AIARB_URL}/api/console/chat"
 MAX_RETRIES = 5
 TIMEOUT_SECONDS = 300
 
@@ -47,9 +47,9 @@ TIMEOUT_SECONDS = 300
 # internal blobless clone and embeds it in the prompt. The clone is an
 # implementation detail — it is NOT exposed to the model. Any failure
 # building the map degrades gracefully to the self-fetch prompt.
-QWENPAW_ENH_WORK_DIR = os.environ.get(
-    "QWENPAW_ENH_WORK_DIR",
-    os.path.join(os.path.expanduser("~"), ".qwenpaw-review-bot-cache"),
+AIARB_ENH_WORK_DIR = os.environ.get(
+    "AIARB_ENH_WORK_DIR",
+    os.path.join(os.path.expanduser("~"), ".aiarb-review-bot-cache"),
 )
 # MINIMUM lines of context around each hunk. The map starts here and
 # widens toward full-file context whenever the per-file budget allows.
@@ -79,7 +79,7 @@ MAP_BUILD_DEADLINE = int(os.environ.get("MAP_BUILD_DEADLINE", "300"))
 
 # A "degenerate" reply is non-empty text that is NOT a real review: the agent
 # hit its internal iteration cap and emitted a warning stub, or returned almost
-# nothing. These are treated as failures and retried (see call_qwenpaw).
+# nothing. These are treated as failures and retried (see call_aiarb).
 MIN_REVIEW_CHARS = 200
 # Stubs run 1-3 lines and the shortest complete 6-section report seen is
 # ~16, so this sits in the gap between them rather than at either edge.
@@ -93,7 +93,7 @@ def _is_degenerate_review(text: str) -> bool:
     the agent's iteration-limit phrasing, which discarded *valid* reviews
     that merely quoted it -- a review of a PR adding "maximum number of
     iterations" handling describes the phrase in its own prose. Since
-    call_qwenpaw retries on a degenerate reply, such a review was thrown
+    call_aiarb retries on a degenerate reply, such a review was thrown
     away up to MAX_RETRIES times and the job reported "Review Failed"
     while holding five usable reports. Size alone loses nothing: a real
     stub is one to three lines, so it fails both checks below anyway.
@@ -295,14 +295,14 @@ def prepare_repo(
 ) -> tuple[str, str, str]:
     """Clone/refresh the repo and resolve the diff range for the PR.
 
-    Clones are shared per repo under ``QWENPAW_ENH_WORK_DIR/repos`` and
+    Clones are shared per repo under ``AIARB_ENH_WORK_DIR/repos`` and
     guarded by a file lock, so parallel workers reviewing PRs from the
     *same* repo do not corrupt the clone. The lock is held only for the
     clone/fetch/resolve phase; the returned SHAs are immutable, so
     building the change map runs lock-free.
 
     Both endpoints are fetched into local refs under
-    ``refs/qwenpaw-review/`` rather than read back from ``FETCH_HEAD``.
+    ``refs/aiarb-review/`` rather than read back from ``FETCH_HEAD``.
     That keeps the commits *reachable*: with a bare ``FETCH_HEAD`` fetch
     the objects belong to no ref, so a concurrent worker's fetch could
     trigger an auto-gc that prunes them mid-review. The refs are named
@@ -312,13 +312,13 @@ def prepare_repo(
     merge-base of the base branch and PR head (matching ``gh pr diff``)
     and ``to_sha`` is the PR head commit.
     """
-    repos_root = os.path.join(QWENPAW_ENH_WORK_DIR, "repos")
+    repos_root = os.path.join(AIARB_ENH_WORK_DIR, "repos")
     os.makedirs(repos_root, exist_ok=True)
     slug = repo.replace("/", "__")
     repo_dir = os.path.join(repos_root, slug)
     clone_url = f"https://github.com/{repo}.git"
-    base_local = f"refs/qwenpaw-review/base/{pr_number}"
-    head_local = f"refs/qwenpaw-review/head/{pr_number}"
+    base_local = f"refs/aiarb-review/base/{pr_number}"
+    head_local = f"refs/aiarb-review/head/{pr_number}"
 
     with _repo_lock(os.path.join(repos_root, f".{slug}.lock")):
         if not os.path.isdir(os.path.join(repo_dir, ".git")):
@@ -741,8 +741,8 @@ def _collect_sse(resp) -> tuple[dict | None, list]:
     return final_event, stream_errors
 
 
-def call_qwenpaw(prompt: str, session_id: str) -> str:
-    """Send prompt to QwenPaw console chat API and collect SSE response.
+def call_aiarb(prompt: str, session_id: str) -> str:
+    """Send prompt to AIArb console chat API and collect SSE response.
 
     Retries on HTTP errors, empty replies, AND degenerate replies (the agent's
     iteration-limit stub / too-short output). Each attempt uses a FRESH session --
@@ -758,7 +758,7 @@ def call_qwenpaw(prompt: str, session_id: str) -> str:
     for attempt in range(1, MAX_RETRIES + 1):
         payload = {**base_payload, "session_id": f"{session_id}-try{attempt}"}
         try:
-            print(f"[attempt {attempt}/{MAX_RETRIES}] Calling QwenPaw...")
+            print(f"[attempt {attempt}/{MAX_RETRIES}] Calling AIArb...")
             final_event = None
             stream_errors = []
 
@@ -1066,7 +1066,7 @@ def resolve_change_map(pr_number: int, repo: str) -> tuple[str, str, str]:
         # The prompt travels as a JSON body that httpx encodes as UTF-8.
         # Verifying that here means a stray surrogate costs us only the
         # map (this except clause) instead of raising deep inside
-        # call_qwenpaw's request, which catches only timeout/connect
+        # call_aiarb's request, which catches only timeout/connect
         # errors. _safe_display already sanitises paths; this is the
         # backstop for any future source of undecodable text.
         change_map.encode("utf-8")
@@ -1095,7 +1095,7 @@ def resolve_change_map(pr_number: int, repo: str) -> tuple[str, str, str]:
 
 def main():
     print("=" * 60)
-    print("QwenPaw AI Review Bot")
+    print("AIArb AI Review Bot")
     print("=" * 60)
 
     pr_number = os.environ.get("PR_NUMBER")
@@ -1124,12 +1124,12 @@ def main():
 
     session_id = f"pr-review-{pr_number}-{int(time.time())}"
     print(f"Session: {session_id}")
-    print("Sending task to QwenPaw (agent will fetch PR data via gh)...")
+    print("Sending task to AIArb (agent will fetch PR data via gh)...")
 
-    response = call_qwenpaw(prompt, session_id)
+    response = call_aiarb(prompt, session_id)
 
     if not response.strip():
-        print("\n❌ ERROR: Got empty response from QwenPaw")
+        print("\n❌ ERROR: Got empty response from AIArb")
         sys.exit(1)
 
     warnings = validate_response(response, pr_number)

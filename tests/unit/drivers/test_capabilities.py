@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.drivers.capabilities import (
+from aiarb.drivers.capabilities import (
     CapabilityExposure,
     DriverCapability,
     DriverInvocation,

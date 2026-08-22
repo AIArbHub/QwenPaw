@@ -1,4 +1,4 @@
-// ─── MainLayout ───────────────────────────────────────────────────────────────
+﻿// ─── MainLayout ───────────────────────────────────────────────────────────────
 .mainLayout {
   height: 100vh;
   min-height: 100vh;
@@ -54,7 +54,7 @@
   color: var(--app-text);
 
   :global {
-    .qwenpaw-space-item {
+    .AIARB-space-item {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -144,7 +144,7 @@
     padding: 4px;
 
     :global {
-      .qwenpaw-menu {
+      .AIARB-menu {
         background: transparent !important;
       }
     }
@@ -169,7 +169,7 @@
     // agentScopedSection / sessionArea / collapseToggleContainer become flex
     // items and only the session area scrolls.
     :global {
-      .qwenpaw-layout-sider-children {
+      .AIARB-layout-sider-children {
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -184,7 +184,7 @@
     flex-direction: column;
     padding: 0 8px;
 
-    :global(.qwenpaw-layout-sider-children) {
+    :global(.AIARB-layout-sider-children) {
       height: 100%;
       min-height: 0;
       display: flex;
@@ -209,8 +209,8 @@
 
     :global {
       /* Center icon in collapsed menu items */
-      .qwenpaw-menu-item,
-      .qwenpaw-menu-submenu .qwenpaw-menu-item {
+      .AIARB-menu-item,
+      .AIARB-menu-submenu .AIARB-menu-item {
         padding-left: 0 !important;
         padding-right: 0 !important;
         display: flex !important;
@@ -220,32 +220,32 @@
       }
 
       /* Ensure icon container allows badge overflow */
-      .qwenpaw-menu-item-icon,
-      .qwenpaw-menu-item :is(.anticon, .lucide) {
+      .AIARB-menu-item-icon,
+      .AIARB-menu-item :is(.anticon, .lucide) {
         overflow: visible !important;
       }
 
       /* Hide label text in collapsed mode */
-      .qwenpaw-menu-title-content,
-      .qwenpaw-menu-item > span:not([role]):not(.qwenpaw-badge),
-      .qwenpaw-menu-item-only-child > span:not(.qwenpaw-badge) {
+      .AIARB-menu-title-content,
+      .AIARB-menu-item > span:not([role]):not(.AIARB-badge),
+      .AIARB-menu-item-only-child > span:not(.AIARB-badge) {
         display: none !important;
       }
 
       /* Hide group labels */
-      .qwenpaw-menu-submenu-title {
+      .AIARB-menu-submenu-title {
         display: none !important;
       }
     }
   }
 
   :global {
-    .qwenpaw-menu {
+    .AIARB-menu {
       border-inline-end: 0 !important;
     }
 
     /* Group title (一级菜单分组) */
-    .qwenpaw-menu-submenu-title {
+    .AIARB-menu-submenu-title {
       font-family: "PingFang SC", sans-serif !important;
       font-size: 12px !important;
       font-weight: 500 !important;
@@ -262,36 +262,36 @@
     }
 
     /* Hide submenu arrow */
-    .qwenpaw-menu-submenu-arrow {
+    .AIARB-menu-submenu-arrow {
       display: none !important;
     }
 
     /* Always expand submenus */
-    .qwenpaw-menu-submenu {
-      > .qwenpaw-menu {
+    .AIARB-menu-submenu {
+      > .AIARB-menu {
         display: block !important;
       }
     }
 
     /* Menu item padding - align all items */
-    .qwenpaw-menu-item {
+    .AIARB-menu-item {
       padding-left: 8px !important;
     }
 
     /* Remove submenu indent - align with parent */
-    .qwenpaw-menu-submenu .qwenpaw-menu-item {
+    .AIARB-menu-submenu .AIARB-menu-item {
       padding-left: 8px !important;
     }
 
     /* Selected item */
-    .qwenpaw-menu-item-selected {
+    .AIARB-menu-item-selected {
       background: var(--app-nav-selected-bg) !important;
       color: var(--app-nav-selected-text) !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
 
-      .qwenpaw-menu-title-content {
+      .AIARB-menu-title-content {
         display: flex !important;
         align-items: center !important;
       }
@@ -303,7 +303,7 @@
     }
 
     /* Selected submenu item - keep text color unchanged */
-    .qwenpaw-menu-submenu .qwenpaw-menu-item-selected {
+    .AIARB-menu-submenu .AIARB-menu-item-selected {
       color: var(--app-nav-selected-text) !important;
     }
   }
@@ -330,13 +330,13 @@
   }
 
   :global {
-    .qwenpaw-menu {
+    .AIARB-menu {
       background: var(--app-shell-bg) !important;
       border-inline-end: 0 !important;
     }
 
     /* Group title (sub-menu label) */
-    .qwenpaw-menu-submenu-title {
+    .AIARB-menu-submenu-title {
       color: rgba(255, 255, 255, 0.45) !important;
 
       /* No hover effect for group titles in dark mode */
@@ -347,18 +347,18 @@
     }
 
     /* Regular menu item */
-    .qwenpaw-menu-item {
+    .AIARB-menu-item {
       color: rgba(255, 255, 255, 0.75) !important;
     }
 
     /* Hover state - only for menu items, not group titles */
-    .qwenpaw-menu-item:hover {
+    .AIARB-menu-item:hover {
       background: rgba(255, 255, 255, 0.1) !important;
       color: rgba(255, 255, 255, 0.95) !important;
     }
 
     /* Selected item */
-    .qwenpaw-menu-item-selected {
+    .AIARB-menu-item-selected {
       background: color-mix(
         in srgb,
         var(--app-accent) 50%,
@@ -731,7 +731,7 @@
 
 .quickSettingsPopover {
   :global(.ant-popover-inner),
-  :global(.qwenpaw-popover-inner) {
+  :global(.AIARB-popover-inner) {
     padding: 0 !important;
     overflow: hidden;
     border: 0;
@@ -741,13 +741,13 @@
   }
 
   :global(.ant-popover-inner-content),
-  :global(.qwenpaw-popover-inner-content) {
+  :global(.AIARB-popover-inner-content) {
     overflow: hidden;
     border-radius: inherit;
   }
 
   :global(.ant-popover-arrow),
-  :global(.qwenpaw-popover-arrow) {
+  :global(.AIARB-popover-arrow) {
     display: none;
   }
 }
@@ -755,7 +755,7 @@
 .collapsedHistoryPopover,
 .collapsedAgentPopover {
   :global(.ant-popover-inner),
-  :global(.qwenpaw-popover-inner) {
+  :global(.AIARB-popover-inner) {
     padding: 0 !important;
     overflow: hidden;
     border: 1px solid rgba(26, 23, 22, 0.08);
@@ -765,7 +765,7 @@
   }
 
   :global(.ant-popover-inner-content),
-  :global(.qwenpaw-popover-inner-content) {
+  :global(.AIARB-popover-inner-content) {
     height: 100%;
   }
 }
@@ -1195,7 +1195,7 @@
 
 // ─── Update Modal ─────────────────────────────────────────────────────────────
 .updateModal {
-  :global(.qwenpaw-modal-content) {
+  :global(.AIARB-modal-content) {
     padding: 0 !important;
     border-radius: 12px !important;
     overflow: visible !important;
@@ -1203,26 +1203,26 @@
     border: none !important;
   }
 
-  :global(.qwenpaw-modal-body) {
+  :global(.AIARB-modal-body) {
     padding: 0 !important;
   }
 
-  :global(.qwenpaw-modal-footer) {
+  :global(.AIARB-modal-footer) {
     padding: 12px 24px;
     margin-top: 0;
   }
 
-  :global(.qwenpaw-modal-header) {
+  :global(.AIARB-modal-header) {
     display: none !important;
   }
 
-  :global(.qwenpaw-modal-close) {
+  :global(.AIARB-modal-close) {
     display: none !important;
   }
 }
 
 .updateModalBanner {
-  background: url("/public/qwenpawBack.png") no-repeat center top;
+  background: url("/public/AIARBBack.png") no-repeat center top;
   background-size: contain;
   padding: 48px 28px 0px;
   display: flex;
@@ -1345,7 +1345,7 @@
     color: rgba(255, 255, 255, 0.85);
 
     /* Text buttons (Docs / FAQ / GitHub / Changelog) */
-    :global(.qwenpaw-btn-text),
+    :global(.AIARB-btn-text),
     :global(.ant-btn-text) {
       color: rgba(255, 255, 255, 0.75) !important;
 
@@ -1374,7 +1374,7 @@
   .collapsedHistoryPopover,
   .collapsedAgentPopover {
     :global(.ant-popover-inner),
-    :global(.qwenpaw-popover-inner) {
+    :global(.AIARB-popover-inner) {
       border-color: rgba(255, 255, 255, 0.1);
       background: var(--app-surface) !important;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42);

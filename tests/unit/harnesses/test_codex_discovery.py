@@ -8,8 +8,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.harnesses.codex import discovery
-from qwenpaw.harnesses.codex.discovery import (
+from aiarb.harnesses.codex import discovery
+from aiarb.harnesses.codex.discovery import (
     default_install_candidates,
     resolve_codex_binary,
     resolve_codex_binary_info,
@@ -45,7 +45,7 @@ def test_resolves_explicit_binary(tmp_path: Path) -> None:
     assert resolve_codex_binary(str(binary), sdk_candidate=bundled) == binary
 
 
-def test_resolves_qwenpaw_environment_binary(
+def test_resolves_aiarb_environment_binary(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

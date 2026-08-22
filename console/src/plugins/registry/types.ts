@@ -1,5 +1,5 @@
-/**
- * registry/types.ts — public shapes for the QwenPaw plugin extension registries.
+﻿/**
+ * registry/types.ts — public shapes for the AIARB plugin extension registries.
  *
  * Three console-wide concepts:
  *   - Menu  → sidebar entries with location/parentId/before/after/order
@@ -18,7 +18,7 @@
  * Both surfaces share the single audit log in `./audit.ts`.
  */
 import type React from "react";
-import type { ChatCodeBlockProps } from "../types/qwenpaw";
+import type { ChatCodeBlockProps } from "../types/AIARB";
 
 export interface ChatCodeBlockItem {
   id: string;
@@ -42,7 +42,7 @@ export function combineDisposables(...d: Disposable[]): Disposable {
         try {
           it.dispose();
         } catch (err) {
-          console.warn("[QwenPaw] Disposable threw on dispose:", err);
+          console.warn("[AIARB] Disposable threw on dispose:", err);
         }
       }
     },
@@ -147,7 +147,7 @@ export interface RouteMeta {
   navigation: RouteNavigation;
 }
 
-/** A registered route entry (added via builtinRoutes or QwenPaw.route.add). */
+/** A registered route entry (added via builtinRoutes or AIARB.route.add). */
 export interface Route {
   /** Stable id, e.g. "core.chat" / "cloudpaw.a2a". */
   id: string;

@@ -11,8 +11,8 @@ from __future__ import annotations
 
 # pylint: disable=protected-access
 
-from qwenpaw.governance.policy import ToolCallSpec
-from qwenpaw.security.tool_guard.approval import (
+from aiarb.governance.policy import ToolCallSpec
+from aiarb.security.tool_guard.approval import (
     ApprovalDecision,
     ApprovalScope,
 )
@@ -92,7 +92,7 @@ async def _run_approval(
     source="No rule hit",
 ):
     """Drive ``_ask_user_approval`` with fakes; return (governor, pending)."""
-    from qwenpaw.governance import tool_adapter
+    from aiarb.governance import tool_adapter
 
     fake_svc = _FakeApprovalService(scope)
     monkeypatch.setattr(
@@ -104,7 +104,7 @@ async def _run_approval(
     # Avoid the real LLM generalization round-trip. ``_ask_user_approval``
     # imports this lazily from ``.generalize`` inside the function body, so
     # the patch must land on the generalize module, not tool_adapter.
-    import qwenpaw.governance.generalize as generalize_mod
+    import aiarb.governance.generalize as generalize_mod
 
     async def _fake_generalize(
         _tool_name,
@@ -125,7 +125,7 @@ async def _run_approval(
     governor = _FakeGovernor()
     # ``_ask_user_approval`` imports get_approval_service lazily from
     # ..app.approvals; patch that path too.
-    import qwenpaw.app.approvals as approvals_mod
+    import aiarb.app.approvals as approvals_mod
 
     monkeypatch.setattr(
         approvals_mod,

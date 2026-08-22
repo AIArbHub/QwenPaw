@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw cross-module end-to-end test cases.
+AIARB cross-module end-to-end test cases.
 
 Verify business linkages between multiple modules:
 - CROSS-001: Skill full chain (Skills -> Agents -> Chat)
@@ -31,7 +31,7 @@ BASE_URL = config.base_url
 # The Environments page was rewritten by #7538 ("unify runtime environment
 # management"): rows are no longer table rows / inline inputs but
 # `styles.row` divs grouped into three sections.  The old selector list
-# (`tr.qwenpaw-table-row`, `[class*=envRow]`, `.qwenpaw-form-item`) matches
+# (`tr.AIARB-table-row`, `[class*=envRow]`, `.AIARB-form-item`) matches
 # nothing on the new page, which would have made the before/after count
 # comparison below a vacuous `0 == 0`.
 #
@@ -73,7 +73,7 @@ def sum_environment_section_counts(page: Page) -> int:
     Comparing the two is a self-consistent invariant: it catches row-selector
     drift (rows would count 0 while the headings still sum to the catalogue
     size) without hard-coding the catalogue size, which upstream is free to
-    change — `src/qwenpaw/envs/registry.py` currently ships 17 `EnvVarSpec`
+    change — `src/AIARB/envs/registry.py` currently ships 17 `EnvVarSpec`
     entries (2 hot_runtime + 15 startup_only), but a future entry would make a
     literal `>= 17` assertion wrong in either direction.
     """
@@ -166,8 +166,8 @@ class TestSkillAgentChatFlow:
             add_btn.click()
             page.wait_for_timeout(600)
             create_item = page.locator(
-                '.qwenpaw-dropdown-menu-item:has-text("Create Skill"), '
-                '.qwenpaw-dropdown-menu-item:has-text("创建技能")'
+                '.AIARB-dropdown-menu-item:has-text("Create Skill"), '
+                '.AIARB-dropdown-menu-item:has-text("创建技能")'
             ).first
             expect(create_item).to_be_visible(timeout=5000)
             create_item.click()
@@ -225,7 +225,7 @@ When invoked, respond with: "Cross-module test skill executed successfully."
             # The settings redesign replaced the antd Table with a card
             # gallery (Settings/Agents renders <AgentGallery> inside
             # div[class*="grid"]; each agent is an <article class*="card">).
-            # ``.qwenpaw-table`` no longer exists on this page — the old
+            # ``.AIARB-table`` no longer exists on this page — the old
             # anchor made this case fail with "element(s) not found" while
             # the page itself was perfectly healthy (nightly 2026-10).
             # Reuse the page object's adapted anchors instead of
@@ -251,11 +251,11 @@ When invoked, respond with: "Cross-module test skill executed successfully."
 
             if editable_agent_found:
                 log_test_step("8. Verify the edit form has a Skills section")
-                modal = page.locator('.qwenpaw-modal, [role="dialog"]').first
+                modal = page.locator('.AIARB-modal, [role="dialog"]').first
                 expect(modal).to_be_visible(timeout=5000)
 
                 skills_section = modal.locator(
-                    '.qwenpaw-form-item:has-text("Skills"), '
+                    '.AIARB-form-item:has-text("Skills"), '
                     '[class*=skill]'
                 ).first
                 if skills_section.is_visible(timeout=3000):
@@ -266,7 +266,7 @@ When invoked, respond with: "Cross-module test skill executed successfully."
                 # Close the edit dialog
                 cancel_btn = modal.locator(
                     'button:has-text("Cancel"), '
-                    '.qwenpaw-modal-footer button.qwenpaw-btn-default'
+                    '.AIARB-modal-footer button.AIARB-btn-default'
                 ).first
                 if cancel_btn.is_visible(timeout=2000):
                     cancel_btn.click()
@@ -307,7 +307,7 @@ When invoked, respond with: "Cross-module test skill executed successfully."
                             delete_btn.click()
                             page.wait_for_timeout(500)
                             confirm_btn = page.locator(
-                                '.qwenpaw-popconfirm-buttons button.qwenpaw-btn-primary, '
+                                '.AIARB-popconfirm-buttons button.AIARB-btn-primary, '
                                 'button:has-text("OK")'
                             ).first
                             if confirm_btn.is_visible(timeout=2000):
@@ -465,8 +465,8 @@ class TestSecurityInterceptionInChat:
                 logger.info("Tool-guard tab switched")
 
             log_test_step("3. Record the tool-guard switch state")
-            tool_guard_panel = page.locator('.qwenpaw-tabs-tabpane-active').first
-            guard_switch = tool_guard_panel.locator('button.qwenpaw-switch[role="switch"]').first
+            tool_guard_panel = page.locator('.AIARB-tabs-tabpane-active').first
+            guard_switch = tool_guard_panel.locator('button.AIARB-switch[role="switch"]').first
             if guard_switch.is_visible(timeout=3000):
                 initial_guard_state = guard_switch.get_attribute('aria-checked')
                 logger.info(f"Tool-guard current state: {'enabled' if initial_guard_state == 'true' else 'disabled'}")
@@ -478,8 +478,8 @@ class TestSecurityInterceptionInChat:
             if file_guard_tab.is_visible(timeout=3000):
                 file_guard_tab.click()
                 page.wait_for_timeout(1000)
-                file_guard_panel = page.locator('.qwenpaw-tabs-tabpane-active').first
-                file_switch = file_guard_panel.locator('button.qwenpaw-switch[role="switch"]').first
+                file_guard_panel = page.locator('.AIARB-tabs-tabpane-active').first
+                file_switch = file_guard_panel.locator('button.AIARB-switch[role="switch"]').first
                 if file_switch.is_visible(timeout=3000):
                     file_guard_state = file_switch.get_attribute('aria-checked')
                     logger.info(f"File-guard current state: {'enabled' if file_guard_state == 'true' else 'disabled'}")
@@ -542,8 +542,8 @@ class TestSecurityInterceptionInChat:
                 tool_guard_tab.click()
                 page.wait_for_timeout(1000)
 
-            tool_guard_panel = page.locator('.qwenpaw-tabs-tabpane-active').first
-            guard_switch = tool_guard_panel.locator('button.qwenpaw-switch[role="switch"]').first
+            tool_guard_panel = page.locator('.AIARB-tabs-tabpane-active').first
+            guard_switch = tool_guard_panel.locator('button.AIARB-switch[role="switch"]').first
             if guard_switch.is_visible(timeout=3000):
                 current_state = guard_switch.get_attribute('aria-checked')
                 assert current_state == initial_guard_state, \
@@ -592,10 +592,10 @@ class TestWorkspaceFileChatFlow:
 
             log_test_step("2. Verify the file list loads")
             file_list = page.locator(
-                '.qwenpaw-table, '
+                '.AIARB-table, '
                 '[class*=fileList], '
                 '[class*=file-tree], '
-                '.qwenpaw-list'
+                '.AIARB-list'
             ).first
             if file_list.is_visible(timeout=5000):
                 logger.info("File list loaded")
@@ -617,7 +617,7 @@ class TestWorkspaceFileChatFlow:
                 # Try clicking the first file to open the editor
                 file_items = page.locator(
                     '[class*=fileName], '
-                    '.qwenpaw-table-row, '
+                    '.AIARB-table-row, '
                     '[class*=fileItem]'
                 ).all()
                 if file_items:
@@ -666,7 +666,7 @@ class TestWorkspaceFileChatFlow:
             logger.info(f"File Q&A reply: {file_text[:200]}")
 
             # Verify the reply is related to the file content
-            file_keywords = ["QwenPaw", "智能", "对话", "功能", "平台"]
+            file_keywords = ["AIARB", "智能", "对话", "功能", "平台"]
             keyword_found = any(kw in file_text for kw in file_keywords)
             if keyword_found:
                 logger.info("AI reply contains file-related keywords; file linkage verified")
@@ -709,7 +709,7 @@ class TestEnvAndRuntimeConfigFlow:
        anchor agrees with the sum of the three section-heading counts
     2. Agent config page (/agent-config) renders the LLM Retry and LLM Rate
        Limiter tabs — the persisted running-config counterparts of the
-       QWENPAW_LLM_* environment variables
+       AIARB_LLM_* environment variables
     3. Confirm the two pages do not interfere with each other: navigating
        away and back leaves the Environments catalogue unchanged
 
@@ -722,7 +722,7 @@ class TestEnvAndRuntimeConfigFlow:
     What this case deliberately does NOT assert: that changing an environment
     variable makes the agent config page show a new number.  #7538 does connect
     the two layers — `AgentsRunningConfig` defaults now come from
-    `EnvVarLoader.get_int("QWENPAW_LLM_MAX_RETRIES", ...)` — but that default
+    `EnvVarLoader.get_int("AIARB_LLM_MAX_RETRIES", ...)` — but that default
     is only consulted when an agent has no persisted running config
     (`running = agent_config.running or AgentsRunningConfig()`), so for any
     already-configured agent the page shows stored values and never follows
@@ -778,7 +778,7 @@ class TestEnvAndRuntimeConfigFlow:
         # Hard assertions on the tab keys declared in
         # console/src/pages/Agent/Config/index.tsx (key: "llmRetry" at line 165,
         # key: "llmRateLimiter" at line 178).  These are the runtime-config
-        # counterparts of the QWENPAW_LLM_* environment variables, which is the
+        # counterparts of the AIARB_LLM_* environment variables, which is the
         # actual boundary this cross-module case is about.  The same
         # data-node-key anchors are already proven green in
         # e2e/tests/test_runtime_config.py, so no new selector idiom is
@@ -790,7 +790,7 @@ class TestEnvAndRuntimeConfigFlow:
         # The two pages coexist as separate routes: #7538 unified how
         # environment variables are read (EnvVarLoader + envs/registry.py as the
         # single source of truth), it did not merge this page into Environments.
-        expect(page.locator('.qwenpaw-tabs').first).to_be_visible(timeout=5000)
+        expect(page.locator('.AIARB-tabs').first).to_be_visible(timeout=5000)
 
         log_test_step("5. Return to the environments page and verify data unchanged")
         wait_for_environments_loaded(page)

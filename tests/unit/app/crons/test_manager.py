@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access
 """Unit tests for CronManager.
 
@@ -19,9 +19,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from qwenpaw.app.crons.contracts import ServiceCronJob
-from qwenpaw.app.crons.manager import CronManager
-from qwenpaw.app.crons.models import (
+from AIARB.app.crons.contracts import ServiceCronJob
+from AIARB.app.crons.manager import CronManager
+from AIARB.app.crons.models import (
     CronJobSpec,
     CronJobState,
     ScheduleSpec,
@@ -43,7 +43,7 @@ def _no_real_inbox_writes(monkeypatch):
     the scheduler) would leak real data to disk.
     """
     monkeypatch.setattr(
-        "qwenpaw.app.crons.manager.append_inbox_event",
+        "AIARB.app.crons.manager.append_inbox_event",
         AsyncMock(),
     )
 
@@ -677,8 +677,8 @@ async def test_api_replace_preserves_omitted_share_session(
     incoming,
 ):
     """Legacy replacement JSON must not opt existing jobs out of sharing."""
-    from qwenpaw.app.crons.api import replace_job
-    from qwenpaw.app.crons.repo.json_repo import JsonJobRepository
+    from AIARB.app.crons.api import replace_job
+    from AIARB.app.crons.repo.json_repo import JsonJobRepository
 
     path = tmp_path / "jobs.json"
     repo = JsonJobRepository(path)
@@ -712,8 +712,8 @@ async def test_api_replace_preserves_omitted_share_session(
 
 @pytest.mark.asyncio
 async def test_api_create_defaults_to_unshared_session(tmp_path):
-    from qwenpaw.app.crons.api import create_job
-    from qwenpaw.app.crons.repo.json_repo import JsonJobRepository
+    from AIARB.app.crons.api import create_job
+    from AIARB.app.crons.repo.json_repo import JsonJobRepository
 
     repo = JsonJobRepository(tmp_path / "jobs.json")
     manager = CronManager(

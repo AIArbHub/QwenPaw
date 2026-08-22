@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Single-backend Native Messaging dumb pipe for QwenPaw."""
+"""Single-backend Native Messaging dumb pipe for AIArb."""
 
 from __future__ import annotations
 
@@ -46,11 +46,11 @@ except ImportError:
         close_code_catalog,
     )
 
-DEFAULT_CONFIG_PATH = Path.home() / ".qwenpaw" / "nm-bridge.json"
+DEFAULT_CONFIG_PATH = Path.home() / ".aiarb" / "nm-bridge.json"
 DEFAULT_CONNECT_RETRY_SECONDS = 120.0
 INITIAL_CONNECT_RETRY_DELAY_SECONDS = 0.5
 MAX_CONNECT_RETRY_DELAY_SECONDS = 5.0
-LOG_PATH = Path.home() / ".qwenpaw" / "logs" / "nm-host.log"
+LOG_PATH = Path.home() / ".aiarb" / "logs" / "nm-host.log"
 LOG_MAX_BYTES = 8 * 1024 * 1024
 _DRAIN_CHUNK_BYTES = 64 * 1024
 _ID_RE = re.compile(rb'"id"\s*:\s*("(?:[^"\\]|\\.)*"|-?\d+)')

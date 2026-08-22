@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """iLink Bot HTTP client for WeChat (WeChat personal account Bot API).
 
 All iLink API endpoints live under https://ilinkai.weixin.qq.com.
@@ -29,7 +29,7 @@ from .utils import (
     aes_ecb_encrypt,
     make_headers,
 )
-from qwenpaw.exceptions import ChannelError
+from AIARB.exceptions import ChannelError
 
 logger = logging.getLogger(__name__)
 

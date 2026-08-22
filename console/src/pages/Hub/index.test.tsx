@@ -431,7 +431,7 @@ describe("HubPage", () => {
           provisioner: "docker",
           metadata: {
             docker: {
-              image: "qwenpaw:latest",
+              image: "aiarb:latest",
               pull_policy: "if_not_present",
               boundary_mode: "token",
             },
@@ -538,7 +538,7 @@ describe("HubPage", () => {
             provisioner: "local",
             docker: {
               source: "docker_hub",
-              image: "docker.io/agentscope/qwenpaw:latest",
+              image: "docker.io/agentscope/aiarb:latest",
               pull_policy: "if_not_present",
               cpu_limit: 2,
               memory_limit_mb: 4096,
@@ -587,7 +587,7 @@ describe("HubPage", () => {
         official_images: [],
         local_images: [
           {
-            reference: "qwenpaw-hub-e2e:test",
+            reference: "aiarb-hub-e2e:test",
             image_id: "sha256:1234567890",
             short_id: "sha256:123456",
             digests: [],
@@ -621,7 +621,7 @@ describe("HubPage", () => {
             provisioner: "docker",
             docker: expect.objectContaining({
               source: "custom",
-              image: "qwenpaw-hub-e2e:test",
+              image: "aiarb-hub-e2e:test",
               pull_policy: "never",
             }),
           }),

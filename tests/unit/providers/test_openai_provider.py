@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 from __future__ import annotations
 
@@ -8,14 +8,14 @@ from unittest.mock import AsyncMock
 from agentscope.model import OpenAIChatModel
 import pytest
 
-import qwenpaw.providers.openai_provider as openai_provider_module
-from qwenpaw.providers.openai_provider import (
+import AIARB.providers.openai_provider as openai_provider_module
+from AIARB.providers.openai_provider import (
     KiloProvider,
     OpenCodeProvider,
     OpenAIProvider,
 )
-from qwenpaw.providers.provider import ModelInfo
-from qwenpaw.providers.thinking import ThinkingControl
+from AIARB.providers.provider import ModelInfo
+from AIARB.providers.thinking import ThinkingControl
 
 
 def _make_provider(is_custom: bool = False) -> OpenAIProvider:

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for the ACP agent advertising its slash commands.
 
 The ACP server sends an ``available_commands_update`` notification after a
@@ -15,12 +15,12 @@ import pytest
 
 from acp.schema import AllowedOutcome, RequestPermissionResponse
 
-from qwenpaw.agents.acp.meta import ACP_APPROVAL_EXPIRES_AT_META_KEY
-from qwenpaw.agents.acp.server import (
+from AIARB.agents.acp.meta import ACP_APPROVAL_EXPIRES_AT_META_KEY
+from AIARB.agents.acp.server import (
     _EnvelopeTracker,
     ACP_AGENT_META_KEY,
     ACP_ERROR_META_KEY,
-    QwenPawACPAgent,
+    AIARBACPAgent,
 )
 
 
@@ -118,7 +118,7 @@ async def _drain(conn: _FakeConn, *, timeout: float = 5.0) -> None:
 
 
 def test_build_available_commands_set():
-    agent = object.__new__(QwenPawACPAgent)
+    agent = object.__new__(AIARBACPAgent)
     agent._workspace = None
     commands = agent._build_available_commands()
     names = {c.name for c in commands}
@@ -135,7 +135,7 @@ async def test_registered_help_text_command_is_executed_and_advertised():
     """
     from types import SimpleNamespace
 
-    from qwenpaw.runtime.slash_command_registry import (
+    from AIARB.runtime.slash_command_registry import (
         CommandSpec,
         SlashCommandRegistry,
     )
@@ -161,7 +161,7 @@ async def test_registered_help_text_command_is_executed_and_advertised():
     assert executed == ["hello"]
 
     # Auto-advertised through ACP without touching any advertise map.
-    agent = object.__new__(QwenPawACPAgent)
+    agent = object.__new__(AIARBACPAgent)
     agent._workspace = SimpleNamespace(
         plugins=SimpleNamespace(slash_command_registry=registry),
     )
@@ -171,7 +171,7 @@ async def test_registered_help_text_command_is_executed_and_advertised():
 
 
 async def test_new_session_advertises_commands():
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIARBACPAgent(agent_id="default")
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -194,7 +194,7 @@ async def test_new_session_advertises_commands():
 
 
 async def test_load_session_advertises_commands():
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIARBACPAgent(agent_id="default")
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -211,7 +211,7 @@ async def test_load_session_advertises_commands():
 
 
 async def test_new_session_reports_agent_id_in_meta():
-    agent = QwenPawACPAgent(agent_id="my-agent")
+    agent = AIARBACPAgent(agent_id="my-agent")
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -229,7 +229,7 @@ async def test_prompt_passes_resolved_agent_id_to_runtime(monkeypatch):
             if self.request is None:
                 yield None
 
-    agent = QwenPawACPAgent(agent_id="my-agent")
+    agent = AIARBACPAgent(agent_id="my-agent")
     conn = _FakeConn()
     workspace = _FakeWorkspace()
     agent.on_connect(conn)
@@ -248,9 +248,9 @@ async def test_prompt_passes_resolved_agent_id_to_runtime(monkeypatch):
 
 
 async def test_report_prompt_error_is_sent_to_client():
-    from qwenpaw.exceptions import AppBaseException
+    from AIARB.exceptions import AppBaseException
 
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIARBACPAgent(agent_id="default")
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -270,7 +270,7 @@ async def test_report_prompt_error_is_sent_to_client():
 
 
 async def test_report_prompt_error_hides_unexpected_exception_details():
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIARBACPAgent(agent_id="default")
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -283,14 +283,14 @@ async def test_report_prompt_error_hides_unexpected_exception_details():
     assert "invalid api key" not in update.content.text
     assert "secret-token" not in update.content.text
     assert update.content.text == (
-        "Error: QwenPaw failed to process the request. "
+        "Error: AIARB failed to process the request. "
         "Check server logs for details."
     )
     assert update.field_meta == {ACP_ERROR_META_KEY: True}
 
 
 async def test_report_prompt_error_shows_details_for_local_diagnostics():
-    agent = QwenPawACPAgent(agent_id="default", local_diagnostics=True)
+    agent = AIARBACPAgent(agent_id="default", local_diagnostics=True)
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -305,12 +305,12 @@ async def test_report_prompt_error_shows_details_for_local_diagnostics():
 
 
 async def test_approval_bridge_resolves_pending_approval(monkeypatch):
-    from qwenpaw.app.approvals.service import ApprovalService
-    from qwenpaw.security.tool_guard.approval import (
+    from AIARB.app.approvals.service import ApprovalService
+    from AIARB.security.tool_guard.approval import (
         ApprovalDecision,
         ApprovalScope,
     )
-    from qwenpaw.security.tool_guard.models import (
+    from AIARB.security.tool_guard.models import (
         GuardFinding,
         GuardSeverity,
         GuardThreatCategory,
@@ -319,11 +319,11 @@ async def test_approval_bridge_resolves_pending_approval(monkeypatch):
 
     approval_svc = ApprovalService()
     monkeypatch.setattr(
-        "qwenpaw.app.approvals.service._approval_service",
+        "AIARB.app.approvals.service._approval_service",
         approval_svc,
     )
 
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIARBACPAgent(agent_id="default")
     conn = _ApprovalConn()
     agent.on_connect(conn)
 
@@ -396,12 +396,12 @@ async def test_approval_bridge_resolves_pending_approval(monkeypatch):
 
 
 async def test_approval_bridge_resolves_pattern_scope(monkeypatch):
-    from qwenpaw.app.approvals.service import ApprovalService
-    from qwenpaw.security.tool_guard.approval import (
+    from AIARB.app.approvals.service import ApprovalService
+    from AIARB.security.tool_guard.approval import (
         ApprovalDecision,
         ApprovalScope,
     )
-    from qwenpaw.security.tool_guard.models import (
+    from AIARB.security.tool_guard.models import (
         GuardFinding,
         GuardSeverity,
         GuardThreatCategory,
@@ -410,11 +410,11 @@ async def test_approval_bridge_resolves_pattern_scope(monkeypatch):
 
     approval_svc = ApprovalService()
     monkeypatch.setattr(
-        "qwenpaw.app.approvals.service._approval_service",
+        "AIARB.app.approvals.service._approval_service",
         approval_svc,
     )
 
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIARBACPAgent(agent_id="default")
     conn = _ApprovalConn(option_id="allow_always")
     agent.on_connect(conn)
 
@@ -487,9 +487,9 @@ async def test_approval_bridge_expires_when_pending_times_out(
     monkeypatch,
     cancel_bridge,
 ):
-    from qwenpaw.app.approvals.service import ApprovalService
-    from qwenpaw.security.tool_guard.approval import ApprovalDecision
-    from qwenpaw.security.tool_guard.models import (
+    from AIARB.app.approvals.service import ApprovalService
+    from AIARB.security.tool_guard.approval import ApprovalDecision
+    from AIARB.security.tool_guard.models import (
         GuardFinding,
         GuardSeverity,
         GuardThreatCategory,
@@ -498,11 +498,11 @@ async def test_approval_bridge_expires_when_pending_times_out(
 
     approval_svc = ApprovalService()
     monkeypatch.setattr(
-        "qwenpaw.app.approvals.service._approval_service",
+        "AIARB.app.approvals.service._approval_service",
         approval_svc,
     )
 
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIARBACPAgent(agent_id="default")
     conn = _HangingApprovalConn()
     agent.on_connect(conn)
 
@@ -569,9 +569,9 @@ async def test_approval_bridge_survives_wait_for_timeout(monkeypatch):
     The shared approval future resolves to TIMEOUT, so observers must finish
     normally and the per-turn approval polling loop must keep running.
     """
-    from qwenpaw.app.approvals.service import ApprovalService
-    from qwenpaw.security.tool_guard.approval import ApprovalDecision
-    from qwenpaw.security.tool_guard.models import (
+    from AIARB.app.approvals.service import ApprovalService
+    from AIARB.security.tool_guard.approval import ApprovalDecision
+    from AIARB.security.tool_guard.models import (
         GuardFinding,
         GuardSeverity,
         GuardThreatCategory,
@@ -580,11 +580,11 @@ async def test_approval_bridge_survives_wait_for_timeout(monkeypatch):
 
     approval_svc = ApprovalService()
     monkeypatch.setattr(
-        "qwenpaw.app.approvals.service._approval_service",
+        "AIARB.app.approvals.service._approval_service",
         approval_svc,
     )
 
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIARBACPAgent(agent_id="default")
     conn = _HangingApprovalConn()
     agent.on_connect(conn)
 
@@ -642,9 +642,9 @@ async def test_approval_bridge_survives_wait_for_timeout(monkeypatch):
 
 
 def test_acp_bootstrap_includes_runtime_slash_commands():
-    from qwenpaw.app.app_services import AppServiceManager
+    from AIARB.app.app_services import AppServiceManager
 
-    kwargs = QwenPawACPAgent._build_bootstrap_kwargs(AppServiceManager())
+    kwargs = AIARBACPAgent._build_bootstrap_kwargs(AppServiceManager())
     command_names = {
         spec.name for spec in kwargs.get("builtin_command_specs", [])
     }
@@ -656,7 +656,7 @@ def test_acp_bootstrap_includes_runtime_slash_commands():
 
 
 def _text_event(text: str, *, delta: bool, msg_id: str = "msg-1"):
-    from qwenpaw.schemas import TextContent
+    from AIARB.schemas import TextContent
 
     event = TextContent(text=text, delta=delta, index=0)
     event.object = "content"
@@ -686,7 +686,7 @@ def test_envelope_tracker_does_not_duplicate_streamed_final_text():
 
 
 def test_envelope_tracker_forwards_tool_arguments_as_raw_input():
-    from qwenpaw.schemas import (
+    from AIARB.schemas import (
         DataContent,
         FunctionCall,
         Message,
@@ -722,7 +722,7 @@ def test_envelope_tracker_forwards_tool_arguments_as_raw_input():
 
 
 def test_usage_meta_includes_model(monkeypatch):
-    from qwenpaw.token_usage.model_wrapper import TokenRecordingModelWrapper
+    from AIARB.token_usage.model_wrapper import TokenRecordingModelWrapper
 
     monkeypatch.setattr(
         TokenRecordingModelWrapper,
@@ -737,7 +737,7 @@ def test_usage_meta_includes_model(monkeypatch):
         ),
     )
 
-    assert QwenPawACPAgent._pop_session_usage("sess-usage") == {
+    assert AIARBACPAgent._pop_session_usage("sess-usage") == {
         "usage": {
             "inputTokens": 12,
             "outputTokens": 34,
@@ -753,7 +753,7 @@ def test_usage_meta_includes_model(monkeypatch):
 
 
 def test_usage_meta_includes_context_size(monkeypatch):
-    from qwenpaw.token_usage.model_wrapper import TokenRecordingModelWrapper
+    from AIARB.token_usage.model_wrapper import TokenRecordingModelWrapper
 
     monkeypatch.setattr(
         TokenRecordingModelWrapper,
@@ -773,7 +773,7 @@ def test_usage_meta_includes_context_size(monkeypatch):
     # The model context window and the compaction threshold flow through so the
     # TUI can render occupancy (inputTokens / contextSize) and mark the point
     # where context starts getting evicted.
-    meta = QwenPawACPAgent._pop_session_usage("sess-usage")
+    meta = AIARBACPAgent._pop_session_usage("sess-usage")
     assert meta["usage"]["inputTokens"] == 123_000
     assert meta["usage"]["contextSize"] == 1_000_000
     assert meta["usage"]["compactRatio"] == 0.8
@@ -788,7 +788,7 @@ def _usage_updates(conn):
 
 
 async def test_emit_usage_emits_usage_update_with_threshold(monkeypatch):
-    from qwenpaw.token_usage.model_wrapper import TokenRecordingModelWrapper
+    from AIARB.token_usage.model_wrapper import TokenRecordingModelWrapper
 
     monkeypatch.setattr(
         TokenRecordingModelWrapper,
@@ -804,7 +804,7 @@ async def test_emit_usage_emits_usage_update_with_threshold(monkeypatch):
             },
         ),
     )
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIARBACPAgent(agent_id="default")
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -821,7 +821,7 @@ async def test_emit_usage_clears_bar_when_window_unknown(monkeypatch):
     # used/size == 0 must STILL emit a usage_update so the TUI hides a stale
     # bar (e.g. after switching to a model with an unknown window) instead of
     # retaining the previous turn's values.
-    from qwenpaw.token_usage.model_wrapper import TokenRecordingModelWrapper
+    from AIARB.token_usage.model_wrapper import TokenRecordingModelWrapper
 
     monkeypatch.setattr(
         TokenRecordingModelWrapper,
@@ -836,7 +836,7 @@ async def test_emit_usage_clears_bar_when_window_unknown(monkeypatch):
             },
         ),
     )
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIARBACPAgent(agent_id="default")
     conn = _FakeConn()
     agent.on_connect(conn)
 

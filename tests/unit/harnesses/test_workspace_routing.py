@@ -12,7 +12,7 @@ from typing import Any
 
 import pytest
 
-from qwenpaw.app.workspace.workspace import Workspace
+from aiarb.app.workspace.workspace import Workspace
 
 
 class FakeHarnessRuntime:
@@ -35,7 +35,7 @@ async def test_selected_backend_routes_directly_to_harness(
         backend="codex",
     )
     monkeypatch.setattr(
-        "qwenpaw.app.workspace.workspace.load_agent_config",
+        "aiarb.app.workspace.workspace.load_agent_config",
         lambda _agent_id: config,
     )
     workspace = Workspace("agent-1", str(tmp_path / "workspace"))

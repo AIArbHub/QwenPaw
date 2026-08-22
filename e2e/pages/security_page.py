@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Security page object.
+AIARB Security page object.
 
 Wraps all interactions on the Security page and exposes business-level methods.
 """
@@ -27,7 +27,7 @@ class SecurityPage(BasePage):
     - Save configuration
     """
 
-    PAGE_TITLE = "QwenPaw Console"
+    PAGE_TITLE = "AIARB Console"
     PAGE_URL = f"{config.base_url}/security"
 
     # ========== Selector definitions ==========
@@ -40,16 +40,16 @@ class SecurityPage(BasePage):
     FILE_GUARD_TAB = '[role="tab"]:has-text("File Guard")'
 
     # Active panel
-    ACTIVE_PANEL = '.qwenpaw-tabs-tabpane-active'
+    ACTIVE_PANEL = '.AIARB-tabs-tabpane-active'
 
     # Guard switch
-    GUARD_SWITCH = 'button.qwenpaw-switch[role="switch"]'
+    GUARD_SWITCH = 'button.AIARB-switch[role="switch"]'
 
     # Save button
-    SAVE_BTN = 'button.qwenpaw-btn-primary:has-text("保存"), button:has-text("保 存")'
+    SAVE_BTN = 'button.AIARB-btn-primary:has-text("保存"), button:has-text("保 存")'
 
     # Protected tools select
-    PROTECTED_TOOLS_SELECT = '.qwenpaw-select'
+    PROTECTED_TOOLS_SELECT = '.AIARB-select'
 
     # File guard path input
     PATH_INPUT = 'input[placeholder*="文件或目录路径"]'
@@ -177,6 +177,6 @@ class SecurityPage(BasePage):
 
     def assert_config_saved(self) -> "SecurityPage":
         """Assert that the configuration was saved."""
-        error_msg = self.page.locator('.qwenpaw-message-error')
+        error_msg = self.page.locator('.AIARB-message-error')
         assert error_msg.count() == 0, "Error message appeared after save"
         return self

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.drivers.constants import CREDENTIAL_KIND_NONE
-from qwenpaw.drivers.contracts import (
+from aiarb.drivers.constants import CREDENTIAL_KIND_NONE
+from aiarb.drivers.contracts import (
     CredentialRef,
     DriverCard,
     coerce_card,
@@ -15,8 +15,8 @@ from qwenpaw.drivers.contracts import (
     validate_card,
     validate_card_name,
 )
-from qwenpaw.drivers.errors import DriverCardError
-from qwenpaw.drivers.policy_types import (
+from aiarb.drivers.errors import DriverCardError
+from aiarb.drivers.policy_types import (
     DriverPolicy,
     PolicyPrincipal,
     PolicyRule,

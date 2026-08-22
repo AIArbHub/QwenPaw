@@ -8,9 +8,9 @@ from types import SimpleNamespace
 
 import pytest
 
-import qwenpaw.providers.provider_manager as provider_manager_module
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.provider_manager import (
+import aiarb.providers.provider_manager as provider_manager_module
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.provider_manager import (
     PROVIDER_SILICONFLOW_CN,
     PROVIDER_SILICONFLOW_INTL,
     ProviderManager,
@@ -50,7 +50,7 @@ def test_siliconflow_models_list() -> None:
 
 @pytest.fixture
 def isolated_secret_dir(monkeypatch, tmp_path):
-    secret_dir = tmp_path / ".qwenpaw.secret"
+    secret_dir = tmp_path / ".aiarb.secret"
     monkeypatch.setattr(provider_manager_module, "SECRET_DIR", secret_dir)
     return secret_dir
 

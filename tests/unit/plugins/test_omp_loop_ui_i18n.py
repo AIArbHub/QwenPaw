@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """OMP loop UI i18n catalog and CommandSpec metadata wiring."""
 
 from __future__ import annotations
@@ -55,7 +55,7 @@ def test_loop_command_metadata_exposes_i18n_maps():
 
 
 def test_as_str_dict_and_catalog_fields():
-    from qwenpaw.modes.catalog import LoopModeInfo, _as_str_dict
+    from AIARB.modes.catalog import LoopModeInfo, _as_str_dict
 
     assert _as_str_dict({"en": "Hi", "zh-CN": "你好"}) == {
         "en": "Hi",

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=arguments-renamed
 """DingTalk Stream callback handler: message -> native dict -> reply."""
 
@@ -10,11 +10,11 @@ from typing import Any, Callable, Dict, List, Optional
 
 import dingtalk_stream
 from dingtalk_stream import CallbackMessage, ChatbotMessage
-from qwenpaw.schemas import (
+from aiarb.schemas import (
     TextContent,
 )
 
-from qwenpaw.schemas import ContentType
+from AIARB.schemas import ContentType
 
 from .content_utils import (
     conversation_id_from_chatbot_message,

@@ -1,4 +1,4 @@
-# Build QwenPaw with Tauri for Windows (PyInstaller backend)
+# Build AIArb with Tauri for Windows (PyInstaller backend)
 # Creates a self-contained desktop app with bundled Python backend
 #
 # Usage:
@@ -14,7 +14,7 @@ $DIST = if ($env:DIST) { $env:DIST } else { "dist" }
 if (-not [System.IO.Path]::IsPathRooted($DIST)) {
     $DIST = Join-Path $REPO_ROOT $DIST
 }
-$VERSION_FILE = "src\qwenpaw\__version__.py"
+$VERSION_FILE = "src\aiarb\__version__.py"
 
 function Invoke-NativeWithRetry {
     param(
@@ -56,7 +56,7 @@ if (Test-Path $VERSION_FILE) {
 }
 
 Write-Host "=========================================" -ForegroundColor Cyan
-Write-Host "QwenPaw Tauri Build - Windows (PyInstaller)" -ForegroundColor Cyan
+Write-Host "AIArb Tauri Build - Windows (PyInstaller)" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host "Version: $VERSION"
 Write-Host ""

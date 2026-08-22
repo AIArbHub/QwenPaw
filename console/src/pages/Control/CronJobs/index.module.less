@@ -1,15 +1,15 @@
-@import (reference) "../../../styles/pageHeader.less";
+﻿@import (reference) "../../../styles/pageHeader.less";
 
 .cronJobsPage {
   min-width: 0;
   color: var(--app-text);
   :global {
-    .qwenpaw-spark-card-wrapper {
+    .AIARB-spark-card-wrapper {
       padding: 0 !important;
     }
-    .qwenpaw-table-wrapper
-      .qwenpaw-table-container
-      .qwenpaw-table-thead
+    .AIARB-table-wrapper
+      .AIARB-table-container
+      .AIARB-table-thead
       > tr
       > th {
       background: var(--app-surface-sunken) !important;
@@ -696,14 +696,14 @@
 
 @media (max-width: 768px) {
   .cronJobsPage :global(.ant-btn),
-  .cronJobsPage :global(.qwenpaw-btn),
+  .cronJobsPage :global(.AIARB-btn),
   .viewToggleBtn,
   .mobileJobName {
     min-height: var(--app-hit-touch);
   }
 
   .cronJobsPage :global(.ant-btn-icon-only),
-  .cronJobsPage :global(.qwenpaw-btn-icon-only),
+  .cronJobsPage :global(.AIARB-btn-icon-only),
   .viewToggleBtn,
   .mobileMoreBtn {
     min-width: var(--app-hit-touch);
@@ -763,30 +763,30 @@
 
 .jobEditor {
   :global(.ant-segmented),
-  :global(.qwenpaw-segmented) {
+  :global(.AIARB-segmented) {
     border-radius: 14px;
   }
   :global(.ant-tabs-nav),
-  :global(.qwenpaw-tabs-nav) {
+  :global(.AIARB-tabs-nav) {
     margin-bottom: 24px;
   }
   :global(.ant-form-item),
-  :global(.qwenpaw-form-item) {
+  :global(.AIARB-form-item) {
     margin-bottom: 20px;
   }
   :global(.ant-form-item:has(button[role="switch"])),
-  :global(.qwenpaw-form-item:has(button[role="switch"])) {
+  :global(.AIARB-form-item:has(button[role="switch"])) {
     > div {
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
     :global(.ant-form-item-label),
-    :global(.qwenpaw-form-item-label) {
+    :global(.AIARB-form-item-label) {
       padding: 0;
     }
     :global(.ant-form-item-control),
-    :global(.qwenpaw-form-item-control) {
+    :global(.AIARB-form-item-control) {
       flex: 0 0 auto;
     }
   }
@@ -822,7 +822,7 @@
 
 .jobEditor {
   :global(
-      .qwenpaw-form-item:has(button[role="switch"]) > .qwenpaw-form-item-row
+      .AIARB-form-item:has(button[role="switch"]) > .AIARB-form-item-row
     ),
   :global(.ant-form-item:has(button[role="switch"]) > .ant-form-item-row) {
     flex-flow: row nowrap !important;
@@ -837,8 +837,8 @@
       width: auto;
     }
   }
-  :global(.qwenpaw-form-item-required-mark),
-  :global(.qwenpaw-form-item-required::before) {
+  :global(.AIARB-form-item-required-mark),
+  :global(.AIARB-form-item-required::before) {
     display: none !important;
   }
 }
@@ -906,7 +906,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   :global(.ant-radio-button-wrapper),
-  :global(.qwenpaw-radio-button-wrapper) {
+  :global(.AIARB-radio-button-wrapper) {
     display: flex;
     align-items: center;
     justify-content: center;

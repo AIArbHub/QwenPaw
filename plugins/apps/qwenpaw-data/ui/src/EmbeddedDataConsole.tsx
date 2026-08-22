@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 
 /**
  * Same-origin static build of the engine console (the Data-Cloud host-core
@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
  * it — chat runs keep streaming while other pages are visible.
  */
 const CONSOLE_INDEX =
-  "/api/frontend_plugin/qwenpaw-data/files/ui/dist/data-console/index.html";
+  "/api/frontend_plugin/AIARB-data/files/ui/dist/data-console/index.html";
 
 type Availability = "checking" | "ready" | "missing";
 
@@ -53,21 +53,21 @@ export function EmbeddedDataConsole({
 
   if (availability === "missing") {
     return (
-      <div className="qwenpaw-data-embedded-console__empty">
+      <div className="AIARB-data-embedded-console__empty">
         <b>Analysis console installation is incomplete</b>
         <p>
           The embedded Data console is missing from this app package. Reinstall
-          QwenPaw-Data or ask the package maintainer for a complete build.
+          AIARB-Data or ask the package maintainer for a complete build.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="qwenpaw-data-embedded-console">
+    <div className="AIARB-data-embedded-console">
       {availability === "checking" || !loaded ? (
         <div
-          className="qwenpaw-data-embedded-console__loading"
+          className="AIARB-data-embedded-console__loading"
           aria-hidden={active ? undefined : true}
         >
           Loading console…
@@ -77,7 +77,7 @@ export function EmbeddedDataConsole({
         <iframe
           ref={iframeRef}
           src={`${CONSOLE_INDEX}#${initialRouteRef.current}`}
-          title="QwenPaw-Data analysis console"
+          title="AIARB-Data analysis console"
           onLoad={() => setLoaded(true)}
         />
       ) : null}

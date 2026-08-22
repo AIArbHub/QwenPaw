@@ -1,5 +1,9 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Matrix SDK algorithms, owned exclusively by one shared worker instance."""
+"""
+MatrixChannel: AIArb BaseChannel implementation for Matrix (via matrix-nio).
+
+"""
 
 from __future__ import annotations
 
@@ -57,7 +61,7 @@ from nio.responses import (
     WhoamiResponse,
 )
 
-from qwenpaw.schemas import (
+from aiarb.schemas import (
     AudioContent,
     ContentType,
     FileContent,
@@ -66,7 +70,13 @@ from qwenpaw.schemas import (
     VideoContent,
 )
 
-logger = logging.getLogger("qwenpaw.plugins.matrix")
+logger = logging.getLogger("AIARB.plugins.matrix")
+from ....app.channels.renderer import ChannelDisplayConfig
+from ....app.channels.base import BaseChannel
+from ....app.channels.utils import file_url_to_local_path
+from ....constant import WORKING_DIR
+
+logger = logging.getLogger("aiarb.channels.matrix")
 
 
 CHANNEL_KEY = "matrix"
@@ -97,7 +107,7 @@ _NON_RETRYABLE_AUTH_CODES = frozenset(
 _LOGIN_RETRY_INITIAL_DELAY = 5.0
 _LOGIN_RETRY_MAX_DELAY = 60.0
 
-# Known QwenPaw slash commands — used to decide whether to strip
+# Known AIArb slash commands — used to decide whether to strip
 # @mention prefix
 _SLASH_COMMANDS = frozenset(
     {
@@ -195,13 +205,15 @@ class HistoryEntry:
     media_parts: Optional[List[Any]] = None
 
 
-from qwenpaw.app.channels.utils import (  # noqa: E402
+from AIARB.app.channels.utils import (  # noqa: E402
     data_url_filename,
     parse_data_url_async,
 )  # noqa: E402
-from qwenpaw.utils.media_paths import local_media_path  # noqa: E402
+from AIARB.utils.media_paths import local_media_path  # noqa: E402
 from .errors import MatrixDeliveryError  # noqa: E402
 from .state import MatrixStateStore  # noqa: E402
+class MatrixChannel(BaseChannel):
+    """AIArb channel that connects to a Matrix homeserver via matrix-nio."""
 
 
 class MatrixPlatform:
@@ -212,7 +224,7 @@ class MatrixPlatform:
         self.matrix_user_id = config.get("user_id", "")
         self.access_token = config.get("access_token", "")
         self.password = config.get("password", "")
-        self.device_name = config.get("device_name", "qwenpaw-worker")
+        self.device_name = config.get("device_name", "AIARB-worker")
         self.device_id = config.get("device_id", "")  # legacy raw-only input
         self.encryption = config.get("encryption", False)
         self.enabled = config.get("enabled", True)
@@ -228,6 +240,45 @@ class MatrixPlatform:
         self.share_session_in_group = config.get(
             "share_session_in_group",
             True,
+    # Streaming constants — placeholder message + in-place edit
+    _STREAM_PLACEHOLDER = "..."
+    _STREAM_DELTA_MIN_INTERVAL_S: float = 1.0
+
+    def __init__(
+        self,
+        process: Callable,
+        homeserver: str = "",
+        matrix_user_id: str = "",
+        access_token: str = "",
+        password: str = "",
+        device_name: str = "aiarb-worker",
+        device_id: str = "",
+        encryption: bool = False,
+        dm_disabled: bool = False,
+        group_disabled: bool = False,
+        groups: Optional[Dict[str, Any]] = None,
+        vision_enabled: bool = False,
+        history_limit: int = DEFAULT_HISTORY_LIMIT,
+        sync_timeout_ms: int = 30000,
+        on_reply_sent: Optional[Callable] = None,
+        display_config: ChannelDisplayConfig | None = None,
+        no_text_debounce: bool = True,
+        streaming_enabled: bool = False,
+        workspace_dir: Path | None = None,
+        access_control_dm: bool = False,
+        access_control_group: bool = False,
+        enabled: bool = True,
+        share_session_in_group: bool = True,
+        **_kwargs: Any,
+    ) -> None:
+        super().__init__(
+            process=process,
+            on_reply_sent=on_reply_sent,
+            display_config=display_config,
+            no_text_debounce=no_text_debounce,
+            streaming_enabled=streaming_enabled,
+            access_control_dm=access_control_dm,
+            access_control_group=access_control_group,
         )
         self._workspace_dir = (
             Path(config["workspace_dir"]).expanduser().resolve()
@@ -338,6 +389,32 @@ class MatrixPlatform:
             await asyncio.gather(
                 *tuple(self._decoders),
                 return_exceptions=True,
+        return cls(
+            process=process,
+            homeserver=raw.get("homeserver", ""),
+            matrix_user_id=raw.get("user_id", ""),
+            access_token=raw.get("access_token", ""),
+            password=raw.get("password", ""),
+            device_name=raw.get("device_name", "aiarb-worker"),
+            device_id=raw.get("device_id", ""),
+            encryption=raw.get("encryption", False),
+            dm_disabled=raw.get("dm_disabled", False),
+            group_disabled=raw.get("group_disabled", False),
+            groups=raw.get("groups"),
+            vision_enabled=raw.get("vision_enabled", False),
+            history_limit=raw.get("history_limit", DEFAULT_HISTORY_LIMIT),
+            sync_timeout_ms=raw.get("sync_timeout_ms", 30000),
+            on_reply_sent=on_reply_sent,
+            display_config=display_config
+            or ChannelDisplayConfig.from_config(raw),
+            no_text_debounce=no_text_debounce,
+            streaming_enabled=raw.get("streaming_enabled", False),
+            workspace_dir=workspace_dir,
+            access_control_dm=bool(raw.get("access_control_dm", False)),
+            access_control_group=bool(raw.get("access_control_group", False)),
+            enabled=raw.get("enabled", True),
+            share_session_in_group=bool(
+                raw.get("share_session_in_group", True),
             ),
         )
         errors = [
@@ -2215,6 +2292,10 @@ class MatrixPlatform:
                     text,
                     command_text,
                 )
+
+        # Build content parts, prepending accumulated history for group rooms.
+        # Skip history prepend for slash commands — AIArb's command parser
+        # requires the message to start with "/" to recognise it.
         content_parts: list[Any] = [
             TextContent(type=ContentType.TEXT, text=command_text),
         ]
@@ -2382,6 +2463,189 @@ class MatrixPlatform:
                 exc,
             )
 
+    async def _send_typing(
+        self,
+        room_id: str,
+        typing: bool,
+        timeout: int = TYPING_SERVER_TIMEOUT_MS,
+    ) -> None:
+        """Set typing indicator on/off for a room.
+
+        When turning on, starts a background renewal task that re-sends the
+        typing indicator periodically (see ``TYPING_RENEWAL_INTERVAL_S``)
+        before the server timeout, up to ``TYPING_MAX_DURATION_S``.
+        When turning off, cancels the renewal task.
+        """
+        if not self._client:
+            return
+        # Cancel any existing renewal task for this room
+        existing = self._typing_tasks.pop(room_id, None)
+        if existing and not existing.done():
+            existing.cancel()
+        try:
+            await self._client.room_typing(
+                room_id,
+                typing_state=typing,
+                timeout=timeout,
+            )
+        except Exception as exc:
+            logger.debug(
+                "MatrixChannel: typing indicator failed for %s: %s",
+                room_id,
+                exc,
+            )
+        # Start renewal loop if turning on
+        if typing:
+            self._typing_tasks[room_id] = asyncio.create_task(
+                self._typing_renewal_loop(room_id, timeout),
+            )
+
+    async def _typing_renewal_loop(
+        self,
+        room_id: str,
+        timeout: int = TYPING_SERVER_TIMEOUT_MS,
+    ) -> None:
+        """Re-send typing=true until cap or cancellation."""
+        elapsed = 0
+        try:
+            while elapsed < TYPING_MAX_DURATION_S:
+                await asyncio.sleep(TYPING_RENEWAL_INTERVAL_S)
+                elapsed += TYPING_RENEWAL_INTERVAL_S
+                if not self._client:
+                    break
+                await self._client.room_typing(
+                    room_id,
+                    typing_state=True,
+                    timeout=timeout,
+                )
+        except asyncio.CancelledError:
+            logger.debug(
+                "MatrixChannel: typing renewal cancelled for %s",
+                room_id,
+            )
+            raise
+        except Exception as exc:
+            logger.debug(
+                "MatrixChannel: typing renewal failed for %s: %s",
+                room_id,
+                exc,
+            )
+        finally:
+            # If we hit the cap, explicitly stop typing
+            if elapsed >= TYPING_MAX_DURATION_S and self._client:
+                try:
+                    await self._client.room_typing(room_id, typing_state=False)
+                except Exception as exc:
+                    logger.debug(
+                        "MatrixChannel: typing stop after cap failed "
+                        "for %s: %s",
+                        room_id,
+                        exc,
+                    )
+            self._typing_tasks.pop(room_id, None)
+
+    # ------------------------------------------------------------------
+    # build_agent_request_from_native (BaseChannel protocol)
+    # native content_parts → AIArb Content; same
+    # vision_enabled guard as inbound media for image parts (§11).
+    # ------------------------------------------------------------------
+
+    # pylint: disable=too-many-return-statements
+    def _build_content_part(self, p: dict[str, Any]) -> Any:
+        """Convert a native content-part dict to a AIArb Content object."""
+        t = p.get("type")
+        if t == "text" and p.get("text"):
+            return TextContent(type=ContentType.TEXT, text=p["text"])
+        if t == "image" and p.get("image_url"):
+            if not self.vision_enabled:
+                # Downgrade silently; _on_room_media_event should have already
+                # converted this, but guard here for any code path that builds
+                # content_parts directly.
+                return TextContent(
+                    type=ContentType.TEXT,
+                    text=(
+                        "[Image omitted: current model does not support "
+                        "image input]"
+                    ),
+                )
+            return ImageContent(
+                type=ContentType.IMAGE,
+                image_url=p["image_url"],
+            )
+        if t == "file":
+            return FileContent(
+                type=ContentType.FILE,
+                file_url=p.get("file_url", ""),
+            )
+        if t == "audio" and p.get("data"):
+            return AudioContent(type=ContentType.AUDIO, data=p["data"])
+        if t == "video" and p.get("video_url"):
+            return VideoContent(
+                type=ContentType.VIDEO,
+                video_url=p["video_url"],
+            )
+        return None
+
+    def build_agent_request_from_native(self, native_payload: Any) -> Any:
+        parts = native_payload.get("content_parts", [])
+        meta = native_payload.get("meta", {})
+        sender_id = native_payload.get("sender_id", "")
+        room_id = meta.get("room_id", sender_id)
+        session_id = f"matrix:{room_id}"
+
+        # content_parts are already ContentType objects (from both
+        # _on_room_event and _on_room_media_event); filter out None.
+        content = [p for p in parts if p is not None]
+        if not content:
+            content = [TextContent(type=ContentType.TEXT, text="")]
+
+        req = self.build_agent_request_from_user_content(
+            channel_id=CHANNEL_KEY,
+            sender_id=(
+                sender_id
+                if meta.get("is_group") and not self.share_session_in_group
+                else room_id
+            ),
+            session_id=session_id,
+            content_parts=content,
+            channel_meta=meta,
+        )
+        req.channel_meta = meta  # type: ignore[attr-defined]
+        return req
+
+    def resolve_session_id(self, sender_id: str, channel_meta=None) -> str:
+        room_id = (channel_meta or {}).get("room_id", sender_id)
+        return f"matrix:{room_id}"
+
+    def to_handle_from_target(self, *, user_id: str, session_id: str) -> str:
+        """For Matrix, return room_id (session_id), not user_id.
+
+        Matrix requires room_id to send messages, not user_id.
+        Override BaseChannel's default implementation which returns user_id.
+        The session_id carries a ``matrix:`` prefix added by
+        :meth:`resolve_session_id`; strip it so the value is a raw
+        Matrix room_id that can be passed directly to ``room_send``.
+        """
+        if session_id.startswith("matrix:"):
+            return session_id[len("matrix:") :]
+        return session_id
+
+    def get_to_handle_from_request(self, request: Any) -> str:
+        meta = getattr(request, "channel_meta", {}) or {}
+        room_id = meta.get("room_id")
+        if room_id:
+            return room_id
+        # Recover the room from session_id when metadata is unavailable.
+        session_id = getattr(request, "session_id", "") or ""
+        if session_id.startswith("matrix:"):
+            return session_id[len("matrix:") :]
+        return getattr(request, "user_id", "")
+
+    # ------------------------------------------------------------------
+    # Mention helper — MSC3952 m.mentions from body text scan
+    # ------------------------------------------------------------------
+
+    # Regex to match Matrix user IDs: @localpart:domain (with optional port)
     _MATRIX_USER_ID_RE = re.compile(
         "@[a-zA-Z0-9._=+/\\-]+:[a-zA-Z0-9.\\-]+(?::\\d+)?",
     )

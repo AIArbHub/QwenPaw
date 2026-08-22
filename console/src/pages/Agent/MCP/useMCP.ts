@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useRef, useState } from "react";
 import { useAppMessage } from "../../../hooks/useAppMessage";
 import api from "../../../api";
 import type { MCPAccessPolicy, MCPClientInfo } from "../../../api/types";
@@ -18,7 +18,7 @@ export function useMCP() {
   const { t } = useTranslation();
   const { selectedAgent, agents } = useAgentStore();
   const selectedAgentInfo = agents.find((item) => item.id === selectedAgent);
-  const selectedBackend = selectedAgentInfo?.backend ?? "qwenpaw";
+  const selectedBackend = selectedAgentInfo?.backend ?? "AIARB";
   const canDiscoverProviderMCP = Boolean(
     selectedAgentInfo?.backend_capabilities?.provider_mcp_discovery,
   );
@@ -68,7 +68,7 @@ export function useMCP() {
       const data = await api.listMCPClients(requestedAgent);
       let discoveredServers: HarnessDiscoveredMCPServer[] = [];
       let discoveryWarning = "";
-      if (selectedBackend !== "qwenpaw" && canDiscoverProviderMCP) {
+      if (selectedBackend !== "AIARB" && canDiscoverProviderMCP) {
         try {
           const discovered = await harnessApi.listMCP(selectedBackend);
           discoveredServers = discovered.servers;

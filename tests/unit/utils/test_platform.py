@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests for qwenpaw.utils.platform helpers."""
+"""Tests for aiarb.utils.platform helpers."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from qwenpaw.utils.platform import (
+from aiarb.utils.platform import (
     is_windows_admin,
     warn_unelevated_sandbox,
 )
@@ -17,16 +17,16 @@ from qwenpaw.utils.platform import (
 
 @pytest.fixture()
 def _platform_caplog(caplog: pytest.LogCaptureFixture):
-    """Capture logs from qwenpaw.utils.platform.
+    """Capture logs from aiarb.utils.platform.
 
-    The project logger sets propagate=False on the qwenpaw namespace,
+    The project logger sets propagate=False on the aiarb namespace,
     so caplog (which hooks the root logger) won't see records unless we
     temporarily re-enable propagation.
     """
-    target = logging.getLogger("qwenpaw")
+    target = logging.getLogger("aiarb")
     old_propagate = target.propagate
     target.propagate = True
-    with caplog.at_level("WARNING", logger="qwenpaw.utils.platform"):
+    with caplog.at_level("WARNING", logger="aiarb.utils.platform"):
         yield
     target.propagate = old_propagate
 
@@ -100,7 +100,7 @@ class TestWarnUnelevatedSandbox:
         with (
             patch.object(sys, "platform", "win32"),
             patch(
-                "qwenpaw.utils.platform.is_windows_admin",
+                "aiarb.utils.platform.is_windows_admin",
                 return_value=True,
             ),
         ):
@@ -118,11 +118,11 @@ class TestWarnUnelevatedSandbox:
         with (
             patch.object(sys, "platform", "win32"),
             patch(
-                "qwenpaw.utils.platform.is_windows_admin",
+                "aiarb.utils.platform.is_windows_admin",
                 return_value=False,
             ),
             patch(
-                "qwenpaw.config.load_config",
+                "aiarb.config.load_config",
                 return_value=mock_config,
             ),
         ):
@@ -144,11 +144,11 @@ class TestWarnUnelevatedSandbox:
         with (
             patch.object(sys, "platform", "win32"),
             patch(
-                "qwenpaw.utils.platform.is_windows_admin",
+                "aiarb.utils.platform.is_windows_admin",
                 return_value=False,
             ),
             patch(
-                "qwenpaw.config.load_config",
+                "aiarb.config.load_config",
                 return_value=mock_config,
             ),
         ):
@@ -167,11 +167,11 @@ class TestWarnUnelevatedSandbox:
         with (
             patch.object(sys, "platform", "win32"),
             patch(
-                "qwenpaw.utils.platform.is_windows_admin",
+                "aiarb.utils.platform.is_windows_admin",
                 return_value=False,
             ),
             patch(
-                "qwenpaw.config.load_config",
+                "aiarb.config.load_config",
                 side_effect=RuntimeError("config broken"),
             ),
         ):

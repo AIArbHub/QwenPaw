@@ -8,8 +8,8 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from qwenpaw.app import agent_config_watcher as watcher_module
-from qwenpaw.config.config import (
+from aiarb.app import agent_config_watcher as watcher_module
+from aiarb.config.config import (
     AgentProfileConfig,
     ChannelConfig,
     ConsoleConfig,

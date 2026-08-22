@@ -47,8 +47,8 @@ export interface HarnessCapabilities {
   attachments: boolean;
   context_usage: boolean;
   skills_commands: boolean;
-  qwenpaw_skills_projection: boolean;
-  qwenpaw_mcp_projection: boolean;
+  aiarb_skills_projection: boolean;
+  aiarb_mcp_projection: boolean;
   provider_skills_discovery: boolean;
   provider_mcp_discovery: boolean;
   mcp_tool_allowlist: boolean;

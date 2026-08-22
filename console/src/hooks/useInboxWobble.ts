@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
-const STORAGE_KEY = "qwenpaw.inbox.approvalWobble";
-const SYNC_EVENT = "qwenpaw:inbox-wobble-change";
+const STORAGE_KEY = "aiarb.inbox.approvalWobble";
+const SYNC_EVENT = "aiarb:inbox-wobble-change";
 
 /**
  * Shared hook for the "approval wobble notification" toggle.

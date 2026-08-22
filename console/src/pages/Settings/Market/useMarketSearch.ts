@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { marketApi } from "../../../api/modules/market";
 import { subscribeToPluginChanges } from "../../../utils/pluginChangeEvents";
@@ -12,7 +12,7 @@ import type {
 
 const DEBOUNCE_MS = 350;
 const PER_PROVIDER_LIMIT = 10;
-const PROVIDERS_STORAGE_KEY = "qwenpaw-market-providers";
+const PROVIDERS_STORAGE_KEY = "AIARB-market-providers";
 
 /** Restore the persisted provider selection */
 const resolveInitialProviders = (): Set<string> => {
@@ -93,7 +93,7 @@ export function useMarketSearch(): MarketSearchState {
     setAutoLoadBlockedState(blocked);
   }, []);
 
-  // Keep server-provided provider order (QwenPaw first) for ranking.
+  // Keep server-provided provider order (AIARB first) for ranking.
   const providerKeyList = useMemo(() => {
     if (!providersLoaded) return [];
     return providers
@@ -114,8 +114,8 @@ export function useMarketSearch(): MarketSearchState {
       const valid = [...prev].filter((key) => enabled.includes(key));
       if (valid.length === prev.size && valid.length > 0) return prev;
       if (valid.length > 0) return new Set(valid);
-      const fallback = enabled.includes("qwenpaw")
-        ? ["qwenpaw"]
+      const fallback = enabled.includes("AIARB")
+        ? ["AIARB"]
         : enabled.slice(0, 1);
       return new Set(fallback);
     });

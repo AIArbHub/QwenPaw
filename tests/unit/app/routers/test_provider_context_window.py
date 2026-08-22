@@ -6,12 +6,15 @@ from types import SimpleNamespace
 import pytest
 from pydantic import ValidationError
 
-from qwenpaw.app.routers.providers import (
+import pytest
+from pydantic import ValidationError
+ 
+from aiarb.app.routers.providers import (
     ModelConfigRequest,
     _active_models_info,
     configure_model,
 )
-from qwenpaw.config.config import ModelSlotConfig
+from aiarb.config.config import ModelSlotConfig
 
 
 def test_active_models_info_uses_runtime_context_resolution():

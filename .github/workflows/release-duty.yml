@@ -1,4 +1,4 @@
-# Auto-create a Release Duty issue for every published release
+﻿# Auto-create a Release Duty issue for every published release
 # (pre-release, stable, and post-release).
 # Each platform gets its own assignee from an independent rotation list.
 # Rotation is sequential: index = (number of releases published BEFORE
@@ -242,14 +242,14 @@ jobs:
             ## PyPI — ${mention('pypi')}
 
             \`\`\`bash
-            python -m venv /tmp/qwenpaw-test && source /tmp/qwenpaw-test/bin/activate
+            python -m venv /tmp/AIARB-test && source /tmp/AIARB-test/bin/activate
             python -m pip install --upgrade "pip>=26.2.2"
-            python -m pip install qwenpaw==${version} "certifi>=2026.10.19"
-            qwenpaw
+            python -m pip install AIARB==${version} "certifi>=2026.10.19"
+            AIARB
             \`\`\`
 
             - [ ] Install succeeds (\`pip install\` exits cleanly)
-            - [ ] Launch succeeds (\`qwenpaw\` starts, browser UI reachable)
+            - [ ] Launch succeeds (\`AIARB\` starts, browser UI reachable)
             - [ ] Model configured (API key + model saved without error)
             - [ ] Basic chat works (message sent, normal reply received)
 
@@ -260,7 +260,7 @@ jobs:
             ## Docker — ${mention('docker')}
 
             \`\`\`bash
-            docker run --rm -p 8088:8088 agentscope/qwenpaw:${tag}
+            docker run --rm -p 8088:8088 agentscope/AIARB:${tag}
             \`\`\`
 
             - [ ] Image pulled successfully
@@ -275,8 +275,8 @@ jobs:
             ## macOS Desktop — ${mention('macos')}
 
             1. Go to the [Release page](${releaseUrl})
-            2. Download \`QwenPaw-${version}-macOS.zip\`
-            3. Unzip, drag \`QwenPaw.app\` to Applications, launch
+            2. Download \`AIARB-${version}-macOS.zip\`
+            3. Unzip, drag \`AIARB.app\` to Applications, launch
 
             - [ ] Download and unzip succeed
             - [ ] App launches without crash
@@ -290,8 +290,8 @@ jobs:
             ## Windows Desktop — ${mention('windows')}
 
             1. Go to the [Release page](${releaseUrl})
-            2. Download \`QwenPaw-Setup-${version}.exe\`
-            3. Run the installer, follow the wizard, launch QwenPaw
+            2. Download \`AIARB-Setup-${version}.exe\`
+            3. Run the installer, follow the wizard, launch AIARB
 
             - [ ] Installer runs without error
             - [ ] App launches without crash
@@ -321,7 +321,7 @@ jobs:
             const { data: issue } = await github.rest.issues.create({
               owner: context.repo.owner,
               repo:  context.repo.repo,
-              title: `[Release Duty] QwenPaw ${tag} (${typeBadge}) — Installation Verification`,
+              title: `[Release Duty] AIARB ${tag} (${typeBadge}) — Installation Verification`,
               body:  body,
               labels: ['release-duty', releaseType === 'stable' || releaseType === 'post'
                 ? 'stable'

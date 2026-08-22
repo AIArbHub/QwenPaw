@@ -1,7 +1,7 @@
-declare const VITE_API_BASE_URL: string;
+﻿declare const VITE_API_BASE_URL: string;
 declare const TOKEN: string;
 
-const AUTH_TOKEN_KEY = "qwenpaw_auth_token";
+const AUTH_TOKEN_KEY = "AIARB_auth_token";
 let runtimeApiBaseUrl: string | null = null;
 
 /** Desktop clients receive their host address from the native supervisor. */
@@ -62,7 +62,7 @@ export function getApiToken(): string {
 export function setAuthToken(token: string): void {
   if (getApiToken() !== token) clearBrowserSessions();
   localStorage.setItem(AUTH_TOKEN_KEY, token);
-  window.dispatchEvent(new Event("qwenpaw:auth-changed"));
+  window.dispatchEvent(new Event("AIARB:auth-changed"));
 }
 
 /**
@@ -71,7 +71,7 @@ export function setAuthToken(token: string): void {
 export function clearAuthToken(): void {
   localStorage.removeItem(AUTH_TOKEN_KEY);
   clearBrowserSessions();
-  window.dispatchEvent(new Event("qwenpaw:auth-changed"));
+  window.dispatchEvent(new Event("AIARB:auth-changed"));
 }
 
 /**

@@ -11,11 +11,11 @@ from agentscope.credential import OpenAICredential
 from agentscope.message import ToolCallBlock
 from agentscope.model._model_response import ChatResponse
 
-from qwenpaw.providers.openai_chat_model_compat import (
+from aiarb.providers.openai_chat_model_compat import (
     OpenAIChatModelCompat,
     _sanitize_tool_call,
 )
-from qwenpaw.utils.tool_call_extra import collect_transient_tool_call_extras
+from aiarb.utils.tool_call_extra import collect_transient_tool_call_extras
 
 
 class CompatHarnessOpenAIChatModel(OpenAIChatModelCompat):
@@ -148,7 +148,7 @@ async def test_stream_parser_carries_extra_content_on_strict_block() -> None:
     """Gemini thought signatures survive strict ToolCallBlock parsing."""
     model = CompatHarnessOpenAIChatModel(
         credential=OpenAICredential(
-            id="qwenpaw-example",
+            id="aiarb-example",
             api_key="sk-test",
             base_url="https://api.openai.com/v1",
         ),
@@ -215,7 +215,7 @@ async def test_full_stream_preserves_extra_from_later_chunk(
     """The final AgentScope accumulator receives late thought signatures."""
     model = CompatHarnessOpenAIChatModel(
         credential=OpenAICredential(
-            id="qwenpaw-credential-name",
+            id="aiarb-credential-name",
             api_key="sk-test",
             base_url="https://api.openai.com/v1",
         ),

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 from __future__ import annotations
 
@@ -15,19 +15,19 @@ from typing import Any, cast
 import httpx
 import pytest
 
-import qwenpaw.local_models.llamacpp as downloader_module
-from qwenpaw.constant import DEFAULT_LOCAL_PROVIDER_DIR
-from qwenpaw.providers.model_info import ModelInfo
-from qwenpaw.local_models.download_manager import (
+import AIARB.local_models.llamacpp as downloader_module
+from AIARB.constant import DEFAULT_LOCAL_PROVIDER_DIR
+from AIARB.providers.model_info import ModelInfo
+from AIARB.local_models.download_manager import (
     DownloadTaskResult,
     DownloadTaskStatus,
 )
-from qwenpaw.utils.command_runner import (
+from AIARB.utils.command_runner import (
     CommandExecutionError,
     CommandResult,
     ShutdownResult,
 )
-from qwenpaw.local_models.llamacpp import LlamaCppBackend
+from AIARB.local_models.llamacpp import LlamaCppBackend
 
 
 class _FakeServerProcess:
@@ -577,7 +577,7 @@ def test_start_download_delegates_to_process_controller(
 
     assert controller.started_spec is not None
     assert controller.started_spec.command == [
-        "qwenpaw-llamacpp-download",
+        "AIARB-llamacpp-download",
         "https://example.com/releases/b1234/"
         "llama-b1234-bin-ubuntu-x64.tar.gz",
     ]

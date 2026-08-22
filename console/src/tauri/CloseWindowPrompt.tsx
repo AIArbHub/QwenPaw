@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+﻿import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -22,7 +22,7 @@ export default function CloseWindowPrompt() {
   useEffect(() => {
     let disposed = false;
     let unlisten: (() => void) | undefined;
-    void listen("qwenpaw-close-requested", () => {
+    void listen("AIARB-close-requested", () => {
       void invoke("ack_close").catch(console.error);
       if (pending.current) return;
       setRemember(false);

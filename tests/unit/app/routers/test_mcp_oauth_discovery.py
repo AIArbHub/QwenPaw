@@ -4,7 +4,7 @@
 import httpx
 import pytest
 
-from qwenpaw.app.routers.mcp_oauth import (
+from aiarb.app.routers.mcp_oauth import (
     _fetch_as_metadata,
     _resolve_auth_server_url,
 )

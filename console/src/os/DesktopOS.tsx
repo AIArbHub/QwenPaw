@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DesktopOS.tsx — Plan B PoC entry point: a full-screen desktop shell that
  * reuses the existing routeRegistry components inside draggable windows.
  *
@@ -60,7 +60,7 @@ import { getOsRootHref } from "../utils/navigationMode";
 import "./osWindowBody.css";
 
 /** Session flag so the boot splash plays once per browser session. */
-const BOOT_FLAG_KEY = "qwenpaw.os.booted";
+const BOOT_FLAG_KEY = "AIARB.os.booted";
 
 function shouldPlayBoot(): boolean {
   try {
@@ -440,12 +440,12 @@ export default function DesktopOS() {
         </div>
       )}
 
-      {/* Persistent background watermark — QwenPaw OS brand mark. Sits at the
+      {/* Persistent background watermark — AIARB OS brand mark. Sits at the
           lowest layer and never intercepts pointer events, so it reads as a
           backdrop behind icons and app windows rather than a card. */}
       <div className={styles.emptyHint}>
-        <img src={`${import.meta.env.BASE_URL}qwenpaw.png`} alt="" />
-        <div className={styles.emptyBrandName}>QwenPaw OS</div>
+        <img src={`${import.meta.env.BASE_URL}AIARB.png`} alt="" />
+        <div className={styles.emptyBrandName}>AIARB OS</div>
       </div>
 
       {/* Windows layer */}

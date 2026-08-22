@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-QwenPaw Sessions page object.
+AIARB Sessions page object.
 
 Wraps all interactions on the Sessions page and exposes business-level methods.
 """
@@ -31,13 +31,13 @@ class SessionsPage(BasePage):
     - Batch delete
     """
 
-    PAGE_TITLE = "QwenPaw Console"
+    PAGE_TITLE = "AIARB Console"
     PAGE_URL = f"{config.base_url}/sessions"
 
     # ========== Selector definitions ==========
 
     # Page-loaded indicator (the page has no h1; use the table as the load-complete marker)
-    PAGE_LOAD_INDICATOR = '.ant-table, .qwenpaw-table, table'
+    PAGE_LOAD_INDICATOR = '.ant-table, .AIARB-table, table'
 
     # Table loading state. antd/design Table renders
     # ``<prefix>-spin-nested-loading`` permanently while ``loading`` is
@@ -49,7 +49,7 @@ class SessionsPage(BasePage):
 
     # Filter bar
     FILTER_USER_ID_INPUT = 'input[placeholder*="User ID" i], input[placeholder*="用户" i]'
-    FILTER_CHANNEL_SELECT = '.ant-select[data-placeholder*="Channel" i], .qwenpaw-select'
+    FILTER_CHANNEL_SELECT = '.ant-select[data-placeholder*="Channel" i], .AIARB-select'
     FILTER_RESET_BTN = 'button:has-text("Reset"), button:has-text("重置")'
 
     # Session table
@@ -60,18 +60,18 @@ class SessionsPage(BasePage):
     # which is exactly the off-by-one seen in CI (the batch-delete case counted
     # 11 rows while the fixture's own counter reported 10 for the same page).
     # ``e2e/fixtures`` already excludes both; align this selector with it.
-    # (Upstream ``ConfigProvider`` sets ``prefixCls="qwenpaw"``, so the
+    # (Upstream ``ConfigProvider`` sets ``prefixCls="AIARB"``, so the
     # ``ant-`` variants are legacy fallbacks for older builds.)
-    SESSION_TABLE = '.ant-table, .qwenpaw-table, table'
+    SESSION_TABLE = '.ant-table, .AIARB-table, table'
     _ROW_EXCLUDES = (
         ":not([aria-hidden='true'])"
-        ":not(.qwenpaw-table-placeholder)"
+        ":not(.AIARB-table-placeholder)"
         ":not(.ant-table-placeholder)"
-        ":not(.qwenpaw-table-measure-row)"
+        ":not(.AIARB-table-measure-row)"
         ":not(.ant-table-measure-row)"
     )
     SESSION_ROW = (
-        '.qwenpaw-table-tbody tr' + _ROW_EXCLUDES + ', '
+        '.AIARB-table-tbody tr' + _ROW_EXCLUDES + ', '
         '.ant-table-tbody tr' + _ROW_EXCLUDES + ', '
         'table tbody tr' + _ROW_EXCLUDES
     )
@@ -85,31 +85,31 @@ class SessionsPage(BasePage):
     # up to fill the page) whereas the tab label drops to 13 — which is why
     # "did the count decrease" assertions must read the tab, not the rows.
     SESSION_ACTIVE_TAB = (
-        '.qwenpaw-tabs-tab:has-text("Active"), '
+        '.AIARB-tabs-tab:has-text("Active"), '
         '.ant-tabs-tab:has-text("Active"), '
-        '.qwenpaw-tabs-tab:has-text("活跃"), '
+        '.AIARB-tabs-tab:has-text("活跃"), '
         '.ant-tabs-tab:has-text("活跃")'
     )
-    SESSION_ROW_SELECTED = '.ant-table-tbody tr.ant-table-row-selected, .qwenpaw-table-tbody tr.qwenpaw-table-row-selected'
+    SESSION_ROW_SELECTED = '.ant-table-tbody tr.ant-table-row-selected, .AIARB-table-tbody tr.AIARB-table-row-selected'
 
     # Data rows only: exclude the rows antd/rc-table injects into <tbody> that
     # carry no session data. Verified against the live DOM (2026-09-11):
-    #   - tr.qwenpaw-table-measure-row  -> aria-hidden="true", 0 <td> cells,
+    #   - tr.AIARB-table-measure-row  -> aria-hidden="true", 0 <td> cells,
     #     yet Playwright reports is_visible()==True for both the row and the
     #     checkbox inside it, so a bare "tbody tr" locator matches it first.
-    #   - tr.qwenpaw-table-placeholder  -> the "no data" row.
+    #   - tr.AIARB-table-placeholder  -> the "no data" row.
     # Keep this in sync with the exclusion list used by the ensure_session_data
     # fixture in tests/test_sessions.py.
     SESSION_ROW_EXCLUSIONS = (
         ':not([aria-hidden="true"])'
-        ':not(.qwenpaw-table-placeholder)'
-        ':not(.qwenpaw-table-measure-row)'
+        ':not(.AIARB-table-placeholder)'
+        ':not(.AIARB-table-measure-row)'
         ':not(.ant-table-placeholder)'
         ':not(.ant-table-measure-row)'
     )
     SESSION_DATA_ROW = (
         f'.ant-table-tbody tr{SESSION_ROW_EXCLUSIONS}, '
-        f'.qwenpaw-table-tbody tr{SESSION_ROW_EXCLUSIONS}, '
+        f'.AIARB-table-tbody tr{SESSION_ROW_EXCLUSIONS}, '
         f'table tbody tr{SESSION_ROW_EXCLUSIONS}'
     )
 
@@ -118,7 +118,7 @@ class SessionsPage(BasePage):
     # measure-row checkbox: clicking it registers NO selection, which silently
     # degrades a batch delete into a single delete.
     ROW_CHECKBOX = (
-        f'tbody tr{SESSION_ROW_EXCLUSIONS} .qwenpaw-checkbox-input, '
+        f'tbody tr{SESSION_ROW_EXCLUSIONS} .AIARB-checkbox-input, '
         f'tbody tr{SESSION_ROW_EXCLUSIONS} .ant-checkbox-input, '
         f'tbody tr{SESSION_ROW_EXCLUSIONS} input[type="checkbox"]'
     )
@@ -134,7 +134,7 @@ class SessionsPage(BasePage):
     )
 
     # Tab labels: "Active (N)" / "Archived (N)" -- the server-side totals.
-    SESSION_TAB = '.qwenpaw-tabs-tab, .ant-tabs-tab'
+    SESSION_TAB = '.AIARB-tabs-tab, .ant-tabs-tab'
 
     # Table columns
     SESSION_ID_COL = 'td:nth-child(1)'
@@ -155,16 +155,16 @@ class SessionsPage(BasePage):
     EDIT_BTN = (
         'button:has-text("Edit"), button:has-text("编辑"), '
         'a:has-text("Edit"), a:has-text("编辑"), '
-        '.qwenpaw-table-cell-fix-right button:has-text("Edit"), '
-        '.qwenpaw-table-cell-fix-right button:has-text("编辑"), '
+        '.AIARB-table-cell-fix-right button:has-text("Edit"), '
+        '.AIARB-table-cell-fix-right button:has-text("编辑"), '
         '.ant-table-cell-fix-right button:has-text("Edit"), '
         '.ant-table-cell-fix-right button:has-text("编辑")'
     )
     DELETE_BTN = (
         'button:has-text("Delete"), button:has-text("删除"), '
         'a:has-text("Delete"), a:has-text("删除"), '
-        '.qwenpaw-table-cell-fix-right button:has-text("Delete"), '
-        '.qwenpaw-table-cell-fix-right button:has-text("删除"), '
+        '.AIARB-table-cell-fix-right button:has-text("Delete"), '
+        '.AIARB-table-cell-fix-right button:has-text("删除"), '
         '.ant-table-cell-fix-right button:has-text("Delete"), '
         '.ant-table-cell-fix-right button:has-text("删除")'
     )
@@ -176,21 +176,21 @@ class SessionsPage(BasePage):
     PAGINATION_PREV = '.ant-pagination-prev'
 
     # Edit drawer
-    SESSION_DRAWER = '[class*=drawer], .ant-drawer, .qwenpaw-drawer'
-    DRAWER_TITLE = '[class*=drawer] .ant-drawer-header-title, .ant-drawer-title, .qwenpaw-drawer-title'
-    DRAWER_CLOSE = '.ant-drawer-close, .qwenpaw-drawer-close'
+    SESSION_DRAWER = '[class*=drawer], .ant-drawer, .AIARB-drawer'
+    DRAWER_TITLE = '[class*=drawer] .ant-drawer-header-title, .ant-drawer-title, .AIARB-drawer-title'
+    DRAWER_CLOSE = '.ant-drawer-close, .AIARB-drawer-close'
 
     # Form fields
     FORM_NAME_INPUT = 'input[name="name"], input[placeholder*="Name" i], input[placeholder*="名称" i]'
     FORM_USERID_INPUT = 'input[name="user_id"], input[placeholder*="User ID" i], input[placeholder*="用户" i]'
-    FORM_CHANNEL_SELECT = '.ant-select[name="channel"], .qwenpaw-select[name="channel"]'
-    FORM_SUBMIT_BTN = '[class*=drawer] button.ant-btn-primary, [class*=drawer] button.qwenpaw-btn-primary, button:has-text("Save"), button:has-text("保存")'
+    FORM_CHANNEL_SELECT = '.ant-select[name="channel"], .AIARB-select[name="channel"]'
+    FORM_SUBMIT_BTN = '[class*=drawer] button.ant-btn-primary, [class*=drawer] button.AIARB-btn-primary, button:has-text("Save"), button:has-text("保存")'
     FORM_CANCEL_BTN = '[class*=drawer] button:has-text("Cancel"), [class*=drawer] button:has-text("取消")'
 
     # Confirmation dialog
-    CONFIRM_MODAL = '.ant-modal, .qwenpaw-modal'
-    CONFIRM_OK_BTN = '.ant-modal .ant-btn-primary, .qwenpaw-modal .qwenpaw-btn-primary, button:has-text("OK"), button:has-text("确认"), button:has-text("确定")'
-    CONFIRM_CANCEL_BTN = '.ant-modal .ant-btn:not(.ant-btn-primary), .qwenpaw-modal .qwenpaw-btn:not(.qwenpaw-btn-primary), button:has-text("Cancel"), button:has-text("取消")'
+    CONFIRM_MODAL = '.ant-modal, .AIARB-modal'
+    CONFIRM_OK_BTN = '.ant-modal .ant-btn-primary, .AIARB-modal .AIARB-btn-primary, button:has-text("OK"), button:has-text("确认"), button:has-text("确定")'
+    CONFIRM_CANCEL_BTN = '.ant-modal .ant-btn:not(.ant-btn-primary), .AIARB-modal .AIARB-btn:not(.AIARB-btn-primary), button:has-text("Cancel"), button:has-text("取消")'
 
     # Empty state
     EMPTY_STATE = '.ant-empty, [class*=empty]'
@@ -292,7 +292,7 @@ class SessionsPage(BasePage):
         )
         settled = self.page.locator(
             f"{self.SESSION_DATA_ROW}, "
-            ".qwenpaw-table-placeholder, .ant-table-placeholder"
+            ".AIARB-table-placeholder, .ant-table-placeholder"
         )
         try:
             expect(settled.first).to_be_visible(timeout=timeout)

@@ -1,4 +1,4 @@
-@import (reference) "../../../styles/contentStates.less";
+﻿@import (reference) "../../../styles/contentStates.less";
 
 .content {
   flex: 1;
@@ -55,11 +55,11 @@
   border: none !important;
 
   :global {
-    .qwenpaw-card-body {
+    .AIARB-card-body {
       padding: 16px;
     }
 
-    .qwenpaw-spark-title {
+    .AIARB-spark-title {
       font-size: 16px !important;
       font-weight: 500 !important;
       padding: 0 0 12px;
@@ -73,11 +73,11 @@
   border: none !important;
 
   :global {
-    .qwenpaw-card-body {
+    .AIARB-card-body {
       padding: 16px;
     }
 
-    .qwenpaw-spark-title {
+    .AIARB-spark-title {
       font-size: 16px !important;
       font-weight: 500 !important;
       padding: 0 0 12px;
@@ -124,7 +124,7 @@
   .tableCard,
   .chartCard {
     :global {
-      .qwenpaw-card-body {
+      .AIARB-card-body {
         background: var(--app-fill-faint);
       }
     }
@@ -159,7 +159,7 @@
 
 .toolbar {
   :global(.ant-segmented),
-  :global(.qwenpaw-segmented) {
+  :global(.AIARB-segmented) {
     background: var(--app-fill-faint);
     border: 1px solid var(--app-border-subtle);
     border-radius: 12px;
@@ -167,9 +167,9 @@
     color: var(--app-text-secondary);
   }
   :global(.ant-segmented-item-selected),
-  :global(.qwenpaw-segmented-item-selected),
+  :global(.AIARB-segmented-item-selected),
   :global(.ant-segmented-thumb),
-  :global(.qwenpaw-segmented-thumb) {
+  :global(.AIARB-segmented-thumb) {
     background: var(--app-accent-soft);
     color: var(--app-accent-text);
     box-shadow: none;
@@ -211,23 +211,23 @@
 @media (max-width: 600px) {
   .mobileRangePopup {
     :global(
-        .qwenpaw-picker-panel-container
-          .qwenpaw-picker-panel-layout
-          > .qwenpaw-picker-presets
+        .AIARB-picker-panel-container
+          .AIARB-picker-panel-layout
+          > .AIARB-picker-presets
       ),
     :global(
         .ant-picker-panel-container
           .ant-picker-panel-layout
           > .ant-picker-presets
       ),
-    :global(.qwenpaw-picker-panel:first-child),
+    :global(.AIARB-picker-panel:first-child),
     :global(.ant-picker-panel:first-child) {
       display: none;
     }
 
-    :global(.qwenpaw-picker-header-super-prev-btn),
+    :global(.AIARB-picker-header-super-prev-btn),
     :global(.ant-picker-header-super-prev-btn),
-    :global(.qwenpaw-picker-header-prev-btn),
+    :global(.AIARB-picker-header-prev-btn),
     :global(.ant-picker-header-prev-btn) {
       visibility: visible !important;
     }

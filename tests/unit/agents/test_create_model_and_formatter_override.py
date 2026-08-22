@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for ``create_model_and_formatter`` model override support."""
 
 # pylint: disable=protected-access,redefined-outer-name
@@ -21,15 +21,15 @@ try:
 except ImportError:
     GeminiChatFormatter = None
 
-from qwenpaw.agents import model_factory
-from qwenpaw.config import config as config_module
-from qwenpaw.config.config import ModelSlotConfig
-from qwenpaw.providers import fallback_chat_model
-from qwenpaw.providers import provider as provider_module
-from qwenpaw.providers.dashscope_provider import DashScopeProvider
-from qwenpaw.providers.provider_manager import ProviderManager
-from qwenpaw.providers.retry_chat_model import RetryChatModel
-from qwenpaw.token_usage import TokenRecordingModelWrapper
+from AIARB.agents import model_factory
+from AIARB.config import config as config_module
+from AIARB.config.config import ModelSlotConfig
+from AIARB.providers import fallback_chat_model
+from AIARB.providers import provider as provider_module
+from AIARB.providers.dashscope_provider import DashScopeProvider
+from AIARB.providers.provider_manager import ProviderManager
+from AIARB.providers.retry_chat_model import RetryChatModel
+from AIARB.token_usage import TokenRecordingModelWrapper
 
 
 _REAL_INSTALL_MODEL_FORMATTER = model_factory._install_model_formatter
@@ -42,11 +42,11 @@ class _FakeChatModel:
         self.identifier = identifier
         self.formatter = SimpleNamespace()
         self.max_retries = 3
-        self.qwenpaw_provider_id = "credential-derived"
+        self.AIARB_provider_id = "credential-derived"
 
-    def bind_qwenpaw_provider_id(self, provider_id: str) -> None:
+    def bind_AIARB_provider_id(self, provider_id: str) -> None:
         """Record the provider identity selected by the factory."""
-        self.qwenpaw_provider_id = provider_id
+        self.AIARB_provider_id = provider_id
 
 
 class _FakeProvider(SimpleNamespace):
@@ -288,7 +288,7 @@ def test_factory_uses_resolved_provider_id(
 
     assert _patch_dependencies == ["canonical-provider"]
     assert wrapper_provider_ids == ["canonical-provider"]
-    assert canonical_model.qwenpaw_provider_id == "canonical-provider"
+    assert canonical_model.AIARB_provider_id == "canonical-provider"
 
 
 def test_override_with_dict():
@@ -829,7 +829,7 @@ async def test_image_memory_filters_fallbacks_and_fits_every_formatter(
 
     from PIL import Image
     from agentscope.message import Base64Source, DataBlock, UserMsg
-    from qwenpaw.providers.capping_formatter import _CappingOpenAIFormatter
+    from AIARB.providers.capping_formatter import _CappingOpenAIFormatter
 
     config = _patched_load_agent_config("agent-1")
     config.fallback_models = [
@@ -936,7 +936,7 @@ async def test_image_memory_filters_fallbacks_and_fits_every_formatter(
     ],
 )
 def test_installs_extended_formatter_for_each_protocol(formatter_class):
-    """Install QwenPaw extensions on every supported protocol family."""
+    """Install AIARB extensions on every supported protocol family."""
     native_formatter = formatter_class()
     model = SimpleNamespace(formatter=native_formatter)
 

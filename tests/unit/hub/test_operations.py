@@ -8,7 +8,7 @@ import pytest
 
 from qwenpaw.hub import operations
 
-from qwenpaw.hub.operations import HubOperationsStore
+from aiarb.hub.operations import HubOperationsStore
 
 
 def test_audit_pages_filter_and_preserve_structured_details(

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Integration tests for plugin install / upload / uninstall lifecycle.
 
 Covers both ingest paths (POST /install with a local source path,
@@ -101,7 +101,7 @@ def _build_sample_plugin_zip(
         "version": version,
         "name": name or plugin_id,
         "description": "Sprint 1.3 integration sample plugin",
-        "author": "qwenpaw-test",
+        "author": "AIARB-test",
         "plugin_type": "general",
         "entry": {"backend": "plugin.py"},
     }

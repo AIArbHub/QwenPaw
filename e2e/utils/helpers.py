@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw E2E Test Framework - Utility Functions
+AIArb E2E Test Framework - Utility Functions
 
 Provides common test helper functions.
 """

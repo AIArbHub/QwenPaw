@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for the Docker Hub runtime backend."""
 
 import threading
@@ -14,11 +14,11 @@ from types import SimpleNamespace
 import httpx
 import pytest
 
-from qwenpaw.hub.docker_images import DockerImagePullStore
-from qwenpaw.hub import docker_provisioner as docker_module
-from qwenpaw.hub.docker_provisioner import DockerRuntimeProvisioner
-from qwenpaw.hub.models import RuntimeState
-from qwenpaw.hub.provisioner import RuntimeProvisioner
+from AIARB.hub.docker_images import DockerImagePullStore
+from AIARB.hub import docker_provisioner as docker_module
+from AIARB.hub.docker_provisioner import DockerRuntimeProvisioner
+from AIARB.hub.models import RuntimeState
+from AIARB.hub.provisioner import RuntimeProvisioner
 from tests.unit.hub.factories import runtime_record
 
 _record = partial(runtime_record, provisioner="docker", port=0)
@@ -27,9 +27,9 @@ _record = partial(runtime_record, provisioner="docker", port=0)
 class _FakeImage:
     id = "sha256:resolved-image"
     short_id = "sha256:resolved"
-    tags = ["docker.io/agentscope/qwenpaw:latest"]
+    tags = ["docker.io/agentscope/AIARB:latest"]
     attrs = {
-        "RepoDigests": ["docker.io/agentscope/qwenpaw@sha256:digest"],
+        "RepoDigests": ["docker.io/agentscope/AIARB@sha256:digest"],
         "Size": 123,
         "Created": "2026-08-19T00:00:00Z",
     }
@@ -192,7 +192,7 @@ def _configure(provisioner: DockerRuntimeProvisioner) -> None:
     provisioner.configure(
         {
             "source": "docker_hub",
-            "image": "docker.io/agentscope/qwenpaw:latest",
+            "image": "docker.io/agentscope/AIARB:latest",
             "pull_policy": "if_not_present",
             "cpu_limit": 2.5,
             "memory_limit_mb": 3072,
@@ -233,15 +233,15 @@ def test_container_launch_applies_persistence_security_and_limits(
             metadata={"user_profile": {"workspace_dir": "/data/member"}},
         ),
         {
-            "QWENPAW_RUNTIME_INTERNAL_TOKEN": "runtime-token",
-            "QWENPAW_AUTH_ENABLED": "false",
+            "AIARB_RUNTIME_INTERNAL_TOKEN": "runtime-token",
+            "AIARB_AUTH_ENABLED": "false",
             "PYTHONPATH": "/",
             "OPENAI_API_KEY": "tenant-key",
         },
     )
 
     launch = client.containers.run_kwargs
-    assert launch["image"] == "docker.io/agentscope/qwenpaw:latest"
+    assert launch["image"] == "docker.io/agentscope/AIARB:latest"
     assert launch["network"] == "isolated-network"
     assert launch["working_dir"] == "/data/member"
     assert launch["nano_cpus"] == 2_500_000_000
@@ -253,10 +253,10 @@ def test_container_launch_applies_persistence_security_and_limits(
     assert isinstance(environment, dict)
     assert "PYTHONPATH" not in environment
     assert environment["HOME"] == "/data/member"
-    assert environment["QWENPAW_WORKING_DIR"] == "/data/member"
+    assert environment["AIARB_WORKING_DIR"] == "/data/member"
     assert environment["OPENAI_API_KEY"] == "tenant-key"
-    assert environment["QWENPAW_AUTH_ENABLED"] == "true"
-    assert environment["QWENPAW_RUNTIME_INTERNAL_TOKEN"] == "runtime-token"
+    assert environment["AIARB_AUTH_ENABLED"] == "true"
+    assert environment["AIARB_RUNTIME_INTERNAL_TOKEN"] == "runtime-token"
     volumes = launch["volumes"]
     assert isinstance(volumes, dict)
     assert set(volumes) == {
@@ -285,17 +285,17 @@ def test_pinned_runtime_uses_saved_image_id_after_policy_change(
         tmp_path,
         {
             "docker": {
-                "image": "old.example.com/qwenpaw:v1",
+                "image": "old.example.com/AIARB:v1",
                 "pull_policy": "never",
                 "image_id": "sha256:pinned-image",
-                "image_digests": ["old.example.com/qwenpaw@sha256:one"],
+                "image_digests": ["old.example.com/AIARB@sha256:one"],
             },
         },
     )
 
     provisioner.start(
         record,
-        {"QWENPAW_RUNTIME_INTERNAL_TOKEN": "runtime-token"},
+        {"AIARB_RUNTIME_INTERNAL_TOKEN": "runtime-token"},
     )
 
     assert client.containers.run_kwargs["image"] == "sha256:pinned-image"
@@ -310,7 +310,7 @@ def test_official_source_validation_rejects_mismatched_image(
         provisioner.configure(
             {
                 "source": "docker_hub",
-                "image": "docker.io/example/qwenpaw:latest",
+                "image": "docker.io/example/AIARB:latest",
             },
         )
 
@@ -323,14 +323,14 @@ def test_custom_source_accepts_qualified_and_local_image_tags(
     provisioner.configure(
         {
             "source": "custom",
-            "image": "registry.example.com/qwenpaw:v1",
+            "image": "registry.example.com/AIARB:v1",
         },
     )
     qualified = provisioner.validate_config({})
-    local = provisioner.validate_config({"image": "qwenpaw-hub-e2e:test"})
+    local = provisioner.validate_config({"image": "AIARB-hub-e2e:test"})
 
-    assert qualified["image"] == "registry.example.com/qwenpaw:v1"
-    assert local["image"] == "qwenpaw-hub-e2e:test"
+    assert qualified["image"] == "registry.example.com/AIARB:v1"
+    assert local["image"] == "AIARB-hub-e2e:test"
 
 
 def test_readiness_requires_anonymous_rejection_and_token_success(
@@ -381,7 +381,7 @@ def test_readiness_requires_anonymous_rejection_and_token_success(
     assert str(calls[0]).endswith("/api/version")
     token_request = calls[1]
     assert isinstance(token_request, urllib.request.Request)
-    assert token_request.get_header("X-qwenpaw-runtime-token") == (
+    assert token_request.get_header("X-AIARB-runtime-token") == (
         "runtime-token"
     )
 
@@ -512,12 +512,12 @@ def test_model_probe_allows_legacy_images_but_rejects_auth_errors(
         ),
     )
     monkeypatch.setattr(
-        "qwenpaw.hub.provisioner.httpx.Client",
+        "AIARB.hub.provisioner.httpx.Client",
         lambda **kwargs: real_client(transport=transport, **kwargs),
     )
     credentials = {
-        "QWENPAW_HUB_MODEL_TOKEN": "model-token",
-        "QWENPAW_RUNTIME_INTERNAL_TOKEN": "boundary-token",
+        "AIARB_HUB_MODEL_TOKEN": "model-token",
+        "AIARB_RUNTIME_INTERNAL_TOKEN": "boundary-token",
     }
     if status == 401:
         with pytest.raises(RuntimeError, match="HTTP 401"):

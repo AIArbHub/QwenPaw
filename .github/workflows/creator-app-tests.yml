@@ -1,10 +1,10 @@
-name: Creator App Tests
+﻿name: Creator App Tests
 
 on:
   push:
     branches: [main, master, dev, develop, "dev/**", "release/**"]
     paths:
-      - "plugins/apps/qwenpaw-creator/**"
+      - "plugins/apps/AIARB-creator/**"
       - ".nvmrc"
       - ".github/workflows/creator-app-tests.yml"
   pull_request:
@@ -14,7 +14,7 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     branches: [main, master, dev, develop, "dev/**", "release/**"]
     paths:
-      - "plugins/apps/qwenpaw-creator/**"
+      - "plugins/apps/AIARB-creator/**"
       - ".nvmrc"
       - ".github/workflows/creator-app-tests.yml"
 
@@ -61,7 +61,7 @@ jobs:
           # pydantic, agentscope, ...); the plugin requirements add the
           # Creator-specific extras (oss2, imageio-ffmpeg).
           pip install -e ".[test]"
-          pip install -r plugins/apps/qwenpaw-creator/requirements.txt
+          pip install -r plugins/apps/AIARB-creator/requirements.txt
 
       - name: Install Windows media tools
         if: runner.os == 'Windows'
@@ -78,7 +78,7 @@ jobs:
           sudo apt-get install --yes fonts-noto-cjk
 
       - name: Run Creator backend tests
-        working-directory: plugins/apps/qwenpaw-creator/backend
+        working-directory: plugins/apps/AIARB-creator/backend
         run: |
           python -m pytest tests -v --timeout=120
 
@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: plugins/apps/qwenpaw-creator/ui
+        working-directory: plugins/apps/AIARB-creator/ui
     steps:
       - uses: actions/checkout@v4
 
@@ -100,7 +100,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: "npm"
-          cache-dependency-path: plugins/apps/qwenpaw-creator/ui/package-lock.json
+          cache-dependency-path: plugins/apps/AIARB-creator/ui/package-lock.json
 
       - name: Install dependencies
         # npm ci occasionally crashes ("Exit handler never called") and can

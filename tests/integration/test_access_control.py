@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Integration tests for /api/access-control/* (Sprint 4.2).
 
-Target router: src/qwenpaw/app/routers/access_control.py (13 routes)
-Backing store: src/qwenpaw/app/channels/access_control.py
+Target router: src/aiarb/app/routers/access_control.py (13 routes)
+Backing store: src/aiarb/app/channels/access_control.py
                (AccessControlStore, per-workspace JSON file)
 
 Coverage strategy (happy path first):

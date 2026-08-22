@@ -1,4 +1,4 @@
-const SOURCE = "qwenpaw-chrome-popup";
+const SOURCE = "aiarb-chrome-popup";
 
 function setText(id, text) {
   const el = document.getElementById(id);
