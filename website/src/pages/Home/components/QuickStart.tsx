@@ -79,17 +79,17 @@ export const PIP_INSTALL_COMMANDS = [
 const COMMANDS = {
   pip: [...PIP_INSTALL_COMMANDS],
   scriptMac: [
-    "curl -fsSL https://aiarb.agentscope.io/install.sh | bash",
+    "curl -fsSL https://qwenpaw.agentscope.io/install.sh | bash",
     "aiarb init --defaults",
     "aiarb app",
   ],
   scriptWinCmd: [
-    "curl -fsSL https://aiarb.agentscope.io/install.bat -o install.bat && install.bat",
+    "curl -fsSL https://qwenpaw.agentscope.io/install.bat -o install.bat && install.bat",
     "aiarb init --defaults",
     "aiarb app",
   ],
   scriptWinPs: [
-    "irm https://aiarb.agentscope.io/install.ps1 | iex",
+    "irm https://qwenpaw.agentscope.io/install.ps1 | iex",
     "aiarb init --defaults",
     "aiarb app",
   ],

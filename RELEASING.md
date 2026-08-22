@@ -85,7 +85,7 @@ Notes:
 - Pre-release detection is **tag-based**: a tag containing `beta`/`alpha`/`rc`/`dev`
   is a pre-release (so use the `-beta.N` form); `stable` and `.postN` tags also
   update the Docker `latest` tag.
-- The **website** (GitHub Pages, `aiarb.agentscope.io`) is deployed only for
+- The **website** (GitHub Pages, `qwenpaw.agentscope.io`) is deployed only for
   **stable** and `.postN` releases; pre-releases are skipped so the public site
   advertises only GA versions.
 - The desktop OSS `latest` files and the Tauri auto-update manifest are currently
@@ -105,7 +105,7 @@ jobs succeed. If anything fails, the release stays a draft.
 | `finalize` fails | All artifacts published but the release was not flipped | Re-run `finalize`, or manually `gh release edit <tag> --draft=false --target <sha>` (or click *Publish*). |
 | `duty-issue` fails | Release is published; only the tracking issue is missing | Re-run the job, or dispatch `release-duty.yml` with the `tag`. Non-blocking. |
 | `promote-desktop` fails | Release is published, but the desktop `latest` files / updater manifest / index were not refreshed (existing users' auto-updater does not see the new version yet; versioned downloads still work) | Re-run the job — it is idempotent (`ossutil cp --force`). Non-blocking for first-install users. |
-| `deploy-website` fails (stable/post only) | Release is published, but the public site (`aiarb.agentscope.io`) still shows the previous version | Re-run the job, or manually dispatch `deploy-website.yml` (workflow_dispatch). Idempotent, non-blocking. |
+| `deploy-website` fails (stable/post only) | Release is published, but the public site (`qwenpaw.agentscope.io`) still shows the previous version | Re-run the job, or manually dispatch `deploy-website.yml` (workflow_dispatch). Idempotent, non-blocking. |
 | "Multiple draft releases found" | More than one draft exists | Re-run *Run workflow* with an explicit `tag`. |
 | "No draft release found" / "not a draft" | No draft, or wrong tag | Create the draft / fix the tag, then re-run. |
 | resolve rejects the tag (version mismatch) | The draft tag doesn't match `src/aiarb/__version__.py` | Align the tag with the version (packaging-normalized, e.g. `v2.0.1-beta.1` ↔ `2.0.1b1`), then re-run. |

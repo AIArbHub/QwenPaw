@@ -44,7 +44,7 @@ export const skillMarkets: SkillMarket[] = [
     examples: [
       {
         label: "aiarb-docs-zh",
-        url: "https://platform.agentscope.io/skills/@user/aiarb-docs-zh",
+        url: "https://platform.agentscope.io/skills/@user/qwenpaw-docs-zh",
       },
     ],
   },

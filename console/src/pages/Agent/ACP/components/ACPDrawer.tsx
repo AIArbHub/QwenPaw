@@ -53,7 +53,7 @@ function getACPDocsUrl(lang: string): string {
   const websiteLang = getWebsiteLang(lang);
   const hash =
     websiteLang === "zh" ? ACP_DOC_SECTION_HASH.zh : ACP_DOC_SECTION_HASH.en;
-  return `https://aiarb.agentscope.io/docs/acp-integration?lang=${websiteLang}#${hash}`;
+  return `https://qwenpaw.agentscope.io/docs/acp-integration?lang=${websiteLang}#${hash}`;
 }
 
 function findInvalidEnvLine(value: unknown): string | null {

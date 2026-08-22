@@ -59,7 +59,7 @@ In summary, AIArb splits the context of a single request across three channels:
 
 ## Using Visual Compression in AIArb
 
-Enable Visual Compression in **Run Configuration** - **Context Management**, and select a model with **multimodal capability** as the conversation model to start using it ([related docs](https://aiarb.agentscope.io/docs/context)).
+Enable Visual Compression in **Run Configuration** - **Context Management**, and select a model with **multimodal capability** as the conversation model to start using it ([related docs](https://qwenpaw.agentscope.io/docs/context)).
 
 - Whether a model has multimodal capability can be checked on the **Models** page.
 
@@ -150,7 +150,7 @@ With further optimization of the above, the feature will become more stable and 
 
 ## Further Reading
 
-- [AIArb Context Management documentation](https://aiarb.agentscope.io/docs/context)
-- [AIArb v2.0.1 release notes](https://aiarb.agentscope.io/release-notes#v2.0.1)
+- [AIArb Context Management documentation](https://qwenpaw.agentscope.io/docs/context)
+- [AIArb v2.0.1 release notes](https://qwenpaw.agentscope.io/release-notes#v2.0.1)
 - [pxpipe implementation reference](https://github.com/teamchong/pxpipe)
 - [AIArb GitHub repository](https://github.com/agentscope-ai/AIArb)

@@ -72,7 +72,7 @@ aiarb app
 **macOS / Linux：**
 
 ```bash
-curl -fsSL https://aiarb.agentscope.io/install.sh | bash
+curl -fsSL https://qwenpaw.agentscope.io/install.sh | bash
 ```
 
 然后打开新终端（或执行 `source ~/.zshrc` / `source ~/.bashrc`）。
@@ -80,13 +80,13 @@ curl -fsSL https://aiarb.agentscope.io/install.sh | bash
 **Windows (CMD):**
 
 ```cmd
-curl -fsSL https://aiarb.agentscope.io/install.bat -o install.bat && install.bat
+curl -fsSL https://qwenpaw.agentscope.io/install.bat -o install.bat && install.bat
 ```
 
 **Windows（PowerShell）：**
 
 ```powershell
-irm https://aiarb.agentscope.io/install.ps1 | iex
+irm https://qwenpaw.agentscope.io/install.ps1 | iex
 ```
 
 然后打开新终端（安装脚本会自动将 AIArb 加入 PATH）。

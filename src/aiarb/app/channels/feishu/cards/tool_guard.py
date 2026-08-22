@@ -47,7 +47,7 @@ ACTION_TYPE = "tool_guard_approval"
 # =====================================================================
 
 _FEISHU_CALLBACK_CONFIG_DOC_URL = (
-    "https://aiarb.agentscope.io/docs/channels#feishu-callback-config"
+    "https://qwenpaw.agentscope.io/docs/channels#feishu-callback-config"
 )
 
 _SEVERITY_TEMPLATE = {

@@ -10,15 +10,15 @@
 
 ### AIArb如何安装
 
-AIArb 支持多种安装方式，详情请见文档 [快速开始](https://aiarb.agentscope.io/docs/quickstart)：
+AIArb 支持多种安装方式，详情请见文档 [快速开始](https://qwenpaw.agentscope.io/docs/quickstart)：
 
 1. 一键安装，帮你搞定 Python 环境
 
 ```
 # macOS / Linux:
-curl -fsSL https://aiarb.agentscope.io/install.sh | bash
+curl -fsSL https://qwenpaw.agentscope.io/install.sh | bash
 # Windows（PowerShell）:
-irm https://aiarb.agentscope.io/install.ps1 | iex
+irm https://qwenpaw.agentscope.io/install.ps1 | iex
 # 关注文档更新，请先采用pip方式完成一键安装
 ```
 
@@ -104,7 +104,7 @@ docker run -p 127.0.0.1:8088:8088 \
   agentscope/aiarb:latest
 ```
 
-5. 如果你使用的是桌面版（Tauri 版），已内置应用内更新：应用启动时会自动检测新版本并在界面中提示，你可以选择「安装并重启」立即更新，或「稍后更新」在后台下载。也可从下载页手动获取最新版本：https://aiarb.agentscope.io/downloads
+5. 如果你使用的是桌面版（Tauri 版），已内置应用内更新：应用启动时会自动检测新版本并在界面中提示，你可以选择「安装并重启」立即更新，或「稍后更新」在后台下载。也可从下载页手动获取最新版本：https://qwenpaw.agentscope.io/downloads
 
 升级后重启服务 aiarb app。
 
@@ -124,7 +124,7 @@ aiarb init --defaults
 aiarb app
 ```
 
-控制台默认地址为 `http://127.0.0.1:8088/`，使用默认配置快速初始化后，可以进入控制台快捷自定义相关内容。详情请见[快速开始](https://aiarb.agentscope.io/docs/quickstart)。
+控制台默认地址为 `http://127.0.0.1:8088/`，使用默认配置快速初始化后，可以进入控制台快捷自定义相关内容。详情请见[快速开始](https://qwenpaw.agentscope.io/docs/quickstart)。
 
 ### Windows 端口 8088 冲突问题
 
@@ -240,11 +240,11 @@ AIArb 已开源，官方仓库地址：
 
 ### 最新版本升级内容如何查看
 
-具体版本变更可在官网 [更新日志](https://aiarb.agentscope.io/release-notes/?lang=zh) 或 AIArb GitHub 仓库 [Releases](https://github.com/agentscope-ai/AIArb/releases) 中查看。
+具体版本变更可在官网 [更新日志](https://qwenpaw.agentscope.io/release-notes/?lang=zh) 或 AIArb GitHub 仓库 [Releases](https://github.com/agentscope-ai/AIArb/releases) 中查看。
 
 ### 如何配置模型
 
-在控制台进入 **设置 → 模型** 中进行配置，详情请见文档 [模型](https://aiarb.agentscope.io/docs/models)：
+在控制台进入 **设置 → 模型** 中进行配置，详情请见文档 [模型](https://qwenpaw.agentscope.io/docs/models)：
 
 - 云端模型：填写提供商 API Key（如 ModelScope、DashScope 或自定义提供商）。
 - 本地模型：支持 `llama.cpp`，LM Studio 和 Ollama。
@@ -253,7 +253,7 @@ AIArb 已开源，官方仓库地址：
 
 如果想为不同智能体配置单独的模型，可以在控制台页面左上角切换智能体，并在 **聊天** 页面右上角为当前智能体选择单独的模型。
 
-命令行也可使用 `aiarb models` 系列命令完成配置、下载和切换，详情请见文档 [CLI → 模型与环境变量 → aiarb models](https://aiarb.agentscope.io/docs/cli#aiarb-models)。
+命令行也可使用 `aiarb models` 系列命令完成配置、下载和切换，详情请见文档 [CLI → 模型与环境变量 → aiarb models](https://qwenpaw.agentscope.io/docs/cli#qwenpaw-models)。
 
 ### 如何使用 AIArb-Flash 系列模型
 
@@ -395,11 +395,11 @@ lms import /path/to/your/aiarb-xxx.gguf -c -y --user-repo AgentScope/AIArb-Flash
 
 ### 如何管理Skill
 
-进入控制台 **智能体 → 技能**，可以启用/禁用技能，并通过 **添加技能** 入口创建技能、通过Zip/URL上传、或浏览技能市场。详情请见文档 [Skills](https://aiarb.agentscope.io/docs/skills)。
+进入控制台 **智能体 → 技能**，可以启用/禁用技能，并通过 **添加技能** 入口创建技能、通过Zip/URL上传、或浏览技能市场。详情请见文档 [Skills](https://qwenpaw.agentscope.io/docs/skills)。
 
 ### 如何配置MCP
 
-进入控制台 **智能体 → MCP**，进行 MCP 客户端的启用/禁用/删除/创建，详情请见文档 [MCP](https://aiarb.agentscope.io/docs/mcp)。
+进入控制台 **智能体 → MCP**，进行 MCP 客户端的启用/禁用/删除/创建，详情请见文档 [MCP](https://qwenpaw.agentscope.io/docs/mcp)。
 
 ### 常见报错
 

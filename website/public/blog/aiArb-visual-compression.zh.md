@@ -53,7 +53,7 @@ Agent 场景中的上下文开销，通常并不是因为用户的问题本身�
 
 ## 在AIArb中使用视觉压缩
 
-在**运行配置**\-**上下文管理中**启用视觉压缩，对话模型选择具备**多模态能力**的模型即可使用（[相关文档](https://aiarb.agentscope.io/docs/context)）。
+在**运行配置**\-**上下文管理中**启用视觉压缩，对话模型选择具备**多模态能力**的模型即可使用（[相关文档](https://qwenpaw.agentscope.io/docs/context)）。
 
 - 模型是否具备多模态能力可以在**模型**界面检查
 - 低/中/高模式对应压缩强度，默认选择低就好，压缩强度通常也已经足够。
@@ -129,7 +129,7 @@ Agent 场景中的上下文开销，通常并不是因为用户的问题本身�
 
 ## 延伸阅读
 
-- [AIArb 上下文管理文档](https://aiarb.agentscope.io/docs/context)
-- [AIArb v2.0.1 发布说明](https://aiarb.agentscope.io/release-notes#v2.0.1)
+- [AIArb 上下文管理文档](https://qwenpaw.agentscope.io/docs/context)
+- [AIArb v2.0.1 发布说明](https://qwenpaw.agentscope.io/release-notes#v2.0.1)
 - [pxpipe 实现参考](https://github.com/teamchong/pxpipe)
 - [AIArb GitHub 仓库](https://github.com/agentscope-ai/AIArb)
