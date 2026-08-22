@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build QwenPaw backend with PyInstaller for Tauri sidecar
+# Build AIArb backend with PyInstaller for Tauri sidecar
 # Creates an onedir backend bundle with embedded Python runtime
 #
 # Usage:
@@ -21,10 +21,10 @@ RUNTIME_PYTHON_DIR="${PYTHON_RUNTIME_DIR}/python"
 NATIVE_HOST_PYTHON="${RUNTIME_PYTHON_DIR}/bin/python3"
 BUILD_VENV="${DIST}/pyinstaller-venv"
 PYTHON_BIN="${BUILD_VENV}/bin/python"
-VERSION=$(sed -n 's/^__version__[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' src/qwenpaw/__version__.py)
+VERSION=$(sed -n 's/^__version__[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' src/aiarb/__version__.py)
 
 echo "========================================="
-echo "QwenPaw PyInstaller Build"
+echo "AIArb PyInstaller Build"
 echo "========================================="
 echo "Version: ${VERSION}"
 echo "Repository: ${REPO_ROOT}"
@@ -112,7 +112,7 @@ echo ""
 echo "== Running PyInstaller =="
 echo "Building onedir backend bundle..."
 
-SPEC_FILE="${REPO_ROOT}/scripts/pack-tauri/qwenpaw.spec"
+SPEC_FILE="${REPO_ROOT}/scripts/pack-tauri/aiarb.spec"
 if [ ! -f "$SPEC_FILE" ]; then
     echo "ERROR: Spec file not found at ${SPEC_FILE}"
     exit 1
@@ -128,10 +128,10 @@ echo "PyInstaller build complete"
 echo ""
 
 # Verify output
-BACKEND_DIR="${DIST}/pyinstaller/qwenpaw-backend"
-BACKEND_EXE="${BACKEND_DIR}/qwenpaw-backend"
-CLI_EXE="${BACKEND_DIR}/qwenpaw"
-MODEL_CATALOG="${BACKEND_DIR}/_internal/qwenpaw/providers/data/model_catalog.json"
+BACKEND_DIR="${DIST}/pyinstaller/aiarb-backend"
+BACKEND_EXE="${BACKEND_DIR}/aiarb-backend"
+CLI_EXE="${BACKEND_DIR}/aiarb"
+MODEL_CATALOG="${BACKEND_DIR}/_internal/aiarb/providers/data/model_catalog.json"
 if [ ! -d "${BACKEND_DIR}" ]; then
     echo "ERROR: Backend bundle directory not found at ${BACKEND_DIR}"
     exit 1
@@ -158,12 +158,12 @@ echo ""
 
 # Copy to Tauri resources directory
 echo "== Copying to Tauri binaries directory =="
-DEST="${BINARIES_DIR}/qwenpaw-backend"
+DEST="${BINARIES_DIR}/aiarb-backend"
 rm -rf "${DEST}"
 mkdir -p "${DEST}"
 cp -R "${BACKEND_DIR}/." "${DEST}/"
-chmod +x "${DEST}/qwenpaw-backend"
-chmod +x "${DEST}/qwenpaw"
+chmod +x "${DEST}/aiarb-backend"
+chmod +x "${DEST}/aiarb"
 echo "Copied to: ${DEST}"
 echo ""
 

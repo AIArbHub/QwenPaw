@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-SPEC_PATH = REPO_ROOT / "scripts" / "pack-tauri" / "qwenpaw.spec"
+SPEC_PATH = REPO_ROOT / "scripts" / "pack-tauri" / "aiarb.spec"
 
 
 def _collected_submodule_packages() -> set[str]:
@@ -69,16 +69,16 @@ def _analysis_path_names() -> set[str]:
 
 
 def test_desktop_spec_collects_pawapp_sdk_for_runtime_loaded_plugins():
-    assert "qwenpaw.pawapp" in _collected_submodule_packages()
+    assert "aiarb.pawapp" in _collected_submodule_packages()
 
 
-def test_desktop_spec_collects_qwenpawmail_from_nested_source_root():
-    assert "qwenpawmail_mcp" in _collected_submodule_packages()
+def test_desktop_spec_collects_aiarbmail_from_nested_source_root():
+    assert "aiarbmail_mcp" in _collected_submodule_packages()
     assert "MAIL_MCP_SRC" in _analysis_path_names()
 
 
 def test_desktop_spec_collects_provider_catalog_data():
     assert (
         "providers/data",
-        "qwenpaw/providers/data",
+        "aiarb/providers/data",
     ) in _data_directories()

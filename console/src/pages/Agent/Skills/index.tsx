@@ -175,8 +175,8 @@ function SkillsPage() {
         <div className={styles.managementBanner}>
           <Sparkles size={16} />
           <div>
-            <strong>{t("skills.qwenpawManaged")}</strong>
-            <span>{t("skills.qwenpawManagedHint")}</span>
+            <strong>{t("skills.aiarbManaged")}</strong>
+            <span>{t("skills.aiarbManagedHint")}</span>
           </div>
         </div>
       )}

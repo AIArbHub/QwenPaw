@@ -2,7 +2,7 @@
  * pawapp-sdk/host.ts — Host capability wrappers for PawApps.
  *
  * Provides `paw.chat()`, `paw.storage`, `paw.toast()`, `paw.notify()`
- * which delegate to the host's existing QwenPaw namespace and APIs.
+ * which delegate to the host's existing AIArb namespace and APIs.
  */
 import { hostFetch } from "../hostSdk/fetch";
 import type {
@@ -85,10 +85,10 @@ export async function chat(
 ): Promise<string> {
   // Use unified route: /{appId}/... -> /api/{appId}/... via hostFetch
   const agentId =
-    options.agentId ?? window.QwenPaw.host?.getSelectedAgentId?.() ?? "default";
+    options.agentId ?? window.AIArb.host?.getSelectedAgentId?.() ?? "default";
   const sessionId =
     options.sessionId === undefined
-      ? window.QwenPaw.host?.getCurrentSessionId?.() ?? undefined
+      ? window.AIArb.host?.getCurrentSessionId?.() ?? undefined
       : options.sessionId ?? undefined;
   const query = new URLSearchParams({ agent_id: agentId }).toString();
   const res = await hostFetch(`/${getAppId()}/chat?${query}`, {
@@ -111,10 +111,10 @@ export async function chat(
 
 function chatRouteOptions(options: PawChatOptions) {
   const agentId =
-    options.agentId ?? window.QwenPaw.host?.getSelectedAgentId?.() ?? "default";
+    options.agentId ?? window.AIArb.host?.getSelectedAgentId?.() ?? "default";
   const sessionId =
     options.sessionId === undefined
-      ? window.QwenPaw.host?.getCurrentSessionId?.() ?? undefined
+      ? window.AIArb.host?.getCurrentSessionId?.() ?? undefined
       : options.sessionId ?? undefined;
   return { agentId, sessionId };
 }
@@ -152,7 +152,7 @@ async function* streamChatWithApi(
   }
 }
 
-/** Stream a chat turn as decoded QwenPaw envelope events. */
+/** Stream a chat turn as decoded AIArb envelope events. */
 export function chatStream(
   message: string,
   options: PawChatOptions = {},
@@ -189,7 +189,7 @@ export function getChatHistory(
 
 function chatSessionAgentId(options: PawChatSessionScope = {}): string {
   return (
-    options.agentId ?? window.QwenPaw.host?.getSelectedAgentId?.() ?? "default"
+    options.agentId ?? window.AIArb.host?.getSelectedAgentId?.() ?? "default"
   );
 }
 
@@ -317,13 +317,13 @@ export async function toast(
   message: string,
   kind: "info" | "success" | "warning" | "error" = "info",
 ): Promise<void> {
-  // Use QwenPaw host notification if available (same-origin)
+  // Use AIArb host notification if available (same-origin)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const qwenpaw = (window as any).QwenPaw as
+  const aiarb = (window as any).AIArb as
     | Record<string, unknown>
     | undefined;
-  if (qwenpaw?.host) {
-    const host = qwenpaw.host as {
+  if (aiarb?.host) {
+    const host = aiarb.host as {
       toast?: (msg: string, kind: string) => void;
     };
     if (host.toast) {
@@ -396,11 +396,11 @@ export function createHostNamespace(
     chatSessions: createChatSessionsApi(api),
     storage: scopedStorage,
     getSelectedAgentId: () =>
-      window.QwenPaw.host?.getSelectedAgentId?.() ?? "default",
+      window.AIArb.host?.getSelectedAgentId?.() ?? "default",
     getCurrentSessionId: () =>
-      window.QwenPaw.host?.getCurrentSessionId?.() ?? null,
+      window.AIArb.host?.getCurrentSessionId?.() ?? null,
     async toast(message, kind = "info") {
-      const host = window.QwenPaw.host as {
+      const host = window.AIArb.host as {
         toast?: (m: string, k: string) => void;
       };
       if (host?.toast) {
@@ -423,9 +423,9 @@ export const hostNamespace = {
   chatSessions,
   storage,
   getSelectedAgentId: () =>
-    window.QwenPaw.host?.getSelectedAgentId?.() ?? "default",
+    window.AIArb.host?.getSelectedAgentId?.() ?? "default",
   getCurrentSessionId: () =>
-    window.QwenPaw.host?.getCurrentSessionId?.() ?? null,
+    window.AIArb.host?.getCurrentSessionId?.() ?? null,
   toast,
   notify,
 };

@@ -1,12 +1,12 @@
 # Computer Use
 
-Computer Use is an optional tool plugin that lets a QwenPaw Agent operate
+Computer Use is an optional tool plugin that lets a AIArb Agent operate
 **approved desktop applications** on your computer. It can launch apps, inspect
 windows, click controls, enter text, scroll, and drag to complete routine
 desktop tasks.
 
 > **Beta feature:** Computer Use currently supports Windows and macOS, and is
-> available only in the QwenPaw Desktop app. Install the plugin before use, and
+> available only in the AIArb Desktop app. Install the plugin before use, and
 > use it only when you can supervise the operation and are comfortable granting
 > the target application access.
 
@@ -16,7 +16,7 @@ desktop tasks.
 
 ### Supported platforms
 
-Computer Use relies on native capabilities supplied by QwenPaw Desktop.
+Computer Use relies on native capabilities supplied by AIArb Desktop.
 
 | Platform | Requirement                                                    |
 | -------- | -------------------------------------------------------------- |
@@ -24,7 +24,7 @@ Computer Use relies on native capabilities supplied by QwenPaw Desktop.
 | macOS    | macOS 14 (Sonoma) or later; Apple Silicon Macs are recommended |
 
 Linux, the browser-based Console, Docker, and command-line-only environments
-do not support Computer Use. The current plugin release targets QwenPaw 2.1.x;
+do not support Computer Use. The current plugin release targets AIArb 2.1.x;
 always follow the compatibility notice shown in Plugin Manager when installing.
 
 ### Install the Computer Use plugin
@@ -32,36 +32,36 @@ always follow the compatibility notice shown in Plugin Manager when installing.
 Computer Use is not enabled as a default built-in tool. Install its plugin
 first:
 
-1. Start QwenPaw Desktop and open **Settings → Plugin Manager**.
+1. Start AIArb Desktop and open **Settings → Plugin Manager**.
 2. Search for **Computer Use** under **Official Plugins** or **Plugin Market**,
    then select **Install**.
 3. If you received a trusted plugin ZIP file or install URL from another
    source, select **Install Plugin** in the upper-right corner, then upload the
    ZIP file or enter the plugin URL.
 4. In **Installed Plugins**, make sure **Computer Use** is shown as **Running**.
-   Restart QwenPaw Desktop if the plugin has not loaded.
+   Restart AIArb Desktop if the plugin has not loaded.
 
 > Install plugins only from Official Plugins, Plugin Market, or another source
 > you trust. Do not grant desktop-automation permissions to an unknown ZIP
 > file.
 
-### Use QwenPaw Desktop
+### Use AIArb Desktop
 
 Computer Use needs the native capabilities in
-[QwenPaw Desktop](./desktop). Install and start the desktop app before
+[AIArb Desktop](./desktop). Install and start the desktop app before
 installing the plugin.
 
 ### macOS: grant the required permissions
 
 On first use, macOS may request these permissions:
 
-- **Accessibility**, so QwenPaw can operate controls in approved apps;
-- **Screen Recording**, so QwenPaw can read the target window.
+- **Accessibility**, so AIArb can operate controls in approved apps;
+- **Screen Recording**, so AIArb can read the target window.
 
 Allow the requests when macOS prompts you. If a prompt does not appear, or the
 feature still cannot work after approval, open **System Settings → Privacy &
-Security**. Confirm that QwenPaw Desktop is allowed under **Accessibility**
-and **Screen Recording**, then restart QwenPaw Desktop.
+Security**. Confirm that AIArb Desktop is allowed under **Accessibility**
+and **Screen Recording**, then restart AIArb Desktop.
 
 Windows normally needs no additional setup. System-security prompts and
 administrator-only interfaces are not valid targets for Computer Use.
@@ -76,12 +76,12 @@ separate approval for that application.
 
 | Switch                 | Location                               | Scope                                                     |
 | ---------------------- | -------------------------------------- | --------------------------------------------------------- |
-| **Global switch**      | **Computer Use → Enable Computer Use** | Every Agent and chat in this QwenPaw Desktop installation |
+| **Global switch**      | **Computer Use → Enable Computer Use** | Every Agent and chat in this AIArb Desktop installation |
 | **Agent-level switch** | **Agent → Tools → Computer Use**       | The currently selected Agent                              |
 
 ### Global switch
 
-Open **Computer Use** from the left sidebar in QwenPaw Desktop. Make sure the
+Open **Computer Use** from the left sidebar in AIArb Desktop. Make sure the
 runtime says it is ready, then check that **Enable Computer Use** is on. It is
 on by default after installation until a choice has been saved, and your choice
 persists after restarting the desktop app.
@@ -171,7 +171,7 @@ revoked application asks for your approval again.
 
 Computer Use binds input to the target window it just observed and refuses new
 desktop input when the desktop is locked or it detects that you have recently
-used the mouse or keyboard. The native runtime also rejects QwenPaw's own
+used the mouse or keyboard. The native runtime also rejects AIArb's own
 windows and some credential windows that the operating system can identify.
 
 These protections cannot identify every sensitive interface. System-permission
@@ -190,15 +190,15 @@ to avoid authorizing an unknown program with a similar name.
 
 ### The runtime is unavailable
 
-Make sure you are using QwenPaw Desktop rather than the browser Console or a
+Make sure you are using AIArb Desktop rather than the browser Console or a
 command-line-only installation. If the runtime remains unavailable after
 restarting the desktop app, update to a version that includes Computer Use and
 include the desktop-app logs when reporting the problem.
 
 ### macOS cannot capture or click a window
 
-Check QwenPaw Desktop's **Accessibility** and **Screen Recording** permissions
-in **System Settings → Privacy & Security**. Fully quit and reopen QwenPaw
+Check AIArb Desktop's **Accessibility** and **Screen Recording** permissions
+in **System Settings → Privacy & Security**. Fully quit and reopen AIArb
 Desktop after changing either permission.
 
 ### The Agent cannot find the application

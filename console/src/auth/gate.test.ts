@@ -63,7 +63,7 @@ describe("authentication gate", () => {
   });
 
   it("accepts only a token verified by the backend", async () => {
-    localStorage.setItem("qwenpaw_auth_token", "window-a-token");
+    localStorage.setItem("aiarb_auth_token", "window-a-token");
     getStatus.mockResolvedValueOnce({ enabled: true, has_users: true });
     const fetchSpy = vi
       .spyOn(globalThis, "fetch")
@@ -76,18 +76,18 @@ describe("authentication gate", () => {
   });
 
   it("clears a rejected token and requires login", async () => {
-    localStorage.setItem("qwenpaw_auth_token", "expired-token");
+    localStorage.setItem("aiarb_auth_token", "expired-token");
     getStatus.mockResolvedValueOnce({ enabled: true, has_users: true });
     vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
       new Response(null, { status: 401 }),
     );
 
     await expect(resolveAuthGate()).resolves.toBe("auth-required");
-    expect(localStorage.getItem("qwenpaw_auth_token")).toBeNull();
+    expect(localStorage.getItem("aiarb_auth_token")).toBeNull();
   });
 
   it("fails closed and preserves the token on a service error", async () => {
-    localStorage.setItem("qwenpaw_auth_token", "retry-token");
+    localStorage.setItem("aiarb_auth_token", "retry-token");
     getStatus.mockResolvedValueOnce({ enabled: true, has_users: true });
     vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
       new Response(null, { status: 503 }),
@@ -96,15 +96,15 @@ describe("authentication gate", () => {
     await expect(resolveAuthGate()).rejects.toThrow(
       "Authentication service returned 503",
     );
-    expect(localStorage.getItem("qwenpaw_auth_token")).toBe("retry-token");
+    expect(localStorage.getItem("aiarb_auth_token")).toBe("retry-token");
   });
 
   it("preserves the token when verification cannot reach the backend", async () => {
-    localStorage.setItem("qwenpaw_auth_token", "window-b-token");
+    localStorage.setItem("aiarb_auth_token", "window-b-token");
     getStatus.mockResolvedValueOnce({ enabled: true, has_users: true });
     vi.spyOn(globalThis, "fetch").mockRejectedValueOnce(new Error("offline"));
 
     await expect(resolveAuthGate()).rejects.toThrow("offline");
-    expect(localStorage.getItem("qwenpaw_auth_token")).toBe("window-b-token");
+    expect(localStorage.getItem("aiarb_auth_token")).toBe("window-b-token");
   });
 });

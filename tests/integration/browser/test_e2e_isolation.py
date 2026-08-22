@@ -3,12 +3,12 @@
 
 import pytest
 
-from qwenpaw.browser.control_link.playwright.adapter import (
+from aiarb.browser.control_link.playwright.adapter import (
     PlaywrightControlLink,
 )
-from qwenpaw.browser.execution.subprocess_plane import SubprocessPlane
-from qwenpaw.browser.execution.wire import ExecRequest
-from qwenpaw.browser.runtime.links import link_for
+from aiarb.browser.execution.subprocess_plane import SubprocessPlane
+from aiarb.browser.execution.wire import ExecRequest
+from aiarb.browser.runtime.links import link_for
 
 
 def request(session_id: str, code: str) -> ExecRequest:

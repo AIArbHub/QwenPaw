@@ -4,10 +4,10 @@ const defaultConfig = {
   theme: {
     colorPrimary: "#0065fd",
     darkMode: false,
-    prefix: "qwenpaw",
+    prefix: "aiarb",
     leftHeader: {
       logo: "",
-      title: "Work with QwenPaw",
+      title: "Work with AIArb",
     },
     bubbleList: {
       userMessageAnchors: {

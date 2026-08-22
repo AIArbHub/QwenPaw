@@ -182,7 +182,7 @@ export default function LoginPage() {
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <img
             src={isDark ? "/logo-dark.svg" : "/logo-light.svg"}
-            alt="QwenPaw"
+            alt="AIArb"
             style={{ height: 48, marginBottom: 12 }}
           />
           <h2 style={{ margin: 0, fontWeight: 600, fontSize: 20 }}>
@@ -298,7 +298,7 @@ export default function LoginPage() {
         {isHub && (
           <nav className={styles.hubLinks} aria-label={t("login.hubLinks")}>
             <a
-              href="https://github.com/agentscope-ai/QwenPaw"
+              href="https://github.com/agentscope-ai/AIArb"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -307,7 +307,7 @@ export default function LoginPage() {
             </a>
             <span aria-hidden="true" />
             <a
-              href="https://qwenpaw.agentscope.io/"
+              href="https://aiarb.agentscope.io/"
               target="_blank"
               rel="noopener noreferrer"
             >

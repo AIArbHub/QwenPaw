@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Desktop release verification script.
 
-Drives a running QwenPaw desktop backend (either Tauri packaging flavour:
+Drives a running AIArb desktop backend (either Tauri packaging flavour:
 tauri-win / tauri-mac) end-to-end:
 
 1. ``GET /api/version`` — health + version match.
@@ -66,13 +66,13 @@ HANG_DUMP_SECONDS = 540
 # Selectors come straight from e2e/pages/chat_page.py so they stay in sync
 # with what the real UI tests expect.
 SEL_INPUT = (
-    '.qwenpaw-sender [role="textbox"][contenteditable="true"]:visible, '
-    "textarea.qwenpaw-sender-input:visible"
+    '.aiarb-sender [role="textbox"][contenteditable="true"]:visible, '
+    "textarea.aiarb-sender-input:visible"
 )
-SEL_SEND_BTN = "button.qwenpaw-sender-actions-btn.qwenpaw-btn-primary"
-SEL_USER_BUBBLE = ".qwenpaw-bubble.qwenpaw-bubble-end"
-SEL_AI_BUBBLE = ".qwenpaw-bubble.qwenpaw-bubble-start"
-SEL_TOUR_NEXT = "button.qwenpaw-tour-next-btn"
+SEL_SEND_BTN = "button.aiarb-sender-actions-btn.aiarb-btn-primary"
+SEL_USER_BUBBLE = ".aiarb-bubble.aiarb-bubble-end"
+SEL_AI_BUBBLE = ".aiarb-bubble.aiarb-bubble-start"
+SEL_TOUR_NEXT = "button.aiarb-tour-next-btn"
 
 
 # =============================================================================
@@ -153,9 +153,9 @@ def verify_frontend(base_url: str) -> None:
             f"Frontend root did not return HTML (first 200 chars): "
             f"{body[:200]}",
         )
-    if "qwenpaw" not in lower:
+    if "aiarb" not in lower:
         raise RuntimeError(
-            "Frontend HTML does not mention QwenPaw — wrong bundle?",
+            "Frontend HTML does not mention AIArb — wrong bundle?",
         )
     print("PASS  GET / -> frontend HTML served")
 
@@ -365,14 +365,14 @@ class PlaywrightDriver(UIDriver):
     #   4. framework-injected disabled / loading class
     _JS_SEND_DISABLED = """() => {
       const btn = document.querySelector(
-        'button.qwenpaw-sender-actions-btn.qwenpaw-btn-primary'
+        'button.aiarb-sender-actions-btn.aiarb-btn-primary'
       );
       if (!btn) return true;
       if (btn.disabled === true) return true;
       if (btn.hasAttribute('disabled')) return true;
       if (btn.getAttribute('aria-disabled') === 'true') return true;
       const cls = btn.className || '';
-      if (/qwenpaw-btn-disabled|qwenpaw-btn-loading|is-disabled|is-loading/.test(cls)) {
+      if (/aiarb-btn-disabled|aiarb-btn-loading|is-disabled|is-loading/.test(cls)) {
         return true;
       }
       return false;
@@ -410,12 +410,12 @@ class PlaywrightDriver(UIDriver):
     #           rounds are short single-step replies; 2.5s is plenty.
     _JS_BUBBLE_READY = """(expectedCount) => {
       const btn = document.querySelector(
-        'button.qwenpaw-sender-actions-btn.qwenpaw-btn-primary'
+        'button.aiarb-sender-actions-btn.aiarb-btn-primary'
       );
       let btnDisabled = true;
       if (btn) {
         const cls = btn.className || '';
-        const disabledByCls = /qwenpaw-btn-disabled|qwenpaw-btn-loading|is-disabled|is-loading/.test(cls);
+        const disabledByCls = /aiarb-btn-disabled|aiarb-btn-loading|is-disabled|is-loading/.test(cls);
         const disabledByAttr = btn.disabled === true
           || btn.hasAttribute('disabled')
           || btn.getAttribute('aria-disabled') === 'true';
@@ -426,7 +426,7 @@ class PlaywrightDriver(UIDriver):
       // state during this round. Path A only fires after a full
       // disabled -> enabled transition, not when the button simply
       // hasn't been disabled yet (which looks the same as "enabled").
-      const stateKey = '__qwenpaw_btn_was_disabled__';
+      const stateKey = '__aiarb_btn_was_disabled__';
       if (btnDisabled) {
         window[stateKey] = true;
       }
@@ -434,7 +434,7 @@ class PlaywrightDriver(UIDriver):
       const btnRecovered = sawDisabled && !btnDisabled;
 
       const aiMsgs = document.querySelectorAll(
-        '.qwenpaw-bubble.qwenpaw-bubble-start'
+        '.aiarb-bubble.aiarb-bubble-start'
       );
       if (aiMsgs.length <= expectedCount) {
         return false;
@@ -449,7 +449,7 @@ class PlaywrightDriver(UIDriver):
 
       let contentStable = false;
       if (hasRealText) {
-        const key = '__qwenpaw_ai_stable_cache__';
+        const key = '__aiarb_ai_stable_cache__';
         const now = Date.now();
         const cache = window[key] || {};
         if (cache.text !== raw) {
@@ -485,24 +485,24 @@ class PlaywrightDriver(UIDriver):
         try:
             _idle_js = """() => {
   const btn = document.querySelector(
-    'button.qwenpaw-sender-actions-btn.qwenpaw-btn-primary',
+    'button.aiarb-sender-actions-btn.aiarb-btn-primary',
   );
   if (btn) {
     const cls = btn.className || '';
     const disabledByCls =
-      /qwenpaw-btn-disabled|qwenpaw-btn-loading|is-disabled|is-loading/.test(cls);
+      /aiarb-btn-disabled|aiarb-btn-loading|is-disabled|is-loading/.test(cls);
     const disabledByAttr = btn.disabled === true
       || btn.hasAttribute('disabled')
       || btn.getAttribute('aria-disabled') === 'true';
     if (!disabledByAttr && !disabledByCls) return true;
   }
   const aiMsgs = document.querySelectorAll(
-    '.qwenpaw-bubble.qwenpaw-bubble-start',
+    '.aiarb-bubble.aiarb-bubble-start',
   );
   if (aiMsgs.length === 0) return true;
   const last = aiMsgs[aiMsgs.length - 1];
   const raw = (last.innerText || '').trim();
-  const key = '__qwenpaw_send_idle_cache__';
+  const key = '__aiarb_send_idle_cache__';
   const now = Date.now();
   const cache = window[key] || {};
   if (cache.text !== raw) {
@@ -520,7 +520,7 @@ class PlaywrightDriver(UIDriver):
             try:
                 self._page.evaluate(
                     "() => { try { delete window."
-                    "__qwenpaw_send_idle_cache__; } catch(e) {} }",
+                    "__aiarb_send_idle_cache__; } catch(e) {} }",
                 )
             except Exception:  # noqa: BLE001
                 pass
@@ -564,8 +564,8 @@ class PlaywrightDriver(UIDriver):
         # stable cache must not carry over).
         try:
             self._page.evaluate(
-                "() => { delete window.__qwenpaw_btn_was_disabled__;"
-                " delete window.__qwenpaw_ai_stable_cache__; }",
+                "() => { delete window.__aiarb_btn_was_disabled__;"
+                " delete window.__aiarb_ai_stable_cache__; }",
             )
         except Exception:  # noqa: BLE001
             pass
@@ -586,7 +586,7 @@ class PlaywrightDriver(UIDriver):
             self._page.wait_for_function(
                 """(expected) => {
                   const msgs = document.querySelectorAll(
-                    '.qwenpaw-bubble.qwenpaw-bubble-end'
+                    '.aiarb-bubble.aiarb-bubble-end'
                   );
                   return msgs.length > expected;
                 }""",
@@ -603,7 +603,7 @@ class PlaywrightDriver(UIDriver):
                 self._page.wait_for_function(
                     """(expected) => {
                       const msgs = document.querySelectorAll(
-                        '.qwenpaw-bubble.qwenpaw-bubble-end'
+                        '.aiarb-bubble.aiarb-bubble-end'
                       );
                       return msgs.length > expected;
                     }""",
@@ -623,7 +623,7 @@ class PlaywrightDriver(UIDriver):
             self._page.wait_for_function(
                 """(expectedCount) => {
                   const aiMsgs = document.querySelectorAll(
-                    '.qwenpaw-bubble.qwenpaw-bubble-start'
+                    '.aiarb-bubble.aiarb-bubble-start'
                   );
                   return aiMsgs.length > expectedCount;
                 }""",
@@ -812,7 +812,7 @@ def _run_llm_with_retry(
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Verify a running QwenPaw desktop backend end-to-end: API "
+            "Verify a running AIArb desktop backend end-to-end: API "
             "health + provider config + single-round UI chat."
         ),
     )
@@ -831,9 +831,9 @@ def main() -> int:
     )
     parser.add_argument(
         "--api-key",
-        default=os.environ.get("QWENPAW_DASHSCOPE_API_KEY", ""),
+        default=os.environ.get("AIARB_DASHSCOPE_API_KEY", ""),
         help="DashScope API key. Falls back to env "
-        "QWENPAW_DASHSCOPE_API_KEY. Empty value -> auto skip-chat.",
+        "AIARB_DASHSCOPE_API_KEY. Empty value -> auto skip-chat.",
     )
     parser.add_argument(
         "--provider",

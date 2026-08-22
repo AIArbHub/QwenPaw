@@ -8,18 +8,18 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from qwenpaw.sandbox import (
+from aiarb.sandbox import (
     MountSpec,
     SandboxCapability,
     SandboxConfig,
     SandboxMode,
     create_sandbox,
 )
-from qwenpaw.sandbox.bubblewrap_sandbox import (
+from aiarb.sandbox.bubblewrap_sandbox import (
     _BWRAP_VIOLATION_RE,
     BubblewrapSandbox,
 )
-from qwenpaw.sandbox.config import _probe_linux_bubblewrap
+from aiarb.sandbox.config import _probe_linux_bubblewrap
 
 # ============================================================================
 # _build_bwrap_args() — parameter generation
@@ -228,7 +228,7 @@ class TestProbeSandboxSupportLinuxBwrap:
     @pytest.fixture(autouse=True)
     def _clear_probe_cache(self):
         """Clear lru_cache so each test starts fresh."""
-        from qwenpaw.sandbox.config import probe_sandbox_support
+        from aiarb.sandbox.config import probe_sandbox_support
 
         probe_sandbox_support.cache_clear()
         yield
@@ -236,20 +236,20 @@ class TestProbeSandboxSupportLinuxBwrap:
 
     @patch("sys.platform", "linux")
     @patch(
-        "qwenpaw.sandbox.config._probe_linux_bubblewrap",
+        "aiarb.sandbox.config._probe_linux_bubblewrap",
         return_value=SandboxCapability(
             supported=True,
             mode=SandboxMode.BUBBLEWRAP,
             reason="bubblewrap available with user namespaces",
         ),
     )
-    @patch("qwenpaw.sandbox.config._probe_linux_landlock")
+    @patch("aiarb.sandbox.config._probe_linux_landlock")
     def test_bwrap_available_skips_landlock(
         self,
         mock_landlock,
         mock_bwrap,
     ):
-        from qwenpaw.sandbox import probe_sandbox_support
+        from aiarb.sandbox import probe_sandbox_support
 
         result = probe_sandbox_support()
         assert result.mode == SandboxMode.BUBBLEWRAP
@@ -257,7 +257,7 @@ class TestProbeSandboxSupportLinuxBwrap:
 
     @patch("sys.platform", "linux")
     @patch(
-        "qwenpaw.sandbox.config._probe_linux_bubblewrap",
+        "aiarb.sandbox.config._probe_linux_bubblewrap",
         return_value=SandboxCapability(
             supported=False,
             mode=SandboxMode.NONE,
@@ -265,7 +265,7 @@ class TestProbeSandboxSupportLinuxBwrap:
         ),
     )
     @patch(
-        "qwenpaw.sandbox.config._probe_linux_landlock",
+        "aiarb.sandbox.config._probe_linux_landlock",
         return_value=SandboxCapability(
             supported=True,
             mode=SandboxMode.LANDLOCK,
@@ -278,7 +278,7 @@ class TestProbeSandboxSupportLinuxBwrap:
         mock_landlock,
         mock_bwrap,
     ):
-        from qwenpaw.sandbox import probe_sandbox_support
+        from aiarb.sandbox import probe_sandbox_support
 
         result = probe_sandbox_support()
         assert result.mode == SandboxMode.LANDLOCK
@@ -292,7 +292,7 @@ class TestProbeSandboxSupportLinuxBwrap:
 class TestCreateSandboxBubblewrap:
     """Test create_sandbox returns BubblewrapSandbox for BUBBLEWRAP mode."""
 
-    @patch("qwenpaw.sandbox.config.sys")
+    @patch("aiarb.sandbox.config.sys")
     def test_create_sandbox_bubblewrap(self, mock_sys):
         mock_sys.platform = "linux"
         config = SandboxConfig(
@@ -321,9 +321,9 @@ class TestCreateSandboxBubblewrap:
 class TestCreateSandboxPlatformDowngrade:
     """Test create_sandbox downgrades incompatible modes."""
 
-    @patch("qwenpaw.sandbox.config.sys")
+    @patch("aiarb.sandbox.config.sys")
     @patch(
-        "qwenpaw.sandbox.config.detect_platform_mode",
+        "aiarb.sandbox.config.detect_platform_mode",
         return_value=SandboxMode.BUBBLEWRAP,
     )
     def test_seatbelt_mode_on_linux_downgrades_to_bubblewrap(

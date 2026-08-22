@@ -9,7 +9,7 @@ use super::BackendState;
 
 const MAX_CAPTURED_STDERR_CHARS: usize = 4000;
 const STDERR_TRUNCATION_MARKER: &str = "\n[...stderr truncated...]\n";
-const BACKEND_READY_PREFIX: &str = "QWENPAW_BACKEND_READY ";
+const BACKEND_READY_PREFIX: &str = "AIARB_BACKEND_READY ";
 
 #[derive(Deserialize)]
 struct BackendReadyPayload {
@@ -147,14 +147,14 @@ mod tests {
 
     #[test]
     fn ready_port_from_stdout_parses_protocol_line() {
-        let text = "INFO before\nQWENPAW_BACKEND_READY {\"port\":54321}\n";
+        let text = "INFO before\nAIARB_BACKEND_READY {\"port\":54321}\n";
 
         assert_eq!(ready_port_from_stdout(text), Some(54321));
     }
 
     #[test]
     fn ready_port_from_stdout_ignores_other_output() {
-        assert_eq!(ready_port_from_stdout("QWENPAW_BACKEND_READY nope"), None);
+        assert_eq!(ready_port_from_stdout("AIARB_BACKEND_READY nope"), None);
         assert_eq!(ready_port_from_stdout("ordinary stdout"), None);
     }
 }

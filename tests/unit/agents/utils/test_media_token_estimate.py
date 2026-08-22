@@ -12,8 +12,8 @@ import wave
 
 from PIL import Image
 
-from qwenpaw.agents.utils import media_token_estimate as mte
-from qwenpaw.agents.utils.media_token_estimate import (
+from aiarb.agents.utils import media_token_estimate as mte
+from aiarb.agents.utils.media_token_estimate import (
     AUDIO_FALLBACK_TOKENS,
     AUDIO_TOKENS_PER_SECOND,
     FILE_FALLBACK_TOKENS,

@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.runtime.prompt_contributors import (
+from aiarb.runtime.prompt_contributors import (
     WorkspacePromptFilesContributor,
     build_default_prompt_manager,
 )

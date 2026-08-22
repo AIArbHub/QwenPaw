@@ -10,7 +10,7 @@ ws.Client endpoint discovery at ``mock_feishu_im.MockFeishuIM``:
   (p2 im.message.receive_v1) -> _on_message -> agent (mock LLM)
   -> im/v1/messages create captured by the mock.
 
-Coverage targets (``src/qwenpaw/app/channels/feishu/channel.py``):
+Coverage targets (``src/aiarb/app/channels/feishu/channel.py``):
   start/_run_ws_forever/_on_message_sync/_on_message/
   build_agent_request_from_native/send/_send_text/_send_message.
 

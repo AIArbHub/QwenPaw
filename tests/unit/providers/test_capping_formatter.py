@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.providers.capping_formatter import (
+from aiarb.providers.capping_formatter import (
     MAX_INLINE_MEDIA_BYTES,
     _CappingAnthropicFormatter,
     _CappingDashScopeFormatter,

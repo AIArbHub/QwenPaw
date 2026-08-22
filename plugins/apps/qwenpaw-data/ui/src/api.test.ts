@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createQwenPawDataApi } from "./api";
+import { createAIArbDataApi } from "./api";
 import type { PawAppSdk, PawRequestOptions } from "./sdk";
 
-describe("QwenPaw-Data semantic API", () => {
+describe("AIArb-Data semantic API", () => {
   it("loads every CLI semantic resource from the selected datasource", async () => {
     const calls: Array<{ path: string; options?: PawRequestOptions }> = [];
     const get = vi.fn(async (path: string, options?: PawRequestOptions) => {
@@ -31,7 +31,7 @@ describe("QwenPaw-Data semantic API", () => {
       api: { get },
     } as unknown as PawAppSdk;
 
-    const snapshot = await createQwenPawDataApi(paw).semanticCatalog("pg-1");
+    const snapshot = await createAIArbDataApi(paw).semanticCatalog("pg-1");
 
     expect(calls).toHaveLength(8);
     expect(calls.map((call) => call.path)).toEqual(

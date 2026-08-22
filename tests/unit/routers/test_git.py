@@ -10,9 +10,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from qwenpaw.app.routers import git as git_router
-from qwenpaw.app.routers.git import CommitRequest
-from qwenpaw.utils.command_runner import CommandResult
+from aiarb.app.routers import git as git_router
+from aiarb.app.routers.git import CommitRequest
+from aiarb.utils.command_runner import CommandResult
 
 
 @pytest.mark.asyncio
@@ -171,9 +171,9 @@ async def test_commit_endpoint_passes_identity_args(
     assert recorded["command"] == [
         "git",
         "-c",
-        "user.email=qwenpaw@localhost",
+        "user.email=aiarb@localhost",
         "-c",
-        "user.name=QwenPaw",
+        "user.name=AIArb",
         "commit",
         "-m",
         "fix identity",

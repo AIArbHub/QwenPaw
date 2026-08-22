@@ -1,4 +1,4 @@
-# Build QwenPaw multi-arch Docker image and push to DockerHub + Aliyun ACR on release.
+# Build AIArb multi-arch Docker image and push to DockerHub + Aliyun ACR on release.
 # Pre-release: update <version> and pre only.
 # Formal release: update <version>, pre and latest.
 #
@@ -26,7 +26,7 @@ on:
 
 env:
   ACR_REGISTRY: agentscope-registry.ap-southeast-1.cr.aliyuncs.com
-  IMAGE: agentscope/qwenpaw
+  IMAGE: agentscope/aiarb
 
 jobs:
   # ── Stage 1: Verify Docker image boots correctly ───────────────────────────
@@ -94,8 +94,8 @@ jobs:
         env:
           VERSION: ${{ steps.vars.outputs.version }}
           IS_PRERELEASE: ${{ steps.vars.outputs.is_prerelease }}
-          QWENPAW_DISABLED_CHANNELS: "imessage"
-          QWENPAW_VERSION: ${{ steps.qwenpaw_version.outputs.version }}
+          AIARB_DISABLED_CHANNELS: "imessage"
+          AIARB_VERSION: ${{ steps.aiarb_version.outputs.version }}
         run: |
           TAGS="-t ${ACR_REGISTRY}/${IMAGE}:${VERSION} -t ${ACR_REGISTRY}/${IMAGE}:pre"
           TAGS="${TAGS} -t docker.io/${IMAGE}:${VERSION} -t docker.io/${IMAGE}:pre"
@@ -104,7 +104,7 @@ jobs:
           fi
           docker buildx build --platform linux/amd64,linux/arm64 \
             -f deploy/Dockerfile \
-            --build-arg QWENPAW_DISABLED_CHANNELS="${QWENPAW_DISABLED_CHANNELS}" \
+            --build-arg AIARB_DISABLED_CHANNELS="${AIARB_DISABLED_CHANNELS}" \
             --build-arg \
-            QWENPAW_MANAGED_RUNTIME_BOUNDARY_VERSION="${QWENPAW_VERSION}" \
+            AIARB_MANAGED_RUNTIME_BOUNDARY_VERSION="${AIARB_VERSION}" \
             ${TAGS} --push .

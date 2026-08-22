@@ -37,7 +37,7 @@ export function DataSources({
       <PageHeader
         eyebrow="Diagnostics"
         title="Runtime status"
-        description="Health of the managed services and connections behind QwenPaw-Data. Add or edit connections in Manage."
+        description="Health of the managed services and connections behind AIArb-Data. Add or edit connections in Manage."
         actions={
           <div className="qwenpaw-data-live-controls">
             <span className="qwenpaw-data-live-status">

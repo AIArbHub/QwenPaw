@@ -8,7 +8,7 @@ import httpx
 import openai
 import pytest
 
-from qwenpaw.providers.model_error_policy import classify_model_error
+from aiarb.providers.model_error_policy import classify_model_error
 
 
 class HttpError(Exception):

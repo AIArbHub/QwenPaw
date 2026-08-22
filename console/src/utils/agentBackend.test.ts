@@ -1,20 +1,20 @@
 import { describe, expect, it } from "vitest";
 
-import { requiresQwenPawModel, supportsAgentAttachments } from "./agentBackend";
+import { requiresAIArbModel, supportsAgentAttachments } from "./agentBackend";
 
-describe("requiresQwenPawModel", () => {
-  it("requires a configured model for native QwenPaw agents", () => {
-    expect(requiresQwenPawModel("qwenpaw")).toBe(true);
+describe("requiresAIArbModel", () => {
+  it("requires a configured model for native AIArb agents", () => {
+    expect(requiresAIArbModel("aiarb")).toBe(true);
   });
 
-  it("does not inspect QwenPaw models for Codex agents", () => {
-    expect(requiresQwenPawModel("codex")).toBe(false);
+  it("does not inspect AIArb models for Codex agents", () => {
+    expect(requiresAIArbModel("codex")).toBe(false);
   });
 });
 
 describe("supportsAgentAttachments", () => {
   it("keeps attachments enabled for native agents", () => {
-    expect(supportsAgentAttachments("qwenpaw")).toBe(true);
+    expect(supportsAgentAttachments("aiarb")).toBe(true);
   });
 
   it("enables sender drop handling when Codex declares attachments", () => {

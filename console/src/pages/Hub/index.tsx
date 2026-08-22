@@ -596,7 +596,7 @@ export default function HubPage() {
             <ChartNoAxesCombined size={20} />
           </div>
           <div>
-            <strong>QwenPaw Hub</strong>
+            <strong>AIArb Hub</strong>
             <span>{t("hub.brand.controlPlane")}</span>
           </div>
         </div>
@@ -638,7 +638,7 @@ export default function HubPage() {
             className={styles.backButton}
           >
             <House size={16} />
-            <span>{t("hub.actions.backToQwenPaw")}</span>
+            <span>{t("hub.actions.backToAIArb")}</span>
           </button>
           <div className={styles.account}>
             <div className={styles.avatar}>
@@ -1764,7 +1764,7 @@ function SettingsPanel({
                             rules={[{ required: true }]}
                           >
                             {dockerSource === "custom" ? (
-                              <Input placeholder="registry.example.com/qwenpaw:v1" />
+                              <Input placeholder="registry.example.com/aiarb:v1" />
                             ) : dockerSource === "local" ? (
                               <Select
                                 options={localImageOptions}
@@ -2055,7 +2055,7 @@ function ImageSourceSelector({
       value: "docker_hub" as const,
       icon: Box,
       title: t("hub.settings.docker.dockerHub"),
-      description: "docker.io/agentscope/qwenpaw",
+      description: "docker.io/agentscope/aiarb",
     },
     {
       value: "aliyun_acr" as const,

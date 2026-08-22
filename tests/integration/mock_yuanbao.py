@@ -10,7 +10,7 @@ Serves both Yuanbao surfaces:
   requests, and lets tests push inbound message JSON.
 
 Frame encoding reuses the *product codec*
-(``qwenpaw.app.channels.yuanbao.codec``), so the mock stays in sync
+(``aiarb.app.channels.yuanbao.codec``), so the mock stays in sync
 with the real protocol definitions.
 """
 from __future__ import annotations
@@ -25,7 +25,7 @@ from typing import Any, Optional
 
 from websockets.sync.server import serve as ws_serve
 
-from qwenpaw.app.channels.yuanbao import codec as ybcodec
+from aiarb.app.channels.yuanbao import codec as ybcodec
 
 MOCK_BOT_ID = "integ-mock-yb-bot"
 MOCK_TOKEN = "integ-mock-yb-token"

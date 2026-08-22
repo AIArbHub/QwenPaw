@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Unit tests for qwenpaw.app.channels.console.channel.ConsoleChannel.
+"""Unit tests for aiarb.app.channels.console.channel.ConsoleChannel.
 
 Focuses on the *local* ConsoleChannel helpers (start/stop/send, session
 resolution, parts rendering). Heavy streaming pipeline behavior is covered
@@ -17,7 +17,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from qwenpaw.schemas import (
+from aiarb.schemas import (
     ContentType,
     ImageContent,
     Message,
@@ -31,7 +31,7 @@ from qwenpaw.schemas import (
 
 @pytest.fixture
 def console_channel(tmp_path: Path):
-    from qwenpaw.app.channels.console.channel import ConsoleChannel
+    from aiarb.app.channels.console.channel import ConsoleChannel
 
     return ConsoleChannel(
         process=MagicMock(),
@@ -43,7 +43,7 @@ def console_channel(tmp_path: Path):
 
 @pytest.fixture
 def disabled_console_channel(tmp_path: Path):
-    from qwenpaw.app.channels.console.channel import ConsoleChannel
+    from aiarb.app.channels.console.channel import ConsoleChannel
 
     return ConsoleChannel(
         process=MagicMock(),
@@ -147,14 +147,14 @@ class TestBuildAgentRequestFromNative:
             "sender_id": "u1",
             "content_parts": [TextContent(text="hi")],
             "message_metadata": {
-                "qwenpaw_client_message_id": "client-2",
+                "aiarb_client_message_id": "client-2",
             },
             "meta": {},
         }
         req = console_channel.build_agent_request_from_native(payload)
 
         assert req.input[0].metadata == {
-            "qwenpaw_client_message_id": "client-2",
+            "aiarb_client_message_id": "client-2",
         }
 
     def test_non_dict_payload_returns_empty_request(
@@ -300,7 +300,7 @@ class TestNoTextDebounce:
         assert merged[1].type == ContentType.TEXT
 
     def test_audio_bypasses_debounce(self, console_channel):
-        from qwenpaw.schemas import AudioContent
+        from aiarb.schemas import AudioContent
 
         audio = AudioContent(data="http://x/a.mp3")
         ok, merged = console_channel._apply_no_text_debounce(

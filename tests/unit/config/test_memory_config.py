@@ -4,7 +4,7 @@
 import pytest
 from pydantic import ValidationError
 
-from qwenpaw.config.config import (
+from aiarb.config.config import (
     ADBPGMemoryConfig,
     EmbeddingModelConfig,
     ReMeLightMemoryConfig,

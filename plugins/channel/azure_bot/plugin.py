@@ -3,7 +3,7 @@
 
 import logging
 
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 
 logger = logging.getLogger(__name__)
 
@@ -31,11 +31,11 @@ class AzureBotChannelPlugin:
             ),
             doc_url={
                 "zh": (
-                    "https://qwenpaw.agentscope.io/docs/channels/"
+                    "https://aiarb.agentscope.io/docs/channels/"
                     "?lang=zh#Azure-BotMicrosoft-机器人服务"
                 ),
                 "en": (
-                    "https://qwenpaw.agentscope.io/docs/channels/"
+                    "https://aiarb.agentscope.io/docs/channels/"
                     "?lang=en#Azure-Bot-Microsoft-Bot-Service"
                 ),
             },

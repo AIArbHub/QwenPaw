@@ -14,7 +14,7 @@ from unittest.mock import patch
 import pytest
 import yaml
 
-from qwenpaw.utils.io_utils import (
+from aiarb.utils.io_utils import (
     append_text_async,
     read_bytes_async,
     read_json_async,
@@ -49,7 +49,7 @@ def test_write_text_atomic_preserves_destination_on_replace_error(
 
     with (
         patch(
-            "qwenpaw.utils.io_utils.os.replace",
+            "aiarb.utils.io_utils.os.replace",
             side_effect=PermissionError("locked"),
         ),
         pytest.raises(PermissionError, match="locked"),
@@ -124,7 +124,7 @@ def test_write_text_atomic_temp_is_private_while_writing(
         observed_mode = stat.S_IMODE(os.fstat(fd).st_mode)
         real_fsync(fd)
 
-    with patch("qwenpaw.utils.io_utils.os.fsync", inspect_fsync):
+    with patch("aiarb.utils.io_utils.os.fsync", inspect_fsync):
         write_text_atomic(path, "new", new_file_mode=0o644)
 
     assert observed_mode == 0o600
@@ -150,7 +150,7 @@ def test_write_text_atomic_sets_existing_mode_before_replace(
         observed_mode = stat.S_IMODE(Path(source).stat().st_mode)
         real_replace(source, destination)
 
-    with patch("qwenpaw.utils.io_utils.os.replace", inspect_replace):
+    with patch("aiarb.utils.io_utils.os.replace", inspect_replace):
         write_text_atomic(path, "new")
 
     assert observed_mode == 0o640
@@ -165,12 +165,12 @@ def test_write_yaml_atomic_serializes_and_appends_content(
 
     write_yaml_atomic(
         path,
-        {"name": "QwenPaw"},
+        {"name": "AIArb"},
         extra_content="# managed\n",
     )
 
     content = path.read_text(encoding="utf-8")
-    assert yaml.safe_load(content) == {"name": "QwenPaw"}
+    assert yaml.safe_load(content) == {"name": "AIArb"}
     assert content.endswith("# managed\n")
 
 
@@ -211,8 +211,8 @@ async def test_async_json_helpers_run_sync_io_in_worker_thread(
         return {"ok": True}
 
     with (
-        patch("qwenpaw.utils.io_utils.write_json_atomic", fake_write),
-        patch("qwenpaw.utils.io_utils.read_json", fake_read),
+        patch("aiarb.utils.io_utils.write_json_atomic", fake_write),
+        patch("aiarb.utils.io_utils.read_json", fake_read),
     ):
         await write_json_atomic_async(path, {"ok": True})
         payload = await read_json_async(path)
@@ -290,7 +290,7 @@ async def test_async_json_write_allows_event_loop_progress(
         release.wait(timeout=2)
 
     with patch(
-        "qwenpaw.utils.io_utils.write_json_atomic",
+        "aiarb.utils.io_utils.write_json_atomic",
         delayed_write,
     ):
         task = asyncio.create_task(
@@ -370,7 +370,7 @@ async def test_cancelled_append_holds_lock_until_worker_finishes(
         else:
             second_started.set()
 
-    with patch("qwenpaw.utils.io_utils._append_text", delayed_append):
+    with patch("aiarb.utils.io_utils._append_text", delayed_append):
         first = asyncio.create_task(append_text_async(path, "first"))
         while not first_started.is_set():
             await asyncio.sleep(0)

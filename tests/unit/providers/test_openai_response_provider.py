@@ -11,8 +11,8 @@ import pytest
 from agentscope.model import OpenAIResponseModel
 from openai import BadRequestError
 
-from qwenpaw.providers.multimodal_prober import _PROBE_VIDEO_URL
-from qwenpaw.providers.openai_response_provider import (
+from aiarb.providers.multimodal_prober import _PROBE_VIDEO_URL
+from aiarb.providers.openai_response_provider import (
     OpenAIResponseProvider,
     _extract_reasoning_text,
     _extract_response_text,

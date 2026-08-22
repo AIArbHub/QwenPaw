@@ -15,14 +15,14 @@ from typing import Any, AsyncGenerator
 
 import pytest
 
-from qwenpaw.agents import fork_project
-from qwenpaw.agents.fork_project import (
+from aiarb.agents import fork_project
+from aiarb.agents.fork_project import (
     REGISTRY_REL,
     begin_fork_scope,
     register_fork,
 )
-from qwenpaw.app.routers import console
-from qwenpaw.app.task_tracker import TaskTracker
+from aiarb.app.routers import console
+from aiarb.app.task_tracker import TaskTracker
 
 
 @dataclass(frozen=True)
@@ -48,7 +48,7 @@ def _create_fork(tmp_path: Path, name: str) -> _Fork:
     project = tmp_path / "repo"
     project.mkdir()
     _git(project, "init", "-q")
-    _git(project, "config", "user.name", "QwenPaw Test")
+    _git(project, "config", "user.name", "AIArb Test")
     _git(project, "config", "user.email", "test@example.invalid")
     (project / "README.md").write_text("base\n", encoding="utf-8")
     _git(project, "add", "README.md")
@@ -56,7 +56,7 @@ def _create_fork(tmp_path: Path, name: str) -> _Fork:
 
     scope = begin_fork_scope(project)
     branch = f"fork/{name}"
-    worktree = project / ".qwenpaw" / "worktrees" / name
+    worktree = project / ".aiarb" / "worktrees" / name
     worktree.parent.mkdir(parents=True, exist_ok=True)
     _git(project, "worktree", "add", "-q", str(worktree), "-b", branch)
     assert register_fork(
@@ -148,7 +148,7 @@ async def _submit_forked_task(
 
     monkeypatch.setattr(console, "get_agent_for_request", _get_workspace)
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: SimpleNamespace(project_dir=None),
     )
     request_context = {

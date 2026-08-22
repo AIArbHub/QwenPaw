@@ -10,7 +10,7 @@ injection, no WebSocket.
 Flow covered: start() -> getMe -> getUpdates long poll -> incoming
 message -> agent (mock LLM) -> sendMessage recorded by the mock.
 
-Coverage targets (``src/qwenpaw/app/channels/telegram/channel.py``):
+Coverage targets (``src/aiarb/app/channels/telegram/channel.py``):
   start/_polling loop/_build_content_parts_from_message/
   build_agent_request_from_native/send.
 
@@ -284,7 +284,7 @@ def test_telegram_version_control_command(
 
     Test flow:
       1. Queue a private message "/version" (no LLM registered).
-      2. Poll for a sendMessage whose text mentions qwenpaw/version.
+      2. Poll for a sendMessage whose text mentions aiarb/version.
     """
     replied = None
     for _ in range(4):
@@ -293,7 +293,7 @@ def test_telegram_version_control_command(
             chat_id=777505,
         )
         replied = telegram_channel_up.wait_for_sent_text(
-            lambda t: "version" in t.lower() or "qwenpaw" in t.lower(),
+            lambda t: "version" in t.lower() or "aiarb" in t.lower(),
             timeout=20.0,
         )
         if replied is not None:
@@ -369,7 +369,7 @@ def test_telegram_bot_command_entity(
             chat_id=777708,
         )
         replied = telegram_channel_up.wait_for_sent_text(
-            lambda t: "version" in t.lower() or "qwenpaw" in t.lower(),
+            lambda t: "version" in t.lower() or "aiarb" in t.lower(),
             timeout=20.0,
         )
         if replied is not None:
@@ -484,7 +484,7 @@ def test_telegram_daemon_version_control_command(
             chat_id=777508,
         )
         replied = telegram_channel_up.wait_for_sent_text(
-            lambda t: "version" in t.lower() or "qwenpaw" in t.lower(),
+            lambda t: "version" in t.lower() or "aiarb" in t.lower(),
             timeout=20.0,
         )
         if replied is not None:

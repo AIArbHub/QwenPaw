@@ -50,7 +50,7 @@
   margin-bottom: 4px;
 
   :global(.ant-tabs-nav),
-  :global(.qwenpaw-tabs-nav) {
+  :global(.aiarb-tabs-nav) {
     margin-bottom: 20px;
 
     &::before {
@@ -61,7 +61,7 @@
   // Narrow screens: tabs stay reachable via horizontal scroll (antd default)
   // without shrinking below a comfortable touch size.
   :global(.ant-tabs-tab),
-  :global(.qwenpaw-tabs-tab) {
+  :global(.aiarb-tabs-tab) {
     padding: 8px 4px;
 
     @media (max-width: 639px) {
@@ -240,10 +240,10 @@
     transform: translateY(-2px);
   }
 
-  // The app configures antd with prefixCls="qwenpaw"; keep the ant-* alias
+  // The app configures antd with prefixCls="aiarb"; keep the ant-* alias
   // for safety in tests/storybook-like environments.
   :global(.ant-card-body),
-  :global(.qwenpaw-card-body) {
+  :global(.aiarb-card-body) {
     position: relative;
     height: 100%;
     min-height: 184px;
@@ -429,7 +429,7 @@
   gap: 8px;
 
   :global(.ant-btn),
-  :global(.qwenpaw-btn) {
+  :global(.aiarb-btn) {
     flex: 1;
     min-width: 0;
     border-radius: 6px;
@@ -441,7 +441,7 @@
     left: 14px;
 
     :global(.ant-btn),
-    :global(.qwenpaw-btn) {
+    :global(.aiarb-btn) {
       min-height: 36px;
     }
   }
@@ -537,22 +537,22 @@
 
   .viewTabs {
     :global(.ant-tabs-nav::before),
-    :global(.qwenpaw-tabs-nav::before) {
+    :global(.aiarb-tabs-nav::before) {
       border-bottom-color: rgba(255, 255, 255, 0.12);
     }
 
     :global(.ant-tabs-tab),
-    :global(.qwenpaw-tabs-tab) {
+    :global(.aiarb-tabs-tab) {
       color: rgba(255, 255, 255, 0.55);
     }
 
     :global(.ant-tabs-tab-active .ant-tabs-tab-btn),
-    :global(.qwenpaw-tabs-tab-active .qwenpaw-tabs-tab-btn) {
+    :global(.aiarb-tabs-tab-active .aiarb-tabs-tab-btn) {
       color: rgba(255, 255, 255, 0.88);
     }
 
     :global(.ant-tabs-ink-bar),
-    :global(.qwenpaw-tabs-ink-bar) {
+    :global(.aiarb-tabs-ink-bar) {
       background: #0065fd;
     }
   }

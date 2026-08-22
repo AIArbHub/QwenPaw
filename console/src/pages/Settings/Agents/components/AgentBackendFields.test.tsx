@@ -19,7 +19,7 @@ const { mockCopyText, mockMessage, mockProvider } = vi.hoisted(() => ({
     installed: true,
     authenticated: true,
     account: { type: "chatgpt", email: "person@example.com" },
-    runtime_path: "/opt/qwenpaw/site-packages/codex_cli_bin/bin/codex",
+    runtime_path: "/opt/aiarb/site-packages/codex_cli_bin/bin/codex",
     runtime_source: "python-sdk",
     error: null,
     capabilities: {
@@ -33,8 +33,8 @@ const { mockCopyText, mockMessage, mockProvider } = vi.hoisted(() => ({
       native_skills_ui: false,
       native_tools_ui: false,
       native_mcp_ui: false,
-      qwenpaw_skills_projection: true,
-      qwenpaw_mcp_projection: true,
+      aiarb_skills_projection: true,
+      aiarb_mcp_projection: true,
       provider_skills_discovery: true,
       provider_mcp_discovery: true,
       mcp_tool_allowlist: true,
@@ -84,7 +84,7 @@ vi.mock("@/hooks/useAppMessage", () => ({
 function BackendForm() {
   const [form] = Form.useForm();
   return (
-    <Form form={form} initialValues={{ backend: "qwenpaw" }}>
+    <Form form={form} initialValues={{ backend: "aiarb" }}>
       <AgentBackendFields form={form} open />
     </Form>
   );
@@ -152,7 +152,7 @@ describe("AgentBackendFields", () => {
       screen.getByText("agent.backend.toolAllowlistSupported"),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("/opt/qwenpaw/site-packages/codex_cli_bin/bin/codex"),
+      screen.getByText("/opt/aiarb/site-packages/codex_cli_bin/bin/codex"),
     ).toHaveProperty("tagName", "CODE");
     expect(
       screen.queryByText("agent.backend.binaryHelp"),
@@ -162,7 +162,7 @@ describe("AgentBackendFields", () => {
 
     await waitFor(() =>
       expect(mockCopyText).toHaveBeenCalledWith(
-        "/opt/qwenpaw/site-packages/codex_cli_bin/bin/codex",
+        "/opt/aiarb/site-packages/codex_cli_bin/bin/codex",
       ),
     );
     expect(mockMessage.success).toHaveBeenCalledWith("common.copied");
@@ -208,8 +208,8 @@ describe("AgentBackendFields", () => {
         native_skills_ui: false,
         native_tools_ui: false,
         native_mcp_ui: false,
-        qwenpaw_skills_projection: true,
-        qwenpaw_mcp_projection: true,
+        aiarb_skills_projection: true,
+        aiarb_mcp_projection: true,
         provider_skills_discovery: true,
         provider_mcp_discovery: true,
         mcp_tool_allowlist: true,

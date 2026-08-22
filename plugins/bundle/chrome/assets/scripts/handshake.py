@@ -71,12 +71,12 @@ def _rejection_advice(
         ):
             return "Please upgrade the extension to a compatible version."
         if actual is not None and expected is not None and actual > expected:
-            return "Please upgrade QwenPaw core to a compatible version."
+            return "Please upgrade AIArb core to a compatible version."
         return (
-            "Please upgrade the extension or QwenPaw core to compatible "
+            "Please upgrade the extension or AIArb core to compatible "
             "versions."
         )
-    return "QwenPaw core permanently rejected the Native Messaging hello."
+    return "AIArb core permanently rejected the Native Messaging hello."
 
 
 async def send_hello(

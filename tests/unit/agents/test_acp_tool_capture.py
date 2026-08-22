@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Tests for QwenPaw envelope to ACP tool-call capture."""
+"""Tests for AIArb envelope to ACP tool-call capture."""
 
 from __future__ import annotations
 
-from qwenpaw.agents.acp.server import _EnvelopeTracker
-from qwenpaw.schemas import (
+from aiarb.agents.acp.server import _EnvelopeTracker
+from aiarb.schemas import (
     ContentType,
     DataContent,
     FunctionCall,

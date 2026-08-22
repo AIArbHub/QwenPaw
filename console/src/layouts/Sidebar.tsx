@@ -161,7 +161,7 @@ export default function Sidebar({
         ? {
             ...currentAgent.backend_capabilities,
             workspace_ui:
-              currentAgent.backend === "qwenpaw"
+              currentAgent.backend === "aiarb"
                 ? currentAgent.backend_capabilities?.workspace_ui ?? true
                 : false,
           }
@@ -474,9 +474,9 @@ export default function Sidebar({
   const handleNewChat = useCallback(() => {
     const onChatPage = location.pathname.startsWith("/chat");
     if (onChatPage) {
-      window.dispatchEvent(new CustomEvent("qwenpaw:sidebar-new-chat"));
+      window.dispatchEvent(new CustomEvent("aiarb:sidebar-new-chat"));
     } else {
-      sessionStorage.setItem("qwenpaw_pending_new_chat", "1");
+      sessionStorage.setItem("aiarb_pending_new_chat", "1");
       navigate("/chat");
     }
   }, [location.pathname, navigate]);

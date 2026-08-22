@@ -1,11 +1,11 @@
 /**
- * @qwenpaw/pawapp-sdk — Frontend SDK for PawApps.
+ * @aiarb/pawapp-sdk — Frontend SDK for PawApps.
  *
  * In same-origin mode (M0-M2), this is a thin convenience wrapper
- * over `window.QwenPaw.*` host capabilities + authenticated fetch.
+ * over `window.AIArb.*` host capabilities + authenticated fetch.
  *
  * Usage:
- *   import { paw } from '@qwenpaw/pawapp-sdk';
+ *   import { paw } from '@aiarb/pawapp-sdk';
  *
  *   const result = await paw.api.post('/review', { file, style: '严格' });
  *   await paw.chat('分析这段代码');

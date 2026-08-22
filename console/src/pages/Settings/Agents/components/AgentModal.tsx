@@ -111,7 +111,7 @@ export function AgentModal({
   const mailPushMode = Form.useWatch(["mail_push", "mode"], form);
   const mailDomain = Form.useWatch(["mail_credential", "domain"], form);
   const mailCredential = Form.useWatch(["mail_credential", "auth_code"], form);
-  const selectedBackend = Form.useWatch("backend", form) ?? "qwenpaw";
+  const selectedBackend = Form.useWatch("backend", form) ?? "aiarb";
 
   const isCustomMailDomain =
     !!mailDomain && !MAIL_DOMAIN_WHITELIST.includes(mailDomain);
@@ -164,7 +164,7 @@ export function AgentModal({
   }, [selectedProviderId, eligibleProviders]);
 
   useEffect(() => {
-    if (!open || selectedBackend !== "qwenpaw") return;
+    if (!open || selectedBackend !== "aiarb") return;
 
     setLoadingProviders(true);
     providerApi
@@ -311,7 +311,7 @@ export function AgentModal({
           />
         </Form.Item>
         <Form.Item
-          hidden={selectedBackend !== "qwenpaw"}
+          hidden={selectedBackend !== "aiarb"}
           label={t("agent.model")}
           help={t("agent.modelHelp")}
         >
@@ -379,7 +379,7 @@ export function AgentModal({
           help={!editingAgent ? t("agent.workspaceHelp") : undefined}
         >
           <Input
-            placeholder="~/.qwenpaw/workspaces/my-agent"
+            placeholder="~/.aiarb/workspaces/my-agent"
             disabled={!!editingAgent}
           />
         </Form.Item>
@@ -387,7 +387,7 @@ export function AgentModal({
           name="mail_mode"
           label={t("agent.mailManagement")}
           initialValue="none"
-          hidden={selectedBackend !== "qwenpaw"}
+          hidden={selectedBackend !== "aiarb"}
         >
           <Radio.Group>
             <Radio value="none">{t("agent.mailModeNone")}</Radio>
@@ -395,7 +395,7 @@ export function AgentModal({
             <Radio value="dedicated">{t("agent.mailModeDedicated")}</Radio>
           </Radio.Group>
         </Form.Item>
-        {selectedBackend === "qwenpaw" && mailMode === "personal" && (
+        {selectedBackend === "aiarb" && mailMode === "personal" && (
           <>
             <Form.Item
               name={["mail_credential", "name"]}
@@ -462,7 +462,7 @@ export function AgentModal({
             </Form.Item>
           </>
         )}
-        {selectedBackend === "qwenpaw" && mailMode === "dedicated" && (
+        {selectedBackend === "aiarb" && mailMode === "dedicated" && (
           <>
             <Form.Item
               name={["mail_credential", "name"]}
@@ -530,7 +530,7 @@ export function AgentModal({
             </Form.Item>
           </>
         )}
-        {selectedBackend === "qwenpaw" && mailMode && mailMode !== "none" && (
+        {selectedBackend === "aiarb" && mailMode && mailMode !== "none" && (
           <Form.Item
             name={["mail_push", "mode"]}
             label={t("agent.mailPushTitle")}
@@ -562,7 +562,7 @@ export function AgentModal({
             />
           </Form.Item>
         )}
-        {selectedBackend === "qwenpaw" &&
+        {selectedBackend === "aiarb" &&
           mailMode &&
           mailMode !== "none" &&
           mailPushMode &&
@@ -582,7 +582,7 @@ export function AgentModal({
       <div
         style={{
           marginTop: 4,
-          display: selectedBackend === "qwenpaw" ? undefined : "none",
+          display: selectedBackend === "aiarb" ? undefined : "none",
         }}
       >
         <div

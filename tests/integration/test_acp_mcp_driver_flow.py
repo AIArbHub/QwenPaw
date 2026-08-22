@@ -8,19 +8,19 @@ from pathlib import Path
 import pytest
 from acp.schema import EnvVariable, McpServerStdio
 
-from qwenpaw.agents.acp.session_mcp import (
+from aiarb.agents.acp.session_mcp import (
     acp_mcp_scope_id,
     build_acp_mcp_driver_cards,
 )
-from qwenpaw.drivers.capabilities import DriverInvocation
-from qwenpaw.drivers.constants import DRIVER_SCOPE_CONTEXT_KEY
-from qwenpaw.drivers.credentials.store import AsyncCredentialStore
-from qwenpaw.drivers.handlers.mcp import (
+from aiarb.drivers.capabilities import DriverInvocation
+from aiarb.drivers.constants import DRIVER_SCOPE_CONTEXT_KEY
+from aiarb.drivers.credentials.store import AsyncCredentialStore
+from aiarb.drivers.handlers.mcp import (
     MCPDriverHandler,
     validate_mcp_endpoint,
 )
-from qwenpaw.drivers.manager import DriverManager
-from qwenpaw.drivers.policy import DriverInvocationContext
+from aiarb.drivers.manager import DriverManager
+from aiarb.drivers.policy import DriverInvocationContext
 from tests.integration.driver_mcp_fakes import (
     FakeStdIOClient,
     patch_mcp_runtime_clients,

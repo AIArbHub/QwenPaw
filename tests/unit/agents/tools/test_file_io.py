@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests for qwenpaw.agents.tools.file_io.
+"""Tests for aiarb.agents.tools.file_io.
 
 Covers:
 - _resolve_file_path
@@ -20,7 +20,7 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.agents.tools.file_io import (
+from aiarb.agents.tools.file_io import (
     _get_encoding_for_file,
     _resolve_file_path,
     append_file,
@@ -28,7 +28,7 @@ from qwenpaw.agents.tools.file_io import (
     read_file,
     write_file,
 )
-from qwenpaw.agents.tools.utils import (
+from aiarb.agents.tools.utils import (
     TRUNCATION_METADATA_KEY,
     read_file_safe,
 )
@@ -42,7 +42,7 @@ from qwenpaw.agents.tools.utils import (
 class TestResolveFilePath:
     """Tests for _resolve_file_path."""
 
-    @patch("qwenpaw.agents.tools.file_io.get_tool_base_dir")
+    @patch("aiarb.agents.tools.file_io.get_tool_base_dir")
     def test_absolute_path_unchanged(self, mock_base):
         import sys
         from pathlib import Path
@@ -59,7 +59,7 @@ class TestResolveFilePath:
         else:
             assert result == "/tmp/test.txt"
 
-    @patch("qwenpaw.agents.tools.file_io.get_tool_base_dir")
+    @patch("aiarb.agents.tools.file_io.get_tool_base_dir")
     def test_relative_path_resolved(self, mock_base):
         from pathlib import Path
 
@@ -67,7 +67,7 @@ class TestResolveFilePath:
         result = _resolve_file_path("subdir/file.txt")
         assert result == str(Path("/workspace/subdir/file.txt"))
 
-    @patch("qwenpaw.agents.tools.file_io.get_tool_base_dir")
+    @patch("aiarb.agents.tools.file_io.get_tool_base_dir")
     def test_tilde_expansion(self, mock_base):
         from pathlib import Path
 
@@ -348,7 +348,7 @@ class TestAppendFile:
                 active -= 1
 
         with patch(
-            "qwenpaw.utils.io_utils._append_text",
+            "aiarb.utils.io_utils._append_text",
             delayed_append,
         ):
             await asyncio.gather(

@@ -14,7 +14,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useCollapsedSessionGroups } from "./useCollapsedSessionGroups";
 
-const STORAGE_KEY = "qwenpaw_collapsed_session_groups";
+const STORAGE_KEY = "aiarb_collapsed_session_groups";
 
 function daysAgoIso(days: number): string {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();

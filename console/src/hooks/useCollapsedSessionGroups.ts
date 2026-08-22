@@ -14,7 +14,7 @@
 import { useCallback, useState } from "react";
 import { getDateGroup, type DateGroup } from "../utils/sessionGrouping";
 
-const STORAGE_KEY = "qwenpaw_collapsed_session_groups";
+const STORAGE_KEY = "aiarb_collapsed_session_groups";
 
 const DEFAULT_COLLAPSED: readonly DateGroup[] = ["month", "older"];
 

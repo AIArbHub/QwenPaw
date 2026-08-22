@@ -54,10 +54,10 @@ describe("openExternalLink", () => {
     };
     isTauri.mockReturnValue(true);
 
-    openExternalLink("https://github.com/agentscope-ai/QwenPaw");
+    openExternalLink("https://github.com/agentscope-ai/AIArb");
 
     expect(openExternal).toHaveBeenCalledWith(
-      "https://github.com/agentscope-ai/QwenPaw",
+      "https://github.com/agentscope-ai/AIArb",
     );
     expect(invoke).not.toHaveBeenCalled();
     expect(windowOpen).not.toHaveBeenCalled();
@@ -112,10 +112,10 @@ describe("openExternalLink", () => {
   it("uses the Tauri external link command in the Tauri desktop app", () => {
     isTauri.mockReturnValue(true);
 
-    openExternalLink("https://qwenpaw.agentscope.io/docs/intro?lang=zh");
+    openExternalLink("https://aiarb.agentscope.io/docs/intro?lang=zh");
 
     expect(invoke).toHaveBeenCalledWith("open_external_link", {
-      url: "https://qwenpaw.agentscope.io/docs/intro?lang=zh",
+      url: "https://aiarb.agentscope.io/docs/intro?lang=zh",
     });
     expect(windowOpen).not.toHaveBeenCalled();
   });
@@ -125,10 +125,10 @@ describe("openExternalLink", () => {
       invoke: vi.fn(),
     };
 
-    openExternalLink("https://github.com/agentscope-ai/QwenPaw");
+    openExternalLink("https://github.com/agentscope-ai/AIArb");
 
     expect(invoke).toHaveBeenCalledWith("open_external_link", {
-      url: "https://github.com/agentscope-ai/QwenPaw",
+      url: "https://github.com/agentscope-ai/AIArb",
     });
     expect(windowOpen).not.toHaveBeenCalled();
   });
@@ -138,7 +138,7 @@ describe("openExternalLink", () => {
     invoke.mockRejectedValue(new Error("permission denied"));
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-    openExternalLink("https://github.com/agentscope-ai/QwenPaw");
+    openExternalLink("https://github.com/agentscope-ai/AIArb");
     await Promise.resolve();
     await Promise.resolve();
 
@@ -147,10 +147,10 @@ describe("openExternalLink", () => {
   });
 
   it("falls back to window.open in the web console", () => {
-    openExternalLink("https://qwenpaw.agentscope.io/docs/intro?lang=en");
+    openExternalLink("https://aiarb.agentscope.io/docs/intro?lang=en");
 
     expect(windowOpen).toHaveBeenCalledWith(
-      "https://qwenpaw.agentscope.io/docs/intro?lang=en",
+      "https://aiarb.agentscope.io/docs/intro?lang=en",
       "_blank",
       "noopener,noreferrer",
     );
@@ -162,10 +162,10 @@ describe("openExternalLink", () => {
     };
     window.history.replaceState(null, "", "/console/inbox");
 
-    openExternalLink("https://github.com/agentscope-ai/QwenPaw");
+    openExternalLink("https://github.com/agentscope-ai/AIArb");
 
     expect(invoke).toHaveBeenCalledWith("open_external_link", {
-      url: "https://github.com/agentscope-ai/QwenPaw",
+      url: "https://github.com/agentscope-ai/AIArb",
     });
     expect(fetchMock).not.toHaveBeenCalled();
     expect(windowOpen).not.toHaveBeenCalled();
@@ -174,18 +174,18 @@ describe("openExternalLink", () => {
   it("uses window.open for backend-hosted browser consoles", () => {
     window.history.replaceState(null, "", "/console/inbox");
 
-    openExternalLink("https://github.com/agentscope-ai/QwenPaw");
+    openExternalLink("https://github.com/agentscope-ai/AIArb");
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(windowOpen).toHaveBeenCalledWith(
-      "https://github.com/agentscope-ai/QwenPaw",
+      "https://github.com/agentscope-ai/AIArb",
       "_blank",
       "noopener,noreferrer",
     );
   });
 
   it("does not add auth query parameters to generic external links", () => {
-    localStorage.setItem("qwenpaw_auth_token", "tok");
+    localStorage.setItem("aiarb_auth_token", "tok");
 
     openExternalLink("https://evil.example/api/foo");
 
@@ -209,7 +209,7 @@ describe("openExternalLink", () => {
   it("downloads Tauri files with headers through the native backend command", async () => {
     isTauri.mockReturnValue(true);
     save.mockResolvedValue("C:\\Downloads\\server.zip");
-    localStorage.setItem("qwenpaw_auth_token", "tok");
+    localStorage.setItem("aiarb_auth_token", "tok");
 
     await expect(
       downloadFileFromUrl("/api/workspace/download", "workspace.zip", {
@@ -341,7 +341,7 @@ describe("openExternalLink", () => {
   });
 
   it("does not add auth query parameters to external API-shaped downloads", async () => {
-    localStorage.setItem("qwenpaw_auth_token", "tok");
+    localStorage.setItem("aiarb_auth_token", "tok");
     fetchMock.mockResolvedValue(new Response("zip"));
 
     await expect(

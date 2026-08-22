@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests for QwenPaw capability projection into Codex."""
+"""Tests for AIArb capability projection into Codex."""
 
 from __future__ import annotations
 
@@ -7,12 +7,12 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.harnesses.capabilities import (
+from aiarb.harnesses.capabilities import (
     HarnessMCPServerDefinition,
     HarnessRuntimeCapabilities,
     HarnessSkillDefinition,
 )
-from qwenpaw.harnesses.codex.projection import project_runtime
+from aiarb.harnesses.codex.projection import project_runtime
 
 
 def test_projects_skills_and_http_mcp_without_secret_argv(

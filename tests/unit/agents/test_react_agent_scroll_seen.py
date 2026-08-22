@@ -9,9 +9,9 @@ from agentscope.event import ModelCallEndEvent
 from agentscope.message import HintBlock, Msg, TextBlock
 from agentscope.model import FinishedReason
 
-from qwenpaw.agents.react_agent import QwenPawAgent
-from qwenpaw.loop.gates import StopAction, StopHandlerResult
-from qwenpaw.providers.model_capability_cache import get_capability_cache
+from aiarb.agents.react_agent import AIArbAgent
+from aiarb.loop.gates import StopAction, StopHandlerResult
+from aiarb.providers.model_capability_cache import get_capability_cache
 
 
 _AUDIO_MODAL_ERROR = (
@@ -24,7 +24,7 @@ _AUDIO_MODAL_ERROR = (
 
 
 class SeenTracker:
-    """Minimal Scroll manager surface used by ``QwenPawAgent._reasoning``."""
+    """Minimal Scroll manager surface used by ``AIArbAgent._reasoning``."""
 
     def __init__(self) -> None:
         self.acknowledged: list[set[str]] = []
@@ -47,9 +47,9 @@ class CompressionTracker:
         self.calls.append((agent, context_config, instructions))
 
 
-def make_agent(tracker: SeenTracker) -> QwenPawAgent:
+def make_agent(tracker: SeenTracker) -> AIArbAgent:
     """Build only the attributes the reasoning wrapper reads."""
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIArbAgent)
     agent._context_manager = tracker
     agent._gate_pending_stop = None
     agent._request_context = {}
@@ -72,7 +72,7 @@ def make_agent(tracker: SeenTracker) -> QwenPawAgent:
 def _skip_media_strip(monkeypatch) -> None:
     """Keep tests focused on seen-ack; avoid multimodal/env-dependent strip."""
     monkeypatch.setattr(
-        "qwenpaw.agents.model_factory._supports_multimodal_for_current_model",
+        "aiarb.agents.model_factory._supports_multimodal_for_current_model",
         lambda: True,
     )
 
@@ -145,7 +145,7 @@ async def test_interrupted_model_call_does_not_acknowledge_results(
 
 async def test_compress_context_forwards_one_shot_instructions():
     tracker = CompressionTracker()
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIArbAgent)
     agent._context_manager = tracker
     agent._compress_context_middlewares = []
     agent.state = SimpleNamespace(context=[])
@@ -168,10 +168,10 @@ async def test_audio_modal_error_strips_audio_and_retries_once(
     agent.model = SimpleNamespace(model_key="dashscope:qwen3.7-plus")
     agent._uses_request_time_media_normalization = lambda: True
     agent.formatter = SimpleNamespace(
-        _qwenpaw_last_wire_media_count=1,
-        _qwenpaw_last_wire_audio_count=1,
-        _qwenpaw_force_strip_media=False,
-        _qwenpaw_force_strip_audio=False,
+        _aiarb_last_wire_media_count=1,
+        _aiarb_last_wire_audio_count=1,
+        _aiarb_force_strip_media=False,
+        _aiarb_force_strip_audio=False,
     )
     calls = 0
 
@@ -180,8 +180,8 @@ async def test_audio_modal_error_strips_audio_and_retries_once(
         calls += 1
         if calls == 1:
             raise RuntimeError(_AUDIO_MODAL_ERROR)
-        assert agent.formatter._qwenpaw_force_strip_audio is True
-        assert agent.formatter._qwenpaw_force_strip_media is False
+        assert agent.formatter._aiarb_force_strip_audio is True
+        assert agent.formatter._aiarb_force_strip_media is False
         yield Msg(
             name="agent",
             role="assistant",
@@ -205,7 +205,7 @@ async def test_audio_modal_error_strips_audio_and_retries_once(
             )
             is True
         )
-        assert agent.formatter._qwenpaw_force_strip_audio is False
-        assert agent.formatter._qwenpaw_force_strip_media is False
+        assert agent.formatter._aiarb_force_strip_audio is False
+        assert agent.formatter._aiarb_force_strip_media is False
     finally:
         cache.clear()

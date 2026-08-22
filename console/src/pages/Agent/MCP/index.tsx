@@ -295,8 +295,8 @@ function MCPPage() {
                 <Server size={17} />
               </div>
               <div>
-                <h2>{t("mcp.qwenpawManaged")}</h2>
-                <p>{t("mcp.qwenpawManagedHint")}</p>
+                <h2>{t("mcp.aiarbManaged")}</h2>
+                <p>{t("mcp.aiarbManagedHint")}</p>
               </div>
             </div>
             {clients.length === 0 ? (

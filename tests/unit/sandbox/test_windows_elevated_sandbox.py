@@ -67,8 +67,8 @@ if sys.platform != "win32":
         sys.modules["msvcrt"] = _msvcrt
 # -- End stubs ---------------------------------------------------------------
 
-from qwenpaw.sandbox import MountSpec, SandboxConfig, SandboxMode
-from qwenpaw.sandbox.windows_elevated_sandbox import (
+from aiarb.sandbox import MountSpec, SandboxConfig, SandboxMode
+from aiarb.sandbox.windows_elevated_sandbox import (
     WindowsElevatedSandbox,
     _AclEntry,
     _build_shell_command_line,
@@ -81,7 +81,7 @@ from qwenpaw.sandbox.windows_elevated_sandbox import (
     _run_icacls_sync_local,
     _sandboxes_dir,
 )
-from qwenpaw.sandbox.windows_unelevated_sandbox import _WC
+from aiarb.sandbox.windows_unelevated_sandbox import _WC
 
 # ============================================================================
 # Factory routing (create_sandbox dispatches correctly)
@@ -91,9 +91,9 @@ from qwenpaw.sandbox.windows_unelevated_sandbox import _WC
 class TestFactoryRouting:
     """Test that create_sandbox routes allow_read_all=True to this backend."""
 
-    @patch("qwenpaw.sandbox.config.sys")
+    @patch("aiarb.sandbox.config.sys")
     @patch(
-        "qwenpaw.sandbox.windows_unelevated_sandbox._is_admin",
+        "aiarb.sandbox.windows_unelevated_sandbox._is_admin",
         return_value=True,
     )
     def test_allow_read_all_true_routes_to_restricted(
@@ -103,7 +103,7 @@ class TestFactoryRouting:
     ):
         """allow_read_all=True + admin → WindowsElevatedSandbox."""
         mock_sys.platform = "win32"
-        from qwenpaw.sandbox import create_sandbox
+        from aiarb.sandbox import create_sandbox
 
         config = SandboxConfig(
             mode=SandboxMode.WINDOWS,
@@ -113,12 +113,12 @@ class TestFactoryRouting:
         sandbox = create_sandbox(config)
         assert isinstance(sandbox, WindowsElevatedSandbox)
 
-    @patch("qwenpaw.sandbox.config.sys")
+    @patch("aiarb.sandbox.config.sys")
     def test_allow_read_all_false_does_not_route_here(self, mock_sys):
         """allow_read_all=False routes to AppContainerSandbox."""
         mock_sys.platform = "win32"
-        from qwenpaw.sandbox import create_sandbox
-        from qwenpaw.sandbox.windows_appcontainer_sandbox import (
+        from aiarb.sandbox import create_sandbox
+        from aiarb.sandbox.windows_appcontainer_sandbox import (
             WindowsAppContainerSandbox,
         )
 
@@ -385,22 +385,22 @@ class TestUserProvisioning:
         pw2 = _random_password()
         assert pw1 != pw2
 
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._get_netapi32")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._get_netapi32")
     def test_ensure_local_user_creates_new(self, mock_netapi32_fn):
         """NetUserAdd succeeds → returns True."""
         mock_netapi32 = MagicMock()
         mock_netapi32.NetUserAdd.return_value = 0  # NERR_Success
         mock_netapi32_fn.return_value = mock_netapi32
 
-        from qwenpaw.sandbox.windows_elevated_sandbox import (
+        from aiarb.sandbox.windows_elevated_sandbox import (
             _ensure_local_user,
         )
 
-        result = _ensure_local_user("qwenpaw_test", "P@ssw0rd!")
+        result = _ensure_local_user("aiarb_test", "P@ssw0rd!")
         assert result is True
         mock_netapi32.NetUserAdd.assert_called_once()
 
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._get_netapi32")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._get_netapi32")
     def test_ensure_local_user_updates_existing(self, mock_netapi32_fn):
         """Existing user → updates password via NetUserSetInfo."""
         mock_netapi32 = MagicMock()
@@ -408,15 +408,15 @@ class TestUserProvisioning:
         mock_netapi32.NetUserSetInfo.return_value = 0  # NERR_Success
         mock_netapi32_fn.return_value = mock_netapi32
 
-        from qwenpaw.sandbox.windows_elevated_sandbox import (
+        from aiarb.sandbox.windows_elevated_sandbox import (
             _ensure_local_user,
         )
 
-        result = _ensure_local_user("qwenpaw_existing", "NewP@ss!")
+        result = _ensure_local_user("aiarb_existing", "NewP@ss!")
         assert result is True
         mock_netapi32.NetUserSetInfo.assert_called_once()
 
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._get_netapi32")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._get_netapi32")
     def test_ensure_local_user_both_fail(self, mock_netapi32_fn):
         """Both create and update fail → returns False."""
         mock_netapi32 = MagicMock()
@@ -424,28 +424,28 @@ class TestUserProvisioning:
         mock_netapi32.NetUserSetInfo.return_value = 5  # Access denied
         mock_netapi32_fn.return_value = mock_netapi32
 
-        from qwenpaw.sandbox.windows_elevated_sandbox import (
+        from aiarb.sandbox.windows_elevated_sandbox import (
             _ensure_local_user,
         )
 
-        result = _ensure_local_user("qwenpaw_fail", "P@ss!")
+        result = _ensure_local_user("aiarb_fail", "P@ss!")
         assert result is False
 
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._get_netapi32")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._get_netapi32")
     def test_ensure_local_group_success(self, mock_netapi32_fn):
         """NetLocalGroupAdd succeeds → returns True."""
         mock_netapi32 = MagicMock()
         mock_netapi32.NetLocalGroupAdd.return_value = 0
         mock_netapi32_fn.return_value = mock_netapi32
 
-        from qwenpaw.sandbox.windows_elevated_sandbox import (
+        from aiarb.sandbox.windows_elevated_sandbox import (
             _ensure_local_group,
         )
 
-        result = _ensure_local_group("QwenpawUsers", "Test group")
+        result = _ensure_local_group("AIArbUsers", "Test group")
         assert result is True
 
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._get_netapi32")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._get_netapi32")
     def test_ensure_local_group_already_exists(self, mock_netapi32_fn):
         """NetLocalGroupAdd returns ERROR_ALIAS_EXISTS → still True."""
         mock_netapi32 = MagicMock()
@@ -453,25 +453,25 @@ class TestUserProvisioning:
         mock_netapi32.NetLocalGroupAdd.return_value = 1379
         mock_netapi32_fn.return_value = mock_netapi32
 
-        from qwenpaw.sandbox.windows_elevated_sandbox import (
+        from aiarb.sandbox.windows_elevated_sandbox import (
             _ensure_local_group,
         )
 
-        result = _ensure_local_group("QwenpawUsers", "Test group")
+        result = _ensure_local_group("AIArbUsers", "Test group")
         assert result is True
 
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._get_netapi32")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._get_netapi32")
     def test_ensure_local_group_failure(self, mock_netapi32_fn):
         """NetLocalGroupAdd returns unexpected error → False."""
         mock_netapi32 = MagicMock()
         mock_netapi32.NetLocalGroupAdd.return_value = 5  # ACCESS_DENIED
         mock_netapi32_fn.return_value = mock_netapi32
 
-        from qwenpaw.sandbox.windows_elevated_sandbox import (
+        from aiarb.sandbox.windows_elevated_sandbox import (
             _ensure_local_group,
         )
 
-        result = _ensure_local_group("QwenpawUsers", "Test group")
+        result = _ensure_local_group("AIArbUsers", "Test group")
         assert result is False
 
 
@@ -488,12 +488,12 @@ class TestWFPNetworkFiltering:
         """PowerShell rule creation succeeds → returns True."""
         mock_run.return_value = MagicMock(returncode=0)
 
-        from qwenpaw.sandbox.windows_elevated_sandbox import (
+        from aiarb.sandbox.windows_elevated_sandbox import (
             _install_wfp_block_filters,
         )
 
         result = _install_wfp_block_filters(
-            "qwenpaw_abc",
+            "aiarb_abc",
             "S-1-5-21-111-222-333-444",
         )
         assert result is True
@@ -512,31 +512,31 @@ class TestWFPNetworkFiltering:
             stderr=b"Access denied",
         )
 
-        from qwenpaw.sandbox.windows_elevated_sandbox import (
+        from aiarb.sandbox.windows_elevated_sandbox import (
             _install_wfp_block_filters,
         )
 
         result = _install_wfp_block_filters(
-            "qwenpaw_abc",
+            "aiarb_abc",
             "S-1-5-21-111-222-333-444",
         )
         assert result is False
 
     @patch("subprocess.run")
     def test_install_wfp_rule_names(self, mock_run):
-        """Firewall rules are named QwenPaw_Block_{username}_{In|Out}."""
+        """Firewall rules are named AIArb_Block_{username}_{In|Out}."""
         mock_run.return_value = MagicMock(returncode=0)
 
-        from qwenpaw.sandbox.windows_elevated_sandbox import (
+        from aiarb.sandbox.windows_elevated_sandbox import (
             _install_wfp_block_filters,
         )
 
-        _install_wfp_block_filters("qwenpaw_xyz", "S-1-5-21-111-222-333-444")
+        _install_wfp_block_filters("aiarb_xyz", "S-1-5-21-111-222-333-444")
 
         call_args = mock_run.call_args[0][0]
         ps_command = call_args[-1]  # Last argument is the PowerShell command
-        assert "QwenPaw_Block_qwenpaw_xyz_Out" in ps_command
-        assert "QwenPaw_Block_qwenpaw_xyz_In" in ps_command
+        assert "AIArb_Block_aiarb_xyz_Out" in ps_command
+        assert "AIArb_Block_aiarb_xyz_In" in ps_command
 
 
 # ============================================================================
@@ -547,28 +547,28 @@ class TestWFPNetworkFiltering:
 class TestACLApplication:
     """Test _apply_all_acls logic with mocked Win32 ACL APIs."""
 
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._allow_null_device")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._add_deny_all_ace")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._add_allow_read_ace")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._add_allow_ace")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._allow_null_device")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._add_deny_all_ace")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._add_allow_read_ace")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._add_allow_ace")
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox"
+        "aiarb.sandbox.windows_elevated_sandbox"
         "._ensure_python_dir_group_acl",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._get_python_install_dir",
+        "aiarb.sandbox.windows_elevated_sandbox._get_python_install_dir",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox"
+        "aiarb.sandbox.windows_elevated_sandbox"
         "._ensure_workspace_traverse_acls",
         return_value=[],
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._lookup_account_sid",
+        "aiarb.sandbox.windows_elevated_sandbox._lookup_account_sid",
         return_value=None,
     )
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._string_to_sid")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._get_kernel32")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._string_to_sid")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._get_kernel32")
     @patch("os.path.exists", return_value=True)
     @patch("os.path.isdir", return_value=True)
     def test_workspace_gets_full_access(
@@ -600,7 +600,7 @@ class TestACLApplication:
             allow_read_all=True,
         )
 
-        from qwenpaw.sandbox.windows_elevated_sandbox import _apply_all_acls
+        from aiarb.sandbox.windows_elevated_sandbox import _apply_all_acls
 
         entries = _apply_all_acls(config, "S-1-5-21-cap", "S-1-5-21-user")
 
@@ -615,28 +615,28 @@ class TestACLApplication:
             for e in ws_entries
         )
 
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._allow_null_device")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._add_deny_all_ace")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._add_allow_read_ace")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._add_allow_ace")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._allow_null_device")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._add_deny_all_ace")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._add_allow_read_ace")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._add_allow_ace")
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox"
+        "aiarb.sandbox.windows_elevated_sandbox"
         "._ensure_python_dir_group_acl",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._get_python_install_dir",
+        "aiarb.sandbox.windows_elevated_sandbox._get_python_install_dir",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox"
+        "aiarb.sandbox.windows_elevated_sandbox"
         "._ensure_workspace_traverse_acls",
         return_value=[],
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._lookup_account_sid",
+        "aiarb.sandbox.windows_elevated_sandbox._lookup_account_sid",
         return_value=None,
     )
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._string_to_sid")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._get_kernel32")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._string_to_sid")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._get_kernel32")
     @patch("os.path.exists", return_value=True)
     @patch("os.path.isdir", return_value=True)
     def test_readonly_mount_gets_read_ace(
@@ -669,7 +669,7 @@ class TestACLApplication:
             mounts=[MountSpec(path=r"C:\readonly", writable=False)],
         )
 
-        from qwenpaw.sandbox.windows_elevated_sandbox import _apply_all_acls
+        from aiarb.sandbox.windows_elevated_sandbox import _apply_all_acls
 
         entries = _apply_all_acls(config, "S-1-5-21-cap", "S-1-5-21-user")
 
@@ -683,28 +683,28 @@ class TestACLApplication:
             for e in mount_entries
         )
 
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._allow_null_device")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._add_deny_all_ace")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._add_allow_read_ace")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._add_allow_ace")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._allow_null_device")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._add_deny_all_ace")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._add_allow_read_ace")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._add_allow_ace")
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox"
+        "aiarb.sandbox.windows_elevated_sandbox"
         "._ensure_python_dir_group_acl",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._get_python_install_dir",
+        "aiarb.sandbox.windows_elevated_sandbox._get_python_install_dir",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox"
+        "aiarb.sandbox.windows_elevated_sandbox"
         "._ensure_workspace_traverse_acls",
         return_value=[],
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._lookup_account_sid",
+        "aiarb.sandbox.windows_elevated_sandbox._lookup_account_sid",
         return_value=None,
     )
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._string_to_sid")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._get_kernel32")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._string_to_sid")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._get_kernel32")
     @patch("os.path.exists", return_value=True)
     @patch("os.path.isdir", return_value=True)
     def test_deny_path_gets_deny_ace(
@@ -738,7 +738,7 @@ class TestACLApplication:
             deny_paths=[r"C:\Users\testuser\.ssh"],
         )
 
-        from qwenpaw.sandbox.windows_elevated_sandbox import _apply_all_acls
+        from aiarb.sandbox.windows_elevated_sandbox import _apply_all_acls
 
         entries = _apply_all_acls(config, "S-1-5-21-cap", "S-1-5-21-user")
 
@@ -747,28 +747,28 @@ class TestACLApplication:
         assert deny_entries[0].sid_type == "user"
         assert r".ssh" in deny_entries[0].path
 
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._allow_null_device")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._add_deny_all_ace")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._add_allow_read_ace")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._add_allow_ace")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._allow_null_device")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._add_deny_all_ace")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._add_allow_read_ace")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._add_allow_ace")
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox"
+        "aiarb.sandbox.windows_elevated_sandbox"
         "._ensure_python_dir_group_acl",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._get_python_install_dir",
+        "aiarb.sandbox.windows_elevated_sandbox._get_python_install_dir",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox"
+        "aiarb.sandbox.windows_elevated_sandbox"
         "._ensure_workspace_traverse_acls",
         return_value=[],
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._lookup_account_sid",
+        "aiarb.sandbox.windows_elevated_sandbox._lookup_account_sid",
         return_value=None,
     )
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._string_to_sid")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._get_kernel32")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._string_to_sid")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._get_kernel32")
     @patch("os.path.exists", return_value=True)
     @patch("os.path.isdir", return_value=True)
     def test_writable_mount_gets_full_access(
@@ -801,7 +801,7 @@ class TestACLApplication:
             mounts=[MountSpec(path=r"C:\shared", writable=True)],
         )
 
-        from qwenpaw.sandbox.windows_elevated_sandbox import _apply_all_acls
+        from aiarb.sandbox.windows_elevated_sandbox import _apply_all_acls
 
         entries = _apply_all_acls(config, "S-1-5-21-cap", "S-1-5-21-user")
 
@@ -827,7 +827,7 @@ class TestSandboxMetadata:
     def test_sandboxes_dir(self):
         """_sandboxes_dir returns state_dir / 'sandboxes'."""
         with tempfile.TemporaryDirectory() as tmp:
-            state_dir = Path(tmp) / ".qwenpaw"
+            state_dir = Path(tmp) / ".aiarb"
             result = _sandboxes_dir(state_dir)
             assert result == state_dir / "sandboxes"
             assert result.name == "sandboxes"
@@ -867,17 +867,17 @@ class TestWindowsElevatedSandboxExecute:
         """Creates a mock _SandboxInstance for testing."""
         instance = MagicMock()
         instance.h_token = MagicMock()
-        instance.username = "qwenpaw_test"
-        instance.profile_dir = r"C:\Users\qwenpaw_test"
-        instance.sandbox_id = "qwenpaw_test"
+        instance.username = "aiarb_test"
+        instance.profile_dir = r"C:\Users\aiarb_test"
+        instance.sandbox_id = "aiarb_test"
         instance.config_fingerprint = "abc123"
         return instance
 
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._wait_and_read_process",
+        "aiarb.sandbox.windows_elevated_sandbox._wait_and_read_process",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._create_process_with_token",
+        "aiarb.sandbox.windows_elevated_sandbox._create_process_with_token",
     )
     def test_execute_success(self, mock_create, mock_wait):
         """Successful command returns exit_code=0, no violation."""
@@ -904,10 +904,10 @@ class TestWindowsElevatedSandboxExecute:
         assert result.timed_out is False
 
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._wait_and_read_process",
+        "aiarb.sandbox.windows_elevated_sandbox._wait_and_read_process",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._create_process_with_token",
+        "aiarb.sandbox.windows_elevated_sandbox._create_process_with_token",
     )
     def test_execute_violation_detected(self, mock_create, mock_wait):
         """Access denied in stderr → sandbox_violation is populated."""
@@ -933,10 +933,10 @@ class TestWindowsElevatedSandboxExecute:
         assert "Access is denied" in result.sandbox_violation
 
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._wait_and_read_process",
+        "aiarb.sandbox.windows_elevated_sandbox._wait_and_read_process",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._create_process_with_token",
+        "aiarb.sandbox.windows_elevated_sandbox._create_process_with_token",
     )
     def test_execute_timeout(self, mock_create, mock_wait):
         """Process exceeds timeout → timed_out=True."""
@@ -960,7 +960,7 @@ class TestWindowsElevatedSandboxExecute:
         assert result.timed_out is True
 
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._create_process_with_token",
+        "aiarb.sandbox.windows_elevated_sandbox._create_process_with_token",
     )
     def test_execute_oserror(self, mock_create):
         """CreateProcess failure → exit_code=-1, error in stderr."""
@@ -977,10 +977,10 @@ class TestWindowsElevatedSandboxExecute:
         assert "CreateProcess failed" in result.stderr
 
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._wait_and_read_process",
+        "aiarb.sandbox.windows_elevated_sandbox._wait_and_read_process",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._create_process_with_token",
+        "aiarb.sandbox.windows_elevated_sandbox._create_process_with_token",
     )
     def test_execute_violation_stdout_fail(self, mock_create, mock_wait):
         """Violation pattern in stdout (with non-zero exit) is detected."""
@@ -1005,10 +1005,10 @@ class TestWindowsElevatedSandboxExecute:
         assert "error 5" in result.sandbox_violation
 
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._wait_and_read_process",
+        "aiarb.sandbox.windows_elevated_sandbox._wait_and_read_process",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._create_process_with_token",
+        "aiarb.sandbox.windows_elevated_sandbox._create_process_with_token",
     )
     def test_execute_chinese_violation(self, mock_create, mock_wait):
         """Chinese locale violation patterns are detected."""
@@ -1032,10 +1032,10 @@ class TestWindowsElevatedSandboxExecute:
         assert result.sandbox_violation is not None
 
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._wait_and_read_process",
+        "aiarb.sandbox.windows_elevated_sandbox._wait_and_read_process",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._create_process_with_token",
+        "aiarb.sandbox.windows_elevated_sandbox._create_process_with_token",
     )
     def test_execute_env_overrides(self, mock_create, mock_wait):
         """Execute passes correct environment with sandbox user identity."""
@@ -1056,14 +1056,14 @@ class TestWindowsElevatedSandboxExecute:
         sandbox._instance = self._make_mock_instance()
         asyncio.run(sandbox.execute("whoami"))
 
-        assert captured_env["USERNAME"] == "qwenpaw_test"
-        assert r"qwenpaw_test" in captured_env["USERPROFILE"]
+        assert captured_env["USERNAME"] == "aiarb_test"
+        assert r"aiarb_test" in captured_env["USERPROFILE"]
 
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._wait_and_read_process",
+        "aiarb.sandbox.windows_elevated_sandbox._wait_and_read_process",
     )
     @patch(
-        "qwenpaw.sandbox.windows_elevated_sandbox._create_process_with_token",
+        "aiarb.sandbox.windows_elevated_sandbox._create_process_with_token",
     )
     def test_execute_custom_cwd(self, mock_create, mock_wait):
         """Custom cwd is passed to process creation."""
@@ -1095,8 +1095,8 @@ class TestWindowsElevatedSandboxExecute:
 class TestWindowsElevatedSandboxStop:
     """Test stop() and async context manager cleanup."""
 
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._release_sandbox")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._get_kernel32")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._release_sandbox")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._get_kernel32")
     def test_stop_terminates_job(self, mock_kernel32_fn, mock_release):
         """stop() calls TerminateJobObject when job_handle is present."""
         mock_kernel32 = MagicMock()
@@ -1123,8 +1123,8 @@ class TestWindowsElevatedSandboxStop:
         assert sandbox._job_handle is None
         assert sandbox._process_id is None
 
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._release_sandbox")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._get_kernel32")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._release_sandbox")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._get_kernel32")
     def test_stop_without_job_terminates_process(
         self,
         mock_kernel32_fn,
@@ -1155,8 +1155,8 @@ class TestWindowsElevatedSandboxStop:
         mock_kernel32.OpenProcess.assert_called_once()
         mock_kernel32.TerminateProcess.assert_called_once()
 
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._release_sandbox")
-    @patch("qwenpaw.sandbox.windows_elevated_sandbox._get_kernel32")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._release_sandbox")
+    @patch("aiarb.sandbox.windows_elevated_sandbox._get_kernel32")
     def test_stop_releases_instance(self, mock_kernel32_fn, mock_release):
         """stop() releases the sandbox instance reference."""
         mock_kernel32 = MagicMock()
@@ -1196,7 +1196,7 @@ class TestShutdownBudget:
 
     def test_remaining_budget_no_deadline_returns_large_value(self):
         """When no deadline is set, _remaining_budget returns 3600s."""
-        import qwenpaw.sandbox.windows_elevated_sandbox as wrs
+        import aiarb.sandbox.windows_elevated_sandbox as wrs
 
         old_deadline = wrs._SHUTDOWN_ACL_DEADLINE
         try:
@@ -1209,7 +1209,7 @@ class TestShutdownBudget:
         """When deadline is in the future, returns positive remaining."""
         import time
 
-        import qwenpaw.sandbox.windows_elevated_sandbox as wrs
+        import aiarb.sandbox.windows_elevated_sandbox as wrs
 
         old_deadline = wrs._SHUTDOWN_ACL_DEADLINE
         try:
@@ -1223,7 +1223,7 @@ class TestShutdownBudget:
         """When deadline has passed, returns 0.0."""
         import time
 
-        import qwenpaw.sandbox.windows_elevated_sandbox as wrs
+        import aiarb.sandbox.windows_elevated_sandbox as wrs
 
         old_deadline = wrs._SHUTDOWN_ACL_DEADLINE
         try:
@@ -1234,7 +1234,7 @@ class TestShutdownBudget:
 
     def test_run_icacls_sync_returns_false_when_budget_exhausted(self):
         """_run_icacls_sync_local must return False when budget is 0."""
-        import qwenpaw.sandbox.windows_elevated_sandbox as wrs
+        import aiarb.sandbox.windows_elevated_sandbox as wrs
 
         old_deadline = wrs._SHUTDOWN_ACL_DEADLINE
         try:
@@ -1252,7 +1252,7 @@ class TestShutdownBudget:
         """_run_icacls_sync_local caps timeout at budget."""
         import time
 
-        import qwenpaw.sandbox.windows_elevated_sandbox as wrs
+        import aiarb.sandbox.windows_elevated_sandbox as wrs
 
         old_deadline = wrs._SHUTDOWN_ACL_DEADLINE
         captured_timeouts = []
@@ -1265,7 +1265,7 @@ class TestShutdownBudget:
             # Set deadline 2 seconds in the future
             wrs._SHUTDOWN_ACL_DEADLINE = time.monotonic() + 2.0
             with patch(
-                "qwenpaw.sandbox.windows_elevated_sandbox._run_cmd_sync",
+                "aiarb.sandbox.windows_elevated_sandbox._run_cmd_sync",
                 side_effect=fake_run_cmd,
             ):
                 _run_icacls_sync_local(["C:\\fake_path"])
@@ -1280,7 +1280,7 @@ class TestShutdownBudget:
         """_remove_acl_with_verify_sync_local returns False on expiry."""
         import time
 
-        import qwenpaw.sandbox.windows_elevated_sandbox as wrs
+        import aiarb.sandbox.windows_elevated_sandbox as wrs
 
         old_deadline = wrs._SHUTDOWN_ACL_DEADLINE
         try:

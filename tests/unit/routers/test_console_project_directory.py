@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.app.routers.console import _persist_pending_project_dirs
+from aiarb.app.routers.console import _persist_pending_project_dirs
 
 
 @pytest.mark.asyncio

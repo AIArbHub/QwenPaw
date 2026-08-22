@@ -50,12 +50,12 @@ describe("messageQueueStore", () => {
   // Constants / helpers
   // ---------------------------------------------------------------------------
 
-  it("STORAGE_PREFIX is 'qwenpaw:message-queue:'", () => {
-    expect(STORAGE_PREFIX).toBe("qwenpaw:message-queue:");
+  it("STORAGE_PREFIX is 'aiarb:message-queue:'", () => {
+    expect(STORAGE_PREFIX).toBe("aiarb:message-queue:");
   });
 
   it("getStorageKey concatenates prefix + sessionId", () => {
-    expect(getStorageKey("abc")).toBe("qwenpaw:message-queue:abc");
+    expect(getStorageKey("abc")).toBe("aiarb:message-queue:abc");
   });
 
   it("MAX_QUEUE_SIZE is 50", () => {
@@ -158,7 +158,7 @@ describe("messageQueueStore", () => {
 
   it("enqueue captures agentId from sessionStorage when available", () => {
     sessionStorage.setItem(
-      "qwenpaw-agent-storage",
+      "aiarb-agent-storage",
       JSON.stringify({ state: { selectedAgent: "agent-x" } }),
     );
 

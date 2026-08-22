@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Cleanup script: removes all QwenPaw sandbox ACLs, profiles, users, and state.
+"""Cleanup script: removes all AIArb sandbox ACLs, profiles, users, and state.
 
 Run on Windows:
     python scripts/cleanup_windows_sandbox.py
@@ -11,19 +11,19 @@ sandbox cleanup works without admin.
 This script performs cleanup for all three sandbox backends plus deny paths:
 
   A. Deny paths protection (no admin required, done first):
-     Reads ~/.qwenpaw/deny_paths_protection.json state file:
+     Reads ~/.aiarb/deny_paths_protection.json state file:
         1. Removes DENY ACEs for the current user from protected paths
            - Falls back to DACL reset if access denied (can't read DACL)
         2. Deletes the state JSON file
 
   B. AppContainer sandboxes (no admin required):
-     For each metadata file in ~/.qwenpaw/containers/*.json:
+     For each metadata file in ~/.aiarb/containers/*.json:
         1. Removes ACLs (Win32 API) from paths in acl_manifest
         2. Deletes the AppContainer profile via userenv.dll
         3. Deletes the metadata JSON file
 
   C. Elevated sandboxes (requires admin):
-     For each metadata file in ~/.qwenpaw/sandboxes/*.json:
+     For each metadata file in ~/.aiarb/sandboxes/*.json:
         1. Removes ACLs for cap_sid and user_sid from acl_entries
            - Regular ACEs via Win32 SetNamedSecurityInfoW
            - Traverse ACEs via NtSetSecurityObject (O(1))
@@ -33,14 +33,14 @@ This script performs cleanup for all three sandbox backends plus deny paths:
         5. Deletes the metadata JSON file
 
   D. Unelevated sandboxes (no admin required):
-     For each metadata file in ~/.qwenpaw/unelevated_sandboxes/*.json:
+     For each metadata file in ~/.aiarb/unelevated_sandboxes/*.json:
         1. Removes ACLs for cap_sid via Win32 API
            - Falls back to DACL reset if access denied
         2. Deletes the metadata JSON file
      Also migrates the legacy single state file if present.
 
   After all entries are processed:
-     - Removes the QwenpawUsers local group (if admin, and if empty)
+     - Removes the AIArbUsers local group (if admin, and if empty)
      - Removes empty state directories
 
 This per-file approach allows the script to be interrupted and resumed
@@ -80,10 +80,10 @@ def _is_admin() -> bool:
 
 
 def _get_state_dir() -> Path:
-    """Returns the QwenPaw state directory (~/.qwenpaw)."""
+    """Returns the AIArb state directory (~/.aiarb)."""
     return (
         Path(os.environ.get("USERPROFILE", os.path.expanduser("~")))
-        / ".qwenpaw"
+        / ".aiarb"
     )
 
 
@@ -481,8 +481,8 @@ def _delete_appcontainer_profile(container_name: str) -> bool:
 
 def _remove_firewall_rules(username: str) -> bool:
     """Removes inbound/outbound firewall block rules for a sandbox user."""
-    rule_name_out = f"QwenPaw_Block_{username}_Out"
-    rule_name_in = f"QwenPaw_Block_{username}_In"
+    rule_name_out = f"AIArb_Block_{username}_Out"
+    rule_name_in = f"AIArb_Block_{username}_In"
     ok = True
     for rule_name in (rule_name_out, rule_name_in):
         result = _run_cmd(
@@ -691,7 +691,7 @@ def _cleanup_single_elevated_sandbox(  # pylint: disable=R0912,R0915
             elif sid_type == "user":
                 sid = user_sid
             elif sid_type == "group":
-                # QwenpawUsers group ACEs are persistent — skip
+                # AIArbUsers group ACEs are persistent — skip
                 continue
             else:
                 continue
@@ -984,27 +984,27 @@ def _cleanup_deny_paths_protection(  # pylint: disable=R0912
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# QwenpawUsers group cleanup (elevated only)
+# AIArbUsers group cleanup (elevated only)
 # ═══════════════════════════════════════════════════════════════════════════
 
 
 def _cleanup_sandbox_group() -> None:
-    """Removes the QwenpawUsers local group and associated markers."""
-    print("\n  Removing QwenpawUsers group...")
-    ok = _delete_local_group("QwenpawUsers")
+    """Removes the AIArbUsers local group and associated markers."""
+    print("\n  Removing AIArbUsers group...")
+    ok = _delete_local_group("AIArbUsers")
     if ok:
         print("    Group deleted.")
     else:
         print("    Group deletion failed (may not exist or not empty).")
 
-    # Remove the .qwenpaw_acl_granted marker from the Python directory.
+    # Remove the .aiarb_acl_granted marker from the Python directory.
     # Without this, next sandbox creation would see the stale marker and
     # skip re-granting the ACL to the (re-created) group.
     python_dir = os.path.dirname(os.path.abspath(sys.executable))
     if os.path.basename(python_dir).lower() == "scripts":
         python_dir = os.path.dirname(python_dir)
 
-    marker = os.path.join(python_dir, ".qwenpaw_acl_granted")
+    marker = os.path.join(python_dir, ".aiarb_acl_granted")
     if os.path.exists(marker):
         try:
             os.remove(marker)
@@ -1091,7 +1091,7 @@ def _confirm_cleanup(
 ) -> None:
     """Print summary and prompt user for confirmation."""
     print("=" * 60)
-    print("WARNING: This will clean up ALL QwenPaw sandboxes,")
+    print("WARNING: This will clean up ALL AIArb sandboxes,")
     print("including any that are currently RUNNING.")
     print()
     print(f"  AppContainer sandboxes:    {appcontainer_count}")
@@ -1114,10 +1114,10 @@ def _confirm_cleanup(
     print("  - Remove filesystem ACLs set by sandboxes (Win32 API)")
     if is_admin:
         print("  - Delete AppContainer profiles")
-        print("  - Delete local sandbox user accounts (qwenpaw_*)")
+        print("  - Delete local sandbox user accounts (aiarb_*)")
         print("  - Remove firewall block rules")
         print("  - Remove user profile directories")
-        print("  - Remove QwenpawUsers group (if empty)")
+        print("  - Remove AIArbUsers group (if empty)")
     else:
         print("  - Delete AppContainer profiles")
     if deny_paths_active:
@@ -1219,7 +1219,7 @@ def main() -> None:  # pylint: disable=R0912,R0915
         legacy = state_dir / "unelevated_sandbox_state.json"
         if not legacy.exists():
             print(
-                "No QwenPaw sandbox metadata found. Nothing to clean up.",
+                "No AIArb sandbox metadata found. Nothing to clean up.",
             )
             sys.exit(0)
 
@@ -1232,7 +1232,7 @@ def main() -> None:  # pylint: disable=R0912,R0915
     )
 
     print("=" * 60)
-    print("QwenPaw Sandbox Cleanup")
+    print("AIArb Sandbox Cleanup")
     print("=" * 60)
     print(f"  State directory: {state_dir}")
     if not is_admin:
@@ -1260,7 +1260,7 @@ def main() -> None:  # pylint: disable=R0912,R0915
                 _cleanup_single_elevated_sandbox(meta_file)
         if not elevated_count:
             print("    Nothing to clean.")
-        # Clean up QwenpawUsers group after all elevated sandboxes are removed
+        # Clean up AIArbUsers group after all elevated sandboxes are removed
         if elevated_count > 0:
             _cleanup_sandbox_group()
     else:

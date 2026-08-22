@@ -14,7 +14,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, ConfigDict
 
-from qwenpaw.browser.control_link.chrome.bridge import (
+from aiarb.browser.control_link.chrome.bridge import (
     NMBridgeError,
     get_nm_bridge,
 )
@@ -33,7 +33,7 @@ from ..transport.state import get_nm_bridge_route_state
 
 api_router = APIRouter(tags=["chrome"])
 router = api_router
-DEFAULT_CONFIG_PATH = Path.home() / ".qwenpaw" / "nm-bridge.json"
+DEFAULT_CONFIG_PATH = Path.home() / ".aiarb" / "nm-bridge.json"
 _state = get_nm_bridge_route_state()
 _SETUP_LOCK = threading.Lock()
 

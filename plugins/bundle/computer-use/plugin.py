@@ -15,12 +15,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 
-# Use a qwenpaw.* logger name so desktop log config actually captures us.
+# Use a aiarb.* logger name so desktop log config actually captures us.
 # ``__name__`` under plugin loading is ``plugin_computer_use``, which
-# currently never appears in qwenpaw.log.
-logger = logging.getLogger("qwenpaw.plugins.computer_use")
+# currently never appears in aiarb.log.
+logger = logging.getLogger("aiarb.plugins.computer_use")
 
 _PLUGIN_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
 
@@ -45,7 +45,7 @@ def _seed_tool_config(agent_config: Any) -> bool:
     and overwriting it here would silently undo that choice on every
     startup.
     """
-    from qwenpaw.config.config import BuiltinToolConfig, ToolsConfig
+    from aiarb.config.config import BuiltinToolConfig, ToolsConfig
 
     if agent_config.tools is None:
         agent_config.tools = ToolsConfig()
@@ -64,7 +64,7 @@ def _seed_tool_config(agent_config: Any) -> bool:
 
 def _seed_tool_for_agent(agent_id: str) -> None:
     """Persist the plugin-owned tool setting for one agent."""
-    from qwenpaw.config.config import load_agent_config, save_agent_config
+    from aiarb.config.config import load_agent_config, save_agent_config
 
     try:
         agent_config = load_agent_config(agent_id)
@@ -79,7 +79,7 @@ def _seed_tool_for_agent(agent_id: str) -> None:
 
 def _seed_tool_for_existing_agents() -> None:
     """Expose the tool to every agent that has not chosen otherwise."""
-    from qwenpaw.config.utils import load_config
+    from aiarb.config.utils import load_config
 
     profiles = (
         getattr(
@@ -105,7 +105,7 @@ class ComputerUseToolPlugin:
     def register(self, api: PluginApi) -> None:
         _ensure_importable()
 
-        from qwenpaw.app.computer_use import HostRuntimeProvider
+        from aiarb.app.computer_use import HostRuntimeProvider
         from computer_use.router import build_router
 
         api.register_http_router(

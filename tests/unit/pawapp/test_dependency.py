@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.pawapp import (
+from aiarb.pawapp import (
     DependencyError,
     DependencyHealth,
     DependencyLifecycle,

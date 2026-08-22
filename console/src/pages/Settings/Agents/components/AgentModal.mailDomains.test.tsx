@@ -30,7 +30,7 @@ const EDITING_AGENT: AgentSummary = {
   description: "",
   workspace_dir: "/tmp/mail-agent",
   enabled: true,
-  backend: "qwenpaw",
+  backend: "aiarb",
 };
 
 const stableCallbacks = {
@@ -44,7 +44,7 @@ function Harness({ mailMode }: { mailMode: "personal" | "dedicated" }) {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    form.setFieldsValue({ backend: "qwenpaw", mail_mode: mailMode });
+    form.setFieldsValue({ backend: "aiarb", mail_mode: mailMode });
   }, [form, mailMode]);
 
   return (

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Tests for provider-owned agent thinking-level mapping."""
 
-from qwenpaw.providers.provider import agent_thinking_level
-from qwenpaw.providers.provider import AGENT_THINKING_BUDGETS
-from qwenpaw.providers.provider_catalog import (
+from aiarb.providers.provider import agent_thinking_level
+from aiarb.providers.provider import AGENT_THINKING_BUDGETS
+from aiarb.providers.provider_catalog import (
     PROVIDER_ANTHROPIC,
     PROVIDER_DASHSCOPE,
     PROVIDER_GEMINI,

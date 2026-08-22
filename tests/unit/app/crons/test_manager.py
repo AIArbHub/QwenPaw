@@ -18,9 +18,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from qwenpaw.app.crons.contracts import ServiceCronJob
-from qwenpaw.app.crons.manager import CronManager
-from qwenpaw.app.crons.models import (
+from aiarb.app.crons.contracts import ServiceCronJob
+from aiarb.app.crons.manager import CronManager
+from aiarb.app.crons.models import (
     CronJobState,
     ScheduleSpec,
 )
@@ -41,7 +41,7 @@ def _no_real_inbox_writes(monkeypatch):
     the scheduler) would leak real data to disk.
     """
     monkeypatch.setattr(
-        "qwenpaw.app.crons.manager.append_inbox_event",
+        "aiarb.app.crons.manager.append_inbox_event",
         AsyncMock(),
     )
 

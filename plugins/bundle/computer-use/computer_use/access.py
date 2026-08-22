@@ -67,7 +67,7 @@ def _normalize_app_id(app_id: str) -> str:
 
 
 def _default_persistent_path() -> Path:
-    from qwenpaw.constant import WORKING_DIR
+    from aiarb.constant import WORKING_DIR
 
     return (
         Path(WORKING_DIR)
@@ -114,7 +114,7 @@ class ComputerUseAccessStore:
         canonical_app_id: str,
         display_name: str,
     ) -> None:
-        """Persist an explicit allow for this QwenPaw installation."""
+        """Persist an explicit allow for this AIArb installation."""
         app_id = _normalize_app_id(canonical_app_id)
         decision = PersistentAppAccess(app_id, display_name)
         with self._lock:

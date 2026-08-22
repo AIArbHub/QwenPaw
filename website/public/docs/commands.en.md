@@ -171,7 +171,7 @@ Automatic checkpoints are disabled by default. Turn on **Automatic checkpoints**
 /checkpoint auto off       # Disable
 ```
 
-Once enabled, QwenPaw creates an automatic checkpoint when all of the following are true:
+Once enabled, AIArb creates an automatic checkpoint when all of the following are true:
 
 1. The Agent response completed successfully.
 2. The current session was saved successfully.
@@ -191,7 +191,7 @@ In the Console, click **Create snapshot** and enter a name. You can also run:
 /checkpoint snapshot "before release"
 ```
 
-If you omit the name, QwenPaw generates one. Names are normalized into safe ref names; when a session already has the same name, QwenPaw appends a numeric suffix.
+If you omit the name, AIArb generates one. Names are normalized into safe ref names; when a session already has the same name, AIArb appends a numeric suffix.
 
 ---
 
@@ -291,7 +291,7 @@ This command does not modify anything:
 /checkpoint restore #3
 ```
 
-QwenPaw returns the corresponding preview and confirmation commands. `--dry-run` and `--confirm` are mutually exclusive, and an applied restore always requires explicit `--confirm`.
+AIArb returns the corresponding preview and confirmation commands. `--dry-run` and `--confirm` are mutually exclusive, and an applied restore always requires explicit `--confirm`.
 
 ---
 
@@ -302,8 +302,8 @@ Checkpoint restore uses several layers of protection:
 1. **Preview first**: `--dry-run` computes changes without writing to the workspace.
 2. **Pin the target**: the Console applies the exact commit SHA returned by the preview.
 3. **Pause internal writers**: an applied restore pauses cooperating internal schedulers and waits for tracked Agent tasks.
-4. **Create a safety point**: QwenPaw creates a pre-restore checkpoint before changing anything.
-5. **Roll back on failure**: if applying the restore fails, QwenPaw attempts to restore changed paths and the session HEAD.
+4. **Create a safety point**: AIArb creates a pre-restore checkpoint before changing anything.
+5. **Roll back on failure**: if applying the restore fails, AIArb attempts to restore changed paths and the session HEAD.
 
 If internal tasks do not finish before the safety timeout, the restore is cancelled instead of forcing an overwrite. Wait for the tasks to finish, then preview and restore again.
 
@@ -355,7 +355,7 @@ Checkpoints store conversation state, memory source files, and ordinary workspac
 | Project `.git/`                       | Excluded; project history is never modified                                                           |
 | `checkpoints/`                        | Excluded so the shadow repository never snapshots itself                                              |
 | Credentials and runtime configuration | Excluded, including `credentials.yaml`, `agent.json`, and `access_control.json`                       |
-| QwenPaw runtime state                 | Excluded, including `history.db`, cron state, caches, derived memory indexes, media, and tool results |
+| AIArb runtime state                 | Excluded, including `history.db`, cron state, caches, derived memory indexes, media, and tool results |
 | Persona and runtime skill files       | Excluded, including `AGENTS.md`, `SOUL.md`, and `skills/`                                             |
 | Development artifacts                 | Excluded, including `.venv/`, `node_modules/`, `dist/`, `build/`, logs, and Python caches             |
 
@@ -413,7 +413,7 @@ Reset deletes all checkpoint history for the current workspace and reinitializes
 /checkpoint reset --confirm
 ```
 
-Automatic checkpoints return to the disabled state after reset. Reset does not delete the current conversation, long-term memory, or ordinary workspace files, but removed checkpoint history can no longer be recovered through QwenPaw.
+Automatic checkpoints return to the disabled state after reset. Reset does not delete the current conversation, long-term memory, or ordinary workspace files, but removed checkpoint history can no longer be recovered through AIArb.
 
 ---
 
@@ -434,9 +434,9 @@ The three tools complement each other: use checkpoints for everyday rollback, pr
 
 ### FAQ
 
-#### Why does QwenPaw say Git is missing?
+#### Why does AIArb say Git is missing?
 
-Checkpoints require Git on the local machine. Install it from [git-scm.com](https://git-scm.com/downloads), verify that `git` works in a terminal, and restart QwenPaw.
+Checkpoints require Git on the local machine. Install it from [git-scm.com](https://git-scm.com/downloads), verify that `git` works in a terminal, and restart AIArb.
 
 #### Why does the conversation page still show the old state after restore?
 
@@ -444,7 +444,7 @@ The page may still hold the pre-restore session in memory. Refresh the conversat
 
 #### Why is a file missing from the restore candidates?
 
-Unchanged files are not listed. Conversation, memory, and QwenPaw runtime files are also excluded from ordinary file candidates because dedicated restore flows handle them or they are intentionally not restorable.
+Unchanged files are not listed. Conversation, memory, and AIArb runtime files are also excluded from ordinary file candidates because dedicated restore flows handle them or they are intentionally not restorable.
 
 #### Can I return to the state from before a restore?
 
@@ -803,7 +803,7 @@ Example: `/model openai:gpt-4o`
 
 - 🖼️ - Supports image input
 - 🎥 - Supports video input
-- _(user-added)_ - User-added model (via `qwenpaw models add-model` command)
+- _(user-added)_ - User-added model (via `aiarb models add-model` command)
 
 ---
 
@@ -905,9 +905,9 @@ Use `/model openai:gpt-4o` to switch to this model.
 
 ## System Control Commands
 
-Commands for controlling and monitoring QwenPaw's runtime status. These commands execute directly without going through the Agent.
+Commands for controlling and monitoring AIArb's runtime status. These commands execute directly without going through the Agent.
 
-Send `/daemon <subcommand>` or short names (e.g., `/status`) in chat, or run `qwenpaw daemon <subcommand>` from the terminal.
+Send `/daemon <subcommand>` or short names (e.g., `/status`) in chat, or run `aiarb daemon <subcommand>` from the terminal.
 
 | Command                             | Description                                                                               | Chat | Terminal |
 | ----------------------------------- | ----------------------------------------------------------------------------------------- | ---- | -------- |
@@ -917,7 +917,7 @@ Send `/daemon <subcommand>` or short names (e.g., `/status`) in chat, or run `qw
 | `/daemon restart` or `/restart`     | Zero-downtime reload (chat); prints instructions (terminal)                               | ✅   | ✅       |
 | `/daemon reload-config`             | Re-read and validate configuration file                                                   | ✅   | ✅       |
 | `/daemon version`                   | Version number, working directory, and log path                                           | ✅   | ✅       |
-| `/daemon logs` or `/daemon logs 50` | View last N lines of log (default 100, max 2000, from `qwenpaw.log` in working directory) | ✅   | ✅       |
+| `/daemon logs` or `/daemon logs 50` | View last N lines of log (default 100, max 2000, from `aiarb.log` in working directory) | ✅   | ✅       |
 | `/approval approve [request_id]`    | Approve pending tool execution (or queue head if no ID)                                   | ✅   | ❌       |
 | `/approval deny [request_id]`       | Deny pending tool execution with optional reason                                          | ✅   | ❌       |
 | `/approval list`                    | List all pending approval requests                                                        | ✅   | ❌       |
@@ -950,7 +950,7 @@ Display current runtime status, including configuration, working directory, and 
 
 ```
 /status                    # In chat
-qwenpaw daemon status        # From terminal
+aiarb daemon status        # From terminal
 ```
 
 ---
@@ -963,7 +963,7 @@ When used in chat, performs zero-downtime reload: reloads channels, cron, and MC
 
 ```
 /restart                   # In chat
-qwenpaw daemon restart       # From terminal (prints instructions only)
+aiarb daemon restart       # From terminal (prints instructions only)
 ```
 
 > 💡 **Tip**: After modifying channel or MCP configuration, use `/daemon reload-config` first to verify correctness, then use `/daemon restart` to apply changes.
@@ -978,34 +978,34 @@ Re-read and validate the configuration file, but does not reload runtime compone
 
 ```
 /daemon reload-config           # In chat
-qwenpaw daemon reload-config      # From terminal
+aiarb daemon reload-config      # From terminal
 ```
 
 ---
 
 ### /daemon version - Version Information
 
-Display QwenPaw version number, working directory path, and log file path.
+Display AIArb version number, working directory path, and log file path.
 
 **Usage:**
 
 ```
 /daemon version            # In chat
-qwenpaw daemon version       # From terminal
+aiarb daemon version       # From terminal
 ```
 
 ---
 
 ### /daemon logs - View Logs
 
-View the last N lines of `qwenpaw.log` in the working directory. Default 100 lines, maximum 2000 lines.
+View the last N lines of `aiarb.log` in the working directory. Default 100 lines, maximum 2000 lines.
 
 **Usage:**
 
 ```
 /daemon logs               # Default 100 lines
 /daemon logs 50            # Specify 50 lines
-qwenpaw daemon logs -n 200   # From terminal, specify 200 lines
+aiarb daemon logs -n 200   # From terminal, specify 200 lines
 ```
 
 > 💡 **Tip**: For large log files, this command only reads the last 512KB from the end of the file to ensure fast response times.
@@ -1044,18 +1044,18 @@ Manage tool guard approval requests. When `approval_level` is set to `STRICT` or
 All daemon commands support terminal usage (except `/stop` and `/approval` which only work in chat):
 
 ```bash
-qwenpaw daemon status
-qwenpaw daemon restart
-qwenpaw daemon reload-config
-qwenpaw daemon version
-qwenpaw daemon logs -n 50
+aiarb daemon status
+aiarb daemon restart
+aiarb daemon reload-config
+aiarb daemon version
+aiarb daemon logs -n 50
 ```
 
 **Multi-agent support:** All terminal commands support the `--agent-id` parameter (defaults to `default`).
 
 ```bash
-qwenpaw daemon status --agent-id abc123
-qwenpaw daemon version --agent-id abc123
+aiarb daemon status --agent-id abc123
+aiarb daemon version --agent-id abc123
 ```
 
 ---

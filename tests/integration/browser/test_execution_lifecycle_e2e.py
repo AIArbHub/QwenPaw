@@ -12,10 +12,10 @@ import time
 import pytest
 from fastapi import FastAPI
 
-from qwenpaw.app._app import _start_browser_runtime, _stop_browser_runtime
-from qwenpaw.browser.execution.kernel import KernelRuntime
-from qwenpaw.browser.execution.subprocess_plane import SubprocessPlane
-from qwenpaw.browser.execution.wire import ExecRequest
+from aiarb.app._app import _start_browser_runtime, _stop_browser_runtime
+from aiarb.browser.execution.kernel import KernelRuntime
+from aiarb.browser.execution.subprocess_plane import SubprocessPlane
+from aiarb.browser.execution.wire import ExecRequest
 
 
 def _request(

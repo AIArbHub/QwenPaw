@@ -42,7 +42,7 @@ describe("isLoopbackHost", () => {
     },
   );
 
-  // Mirrors is_loopback_host in src/qwenpaw/utils/http.py: a blank host
+  // Mirrors is_loopback_host in src/aiarb/utils/http.py: a blank host
   // binds every interface, so it is not loopback.
   it.each(["", "0.0.0.0", "::", "192.168.1.10"])(
     "treats %j as network-reachable",

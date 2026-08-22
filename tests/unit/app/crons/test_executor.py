@@ -5,9 +5,9 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.app.crons.executor import CronExecutor
-from qwenpaw.app.crons.models import DispatchSpec, DispatchTarget
-from qwenpaw.schemas import Event, RunStatus
+from aiarb.app.crons.executor import CronExecutor
+from aiarb.app.crons.models import DispatchSpec, DispatchTarget
+from aiarb.schemas import Event, RunStatus
 from tests.unit.app.conftest import make_cron_job_spec
 
 
@@ -26,20 +26,20 @@ class _Workspace:
 
 def _patch_trace_storage(monkeypatch):
     monkeypatch.setattr(
-        "qwenpaw.app.crons.executor.read_session_messages",
+        "aiarb.app.crons.executor.read_session_messages",
         AsyncMock(return_value=[]),
     )
     monkeypatch.setattr(
-        "qwenpaw.app.crons.executor.create_trace",
+        "aiarb.app.crons.executor.create_trace",
         AsyncMock(),
     )
     monkeypatch.setattr(
-        "qwenpaw.app.crons.executor.append_trace_from_session_delta",
+        "aiarb.app.crons.executor.append_trace_from_session_delta",
         AsyncMock(),
     )
     finalize_trace = AsyncMock()
     monkeypatch.setattr(
-        "qwenpaw.app.crons.executor.finalize_trace",
+        "aiarb.app.crons.executor.finalize_trace",
         finalize_trace,
     )
     return finalize_trace

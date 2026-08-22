@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Tests for strict QwenPaw Hub startup configuration."""
+"""Tests for strict AIArb Hub startup configuration."""
 
 import sqlite3
 from pathlib import Path
 
 import pytest
 
-from qwenpaw.hub.auth import HubAuthService
-from qwenpaw.hub.config import (
+from aiarb.hub.auth import HubAuthService
+from aiarb.hub.config import (
     DockerRuntimeConfig,
     HubConfig,
     HubConfigStore,
@@ -16,7 +16,7 @@ from qwenpaw.hub.config import (
     RuntimeProxyConfig,
     load_hub_config,
 )
-from qwenpaw.hub.credentials import TenantCredentialVault
+from aiarb.hub.credentials import TenantCredentialVault
 
 
 def test_load_partial_config_and_security_policy(
@@ -27,7 +27,7 @@ def test_load_partial_config_and_security_policy(
         """
 version: 1
 control_plane:
-  public_base_url: https://qwenpaw.example.com/root/
+  public_base_url: https://aiarb.example.com/root/
   registration:
     enabled: false
   security:
@@ -51,7 +51,7 @@ capacity:
     assert config.control_plane.registration.enabled is False
     assert (
         config.control_plane.public_base_url
-        == "https://qwenpaw.example.com/root"
+        == "https://aiarb.example.com/root"
     )
     assert config.default_provisioner == "local"
     assert config.capacity.max_running_runtimes == 2
@@ -79,7 +79,7 @@ runtime:
   provisioner: docker
   docker:
     source: custom
-    image: registry.example.com/qwenpaw:v2
+    image: registry.example.com/aiarb:v2
     pull_policy: never
     cpu_limit: 3.5
     memory_limit_mb: 6144
@@ -94,7 +94,7 @@ runtime:
     assert config.runtime.provisioner == "docker"
     assert config.runtime.docker == DockerRuntimeConfig(
         source="custom",
-        image="registry.example.com/qwenpaw:v2",
+        image="registry.example.com/aiarb:v2",
         pull_policy="never",
         cpu_limit=3.5,
         memory_limit_mb=6144,

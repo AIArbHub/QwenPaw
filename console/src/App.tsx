@@ -367,8 +367,8 @@ function AppInner({ backendInfo }: { backendInfo: BackendInfo }) {
       <GlobalStyle />
       <ConfigProvider
         {...selectedTheme}
-        prefix="qwenpaw"
-        prefixCls="qwenpaw"
+        prefix="aiarb"
+        prefixCls="aiarb"
         locale={antdLocale}
         theme={{
           ...(selectedTheme as { theme?: ThemeConfig }).theme,

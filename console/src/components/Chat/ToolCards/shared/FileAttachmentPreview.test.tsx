@@ -13,7 +13,7 @@ import { FilePreviewLink } from "./FileAttachmentPreview";
 describe("FilePreviewLink", () => {
   it("opens a relative tool file from a compact preview link", () => {
     const listener = vi.fn();
-    window.addEventListener("qwenpaw:open-file-preview", listener);
+    window.addEventListener("aiarb:open-file-preview", listener);
 
     render(
       <FilePreviewLink
@@ -36,6 +36,6 @@ describe("FilePreviewLink", () => {
       path: "src/result.txt",
       root: "project",
     });
-    window.removeEventListener("qwenpaw:open-file-preview", listener);
+    window.removeEventListener("aiarb:open-file-preview", listener);
   });
 });

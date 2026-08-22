@@ -6,12 +6,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock
 
-from qwenpaw.app.channels.renderer import ChannelDisplayConfig
+import pytest
+
+from aiarb.app.channels.renderer import ChannelDisplayConfig
 
 from tests.contract.channels import ChannelContractTest
 
 if TYPE_CHECKING:
-    from qwenpaw.app.channels.base import BaseChannel
+    from aiarb.app.channels.base import BaseChannel
 
 
 def create_mock_process_handler():
@@ -35,7 +37,7 @@ class TestConsoleChannelContract(ChannelContractTest):
 
     def create_instance(self) -> "BaseChannel":
         """Provide a ConsoleChannel instance for contract testing."""
-        from qwenpaw.app.channels.console.channel import ConsoleChannel
+        from aiarb.app.channels.console.channel import ConsoleChannel
 
         process = create_mock_process_handler()
         return ConsoleChannel(

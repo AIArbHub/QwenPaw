@@ -212,7 +212,7 @@ export interface ConnectionTestResult {
 
 function unwrap<T>(response: ApiEnvelope<T>): T {
   if (!response.ok || response.data === null) {
-    throw new Error(response.error?.message || "QwenPaw-Data request failed");
+    throw new Error(response.error?.message || "AIArb-Data request failed");
   }
   return response.data;
 }
@@ -246,7 +246,7 @@ export function normalizeEdge(edge: ApiGraphEdge, index = 0): GraphEdge {
   };
 }
 
-export function createQwenPawDataApi(paw: PawAppSdk) {
+export function createAIArbDataApi(paw: PawAppSdk) {
   const contextGet = <T>(path: string, options?: PawRequestOptions) =>
     paw.api.get<T>(`/context/${path.replace(/^\//, "")}`, options);
   const contextPost = <T>(path: string, body?: unknown) =>

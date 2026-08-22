@@ -15,8 +15,8 @@ from typing import Any, Callable
 import pytest
 from agentscope.message import DataBlock, Msg, URLSource
 
-from qwenpaw.agents import model_factory
-from qwenpaw.agents.model_factory import (
+from aiarb.agents import model_factory
+from aiarb.agents.model_factory import (
     MAX_INLINE_MEDIA_BYTES,
     _format_anthropic_video_data_block,
     _format_openai_video_block,
@@ -279,7 +279,7 @@ def _make_video_sub():
     import base64
 
     data = base64.b64encode(b"\x00" * 16).decode()
-    key = "__QWENPAW_VID_test__"
+    key = "__AIARB_VID_test__"
     block = {
         "source": {
             "type": "base64",

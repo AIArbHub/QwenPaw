@@ -17,7 +17,7 @@ import os
 
 import pytest
 
-from qwenpaw.governance.resource_governor import ResourceGovernor
+from aiarb.governance.resource_governor import ResourceGovernor
 
 _WS = os.path.join(os.sep, "srv", "agent", "workspace")
 

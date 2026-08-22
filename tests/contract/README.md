@@ -57,7 +57,7 @@ from tests.contract.channels import ChannelContractTest
 
 class TestSlackChannelContract(ChannelContractTest):
     def create_instance(self):
-        from qwenpaw.app.channels.slack.channel import SlackChannel
+        from aiarb.app.channels.slack.channel import SlackChannel
         return SlackChannel(process=mock_process, ...)
 
     # Optional: Slack-specific contracts

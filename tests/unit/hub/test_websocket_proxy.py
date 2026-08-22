@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""WebSocket relay lifecycle tests for QwenPaw Hub."""
+"""WebSocket relay lifecycle tests for AIArb Hub."""
 
 from __future__ import annotations
 
@@ -10,8 +10,8 @@ import pytest
 from websockets.exceptions import ConnectionClosed
 from websockets.frames import Close
 
-from qwenpaw.hub import websocket_proxy
-from qwenpaw.hub.websocket_proxy import _upstream_to_client
+from aiarb.hub import websocket_proxy
+from aiarb.hub.websocket_proxy import _upstream_to_client
 
 
 class _Client:
@@ -133,7 +133,7 @@ async def test_relay_cancels_upstream_pump_after_client_disconnect(
     await websocket_proxy.relay_websocket(
         cast(Any, client),
         "ws://runtime/api/ws",
-        headers={"X-QwenPaw-Runtime-Token": "secret"},
+        headers={"X-AIArb-Runtime-Token": "secret"},
         max_size=16 * 1024 * 1024,
     )
 
@@ -141,7 +141,7 @@ async def test_relay_cancels_upstream_pump_after_client_disconnect(
     assert upstream.sent == ["hello"]
     assert upstream.closed == 4001
     assert captured["additional_headers"] == {
-        "X-QwenPaw-Runtime-Token": "secret",
+        "X-AIArb-Runtime-Token": "secret",
     }
     assert captured["max_size"] == 16 * 1024 * 1024
 
@@ -162,7 +162,7 @@ async def test_relay_cancels_client_pump_after_upstream_disconnect(
     await websocket_proxy.relay_websocket(
         cast(Any, client),
         "ws://runtime/api/ws",
-        headers={"X-QwenPaw-Runtime-Token": "secret"},
+        headers={"X-AIArb-Runtime-Token": "secret"},
         max_size=16 * 1024 * 1024,
     )
 

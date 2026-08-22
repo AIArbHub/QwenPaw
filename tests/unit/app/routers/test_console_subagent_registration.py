@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Tests for Console subagent chat registration metadata."""
 
-from qwenpaw.app.routers.console import _chat_registration_fields
+from aiarb.app.routers.console import _chat_registration_fields
 
 
 def test_subagent_registration_fields_are_first_class():

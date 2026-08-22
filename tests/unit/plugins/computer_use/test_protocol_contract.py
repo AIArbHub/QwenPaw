@@ -28,7 +28,7 @@ from computer_use.protocol import (
     ComputerUseProtocolError,
     NativeRequest,
 )
-from qwenpaw.app.computer_use import COMPUTER_USE_PROTOCOL_VERSION
+from aiarb.app.computer_use import COMPUTER_USE_PROTOCOL_VERSION
 
 _SERVER = (
     Path(__file__).resolve().parents[4]

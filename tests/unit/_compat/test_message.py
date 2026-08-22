@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from agentscope.message import DataBlock, URLSource
 
-from qwenpaw._compat.message import _ensure_url_scheme, msg_from_dict
+from aiarb._compat.message import _ensure_url_scheme, msg_from_dict
 
 
 def test_ensure_url_scheme_unc_path():

@@ -24,8 +24,8 @@ from typing import get_type_hints
 
 import pytest
 
-from qwenpaw.runtime.commands import control as control_commands
-from qwenpaw.runtime.commands.control.base import (
+from aiarb.runtime.commands import control as control_commands
+from aiarb.runtime.commands.control.base import (
     BaseControlCommandHandler,
 )
 

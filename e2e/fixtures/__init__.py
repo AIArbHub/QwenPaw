@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw E2E Test Framework - Pytest Fixtures
+AIArb E2E Test Framework - Pytest Fixtures
 
 Provides browser, page, API client and other fixtures required by tests.
 """
@@ -164,7 +164,7 @@ def browser_context(browser: Browser, request: pytest.FixtureRequest) -> Generat
     context.add_init_script(
         """
         try {
-            localStorage.setItem('qwenpaw.desktop-mode-hint.dismissed', '1');
+            localStorage.setItem('aiarb.desktop-mode-hint.dismissed', '1');
         } catch (e) {}
         """
     )
@@ -199,13 +199,13 @@ def page(browser_context: BrowserContext, request: pytest.FixtureRequest) -> Gen
     # any switch/button in automated tests. Same key as console's
     # desktopModeHint.ts (dismissDesktopModeHint).
     page.add_init_script(
-        "window.localStorage.setItem('qwenpaw.desktop-mode-hint.dismissed', '1');",
+        "window.localStorage.setItem('aiarb.desktop-mode-hint.dismissed', '1');",
     )
 
     # Inject test name + step counter, used by BasePage.step_shot for auto-archiving
     try:
-        page._qwenpaw_test_name = test_name
-        page._qwenpaw_step_seq = 0
+        page._aiarb_test_name = test_name
+        page._aiarb_step_seq = 0
     except Exception:
         pass
 
@@ -288,7 +288,7 @@ def authenticated_page(page: Page) -> Page:
     """
     Authenticated page (if login is required)
 
-    QwenPaw currently uses an auth-free mode; extend this fixture if login
+    AIArb currently uses an auth-free mode; extend this fixture if login
     is needed.
 
     Yields:
@@ -319,11 +319,11 @@ def test_file(tmp_path: Path) -> Path:
         Test file path
     """
     test_file = tmp_path / "test_upload.txt"
-    test_content = """QwenPaw Test File
+    test_content = """AIArb Test File
 
 This is a file used to verify the E2E file upload functionality.
 
-QwenPaw is an intelligent assistant platform supporting the following features:
+AIArb is an intelligent assistant platform supporting the following features:
 1. Chat conversations
 2. File processing
 3. Skill invocation

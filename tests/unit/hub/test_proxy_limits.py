@@ -7,7 +7,7 @@ import asyncio
 
 import pytest
 
-from qwenpaw.hub.proxy_limits import (
+from aiarb.hub.proxy_limits import (
     ProxyRequestIdleTimeoutError,
     ProxyRequestTooLargeError,
     limited_request_stream,

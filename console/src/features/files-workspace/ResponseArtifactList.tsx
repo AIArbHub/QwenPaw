@@ -214,7 +214,7 @@ export default function ResponseArtifactList({
                 event.preventDefault();
                 event.stopPropagation();
                 window.dispatchEvent(
-                  new CustomEvent("qwenpaw:open-file-preview", {
+                  new CustomEvent("aiarb:open-file-preview", {
                     detail: {
                       target: artifact.target,
                       trigger: event.currentTarget,

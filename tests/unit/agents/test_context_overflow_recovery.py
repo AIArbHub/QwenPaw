@@ -9,7 +9,7 @@ import pytest
 from agentscope.agent import Agent
 from google.genai import errors as genai_errors
 
-from qwenpaw.agents.react_agent import QwenPawAgent
+from aiarb.agents.react_agent import AIArbAgent
 
 
 class _ContextOverflowError(Exception):
@@ -51,7 +51,7 @@ class _NoOpScrollManager(_ScrollManager):
 
 
 def _agent(*, context_manager=None):
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIArbAgent)
     agent._context_manager = context_manager
     agent.state = SimpleNamespace(context=["old-1", "old-2"])
     agent._prepare_model_input = AsyncMock(
@@ -240,7 +240,7 @@ def test_context_overflow_classifier_requires_400_and_specific_marker(
     expected,
 ):
     exc = Exception(message)
-    assert QwenPawAgent._is_context_overflow_error(exc) is expected
+    assert AIArbAgent._is_context_overflow_error(exc) is expected
 
 
 @pytest.mark.parametrize(
@@ -266,10 +266,10 @@ def test_context_overflow_classifier_supports_gemini_client_error(message):
             },
         },
     )
-    assert QwenPawAgent._is_context_overflow_error(exc) is True
+    assert AIArbAgent._is_context_overflow_error(exc) is True
 
 
 def test_context_overflow_classifier_supports_aiohttp_response_status():
     exc = Exception("context length exceeded")
     exc.response = SimpleNamespace(status=400)
-    assert QwenPawAgent._is_context_overflow_error(exc) is True
+    assert AIArbAgent._is_context_overflow_error(exc) is True

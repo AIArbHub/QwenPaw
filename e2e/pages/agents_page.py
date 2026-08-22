@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw Agents management page object.
+AIArb Agents management page object.
 
 Wraps all interactions on the agent management page and exposes business-level
 methods.
@@ -33,7 +33,7 @@ class AgentsPage(BasePage):
     - Manage agent files
     """
 
-    PAGE_TITLE = "QwenPaw Console"
+    PAGE_TITLE = "AIArb Console"
     PAGE_URL = f"{config.base_url}/agents"
 
     # ========== Selector definitions ==========
@@ -43,27 +43,27 @@ class AgentsPage(BasePage):
     BREADCRUMB = 'span[class*="breadcrumbCurrent"]:has-text("智能体")'
 
     # Agent list (table structure)
-    AGENT_TABLE = '.qwenpaw-table'
-    AGENT_LIST = '.qwenpaw-table-tbody'
-    AGENT_ITEM = '.qwenpaw-table-tbody tr.qwenpaw-table-row'
+    AGENT_TABLE = '.aiarb-table'
+    AGENT_LIST = '.aiarb-table-tbody'
+    AGENT_ITEM = '.aiarb-table-tbody tr.aiarb-table-row'
     # Column order: drag handle (1) | Name (2) | ID (3) | Backend (4) |
     # Description (5) | Workspace (6) | Model (7) | Actions (8). Upstream
     # #6397 inserted the Backend column after ID, shifting everything to
     # its right. Actions is declared ``fixed: "right"``, so anchor it on
     # the fixed-column class instead of a position that keeps drifting.
-    AGENT_NAME_CELL = 'td.qwenpaw-table-cell:nth-child(2)'
-    AGENT_ID_CELL = 'td.qwenpaw-table-cell:nth-child(3)'
-    AGENT_DESC_CELL = 'td.qwenpaw-table-cell:nth-child(5)'
-    AGENT_WORKSPACE_CELL = 'td.qwenpaw-table-cell:nth-child(6)'
-    AGENT_MODEL_CELL = 'td.qwenpaw-table-cell:nth-child(7)'
-    AGENT_ACTIONS_CELL = 'td.qwenpaw-table-cell-fix-right'
+    AGENT_NAME_CELL = 'td.aiarb-table-cell:nth-child(2)'
+    AGENT_ID_CELL = 'td.aiarb-table-cell:nth-child(3)'
+    AGENT_DESC_CELL = 'td.aiarb-table-cell:nth-child(5)'
+    AGENT_WORKSPACE_CELL = 'td.aiarb-table-cell:nth-child(6)'
+    AGENT_MODEL_CELL = 'td.aiarb-table-cell:nth-child(7)'
+    AGENT_ACTIONS_CELL = 'td.aiarb-table-cell-fix-right'
     # Post-#6198 the name cell shows an AgentStatusIndicator dot exposing a
     # ``data-status`` attribute (disabled/pending/starting/running/failed)
     # instead of a "Disabled" Tag.
     AGENT_STATUS = '[data-status]'
 
     # Action buttons
-    CREATE_AGENT_BTN = 'button:has-text("创建智能体"), button:has-text("Create Agent"), .qwenpaw-btn-primary'
+    CREATE_AGENT_BTN = 'button:has-text("创建智能体"), button:has-text("Create Agent"), .aiarb-btn-primary'
     # Inline action buttons in a table row. Post v2.0.1 (#6262 added a Copy
     # button at position 3) the actions are 5 icon buttons in order:
     # Pin | Edit | Copy | Toggle | Delete. Anchor on icon semantics only —
@@ -75,34 +75,34 @@ class AgentsPage(BasePage):
     #   Delete = antd DeleteOutlined  -> .anticon-delete (danger button)
     EDIT_BTN = 'button:has(.anticon-edit)'
     TOGGLE_BTN = 'button:has(svg.lucide-eye-off), button:has(svg.lucide-eye)'
-    DELETE_BTN = 'button.qwenpaw-btn-dangerous, button:has(.anticon-delete)'
+    DELETE_BTN = 'button.aiarb-btn-dangerous, button:has(.anticon-delete)'
     ENABLE_TOGGLE = 'button:has(svg.lucide-eye-off), button:has(svg.lucide-eye)'
     REFRESH_BTN = 'button:has(.anticon-reload), button:has(.spark-icon-spark-refresh-line)'
 
     # Create/edit form
-    FORM_DIALOG = '.qwenpaw-modal, [role="dialog"]'
-    FORM_TITLE = '.qwenpaw-modal-header-title, .qwenpaw-spark-title'
+    FORM_DIALOG = '.aiarb-modal, [role="dialog"]'
+    FORM_TITLE = '.aiarb-modal-header-title, .aiarb-spark-title'
     FORM_NAME_INPUT = 'input#name, input[placeholder*="My Agent"]'
     FORM_DESC_INPUT = 'textarea#description, textarea[placeholder*="describe"]'
     FORM_WORKSPACE_INPUT = 'input#workspace_dir'
-    FORM_SKILLS_SELECT = '.qwenpaw-form-item:has-text("Skills") .qwenpaw-select-selector'
-    FORM_SUBMIT_BTN = '.qwenpaw-modal-footer button.qwenpaw-btn-primary, button:has-text("保存"), button:has-text("Save")'
-    FORM_CANCEL_BTN = '.qwenpaw-modal-footer button.qwenpaw-btn-default, button:has-text("取消"), button:has-text("Cancel")'
+    FORM_SKILLS_SELECT = '.aiarb-form-item:has-text("Skills") .aiarb-select-selector'
+    FORM_SUBMIT_BTN = '.aiarb-modal-footer button.aiarb-btn-primary, button:has-text("保存"), button:has-text("Save")'
+    FORM_CANCEL_BTN = '.aiarb-modal-footer button.aiarb-btn-default, button:has-text("取消"), button:has-text("Cancel")'
 
     # Delete confirmation (Popconfirm bubble)
-    DELETE_CONFIRM_DIALOG = '.qwenpaw-popconfirm'
-    DELETE_CONFIRM_BTN = '.qwenpaw-popconfirm-buttons button.qwenpaw-btn-primary'
-    DELETE_CANCEL_BTN = '.qwenpaw-popconfirm-buttons button.qwenpaw-btn-default'
+    DELETE_CONFIRM_DIALOG = '.aiarb-popconfirm'
+    DELETE_CONFIRM_BTN = '.aiarb-popconfirm-buttons button.aiarb-btn-primary'
+    DELETE_CANCEL_BTN = '.aiarb-popconfirm-buttons button.aiarb-btn-default'
 
     # Agent detail
-    AGENT_DETAIL_TAB = '.qwenpaw-tabs-tab-btn'
-    AGENT_DETAIL_PANEL = '.qwenpaw-tabs-tabpane-active'
-    AGENT_FILES_LIST = '[class*=fileList], .qwenpaw-list'
-    AGENT_FILE_ITEM = '[class*=fileItem], .qwenpaw-list-item'
+    AGENT_DETAIL_TAB = '.aiarb-tabs-tab-btn'
+    AGENT_DETAIL_PANEL = '.aiarb-tabs-tabpane-active'
+    AGENT_FILES_LIST = '[class*=fileList], .aiarb-list'
+    AGENT_FILE_ITEM = '[class*=fileItem], .aiarb-list-item'
 
     # Empty state
-    EMPTY_STATE = '.qwenpaw-empty, [class*=empty]'
-    EMPTY_STATE_TEXT = '.qwenpaw-empty-description, .qwenpaw-empty-desc'
+    EMPTY_STATE = '.aiarb-empty, [class*=empty]'
+    EMPTY_STATE_TEXT = '.aiarb-empty-description, .aiarb-empty-desc'
 
     # Toast messages (inherited from BasePage, no redefinition needed)
 

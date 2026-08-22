@@ -67,7 +67,7 @@ export default function PawAppsPage() {
             image={<AppWindow size={48} strokeWidth={1} />}
             description={t(
               "pawapps.noApps",
-              "No PawApps installed. Install apps to ~/.copaw/apps/",
+              "No PawApps installed. Install apps to ~/.aiarb/apps/",
             )}
             style={{ marginTop: 48 }}
           />

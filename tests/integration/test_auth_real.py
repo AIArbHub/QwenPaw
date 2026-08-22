@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 """Auth=true real-link integration tests — Sprint 3.4-A.
 
-Spawns a dedicated subprocess with QWENPAW_AUTH_ENABLED=true and
+Spawns a dedicated subprocess with AIARB_AUTH_ENABLED=true and
 seeded credentials, then exercises:
   A1 GET /api/auth/status reflects auth enabled + has_users
   A2 POST /api/auth/login with correct credentials returns token
@@ -68,7 +68,7 @@ def _tee(stream, buf: list[str]) -> None:
 def auth_app_server(  # pylint: disable=too-many-statements
     tmp_path_factory,
 ) -> Iterator[_AuthAppServer]:
-    """Spawn a qwenpaw app subprocess with auth=true + seeded user."""
+    """Spawn a aiarb app subprocess with auth=true + seeded user."""
     tmp_path = tmp_path_factory.mktemp("auth_app_server")
     host = "127.0.0.1"
     port = _find_free_port(host)
@@ -87,13 +87,13 @@ def auth_app_server(  # pylint: disable=too-many-statements
         "DASHSCOPE_API_KEY",
     ):
         env.pop(key, None)
-    env["QWENPAW_WORKING_DIR"] = str(working_dir)
-    env["QWENPAW_SECRET_DIR"] = str(secret_dir)
-    env["QWENPAW_BACKUP_DIR"] = str(backups_dir)
-    env["QWENPAW_AUTH_ENABLED"] = "true"
-    env["QWENPAW_AUTH_USERNAME"] = _AUTH_USERNAME
-    env["QWENPAW_AUTH_PASSWORD"] = _AUTH_PASSWORD
-    env["QWENPAW_UPLOAD_MAX_SIZE_MB"] = "10"
+    env["AIARB_WORKING_DIR"] = str(working_dir)
+    env["AIARB_SECRET_DIR"] = str(secret_dir)
+    env["AIARB_BACKUP_DIR"] = str(backups_dir)
+    env["AIARB_AUTH_ENABLED"] = "true"
+    env["AIARB_AUTH_USERNAME"] = _AUTH_USERNAME
+    env["AIARB_AUTH_PASSWORD"] = _AUTH_PASSWORD
+    env["AIARB_UPLOAD_MAX_SIZE_MB"] = "10"
     env["NO_PROXY"] = "*"
     env["PYTHONUNBUFFERED"] = "1"
     env["PYTHONIOENCODING"] = "utf-8"
@@ -101,11 +101,11 @@ def auth_app_server(  # pylint: disable=too-many-statements
     # This module spawns its own app subprocess, so it must opt into the
     # same subprocess-coverage wiring the shared app_server fixture uses;
     # without it these tests trace nothing under
-    # QWENPAW_INTEGRATION_COVERAGE=1. The settings are inlined rather than
+    # AIARB_INTEGRATION_COVERAGE=1. The settings are inlined rather than
     # imported from the sibling conftest, whose bare module name collides
     # with tests/conftest.py during static analysis.
     if os.environ.get(
-        "QWENPAW_INTEGRATION_COVERAGE",
+        "AIARB_INTEGRATION_COVERAGE",
         "",
     ).strip().lower() in ("1", "true", "yes"):
         cov_dir = Path(__file__).resolve().parents[2] / ".integration_coverage"
@@ -119,7 +119,7 @@ def auth_app_server(  # pylint: disable=too-many-statements
         [
             sys.executable,
             "-m",
-            "qwenpaw",
+            "aiarb",
             "app",
             "--host",
             host,
@@ -151,7 +151,7 @@ def auth_app_server(  # pylint: disable=too-many-statements
             while time.time() < deadline:
                 if process.poll() is not None:
                     raise AssertionError(
-                        "qwenpaw app exited during startup\n"
+                        "aiarb app exited during startup\n"
                         f"logs:\n{''.join(logs)[-3000:]}",
                     )
                 try:

@@ -18,7 +18,7 @@ def mock_request():
 @pytest.fixture
 def feishu_handler():
     """Create Feishu handler instance."""
-    from qwenpaw.app.channels.qrcode_auth_handler import (
+    from aiarb.app.channels.qrcode_auth_handler import (
         FeishuQRCodeAuthHandler,
     )
 
@@ -28,7 +28,7 @@ def feishu_handler():
 @pytest.fixture
 def dingtalk_handler():
     """Create DingTalk handler instance."""
-    from qwenpaw.app.channels.qrcode_auth_handler import (
+    from aiarb.app.channels.qrcode_auth_handler import (
         DingtalkQRCodeAuthHandler,
     )
 
@@ -118,7 +118,7 @@ class TestFeishuQRCodeAuthHandler:
             result = await feishu_handler.fetch_qrcode(mock_request)
 
             assert result.poll_token == "device_123"
-            assert "source=QwenPaw" in result.scan_url
+            assert "source=AIArb" in result.scan_url
             assert "code=abc" in result.scan_url
 
     @pytest.mark.asyncio
@@ -404,7 +404,7 @@ class TestQRCodeAuthHandlerRegistry:
 
     def test_registry_contains_all_channels(self):
         """Should contain handlers for all supported channels."""
-        from qwenpaw.app.channels.qrcode_auth_handler import (
+        from aiarb.app.channels.qrcode_auth_handler import (
             QRCODE_AUTH_HANDLERS,
         )
 
@@ -413,7 +413,7 @@ class TestQRCodeAuthHandlerRegistry:
 
     def test_registry_handlers_are_correct_type(self):
         """Should contain FeishuQRCodeAuthHandler for feishu."""
-        from qwenpaw.app.channels.qrcode_auth_handler import (
+        from aiarb.app.channels.qrcode_auth_handler import (
             QRCODE_AUTH_HANDLERS,
             FeishuQRCodeAuthHandler,
             QRCodeAuthHandler,

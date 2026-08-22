@@ -10,7 +10,7 @@ import shutil
 
 import pytest
 
-from qwenpaw.governance.policy import (
+from aiarb.governance.policy import (
     DEFAULT_BUILTIN_RULES,
     DEFAULT_USER_RULES,
     GovernanceAction,
@@ -21,10 +21,10 @@ from qwenpaw.governance.policy import (
     load_governance_policy,
     save_governance_policy,
 )
-from qwenpaw.governance.resource_governor import ResourceGovernor
-from qwenpaw.governance.tool_registry import DEFAULT_REGISTRY
-from qwenpaw.governance.audit import AuditLog
-from qwenpaw.sandbox import SandboxCapability
+from aiarb.governance.resource_governor import ResourceGovernor
+from aiarb.governance.tool_registry import DEFAULT_REGISTRY
+from aiarb.governance.audit import AuditLog
+from aiarb.sandbox import SandboxCapability
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -43,7 +43,7 @@ def _tc(tool_name: str, target: str) -> ToolCallSpec:
 
 def _make_governor(tmp_path) -> ResourceGovernor:
     """Build a governor whose policy dir + audit DB live under tmp_path
-    (not the real ~/.qwenpaw), so tests never pollute the home dir."""
+    (not the real ~/.aiarb), so tests never pollute the home dir."""
     return ResourceGovernor(
         str(tmp_path),
         governance_dir=str(tmp_path / "governance"),
@@ -378,7 +378,7 @@ class TestDefaultPolicyLoad:
         )
         patched = list(DEFAULT_USER_RULES) + [new_rule]
         with patch(
-            "qwenpaw.governance.policy.DEFAULT_USER_RULES",
+            "aiarb.governance.policy.DEFAULT_USER_RULES",
             patched,
         ):
             reloaded = load_governance_policy(str(policy_dir), ws)
@@ -401,7 +401,7 @@ class TestDefaultPolicyLoad:
         patched = list(DEFAULT_USER_RULES) + [new_rule]
 
         with patch(
-            "qwenpaw.governance.policy.DEFAULT_USER_RULES",
+            "aiarb.governance.policy.DEFAULT_USER_RULES",
             patched,
         ):
             p1 = load_governance_policy(str(policy_dir), ws)
@@ -1056,7 +1056,7 @@ class _FakeModel:
 
 def _patch_model(monkeypatch, text: str, delay: float = 0.0) -> None:
     """Make ``create_model_and_formatter`` return a _FakeModel."""
-    import qwenpaw.agents.model_factory as factory
+    import aiarb.agents.model_factory as factory
 
     monkeypatch.setattr(
         factory,
@@ -1067,7 +1067,7 @@ def _patch_model(monkeypatch, text: str, delay: float = 0.0) -> None:
 
 def _patch_model_unavailable(monkeypatch) -> None:
     """Make model creation raise — simulates no configured provider."""
-    import qwenpaw.agents.model_factory as factory
+    import aiarb.agents.model_factory as factory
 
     def _raise(*a, **kw):
         raise RuntimeError("no active model")
@@ -1080,7 +1080,7 @@ class TestGeneralizeRuleMatch:
     with strict validation and an exact-match fallback."""
 
     async def test_shell_generalizes(self, monkeypatch):
-        from qwenpaw.governance.generalize import generalize_rule_match
+        from aiarb.governance.generalize import generalize_rule_match
 
         _patch_model(monkeypatch, "git *")
         assert (
@@ -1088,7 +1088,7 @@ class TestGeneralizeRuleMatch:
         )
 
     async def test_file_generalizes(self, monkeypatch):
-        from qwenpaw.governance.generalize import generalize_rule_match
+        from aiarb.governance.generalize import generalize_rule_match
 
         _patch_model(monkeypatch, "/ws/src/**")
         assert (
@@ -1097,7 +1097,7 @@ class TestGeneralizeRuleMatch:
         )
 
     async def test_unsafe_bare_wildcard_falls_back(self, monkeypatch):
-        from qwenpaw.governance.generalize import generalize_rule_match
+        from aiarb.governance.generalize import generalize_rule_match
 
         _patch_model(monkeypatch, "*")
         assert (
@@ -1107,7 +1107,7 @@ class TestGeneralizeRuleMatch:
 
     async def test_anchor_violation_falls_back(self, monkeypatch):
         """A pattern for a different command must not be trusted."""
-        from qwenpaw.governance.generalize import generalize_rule_match
+        from aiarb.governance.generalize import generalize_rule_match
 
         _patch_model(monkeypatch, "rm *")
         assert (
@@ -1117,7 +1117,7 @@ class TestGeneralizeRuleMatch:
 
     async def test_destructive_command_not_widened(self, monkeypatch):
         """rm/sudo/etc. stay exact even if the model proposes a glob."""
-        from qwenpaw.governance.generalize import generalize_rule_match
+        from aiarb.governance.generalize import generalize_rule_match
 
         _patch_model(monkeypatch, "rm *")
         assert (
@@ -1127,7 +1127,7 @@ class TestGeneralizeRuleMatch:
 
     async def test_pattern_not_covering_target_falls_back(self, monkeypatch):
         """A pattern that no longer matches the approved target is rejected."""
-        from qwenpaw.governance.generalize import generalize_rule_match
+        from aiarb.governance.generalize import generalize_rule_match
 
         _patch_model(monkeypatch, "/ws/out/**")
         assert (
@@ -1136,7 +1136,7 @@ class TestGeneralizeRuleMatch:
         )
 
     async def test_no_model_falls_back(self, monkeypatch):
-        from qwenpaw.governance.generalize import generalize_rule_match
+        from aiarb.governance.generalize import generalize_rule_match
 
         _patch_model_unavailable(monkeypatch)
         assert (
@@ -1145,7 +1145,7 @@ class TestGeneralizeRuleMatch:
         )
 
     async def test_timeout_falls_back(self, monkeypatch):
-        from qwenpaw.governance import generalize as policy_mod
+        from aiarb.governance import generalize as policy_mod
 
         monkeypatch.setattr(policy_mod, "GENERALIZE_TIMEOUT_SECONDS", 0.05)
         _patch_model(monkeypatch, "git *", delay=1.0)
@@ -1156,11 +1156,11 @@ class TestGeneralizeRuleMatch:
 
     async def test_non_generalizable_type_stays_exact(self, monkeypatch):
         """network/internal tools are not widened."""
-        from qwenpaw.governance.generalize import generalize_rule_match
+        from aiarb.governance.generalize import generalize_rule_match
 
         called = {"n": 0}
 
-        import qwenpaw.agents.model_factory as factory
+        import aiarb.agents.model_factory as factory
 
         def _spy(*_args, **_kwargs):
             called["n"] += 1
@@ -1174,7 +1174,7 @@ class TestGeneralizeRuleMatch:
         assert called["n"] == 0
 
     async def test_empty_target_stays_exact(self, monkeypatch):
-        from qwenpaw.governance.generalize import generalize_rule_match
+        from aiarb.governance.generalize import generalize_rule_match
 
         _patch_model(monkeypatch, "*")
         assert await generalize_rule_match("Bash", "") == "Bash()"
@@ -1200,7 +1200,7 @@ class TestAddApprovedRuleGeneralization:
     async def test_records_generalized_target(self, governor, monkeypatch):
         """A generalized target/pattern supplied by the caller is wrapped
         and persisted as ``ToolName(pattern)``."""
-        import qwenpaw.agents.model_factory as factory
+        import aiarb.agents.model_factory as factory
 
         calls = {"n": 0}
         monkeypatch.setattr(
@@ -1275,7 +1275,7 @@ class TestAddApprovedRuleGeneralization:
         import threading
         import time
 
-        from qwenpaw.governance import resource_governor as governor_module
+        from aiarb.governance import resource_governor as governor_module
 
         active = 0
         max_active = 0
@@ -1353,13 +1353,13 @@ class TestGeneralizeTargetForApproval:
     Returns the bare generalized target/pattern."""
 
     async def test_builtin_source_returns_exact_target(self, monkeypatch):
-        from qwenpaw.governance.generalize import (
+        from aiarb.governance.generalize import (
             generalize_target_for_approval,
         )
 
         # Even with a model that would generalize, builtin source must
         # return the exact target and skip the LLM.
-        import qwenpaw.agents.model_factory as factory
+        import aiarb.agents.model_factory as factory
 
         calls = {"n": 0}
         monkeypatch.setattr(
@@ -1382,7 +1382,7 @@ class TestGeneralizeTargetForApproval:
         ["user_rules", "sandbox", "No rule hit"],
     )
     async def test_non_builtin_source_generalizes(self, monkeypatch, source):
-        from qwenpaw.governance.generalize import (
+        from aiarb.governance.generalize import (
             generalize_target_for_approval,
         )
 
@@ -1396,7 +1396,7 @@ class TestGeneralizeTargetForApproval:
         assert result == "git *"
 
     async def test_exception_falls_back_to_exact_target(self, monkeypatch):
-        from qwenpaw.governance import generalize as g
+        from aiarb.governance import generalize as g
 
         # Force generalize_rule_match to blow up; helper must swallow it.
         async def _boom(tool_name, target):
@@ -1414,7 +1414,7 @@ class TestGeneralizeTargetForApproval:
         """When the LLM returns a match string whose pattern contains ')',
         the helper must unwrap correctly to the inner pattern (this is why
         it uses _parse_match rather than a naive split)."""
-        from qwenpaw.governance import generalize as g
+        from aiarb.governance import generalize as g
 
         async def _fake(_tool_name, _target):
             return "Bash(echo $(date))"
@@ -1480,7 +1480,7 @@ class TestDeepScanConfigMerge:
         mock_cfg.security.tool_guard.shell_evasion_checks = {}
 
         monkeypatch.setattr(
-            "qwenpaw.config.load_config",
+            "aiarb.config.load_config",
             lambda: mock_cfg,
         )
 
@@ -1499,7 +1499,7 @@ class TestDeepScanConfigMerge:
         """Rules listed in disabled_rules should not participate in
         detection — neither policy.yaml rules nor config custom_rules."""
         from unittest.mock import MagicMock
-        from qwenpaw.governance.policy import DetectionRuleConfig
+        from aiarb.governance.policy import DetectionRuleConfig
 
         policy = self._make_policy(tmp_path)
 
@@ -1520,7 +1520,7 @@ class TestDeepScanConfigMerge:
         mock_cfg.security.tool_guard.shell_evasion_checks = {}
 
         monkeypatch.setattr(
-            "qwenpaw.config.load_config",
+            "aiarb.config.load_config",
             lambda: mock_cfg,
         )
 
@@ -1555,7 +1555,7 @@ class TestDeepScanConfigMerge:
         }
 
         monkeypatch.setattr(
-            "qwenpaw.config.load_config",
+            "aiarb.config.load_config",
             lambda: mock_cfg,
         )
 
@@ -1574,7 +1574,7 @@ class TestDeepScanConfigMerge:
     ):
         """If load_config() raises, deep scan should still work using
         policy.yaml rules only (graceful degradation)."""
-        from qwenpaw.governance.policy import DetectionRuleConfig
+        from aiarb.governance.policy import DetectionRuleConfig
 
         policy = self._make_policy(tmp_path)
 
@@ -1593,7 +1593,7 @@ class TestDeepScanConfigMerge:
             raise RuntimeError("config broken")
 
         monkeypatch.setattr(
-            "qwenpaw.config.load_config",
+            "aiarb.config.load_config",
             _raise_config,
         )
 
@@ -1713,7 +1713,7 @@ class TestShellFindingDrivenApproval:
 
     def _policy_with_shell_rule(self, severity: str):
         """Build a SMART policy with one shell detection rule of *severity*."""
-        from qwenpaw.governance.policy import DetectionRuleConfig
+        from aiarb.governance.policy import DetectionRuleConfig
 
         policy = _create_default_policy(workspace_dir="/tmp/test-workspace")
         policy.execution_level = "smart"
@@ -1762,7 +1762,7 @@ class TestRawParamsScanning:
 
     def test_write_content_match(self):
         """Pattern in Write content field triggers a finding."""
-        from qwenpaw.governance.detectors import detect_dangerous_patterns
+        from aiarb.governance.detectors import detect_dangerous_patterns
         from unittest.mock import MagicMock
 
         rule = MagicMock()
@@ -1791,7 +1791,7 @@ class TestRawParamsScanning:
 
     def test_rule_params_scoping_excludes_unrelated(self):
         """Rule with params=["content"] must NOT match the file_path param."""
-        from qwenpaw.governance.detectors import detect_dangerous_patterns
+        from aiarb.governance.detectors import detect_dangerous_patterns
         from unittest.mock import MagicMock
 
         rule = MagicMock()
@@ -1819,7 +1819,7 @@ class TestRawParamsScanning:
 
     def test_empty_target_raw_params_still_detected(self):
         """When target is empty, raw_params values are still scanned."""
-        from qwenpaw.governance.detectors import detect_dangerous_patterns
+        from aiarb.governance.detectors import detect_dangerous_patterns
         from unittest.mock import MagicMock
 
         rule = MagicMock()
@@ -1865,10 +1865,10 @@ class TestRawParamsScanning:
             "command_substitution": False,
         }
 
-        import qwenpaw.config
+        import aiarb.config
 
-        original = qwenpaw.config.load_config
-        qwenpaw.config.load_config = lambda: mock_cfg
+        original = aiarb.config.load_config
+        aiarb.config.load_config = lambda: mock_cfg
         try:
             tc = _tc("Bash", "echo $(whoami)")
             findings = policy._deep_security_scan(tc, "shell")
@@ -1876,7 +1876,7 @@ class TestRawParamsScanning:
             rule_ids = [f.rule_id for f in findings]
             assert "SHELL_EVASION_COMMAND_SUBSTITUTION" not in rule_ids
         finally:
-            qwenpaw.config.load_config = original
+            aiarb.config.load_config = original
 
 
 # ---------------------------------------------------------------------------
@@ -1896,7 +1896,7 @@ class TestDefaultDetectionRules:
 
     def test_bundled_rules_loaded_from_empty_policy_yaml(self, tmp_path):
         """policy.yaml with no detection_rules still gets defaults."""
-        from qwenpaw.governance.policy import _get_default_detection_rules
+        from aiarb.governance.policy import _get_default_detection_rules
 
         policy = load_governance_policy(
             str(tmp_path),
@@ -1909,7 +1909,7 @@ class TestDefaultDetectionRules:
 
     def test_policy_yaml_rule_overrides_default(self):
         """A policy.yaml rule with same ID as a bundled rule should win."""
-        from qwenpaw.governance.policy import (
+        from aiarb.governance.policy import (
             DetectionRuleConfig,
             _merge_default_detection_rules,
         )
@@ -1935,7 +1935,7 @@ class TestDefaultDetectionRules:
 
     def test_save_load_round_trip_excludes_defaults(self, tmp_path):
         """save→load should NOT persist bundled rules to policy.yaml."""
-        from qwenpaw.governance.policy import (
+        from aiarb.governance.policy import (
             DetectionRuleConfig,
             _get_default_detection_rule_ids,
         )
@@ -1979,7 +1979,7 @@ class TestDefaultDetectionRules:
     def test_removed_default_rule_does_not_survive_upgrade(self, tmp_path):
         """If a bundled rule is renamed/removed, it should disappear
         after load instead of lingering as a fake user rule."""
-        from qwenpaw.governance.policy import (
+        from aiarb.governance.policy import (
             _get_default_detection_rule_ids,
         )
 
@@ -1999,7 +1999,7 @@ class TestDefaultDetectionRules:
 
     def test_cache_isolation_across_instances(self):
         """Mutating rules from one call must not affect another."""
-        from qwenpaw.governance.policy import _get_default_detection_rules
+        from aiarb.governance.policy import _get_default_detection_rules
 
         rules_a = _get_default_detection_rules()
         rules_b = _get_default_detection_rules()
@@ -2012,7 +2012,7 @@ class TestDefaultDetectionRules:
 
     def test_missing_yaml_graceful_degradation(self, monkeypatch):
         """If the bundled YAML is missing, return empty list."""
-        import qwenpaw.governance.policy as pol
+        import aiarb.governance.policy as pol
 
         # Clear cache to force reload
         monkeypatch.setattr(pol, "_DEFAULT_DETECTION_RULES_CACHE", None)
@@ -2020,7 +2020,7 @@ class TestDefaultDetectionRules:
         # Patch the import to return a non-existent path
         fake_dir = Path("/nonexistent/path/rules")
         monkeypatch.setattr(
-            "qwenpaw.security.tool_guard.guardians.rule_guardian."
+            "aiarb.security.tool_guard.guardians.rule_guardian."
             "_DEFAULT_RULES_DIR",
             fake_dir,
         )

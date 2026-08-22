@@ -20,7 +20,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from qwenpaw.app.multi_agent_manager import MultiAgentManager
+from aiarb.app.multi_agent_manager import MultiAgentManager
 
 
 def _fake_workspace() -> MagicMock:
@@ -47,7 +47,7 @@ def manager(monkeypatch):
         agents=SimpleNamespace(profiles={"agent": profile}),
     )
     monkeypatch.setattr(
-        "qwenpaw.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: fake_config,
     )
     monkeypatch.setattr(

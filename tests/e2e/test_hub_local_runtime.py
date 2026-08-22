@@ -71,7 +71,7 @@ def _runtime_logs(hub_root: Path) -> str:
 def _hub_environment(hub_root: Path) -> dict[str, str]:
     environment = dict(os.environ)
     environment.pop("PYTHONPATH", None)
-    environment["QWENPAW_HUB_DIR"] = str(hub_root)
+    environment["AIARB_HUB_DIR"] = str(hub_root)
     return environment
 
 
@@ -103,11 +103,11 @@ def _wait_for_runtime(
 
 
 @pytest.mark.skipif(
-    os.environ.get("QWENPAW_LOCAL_RUNTIME_E2E") != "1",
+    os.environ.get("AIARB_LOCAL_RUNTIME_E2E") != "1",
     reason="requires an OS runner with the native isolation dependency",
 )
 def test_hub_starts_and_proxies_local_runtime(tmp_path: Path) -> None:
-    """Start a real Hub and verify its managed QwenPaw HTTP endpoint."""
+    """Start a real Hub and verify its managed AIArb HTTP endpoint."""
     port = _allocate_port()
     hub_root = tmp_path / "hub"
     hub_root.mkdir(parents=True)
@@ -116,7 +116,7 @@ def test_hub_starts_and_proxies_local_runtime(tmp_path: Path) -> None:
     command = [
         sys.executable,
         "-m",
-        "qwenpaw",
+        "aiarb",
         "hub",
         "--host",
         "127.0.0.1",

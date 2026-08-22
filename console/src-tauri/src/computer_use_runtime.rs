@@ -40,18 +40,18 @@ const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 // The helper reads the capability secret from this variable. Kept in step with
 // the same name in computer_use_server::parse_arguments, which is a separate
 // binary and cannot share the constant.
-const CAPABILITY_ENV: &str = "QWENPAW_CU_CAPABILITY";
+const CAPABILITY_ENV: &str = "AIARB_CU_CAPABILITY";
 #[cfg(all(not(debug_assertions), target_os = "macos"))]
-const HELPER_HOST_PID_ENV: &str = "QWENPAW_CU_HOST_PID";
-const CONTROL_HOST_ENV: &str = "QWENPAW_COMPUTER_USE_CONTROL_HOST";
-const CONTROL_PORT_ENV: &str = "QWENPAW_COMPUTER_USE_CONTROL_PORT";
-const CONTROL_TOKEN_ENV: &str = "QWENPAW_COMPUTER_USE_CONTROL_TOKEN";
+const HELPER_HOST_PID_ENV: &str = "AIARB_CU_HOST_PID";
+const CONTROL_HOST_ENV: &str = "AIARB_COMPUTER_USE_CONTROL_HOST";
+const CONTROL_PORT_ENV: &str = "AIARB_COMPUTER_USE_CONTROL_PORT";
+const CONTROL_TOKEN_ENV: &str = "AIARB_COMPUTER_USE_CONTROL_TOKEN";
 const CONTROL_MAX_MESSAGE_BYTES: usize = 4096;
 // This is emitted by the direct helper child after it has created an endpoint
 // that the Python client can connect to. Keep it in step with the helper's
 // `computer_use_server::connection::HELPER_READY_PREFIX` constant.
 #[cfg(not(all(not(debug_assertions), target_os = "macos")))]
-const HELPER_READY_PREFIX: &str = "QWENPAW_COMPUTER_USE_READY ";
+const HELPER_READY_PREFIX: &str = "AIARB_COMPUTER_USE_READY ";
 const HELPER_READY_TIMEOUT: Duration = Duration::from_secs(8);
 const CONTROL_CONNECTION_TIMEOUT: Duration = Duration::from_secs(2);
 #[cfg(not(all(not(debug_assertions), target_os = "macos")))]
@@ -682,15 +682,15 @@ pub(crate) fn backend_environment(app: &tauri::AppHandle) -> Vec<(String, String
         if let Some(control) = control.as_ref() {
             environment.extend([
                 (
-                    "QWENPAW_COMPUTER_USE_CONTROL_HOST".to_string(),
+                    "AIARB_COMPUTER_USE_CONTROL_HOST".to_string(),
                     Ipv4Addr::LOCALHOST.to_string(),
                 ),
                 (
-                    "QWENPAW_COMPUTER_USE_CONTROL_PORT".to_string(),
+                    "AIARB_COMPUTER_USE_CONTROL_PORT".to_string(),
                     control.port.to_string(),
                 ),
                 (
-                    "QWENPAW_COMPUTER_USE_CONTROL_TOKEN".to_string(),
+                    "AIARB_COMPUTER_USE_CONTROL_TOKEN".to_string(),
                     control.token.clone(),
                 ),
             ]);
@@ -702,15 +702,15 @@ pub(crate) fn backend_environment(app: &tauri::AppHandle) -> Vec<(String, String
         if let Some(capability) = inner.capability.as_ref() {
             environment.extend([
                 (
-                    "QWENPAW_COMPUTER_USE_PIPE".to_string(),
+                    "AIARB_COMPUTER_USE_PIPE".to_string(),
                     capability.pipe_name.clone(),
                 ),
                 (
-                    "QWENPAW_COMPUTER_USE_CAPABILITY".to_string(),
+                    "AIARB_COMPUTER_USE_CAPABILITY".to_string(),
                     capability.secret.clone(),
                 ),
                 (
-                    "QWENPAW_COMPUTER_USE_PROTOCOL".to_string(),
+                    "AIARB_COMPUTER_USE_PROTOCOL".to_string(),
                     PROTOCOL_VERSION.to_string(),
                 ),
             ]);
@@ -849,7 +849,7 @@ fn endpoint_address() -> Result<String, String> {
     // Result only to share one signature with the Unix path, whose directory
     // creation can.
     Ok(format!(
-        "qwenpaw-computer-use-{}-{}",
+        "aiarb-computer-use-{}-{}",
         std::process::id(),
         random_hex(12),
     ))
@@ -883,7 +883,7 @@ fn endpoint_address() -> Result<String, String> {
     } else {
         std::env::temp_dir()
     };
-    let dir = socket_root.join(format!("qwenpaw-cu-{}", random_hex(16)));
+    let dir = socket_root.join(format!("aiarb-cu-{}", random_hex(16)));
     std::fs::DirBuilder::new()
         .recursive(false)
         .mode(0o700)
@@ -932,7 +932,7 @@ fn cleanup_endpoint(endpoint: &str) {
     let is_ours = directory
         .file_name()
         .and_then(|name| name.to_str())
-        .is_some_and(|name| name.starts_with("qwenpaw-cu-"));
+        .is_some_and(|name| name.starts_with("aiarb-cu-"));
     if !is_ours {
         log::warn!(
             "[computer-use] refusing to remove unexpected helper socket directory {}",
@@ -1213,7 +1213,7 @@ fn helper_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
         .resource_dir()
         .map_err(|err| format!("failed to resolve resources: {err}"))?
         .join("binaries")
-        .join("qwenpaw-backend")
+        .join("aiarb-backend")
         .join(helper_name());
     path.is_file()
         .then_some(path.clone())
@@ -1223,9 +1223,9 @@ fn helper_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
 #[cfg(any(debug_assertions, not(target_os = "macos")))]
 fn helper_name() -> &'static str {
     if cfg!(windows) {
-        "qwenpaw-computer-use-helper.exe"
+        "aiarb-computer-use-helper.exe"
     } else {
-        "qwenpaw-computer-use-helper"
+        "aiarb-computer-use-helper"
     }
 }
 
@@ -1236,7 +1236,7 @@ mod tests {
     #[test]
     fn parses_matching_helper_ready_line() {
         let line =
-            format!("QWENPAW_COMPUTER_USE_READY {{\"protocol_version\":{PROTOCOL_VERSION}}}");
+            format!("AIARB_COMPUTER_USE_READY {{\"protocol_version\":{PROTOCOL_VERSION}}}");
         assert_eq!(parse_helper_ready_line(&line), Ok(Some(())));
     }
 
@@ -1248,7 +1248,7 @@ mod tests {
     #[test]
     fn rejects_incompatible_helper_ready_line() {
         let line = format!(
-            "QWENPAW_COMPUTER_USE_READY {{\"protocol_version\":{}}}",
+            "AIARB_COMPUTER_USE_READY {{\"protocol_version\":{}}}",
             PROTOCOL_VERSION + 1
         );
         let error =

@@ -2,9 +2,9 @@
 # pylint: disable=redefined-outer-name
 # pylint: disable=reimported,unused-argument,unnecessary-pass
 """
-Global pytest fixtures for CoPaw test suite.
+Global pytest fixtures for AIArb test suite.
 
-This module provides shared fixtures for testing CoPaw components.
+This module provides shared fixtures for testing AIArb components.
 All fixtures are designed to be isolated, safe, and easy to use.
 """
 
@@ -20,13 +20,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from qwenpaw.providers import provider_manager as _provider_manager_module
+from aiarb.providers import provider_manager as _provider_manager_module
 
 
 @pytest.fixture(autouse=True)
-def capture_qwenpaw_logs(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Let caplog see qwenpaw records despite the app logger handler."""
-    monkeypatch.setattr(logging.getLogger("qwenpaw"), "propagate", True)
+def capture_aiarb_logs(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Let caplog see aiarb records despite the app logger handler."""
+    monkeypatch.setattr(logging.getLogger("aiarb"), "propagate", True)
 
 
 # =============================================================================
@@ -64,7 +64,7 @@ def temp_workspace() -> Generator[Path, None, None]:
             file_path.write_text("content")
             assert file_path.read_text() == "content"
     """
-    temp_dir = tempfile.mkdtemp(prefix="copaw_test_")
+    temp_dir = tempfile.mkdtemp(prefix="aiarb_test_")
     try:
         yield Path(temp_dir)
     finally:
@@ -72,39 +72,39 @@ def temp_workspace() -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def temp_copaw_home(
+def temp_aiarb_home(
     monkeypatch: pytest.MonkeyPatch,
 ) -> Generator[Path, None, None]:
-    """Provide an isolated CoPaw HOME environment.
+    """Provide an isolated AIArb HOME environment.
 
-    Creates a temporary directory and sets it as both HOME and COPAW_HOME
+    Creates a temporary directory and sets it as both HOME and AIARB_HOME
     environment variables. Also clears any sensitive environment variables
     that could interfere with tests.
 
     Yields:
-        Path to the temporary CoPaw home directory.
+        Path to the temporary AIArb home directory.
 
     Example:
-        def test_config_loading(temp_copaw_home):
+        def test_config_loading(temp_aiarb_home):
             # This test runs in an isolated environment
-            config_path = temp_copaw_home / ".copaw" / "config.yaml"
+            config_path = temp_aiarb_home / ".aiarb" / "config.yaml"
             # ... test config operations
     """
-    temp_dir = tempfile.mkdtemp(prefix="copaw_home_")
+    temp_dir = tempfile.mkdtemp(prefix="aiarb_home_")
     temp_path = Path(temp_dir)
 
     # Create standard subdirectories
-    (temp_path / ".copaw").mkdir(exist_ok=True)
-    (temp_path / ".copaw" / "skills").mkdir(exist_ok=True)
-    (temp_path / ".copaw" / "logs").mkdir(exist_ok=True)
+    (temp_path / ".aiarb").mkdir(exist_ok=True)
+    (temp_path / ".aiarb" / "skills").mkdir(exist_ok=True)
+    (temp_path / ".aiarb" / "logs").mkdir(exist_ok=True)
 
     # Store original values (for potential future use)
     _ = os.environ.get("HOME")  # noqa: F841
-    _ = os.environ.get("COPAW_HOME")  # noqa: F841
+    _ = os.environ.get("AIARB_HOME")  # noqa: F841
 
     # Set isolated environment
     monkeypatch.setenv("HOME", temp_dir)
-    monkeypatch.setenv("COPAW_HOME", str(temp_path / ".copaw"))
+    monkeypatch.setenv("AIARB_HOME", str(temp_path / ".aiarb"))
 
     # Clear sensitive tokens to prevent accidental API calls
     sensitive_vars = [
@@ -256,7 +256,7 @@ def mock_channel() -> MagicMock:
 
 @pytest.fixture
 def minimal_config() -> dict[str, Any]:
-    """Provide a minimal valid CoPaw configuration.
+    """Provide a minimal valid AIArb configuration.
 
     Returns a dictionary with the minimum required configuration
     for starting the application in test mode.
@@ -304,15 +304,15 @@ def clean_env(monkeypatch: pytest.MonkeyPatch) -> None:
 
     Example:
         def test_env_loading(clean_env, monkeypatch):
-            monkeypatch.setenv("COPAW_CONFIG", "/tmp/config.yaml")
+            monkeypatch.setenv("AIARB_CONFIG_FILE", "/tmp/config.yaml")
             # Test config loading from env
     """
-    # Clear CoPaw-specific environment variables
+    # Clear AIArb-specific environment variables
     vars_to_clear = [
-        "COPAW_HOME",
-        "COPAW_CONFIG",
-        "COPAW_LOG_LEVEL",
-        "COPAW_DEBUG",
+        "AIARB_HOME",
+        "AIARB_CONFIG_FILE",
+        "AIARB_LOG_LEVEL",
+        "AIARB_DEBUG",
     ]
     for var in vars_to_clear:
         monkeypatch.delenv(var, raising=False)
@@ -457,7 +457,7 @@ def isolated_secret_dir(monkeypatch, tmp_path):
     This fixture ensures every test uses a clean temporary directory and
     a fresh ProviderManager singleton.
     """
-    secret_dir = tmp_path / ".qwenpaw.secret"
+    secret_dir = tmp_path / ".aiarb.secret"
     monkeypatch.setattr(_provider_manager_module, "SECRET_DIR", secret_dir)
     monkeypatch.setattr(
         _provider_manager_module.ProviderManager,

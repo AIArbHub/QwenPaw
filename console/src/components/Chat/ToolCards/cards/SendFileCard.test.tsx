@@ -44,7 +44,7 @@ import SendFileCard from "./SendFileCard";
 describe("SendFileCard", () => {
   it("expands a text attachment by default and opens it", () => {
     const listener = vi.fn();
-    window.addEventListener("qwenpaw:open-file-preview", listener);
+    window.addEventListener("aiarb:open-file-preview", listener);
 
     render(
       <SendFileCard
@@ -71,6 +71,6 @@ describe("SendFileCard", () => {
       artifactUrl: "/api/files/preview/hello.txt",
     });
 
-    window.removeEventListener("qwenpaw:open-file-preview", listener);
+    window.removeEventListener("aiarb:open-file-preview", listener);
   });
 });

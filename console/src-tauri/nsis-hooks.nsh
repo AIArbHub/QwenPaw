@@ -1,74 +1,74 @@
 !include LogicLib.nsh
 !include nsDialogs.nsh
 
-Var QwenPawCliPathCheckbox
-Var QwenPawCliPathState
+Var AIArbCliPathCheckbox
+Var AIArbCliPathState
 
-Page custom QWENPAW_CLI_PATH_PAGE QWENPAW_CLI_PATH_PAGE_LEAVE
+Page custom AIARB_CLI_PATH_PAGE AIARB_CLI_PATH_PAGE_LEAVE
 
-!macro QWENPAW_UPDATE_CLI_PATH ACTION
+!macro AIARB_UPDATE_CLI_PATH ACTION
   InitPluginsDir
-  File /oname=$PLUGINSDIR\qwenpaw-update-path.ps1 "..\..\..\..\nsis\update-qwenpaw-path.ps1"
-  nsExec::ExecToStack `powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\qwenpaw-update-path.ps1" -Action "${ACTION}" -Path "$INSTDIR\binaries\qwenpaw-backend"`
+  File /oname=$PLUGINSDIR\aiarb-update-path.ps1 "..\..\..\..\nsis\update-aiarb-path.ps1"
+  nsExec::ExecToStack `powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\aiarb-update-path.ps1" -Action "${ACTION}" -Path "$INSTDIR\binaries\aiarb-backend"`
   Pop $0
   Pop $1
 !macroend
 
-!macro QWENPAW_ADD_CLI_PATH_IF_SELECTED
-  ${If} $QwenPawCliPathState == 0
-    DetailPrint "$(qwenpawCliPathSkipped)"
+!macro AIARB_ADD_CLI_PATH_IF_SELECTED
+  ${If} $AIArbCliPathState == 0
+    DetailPrint "$(aiarbCliPathSkipped)"
   ${Else}
-    IfFileExists "$INSTDIR\binaries\qwenpaw-backend\qwenpaw.exe" 0 qwenpaw_cli_path_missing
-    !insertmacro QWENPAW_UPDATE_CLI_PATH "Add"
+    IfFileExists "$INSTDIR\binaries\aiarb-backend\aiarb.exe" 0 aiarb_cli_path_missing
+    !insertmacro AIARB_UPDATE_CLI_PATH "Add"
     ${If} $0 == 0
-      DetailPrint "$(qwenpawCliPathAdded)"
+      DetailPrint "$(aiarbCliPathAdded)"
     ${Else}
-      DetailPrint "$(qwenpawCliPathUpdateFailed)"
+      DetailPrint "$(aiarbCliPathUpdateFailed)"
       DetailPrint "$1"
     ${EndIf}
-    Goto qwenpaw_cli_path_done
-    qwenpaw_cli_path_missing:
-      DetailPrint "$(qwenpawCliPathMissing)"
-    qwenpaw_cli_path_done:
+    Goto aiarb_cli_path_done
+    aiarb_cli_path_missing:
+      DetailPrint "$(aiarbCliPathMissing)"
+    aiarb_cli_path_done:
   ${EndIf}
 !macroend
 
-!macro QWENPAW_REMOVE_CLI_PATH
-  !insertmacro QWENPAW_UPDATE_CLI_PATH "Remove"
+!macro AIARB_REMOVE_CLI_PATH
+  !insertmacro AIARB_UPDATE_CLI_PATH "Remove"
   ${If} $0 != 0
-    DetailPrint "$(qwenpawCliPathUpdateFailed)"
+    DetailPrint "$(aiarbCliPathUpdateFailed)"
     DetailPrint "$1"
   ${EndIf}
 !macroend
 
-!macro QWENPAW_INSTALL_DEBUG_LAUNCHER
+!macro AIARB_INSTALL_DEBUG_LAUNCHER
   SetOutPath "$INSTDIR"
-  File /oname=qwenpaw-desktop-debug.cmd "..\..\..\..\nsis\qwenpaw-desktop-debug.cmd"
-  File /oname=qwenpaw-desktop-debug.ps1 "..\..\..\..\nsis\qwenpaw-desktop-debug.ps1"
-  CreateShortcut "$SMPROGRAMS\QwenPaw Desktop (Debug).lnk" "$INSTDIR\qwenpaw-desktop-debug.cmd" "" "$INSTDIR\qwenpaw-desktop.exe" 0
+  File /oname=aiarb-desktop-debug.cmd "..\..\..\..\nsis\aiarb-desktop-debug.cmd"
+  File /oname=aiarb-desktop-debug.ps1 "..\..\..\..\nsis\aiarb-desktop-debug.ps1"
+  CreateShortcut "$SMPROGRAMS\AIArb Desktop (Debug).lnk" "$INSTDIR\aiarb-desktop-debug.cmd" "" "$INSTDIR\aiarb-desktop.exe" 0
 !macroend
 
-!macro QWENPAW_REMOVE_DEBUG_LAUNCHER
-  Delete "$SMPROGRAMS\QwenPaw Desktop (Debug).lnk"
-  Delete "$INSTDIR\qwenpaw-desktop-debug.cmd"
-  Delete "$INSTDIR\qwenpaw-desktop-debug.ps1"
+!macro AIARB_REMOVE_DEBUG_LAUNCHER
+  Delete "$SMPROGRAMS\AIArb Desktop (Debug).lnk"
+  Delete "$INSTDIR\aiarb-desktop-debug.cmd"
+  Delete "$INSTDIR\aiarb-desktop-debug.ps1"
 !macroend
 
-Function QWENPAW_CLI_PATH_PAGE
-  ${GetOptions} $CMDLINE "/NO_QWENPAW_PATH" $0
+Function AIARB_CLI_PATH_PAGE
+  ${GetOptions} $CMDLINE "/NO_AIARB_PATH" $0
   ${IfNot} ${Errors}
-    StrCpy $QwenPawCliPathState 0
+    StrCpy $AIArbCliPathState 0
     Abort
   ${EndIf}
 
   ${GetOptions} $CMDLINE "/P" $0
   ${IfNot} ${Errors}
-    StrCpy $QwenPawCliPathState 1
+    StrCpy $AIArbCliPathState 1
     Abort
   ${EndIf}
 
   ${If} ${Silent}
-    StrCpy $QwenPawCliPathState 1
+    StrCpy $AIArbCliPathState 1
     Abort
   ${EndIf}
 
@@ -78,31 +78,31 @@ Function QWENPAW_CLI_PATH_PAGE
     Abort
   ${EndIf}
 
-  !insertmacro MUI_HEADER_TEXT "$(qwenpawCliPathPageTitle)" "$(qwenpawCliPathPageSubtitle)"
-  ${NSD_CreateLabel} 0 0 100% 28u "$(qwenpawCliPathPageDescription)"
+  !insertmacro MUI_HEADER_TEXT "$(aiarbCliPathPageTitle)" "$(aiarbCliPathPageSubtitle)"
+  ${NSD_CreateLabel} 0 0 100% 28u "$(aiarbCliPathPageDescription)"
   Pop $0
-  ${NSD_CreateCheckbox} 0 44u 100% 12u "$(qwenpawCliPathCheckbox)"
-  Pop $QwenPawCliPathCheckbox
+  ${NSD_CreateCheckbox} 0 44u 100% 12u "$(aiarbCliPathCheckbox)"
+  Pop $AIArbCliPathCheckbox
 
-  ${If} $QwenPawCliPathState == 0
-    SendMessage $QwenPawCliPathCheckbox ${BM_SETCHECK} 0 0
+  ${If} $AIArbCliPathState == 0
+    SendMessage $AIArbCliPathCheckbox ${BM_SETCHECK} 0 0
   ${Else}
-    SendMessage $QwenPawCliPathCheckbox ${BM_SETCHECK} 1 0
+    SendMessage $AIArbCliPathCheckbox ${BM_SETCHECK} 1 0
   ${EndIf}
 
   nsDialogs::Show
 FunctionEnd
 
-Function QWENPAW_CLI_PATH_PAGE_LEAVE
-  ${NSD_GetState} $QwenPawCliPathCheckbox $QwenPawCliPathState
+Function AIARB_CLI_PATH_PAGE_LEAVE
+  ${NSD_GetState} $AIArbCliPathCheckbox $AIArbCliPathState
 FunctionEnd
 
-!macro QWENPAW_DEFINE_INSTALL_FUNCTIONS PREFIX
-Function ${PREFIX}QWENPAW_RESTORE_INSTALL_STATE
+!macro AIARB_DEFINE_INSTALL_FUNCTIONS PREFIX
+Function ${PREFIX}AIARB_RESTORE_INSTALL_STATE
   Push $0
   Push $1
-  IfFileExists "$PLUGINSDIR\qwenpaw-manage-install-processes.ps1" 0 qwenpaw_restore_done
-  nsExec::ExecToStack `powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\qwenpaw-manage-install-processes.ps1" -InstallDir "$INSTDIR" -Action Restore`
+  IfFileExists "$PLUGINSDIR\aiarb-manage-install-processes.ps1" 0 aiarb_restore_done
+  nsExec::ExecToStack `powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\aiarb-manage-install-processes.ps1" -InstallDir "$INSTDIR" -Action Restore`
   Pop $0
   Pop $1
   ${If} $0 != 0
@@ -119,24 +119,24 @@ Function ${PREFIX}QWENPAW_PREPARE_INSTALL
   Push $1
   Push $2
   InitPluginsDir
-  File /oname=$PLUGINSDIR\qwenpaw-manage-install-processes.ps1 "..\..\..\..\nsis\manage-install-processes.ps1"
+  File /oname=$PLUGINSDIR\aiarb-manage-install-processes.ps1 "..\..\..\..\nsis\manage-install-processes.ps1"
   System::Call 'kernel32::GetCurrentProcessId() i .r2'
 
-  qwenpaw_prepare_retry:
-  nsExec::ExecToStack `powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\qwenpaw-manage-install-processes.ps1" -InstallDir "$INSTDIR" -NsisProcessId $2`
+  aiarb_prepare_retry:
+  nsExec::ExecToStack `powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\aiarb-manage-install-processes.ps1" -InstallDir "$INSTDIR" -NsisProcessId $2`
   Pop $0
   Pop $1
   ${If} $0 == 0
-    Goto qwenpaw_prepare_done
+    Goto aiarb_prepare_done
   ${Else}
-    MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "$(qwenpawStopProcessesPrompt)$\n$\n$1" /SD IDCANCEL IDRETRY qwenpaw_prepare_retry IDCANCEL qwenpaw_prepare_cancel
+    MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "$(aiarbStopProcessesPrompt)$\n$\n$1" /SD IDCANCEL IDRETRY aiarb_prepare_retry IDCANCEL aiarb_prepare_cancel
   ${EndIf}
 
-  qwenpaw_prepare_cancel:
-  Call ${PREFIX}QWENPAW_RESTORE_INSTALL_STATE
+  aiarb_prepare_cancel:
+  Call ${PREFIX}AIARB_RESTORE_INSTALL_STATE
   Quit
 
-  qwenpaw_prepare_done:
+  aiarb_prepare_done:
   Pop $2
   Pop $1
   Pop $0
@@ -147,19 +147,19 @@ FunctionEnd
 !insertmacro QWENPAW_DEFINE_INSTALL_FUNCTIONS "un."
 
 !macro NSIS_HOOK_PREINSTALL
-  Call QWENPAW_PREPARE_INSTALL
+  Call AIARB_PREPARE_INSTALL
 !macroend
 
 !macro NSIS_HOOK_POSTINSTALL
-  Call QWENPAW_RESTORE_INSTALL_STATE
-  !insertmacro QWENPAW_ADD_CLI_PATH_IF_SELECTED
-  !insertmacro QWENPAW_INSTALL_DEBUG_LAUNCHER
+  Call AIARB_RESTORE_INSTALL_STATE
+  !insertmacro AIARB_ADD_CLI_PATH_IF_SELECTED
+  !insertmacro AIARB_INSTALL_DEBUG_LAUNCHER
 !macroend
 
 !macro NSIS_HOOK_PREUNINSTALL
-  Call un.QWENPAW_PREPARE_INSTALL
-  !insertmacro QWENPAW_REMOVE_DEBUG_LAUNCHER
-  !insertmacro QWENPAW_REMOVE_CLI_PATH
+  Call un.AIARB_PREPARE_INSTALL
+  !insertmacro AIARB_REMOVE_DEBUG_LAUNCHER
+  !insertmacro AIARB_REMOVE_CLI_PATH
 !macroend
 
 !macro NSIS_HOOK_POSTUNINSTALL

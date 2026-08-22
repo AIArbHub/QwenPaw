@@ -36,7 +36,7 @@ if [ "$TARGET" = "--changed" ] || [ "$TARGET" = "-c" ]; then
 fi
 
 echo -e "${BLUE}========================================${NC}"
-echo -e "${BLUE}QwenPaw Channel Pre-Commit Check${NC}"
+echo -e "${BLUE}AIArb Channel Pre-Commit Check${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 
@@ -193,15 +193,20 @@ fi
 echo ""
 echo -e "${BLUE}Setting up Python environment...${NC}"
 
+if ! command -v python3 &> /dev/null; then
+    echo -e "${RED}Error: python3 not found${NC}"
+    exit 1
+fi
+
 if ! PROJECT_ROOT="$PROJECT_ROOT" "$PYTHON_BIN" -c '
 import os
 from pathlib import Path
 
 import pytest  # noqa: F401
-import qwenpaw
+import aiarb
 
 source_root = (Path(os.environ["PROJECT_ROOT"]) / "src").resolve()
-module_path = Path(qwenpaw.__file__).resolve()
+module_path = Path(aiarb.__file__).resolve()
 raise SystemExit(0 if module_path.is_relative_to(source_root) else 1)
 ' 2>/dev/null; then
     echo -e "${YELLOW}Installing dependencies...${NC}"

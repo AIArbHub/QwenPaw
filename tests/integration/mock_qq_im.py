@@ -2,7 +2,7 @@
 """Minimal mock QQ IM backend for integration tests.
 
 Hosts, in the *test* process, the three external surfaces the QQ
-channel needs, so the real qwenpaw app subprocess can run its QQ
+channel needs, so the real aiarb app subprocess can run its QQ
 channel end-to-end without touching qq.com:
 
 * ``POST /app/getAppAccessToken``  -> fake token (QQ_TOKEN_URL)

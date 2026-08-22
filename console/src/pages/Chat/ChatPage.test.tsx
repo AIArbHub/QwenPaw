@@ -384,7 +384,7 @@ describe("ChatPage", () => {
         object: "response",
         status: "completed",
         metadata: {
-          qwenpaw_model_fallbacks: [
+          aiarb_model_fallbacks: [
             {
               type: "model_fallback",
               from_provider_id: "openai",
@@ -409,7 +409,7 @@ describe("ChatPage", () => {
       type: "message",
       role: "system",
       metadata: {
-        qwenpaw_model_fallbacks: [
+        aiarb_model_fallbacks: [
           expect.objectContaining({
             from_model_id: "gpt-primary",
             to_model_id: "claude-fallback",
@@ -440,19 +440,19 @@ describe("ChatPage", () => {
     capturedOptions.api.responseParser(
       JSON.stringify({
         object: "response.delta",
-        metadata: { qwenpaw_model_fallbacks: [event] },
+        metadata: { aiarb_model_fallbacks: [event] },
       }),
     );
     const parsed = capturedOptions.api.responseParser(
       JSON.stringify({
         object: "response",
         status: "completed",
-        metadata: { qwenpaw_model_fallbacks: [event] },
+        metadata: { aiarb_model_fallbacks: [event] },
         output: [],
       }),
     );
 
-    expect(parsed.output[0].metadata.qwenpaw_model_fallbacks).toHaveLength(1);
+    expect(parsed.output[0].metadata.aiarb_model_fallbacks).toHaveLength(1);
   });
 
   // ── handleFileUpload ──────────────────────────────────────────────────────

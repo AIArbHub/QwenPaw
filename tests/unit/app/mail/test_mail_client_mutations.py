@@ -7,10 +7,10 @@ from contextlib import contextmanager
 
 import pytest
 
-from qwenpawmail_mcp.config import Config, load_config
-from qwenpawmail_mcp.errors import CapabilityError, MailError
-from qwenpawmail_mcp.mail_client import MailClient
-from qwenpawmail_mcp.providers import ProviderCapabilities
+from aiarbmail_mcp.config import Config, load_config
+from aiarbmail_mcp.errors import CapabilityError, MailError
+from aiarbmail_mcp.mail_client import MailClient
+from aiarbmail_mcp.providers import ProviderCapabilities
 
 
 class MutationConn:
@@ -189,11 +189,11 @@ def test_create_folder_is_idempotent_on_already_exists(monkeypatch):
 def test_custom_enterprise_host_recovers_restricted_capabilities():
     config = load_config(
         {
-            "QWENPAWMAIL_EMAIL": "tester@example.com",
-            "QWENPAWMAIL_AUTH_CODE": "secret",
-            "QWENPAWMAIL_IMAP_HOST": "imap.qiye.163.com",
-            "QWENPAWMAIL_SMTP_HOST": "smtp.qiye.163.com",
-            "QWENPAWMAIL_SMTP_PORT": "994",
+            "AIARBMAIL_EMAIL": "tester@example.com",
+            "AIARBMAIL_AUTH_CODE": "secret",
+            "AIARBMAIL_IMAP_HOST": "imap.qiye.163.com",
+            "AIARBMAIL_SMTP_HOST": "smtp.qiye.163.com",
+            "AIARBMAIL_SMTP_PORT": "994",
         },
     )
 

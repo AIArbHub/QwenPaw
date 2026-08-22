@@ -17,9 +17,9 @@ from __future__ import annotations
 
 from typing import get_args
 
-from qwenpaw.app.channels.registry import _BUILTIN_SPECS
-from qwenpaw.app.routers.config import _channel_config_class
-from qwenpaw.config.config import ChannelConfig, ChannelConfigUnion
+from aiarb.app.channels.registry import _BUILTIN_SPECS
+from aiarb.app.routers.config import _channel_config_class
+from aiarb.config.config import ChannelConfig, ChannelConfigUnion
 
 
 def _declared_config_classes() -> set[type]:

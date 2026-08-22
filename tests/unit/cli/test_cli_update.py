@@ -9,9 +9,9 @@ import httpx
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.__version__ import __version__
-from qwenpaw.cli.main import cli
-from qwenpaw.cli.update_cmd import (
+from aiarb.__version__ import __version__
+from aiarb.cli.main import cli
+from aiarb.cli.update_cmd import (
     InstallInfo,
     RunningServiceInfo,
     _build_upgrade_command,
@@ -33,7 +33,7 @@ def _install_info(
     installer: str = "pip",
 ) -> InstallInfo:
     return InstallInfo(
-        package_dir="/tmp/site-packages/qwenpaw",
+        package_dir="/tmp/site-packages/aiarb",
         python_executable="/tmp/venv/bin/python",
         environment_root="/tmp/venv",
         environment_kind="virtualenv",
@@ -68,8 +68,8 @@ def test_select_latest_version_prefers_stable_by_default() -> None:
     data = {
         "info": {"version": "2.0.0b1"},
         "releases": {
-            "1.9.0": [{"url": "https://example.com/qwenpaw-1.9.0.tar.gz"}],
-            "2.0.0b1": [{"url": "https://example.com/qwenpaw-2.0.0b1.tar.gz"}],
+            "1.9.0": [{"url": "https://example.com/aiarb-1.9.0.tar.gz"}],
+            "2.0.0b1": [{"url": "https://example.com/aiarb-2.0.0b1.tar.gz"}],
         },
     }
 
@@ -81,7 +81,7 @@ def test_build_upgrade_command_adds_prerelease_flag_for_uv_only_when_requested(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.cli.update_cmd.shutil.which",
+        "aiarb.cli.update_cmd.shutil.which",
         lambda name: "/usr/local/bin/uv" if name == "uv" else None,
     )
     info = _install_info(installer="uv")
@@ -108,25 +108,25 @@ def test_build_upgrade_command_adds_prerelease_flag_for_uv_only_when_requested(
         (None, ("pypi", None)),
         (
             {
-                "url": "file:///Users/test/QwenPaw",
+                "url": "file:///Users/test/AIArb",
                 "dir_info": {"editable": True},
             },
-            ("editable", "file:///Users/test/QwenPaw"),
+            ("editable", "file:///Users/test/AIArb"),
         ),
         (
             {
-                "url": "https://github.com/agentscope-ai/QwenPaw.git",
+                "url": "https://github.com/agentscope-ai/AIArb.git",
                 "vcs_info": {"vcs": "git", "commit_id": "abc123"},
             },
-            ("vcs", "https://github.com/agentscope-ai/QwenPaw.git"),
+            ("vcs", "https://github.com/agentscope-ai/AIArb.git"),
         ),
         (
-            {"url": "file:///tmp/qwenpaw.whl"},
-            ("local", "file:///tmp/qwenpaw.whl"),
+            {"url": "file:///tmp/aiarb.whl"},
+            ("local", "file:///tmp/aiarb.whl"),
         ),
         (
-            {"url": "https://example.com/qwenpaw.whl"},
-            ("direct-url", "https://example.com/qwenpaw.whl"),
+            {"url": "https://example.com/aiarb.whl"},
+            ("direct-url", "https://example.com/aiarb.whl"),
         ),
     ],
 )
@@ -151,13 +151,13 @@ def test_detect_source_type(
             "uv\n",
             json.dumps(
                 {
-                    "url": "file:///Users/test/QwenPaw",
+                    "url": "file:///Users/test/AIArb",
                     "dir_info": {"editable": True},
                 },
             ),
             "uv",
             "editable",
-            "file:///Users/test/QwenPaw",
+            "file:///Users/test/AIArb",
         ),
     ],
 )
@@ -169,7 +169,7 @@ def test_detect_installation(
     expected_source_type: str,
     expected_source_url: str | None,
 ) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     class _FakeDistribution:
         def read_text(self, name: str) -> str | None:
@@ -210,7 +210,7 @@ def test_detect_installation(
 
 
 def test_update_reports_up_to_date(monkeypatch) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
 
@@ -234,7 +234,7 @@ def test_update_reports_up_to_date(monkeypatch) -> None:
     result = CliRunner().invoke(cli, ["update", "--yes"])
 
     assert result.exit_code == 0
-    assert "QwenPaw is already up to date." in result.output
+    assert "AIArb is already up to date." in result.output
 
 
 def test_probe_service_ignores_proxy_env(monkeypatch) -> None:
@@ -252,7 +252,7 @@ def test_probe_service_ignores_proxy_env(monkeypatch) -> None:
         captured.update(kwargs)
         return _Response()
 
-    monkeypatch.setattr("qwenpaw.cli.update_cmd.httpx.get", _fake_get)
+    monkeypatch.setattr("aiarb.cli.update_cmd.httpx.get", _fake_get)
 
     result = _probe_service("http://127.0.0.1:8088")
 
@@ -266,7 +266,7 @@ def test_probe_service_returns_not_running_on_http_error(monkeypatch) -> None:
     def _fake_get(_url: str, **_kwargs):
         raise httpx.HTTPError("bad gateway")
 
-    monkeypatch.setattr("qwenpaw.cli.update_cmd.httpx.get", _fake_get)
+    monkeypatch.setattr("aiarb.cli.update_cmd.httpx.get", _fake_get)
 
     result = _probe_service("http://127.0.0.1:8088")
 
@@ -274,7 +274,7 @@ def test_probe_service_returns_not_running_on_http_error(monkeypatch) -> None:
 
 
 def test_detect_running_service_handles_wildcard_host(monkeypatch) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     monkeypatch.setattr(update_cmd_module, "read_last_api", lambda: None)
     monkeypatch.setattr(
@@ -300,7 +300,7 @@ def test_detect_running_service_handles_wildcard_host(monkeypatch) -> None:
 def test_detect_running_service_falls_back_to_process_ports(
     monkeypatch,
 ) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     monkeypatch.setattr(update_cmd_module, "read_last_api", lambda: None)
     monkeypatch.setattr(
@@ -324,7 +324,7 @@ def test_detect_running_service_falls_back_to_process_ports(
 
 
 def test_update_blocks_running_service(monkeypatch) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
 
@@ -357,15 +357,15 @@ def test_update_blocks_running_service(monkeypatch) -> None:
     result = CliRunner().invoke(cli, ["update", "--yes"])
 
     assert result.exit_code != 0
-    assert "Please stop it before running `qwenpaw update`" in result.output
+    assert "Please stop it before running `aiarb update`" in result.output
     assert (
-        "without `--yes` to confirm a forced `qwenpaw shutdown`"
+        "without `--yes` to confirm a forced `aiarb shutdown`"
         in result.output
     )
 
 
 def test_update_can_cancel_forced_shutdown(monkeypatch) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
 
@@ -393,11 +393,11 @@ def test_update_can_cancel_forced_shutdown(monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert (
-        "forcibly terminate the current QwenPaw backend/frontend "
+        "forcibly terminate the current AIArb backend/frontend "
         "processes" in result.output
     )
     assert (
-        "Run `qwenpaw shutdown` now and continue with the update?"
+        "Run `aiarb shutdown` now and continue with the update?"
         in result.output
     )
     assert "Cancelled." in result.output
@@ -407,7 +407,7 @@ def test_update_can_force_shutdown_running_service(
     monkeypatch,
     tmp_path: Path,
 ) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
     spawned: dict[str, object] = {}
@@ -453,7 +453,7 @@ def test_update_can_force_shutdown_running_service(
         assert command == [
             "/tmp/venv/bin/python",
             "-m",
-            "qwenpaw",
+            "aiarb",
             "--port",
             "8088",
             "shutdown",
@@ -461,7 +461,7 @@ def test_update_can_force_shutdown_running_service(
 
         class _Result:
             returncode = 0
-            stdout = "Stopped QwenPaw processes: 1234\n"
+            stdout = "Stopped AIArb processes: 1234\n"
 
         return _Result()
 
@@ -480,14 +480,14 @@ def test_update_can_force_shutdown_running_service(
     result = CliRunner().invoke(cli, ["update"], input="y\ny\n")
 
     assert result.exit_code == 0
-    assert "Running `qwenpaw shutdown` before updating..." in result.output
-    assert "Stopped QwenPaw processes: 1234" in result.output
-    assert "Starting QwenPaw update..." in result.output
+    assert "Running `aiarb shutdown` before updating..." in result.output
+    assert "Stopped AIArb processes: 1234" in result.output
+    assert "Starting AIArb update..." in result.output
     assert isinstance(spawned["path"], Path)
 
 
 def test_update_can_cancel_non_pypi_override(monkeypatch) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info(source_type="editable")
 
@@ -520,7 +520,7 @@ def test_update_can_override_non_pypi_install_with_yes(
     monkeypatch,
     tmp_path: Path,
 ) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     spawned: dict[str, object] = {}
     install_info = _install_info(source_type="editable")
@@ -571,12 +571,12 @@ def test_update_can_override_non_pypi_install_with_yes(
 
     assert result.exit_code == 0
     assert "Proceeding because `--yes` was provided." in result.output
-    assert "Starting QwenPaw update..." in result.output
+    assert "Starting AIArb update..." in result.output
     assert isinstance(spawned["path"], Path)
 
 
 def test_update_spawns_worker(monkeypatch, tmp_path: Path) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     spawned: dict[str, object] = {}
     install_info = _install_info()
@@ -626,7 +626,7 @@ def test_update_spawns_worker(monkeypatch, tmp_path: Path) -> None:
     result = CliRunner().invoke(cli, ["update", "--yes"])
 
     assert result.exit_code == 0
-    assert "Starting QwenPaw update..." in result.output
+    assert "Starting AIArb update..." in result.output
     assert isinstance(spawned["path"], Path)
     plan = spawned["plan"]
     assert plan["latest_version"] == "9.9.9"  # type: ignore [index]
@@ -643,7 +643,7 @@ def test_update_spawns_worker(monkeypatch, tmp_path: Path) -> None:
 def test_update_prompts_when_version_is_not_comparable(
     monkeypatch,
 ) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
 
@@ -675,7 +675,7 @@ def test_update_can_continue_when_version_is_not_comparable(
     monkeypatch,
     tmp_path: Path,
 ) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     spawned: dict[str, object] = {}
     install_info = _install_info()
@@ -726,11 +726,11 @@ def test_update_can_continue_when_version_is_not_comparable(
 
     assert result.exit_code == 0
     assert isinstance(spawned["path"], Path)
-    assert "Starting QwenPaw update..." in result.output
+    assert "Starting AIArb update..." in result.output
 
 
 def test_update_returns_worker_exit_code(monkeypatch, tmp_path: Path) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
 
@@ -760,14 +760,14 @@ def test_update_returns_worker_exit_code(monkeypatch, tmp_path: Path) -> None:
     result = CliRunner().invoke(cli, ["update", "--yes"])
 
     assert result.exit_code == 2
-    assert "Starting QwenPaw update..." in result.output
+    assert "Starting AIArb update..." in result.output
 
 
 def test_update_detaches_worker_on_windows(
     monkeypatch,
     tmp_path: Path,
 ) -> None:
-    from qwenpaw.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
     spawned: dict[str, object] = {}
@@ -808,7 +808,7 @@ def test_update_detaches_worker_on_windows(
     result = CliRunner().invoke(cli, ["update", "--yes"])
 
     assert result.exit_code == 0
-    assert "Starting QwenPaw update..." in result.output
+    assert "Starting AIArb update..." in result.output
     assert "continue after this command exits" in result.output
     assert isinstance(spawned["path"], Path)
     assert spawned["plan"]["launcher_pid"] is not None  # type: ignore[index]
@@ -835,7 +835,7 @@ def test_update_worker_waits_for_launcher_exit(
 
     waited: list[tuple[int | None, float]] = []
     monkeypatch.setattr(
-        "qwenpaw.cli.update_cmd._wait_for_process_exit",
+        "aiarb.cli.update_cmd._wait_for_process_exit",
         lambda pid, timeout=15.0: waited.append((pid, timeout)),
     )
 
@@ -859,7 +859,7 @@ def test_run_update_worker_detached_spawns_without_capture(
         return object()
 
     monkeypatch.setattr(
-        "qwenpaw.cli.update_cmd._spawn_update_worker",
+        "aiarb.cli.update_cmd._spawn_update_worker",
         _fake_spawn,
     )
 
@@ -914,11 +914,11 @@ def test_update_worker_foreground_streams_output_and_cleans_plan(
     captured = capsys.readouterr()
 
     assert return_code == 0
-    assert "[qwenpaw] Updating QwenPaw 1.0.0 -> 9.9.9..." in captured.out
-    assert "[qwenpaw] Using installer: integration-test" in captured.out
+    assert "[aiarb] Updating AIArb 1.0.0 -> 9.9.9..." in captured.out
+    assert "[aiarb] Using installer: integration-test" in captured.out
     assert "installer: preparing" in captured.out
     assert "installer: done" in captured.out
-    assert "[qwenpaw] Update completed successfully." in captured.out
+    assert "[aiarb] Update completed successfully." in captured.out
     assert not plan_path.exists()
 
 
@@ -947,5 +947,5 @@ def test_update_worker_foreground_propagates_failure_exit_code(
 
     assert return_code == 7
     assert "installer: failing" in captured.out
-    assert "[qwenpaw] Update failed with exit code 7." in captured.out
+    assert "[aiarb] Update failed with exit code 7." in captured.out
     assert not plan_path.exists()

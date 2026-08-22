@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QwenPaw Environments module P0 end-to-end test cases.
+AIArb Environments module P0 end-to-end test cases.
 
 Combined test design:
 - ENV-001: Page load + list display + empty state
@@ -35,9 +35,9 @@ ADD_BTN_SELECTOR = 'button[class*="addBtn"], button:has-text("添加变量")'
 DELETE_ROW_BTN_SELECTOR = 'button[title="删除行"], button[title="Delete Row"], button[title="Delete row"], button[title="delete"]'
 KEY_INPUT_SELECTOR = 'input[placeholder="Variable Name"], input[placeholder*="Key"], input[placeholder*="键"]'
 VALUE_INPUT_SELECTOR = 'input[placeholder="Value"], input[placeholder*="值"]'
-CHECKBOX_SELECTOR = '.qwenpaw-checkbox-input'
+CHECKBOX_SELECTOR = '.aiarb-checkbox-input'
 COUNT_SELECTOR = 'span[class*="toolbarCount"]'
-SAVE_BTN_SELECTOR = 'button.qwenpaw-btn-primary:has-text("保存"), button:has-text("保 存"), button:has-text("Save")'
+SAVE_BTN_SELECTOR = 'button.aiarb-btn-primary:has-text("保存"), button:has-text("保 存"), button:has-text("Save")'
 
 
 def navigate_to_environments(page: Page):
@@ -84,8 +84,8 @@ def click_save_button(page: Page):
     if not save_btn.is_visible(timeout=3000):
         # Try multiple fallback selectors
         fallback_selectors = [
-            'div[class*="toolbar"] button.qwenpaw-btn-primary',
-            'button.qwenpaw-btn-primary:visible',
+            'div[class*="toolbar"] button.aiarb-btn-primary',
+            'button.aiarb-btn-primary:visible',
             'button:has-text("保存")',
             'button:has-text("Save")',
         ]
@@ -164,7 +164,7 @@ class TestEnvironmentListDisplay:
         if row_count > 0:
             logger.info(f"Env var list rendered, current rows: {row_count}")
         else:
-            empty_css = page.locator('.qwenpaw-empty, [class*=empty]').first
+            empty_css = page.locator('.aiarb-empty, [class*=empty]').first
             empty_text = page.locator('text=暂无环境变量').or_(page.locator('text=No environment variables')).first
             if empty_css.is_visible(timeout=3000) or empty_text.is_visible(timeout=1000):
                 logger.info("Empty state rendered correctly")
@@ -327,8 +327,8 @@ class TestAddEnvironmentP2:
         log_test_step("5. Verify error message or submission is blocked")
         # Check several possible error indicators
         error_css = page.locator(
-            '.qwenpaw-form-item-validate-error, .qwenpaw-message-error, '
-            '.qwenpaw-form-item-explain-error, .qwenpaw-message-notice-content'
+            '.aiarb-form-item-validate-error, .aiarb-message-error, '
+            '.aiarb-form-item-explain-error, .aiarb-message-notice-content'
         ).first
         error_text = page.locator('text=Key 不能为空').or_(page.locator('text=Key is required')).first
 
@@ -684,8 +684,8 @@ class TestEnvVarSaveAndPersist:
             # Step 5: Verify save success indicator
             log_test_step("5. Verify save success indicator")
             success_msg = page.locator(
-                '.qwenpaw-message-success, '
-                '.qwenpaw-message-notice-content:has-text("保存")'
+                '.aiarb-message-success, '
+                '.aiarb-message-notice-content:has-text("保存")'
             ).first
             if success_msg.is_visible():
                 logger.info("Save success indicator visible")
@@ -783,7 +783,7 @@ class TestEnvVarKeyValidation:
         expect(key_input).to_be_visible(timeout=5000)
         expect(value_input).to_be_visible(timeout=5000)
 
-        error_selector = '.qwenpaw-form-item-explain-error, [class*="error"]:has-text("格式")'
+        error_selector = '.aiarb-form-item-explain-error, [class*="error"]:has-text("格式")'
 
         # Step 3: Test invalid Key - "123invalid"
         log_test_step("3. Test invalid Key: 123invalid")
@@ -1042,7 +1042,7 @@ class TestEnvKeyDuplicateDetection:
             ).all()
             if len(key_inputs) == 0:
                 # Try locating the first input in the table row
-                row_inputs = page.locator('tr:last-child input, .qwenpaw-form-item input').all()
+                row_inputs = page.locator('tr:last-child input, .aiarb-form-item input').all()
                 key_inputs = row_inputs
             if len(key_inputs) == 0:
                 logger.info("Key input not found, skipping test")
@@ -1063,7 +1063,7 @@ class TestEnvKeyDuplicateDetection:
                 'input[placeholder*="Variable"], input[placeholder*="variable"]'
             ).all()
             if len(key_inputs) == 0:
-                row_inputs = page.locator('tr:last-child input, .qwenpaw-form-item input').all()
+                row_inputs = page.locator('tr:last-child input, .aiarb-form-item input').all()
                 key_inputs = row_inputs
             if len(key_inputs) == 0:
                 logger.info("Step 3 Key input not found, skipping test")
@@ -1083,10 +1083,10 @@ class TestEnvKeyDuplicateDetection:
 
             # Check for error indicators (red border, error text, etc.)
             error_indicators = page.locator(
-                '.qwenpaw-form-item-has-error, '
+                '.aiarb-form-item-has-error, '
                 '[style*="border-color: red"], '
                 '[style*="color: red"], '
-                '.qwenpaw-form-item-explain-error, '
+                '.aiarb-form-item-explain-error, '
                 ':text("重复"), :text("duplicate"), :text("Duplicate")'
             ).all()
 

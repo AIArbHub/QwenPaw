@@ -8,7 +8,7 @@ into the agent's reasoning loop.
 
 | Plugin | Hook | Behavior |
 |--------|------|----------|
-| `tracing-middleware` | `on_acting` | Logs every tool call (name, duration) to a file. Conditionally activated only when `QWENPAW_TRACE` env var is set. |
+| `tracing-middleware` | `on_acting` | Logs every tool call (name, duration) to a file. Conditionally activated only when `AIARB_TRACE` env var is set. |
 | `thinking-log-middleware` | `on_reasoning` | Prints model reasoning stream events to stdout (`[THINKING]` for chain-of-thought, `[TEXT]` for text responses). Always active. |
 
 ## Installation
@@ -16,20 +16,20 @@ into the agent's reasoning loop.
 These plugins are **not** auto-loaded. Install them explicitly:
 
 ```bash
-# While QwenPaw is running (hot-load, no restart needed):
-qwenpaw plugin install plugins/middleware-demo/tracing-middleware
-qwenpaw plugin install plugins/middleware-demo/thinking-log-middleware
+# While AIArb is running (hot-load, no restart needed):
+aiarb plugin install plugins/middleware-demo/tracing-middleware
+aiarb plugin install plugins/middleware-demo/thinking-log-middleware
 
-# Or when QwenPaw is stopped (loaded on next start):
-qwenpaw plugin install plugins/middleware-demo/tracing-middleware
-qwenpaw plugin install plugins/middleware-demo/thinking-log-middleware
+# Or when AIArb is stopped (loaded on next start):
+aiarb plugin install plugins/middleware-demo/tracing-middleware
+aiarb plugin install plugins/middleware-demo/thinking-log-middleware
 ```
 
 ## Uninstall
 
 ```bash
-qwenpaw plugin uninstall middleware-demo-tracing
-qwenpaw plugin uninstall middleware-demo-thinking-log
+aiarb plugin uninstall middleware-demo-tracing
+aiarb plugin uninstall middleware-demo-thinking-log
 ```
 
 ## How It Works

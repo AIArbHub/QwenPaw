@@ -21,6 +21,6 @@ export const useOsWallpaper = create<WallpaperStore>()(
       wallpaperId: DEFAULT_WALLPAPER_ID,
       setWallpaper: (id) => set({ wallpaperId: id }),
     }),
-    { name: "qwenpaw-os-wallpaper" },
+    { name: "aiarb-os-wallpaper" },
   ),
 );

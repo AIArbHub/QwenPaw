@@ -23,7 +23,7 @@ import { useOsStyles, ACCENT } from "./useOsStyles";
 import { buttonRoleProps } from "./a11y";
 
 const INBOX_ROUTE = "core.inbox";
-const INBOX_TAB_KEY = "qwenpaw.inbox.activeTab";
+const INBOX_TAB_KEY = "aiarb.inbox.activeTab";
 const TOAST_TTL_MS = 6000;
 
 function KindIcon({ kind, size = 18 }: { kind: NotifyKind; size?: number }) {

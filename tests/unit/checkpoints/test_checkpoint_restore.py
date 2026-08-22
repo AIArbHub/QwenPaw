@@ -16,18 +16,18 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.app.task_tracker import TaskTracker
-from qwenpaw.checkpoints.service import CheckpointService
-from qwenpaw.checkpoints.policy import (
+from aiarb.app.task_tracker import TaskTracker
+from aiarb.checkpoints.service import CheckpointService
+from aiarb.checkpoints.policy import (
     sanitize_ref_component,
     session_file_path,
     session_key,
 )
-from qwenpaw.checkpoints.restore import MemoryRestorer, WorkspaceMutationGuard
-from qwenpaw.checkpoints.models import CheckpointError, RestoreResult
-from qwenpaw.checkpoints.render import render_restore
-from qwenpaw.checkpoints.repository import CheckpointRepository
-from qwenpaw.checkpoints.restore import RestoreService
+from aiarb.checkpoints.restore import MemoryRestorer, WorkspaceMutationGuard
+from aiarb.checkpoints.models import CheckpointError, RestoreResult
+from aiarb.checkpoints.render import render_restore
+from aiarb.checkpoints.repository import CheckpointRepository
+from aiarb.checkpoints.restore import RestoreService
 
 pytestmark = pytest.mark.skipif(
     shutil.which("git") is None,
@@ -155,7 +155,7 @@ def test_file_restore_dry_run_renders_every_candidate() -> None:
     assert rendered.rstrip().endswith("--confirm\n```")
 
 
-def test_file_restore_candidates_skip_qwenpaw_state_files(
+def test_file_restore_candidates_skip_aiarb_state_files(
     tmp_path: Path,
 ) -> None:
     engine = CheckpointService(tmp_path)
@@ -332,7 +332,7 @@ async def test_restore_with_memory_dry_run_then_confirm(
 
 
 @pytest.mark.asyncio
-async def test_restore_with_files_dry_run_then_confirm_skips_qwenpaw_state(
+async def test_restore_with_files_dry_run_then_confirm_skips_aiarb_state(
     tmp_path: Path,
 ) -> None:
     engine = CheckpointService(tmp_path)

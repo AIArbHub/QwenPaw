@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 
-const STORAGE_KEY = "qwenpaw_collapsed_chat_groups_v3";
+const STORAGE_KEY = "aiarb_collapsed_chat_groups_v3";
 const CRON_GROUP_ID = "cron";
 const SUBAGENT_GROUP_ID = "subagents";
 

@@ -14,7 +14,7 @@ open-connection API), then:
 No env injection is needed: ``endpoint`` is a first-class product
 config field (used for sandboxes), so plain PUT config suffices.
 
-Coverage targets (``src/qwenpaw/app/channels/dingtalk/``):
+Coverage targets (``src/aiarb/app/channels/dingtalk/``):
   channel.py start/_apply_custom_endpoint/_stream_loop/
   _send_via_session_webhook/send_content_parts; handler.py process.
 

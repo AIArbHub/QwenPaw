@@ -207,7 +207,7 @@ export function ReMeLightMemoryCard() {
                 </a>
                 <i />
                 <a
-                  href="https://qwenpaw.agentscope.io/docs/memory"
+                  href="https://aiarb.agentscope.io/docs/memory"
                   target="_blank"
                   rel="noreferrer"
                 >

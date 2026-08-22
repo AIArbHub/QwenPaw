@@ -31,7 +31,7 @@ export function useOsAppMarket({ onInstalled }: UseOsAppMarketOptions) {
   const [search, setSearch] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [installingId, setInstallingId] = useState<string | null>(null);
-  const [qwenpawVersion, setQwenpawVersion] = useState<string | null>(null);
+  const [aiarbVersion, setAIArbVersion] = useState<string | null>(null);
   const installingIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -46,12 +46,12 @@ export function useOsAppMarket({ onInstalled }: UseOsAppMarketOptions) {
       .then((data) => {
         const version =
           typeof data === "object" && data !== null ? data.version : null;
-        setQwenpawVersion(typeof version === "string" ? version : null);
+        setAIArbVersion(typeof version === "string" ? version : null);
       })
       .catch((err) => {
         if (err instanceof Error && err.name === "AbortError") return;
         console.error("[useOsAppMarket] failed to fetch version:", err);
-        setQwenpawVersion(null);
+        setAIArbVersion(null);
       });
     return () => controller.abort();
   }, []);
@@ -134,8 +134,8 @@ export function useOsAppMarket({ onInstalled }: UseOsAppMarketOptions) {
 
   const isCompatible = useCallback(
     (entry: MarketPluginEntry) =>
-      isMarketPluginCompatible(entry, qwenpawVersion),
-    [qwenpawVersion],
+      isMarketPluginCompatible(entry, aiarbVersion),
+    [aiarbVersion],
   );
 
   const handleInstall = useCallback(
@@ -171,7 +171,7 @@ export function useOsAppMarket({ onInstalled }: UseOsAppMarketOptions) {
     page,
     pageSize: APP_MARKET_PAGE_SIZE,
     installingId,
-    qwenpawVersion,
+    aiarbVersion,
     isCompatible,
     handleSearch,
     handlePageChange,

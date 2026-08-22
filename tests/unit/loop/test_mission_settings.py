@@ -7,13 +7,13 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from pydantic import ValidationError
 
-from qwenpaw.config.config import MissionLoopModeConfig
-from qwenpaw.modes.mission.handler import (
+from aiarb.config.config import MissionLoopModeConfig
+from aiarb.modes.mission.handler import (
     parse_mission_args,
     start_mission,
 )
-from qwenpaw.modes.mission.prompts import build_master_prompt
-from qwenpaw.modes.mission.state import read_loop_config
+from aiarb.modes.mission.prompts import build_master_prompt
+from aiarb.modes.mission.state import read_loop_config
 
 
 def test_mission_config_defaults_and_bounds() -> None:
@@ -85,7 +85,7 @@ async def test_start_mission_persists_editable_defaults(tmp_path) -> None:
         "repo_root": "",
     }
     with patch(
-        "qwenpaw.modes.mission.handler.detect_git_context",
+        "aiarb.modes.mission.handler.detect_git_context",
         new=AsyncMock(return_value=git_context),
     ):
         _, loop_dir = await start_mission(
@@ -107,7 +107,7 @@ async def test_start_mission_persists_editable_defaults(tmp_path) -> None:
     assert config["verification_instructions"] == (
         "Check accessibility manually."
     )
-    assert loop_dir.parent == tmp_path / ".qwenpaw" / "missions"
+    assert loop_dir.parent == tmp_path / ".aiarb" / "missions"
     assert config["source_project_dir"] == str(tmp_path)
     assert config["workspace_dir"] == str(tmp_path / "agent-workspace")
     assert config["mission_run_dir"] == str(tmp_path)

@@ -17,7 +17,7 @@ from typing import Any, AsyncGenerator
 import pytest
 from agentscope.event import EventType
 
-from qwenpaw.runtime.executor import AgentExecutor
+from aiarb.runtime.executor import AgentExecutor
 
 
 def _msg(

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from qwenpaw.config.config import (
+from aiarb.config.config import (
     AgentMailConfig,
     AgentMailCredential,
     AgentMailPushConfig,

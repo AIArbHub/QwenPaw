@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-"""Tests for the stable QwenPaw Hub database shape."""
+"""Tests for the stable AIArb Hub database shape."""
 
 import sqlite3
 from pathlib import Path
 
 import pytest
 
-from qwenpaw.hub.database import (
+from aiarb.hub.database import (
     HubExtensionStore,
     initialize_hub_database,
 )
-from qwenpaw.hub.registry import RuntimeRegistry
+from aiarb.hub.registry import RuntimeRegistry
 from tests.unit.hub.factories import runtime_record
 
 
@@ -49,7 +49,7 @@ def test_extension_documents_update_without_changing_core_tables(
     first_revision = store.put(
         resource_type="runtime",
         resource_id="runtime-a",
-        namespace="qwenpaw.monitoring",
+        namespace="aiarb.monitoring",
         key="prometheus",
         value={"enabled": True},
         schema_version=1,
@@ -57,7 +57,7 @@ def test_extension_documents_update_without_changing_core_tables(
     second_revision = store.put(
         resource_type="runtime",
         resource_id="runtime-a",
-        namespace="qwenpaw.monitoring",
+        namespace="aiarb.monitoring",
         key="prometheus",
         value={"enabled": True, "path": "/metrics"},
         schema_version=2,
@@ -68,7 +68,7 @@ def test_extension_documents_update_without_changing_core_tables(
     loaded = store.get(
         resource_type="runtime",
         resource_id="runtime-a",
-        namespace="qwenpaw.monitoring",
+        namespace="aiarb.monitoring",
         key="prometheus",
     )
     assert loaded is not None

@@ -162,7 +162,7 @@ export default function DesignLayout({
     return {
       ...currentAgent.backend_capabilities,
       workspace_ui:
-        currentAgent.backend === "qwenpaw"
+        currentAgent.backend === "aiarb"
           ? currentAgent.backend_capabilities?.workspace_ui ?? true
           : false,
     };
@@ -551,7 +551,7 @@ export default function DesignLayout({
           <div className={styles.agentList}>
             {/* Top bar */}
             <div className={styles.panelHeader}>
-              <span className={styles.panelTitle}>QwenPaw</span>
+              <span className={styles.panelTitle}>AIArb</span>
               <button type="button" className={styles.panelSearchButton}>
                 <Search size={18} />
               </button>

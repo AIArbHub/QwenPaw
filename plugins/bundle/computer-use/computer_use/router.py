@@ -8,9 +8,9 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from qwenpaw.app.approvals import get_approval_service
-from qwenpaw.app.computer_use import HostRuntimeProvider
-from qwenpaw.security.tool_guard.approval import ApprovalDecision
+from aiarb.app.approvals import get_approval_service
+from aiarb.app.computer_use import HostRuntimeProvider
+from aiarb.security.tool_guard.approval import ApprovalDecision
 
 from .access import (
     get_computer_use_access_store,

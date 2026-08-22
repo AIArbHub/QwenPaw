@@ -61,7 +61,7 @@ function publishActiveMaxInputLength(
   }
 }
 
-const RECENT_STORAGE_KEY = "qwenpaw_model_selector_recent";
+const RECENT_STORAGE_KEY = "aiarb_model_selector_recent";
 const DEFAULT_VISIBLE_MODELS = 5;
 const VIEW_MORE_STEP = 20;
 
@@ -91,7 +91,7 @@ export default function ModelSelector({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"pro" | "free">(
     () =>
-      (localStorage.getItem("qwenpaw_model_selector_tab") as "pro" | "free") ||
+      (localStorage.getItem("aiarb_model_selector_tab") as "pro" | "free") ||
       "pro",
   );
   const [collapsedProviders, setCollapsedProviders] = useState<Set<string>>(
@@ -933,7 +933,7 @@ export default function ModelSelector({
           ].join(" ")}
           onClick={() => {
             setActiveTab("pro");
-            localStorage.setItem("qwenpaw_model_selector_tab", "pro");
+            localStorage.setItem("aiarb_model_selector_tab", "pro");
           }}
         >
           PRO
@@ -950,7 +950,7 @@ export default function ModelSelector({
           ].join(" ")}
           onClick={() => {
             setActiveTab("free");
-            localStorage.setItem("qwenpaw_model_selector_tab", "free");
+            localStorage.setItem("aiarb_model_selector_tab", "free");
           }}
         >
           FREE

@@ -8,18 +8,18 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.loop.gates.base import (
+from aiarb.loop.gates.base import (
     StopAction,
     StopHandlerRegistration,
 )
-from qwenpaw.loop.gates.handler import StopHandler
-from qwenpaw.loop.gates.rubric import QualitativeRubricGate
-from qwenpaw.loop.gates.runner import _filter_by_scope
-from qwenpaw.modes.goal.goal_mode import GoalMode, GoalSession
-from qwenpaw.modes.mission import MissionMode
-from qwenpaw.modes.mission.gates import MissionGate
-from qwenpaw.modes.mission.state import write_loop_config
-from qwenpaw.runtime.runtime import Runtime
+from aiarb.loop.gates.handler import StopHandler
+from aiarb.loop.gates.rubric import QualitativeRubricGate
+from aiarb.loop.gates.runner import _filter_by_scope
+from aiarb.modes.goal.goal_mode import GoalMode, GoalSession
+from aiarb.modes.mission import MissionMode
+from aiarb.modes.mission.gates import MissionGate
+from aiarb.modes.mission.state import write_loop_config
+from aiarb.runtime.runtime import Runtime
 
 
 def _registration(
@@ -119,7 +119,7 @@ async def test_mission_turn_start_restores_persisted_session(tmp_path):
     )
 
     with patch(
-        "qwenpaw.loop.gates.loop_gate._session_id",
+        "aiarb.loop.gates.loop_gate._session_id",
         return_value="mission-session",
     ):
         await mode.on_turn_start(ctx)
@@ -138,7 +138,7 @@ async def test_mission_state_uses_session_lifecycle_and_reset(tmp_path):
     ctx = SimpleNamespace(mode_state={})
 
     with patch(
-        "qwenpaw.loop.gates.loop_gate._session_id",
+        "aiarb.loop.gates.loop_gate._session_id",
         return_value="mission-session",
     ):
         mode._gate.activate_for_mission(tmp_path)
@@ -197,26 +197,26 @@ async def test_qualitative_rubric_state_is_session_isolated():
     )
 
     with patch(
-        "qwenpaw.loop.gates.loop_gate._session_id",
+        "aiarb.loop.gates.loop_gate._session_id",
         return_value="session-a",
     ):
         first_a = await gate.check({})
 
     with patch(
-        "qwenpaw.loop.gates.loop_gate._session_id",
+        "aiarb.loop.gates.loop_gate._session_id",
         return_value="session-b",
     ):
         first_b = await gate.check({})
 
     with patch(
-        "qwenpaw.loop.gates.loop_gate._session_id",
+        "aiarb.loop.gates.loop_gate._session_id",
         return_value="session-a",
     ):
         gate.reset_session()
         next_a = await gate.check({})
 
     with patch(
-        "qwenpaw.loop.gates.loop_gate._session_id",
+        "aiarb.loop.gates.loop_gate._session_id",
         return_value="session-b",
     ):
         next_b = await gate.check({})

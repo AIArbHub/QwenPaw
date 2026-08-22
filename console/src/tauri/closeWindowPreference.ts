@@ -1,4 +1,4 @@
-export const CLOSE_ACTION_STORAGE_KEY = "qwenpaw.closeWindowAction";
+export const CLOSE_ACTION_STORAGE_KEY = "aiarb.closeWindowAction";
 
 export type CloseAction = "minimize-to-tray" | "quit";
 

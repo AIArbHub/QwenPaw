@@ -11,7 +11,7 @@
  * single-string entries — written before the list existed — are read back as
  * a one-entry list so existing sessionStorage values keep working.
  */
-const KEY_PREFIX = "qwenpaw-session-project-dir:";
+const KEY_PREFIX = "aiarb-session-project-dir:";
 
 export interface PendingProjectDirEntry {
   path: string;

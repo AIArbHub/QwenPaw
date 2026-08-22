@@ -1,5 +1,5 @@
 # Deploy website to GitHub Pages (see scripts/website_build.sh).
-# Custom domain: qwenpaw.agentscope.io (CNAME).
+# Custom domain: aiarb.agentscope.io (CNAME).
 name: Deploy website to GitHub Pages
 
 on:
@@ -137,7 +137,7 @@ jobs:
           PYEOF
 
       # Copy installation scripts so they are served from the website
-      # (e.g. qwenpaw.agentscope.io/install.sh) instead of raw.githubusercontent.com,
+      # (e.g. aiarb.agentscope.io/install.sh) instead of raw.githubusercontent.com,
       # which may be blocked by some firewalls.
       - name: Copy installation scripts to dist
         run: cp scripts/install.sh scripts/install.ps1 scripts/install.bat website/dist/
@@ -152,9 +152,9 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: website/dist
-          cname: qwenpaw.agentscope.io
+          cname: aiarb.agentscope.io
 
       - name: Dry-run notice
         if: ${{ inputs.dry_run }}
         run: |
-          echo "DRY-RUN: would deploy website/dist to GitHub Pages (cname qwenpaw.agentscope.io)"
+          echo "DRY-RUN: would deploy website/dist to GitHub Pages (cname aiarb.agentscope.io)"

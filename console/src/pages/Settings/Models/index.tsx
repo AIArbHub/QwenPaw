@@ -136,9 +136,8 @@ function ModelsPage() {
       return getIsConfigured(p);
     };
 
-    // QwenPaw Local is always "configured" (embedded)
-    const isEmbedded = (p: ProviderInfo) =>
-      p.id === "qwenpaw-local" || p.id === "copaw-local";
+    // AIArb Local is always "configured" (embedded)
+    const isEmbedded = (p: ProviderInfo) => p.id === "aiarb-local";
 
     // Separate local vs cloud first
     const allCloud: ProviderInfo[] = [];

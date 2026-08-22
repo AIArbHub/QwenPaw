@@ -12,12 +12,12 @@ import pytest
 pytest.importorskip(
     "qoder_agent_sdk",
     reason=(
-        "importing qwenpaw.harnesses.qoder eagerly imports the optional "
+        "importing aiarb.harnesses.qoder eagerly imports the optional "
         "qoder_agent_sdk (qoder extra)"
     ),
 )
 
-from qwenpaw.harnesses.qoder.discovery import (
+from aiarb.harnesses.qoder.discovery import (
     default_install_candidates,
     resolve_qoder_binary_info,
 )

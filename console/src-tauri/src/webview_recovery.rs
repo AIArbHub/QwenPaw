@@ -160,7 +160,7 @@ fn schedule_recovery(app: AppHandle, label: String, process_id: u32) {
     // Return from the COM callback before creating or destroying WebView2 controllers.
     if let Err(err) = dispatcher.run_on_main_thread(move || {
         if let Err(err) = thread::Builder::new()
-            .name("qwenpaw-webview-recovery".into())
+            .name("aiarb-webview-recovery".into())
             .spawn(move || {
                 log::warn!(
                     "[webview] browser process {process_id} exited unexpectedly; rebuilding {label}"

@@ -11,8 +11,8 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.config import utils as config_utils
-from qwenpaw.config.config import (
+from aiarb.config import utils as config_utils
+from aiarb.config.config import (
     AGENT_MAIL_CREDENTIAL_REF,
     AgentMailConfig,
     AgentMailCredential,
@@ -24,7 +24,7 @@ from qwenpaw.config.config import (
     mutate_agent_config,
     save_agent_config,
 )
-from qwenpaw.drivers.credentials.store import AsyncCredentialStore
+from aiarb.drivers.credentials.store import AsyncCredentialStore
 
 
 @pytest.fixture
@@ -164,7 +164,7 @@ def test_failed_agent_write_preserves_disk_and_cache(isolated_agent):
         config.description = "updated"
 
     with patch(
-        "qwenpaw.config.config.write_json_atomic",
+        "aiarb.config.config.write_json_atomic",
         side_effect=OSError("write failed"),
     ):
         with pytest.raises(OSError, match="write failed"):
@@ -253,7 +253,7 @@ def test_failed_agent_write_restores_previous_mail_credential(isolated_agent):
     assert updated.mail is not None
     updated.mail.credential.auth_code = "b" * 16
     with patch(
-        "qwenpaw.config.config.write_json_atomic",
+        "aiarb.config.config.write_json_atomic",
         side_effect=OSError("write failed"),
     ):
         with pytest.raises(OSError, match="write failed"):

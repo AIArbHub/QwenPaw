@@ -10,12 +10,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from qwenpaw.tool_calls import reset_call_context, set_call_context
-from qwenpaw.tool_calls._context import ToolCallContext
+from aiarb.tool_calls import reset_call_context, set_call_context
+from aiarb.tool_calls._context import ToolCallContext
 
 # Package ``tools.__init__`` re-exports the tool function under the same name
 # as the module, so use importlib to get the real module object.
-dea = importlib.import_module("qwenpaw.agents.tools.delegate_external_agent")
+dea = importlib.import_module("aiarb.agents.tools.delegate_external_agent")
 
 
 def _chunk_text(chunk: object) -> str:

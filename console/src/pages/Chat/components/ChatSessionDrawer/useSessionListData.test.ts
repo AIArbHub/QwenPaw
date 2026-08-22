@@ -78,7 +78,7 @@ describe("useSessionListData cross-agent ownership", () => {
     const onSessionRemoved = vi.fn();
     sessionApi.onSessionRemoved = onSessionRemoved;
     const newChatListener = vi.fn();
-    window.addEventListener("qwenpaw:sidebar-new-chat", newChatListener);
+    window.addEventListener("aiarb:sidebar-new-chat", newChatListener);
 
     const dDelete = deferred<Awaited<ReturnType<typeof chatApi.deleteChat>>>();
     vi.spyOn(chatApi, "deleteChat").mockReturnValue(dDelete.promise);
@@ -108,7 +108,7 @@ describe("useSessionListData cross-agent ownership", () => {
     expect(newChatListener).not.toHaveBeenCalled();
     expect(listSpy).not.toHaveBeenCalled();
 
-    window.removeEventListener("qwenpaw:sidebar-new-chat", newChatListener);
+    window.removeEventListener("aiarb:sidebar-new-chat", newChatListener);
   });
 
   it("a same-agent delete still refreshes the list and fires callbacks", async () => {
