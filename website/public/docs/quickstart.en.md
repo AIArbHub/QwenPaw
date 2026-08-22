@@ -77,7 +77,7 @@ No Python required — the installer handles everything automatically using [uv]
 **macOS / Linux:**
 
 ```bash
-curl -fsSL https://aiarb.agentscope.io/install.sh | bash
+curl -fsSL https://qwenpaw.agentscope.io/install.sh | bash
 ```
 
 Then open a new terminal (or run `source ~/.zshrc` / `source ~/.bashrc`).
@@ -85,13 +85,13 @@ Then open a new terminal (or run `source ~/.zshrc` / `source ~/.bashrc`).
 **Windows (CMD):**
 
 ```cmd
-curl -fsSL https://aiarb.agentscope.io/install.bat -o install.bat && install.bat
+curl -fsSL https://qwenpaw.agentscope.io/install.bat -o install.bat && install.bat
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-irm https://aiarb.agentscope.io/install.ps1 | iex
+irm https://qwenpaw.agentscope.io/install.ps1 | iex
 ```
 
 Then open a new terminal (the installer adds AIArb to your PATH automatically).

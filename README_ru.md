@@ -4,7 +4,7 @@
 
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repo-black.svg?logo=github)](https://github.com/agentscope-ai/AIArb)
 [![PyPI](https://img.shields.io/pypi/v/aiarb?color=3775A9&label=PyPI&logo=pypi)](https://pypi.org/project/aiarb/)
-[![Documentation](https://img.shields.io/badge/Docs-Website-green.svg?logo=readthedocs&label=Docs)](https://aiarb.agentscope.io/)
+[![Documentation](https://img.shields.io/badge/Docs-Website-green.svg?logo=readthedocs&label=Docs)](https://qwenpaw.agentscope.io/)
 [![Python Version](https://img.shields.io/badge/python-3.11%20~%20%3C3.14-blue.svg?logo=python&label=Python)](https://www.python.org/downloads/)
 [![Last Commit](https://img.shields.io/github/last-commit/agentscope-ai/AIArb)](https://github.com/agentscope-ai/AIArb)
 [![License](https://img.shields.io/badge/license-Apache%202.0-red.svg?logo=apache&label=License)](LICENSE)
@@ -19,7 +19,7 @@
 
 <a href="https://trendshift.io/repositories/25882" target="_blank"><img src="https://trendshift.io/api/badge/trendshift/repositories/25882/daily" alt="agentscope-ai%2FAIArb | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
-[[Документация](https://aiarb.agentscope.io/)] [[English](README.md)] [[中文](README_zh.md)] [[日本語](README_ja.md)]
+[[Документация](https://qwenpaw.agentscope.io/)] [[English](README.md)] [[中文](README_zh.md)] [[日本語](README_ja.md)]
 
 <p align="center">
   <img src="https://gw.alicdn.com/imgextra/i1/O1CN01sens5C1TuwioeGexL_!!6000000002443-55-tps-771-132.svg" alt="AIArb Logo" width="120">
@@ -60,9 +60,9 @@
 
 ## Новости
 
-- [2026-08-13] **v2.1.0** | AIArb OS Shell, единое файловое пространство, AIArb Creator, интеграция агентов Codex/Qoder, Browser-use, Computer-use, контрольные точки и продолжение длительных задач в диалоге. [Release Notes v2.1.0 →](https://aiarb.agentscope.io/release-notes#v2.1.0)
+- [2026-08-13] **v2.1.0** | AIArb OS Shell, единое файловое пространство, AIArb Creator, интеграция агентов Codex/Qoder, Browser-use, Computer-use, контрольные точки и продолжение длительных задач в диалоге. [Release Notes v2.1.0 →](https://qwenpaw.agentscope.io/release-notes#v2.1.0)
 
-- [2026-07-24] **v2.0.1** | Платформа мини-приложений PawApp, редактируемые Agent Mode, Oh-My-Paw plugins, улучшения памяти [ReMe](https://github.com/agentscope-ai/ReMe), улучшения UX десктопа и др. [v2.0.1 Release Notes →](https://aiarb.agentscope.io/release-notes#v2.0.1)
+- [2026-07-24] **v2.0.1** | Платформа мини-приложений PawApp, редактируемые Agent Mode, Oh-My-Paw plugins, улучшения памяти [ReMe](https://github.com/agentscope-ai/ReMe), улучшения UX десктопа и др. [v2.0.1 Release Notes →](https://qwenpaw.agentscope.io/release-notes#v2.0.1)
 
 - [2026-07-10] **v2.0.0 — AIArb 2.0 Official Release** 🎉 | Полностью переписанный на основе AgentScope 2.0: архитектура Agent OS, Loop Engineering, Scroll Context, саморазвивающаяся персональная база знаний [ReMe](https://github.com/agentscope-ai/ReMe) v0.4 и встроенный TUI.
 
@@ -75,15 +75,15 @@
   | **[ReMe](https://github.com/agentscope-ai/ReMe) v0.4 — саморазвивающаяся персональная база знаний** | Непрерывно преобразует диалоги и материалы в читаемые, редактируемые, доступные для поиска и связанные между собой записи Markdown. |
   | **Terminal UI (TUI)** | Полноэкранный терминальный чат — тот же агент, память и сессии, что в Console и каналах. |
 
-  На базе Agent OS мы будем выпускать готовые к использованию приложения AIArb — такие как **AIArb Creator** и **AIArb Insight** — следите за обновлениями. [v2.0.0 Release Notes →](https://aiarb.agentscope.io/release-notes#v2.0.0)
+  На базе Agent OS мы будем выпускать готовые к использованию приложения AIArb — такие как **AIArb Creator** и **AIArb Insight** — следите за обновлениями. [v2.0.0 Release Notes →](https://qwenpaw.agentscope.io/release-notes#v2.0.0)
 
-- [2026-06-17] **v1.1.12 — Обновление страницы моделей и Простой режим** | Новый дизайн страницы моделей с агрегацией провайдеров; Простой режим для упрощённой навигации. [v1.1.12 Release Notes →](https://aiarb.agentscope.io/release-notes#v1.1.12)
+- [2026-06-17] **v1.1.12 — Обновление страницы моделей и Простой режим** | Новый дизайн страницы моделей с агрегацией провайдеров; Простой режим для упрощённой навигации. [v1.1.12 Release Notes →](https://qwenpaw.agentscope.io/release-notes#v1.1.12)
 
 - [2026-06-11] **Запуск платформы AgentScope** — Бесплатный деплой AIArb, обмен плагинами и маркет Skill. [Попробовать →](https://platform.agentscope.io/)
 
-- [2026-06-10] **v1.1.11** — Бесплатные модели OAuth, Маркет плагинов, Белый список MCP. [v1.1.11 Release Notes →](https://aiarb.agentscope.io/release-notes#v1.1.11)
+- [2026-06-10] **v1.1.11** — Бесплатные модели OAuth, Маркет плагинов, Белый список MCP. [v1.1.11 Release Notes →](https://qwenpaw.agentscope.io/release-notes#v1.1.11)
 
-[Все release notes →](https://aiarb.agentscope.io/release-notes)
+[Все release notes →](https://qwenpaw.agentscope.io/release-notes)
 
 ---
 
@@ -117,7 +117,7 @@ aiarb init --defaults
 aiarb app
 ```
 
-Затем откройте консоль в браузере: **http://127.0.0.1:8088/** и настройте модель. Для чата в DingTalk, Lark, WeChat и других приложениях см. документацию [Настройка каналов](https://aiarb.agentscope.io/docs/channels).
+Затем откройте консоль в браузере: **http://127.0.0.1:8088/** и настройте модель. Для чата в DingTalk, Lark, WeChat и других приложениях см. документацию [Настройка каналов](https://qwenpaw.agentscope.io/docs/channels).
 
 ![Console](https://img.alicdn.com/imgextra/i2/O1CN01EP1ra01iOAcBvF0TC_!!6000000004402-2-tps-3822-2070.png)
 
@@ -130,19 +130,19 @@ aiarb app
 **macOS / Linux:**
 
 ```bash
-curl -fsSL https://aiarb.agentscope.io/install.sh | bash
+curl -fsSL https://qwenpaw.agentscope.io/install.sh | bash
 ```
 
 **Windows (CMD):**
 
 ```CMD
-curl -fsSL https://aiarb.agentscope.io/install.bat -o install.bat && install.bat
+curl -fsSL https://qwenpaw.agentscope.io/install.bat -o install.bat && install.bat
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-irm https://aiarb.agentscope.io/install.ps1 | iex
+irm https://qwenpaw.agentscope.io/install.ps1 | iex
 ```
 
 > **Примечание**: Установщик автоматически проверит статус uv. Если он не установлен, будет предпринята попытка автоматической загрузки и настройки. Если автоматическая установка не удалась, следуйте инструкциям на экране или выполните `python -m pip install -U uv`, затем повторно запустите установщик.
@@ -295,7 +295,7 @@ docker run -p 127.0.0.1:8088:8088 \
 
 #### Загрузка
 
-Загрузите десктопное приложение (сборка Tauri) с [официальной страницы загрузки](https://aiarb.agentscope.io/downloads):
+Загрузите десктопное приложение (сборка Tauri) с [официальной страницы загрузки](https://qwenpaw.agentscope.io/downloads):
 - **Windows**: `AIArb-Tauri-<version>-Windows-setup.exe`
 - **macOS**: `AIArb-Tauri-<version>-macOS.zip` (рекомендуется для Apple Silicon)
 
@@ -325,7 +325,7 @@ docker run -p 127.0.0.1:8088:8088 \
   `xattr -cr "/Applications/AIArb Desktop.app"`
   (или используйте путь к `.app` после распаковки). Это очистит флаг карантина «загружено из интернета», поэтому предупреждение обычно не появляется, но это менее безопасно и контролируемо, чем использование **Правый клик → Открыть**.
 
-Подробные инструкции, устранение неполадок и частые вопросы см. в [Руководстве по десктопному приложению](https://aiarb.agentscope.io/docs/desktop).
+Подробные инструкции, устранение неполадок и частые вопросы см. в [Руководстве по десктопному приложению](https://qwenpaw.agentscope.io/docs/desktop).
 
 ---
 
@@ -333,10 +333,10 @@ docker run -p 127.0.0.1:8088:8088 \
 
 После установки настройте модель в **Консоль → Настройки → Модели**, затем изучите:
 
-- [Добавьте Skills](https://aiarb.agentscope.io/docs/skills) для расширения возможностей (PDF, Office, браузер, новости и т.д.)
-- [Настройте каналы](https://aiarb.agentscope.io/docs/channels) для DingTalk, Lark, Discord и других
-- [Настройте Cron](https://aiarb.agentscope.io/docs/cron) для запланированных задач и автоматизации
-- Полное [руководство по быстрому старту](https://aiarb.agentscope.io/docs/quickstart) со всеми опциями и шагами проверки
+- [Добавьте Skills](https://qwenpaw.agentscope.io/docs/skills) для расширения возможностей (PDF, Office, браузер, новости и т.д.)
+- [Настройте каналы](https://qwenpaw.agentscope.io/docs/channels) для DingTalk, Lark, Discord и других
+- [Настройте Cron](https://qwenpaw.agentscope.io/docs/cron) для запланированных задач и автоматизации
+- Полное [руководство по быстрому старту](https://qwenpaw.agentscope.io/docs/quickstart) со всеми опциями и шагами проверки
 
 ---
 
@@ -350,7 +350,7 @@ aiarb tui --resume <id>   # возобновить предыдущую сесс
 aiarb .                   # начать в текущем репозитории (Coding Mode)
 ```
 
-Поддерживаются потоковые ответы, slash-команды (`/help`, `/resume`, `/theme`, а также собственные команды агента `/model`, `/clear`, …), вставка файлов/длинного текста как вложений и inline-запросы разрешений на инструменты. Подробности см. в [руководстве по Terminal UI](https://aiarb.agentscope.io/docs/tui).
+Поддерживаются потоковые ответы, slash-команды (`/help`, `/resume`, `/theme`, а также собственные команды агента `/model`, `/clear`, …), вставка файлов/длинного текста как вложений и inline-запросы разрешений на инструменты. Подробности см. в [руководстве по Terminal UI](https://qwenpaw.agentscope.io/docs/tui).
 
 ![AIArb TUI](https://img.alicdn.com/imgextra/i2/O1CN01IULzib1TRAzigIcqG_!!6000000002378-2-tps-2350-1312.png)
 
@@ -358,7 +358,7 @@ aiarb .                   # начать в текущем репозитори�
 
 ## API Key
 
-Если вы используете **облачный API для LLM** (например, DashScope / Qwen, OpenAI, Anthropic, Google Gemini, DeepSeek, Kimi, OpenRouter и другие), перед началом диалога необходимо настроить API Key. До настройки действительного ключа AIArb не будет работать. Подробности см. в [официальной документации](https://aiarb.agentscope.io/docs/models).
+Если вы используете **облачный API для LLM** (например, DashScope / Qwen, OpenAI, Anthropic, Google Gemini, DeepSeek, Kimi, OpenRouter и другие), перед началом диалога необходимо настроить API Key. До настройки действительного ключа AIArb не будет работать. Подробности см. в [официальной документации](https://qwenpaw.agentscope.io/docs/models).
 
 **Способы настройки:**
 
@@ -366,13 +366,13 @@ aiarb .                   # начать в текущем репозитори�
 2. **`aiarb init`** — При запуске `aiarb init` вас проведут через настройку LLM-провайдера и API Key. Следуйте подсказкам, выберите провайдера и введите ключ.
 3. **Переменная окружения** — Для DashScope можно установить `DASHSCOPE_API_KEY` в терминале или в файле `.env` в рабочей директории.
 
-Ключи для других инструментов (например, `TAVILY_API_KEY` для веб-поиска) можно настроить в консоли **Настройки → Переменные окружения**, подробности см. в [Конфигурация](https://aiarb.agentscope.io/docs/config).
+Ключи для других инструментов (например, `TAVILY_API_KEY` для веб-поиска) можно настроить в консоли **Настройки → Переменные окружения**, подробности см. в [Конфигурация](https://qwenpaw.agentscope.io/docs/config).
 
 > **Используете только локальные модели?** Если вы используете [Локальные модели](#локальные-модели) (AIArb Local / Ollama / LM Studio), вам **не нужен** никакой API Key.
 
 ## Локальные модели
 
-AIArb может полностью запускать LLM на вашей машине — без API-ключей и облачных сервисов. Подробности см. в [официальной документации](https://aiarb.agentscope.io/docs/models).
+AIArb может полностью запускать LLM на вашей машине — без API-ключей и облачных сервисов. Подробности см. в [официальной документации](https://qwenpaw.agentscope.io/docs/models).
 
 AIArb также предоставляет серию **AIArb-Flash** — специально обученные модели 2B / 4B / 9B для агентных сценариев с квантизациями Q4 и Q8. Доступны на [ModelScope](https://www.modelscope.cn/organization/AgentScope?tab=model) и [Hugging Face](https://huggingface.co/agentscope-ai/models).
 
@@ -394,7 +394,7 @@ AIArb включает четыре основных уровня безопас
 - **Skill Scanner** — Сканирование перед активацией с режимами block / warn / off и поддержкой белого списка. Обнаруживает инъекции промптов, жёстко закодированные секреты, утечку данных и другое.
 - **Access Policy** — Декларативные правила доступа: разрешение, запрет или запрос подтверждения для каждого вызова с гранулярностью до уровня инструмента и учётом источника запроса.
 
-Подробности см. в разделе [Безопасность](https://aiarb.agentscope.io/docs/security).
+Подробности см. в разделе [Безопасность](https://qwenpaw.agentscope.io/docs/security).
 
 ---
 
@@ -402,41 +402,41 @@ AIArb включает четыре основных уровня безопас
 
 | Тема                                                                 | Описание                                        |
 | -------------------------------------------------------------------- | ----------------------------------------------- |
-| [Введение](https://aiarb.agentscope.io/docs/intro)                 | Что такое AIArb и как его использовать         |
-| [Быстрый старт](https://aiarb.agentscope.io/docs/quickstart)       | Установка и запуск (локально или ModelScope Studio) |
-| [Консоль](https://aiarb.agentscope.io/docs/console)                | Веб-интерфейс: чат и конфигурация агента        |
-| [Terminal UI (TUI)](https://aiarb.agentscope.io/docs/tui)          | Полноэкранный терминальный чат, тот же агент, что и в Консоли |
-| [Десктопное приложение](https://aiarb.agentscope.io/docs/desktop)  | Установка и использование десктопного приложения |
-| [Модели](https://aiarb.agentscope.io/docs/models)                  | Настройка облачных, локальных и пользовательских провайдеров |
-| [Каналы](https://aiarb.agentscope.io/docs/channels)                | DingTalk, Lark, QQ, Discord, iMessage и другие |
-| [Skills](https://aiarb.agentscope.io/docs/skills)                  | Расширение и настройка возможностей             |
-| [Плагины](https://aiarb.agentscope.io/docs/plugins)                | Система плагинов и Plugin Market                 |
-| [MCP](https://aiarb.agentscope.io/docs/mcp)                          | Управление MCP-клиентами                        |
-| [Persona](https://aiarb.agentscope.io/docs/persona)                | Настройка личности агента (SOUL / PROFILE)       |
-| [Память](https://aiarb.agentscope.io/docs/memory)                  | Саморазвивающаяся персональная база знаний на основе локальных, редактируемых, доступных для поиска и связанных записей Markdown, работающая на [ReMe](https://github.com/agentscope-ai/ReMe) |
+| [Введение](https://qwenpaw.agentscope.io/docs/intro)                 | Что такое AIArb и как его использовать         |
+| [Быстрый старт](https://qwenpaw.agentscope.io/docs/quickstart)       | Установка и запуск (локально или ModelScope Studio) |
+| [Консоль](https://qwenpaw.agentscope.io/docs/console)                | Веб-интерфейс: чат и конфигурация агента        |
+| [Terminal UI (TUI)](https://qwenpaw.agentscope.io/docs/tui)          | Полноэкранный терминальный чат, тот же агент, что и в Консоли |
+| [Десктопное приложение](https://qwenpaw.agentscope.io/docs/desktop)  | Установка и использование десктопного приложения |
+| [Модели](https://qwenpaw.agentscope.io/docs/models)                  | Настройка облачных, локальных и пользовательских провайдеров |
+| [Каналы](https://qwenpaw.agentscope.io/docs/channels)                | DingTalk, Lark, QQ, Discord, iMessage и другие |
+| [Skills](https://qwenpaw.agentscope.io/docs/skills)                  | Расширение и настройка возможностей             |
+| [Плагины](https://qwenpaw.agentscope.io/docs/plugins)                | Система плагинов и Plugin Market                 |
+| [MCP](https://qwenpaw.agentscope.io/docs/mcp)                          | Управление MCP-клиентами                        |
+| [Persona](https://qwenpaw.agentscope.io/docs/persona)                | Настройка личности агента (SOUL / PROFILE)       |
+| [Память](https://qwenpaw.agentscope.io/docs/memory)                  | Саморазвивающаяся персональная база знаний на основе локальных, редактируемых, доступных для поиска и связанных записей Markdown, работающая на [ReMe](https://github.com/agentscope-ai/ReMe) |
 | [Документация ReMe](https://docs.agentscope.io/reme/latest/en/overview) | Официальный обзор и документация ReMe           |
-| [Память-эволюция и проактивное взаимодействие](https://aiarb.agentscope.io/docs/memory-evolving-and-proactive) | Эволюция памяти агента и проактивное взаимодействие |
-| [Контекст](https://aiarb.agentscope.io/docs/context)               | Управление контекстом на базе Scroll             |
-| [Магические команды](https://aiarb.agentscope.io/docs/commands)    | Управление состоянием диалога без ожидания AI   |
-| [Heartbeat](https://aiarb.agentscope.io/docs/heartbeat)            | Запланированная самопроверка и дайджест         |
-| [Cron / Запланированные задачи](https://aiarb.agentscope.io/docs/cron) | Запланированные задачи и автоматизация       |
-| [Мультиагенты](https://aiarb.agentscope.io/docs/multi-agent)       | Создание нескольких агентов и совместная работа |
-| [Безопасность](https://aiarb.agentscope.io/docs/security)          | Sandbox, tool guard, file guard, skill scanner, access policy |
-| [Резервное копирование и восстановление](https://aiarb.agentscope.io/docs/backup) | Резервное копирование и восстановление данных |
-| [Конфигурация и рабочая директория](https://aiarb.agentscope.io/docs/config) | Рабочая директория и конфигурационный файл |
-| [REST API](https://aiarb.agentscope.io/docs/api-tutorial)          | HTTP API для интеграции и автоматизации         |
-| [Интеграция ACP](https://aiarb.agentscope.io/docs/acp-integration) | Интеграция Agent Communication Protocol         |
-| [CLI](https://aiarb.agentscope.io/docs/cli)                        | Init, cron-задачи, skills, очистка              |
-| [Практика агентных команд](https://aiarb.agentscope.io/docs/practice-agent-team) | Руководство по развертыванию мультиагентных команд |
-| [FAQ](https://aiarb.agentscope.io/docs/faq)                        | Частые вопросы и устранение неполадок           |
+| [Память-эволюция и проактивное взаимодействие](https://qwenpaw.agentscope.io/docs/memory-evolving-and-proactive) | Эволюция памяти агента и проактивное взаимодействие |
+| [Контекст](https://qwenpaw.agentscope.io/docs/context)               | Управление контекстом на базе Scroll             |
+| [Магические команды](https://qwenpaw.agentscope.io/docs/commands)    | Управление состоянием диалога без ожидания AI   |
+| [Heartbeat](https://qwenpaw.agentscope.io/docs/heartbeat)            | Запланированная самопроверка и дайджест         |
+| [Cron / Запланированные задачи](https://qwenpaw.agentscope.io/docs/cron) | Запланированные задачи и автоматизация       |
+| [Мультиагенты](https://qwenpaw.agentscope.io/docs/multi-agent)       | Создание нескольких агентов и совместная работа |
+| [Безопасность](https://qwenpaw.agentscope.io/docs/security)          | Sandbox, tool guard, file guard, skill scanner, access policy |
+| [Резервное копирование и восстановление](https://qwenpaw.agentscope.io/docs/backup) | Резервное копирование и восстановление данных |
+| [Конфигурация и рабочая директория](https://qwenpaw.agentscope.io/docs/config) | Рабочая директория и конфигурационный файл |
+| [REST API](https://qwenpaw.agentscope.io/docs/api-tutorial)          | HTTP API для интеграции и автоматизации         |
+| [Интеграция ACP](https://qwenpaw.agentscope.io/docs/acp-integration) | Интеграция Agent Communication Protocol         |
+| [CLI](https://qwenpaw.agentscope.io/docs/cli)                        | Init, cron-задачи, skills, очистка              |
+| [Практика агентных команд](https://qwenpaw.agentscope.io/docs/practice-agent-team) | Руководство по развертыванию мультиагентных команд |
+| [FAQ](https://qwenpaw.agentscope.io/docs/faq)                        | Частые вопросы и устранение неполадок           |
 
-Полная документация: [aiarb.agentscope.io/docs](https://aiarb.agentscope.io/docs)
+Полная документация: [qwenpaw.agentscope.io/docs](https://qwenpaw.agentscope.io/docs)
 
 ---
 
 ## FAQ
 
-Для часто задаваемых вопросов, советов по устранению неполадок и известных проблем посетите **[страницу FAQ](https://aiarb.agentscope.io/docs/faq)**.
+Для часто задаваемых вопросов, советов по устранению неполадок и известных проблем посетите **[страницу FAQ](https://qwenpaw.agentscope.io/docs/faq)**.
 
 ---
 

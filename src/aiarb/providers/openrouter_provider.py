@@ -40,7 +40,7 @@ class OpenRouterProvider(Provider):
     _OPENROUTER_CATEGORIES = "personal-agent,cli-agent"
 
     _DEFAULT_HEADERS = {
-        "HTTP-Referer": "https://aiarb.agentscope.io/",
+        "HTTP-Referer": "https://qwenpaw.agentscope.io/",
         "X-OpenRouter-Title": "AIArb",
         "X-OpenRouter-Categories": _OPENROUTER_CATEGORIES,
         "User-Agent": "AIArb/1.1",

@@ -282,7 +282,7 @@ describe("ReMe runtime status", () => {
       within(serviceStatus as HTMLElement).getByRole("link", {
         name: "agentConfig.memoryDocumentation",
       }),
-    ).toHaveAttribute("href", "https://aiarb.agentscope.io/docs/memory");
+    ).toHaveAttribute("href", "https://qwenpaw.agentscope.io/docs/memory");
   });
 
   it("loads the selected agent's complete status on entry", async () => {

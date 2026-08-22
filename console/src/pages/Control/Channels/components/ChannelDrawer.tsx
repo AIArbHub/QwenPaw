@@ -38,54 +38,54 @@ const CHANNELS_WITH_ACCESS_CONTROL: ChannelKey[] = [
   "slack",
 ];
 
-// Doc EN URLs per channel (anchors on https://aiarb.agentscope.io/docs/channels)
+// Doc EN URLs per channel (anchors on https://qwenpaw.agentscope.io/docs/channels)
 const CHANNEL_DOC_EN_URLS: Partial<Record<ChannelKey, string>> = {
   dingtalk:
-    "https://aiarb.agentscope.io/docs/channels/?lang=en#DingTalk-recommended",
-  feishu: "https://aiarb.agentscope.io/docs/channels/?lang=en#Feishu-Lark",
+    "https://qwenpaw.agentscope.io/docs/channels/?lang=en#DingTalk-recommended",
+  feishu: "https://qwenpaw.agentscope.io/docs/channels/?lang=en#Feishu-Lark",
   imessage:
-    "https://aiarb.agentscope.io/docs/channels/?lang=en#iMessage-macOS-only",
-  discord: "https://aiarb.agentscope.io/docs/channels/?lang=en#Discord",
-  qq: "https://aiarb.agentscope.io/docs/channels/?lang=en#QQ",
-  telegram: "https://aiarb.agentscope.io/docs/channels/?lang=en#Telegram",
-  mqtt: "https://aiarb.agentscope.io/docs/channels/?lang=en#MQTT",
-  mattermost: "https://aiarb.agentscope.io/docs/channels/?lang=en#Mattermost",
-  matrix: "https://aiarb.agentscope.io/docs/channels/?lang=en#Matrix",
-  sip: "https://aiarb.agentscope.io/docs/channels/?lang=en#SIP",
+    "https://qwenpaw.agentscope.io/docs/channels/?lang=en#iMessage-macOS-only",
+  discord: "https://qwenpaw.agentscope.io/docs/channels/?lang=en#Discord",
+  qq: "https://qwenpaw.agentscope.io/docs/channels/?lang=en#QQ",
+  telegram: "https://qwenpaw.agentscope.io/docs/channels/?lang=en#Telegram",
+  mqtt: "https://qwenpaw.agentscope.io/docs/channels/?lang=en#MQTT",
+  mattermost: "https://qwenpaw.agentscope.io/docs/channels/?lang=en#Mattermost",
+  matrix: "https://qwenpaw.agentscope.io/docs/channels/?lang=en#Matrix",
+  sip: "https://qwenpaw.agentscope.io/docs/channels/?lang=en#SIP",
   wecom:
-    "https://aiarb.agentscope.io/docs/channels/?lang=en#WeCom-WeChat-Work",
+    "https://qwenpaw.agentscope.io/docs/channels/?lang=en#WeCom-WeChat-Work",
   wechat:
-    "https://aiarb.agentscope.io/docs/channels/?lang=en#WeChat-Personal-iLink",
+    "https://qwenpaw.agentscope.io/docs/channels/?lang=en#WeChat-Personal-iLink",
   xiaoyi:
     "https://developer.huawei.com/consumer/cn/doc/service/openclaw-0000002518410344",
-  yuanbao: "https://aiarb.agentscope.io/docs/channels/?lang=en#Yuanbao",
+  yuanbao: "https://qwenpaw.agentscope.io/docs/channels/?lang=en#Yuanbao",
   onebot:
-    "https://aiarb.agentscope.io/docs/channels/?lang=en#OneBot-v11-NapCat--QQ-full-protocol",
-  slack: "https://aiarb.agentscope.io/docs/channels/?lang=en#Slack",
+    "https://qwenpaw.agentscope.io/docs/channels/?lang=en#OneBot-v11-NapCat--QQ-full-protocol",
+  slack: "https://qwenpaw.agentscope.io/docs/channels/?lang=en#Slack",
 };
 
-// Doc ZH URLs per channel (anchors on https://aiarb.agentscope.io/docs/channels)
+// Doc ZH URLs per channel (anchors on https://qwenpaw.agentscope.io/docs/channels)
 const CHANNEL_DOC_ZH_URLS: Partial<Record<ChannelKey, string>> = {
-  dingtalk: "https://aiarb.agentscope.io/docs/channels/?lang=zh#钉钉推荐",
-  feishu: "https://aiarb.agentscope.io/docs/channels/?lang=zh#飞书",
+  dingtalk: "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#钉钉推荐",
+  feishu: "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#飞书",
   imessage:
-    "https://aiarb.agentscope.io/docs/channels/?lang=zh#iMessage仅-macOS",
-  discord: "https://aiarb.agentscope.io/docs/channels/?lang=zh#Discord",
-  qq: "https://aiarb.agentscope.io/docs/channels/?lang=zh#QQ",
-  telegram: "https://aiarb.agentscope.io/docs/channels/?lang=zh#Telegram",
-  mqtt: "https://aiarb.agentscope.io/docs/channels/?lang=zh#MQTT",
-  mattermost: "https://aiarb.agentscope.io/docs/channels/?lang=zh#Mattermost",
-  matrix: "https://aiarb.agentscope.io/docs/channels/?lang=zh#Matrix",
-  sip: "https://aiarb.agentscope.io/docs/channels/?lang=zh#SIP",
-  wecom: "https://aiarb.agentscope.io/docs/channels/?lang=zh#企业微信",
-  wechat: "https://aiarb.agentscope.io/docs/channels/?lang=zh#微信个人iLink",
+    "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#iMessage仅-macOS",
+  discord: "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#Discord",
+  qq: "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#QQ",
+  telegram: "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#Telegram",
+  mqtt: "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#MQTT",
+  mattermost: "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#Mattermost",
+  matrix: "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#Matrix",
+  sip: "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#SIP",
+  wecom: "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#企业微信",
+  wechat: "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#微信个人iLink",
   xiaoyi:
     "https://developer.huawei.com/consumer/cn/doc/service/openclaw-0000002518410344",
   yuanbao:
-    "https://aiarb.agentscope.io/docs/channels/?lang=zh#腾讯元宝Yuanbao",
+    "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#腾讯元宝Yuanbao",
   onebot:
-    "https://aiarb.agentscope.io/docs/channels/?lang=zh#OneBot-v11NapCat--QQ-完整协议",
-  slack: "https://aiarb.agentscope.io/docs/channels/?lang=zh#Slack",
+    "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#OneBot-v11NapCat--QQ-完整协议",
+  slack: "https://qwenpaw.agentscope.io/docs/channels/?lang=zh#Slack",
 };
 
 const TWILIO_CONSOLE_URL = "https://console.twilio.com";
@@ -1624,7 +1624,7 @@ export function ChannelDrawer({
                 CHANNEL_DOC_EN_URLS[activeKey]! ||
                 CHANNEL_DOC_ZH_URLS[activeKey]!;
               const isAIArbDoc = url.includes(
-                "aiarb.agentscope.io/docs/channels/",
+                "qwenpaw.agentscope.io/docs/channels/",
               );
               const finalUrl =
                 isAIArbDoc && currentLang === "zh"

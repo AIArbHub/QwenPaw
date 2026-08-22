@@ -329,4 +329,4 @@ ReMe 使用公开测试验证多会话与超长对话中的记忆能力。
 进一步了解：
 
 - [ReMe GitHub](https://github.com/agentscope-ai/ReMe)
-- [AIArb 长期记忆文档](https://aiarb.agentscope.io/docs/memory)
+- [AIArb 长期记忆文档](https://qwenpaw.agentscope.io/docs/memory)

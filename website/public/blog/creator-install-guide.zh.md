@@ -11,7 +11,7 @@ excerpt: "了解 AIArb Creator 的核心能力，并通过 7 个步骤完成安�
 
 > **AIArb Creator** 是一个 Agentic 视频创作平台：从一句想法生成短剧，或把现有素材剪成成片，Agent 团队全程协作，关键决定始终在你手中。
 >
-> 本文将带你了解 Creator 的核心能力，并通过 7 个步骤完成安装与首次打开。AIArb 本身的安装请参考官网：<https://aiarb.agentscope.io/>
+> 本文将带你了解 Creator 的核心能力，并通过 7 个步骤完成安装与首次打开。AIArb 本身的安装请参考官网：<https://qwenpaw.agentscope.io/>
 
 ![AIArb Creator 产品演示](https://cloud.video.taobao.com/vod/QrQ22smEYzVP5QtchnWO6ix6caO84v72wVKmqDmRoDY.mp4)
 
@@ -45,7 +45,7 @@ Creator 原生集成了 [Qwen-MM-Plugins](https://github.com/QwenLM/Qwen-MM-Plug
 
 ## 开始之前：先打开 AIArb
 
-按官网指引安装好 AIArb 后（安装方式见官网 [快速开始](https://aiarb.agentscope.io/#aiarb-quickstart)，支持 pip / 一键脚本 / Docker / 云端 / 桌面端），在终端启动它，浏览器会自动打开控制台：
+按官网指引安装好 AIArb 后（安装方式见官网 [快速开始](https://qwenpaw.agentscope.io/#qwenpaw-quickstart)，支持 pip / 一键脚本 / Docker / 云端 / 桌面端），在终端启动它，浏览器会自动打开控制台：
 
 ```bash
 # 启动 AIArb（默认监听 127.0.0.1:8088）

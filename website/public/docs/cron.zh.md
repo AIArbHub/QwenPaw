@@ -32,7 +32,7 @@
 
 **创建任务**
 
-> 如果定时任务没有创建成功，可以参考 [FAQ](https://aiarb.agentscope.io/docs/faq) 的 **定时任务错误排查** 寻找原因
+> 如果定时任务没有创建成功，可以参考 [FAQ](https://qwenpaw.agentscope.io/docs/faq) 的 **定时任务错误排查** 寻找原因
 
 1. 点击 **创建任务** 按钮。
 

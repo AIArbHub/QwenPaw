@@ -112,10 +112,10 @@ describe("openExternalLink", () => {
   it("uses the Tauri external link command in the Tauri desktop app", () => {
     isTauri.mockReturnValue(true);
 
-    openExternalLink("https://aiarb.agentscope.io/docs/intro?lang=zh");
+    openExternalLink("https://qwenpaw.agentscope.io/docs/intro?lang=zh");
 
     expect(invoke).toHaveBeenCalledWith("open_external_link", {
-      url: "https://aiarb.agentscope.io/docs/intro?lang=zh",
+      url: "https://qwenpaw.agentscope.io/docs/intro?lang=zh",
     });
     expect(windowOpen).not.toHaveBeenCalled();
   });
@@ -147,10 +147,10 @@ describe("openExternalLink", () => {
   });
 
   it("falls back to window.open in the web console", () => {
-    openExternalLink("https://aiarb.agentscope.io/docs/intro?lang=en");
+    openExternalLink("https://qwenpaw.agentscope.io/docs/intro?lang=en");
 
     expect(windowOpen).toHaveBeenCalledWith(
-      "https://aiarb.agentscope.io/docs/intro?lang=en",
+      "https://qwenpaw.agentscope.io/docs/intro?lang=en",
       "_blank",
       "noopener,noreferrer",
     );

@@ -213,6 +213,6 @@ AIArb 2.0.1 中提供的 Oh-My-Paw（OMP Workflows）插件就是这一层扩展
 
 ## 延伸阅读
 
-- [AIArb Loop Engineering 文档](https://aiarb.agentscope.io/docs/loop-engineering)
-- [AIArb v2.0.1 发布说明](https://aiarb.agentscope.io/release-notes#v2.0.1)
+- [AIArb Loop Engineering 文档](https://qwenpaw.agentscope.io/docs/loop-engineering)
+- [AIArb v2.0.1 发布说明](https://qwenpaw.agentscope.io/release-notes#v2.0.1)
 - [AIArb GitHub 仓库](https://github.com/agentscope-ai/AIArb)
