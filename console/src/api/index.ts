@@ -26,6 +26,7 @@ import { securityApi } from "./modules/security";
 import { userTimezoneApi } from "./modules/userTimezone";
 import { languageApi } from "./modules/language";
 import { backupApi } from "./modules/backup";
+import { cloudBackupApi } from "./modules/cloudBackup";
 import { consoleApi } from "./modules/console";
 import { accessControlApi } from "./modules/accessControl";
 
@@ -93,6 +94,9 @@ export const api = {
 
   // Backups
   ...backupApi,
+
+  // Cloud Backups
+  ...cloudBackupApi,
 
   // Console
   ...consoleApi,
