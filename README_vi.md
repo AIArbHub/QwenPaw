@@ -4,7 +4,7 @@
 
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repo-black.svg?logo=github)](https://github.com/agentscope-ai/AIArb)
 [![PyPI](https://img.shields.io/pypi/v/aiarb?color=3775A9&label=PyPI&logo=pypi)](https://pypi.org/project/aiarb/)
-[![Documentation](https://img.shields.io/badge/Docs-Website-green.svg?logo=readthedocs&label=Docs)](https://aiarb.agentscope.io/)
+[![Documentation](https://img.shields.io/badge/Docs-Website-green.svg?logo=readthedocs&label=Docs)](https://qwenpaw.agentscope.io/)
 [![Python Version](https://img.shields.io/badge/python-3.11%20~%20%3C3.14-blue.svg?logo=python&label=Python)](https://www.python.org/downloads/)
 [![Last Commit](https://img.shields.io/github/last-commit/agentscope-ai/AIArb)](https://github.com/agentscope-ai/AIArb)
 [![License](https://img.shields.io/badge/license-Apache%202.0-red.svg?logo=apache&label=License)](LICENSE)
@@ -19,7 +19,7 @@
 
 <a href="https://trendshift.io/repositories/25882" target="_blank"><img src="https://trendshift.io/api/badge/trendshift/repositories/25882/daily" alt="agentscope-ai%2FAIArb | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
-[[Tài liệu](https://aiarb.agentscope.io/)] [[English](README.md)] [[中文](README_zh.md)] [[日本語](README_ja.md)] [[Русский](README_ru.md)]
+[[Tài liệu](https://qwenpaw.agentscope.io/)] [[English](README.md)] [[中文](README_zh.md)] [[日本語](README_ja.md)] [[Русский](README_ru.md)]
 
 <p align="center">
   <img src="https://gw.alicdn.com/imgextra/i1/O1CN01sens5C1TuwioeGexL_!!6000000002443-55-tps-771-132.svg" alt="AIArb Logo" width="120">
@@ -60,9 +60,9 @@ Trợ lý AI cá nhân của bạn — triển khai cục bộ hoặc trên đá
 
 ## Tin Tức
 
-- [2026-08-13] **v2.1.0** | AIArb OS Shell, không gian làm việc Files hợp nhất, AIArb Creator, tích hợp agent Codex/Qoder, Browser-use, Computer-use, điểm khôi phục workspace và tiếp tục tác vụ hội thoại dài. [Ghi chú phát hành v2.1.0 →](https://aiarb.agentscope.io/release-notes#v2.1.0)
+- [2026-08-13] **v2.1.0** | AIArb OS Shell, không gian làm việc Files hợp nhất, AIArb Creator, tích hợp agent Codex/Qoder, Browser-use, Computer-use, điểm khôi phục workspace và tiếp tục tác vụ hội thoại dài. [Ghi chú phát hành v2.1.0 →](https://qwenpaw.agentscope.io/release-notes#v2.1.0)
 
-- [2026-07-24] **v2.0.1** | Nền tảng mini-app PawApp, Agent Mode do người dùng chỉnh sửa, Oh-My-Paw plugins, nâng cấp bộ nhớ [ReMe](https://github.com/agentscope-ai/ReMe), cải thiện UX desktop v.v. [Ghi chú phát hành v2.0.1 →](https://aiarb.agentscope.io/release-notes#v2.0.1)
+- [2026-07-24] **v2.0.1** | Nền tảng mini-app PawApp, Agent Mode do người dùng chỉnh sửa, Oh-My-Paw plugins, nâng cấp bộ nhớ [ReMe](https://github.com/agentscope-ai/ReMe), cải thiện UX desktop v.v. [Ghi chú phát hành v2.0.1 →](https://qwenpaw.agentscope.io/release-notes#v2.0.1)
 
 - [2026-07-10] **v2.0.0 — AIArb 2.0 Official Release** 🎉 | Viết lại toàn bộ dựa trên AgentScope 2.0: kiến trúc Agent OS, Loop Engineering, Scroll Context, cơ sở tri thức cá nhân tự tiến hóa [ReMe](https://github.com/agentscope-ai/ReMe) v0.4 và TUI tích hợp.
 
@@ -75,15 +75,15 @@ Trợ lý AI cá nhân của bạn — triển khai cục bộ hoặc trên đá
   | **[ReMe](https://github.com/agentscope-ai/ReMe) v0.4 — Cơ sở tri thức cá nhân tự tiến hóa** | Liên tục chuyển hội thoại và tài liệu thành bộ nhớ Markdown dễ đọc, chỉnh sửa, tìm kiếm và liên kết với nhau. |
   | **Terminal UI (TUI)** | Chat terminal toàn màn hình — cùng agent, bộ nhớ và phiên với Console và kênh. |
 
-  Dựa trên Agent OS, chúng tôi sẽ ra mắt các ứng dụng AIArb sẵn sàng sử dụng — như **AIArb Creator** và **AIArb Insight** — hãy theo dõi. [v2.0.0 Release Notes →](https://aiarb.agentscope.io/release-notes#v2.0.0)
+  Dựa trên Agent OS, chúng tôi sẽ ra mắt các ứng dụng AIArb sẵn sàng sử dụng — như **AIArb Creator** và **AIArb Insight** — hãy theo dõi. [v2.0.0 Release Notes →](https://qwenpaw.agentscope.io/release-notes#v2.0.0)
 
-- [2026-06-17] **v1.1.12 — Trang Mô Hình Đổi Mới & Chế Độ Đơn Giản** | Trang mô hình thiết kế lại với tổng hợp nhà cung cấp; Chế độ Đơn giản mới. [Ghi chú phát hành v1.1.12 →](https://aiarb.agentscope.io/release-notes#v1.1.12)
+- [2026-06-17] **v1.1.12 — Trang Mô Hình Đổi Mới & Chế Độ Đơn Giản** | Trang mô hình thiết kế lại với tổng hợp nhà cung cấp; Chế độ Đơn giản mới. [Ghi chú phát hành v1.1.12 →](https://qwenpaw.agentscope.io/release-notes#v1.1.12)
 
 - [2026-06-11] **AgentScope Platform ra mắt** — Triển khai AIArb miễn phí, chia sẻ plugin và Chợ Skills. [Dùng thử ngay →](https://platform.agentscope.io/)
 
-- [2026-06-10] **v1.1.11** — OAuth Mô hình Miễn phí, Chợ Plugin, Danh sách trắng MCP. [Ghi chú phát hành v1.1.11 →](https://aiarb.agentscope.io/release-notes#v1.1.11)
+- [2026-06-10] **v1.1.11** — OAuth Mô hình Miễn phí, Chợ Plugin, Danh sách trắng MCP. [Ghi chú phát hành v1.1.11 →](https://qwenpaw.agentscope.io/release-notes#v1.1.11)
 
-[Tất cả ghi chú phát hành →](https://aiarb.agentscope.io/release-notes)
+[Tất cả ghi chú phát hành →](https://qwenpaw.agentscope.io/release-notes)
 
 ---
 
@@ -117,7 +117,7 @@ aiarb init --defaults
 aiarb app
 ```
 
-Sau đó mở Console trong trình duyệt tại **http://127.0.0.1:8088/** để cấu hình mô hình. Để chat trong DingTalk, Lark, WeChat, v.v., xem tài liệu [Thiết lập kênh](https://aiarb.agentscope.io/docs/channels).
+Sau đó mở Console trong trình duyệt tại **http://127.0.0.1:8088/** để cấu hình mô hình. Để chat trong DingTalk, Lark, WeChat, v.v., xem tài liệu [Thiết lập kênh](https://qwenpaw.agentscope.io/docs/channels).
 
 ![Console](https://img.alicdn.com/imgextra/i2/O1CN01EP1ra01iOAcBvF0TC_!!6000000004402-2-tps-3822-2070.png)
 
@@ -130,19 +130,19 @@ Không cần thiết lập Python thủ công, một lệnh duy nhất cài đ�
 **macOS / Linux:**
 
 ```bash
-curl -fsSL https://aiarb.agentscope.io/install.sh | bash
+curl -fsSL https://qwenpaw.agentscope.io/install.sh | bash
 ```
 
 **Windows (CMD):**
 
 ```CMD
-curl -fsSL https://aiarb.agentscope.io/install.bat -o install.bat && install.bat
+curl -fsSL https://qwenpaw.agentscope.io/install.bat -o install.bat && install.bat
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-irm https://aiarb.agentscope.io/install.ps1 | iex
+irm https://qwenpaw.agentscope.io/install.ps1 | iex
 ```
 
 > **Lưu ý**: Trình cài đặt sẽ tự động kiểm tra trạng thái của uv. Nếu chưa được cài đặt, nó sẽ cố gắng tải xuống và cấu hình tự động. Nếu quá trình cài đặt tự động thất bại, vui lòng làm theo hướng dẫn trên màn hình hoặc thực thi `python -m pip install -U uv`, sau đó chạy lại trình cài đặt.
@@ -295,7 +295,7 @@ Nếu bạn không quen với công cụ dòng lệnh, bạn có thể tải xu�
 
 #### Tải Xuống
 
-Tải ứng dụng desktop (bản Tauri) từ [trang tải xuống chính thức](https://aiarb.agentscope.io/downloads):
+Tải ứng dụng desktop (bản Tauri) từ [trang tải xuống chính thức](https://qwenpaw.agentscope.io/downloads):
 - **Windows**: `AIArb-Tauri-<version>-Windows-setup.exe`
 - **macOS**: `AIArb-Tauri-<version>-macOS.zip` (khuyên dùng Apple Silicon)
 
@@ -325,7 +325,7 @@ Khi bạn tải ứng dụng macOS AIArb từ Releases, macOS có thể hiển t
   `xattr -cr "/Applications/AIArb Desktop.app"`
   (hoặc dùng đường dẫn tới tệp `.app` sau khi giải nén). Thao tác này xóa cờ cách ly "đã tải xuống từ internet" để cảnh báo thường không xuất hiện, nhưng kém an toàn và kiểm soát hơn so với dùng **Nhấp chuột phải → Open**.
 
-Để biết hướng dẫn sử dụng chi tiết, khắc phục sự cố và các vấn đề thường gặp, xem [Hướng dẫn ứng dụng Desktop](https://aiarb.agentscope.io/docs/desktop).
+Để biết hướng dẫn sử dụng chi tiết, khắc phục sự cố và các vấn đề thường gặp, xem [Hướng dẫn ứng dụng Desktop](https://qwenpaw.agentscope.io/docs/desktop).
 
 ---
 
@@ -333,10 +333,10 @@ Khi bạn tải ứng dụng macOS AIArb từ Releases, macOS có thể hiển t
 
 Sau khi cài đặt, cấu hình mô hình trong **Console → Settings → Models**, rồi khám phá:
 
-- [Thêm Skills](https://aiarb.agentscope.io/docs/skills) để mở rộng khả năng (PDF, Office, trình duyệt, tin tức, v.v.)
-- [Thiết lập Kênh](https://aiarb.agentscope.io/docs/channels) cho DingTalk, Lark, Discord, v.v.
-- [Cấu hình Cron](https://aiarb.agentscope.io/docs/cron) cho tác vụ định kỳ và tự động hóa
-- Xem [hướng dẫn Bắt đầu nhanh](https://aiarb.agentscope.io/docs/quickstart) đầy đủ cho mọi tùy chọn và bước xác minh
+- [Thêm Skills](https://qwenpaw.agentscope.io/docs/skills) để mở rộng khả năng (PDF, Office, trình duyệt, tin tức, v.v.)
+- [Thiết lập Kênh](https://qwenpaw.agentscope.io/docs/channels) cho DingTalk, Lark, Discord, v.v.
+- [Cấu hình Cron](https://qwenpaw.agentscope.io/docs/cron) cho tác vụ định kỳ và tự động hóa
+- Xem [hướng dẫn Bắt đầu nhanh](https://qwenpaw.agentscope.io/docs/quickstart) đầy đủ cho mọi tùy chọn và bước xác minh
 
 ---
 
@@ -350,7 +350,7 @@ aiarb tui --resume <id>   # tiếp tục phiên trước
 aiarb .                   # bắt đầu trong repo hiện tại (Coding Mode)
 ```
 
-Hỗ trợ phản hồi streaming, lệnh slash (`/help`, `/resume`, `/theme`, cùng các lệnh riêng của tác nhân như `/model`, `/clear`, …), dán tệp/văn bản dài làm đính kèm, và nhắc quyền công cụ nội tuyến. Xem [hướng dẫn Terminal UI](https://aiarb.agentscope.io/docs/tui) để biết chi tiết.
+Hỗ trợ phản hồi streaming, lệnh slash (`/help`, `/resume`, `/theme`, cùng các lệnh riêng của tác nhân như `/model`, `/clear`, …), dán tệp/văn bản dài làm đính kèm, và nhắc quyền công cụ nội tuyến. Xem [hướng dẫn Terminal UI](https://qwenpaw.agentscope.io/docs/tui) để biết chi tiết.
 
 ![AIArb TUI](https://img.alicdn.com/imgextra/i2/O1CN01IULzib1TRAzigIcqG_!!6000000002378-2-tps-2350-1312.png)
 
@@ -358,7 +358,7 @@ Hỗ trợ phản hồi streaming, lệnh slash (`/help`, `/resume`, `/theme`, c
 
 ## API Key
 
-Nếu bạn sử dụng **API LLM đám mây** (ví dụ: DashScope / Qwen, OpenAI, Anthropic, Google Gemini, DeepSeek, Kimi, OpenRouter, v.v.), bạn phải cấu hình API key trước khi chat. AIArb sẽ không hoạt động cho đến khi có key hợp lệ. Xem [tài liệu chính thức](https://aiarb.agentscope.io/docs/models) để biết chi tiết.
+Nếu bạn sử dụng **API LLM đám mây** (ví dụ: DashScope / Qwen, OpenAI, Anthropic, Google Gemini, DeepSeek, Kimi, OpenRouter, v.v.), bạn phải cấu hình API key trước khi chat. AIArb sẽ không hoạt động cho đến khi có key hợp lệ. Xem [tài liệu chính thức](https://qwenpaw.agentscope.io/docs/models) để biết chi tiết.
 
 **Cách cấu hình:**
 
@@ -366,13 +366,13 @@ Nếu bạn sử dụng **API LLM đám mây** (ví dụ: DashScope / Qwen, Open
 2. **`aiarb init`** — Khi chạy `aiarb init`, bạn sẽ được hướng dẫn cấu hình nhà cung cấp LLM và API key. Làm theo lời nhắc để chọn nhà cung cấp và nhập key.
 3. **Biến môi trường** — Với DashScope bạn có thể đặt `DASHSCOPE_API_KEY` trong shell hoặc trong tệp `.env` trong thư mục làm việc.
 
-Các công cụ cần key bổ sung (ví dụ: `TAVILY_API_KEY` cho tìm kiếm web) có thể được đặt trong Console **Settings → Environment variables**, xem [Config](https://aiarb.agentscope.io/docs/config) để biết chi tiết.
+Các công cụ cần key bổ sung (ví dụ: `TAVILY_API_KEY` cho tìm kiếm web) có thể được đặt trong Console **Settings → Environment variables**, xem [Config](https://qwenpaw.agentscope.io/docs/config) để biết chi tiết.
 
 > **Chỉ dùng mô hình địa phương?** Nếu bạn sử dụng [Mô Hình Địa Phương](#mô-hình-địa-phương) (AIArb Local (llama.cpp) / Ollama / LM Studio), bạn **không** cần bất kỳ API key nào.
 
 ## Mô Hình Địa Phương
 
-AIArb có thể chạy LLM hoàn toàn trên máy của bạn — không cần API key hoặc dịch vụ đám mây. Xem [tài liệu chính thức](https://aiarb.agentscope.io/docs/models) để biết chi tiết.
+AIArb có thể chạy LLM hoàn toàn trên máy của bạn — không cần API key hoặc dịch vụ đám mây. Xem [tài liệu chính thức](https://qwenpaw.agentscope.io/docs/models) để biết chi tiết.
 
 AIArb cũng cung cấp dòng **AIArb-Flash** — mô hình 2B / 4B / 9B huấn luyện chuyên biệt cho kịch bản tác nhân, với lượng tử hóa Q4 và Q8. Có sẵn trên [ModelScope](https://www.modelscope.cn/organization/AgentScope?tab=model) và [Hugging Face](https://huggingface.co/agentscope-ai/models).
 
@@ -392,7 +392,7 @@ AIArb bao gồm bốn lớp bảo mật cốt lõi:
 - **Tool Guard** — Công cụ quy tắc YAML với `ShellEvasionGuardian` kiểm tra mọi lệnh gọi công cụ trước khi thực thi, phát hiện command injection, path traversal, reverse shell và tấn công che giấu. Mức phê duyệt cấu hình được: STRICT / SMART / AUTO / OFF.
 - **File Guard** — Độc lập với Tool Guard; chặn tác nhân truy cập tệp và thư mục nhạy cảm (mặc định bảo vệ `~/.aiarb.secret/`, `~/.ssh`, v.v.).
 - **Skill Scanner** — Quét trước khi kích hoạt với chế độ block / warn / off và hỗ trợ danh sách trắng. Phát hiện prompt injection, khóa nhúng cứng, rò rỉ dữ liệu, v.v.
-Xem [Bảo mật](https://aiarb.agentscope.io/docs/security) để biết chi tiết.
+Xem [Bảo mật](https://qwenpaw.agentscope.io/docs/security) để biết chi tiết.
 
 ---
 
@@ -400,41 +400,41 @@ Xem [Bảo mật](https://aiarb.agentscope.io/docs/security) để biết chi ti
 
 | Chủ đề                                                                 | Mô tả                                               |
 | --------------------------------------------------------------------- | --------------------------------------------------- |
-| [Giới thiệu](https://aiarb.agentscope.io/docs/intro)                | AIArb là gì và cách sử dụng                         |
-| [Bắt đầu nhanh](https://aiarb.agentscope.io/docs/quickstart)        | Cài đặt và chạy (cục bộ hoặc ModelScope Studio)      |
-| [Console](https://aiarb.agentscope.io/docs/console)                 | Giao diện Web: chat và cấu hình tác nhân              |
-| [Terminal UI (TUI)](https://aiarb.agentscope.io/docs/tui)             | Chat terminal toàn màn hình, cùng tác nhân với Console |
-| [Ứng dụng Desktop](https://aiarb.agentscope.io/docs/desktop)               | Cài đặt và sử dụng ứng dụng desktop       |
-| [Mô hình](https://aiarb.agentscope.io/docs/models)                  | Cấu hình nhà cung cấp đám mây, cục bộ và tùy chỉnh   |
-| [Kênh](https://aiarb.agentscope.io/docs/channels)                   | DingTalk, Lark, QQ, Discord, iMessage, và hơn nữa  |
-| [Skills](https://aiarb.agentscope.io/docs/skills)                  | Mở rộng và tùy chỉnh khả năng                         |
-| [Plugins](https://aiarb.agentscope.io/docs/plugins)                    | Hệ thống plugin và Chợ Plugin                  |
-| [MCP](https://aiarb.agentscope.io/docs/mcp)                         | Quản lý máy khách MCP                                 |
-| [Persona](https://aiarb.agentscope.io/docs/persona)                   | Tùy chỉnh tính cách tác nhân (SOUL / PROFILE)  |
-| [Bộ nhớ](https://aiarb.agentscope.io/docs/memory)                   | Cơ sở tri thức cá nhân tự tiến hóa dựa trên bộ nhớ Markdown cục bộ, có thể chỉnh sửa, tìm kiếm và liên kết với nhau, được vận hành bởi [ReMe](https://github.com/agentscope-ai/ReMe) |
+| [Giới thiệu](https://qwenpaw.agentscope.io/docs/intro)                | AIArb là gì và cách sử dụng                         |
+| [Bắt đầu nhanh](https://qwenpaw.agentscope.io/docs/quickstart)        | Cài đặt và chạy (cục bộ hoặc ModelScope Studio)      |
+| [Console](https://qwenpaw.agentscope.io/docs/console)                 | Giao diện Web: chat và cấu hình tác nhân              |
+| [Terminal UI (TUI)](https://qwenpaw.agentscope.io/docs/tui)             | Chat terminal toàn màn hình, cùng tác nhân với Console |
+| [Ứng dụng Desktop](https://qwenpaw.agentscope.io/docs/desktop)               | Cài đặt và sử dụng ứng dụng desktop       |
+| [Mô hình](https://qwenpaw.agentscope.io/docs/models)                  | Cấu hình nhà cung cấp đám mây, cục bộ và tùy chỉnh   |
+| [Kênh](https://qwenpaw.agentscope.io/docs/channels)                   | DingTalk, Lark, QQ, Discord, iMessage, và hơn nữa  |
+| [Skills](https://qwenpaw.agentscope.io/docs/skills)                  | Mở rộng và tùy chỉnh khả năng                         |
+| [Plugins](https://qwenpaw.agentscope.io/docs/plugins)                    | Hệ thống plugin và Chợ Plugin                  |
+| [MCP](https://qwenpaw.agentscope.io/docs/mcp)                         | Quản lý máy khách MCP                                 |
+| [Persona](https://qwenpaw.agentscope.io/docs/persona)                   | Tùy chỉnh tính cách tác nhân (SOUL / PROFILE)  |
+| [Bộ nhớ](https://qwenpaw.agentscope.io/docs/memory)                   | Cơ sở tri thức cá nhân tự tiến hóa dựa trên bộ nhớ Markdown cục bộ, có thể chỉnh sửa, tìm kiếm và liên kết với nhau, được vận hành bởi [ReMe](https://github.com/agentscope-ai/ReMe) |
 | [Tài liệu ReMe](https://docs.agentscope.io/reme/latest/en/overview)   | Tổng quan và tài liệu chính thức của ReMe         |
-| [Bộ nhớ tiến hóa & Chủ động](https://aiarb.agentscope.io/docs/memory-evolving-and-proactive) | Tác nhân tiến hóa bộ nhớ và tương tác chủ động       |
-| [Ngữ cảnh](https://aiarb.agentscope.io/docs/context)               | Quản lý ngữ cảnh dựa trên cuộn (scroll)                  |
-| [Lệnh ma thuật](https://aiarb.agentscope.io/docs/commands)         | Điều khiển trạng thái hội thoại mà không cần đợi AI   |
-| [Nhịp tim](https://aiarb.agentscope.io/docs/heartbeat)             | Kiểm tra định kỳ và tóm tắt                           |
-| [Cron / Tác Vụ Định Kỳ](https://aiarb.agentscope.io/docs/cron)       | Tác vụ định kỳ và tự động hóa                   |
-| [Đa tác nhân](https://aiarb.agentscope.io/docs/multi-agent)        | Tạo nhiều tác nhân và kích hoạt hợp tác                    |
-| [Bảo mật](https://aiarb.agentscope.io/docs/security)                  | Sandbox, tool guard, file guard, skill scanner, access policy |
-| [Sao lưu & Khôi phục](https://aiarb.agentscope.io/docs/backup)           | Sao lưu và khôi phục dữ liệu                         |
-| [Cấu hình & thư mục làm việc](https://aiarb.agentscope.io/docs/config) | Thư mục làm việc và tệp cấu hình                      |
-| [REST API](https://aiarb.agentscope.io/docs/api-tutorial)             | HTTP API cho tích hợp và tự động hóa          |
-| [Tích hợp ACP](https://aiarb.agentscope.io/docs/acp-integration)   | Tích hợp Agent Communication Protocol         |
-| [CLI](https://aiarb.agentscope.io/docs/cli)                        | Init, cron jobs, Skills, dọn dẹp                    |
-| [Thực hành Nhóm Tác Nhân](https://aiarb.agentscope.io/docs/practice-agent-team) | Hướng dẫn triển khai nhóm đa tác nhân           |
-| [FAQ](https://aiarb.agentscope.io/docs/faq)                        | Câu hỏi thường gặp và khắc phục sự cố                 |
+| [Bộ nhớ tiến hóa & Chủ động](https://qwenpaw.agentscope.io/docs/memory-evolving-and-proactive) | Tác nhân tiến hóa bộ nhớ và tương tác chủ động       |
+| [Ngữ cảnh](https://qwenpaw.agentscope.io/docs/context)               | Quản lý ngữ cảnh dựa trên cuộn (scroll)                  |
+| [Lệnh ma thuật](https://qwenpaw.agentscope.io/docs/commands)         | Điều khiển trạng thái hội thoại mà không cần đợi AI   |
+| [Nhịp tim](https://qwenpaw.agentscope.io/docs/heartbeat)             | Kiểm tra định kỳ và tóm tắt                           |
+| [Cron / Tác Vụ Định Kỳ](https://qwenpaw.agentscope.io/docs/cron)       | Tác vụ định kỳ và tự động hóa                   |
+| [Đa tác nhân](https://qwenpaw.agentscope.io/docs/multi-agent)        | Tạo nhiều tác nhân và kích hoạt hợp tác                    |
+| [Bảo mật](https://qwenpaw.agentscope.io/docs/security)                  | Sandbox, tool guard, file guard, skill scanner, access policy |
+| [Sao lưu & Khôi phục](https://qwenpaw.agentscope.io/docs/backup)           | Sao lưu và khôi phục dữ liệu                         |
+| [Cấu hình & thư mục làm việc](https://qwenpaw.agentscope.io/docs/config) | Thư mục làm việc và tệp cấu hình                      |
+| [REST API](https://qwenpaw.agentscope.io/docs/api-tutorial)             | HTTP API cho tích hợp và tự động hóa          |
+| [Tích hợp ACP](https://qwenpaw.agentscope.io/docs/acp-integration)   | Tích hợp Agent Communication Protocol         |
+| [CLI](https://qwenpaw.agentscope.io/docs/cli)                        | Init, cron jobs, Skills, dọn dẹp                    |
+| [Thực hành Nhóm Tác Nhân](https://qwenpaw.agentscope.io/docs/practice-agent-team) | Hướng dẫn triển khai nhóm đa tác nhân           |
+| [FAQ](https://qwenpaw.agentscope.io/docs/faq)                        | Câu hỏi thường gặp và khắc phục sự cố                 |
 
-Tài liệu đầy đủ: [aiarb.agentscope.io/docs](https://aiarb.agentscope.io/docs)
+Tài liệu đầy đủ: [qwenpaw.agentscope.io/docs](https://qwenpaw.agentscope.io/docs)
 
 ---
 
 ## Câu Hỏi Thường Gặp
 
-Đối với các câu hỏi thường gặp, mẹo khắc phục sự cố và các vấn đề đã biết, vui lòng truy cập **[trang FAQ](https://aiarb.agentscope.io/docs/faq)**.
+Đối với các câu hỏi thường gặp, mẹo khắc phục sự cố và các vấn đề đã biết, vui lòng truy cập **[trang FAQ](https://qwenpaw.agentscope.io/docs/faq)**.
 
 ---
 

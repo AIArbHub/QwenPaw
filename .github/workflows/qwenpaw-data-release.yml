@@ -108,8 +108,8 @@ jobs:
             exit 0
           fi
           if stat_out=$(ossutil stat \
-            "oss://aiarb-download/metadata/plugins/index.json" 2>&1); then
-            ossutil cp "oss://aiarb-download/metadata/plugins/index.json" \
+            "oss://qwenpaw-download/metadata/plugins/index.json" 2>&1); then
+            ossutil cp "oss://qwenpaw-download/metadata/plugins/index.json" \
               plugins-index.json
             published=$(jq -r --arg id "$file_id" '.files | has($id)' \
               plugins-index.json) || {
@@ -249,7 +249,7 @@ jobs:
             # risking an overwrite.
             if [[ "$FORCE" != "true" ]]; then
               if stat_out=$(ossutil stat \
-                "oss://aiarb-download/files/plugins/${rel}" 2>&1); then
+                "oss://qwenpaw-download/files/plugins/${rel}" 2>&1); then
                 echo "Skipping ${rel}: already published and immutable."
                 continue
               elif ! grep -qiE 'NoSuchKey|StatusCode=404' <<< "$stat_out"; then
@@ -260,7 +260,7 @@ jobs:
             fi
             echo "Uploading $f -> files/plugins/${rel}"
             ossutil cp "$f" \
-              "oss://aiarb-download/files/plugins/${rel}" \
+              "oss://qwenpaw-download/files/plugins/${rel}" \
               --acl public-read \
               --force \
               --meta "Cache-Control:public, max-age=31536000, immutable"
@@ -272,8 +272,8 @@ jobs:
           # yet" and shrink the authoritative file list to this plugin.
           # Only a confirmed NoSuchKey/404 may bootstrap an empty index.
           if stat_out=$(ossutil stat \
-            "oss://aiarb-download/metadata/plugins/index.json" 2>&1); then
-            ossutil cp "oss://aiarb-download/metadata/plugins/index.json" \
+            "oss://qwenpaw-download/metadata/plugins/index.json" 2>&1); then
+            ossutil cp "oss://qwenpaw-download/metadata/plugins/index.json" \
               existing-index.json
             python3 -c 'import json; json.load(open("existing-index.json"))' || {
               echo "ERROR: existing plugins index is not valid JSON." >&2
@@ -296,7 +296,7 @@ jobs:
       - name: Upload plugins index (short-cache)
         run: |
           ossutil cp dist/plugins/index.json \
-            "oss://aiarb-download/metadata/plugins/index.json" \
+            "oss://qwenpaw-download/metadata/plugins/index.json" \
             --acl public-read \
             --force \
             --meta "Cache-Control:public, max-age=60, must-revalidate"
@@ -306,8 +306,8 @@ jobs:
           # Same fail-closed rule for the top-level product index: only a
           # confirmed NoSuchKey/404 may bootstrap a fresh skeleton.
           if stat_out=$(ossutil stat \
-            "oss://aiarb-download/metadata/index.json" 2>&1); then
-            ossutil cp "oss://aiarb-download/metadata/index.json" \
+            "oss://qwenpaw-download/metadata/index.json" 2>&1); then
+            ossutil cp "oss://qwenpaw-download/metadata/index.json" \
               main-index.json
             python3 -c 'import json; json.load(open("main-index.json"))' || {
               echo "ERROR: existing main index is not valid JSON." >&2
@@ -333,7 +333,7 @@ jobs:
             --out   main-index.json
 
           ossutil cp main-index.json \
-            "oss://aiarb-download/metadata/index.json" \
+            "oss://qwenpaw-download/metadata/index.json" \
             --acl public-read \
             --force \
             --meta "Cache-Control:public, max-age=60, must-revalidate"

@@ -77,9 +77,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://aiarb.agentscope.io/"
+Homepage = "https://qwenpaw.agentscope.io/"
 Repository = "https://github.com/agentscope-ai/AIArb"
-Documentation = "https://aiarb.agentscope.io/docs/"
+Documentation = "https://qwenpaw.agentscope.io/docs/"
 Issues = "https://github.com/agentscope-ai/AIArb/issues"
 
 [tool.setuptools.dynamic]

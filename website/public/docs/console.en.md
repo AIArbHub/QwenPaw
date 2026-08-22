@@ -169,7 +169,7 @@ Create and manage scheduled jobs that AIArb runs automatically by time.
 
 **Create a new job:**
 
-> If the cron job fails to be created, please refer to the **Troubleshooting Scheduled (Cron) Tasks** section in the [FAQ](https://aiarb.agentscope.io/docs/faq) to identify the cause.
+> If the cron job fails to be created, please refer to the **Troubleshooting Scheduled (Cron) Tasks** section in the [FAQ](https://qwenpaw.agentscope.io/docs/faq) to identify the cause.
 
 The **simplest way to create a cron job is to chat directly with AIArb** and let it handle the creation for you. For example, if you want to receive a reminder to drink water on DingTalk, simply message AIArb on DingTalk: "Help me create a cron job to remind me to drink water every 5 minutes." Once created, you can view the new task on the Cron Jobs page in the console.
 

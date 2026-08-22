@@ -39,7 +39,7 @@ recurring runs with run-count limits**.
 
 **Create a task**
 
-> If creation fails, check [FAQ](https://aiarb.agentscope.io/docs/faq) under
+> If creation fails, check [FAQ](https://qwenpaw.agentscope.io/docs/faq) under
 > "Scheduled task troubleshooting".
 
 1. Click **Create Task**.

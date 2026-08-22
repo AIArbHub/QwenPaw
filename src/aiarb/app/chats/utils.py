@@ -187,7 +187,7 @@ def build_env_context(
         "- GitHub: https://github.com/agentscope-ai/AIArb",
     )
     parts.append(
-        "- Docs: https://aiarb.agentscope.io/",
+        "- Docs: https://qwenpaw.agentscope.io/",
     )
     parts.append(
         f"- OS: {platform.system()} {platform.release()} "
