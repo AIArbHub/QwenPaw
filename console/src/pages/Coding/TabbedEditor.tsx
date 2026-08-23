@@ -77,6 +77,7 @@ interface TabbedEditorProps {
   onFileSaved?: (path: string) => void;
   onLoadFile?: (path: string) => Promise<string>;
   onSaveFile?: (path: string, content: string) => Promise<void>;
+  onSaveBinary?: (path: string, data: ArrayBuffer) => Promise<void>;
   onDownloadFile?: (path: string) => Promise<void>;
   chatId?: string;
   projectDirOverride?: string;
@@ -190,6 +191,7 @@ export default function TabbedEditor({
   onFileSaved,
   onLoadFile,
   onSaveFile,
+  onSaveBinary,
   onDownloadFile,
   chatId,
   projectDirOverride,
@@ -1370,6 +1372,12 @@ export default function TabbedEditor({
               root={activeTab.workspaceRoot}
               projectDirOverride={projectDirOverride}
               workspaceBacked={activeTab.source === "workspace"}
+              onSaveBinary={onSaveBinary}
+              onDownload={
+                onDownloadFile && activeTabPath
+                  ? () => onDownloadFile(activeTabPath)
+                  : undefined
+              }
             />
           ) : (
             <pre className={styles.textPreview}>{activeRenderedContent}</pre>

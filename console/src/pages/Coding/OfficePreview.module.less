@@ -1,0 +1,327 @@
+// ---------------------------------------------------------------------------
+// OfficePreview styles
+// ---------------------------------------------------------------------------
+
+// ---- Shared ----------------------------------------------------------------
+
+.saveBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+  border-radius: 6px;
+  padding: 4px 10px;
+  color: var(--text-secondary, rgba(0, 0, 0, 0.65));
+  background: var(--body-background, #fff);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) {
+    color: var(--files-accent, #0065fd);
+    border-color: var(--files-accent, #0065fd);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+// ---- XLSX ------------------------------------------------------------------
+
+.xlsxWrap {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.xlsxToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  background: var(--header-background, #fafafa);
+  flex-shrink: 0;
+}
+
+.sheetTabs {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+
+  button {
+    border: none;
+    background: transparent;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--text-secondary, rgba(0, 0, 0, 0.55));
+    cursor: pointer;
+    border-radius: 4px 4px 0 0;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+
+    &:hover {
+      background: var(--item-hover-bg, rgba(0, 0, 0, 0.04));
+    }
+  }
+}
+
+.sheetTabActive {
+  font-weight: 600 !important;
+  color: var(--files-accent, #0065fd) !important;
+  border-bottom-color: var(--files-accent, #0065fd) !important;
+}
+
+.rowNumber {
+  color: var(--text-secondary, rgba(0, 0, 0, 0.35));
+  font-size: 11px;
+  text-align: right !important;
+  user-select: none;
+}
+
+.cellInput {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  padding: 3px 5px;
+  outline: none;
+
+  &:focus {
+    background: var(--files-accent-soft, rgba(0, 101, 253, 0.08));
+    box-shadow: inset 0 0 0 1px var(--files-accent, #0065fd);
+    border-radius: 2px;
+  }
+}
+
+// ---- DOCX ------------------------------------------------------------------
+
+.docxWrap {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.docxToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  background: var(--header-background, #fafafa);
+  flex-shrink: 0;
+}
+
+.docxContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 32px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text-primary, rgba(0, 0, 0, 0.88));
+  outline: none;
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin: 1.2em 0 0.5em;
+  }
+  h1 { font-size: 1.75em; }
+  h2 { font-size: 1.4em; }
+  h3 { font-size: 1.15em; }
+
+  p { margin: 0.6em 0; }
+
+  ul, ol {
+    padding-left: 1.5em;
+    margin: 0.5em 0;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.75em 0;
+
+    th, td {
+      border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+      padding: 6px 12px;
+    }
+
+    th {
+      background: var(--table-header-bg, rgba(0, 0, 0, 0.03));
+      font-weight: 600;
+    }
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  &:focus {
+    box-shadow: inset 0 0 0 2px var(--files-accent-soft, rgba(0, 101, 253, 0.15));
+  }
+}
+
+// ---- PPTX ------------------------------------------------------------------
+
+.pptxWrap {
+  height: 100%;
+  overflow-y: auto;
+  padding: 24px 32px;
+}
+
+.pptxNote {
+  font-size: 12px;
+  color: var(--text-secondary, rgba(0, 0, 0, 0.45));
+  background: var(--warning-bg, rgba(250, 173, 20, 0.08));
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.slide {
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  border-radius: 8px;
+  background: var(--body-background, #fff);
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  ul {
+    padding-left: 1.5em;
+    margin: 4px 0;
+
+    li {
+      font-size: 13px;
+      color: var(--text-secondary, rgba(0, 0, 0, 0.65));
+      margin: 2px 0;
+    }
+  }
+}
+
+.slideNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--files-accent, #0065fd);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+// ---- Legacy ----------------------------------------------------------------
+
+.legacyWrap {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+  text-align: center;
+
+  p {
+    font-size: 13px;
+    color: var(--text-secondary, rgba(0, 0, 0, 0.52));
+    max-width: 360px;
+    margin: 0;
+  }
+}
+
+.legacyFileName {
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 12px !important;
+  color: var(--text-primary, rgba(0, 0, 0, 0.65)) !important;
+}
+
+.downloadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+  border-radius: 6px;
+  padding: 8px 16px;
+  color: var(--text-secondary, rgba(0, 0, 0, 0.65));
+  background: var(--body-background, #fff);
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 8px;
+
+  &:hover {
+    color: var(--files-accent, #0065fd);
+    border-color: var(--files-accent, #0065fd);
+  }
+}
+
+// ---- Dark mode -------------------------------------------------------------
+:global(.dark-mode) {
+  .xlsxToolbar,
+  .docxToolbar {
+    background: #1a1d1b;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .sheetTabs button {
+    color: rgba(255, 255, 255, 0.55);
+    &:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+  }
+
+  .rowNumber {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .cellInput:focus {
+    background: rgba(0, 101, 253, 0.12);
+  }
+
+  .docxContent {
+    color: rgba(255, 255, 255, 0.85);
+    table th, td {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    table th {
+      background: rgba(255, 255, 255, 0.06);
+    }
+  }
+
+  .slide {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: #1a1d1b;
+  }
+
+  .pptxNote {
+    color: rgba(255, 255, 255, 0.55);
+    background: rgba(250, 173, 20, 0.15);
+  }
+
+  .saveBtn,
+  .downloadBtn {
+    color: rgba(255, 255, 255, 0.76);
+    background: #24211f;
+    border-color: rgba(255, 255, 255, 0.16);
+
+    &:hover:not(:disabled) {
+      color: #4da3ff;
+      border-color: #4da3ff;
+    }
+  }
+}

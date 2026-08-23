@@ -57,7 +57,7 @@ class Runtime:
         hooks = self.workspace.plugins.hook_registry
 
         envelope = Envelope(session_id=ctx.session_id)
-        ctx._envelope = envelope  # pylint: disable=protected-access
+        setattr(ctx, "_envelope", envelope)  # pylint: disable=protected-access
         skip_agent = False
 
         try:
