@@ -8,6 +8,7 @@ import logging
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from .base import CloudBackupEntry, ConnectionResult, get_cloud_provider
 from .config import CloudBackupConfig, load_cloud_config
@@ -15,6 +16,9 @@ from .config import CloudBackupConfig, load_cloud_config
 # and populate _PROVIDER_REGISTRY at import time.
 from . import s3_provider as _s3_provider  # noqa: F401
 from . import webdav_provider as _webdav_provider  # noqa: F401
+
+if TYPE_CHECKING:
+    from ..backup.models import BackupTrustMode
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +31,7 @@ def _get_config_path() -> Path:
         return CLOUD_CONFIG_PATH
     from ..constant import WORKING_DIR
     CLOUD_CONFIG_PATH = WORKING_DIR / "cloud_config.json"
+    assert CLOUD_CONFIG_PATH is not None
     return CLOUD_CONFIG_PATH
 
 
@@ -186,7 +191,7 @@ async def download_from_cloud(cloud_key: str) -> Path:
 
 async def restore_from_cloud(
     cloud_key: str,
-    trust_mode: str | None = None,
+    trust_mode: BackupTrustMode | None = None,
 ):
     """Download from cloud and import into local backups."""
     from ..backup._ops.storage import import_backup
