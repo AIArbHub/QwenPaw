@@ -44,6 +44,7 @@ function inferPreviewKind(
   if (/\.(?:png|jpe?g|gif|webp|svg|ico|bmp)$/i.test(path)) return "image";
   if (/\.pdf$/i.test(path)) return "pdf";
   if (/\.csv$/i.test(path)) return "csv";
+  if (/\.(?:docx?|pptx?|xlsx?)$/i.test(path)) return "binary";
   if (
     contentType.startsWith("text/") ||
     /\.(?:md|mdx|txt|log|json|ya?ml|toml|xml|html?|css|less|scss|js|jsx|ts|tsx|py|java|go|rs|sh)$/i.test(
@@ -552,6 +553,24 @@ export default function FilesWorkspace({
               } else if (source === "memory") {
                 await workspaceApi.saveDailyMemory(sourcePath, content);
               }
+            }}
+            onSaveBinary={async (path, data) => {
+              const tab = tabsRef.current.find((item) => item.path === path);
+              const displayPath = tab?.displayPath ?? path;
+              const fileName = displayPath.split("/").pop() ?? displayPath;
+              const dir = displayPath.includes("/")
+                ? displayPath.slice(0, displayPath.lastIndexOf("/"))
+                : "";
+              const blob = new Blob([data]);
+              const file = new File([blob], fileName);
+              await workspaceApi.uploadFiles(
+                [file],
+                dir,
+                "overwrite",
+                chatId,
+                tab?.workspaceRoot ?? "project",
+                projectDirOverride,
+              );
             }}
           />
         )}

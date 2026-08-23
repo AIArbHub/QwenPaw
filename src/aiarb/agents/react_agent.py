@@ -463,7 +463,7 @@ class AIArbAgent(CodingModeMixin, Agent):
         consumption (e.g. ``/skill_name`` slash commands in the runner).
         """
         if not hasattr(toolkit, "_qp_skills"):
-            toolkit._qp_skills = {}  # pylint: disable=protected-access
+            setattr(toolkit, "_qp_skills", {})  # pylint: disable=protected-access
         workspace_dir = self._workspace_dir or WORKING_DIR
         working_skills_dir = get_workspace_skills_dir(Path(workspace_dir))
 
@@ -472,7 +472,7 @@ class AIArbAgent(CodingModeMixin, Agent):
             if skill_dir.exists():
                 try:
                     # pylint: disable=protected-access
-                    toolkit._qp_skills[skill_name] = {
+                    toolkit._qp_skills[skill_name] = {  # pyright: ignore[reportAttributeAccessIssue]
                         "dir": str(skill_dir),
                     }
                     logger.debug("Registered skill: %s", skill_name)
@@ -799,7 +799,7 @@ class AIArbAgent(CodingModeMixin, Agent):
             context_manager,
             "model_input_tool_result_ids",
         ):
-            pending_seen_ids = context_manager.model_input_tool_result_ids(
+            pending_seen_ids = context_manager.model_input_tool_result_ids(  # pyright: ignore[reportAttributeAccessIssue]
                 self,
             )
 
@@ -814,12 +814,12 @@ class AIArbAgent(CodingModeMixin, Agent):
                     "acknowledge_model_input_tool_results",
                 )
             ):
-                context_manager.acknowledge_model_input_tool_results(
+                context_manager.acknowledge_model_input_tool_results(  # pyright: ignore[reportAttributeAccessIssue]
                     pending_seen_ids,
                 )
 
         try:
-            async for evt in super()._reasoning(tool_choice=tool_choice):
+            async for evt in super()._reasoning(tool_choice=tool_choice):  # pyright: ignore[reportArgumentType]
                 acknowledge_seen_results(evt)
                 if isinstance(evt, Msg):
                     final_msg = evt
@@ -869,7 +869,7 @@ class AIArbAgent(CodingModeMixin, Agent):
 
             try:
                 async for evt in super()._reasoning(
-                    tool_choice=tool_choice,
+                    tool_choice=tool_choice,  # pyright: ignore[reportArgumentType]
                 ):
                     acknowledge_seen_results(evt)
                     if isinstance(evt, Msg):
@@ -1240,7 +1240,7 @@ class AIArbAgent(CodingModeMixin, Agent):
                                     filtered or MEDIA_UNSUPPORTED_PLACEHOLDER
                                 )
                             else:
-                                block.output = (
+                                block.output = (  # pyright: ignore[reportAttributeAccessIssue]
                                     filtered or MEDIA_UNSUPPORTED_PLACEHOLDER
                                 )
 
