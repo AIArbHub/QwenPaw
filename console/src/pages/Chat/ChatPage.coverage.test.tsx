@@ -322,7 +322,7 @@ vi.mock("@/stores/messageQueueStore", () => ({
 }));
 
 vi.mock("@/utils/agentBackend", () => ({
-  requiresQwenPawModel: vi.fn(() => true),
+  requiresAIArbModel: vi.fn(() => true),
   supportsAgentAttachments: vi.fn(() => true),
 }));
 
@@ -1556,7 +1556,7 @@ describe("ChatPage coverage", () => {
     // Dispatch the file preview event
     act(() => {
       window.dispatchEvent(
-        new CustomEvent("qwenpaw:open-file-preview", {
+        new CustomEvent("aiarb:open-file-preview", {
           detail: {
             target: { source: "workspace", path: "/test/file.txt" },
             trigger: null,

@@ -1000,7 +1000,6 @@ function useMessageHistoryNavigation(
 // Chat input draft persistence
 // ---------------------------------------------------------------------------
 
-const DRAFT_STORAGE_KEY_PREFIX = "aiarb_chat_input_draft";
 let draftSuppressed = false;
 
 function useChatInputDraft(isChatActive: () => boolean, agentId?: string) {
@@ -3713,11 +3712,9 @@ export default function ChatPage() {
                   sessionId;
 
                 if (resolvedChatId) {
-                  console.log("[Chat] Calling stopChat with:", resolvedChatId);
                   chatApi
                     .stopChat(resolvedChatId)
                     .then(() => {
-                      console.log("[Chat] stopChat succeeded");
                       setApprovals((prev) =>
                         prev.filter(
                           (item) =>

@@ -693,13 +693,49 @@ class HistoryStore:
             if dry_run:
                 return len(doomed)
             if self._fts:
-                for row in doomed:
-                    self._conn.execute(
-                        "INSERT INTO conversation_history_fts"
-                        "(conversation_history_fts, rowid, content) "
-                        "VALUES('delete', ?, ?)",
-                        (row["seq"], row["content"] or ""),
+                try:
+                    for row in doomed:
+                        self._conn.execute(
+                            "INSERT INTO conversation_history_fts"
+                            "(conversation_history_fts, rowid, content) "
+                            "VALUES('delete', ?, ?)",
+                            (row["seq"], row["content"] or ""),
+                        )
+                except sqlite3.DatabaseError as exc:
+                    # FTS shadow tables can fall out of sync with the main
+                    # table (e.g. a prior process crash left a stale WAL
+                    # trio, or an external tool modified the DB file).
+                    # ``PRAGMA quick_check`` only inspects the main schema,
+                    # so this surfaces here as "database disk image is
+                    # malformed" during the FTS delete. Rebuild the FTS
+                    # index from scratch and retry once; if the rebuild
+                    # itself fails, degrade to a plain DELETE (the row is
+                    # still removed from ``conversation_history``; keyword
+                    # search accuracy is temporarily reduced until the
+                    # next successful rebuild).
+                    logger.warning(
+                        "FTS delete failed during purge (%s); "
+                        "attempting rebuild-and-retry",
+                        exc,
                     )
+                    try:
+                        self._conn.execute(
+                            "INSERT INTO conversation_history_fts"
+                            "(conversation_history_fts) VALUES('rebuild')",
+                        )
+                        for row in doomed:
+                            self._conn.execute(
+                                "INSERT INTO conversation_history_fts"
+                                "(conversation_history_fts, rowid, content) "
+                                "VALUES('delete', ?, ?)",
+                                (row["seq"], row["content"] or ""),
+                            )
+                    except sqlite3.DatabaseError:
+                        logger.warning(
+                            "FTS rebuild failed; purging rows without "
+                            "FTS upkeep. Keyword search may be stale "
+                            "until the next successful FTS rebuild.",
+                        )
             self._conn.execute(
                 "DELETE FROM conversation_history WHERE " + where,
                 params,

@@ -60,7 +60,7 @@ describe("compact approval controls", () => {
     expect(trigger?.querySelectorAll("svg")).toHaveLength(1);
   });
 
-  it("uses a bottom drawer for QwenPaw approval on mobile", async () => {
+  it("uses a bottom drawer for AIArb approval on mobile", async () => {
     mockUseIsMobile.mockReturnValue(true);
     const user = userEvent.setup();
     renderWithProviders(
@@ -118,7 +118,7 @@ describe("compact approval controls", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("uses a bottom drawer for harness approval on mobile", async () => {
+  it("uses a bottom drawer for AIArb approval on mobile", async () => {
     mockUseIsMobile.mockReturnValue(true);
     const user = userEvent.setup();
     renderWithProviders(

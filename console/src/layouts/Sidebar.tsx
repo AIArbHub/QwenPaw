@@ -225,31 +225,7 @@ export default function Sidebar({
 
   useEffect(() => {
     // Desktop mode hint disabled — no longer shown to users
-    setDesktopModeHintOpen(false);
   }, [isMobile]);
-
-  const dismissDesktopHint = useCallback(() => {
-    dismissDesktopModeHint(window.localStorage);
-    setDesktopModeHintOpen(false);
-  }, []);
-
-  const desktopModeHintSteps = useMemo<TourProps["steps"]>(
-    () => [
-      {
-        title: t("sidebar.desktopModeHint.title", "Try Desktop Mode"),
-        description: t(
-          "sidebar.desktopModeHint.description",
-          "Open quick settings here, then choose Desktop Mode for a window-based workspace.",
-        ),
-        target: () => settingsButtonRef.current as HTMLButtonElement,
-        placement: "rightBottom",
-        nextButtonProps: {
-          children: t("sidebar.desktopModeHint.gotIt", "Got it"),
-        },
-      },
-    ],
-    [t],
-  );
 
   useEffect(() => {
     if (

@@ -30,7 +30,6 @@ import {
 import { filterMenuForAgentCapabilities } from "../registry/capabilities";
 import type { MenuItem } from "../../plugins/registry/types";
 import type { AgentSummary } from "../../api/types/agents";
-import sessionApi from "../../pages/Chat/sessionApi";
 import { buildChatPath } from "../../utils/sessionRoute";
 import ConsolePollService from "../../components/ConsolePollService";
 import { AgentStatusPollingController } from "../../components/AgentStatusPollingController";

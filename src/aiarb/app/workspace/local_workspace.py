@@ -36,8 +36,8 @@ class AIArbLocalWorkspace(AgentScopeLocalWorkspace):
     async def initialize(self) -> None:
         """Mark the tool adapter ready without managing workspace state.
 
-        QwenPaw owns MCP and skill persistence. AgentScope 2.0.7 otherwise
-        repartitions QwenPaw's ``skills`` directory during initialization.
+        AIArb owns MCP and skill persistence. AgentScope 2.0.7 otherwise
+        repartitions AIArb's ``skills`` directory during initialization.
         """
         self.is_alive = True
 
