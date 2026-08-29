@@ -151,14 +151,8 @@ codex = [
 qoder = [
     "qoder-agent-sdk==1.0.9",
 ]
-qwenpaw-data = [
-    "qwenpaw-data-context>=0.1,<0.2",
-    "qwenpaw-data-host-core>=0.1,<0.2",
-    "qwenpaw-data-cli>=0.1,<0.2",
-    "qwenpaw-data-skills>=0.1,<0.2",
-]
 full = [
-    "aiarb[qwenpaw-data,hub,local,whisper,codex,qoder]",
+    "aiarb[hub,local,whisper,codex,qoder]",
 ]
 sip = [
     "pyVoIP>=1.6.0",
