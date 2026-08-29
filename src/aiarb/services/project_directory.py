@@ -44,7 +44,7 @@ PathLike = Union[str, Path]
 
 # Only for paths with no directory entry to identify — see
 # :func:`dir_key`, which prefers filesystem identity, and
-# :mod:`qwenpaw.services.fs_name_rules` for why the platform is a fallback
+# :mod:`aiarb.services.fs_name_rules` for why the platform is a fallback
 # and not the answer.
 _FALLBACK_RULES = platform_name_rules()
 

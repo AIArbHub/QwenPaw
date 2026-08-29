@@ -127,16 +127,9 @@ export function ApprovalCard({
   const handleApprove = async (scope?: "exact" | "similar") => {
     const loadingKey =
       scope === "similar" ? "approve-pattern" : "approve-exact";
-    console.log(
-      "[ApprovalCard] Approve button clicked:",
-      requestId,
-      "scope:",
-      scope,
-    );
     setLoading(loadingKey);
     try {
       await onApprove(requestId, scope);
-      console.log("[ApprovalCard] onApprove completed");
     } catch (err) {
       console.error("[ApprovalCard] onApprove failed:", err);
     } finally {

@@ -152,7 +152,7 @@ def _is_outside_workspace(
 
     Only the workspace root is resolved here. The project roots come from
     the per-turn ContextVar, which ``ContextVarsSetupHook`` filled from
-    :class:`~qwenpaw.services.project_directory.ResolvedProjectDirs` —
+    :class:`~aiarb.services.project_directory.ResolvedProjectDirs` —
     they are already canonical, so resolving each one again would add a
     filesystem walk per bound directory to every path check this guard
     makes.

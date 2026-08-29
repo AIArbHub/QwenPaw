@@ -254,7 +254,6 @@ describe("ChatPage", () => {
   it("renders child components ModelSelector / ChatActionGroup / ChatHeaderTitle", async () => {
     renderWithProviders(<ChatPage />, { initialEntries: ["/chat"] });
     await screen.findByTestId("chat-ui");
-    console.log("DOM:", document.body.innerHTML.substring(0, 500));
     expect(screen.getByTestId("model-selector")).toBeInTheDocument();
     expect(screen.getByTestId("action-group")).toBeInTheDocument();
     expect(screen.getByTestId("header-title")).toBeInTheDocument();

@@ -38,12 +38,6 @@ export async function registerHostModulesDynamic(): Promise<void> {
     },
   );
 
-  console.log(
-    `[patchable] Discovered ${
-      Object.keys(modules).length
-    } module(s) for registration`,
-  );
-
   // Register modules in parallel so dev-mode background warm-up doesn't serialize
   // 233 import requests through Vite's transform pipeline.
   const results = await Promise.allSettled(
@@ -60,16 +54,12 @@ export async function registerHostModulesDynamic(): Promise<void> {
     }),
   );
 
-  const registeredCount = results.filter(
-    (r) => r.status === "fulfilled" && r.value,
-  ).length;
   for (const r of results) {
     if (r.status === "rejected") {
       console.warn("[patchable] Failed to register module:", r.reason);
     }
   }
 
-  console.log(`[patchable] Registered ${registeredCount} module(s)`);
 }
 
 /**
@@ -114,5 +104,4 @@ export function registerHostModulesEager(): void {
     }
   }
 
-  console.log(`[patchable] Registered ${registeredCount} module(s)`);
 }

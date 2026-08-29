@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+﻿import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -64,7 +64,7 @@ describe("compact approval controls", () => {
     expect(localStorage.getItem("approval_level-created-chat")).toBe("SMART");
   });
 
-  it("renders only the QwenPaw approval icon", () => {
+  it("renders only the AIARB approval icon", () => {
     const { container } = renderWithProviders(
       <ApprovalLevelToggle
         compact
@@ -104,7 +104,7 @@ describe("compact approval controls", () => {
     expect(trigger?.querySelectorAll("svg")).toHaveLength(1);
   });
 
-  it("uses a bottom drawer for QwenPaw approval on mobile", async () => {
+  it("uses a bottom drawer for AIARB approval on mobile", async () => {
     mockUseIsMobile.mockReturnValue(true);
     const user = userEvent.setup();
     renderWithProviders(

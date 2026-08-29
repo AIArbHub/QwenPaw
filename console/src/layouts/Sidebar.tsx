@@ -1,4 +1,4 @@
-import { NotificationBell } from "@/components/interaction/NotificationBell";
+﻿import { NotificationBell } from "@/components/interaction/NotificationBell";
 import {
   Layout,
   Button,
@@ -91,8 +91,8 @@ function isMobileSidebarViewport() {
     window.matchMedia(MOBILE_SIDEBAR_QUERY).matches
   );
 }
-const TOOLS_MODE_KEY = "qwenpaw_sidebar_tools_mode";
-const TOOLS_LAST_OPEN_MODE_KEY = "qwenpaw_sidebar_tools_last_open_mode";
+const TOOLS_MODE_KEY = "AIARB_sidebar_tools_mode";
+const TOOLS_LAST_OPEN_MODE_KEY = "AIARB_sidebar_tools_last_open_mode";
 function readToolsMode(): number {
   try {
     const value = Number(localStorage.getItem(TOOLS_MODE_KEY));
@@ -143,8 +143,8 @@ export default function Sidebar({
       .getState()
       .load()
       .catch(() => {});
-    window.addEventListener("qwenpaw:auth-changed", reload);
-    return () => window.removeEventListener("qwenpaw:auth-changed", reload);
+    window.addEventListener("AIARB:auth-changed", reload);
+    return () => window.removeEventListener("AIARB:auth-changed", reload);
   }, []);
   const language = i18n.resolvedLanguage ?? i18n.language;
   const { message } = useAppMessage();
@@ -509,7 +509,7 @@ export default function Sidebar({
   const handleNewChat = useCallback(() => {
     if (sessionApi.isSessionSwitching) {
       sessionApi.finishSessionSwitch();
-      window.dispatchEvent(new CustomEvent("qwenpaw:sidebar-switch-done"));
+      window.dispatchEvent(new CustomEvent("AIARB:sidebar-switch-done"));
     }
     const onChatPage = location.pathname.startsWith("/chat");
     if (onChatPage) {
@@ -569,7 +569,7 @@ export default function Sidebar({
           if (!controller.signal.aborted) {
             sessionApi.finishSessionSwitch();
             window.dispatchEvent(
-              new CustomEvent("qwenpaw:sidebar-switch-done"),
+              new CustomEvent("AIARB:sidebar-switch-done"),
             );
           }
         });
@@ -1131,7 +1131,7 @@ export default function Sidebar({
               ) : (
                 <>
                   <span className={skin.avatar}>
-                    <img src={localAvatar ?? DEFAULT_AVATAR} alt="QwenPaw" />
+                    <img src={localAvatar ?? DEFAULT_AVATAR} alt="AIARB" />
                   </span>
                   <span className={skin.identityText}>
                     <strong>
@@ -1139,7 +1139,7 @@ export default function Sidebar({
                     </strong>
                     <small>
                       {hubUsername
-                        ? "QwenPaw Hub"
+                        ? "AIARB Hub"
                         : authEnabled
                         ? t("sidebar.consoleAccount")
                         : t("sidebar.localMode")}
