@@ -385,7 +385,7 @@ def _trusted_request_project_dir(request_context: dict) -> str | None:
 
     Recognised sources:
 
-    * ACP session metadata (``qwenpaw.project_dir``)
+    * ACP session metadata (``aiarb.project_dir``)
     * a pre-validated ``project_dir`` injected by server-side callers
 
     Per-run only: never written back to the agent's saved default.

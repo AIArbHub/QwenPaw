@@ -68,14 +68,37 @@ class MCPDriverHandler(DriverHandler):
         credentials = await self._resolve_credentials()
 
         if transport == "stdio":
+            env = resolve_binding(
+                endpoint.get("env") or {},
+                credentials,
+            )
+            # If the card declares env bindings that reference credentials
+            # (e.g. ``TAVILY_API_KEY``) but the resolved value is missing or
+            # empty, the spawned subprocess will hang or fail without a useful
+            # error — the MCP client then blocks until its connect timeout.
+            # Detect this early and skip with an actionable warning instead.
+            missing = _find_empty_credential_bindings(
+                endpoint.get("env") or {},
+                env,
+            )
+            if missing:
+                logger.warning(
+                    "MCP driver '%s' is missing required credential(s): "
+                    "%s. The driver will not start until credentials are "
+                    "configured. Please set them in the Credentials "
+                    "settings.",
+                    self._card.name,
+                    ", ".join(sorted(missing)),
+                )
+                raise DriverCardError(
+                    f"MCP driver '{self._card.name}' has empty credential(s): "
+                    f"{', '.join(sorted(missing))}",
+                )
             self._client = StdIOStatefulClient(
                 name=self._card.name,
                 command=str(endpoint.get("command") or ""),
                 args=list(endpoint.get("args") or []),
-                env=resolve_binding(
-                    endpoint.get("env") or {},
-                    credentials,
-                ),
+                env=env,
                 cwd=endpoint.get("cwd") or None,
             )
         else:
@@ -440,3 +463,30 @@ def _tool_namespace_from_display_name(
     if not cleaned.strip("_"):
         cleaned = fallback
     return _sanitize_tool_namespace(cleaned)
+
+
+def _find_empty_credential_bindings(
+    env_spec: dict[str, Any],
+    resolved_env: dict[str, str],
+) -> list[str]:
+    """Return env keys whose credential binding resolved to nothing.
+
+    A credential binding (``source: credential``) that resolves to an empty
+    string or is absent from ``resolved_env`` indicates the secret was never
+    configured.  For stdio MCP servers this typically means the spawned
+    subprocess will hang or exit immediately, so the caller should skip the
+    driver rather than wait for a connect timeout.
+    """
+    if not isinstance(env_spec, dict):
+        return []
+    missing: list[str] = []
+    for output_name, spec in env_spec.items():
+        if not isinstance(spec, dict):
+            continue
+        if str(spec.get("source") or "") != "credential":
+            continue
+        # The binding expected a credential value; if it's absent or empty
+        # in the resolved env, the secret was never configured.
+        if not resolved_env.get(output_name):
+            missing.append(str(output_name))
+    return missing

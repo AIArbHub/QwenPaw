@@ -12,7 +12,7 @@ import re
 
 from PIL import Image, UnidentifiedImageError
 
-MAX_IMAGE_PIXELS_ENV = "QWENPAW_MAX_IMAGE_PIXELS"
+MAX_IMAGE_PIXELS_ENV = "AIARB_MAX_IMAGE_PIXELS"
 
 _PROVIDER_MAX_PIXELS_PATTERNS = (
     re.compile(
@@ -180,24 +180,24 @@ def image_pixel_limit_hint(exc: Exception) -> str | None:
     if provider_limit is None:
         return (
             f"Set {MAX_IMAGE_PIXELS_ENV} to the provider's documented "
-            f"maximum pixel count and restart QwenPaw to enable "
+            f"maximum pixel count and restart AIArb to enable "
             f"request-time image resizing."
         )
 
     setting = f"{MAX_IMAGE_PIXELS_ENV}={provider_limit}"
     if configured_limit <= 0:
         return (
-            f"Set {setting} and restart QwenPaw to resize oversized images "
+            f"Set {setting} and restart AIArb to resize oversized images "
             f"before model requests."
         )
     if configured_limit > provider_limit:
         return (
             f"{MAX_IMAGE_PIXELS_ENV} is currently {configured_limit}; "
-            f"lower it to {provider_limit} and restart QwenPaw."
+            f"lower it to {provider_limit} and restart AIArb."
         )
     return (
         f"{MAX_IMAGE_PIXELS_ENV} is currently {configured_limit}; reduce it "
-        f"further and restart QwenPaw."
+        f"further and restart AIArb."
     )
 
 

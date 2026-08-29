@@ -253,7 +253,7 @@ describe("useSessionListData switchingSessionId lifecycle (#5354)", () => {
     // Simple-mode sidebar signals completion via a DOM event even when the
     // session id never changed (e.g. the switch failed).
     await act(async () => {
-      window.dispatchEvent(new Event("qwenpaw:sidebar-switch-done"));
+      window.dispatchEvent(new Event("aiarb:sidebar-switch-done"));
     });
 
     await waitFor(() =>

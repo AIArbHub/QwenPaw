@@ -28,17 +28,6 @@ export const commandsApi = {
     reason?: string,
     scope?: "exact" | "similar",
   ): Promise<ApprovalCommandResponse> => {
-    console.log(
-      `[commandsApi] Sending ${action} for request:`,
-      requestId,
-      "session:",
-      sessionId,
-      "reason:",
-      reason,
-      "scope:",
-      scope,
-    );
-
     // Use dedicated approval API endpoint (bypasses chat/session system)
     return request<ApprovalCommandResponse>(`/approval/${action}`, {
       method: "POST",

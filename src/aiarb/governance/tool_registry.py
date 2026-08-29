@@ -177,7 +177,7 @@ class ToolRegistry:
             workspace_dir: base directory for resolving *relative* paths of
                 ``file``-type tools. This must be the same base the tool
                 itself uses (the PRIMARY project directory — see
-                ``qwenpaw.config.context.get_tool_base_dir``), otherwise the
+                ``aiarb.config.context.get_tool_base_dir``), otherwise the
                 policy is evaluated against a path the tool never touches.
         """
         param = self.get_target_param(tool_name)

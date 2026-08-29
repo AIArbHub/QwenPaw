@@ -839,7 +839,7 @@ async def test_resume_local_model_restores_server_and_runtime_state(
     isolated_secret_dir,
 ) -> None:
     manager = ProviderManager()
-    model_id = "AgentScope/AIArb-Flash-2B-Q4_K_M"
+    model_id = "AgentScope/QwenPaw-Flash-2B-Q4_K_M"
     manager.update_provider(
         "aiarb-local",
         {

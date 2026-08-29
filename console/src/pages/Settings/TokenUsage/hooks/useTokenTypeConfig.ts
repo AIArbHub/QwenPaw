@@ -87,23 +87,12 @@ export function useTokenTypeConfig({
         legend: {
           itemName: {
             style: {
-              fill: isDarkMode ? "rgba(255, 255, 255, 0.85)" : "#333",
+              fill: isDarkMode ? "rgba(255, 255, 255, 0.85)" : "#22252a",
               fontSize: 12,
             },
           },
         },
-      },
-      legend: {
-        position: "top" as const,
-        itemMarker: "circle",
-        itemName: {
-          style: {
-            fill: isDarkMode ? "rgba(255, 255, 255, 0.85)" : "#22252a",
-            fontSize: 12,
-          },
-        },
-      },
-      color: colors,
+      }),
     };
   }, [byDate, startDate, endDate, isDark]);
 }

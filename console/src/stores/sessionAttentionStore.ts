@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-const STORAGE_KEY = "qwenpaw-session-attention";
+const STORAGE_KEY = "aiarb-session-attention";
 
 export interface AttentionSession {
   id: string;

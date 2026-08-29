@@ -123,8 +123,8 @@ def probe_name_rules(directory: Path) -> NameRules:
     try:
         case_aliases = _aliases_by_write(
             directory,
-            f".qwenpaw-case-{token}-a",
-            f".QWENPAW-CASE-{token}-A",
+            f".aiarb-case-{token}-a",
+            f".AIARB-CASE-{token}-A",
         )
         # Both spellings are written as escapes on purpose: as literal
         # characters the two are indistinguishable in the source, and any
@@ -132,8 +132,8 @@ def probe_name_rules(directory: Path) -> NameRules:
         # name, turning the probe into a tautology.
         normalization_aliases = _aliases_by_write(
             directory,
-            f".qwenpaw-unicode-{token}-\u00e9",
-            f".qwenpaw-unicode-{token}-e\u0301",
+            f".aiarb-unicode-{token}-\u00e9",
+            f".aiarb-unicode-{token}-e\u0301",
         )
     except OSError:
         logger.debug(

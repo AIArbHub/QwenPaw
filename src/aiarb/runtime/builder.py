@@ -984,7 +984,7 @@ class AgentBuilder:
                 trigger_ratio=trigger_ratio,
                 reserve_ratio=reserve_ratio,
                 tool_result_limit=tool_result_limit,
-                # QwenPaw's visual compression owns the image budget and
+                # AIArb's visual compression owns the image budget and
                 # preserves native media. AgentScope 2.0.7 otherwise removes
                 # canonical images beyond its default limit of five.
                 max_image_num=non_binding_limit,

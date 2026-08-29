@@ -24,7 +24,7 @@ export interface DraftState {
 
 /**
  * Storage key for an agent's draft. With an agent id the key is namespaced
- * (`qwenpaw_chat_input_draft_<agentId>`); without one it falls back to the
+ * (`aiarb_chat_input_draft_<agentId>`); without one it falls back to the
  * shared key. Distinct keys per agent are what keep drafts from leaking
  * across agents (A#82689956).
  */

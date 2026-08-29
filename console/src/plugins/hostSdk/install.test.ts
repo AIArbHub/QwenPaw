@@ -222,8 +222,7 @@ describe("window.AIArb.chat.request / response", () => {
     window.AIArb.chat!.response.prepend("p2", () => null, { id: "b" });
     expect(
       chatExtensions
-        .getListSnapshot()
-        ["response.prepend"].map((e) => e.pluginId),
+        .getListSnapshot()["response.prepend"].map((e) => e.pluginId),
     ).toEqual(["p1", "p2"]);
   });
 

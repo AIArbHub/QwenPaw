@@ -358,7 +358,7 @@ class DirectoryContextContributor(SyncPromptContributor):
                 "### Directories\n\n"
                 f"Working directory: {project_dir}\n\n"
                 "Relative file paths and shell commands resolve from "
-                "here. This directory also holds internal QwenPaw state "
+                "here. This directory also holds internal AIArb state "
                 "(config, memory, sessions, skills); leave those files "
                 "alone unless the user asks about them.\n"
             )

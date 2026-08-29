@@ -202,8 +202,8 @@ class ReMeLightMemoryManager(BaseMemoryManager):
         if self._reme is None:
             return
 
-        await self._update_aiarb_model()
         try:
+            await self._update_aiarb_model()
             await self._reme.start()
             logger.info(
                 "ReMe memory manager started for agent '%s'",
@@ -332,13 +332,28 @@ class ReMeLightMemoryManager(BaseMemoryManager):
         return int(interval)
 
     async def _update_aiarb_model(self) -> None:
-        """Reuse AIArb's active model in ReMe's default LLM component."""
+        """Reuse AIArb's active model in ReMe's default LLM component.
+
+        Best-effort: if no model is configured yet (e.g. fresh workspace
+        boot before the user picks a model), skip the injection.  The model
+        is injected lazily on the next ReMe job that needs an LLM, so a
+        missing model at startup must never block ``memory_manager``.
+        """
         if self._reme is None:
             return
 
-        model, _formatter = await create_model_and_formatter_async(
-            self.agent_id,
-        )
+        try:
+            model, _formatter = await create_model_and_formatter_async(
+                self.agent_id,
+            )
+        except Exception as exc:
+            logger.info(
+                "ReMe model injection skipped for agent '%s' "
+                "(no active model configured yet): %s",
+                self.agent_id,
+                exc,
+            )
+            return
         await self._reme.update_component(
             "as_llm",
             "default",

@@ -94,7 +94,7 @@ if _explicit_working_dir:
     WORKING_DIR = Path(_explicit_working_dir).expanduser().resolve()
 else:
     WORKING_DIR = Path("~/.aiarb").expanduser().resolve()
-# Load user-level .env (e.g. ~/.qwenpaw/.env) after WORKING_DIR is resolved.
+# Load user-level .env (e.g. ~/.aiarb/.env) after WORKING_DIR is resolved.
 # Repo root .env was loaded at the top of this module; it takes precedence
 # over the user-level file because load_dotenv(..., override=False) keeps
 # existing values.

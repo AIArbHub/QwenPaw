@@ -747,8 +747,8 @@ class HttpStatelessClient(_HttpClientBase):
         meta.setdefault(_CLIENT_CAPABILITIES_META_KEY, {})
         if _CLIENT_INFO_META_KEY not in meta:
             meta[_CLIENT_INFO_META_KEY] = {
-                "name": "qwenpaw",
-                "version": _QWENPAW_VERSION,
+                "name": "aiarb",
+                "version": _AIARB_VERSION,
             }
         body_params["_meta"] = meta
         request_id = next(self._rpc_ids)
