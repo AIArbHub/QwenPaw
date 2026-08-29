@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Chat input draft persistence.
  *
  * The key helpers and `useChatInputDraft` live here so the composer contract
@@ -9,12 +9,12 @@
  *   agent id), otherwise switching agents leaks one agent's draft into
  *   another's input box.
  * - #8351: every conversation of one agent used to share
- *   `qwenpaw_chat_input_draft_<agentId>`. A real session id is part of the
+ *   `AIARB_chat_input_draft_<agentId>`. A real session id is part of the
  *   key, including when no agent id is selected. That legacy entry is
  *   discarded, never copied: it has no conversation identity, so migrating
  *   it would put stale text in whichever chat opened next. Each
  *   not-yet-created composer gets
- *   `qwenpaw_chat_input_draft_<agentId>_pending_<clientSideId>`. The id lives
+ *   `AIARB_chat_input_draft_<agentId>_pending_<clientSideId>`. The id lives
  *   in sessionStorage, so leaving and returning restores that composer
  *   (#4774). Starting another new chat rotates the id. The draft is handed
  *   to the real session key once an id is allocated, then the pending slot
@@ -28,15 +28,15 @@ import { useEffect, useState } from "react";
 import { useLoopStore } from "../../stores/loopStore";
 import { setTextareaValue } from "./utils";
 
-export const DRAFT_STORAGE_KEY_PREFIX = "qwenpaw_chat_input_draft";
+export const DRAFT_STORAGE_KEY_PREFIX = "AIARB_chat_input_draft";
 
 /** Sidebar sets this before navigating to /chat from another page. */
-const PENDING_NEW_CHAT_FLAG = "qwenpaw_pending_new_chat";
+const PENDING_NEW_CHAT_FLAG = "AIARB_pending_new_chat";
 
 /** sessionStorage key for the active pre-creation composer id. */
-const PENDING_COMPOSER_ID_PREFIX = "qwenpaw_chat_input_pending_composer";
+const PENDING_COMPOSER_ID_PREFIX = "AIARB_chat_input_pending_composer";
 
-const PENDING_COMPOSER_ROTATED_EVENT = "qwenpaw:pending-composer-rotated";
+const PENDING_COMPOSER_ROTATED_EVENT = "AIARB:pending-composer-rotated";
 
 export interface DraftState {
   value: string;
@@ -78,7 +78,7 @@ function isBlankDraftSession(sessionId?: string): boolean {
 }
 
 /**
- * Sidebar sets `qwenpaw_pending_new_chat` before navigating back to `/chat`.
+ * Sidebar sets `AIARB_pending_new_chat` before navigating back to `/chat`.
  * Mint once, before the composer reads storage, so the previous new chat is
  * not restored. ChatSessionInitializer still owns removing the flag.
  */
@@ -125,7 +125,7 @@ export function rotatePendingComposer(agentId?: string): string {
  *   composer's pending slot. `/chat` and `/chat/new` share it until a new
  *   chat rotates the id. This is not the legacy per-agent key and not the
  *   old shared `__pending` slot.
- * - Real session: `qwenpaw_chat_input_draft_<agentId>_<sessionId>`.
+ * - Real session: `AIARB_chat_input_draft_<agentId>_<sessionId>`.
  *   A session id is still appended when the agent id is missing.
  */
 export function getDraftStorageKey(
@@ -222,10 +222,10 @@ export function useChatInputDraft(
       rotatePendingComposer(agentId);
     };
     window.addEventListener(PENDING_COMPOSER_ROTATED_EVENT, onRotated);
-    window.addEventListener("qwenpaw:sidebar-new-chat", onNewChat);
+    window.addEventListener("AIARB:sidebar-new-chat", onNewChat);
     return () => {
       window.removeEventListener(PENDING_COMPOSER_ROTATED_EVENT, onRotated);
-      window.removeEventListener("qwenpaw:sidebar-new-chat", onNewChat);
+      window.removeEventListener("AIARB:sidebar-new-chat", onNewChat);
     };
   }, [agentId, blank]);
 

@@ -1,4 +1,4 @@
-import { Popover, message } from "antd";
+﻿import { Popover, message } from "antd";
 import {
   BookOpen,
   Github,
@@ -65,7 +65,7 @@ import LocalAvatarPicker from "./LocalAvatarPicker";
 
 type ContentWidth = "standard" | "wide";
 
-const QWENPAW_WEBSITE_URL = "https://qwenpaw.agentscope.io/";
+const AIARB_WEBSITE_URL = "https://AIARB.agentscope.io/";
 
 const LANGUAGES = LANGUAGE_LIST.map(({ key, label }) => ({
   value: key,
@@ -492,10 +492,10 @@ export default function SidebarSettingsPanel({
       <button
         type="button"
         className={styles.menuItem}
-        onClick={() => openLink(QWENPAW_WEBSITE_URL)}
+        onClick={() => openLink(AIARB_WEBSITE_URL)}
       >
         <Info size={16} />
-        <span>{t("sidebar.quickMenu.about", "About QwenPaw")}</span>
+        <span>{t("sidebar.quickMenu.about", "About AIARB")}</span>
         {version && <span className={styles.menuMeta}>v{version}</span>}
       </button>
 

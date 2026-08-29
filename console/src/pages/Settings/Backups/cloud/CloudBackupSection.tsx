@@ -6,7 +6,7 @@
  * separate "Local Backups" from "Cloud Storage Backups".
  */
 import { useCallback, useEffect, useState } from "react";
-import { Button, Card, Space, Tag, Typography } from "antd";
+import { Button, Space, Tag, Typography } from "antd";
 import {
   CloudOutlined,
   SettingOutlined,
@@ -32,7 +32,7 @@ export default function CloudBackupSection() {
   const { message } = useAppMessage();
   const [entries, setEntries] = useState<CloudBackupEntry[]>([]);
   const [config, setConfig] = useState<CloudBackupConfig | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
 

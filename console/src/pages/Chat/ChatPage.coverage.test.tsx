@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ChatPage coverage tests
  *
  * Goal: cover as many statements in Chat/index.tsx as possible.
@@ -36,7 +36,7 @@ const {
   mockGetTranscriptionProviderType,
   mockCopyText,
   mockBeginLoopModeSubmission,
-  mockRequiresQwenPawModel,
+  mockRequiresAIARBModel,
   mockHoldOwnershipLock,
   mockRuntimeMount,
   mockFetchActiveLoopMode,
@@ -57,7 +57,7 @@ const {
   mockGetTranscriptionProviderType: vi.fn(),
   mockCopyText: vi.fn().mockResolvedValue(undefined),
   mockBeginLoopModeSubmission: vi.fn((text: string) => text),
-  mockRequiresQwenPawModel: vi.fn(() => true),
+  mockRequiresAIARBModel: vi.fn(() => true),
   mockHoldOwnershipLock: vi.fn(),
   mockRuntimeMount: vi.fn(),
   mockFetchActiveLoopMode: vi.fn(() => Promise.resolve(null)),
@@ -200,7 +200,7 @@ vi.mock("@/stores/agentStore", () => {
       return mockSelectedAgent();
     },
     setSelectedAgent: mockSetSelectedAgent,
-    agents: [{ id: "default", name: "Default", backend: "qwenpaw" }],
+    agents: [{ id: "default", name: "Default", backend: "AIARB" }],
     setLastChatId: vi.fn(),
     getLastChatId: vi.fn(() => null),
     removeLastChatId: vi.fn(),
@@ -386,7 +386,7 @@ vi.mock("@/stores/messageQueueStore", async (importOriginal) => {
 });
 
 vi.mock("@/utils/agentBackend", () => ({
-  requiresQwenPawModel: mockRequiresQwenPawModel,
+  requiresAIARBModel: mockRequiresAIARBModel,
   supportsAgentAttachments: vi.fn(() => true),
 }));
 
@@ -610,8 +610,8 @@ describe("ChatPage coverage", () => {
     useStoppedTurnsStore.setState({ stoppedSessionIds: new Set() });
     mockBeginLoopModeSubmission.mockReset();
     mockBeginLoopModeSubmission.mockImplementation((text: string) => text);
-    mockRequiresQwenPawModel.mockReset();
-    mockRequiresQwenPawModel.mockReturnValue(true);
+    mockRequiresAIARBModel.mockReset();
+    mockRequiresAIARBModel.mockReturnValue(true);
     mockListProviders.mockResolvedValue([
       {
         id: "openai",
@@ -884,7 +884,7 @@ describe("ChatPage coverage", () => {
           object: "response",
           status: "completed",
           metadata: {
-            qwenpaw_model_fallbacks: [
+            AIARB_model_fallbacks: [
               {
                 type: "model_fallback",
                 from_provider_id: "openai",
@@ -1382,8 +1382,8 @@ describe("ChatPage coverage", () => {
     expect(submitted.mentions).toEqual(inputData.mentions);
   });
 
-  it("leaves the query unchanged for a non-QwenPaw backend", async () => {
-    mockRequiresQwenPawModel.mockReturnValue(false);
+  it("leaves the query unchanged for a non-AIARB backend", async () => {
+    mockRequiresAIARBModel.mockReturnValue(false);
     mockBeginLoopModeSubmission.mockImplementation(
       (text: string) => `/goal ${text}`,
     );
@@ -1605,7 +1605,7 @@ describe("ChatPage coverage", () => {
 
   it("issue 7559: persists the follow-up while backend cleanup is running and sends it once idle", async () => {
     const chatId = "75590000-0000-4000-8000-000000000001";
-    const storageKey = `qwenpaw:message-queue:${chatId}`;
+    const storageKey = `AIARB:message-queue:${chatId}`;
     let statusChecks = 0;
 
     mockGetChatStatus.mockImplementation(async () => {
@@ -2296,8 +2296,8 @@ describe("ChatPage coverage", () => {
     });
   });
 
-  // ── qwenpaw:open-file-preview event ────────────────────────────────────
-  it("handles qwenpaw:open-file-preview custom event", async () => {
+  // ── AIARB:open-file-preview event ────────────────────────────────────
+  it("handles AIARB:open-file-preview custom event", async () => {
     renderWithProviders(<ChatPage />, {
       initialEntries: ["/chat/test-session"],
     });
@@ -2307,7 +2307,7 @@ describe("ChatPage coverage", () => {
     // Dispatch the file preview event
     act(() => {
       window.dispatchEvent(
-        new CustomEvent("qwenpaw:open-file-preview", {
+        new CustomEvent("AIARB:open-file-preview", {
           detail: {
             target: { source: "workspace", path: "/test/file.txt" },
             trigger: null,

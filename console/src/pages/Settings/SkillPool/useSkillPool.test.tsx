@@ -2535,7 +2535,7 @@ describe("useSkillPool — computed properties", () => {
     expect(result.current.hasUnseenBuiltinNotice).toBe(false);
 
     // Cleanup
-    localStorage.removeItem("qwenpaw.skill-pool.builtin-notice.ack");
+    localStorage.removeItem("aiarb.skill-pool.builtin-notice.ack");
   });
 
   it("workspaces are loaded and available", async () => {

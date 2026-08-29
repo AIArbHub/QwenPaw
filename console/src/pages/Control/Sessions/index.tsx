@@ -258,6 +258,7 @@ function SessionsPage() {
     onView: handleView,
     onArchiveToggle: handleArchiveToggle,
     isArchivedTab,
+    t,
   });
 
   const rowSelection = {

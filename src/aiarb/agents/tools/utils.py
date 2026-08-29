@@ -30,25 +30,25 @@ def _fit_truncation_notice(notice: str, info: dict[str, Any]) -> str:
     if len(notice.encode("utf-8")) <= MAX_TRUNCATION_NOTICE_BYTES:
         return notice
 
-if info.get("continuation_mode") == "artifact":
-    compact = (
-        TRUNCATION_NOTICE_MARKER
-        + "\nOversized single line truncated; recovery details are in "
-        "aiarb_truncation metadata."
-        f"\nThe {info['excerpt_bytes']}-byte preview starts at line "
-        f"{info['start_line']}. Inspect the saved artifact for the full "
-        "content."
-    )
-else:
-    compact = (
-        TRUNCATION_NOTICE_MARKER
-        + "\nOutput truncated; recovery details are in "
-        "aiarb_truncation metadata."
-        f"\nTotal lines: {info['total_lines']}; "
-        f"excerpt starts at line {info['start_line']} and contains "
-        f"{info['excerpt_bytes']} bytes."
-        f"\nContinue with read_file at line {info['read_from']}."
-    )
+    if info.get("continuation_mode") == "artifact":
+        compact = (
+            TRUNCATION_NOTICE_MARKER
+            + "\nOversized single line truncated; recovery details are in "
+            "aiarb_truncation metadata."
+            f"\nThe {info['excerpt_bytes']}-byte preview starts at line "
+            f"{info['start_line']}. Inspect the saved artifact for the full "
+            "content."
+        )
+    else:
+        compact = (
+            TRUNCATION_NOTICE_MARKER
+            + "\nOutput truncated; recovery details are in "
+            "aiarb_truncation metadata."
+            f"\nTotal lines: {info['total_lines']}; "
+            f"excerpt starts at line {info['start_line']} and contains "
+            f"{info['excerpt_bytes']} bytes."
+            f"\nContinue with read_file at line {info['read_from']}."
+        )
     compact_bytes = compact.encode("utf-8")
     if len(compact_bytes) <= MAX_TRUNCATION_NOTICE_BYTES:
         return compact

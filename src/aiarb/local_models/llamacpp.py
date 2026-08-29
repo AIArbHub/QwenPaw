@@ -149,7 +149,7 @@ class LlamaCppBackend:
         base_url: str,
         tag: str,
         chunk_size: int = 1024 * 1024,
-        timeout: int = 30,
+        timeout: int = 120,
     ) -> None:
         self.start_download(
             base_url=base_url,
@@ -163,7 +163,7 @@ class LlamaCppBackend:
         base_url: str,
         tag: str,
         chunk_size: int = 1024 * 1024,
-        timeout: int = 30,
+        timeout: int = 120,
     ) -> None:
         """Start downloading and extracting the llama.cpp release package.
 
@@ -571,9 +571,19 @@ class LlamaCppBackend:
         temp_path = staging_dir / file_name
 
         try:
+            # Use a Timeout object so connect/read/pool have independent
+            # budgets: the CDN file can be tens of MB, so a flat 30 s
+            # read timeout fails on slow links.  Connect stays tight (10 s)
+            # so an unreachable mirror surfaces quickly; read is generous
+            # (timeout) to survive slow-but-steady streaming.
             with httpx.Client(
                 follow_redirects=True,
-                timeout=timeout,
+                timeout=httpx.Timeout(
+                    connect=10.0,
+                    read=float(timeout),
+                    write=10.0,
+                    pool=10.0,
+                ),
             ) as client:
                 with client.stream(
                     "GET",
