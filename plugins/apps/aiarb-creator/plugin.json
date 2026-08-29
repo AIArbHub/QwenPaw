@@ -319,7 +319,7 @@
       },
       {
         "name": "creator_live_operation",
-        "description": "QwenPaw Creator live website operation and take recording limits",
+        "description": "AIArb Creator live website operation and take recording limits",
         "icon": "\ud83d\udda5\ufe0f",
         "requires_config": false,
         "config_fields": [
@@ -405,7 +405,7 @@
               "true",
               "false"
             ],
-            "help": "Lets the agent operate desktop apps via the native Computer Use runtime (Windows/macOS desktop host only). Off by default. This switch does not bypass QwenPaw Computer Use grants or OS Accessibility and Screen Recording permissions."
+            "help": "Lets the agent operate desktop apps via the native Computer Use runtime (Windows/macOS desktop host only). Off by default. This switch does not bypass AIArb Computer Use grants or OS Accessibility and Screen Recording permissions."
           }
         ]
       },
