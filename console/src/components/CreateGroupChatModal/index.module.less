@@ -1,0 +1,281 @@
+// CreateGroupChatModal styles
+
+.modalRoot {
+  :global(.ant-modal-body) {
+    padding: 20px 28px 8px;
+  }
+  :global(.ant-modal-footer) {
+    padding: 12px 28px 20px;
+  }
+}
+
+.modalTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-primary, #0065fd);
+  font-weight: 600;
+}
+
+.form {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.stepsBar {
+  margin-bottom: 20px;
+}
+
+.stepsBody {
+  min-height: 320px;
+  padding: 0 4px;
+}
+
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.footerError {
+  color: #ff3b30;
+  font-size: 12px;
+}
+
+/* ── Step 2: Members ───────────────────────────────────────────────────── */
+
+.membersStep {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.membersToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border-color, #e7eaef);
+  border-radius: 8px;
+}
+
+.membersCountHint {
+  color: var(--text-secondary, rgba(14, 17, 21, 0.65));
+  font-size: 12px;
+}
+
+.membersGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+@media (max-width: 720px) {
+  .membersGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.memberCard {
+  margin: 0 !important;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+  border-radius: 10px !important;
+  :global(.ant-card-body) {
+    padding: 12px 12px !important;
+  }
+}
+
+.memberCard:hover {
+  border-color: #a6c8ff;
+}
+
+.memberCardChecked {
+  border-color: var(--color-primary, #0065fd) !important;
+  background-color: rgba(0, 101, 253, 0.05);
+  box-shadow: 0 0 0 2px rgba(0, 101, 253, 0.15);
+}
+
+.memberCardInner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.memberCardText {
+  flex: 1;
+  min-width: 0;
+}
+
+.memberCardName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary, #0e1115);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.disabledTag {
+  display: inline-block;
+  margin-left: 6px;
+  color: #ff3b30;
+  font-size: 11px;
+}
+
+.memberCardDesc {
+  font-size: 12px;
+  color: var(--text-secondary, rgba(14, 17, 21, 0.65));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+/* ── Step 3: Mode ─────────────────────────────────────────────────────── */
+
+.modeStep {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.modeRadioGroup {
+  width: 100%;
+  :global(.ant-radio-wrapper) {
+    width: 100%;
+    margin-inline-end: 0 !important;
+    padding: 14px 16px;
+    border: 1px solid var(--border-color, #e7eaef);
+    border-radius: 10px;
+    background: #fff;
+    transition: border-color 0.15s ease, background-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  :global(.ant-radio-wrapper:hover) {
+    border-color: #a6c8ff;
+  }
+  :global(.ant-radio-wrapper-checked) {
+    border-color: var(--color-primary, #0065fd) !important;
+    background-color: rgba(0, 101, 253, 0.05);
+    box-shadow: 0 0 0 2px rgba(0, 101, 253, 0.15);
+  }
+}
+
+.modeRadio {
+  margin-bottom: 0;
+}
+
+.modeCardInner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-left: 4px;
+}
+
+.modeIconWrap {
+  color: var(--color-primary, #0065fd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(0, 101, 253, 0.08);
+  flex-shrink: 0;
+}
+
+.modeTextWrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.modeTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary, #0e1115);
+}
+
+.modeRecommended {
+  font-size: 12px;
+  font-weight: 400;
+  color: #52c41a;
+  margin-left: 8px;
+}
+
+.modeDesc {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-secondary, rgba(14, 17, 21, 0.65));
+  line-height: 1.55;
+}
+
+/* ── Step 4: Confirm ──────────────────────────────────────────────────── */
+
+.confirmStep {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.confirmCard {
+  border-radius: 10px !important;
+  :global(.ant-card-body) {
+    padding: 8px 20px !important;
+  }
+}
+
+.confirmRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--border-color, #e7eaef);
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.confirmLabel {
+  flex-shrink: 0;
+  width: 96px;
+  font-size: 13px;
+  color: var(--text-secondary, rgba(14, 17, 21, 0.65));
+  padding-top: 2px;
+}
+
+.confirmValue {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  color: var(--text-primary, #0e1115);
+  word-break: break-word;
+}
+
+.confirmMemberAvatars {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.confirmMemberCount {
+  font-size: 12px;
+  color: var(--text-secondary, rgba(14, 17, 21, 0.65));
+  margin-left: 8px;
+}
+
+.confirmStepsList {
+  margin: 6px 0 0 18px;
+  padding: 0;
+  color: var(--text-secondary, rgba(14, 17, 21, 0.65));
+  font-size: 13px;
+  line-height: 1.8;
+}

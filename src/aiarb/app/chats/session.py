@@ -243,17 +243,18 @@ class SafeJSONSession:
             )
             raise ValueError("session_id must not be None or empty")
 
+        base_dir = self.save_dir
         filename = session_filename(session_id, user_id)
 
         if channel:
             safe_channel = sanitize_filename(channel)
             if safe_channel in {".", ".."}:
                 raise ValueError(f"invalid session channel: {channel!r}")
-            target_dir = os.path.join(self.save_dir, safe_channel)
+            target_dir = os.path.join(base_dir, safe_channel)
             os.makedirs(target_dir, exist_ok=True)
             target_path = os.path.join(target_dir, filename)
 
-            legacy_path = os.path.join(self.save_dir, filename)
+            legacy_path = os.path.join(base_dir, filename)
             if not os.path.exists(target_path) and os.path.exists(legacy_path):
                 try:
                     shutil.copy2(legacy_path, target_path)
@@ -272,8 +273,8 @@ class SafeJSONSession:
 
             return target_path
 
-        os.makedirs(self.save_dir, exist_ok=True)
-        return os.path.join(self.save_dir, filename)
+        os.makedirs(base_dir, exist_ok=True)
+        return os.path.join(base_dir, filename)
 
     async def save_session_state(
         self,

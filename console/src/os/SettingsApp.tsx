@@ -166,7 +166,7 @@ export default function SettingsApp() {
             <ChunkRecoverySuspense
               fallback={
                 <div className={styles.loading}>
-                  <Spin tip={t("common.loading")} />
+                  <Spin tip={t("common.loading")}><div /></Spin>
                 </div>
               }
             >

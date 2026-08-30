@@ -258,6 +258,50 @@ export const workspaceApi = {
       },
     ),
 
+  saveFileForAgent: (agentId: string, fileName: string, content: string) =>
+    request<Record<string, unknown>>(
+      `/workspace/files/${encodeURIComponent(fileName)}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ content }),
+        headers: { "X-Agent-Id": agentId },
+      },
+    ),
+
+  // Workspace package download
+  downloadWorkspace: () =>
+    downloadFileFromUrl(
+      getApiUrl("/workspace/download"),
+      generateFallbackFilename(),
+      {
+        headers: buildAuthHeaders(),
+        errorMessage: "Workspace download failed",
+        preferResponseFilename: true,
+      },
+    ),
+
+  // File upload functionality
+  uploadFile: async (
+    file: File,
+  ): Promise<{ success: boolean; message: string }> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(getApiUrl("/workspace/upload"), {
+      method: "POST",
+      headers: buildAuthHeaders(),
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Upload failed: ${response.status} ${response.statusText} - ${errorText}`,
+      );
+    }
+
+    return await response.json();
+  },
   listMemoryFiles: (section: MemorySection) =>
     request<MdFileInfo[]>(workspaceQuery("/workspace/memory", { section })),
 

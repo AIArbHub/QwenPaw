@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useState, useRef } from "react";
 import type { ReactNode } from "react";
-import { Layout, Tooltip, Badge, Avatar, Spin, Divider, Popover } from "antd";
+import { Layout, Tooltip, Badge, Avatar, Spin, Divider, Popover, Popconfirm } from "antd";
 import {
   Routes,
   Route,
@@ -17,6 +17,10 @@ import {
   PanelLeftOpen,
   Settings,
   Search,
+  Users2,
+  Plus,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { useAgentStore } from "../../stores/agentStore";
 import { useRoutes, useMenuItems } from "../../plugins/registry/hooks";
@@ -37,6 +41,17 @@ import { ChunkErrorBoundary } from "../../components/ChunkErrorBoundary";
 import { Slot } from "../../plugins/registry/Slot";
 import { useTheme } from "../../contexts/ThemeContext";
 import SidebarSettingsPanel from "../SidebarSettingsPanel";
+import CreateGroupChatModal from "../../components/CreateGroupChatModal";
+import EditGroupChatModal from "../../components/EditGroupChatModal";
+import { agentsApi } from "../../api/modules/agents";
+import { useAppMessage } from "../../hooks/useAppMessage";
+import { purgeAgentSpace } from "../../os/osCleanup";
+import {
+  HOST_MODE_LABEL,
+  isHostAgent,
+  parseHostMeta,
+  stripHostMeta,
+} from "../../utils/hostAgent";
 import styles from "./designLayout.module.less";
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -60,8 +75,6 @@ interface FeatureCardData {
   label: ReactNode;
   path?: string;
 }
-
-type ListTab = "agents" | "groups";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -106,10 +119,14 @@ export default function DesignLayout({
   // ── State ──────────────────────────────────────────────────────────────────
   const [railCollapsed, setRailCollapsed] = useState(true);
   const [panelAgentId, setPanelAgentId] = useState<string | null>(null);
-  const [listTab, setListTab] = useState<ListTab>("agents");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [middleCollapsed, setMiddleCollapsed] = useState(false);
   const [middleUserToggled, setMiddleUserToggled] = useState(false);
+  const [createGroupOpen, setCreateGroupOpen] = useState(false);
+  const [editGroupAgent, setEditGroupAgent] = useState<AgentSummary | null>(
+    null,
+  );
+  const [listTab, setListTab] = useState<"agents" | "groups">("agents");
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
 
   // ── Hooks ──────────────────────────────────────────────────────────────────
@@ -117,18 +134,22 @@ export default function DesignLayout({
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { isDark } = useTheme();
+  const { message } = useAppMessage();
   const {
     agents,
     selectedAgent,
     setSelectedAgent,
     refreshAgents,
+    removeAgent,
   } = useAgentStore();
   const routes = useRoutes();
   const rawAgentMenu = useMenuItems("primary.agentScoped");
   const rawSettingsMenu = useMenuItems("primary.settings");
 
   const currentPath = location.pathname;
-  const isChatActive = currentPath.startsWith("/chat");
+  const isChatActive =
+    currentPath.startsWith("/chat") ||
+    currentPath.startsWith("/groups/");
 
   // ── Auto-collapse middle panel when content is unrelated to agents ────────
   // If the user hasn't manually toggled, auto-collapse when navigating away
@@ -290,6 +311,17 @@ export default function DesignLayout({
   // ── Derived: panel agent object ────────────────────────────────────────────
   const panelAgent = agents.find((a) => a.id === panelAgentId) ?? null;
 
+  // 主持人智能体（群聊）与普通智能体分开展示，避免混在一起。
+  const { regularAgents, hostAgents } = useMemo(() => {
+    const regular: AgentSummary[] = [];
+    const hosts: AgentSummary[] = [];
+    for (const agent of agents) {
+      if (isHostAgent(agent)) hosts.push(agent);
+      else regular.push(agent);
+    }
+    return { regularAgents: regular, hostAgents: hosts };
+  }, [agents]);
+
   // ── Effects ─────────────────────────────────────────────────────────────────
 
   // Load agents on mount
@@ -315,6 +347,29 @@ export default function DesignLayout({
     // Also update the store's selectedAgent so sessionApi switches owner
     // and the conversation list loads for the correct agent.
     setSelectedAgent(agent.id);
+  };
+
+  const handleGroupClick = (agent: AgentSummary) => {
+    setSelectedAgent(agent.id);
+    navigate(buildChatPath());
+  };
+
+  const handleEditGroup = (agent: AgentSummary) => {
+    setEditGroupAgent(agent);
+  };
+
+  const handleDeleteGroup = async (agent: AgentSummary) => {
+    try {
+      await agentsApi.deleteAgent(agent.id);
+      purgeAgentSpace(agent.id);
+      removeAgent(agent.id);
+      message.success(t("agent.deleteSuccess", "删除成功"));
+      await refreshAgents();
+    } catch (err: unknown) {
+      message.error(
+        err instanceof Error ? err.message : t("agent.deleteFailed", "删除失败"),
+      );
+    }
   };
 
   const handleBackClick = () => {
@@ -401,10 +456,12 @@ export default function DesignLayout({
                   key={item.key}
                   title={item.label}
                   placement="right"
-                  overlayInnerStyle={{
-                    background: "rgba(0,0,0,0.75)",
-                    color: "#fff",
-                  }}
+styles={{
+body: {
+background: "rgba(0,0,0,0.75)",
+color: "#fff",
+},
+}}
                 >
                   {itemContent}
                 </Tooltip>
@@ -551,12 +608,14 @@ export default function DesignLayout({
             {/* Top bar */}
             <div className={styles.panelHeader}>
               <span className={styles.panelTitle}>AIArb</span>
-              <button type="button" className={styles.panelSearchButton}>
-                <Search size={18} />
-              </button>
+              <div className={styles.panelHeaderActions}>
+                <button type="button" className={styles.panelSearchButton}>
+                  <Search size={18} />
+                </button>
+              </div>
             </div>
 
-            {/* Tab switcher: agents | groups */}
+            {/* Tabs: 智能体 / 群聊 */}
             <div className={styles.listTabs}>
               <button
                 type="button"
@@ -565,7 +624,7 @@ export default function DesignLayout({
                 }`}
                 onClick={() => setListTab("agents")}
               >
-                {t("design.agents", "智能体")}
+                {t("nav.agents", "智能体")}
               </button>
               <button
                 type="button"
@@ -574,19 +633,19 @@ export default function DesignLayout({
                 }`}
                 onClick={() => setListTab("groups")}
               >
-                {t("design.groupChats", "群聊")}
+                {t("nav.groups", "群聊")}
               </button>
             </div>
 
             {/* List content */}
             <div className={styles.listContent}>
-              {listTab === "agents" ? (
-                agents.length === 0 ? (
+              {listTab === "agents" &&
+                (regularAgents.length === 0 ? (
                   <div className={styles.emptyState}>
                     {t("agent.noAgents", "暂无智能体")}
                   </div>
                 ) : (
-                  agents.map((agent) => (
+                  regularAgents.map((agent) => (
                     <button
                       key={agent.id}
                       type="button"
@@ -629,12 +688,134 @@ export default function DesignLayout({
                       </div>
                     </button>
                   ))
-                )
-              ) : (
-                <div className={styles.emptyState}>
-                  {t("design.noGroupChats", "暂无群聊")}
+                ))}
+
+              {listTab === "groups" && (
+                <div className={styles.groupsToolbar}>
+                  <button
+                    type="button"
+                    className={styles.newGroupButton}
+                    onClick={() => setCreateGroupOpen(true)}
+                    title={t("hostModal.title", "新建群聊")}
+                  >
+                    <Plus size={14} />
+                    <Users2 size={14} />
+                    {t("hostModal.cta", "群聊")}
+                  </button>
                 </div>
               )}
+
+              {listTab === "groups" &&
+                (hostAgents.length === 0 ? (
+                  <div className={styles.emptyState}>
+                    {t("hostModal.empty", "暂无群聊")}
+                  </div>
+                ) : (
+                  hostAgents.map((agent) => {
+                    const meta = parseHostMeta(agent);
+                    const modeLabel = meta ? HOST_MODE_LABEL[meta.mode] : "";
+                    const memberNames = meta
+                      ? meta.members.map((m) => m.name)
+                      : [];
+                    const memberCount = memberNames.length;
+                    const cleanDesc = stripHostMeta(agent.description);
+                    return (
+                      <div
+                        key={agent.id}
+                        className={styles.agentItem}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleGroupClick(agent)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleGroupClick(agent);
+                          }
+                        }}
+                      >
+                        <div className={styles.hostAvatarStack}>
+                          <Avatar
+                            size={40}
+                            className={styles.hostAvatarStackMain}
+                            style={{
+                              backgroundColor: "var(--color-primary)",
+                            }}
+                          >
+                            <Users2 size={18} />
+                          </Avatar>
+                          <span className={styles.hostAvatarStackMini}>
+                            {memberCount || "?"}
+                          </span>
+                        </div>
+                        <div className={styles.agentInfo}>
+                          <div className={styles.agentInfoRow}>
+                            <span className={styles.agentName}>
+                              {agent.name}
+                            </span>
+                            <span className={styles.agentItemHostBadge}>
+                              <Users2 size={10} />
+                              {t("hostModal.badge", "群聊")}
+                            </span>
+                          </div>
+                          {modeLabel && (
+                            <div className={styles.agentModeTag}>
+                              {modeLabel}
+                            </div>
+                          )}
+                          <div className={styles.agentDesc}>
+                            {cleanDesc ||
+                              memberNames.join("、") ||
+                              t("agent.noDescription")}
+                          </div>
+                          {memberCount > 0 && (
+                            <div className={styles.hostMemberCountPill}>
+                              {memberNames.slice(0, 3).join("、")}
+                              {memberCount > 3
+                                ? ` 等 ${memberCount} 人`
+                                : `（${memberCount} 人）`}
+                            </div>
+                          )}
+                        </div>
+                        <div
+                          className={styles.hostAgentActions}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Tooltip title={t("hostModal.edit", "编辑")}>
+                            <button
+                              type="button"
+                              className={styles.hostAgentActionButton}
+                              aria-label={t("hostModal.edit", "编辑")}
+                              onClick={() => handleEditGroup(agent)}
+                            >
+                              <Pencil size={14} />
+                            </button>
+                          </Tooltip>
+                          <Popconfirm
+                            title={t("hostModal.deleteConfirm", "删除这个群聊？")}
+                            description={t(
+                              "hostModal.deleteConfirmDesc",
+                              "删除后主持人及其工作区将被移除，成员智能体不受影响。",
+                            )}
+                            okText={t("common.delete", "删除")}
+                            cancelText={t("common.cancel", "取消")}
+                            okButtonProps={{ danger: true }}
+                            onConfirm={() => handleDeleteGroup(agent)}
+                          >
+                            <Tooltip title={t("hostModal.delete", "删除")}>
+                              <button
+                                type="button"
+                                className={styles.hostAgentActionButton}
+                                aria-label={t("hostModal.delete", "删除")}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </Tooltip>
+                          </Popconfirm>
+                        </div>
+                      </div>
+                    );
+                  })
+                ))}
             </div>
           </div>
         )
@@ -687,6 +868,18 @@ export default function DesignLayout({
           </ChunkErrorBoundary>
         </div>
       </Layout.Content>
+
+      <CreateGroupChatModal
+        open={createGroupOpen}
+        onCancel={() => setCreateGroupOpen(false)}
+        navigate={navigate}
+      />
+
+      <EditGroupChatModal
+        open={Boolean(editGroupAgent)}
+        agent={editGroupAgent}
+        onCancel={() => setEditGroupAgent(null)}
+      />
     </div>
   );
 }
