@@ -80,7 +80,13 @@ class ModuleRegistryImpl implements ModuleRegistry {
   get(moduleKey: string, exportName: string): unknown {
     const mod = this.modules.get(moduleKey);
     if (!mod) {
-      console.warn(`[moduleRegistry] Module not found: ${moduleKey}`);
+      // This can happen transiently when modules are registered via
+      // dynamic import (non-eager) and a consumer reads before the
+      // async registration settles.  Demote to console.debug to avoid
+      // noise in the dev console unless something is actually broken.
+      console.debug(
+        `[moduleRegistry] Module not registered yet (lazy-load): ${moduleKey}`,
+      );
       return undefined;
     }
     return mod[exportName];

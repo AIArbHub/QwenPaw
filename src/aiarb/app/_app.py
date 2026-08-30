@@ -383,8 +383,28 @@ async def lifespan(  # pylint: disable=too-many-statements,too-many-branches
             logger.debug("Initializing plugin system...")
 
             from ..config.utils import get_plugins_dir
+            from ..plugins.builtin_seed import seed_builtin_plugins
             from ..plugins.loader import PluginLoader
             from ..plugins.runtime import RuntimeHelpers
+
+            # Seed built-in plugins (e.g. flow-manager) into the user's
+            # plugin directory so they are available without a separate
+            # `aiarb plugin install` step.  Only plugins whose manifest
+            # declares ``"builtin": true`` are copied.
+            _plugins_dir = get_plugins_dir()
+            try:
+                _seeded = seed_builtin_plugins(_plugins_dir)
+                if _seeded:
+                    logger.info(
+                        "Seeded %d built-in plugin(s): %s",
+                        len(_seeded),
+                        ", ".join(_seeded),
+                    )
+            except Exception:
+                logger.warning(
+                    "Built-in plugin seeding failed",
+                    exc_info=True,
+                )
 
             # PawApps install into the plugins dir alongside other plugins
             # and load through the same pipeline as 'app'-type plugins

@@ -157,7 +157,7 @@ export default function SettingsApp() {
             <Suspense
               fallback={
                 <div className={styles.loading}>
-                  <Spin tip={t("common.loading")} />
+                  <Spin tip={t("common.loading")}><div /></Spin>
                 </div>
               }
             >

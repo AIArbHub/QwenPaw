@@ -253,6 +253,16 @@ class CreateAgentRequest(BaseModel):
     mail: AgentMailConfig | None = None
     backend: str = "aiarb"
     backend_settings: dict[str, Any] = Field(default_factory=dict)
+    initial_md_files: dict[str, str] | None = Field(
+        default=None,
+        description=(
+            "Optional map of filename -> markdown content to write into "
+            "the new agent's workspace after the default templates have "
+            "been applied. Files with names matching existing MD files "
+            "(e.g. AGENTS.md, PROFILE.md, SOUL.md) will overwrite the "
+            "default template contents."
+        ),
+    )
 
     @field_validator("id", mode="before")
     @classmethod
@@ -275,6 +285,48 @@ class CreateAgentRequest(BaseModel):
             stripped = value.strip()
             return stripped if stripped else None
         return value
+
+    @field_validator("initial_md_files", mode="before")
+    @classmethod
+    def validate_initial_md_files(
+        cls, value: Any
+    ) -> dict[str, str] | None:
+        """Validate that initial_md_files is a flat dict of strings."""
+        if value is None:
+            return None
+        if not isinstance(value, dict):
+            raise ValueError("initial_md_files must be a dict of filename->content")
+        cleaned: dict[str, str] = {}
+        for raw_name, raw_content in value.items():
+            if not isinstance(raw_name, str):
+                raise ValueError("initial_md_files filename must be a string")
+            name = raw_name.strip().lstrip("/").lstrip("\\")
+            if not name:
+                continue
+            # Prevent path traversal outside workspace
+            if (
+                ".." in Path(name).parts
+                or name.startswith(".")
+                or Path(name).is_absolute()
+            ):
+                raise ValueError(f"Illegal initial_md_files filename: {raw_name}")
+            # Only allow a small fixed set of workspace config files
+            allowed = {
+                "AGENTS.md",
+                "PROFILE.md",
+                "SOUL.md",
+                "CONTACTS.md",
+                "MAIL_TRIAGE.md",
+                "MEMORY.md",
+            }
+            if name not in allowed:
+                raise ValueError(
+                    f"initial_md_files only accepts: {sorted(allowed)}"
+                )
+            if not isinstance(raw_content, str):
+                raise ValueError(f"initial_md_files content for {name} must be string")
+            cleaned[name] = raw_content
+        return cleaned if cleaned else None
 
 
 class CopyAgentRequest(BaseModel):
@@ -851,6 +903,20 @@ async def create_agent(
         ),
         language=language,
     )
+
+    # Write any caller-supplied initial MD files (overwrite defaults)
+    if request.initial_md_files:
+        for md_name, md_content in request.initial_md_files.items():
+            target_file = workspace_dir / md_name
+            try:
+                target_file.write_text(md_content, encoding="utf-8")
+            except OSError as exc:
+                logger.warning(
+                    "Failed to write initial_md_files[%s] for new agent %s: %s",
+                    md_name,
+                    sanitize_log_value(new_id),
+                    exc,
+                )
 
     if request.mail is not None:
         await _require_aiarbmail_driver_card(

@@ -287,6 +287,16 @@ export const workspaceApi = {
       },
     ),
 
+  saveFileForAgent: (agentId: string, fileName: string, content: string) =>
+    request<Record<string, unknown>>(
+      `/workspace/files/${encodeURIComponent(fileName)}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ content }),
+        headers: { "X-Agent-Id": agentId },
+      },
+    ),
+
   // Workspace package download
   downloadWorkspace: () =>
     downloadFileFromUrl(

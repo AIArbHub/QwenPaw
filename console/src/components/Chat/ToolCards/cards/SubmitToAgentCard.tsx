@@ -2,7 +2,9 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { RocketOutlined } from "@ant-design/icons";
 import type { ToolCallContent } from "../shared/types";
-import { ToolCardShell } from "../shared";
+import { ToolCardShell, MemberBubble } from "../shared";
+import { useAgentStore } from "../../../../stores/agentStore";
+import { resolveAgentDisplayName } from "../../../../utils/hostAgent";
 
 export interface SubmitToAgentCardProps {
   content: ToolCallContent;
@@ -14,13 +16,15 @@ const SubmitToAgentCard: React.FC<SubmitToAgentCardProps> = ({
   isStreaming,
 }) => {
   const { t } = useTranslation();
+  const { agents } = useAgentStore();
   const params = content.params || {};
   const agent = (params.to_agent || "") as string;
+  const memberName = agent ? resolveAgentDisplayName(agent, agents) : "";
   const task = (params.text || "") as string;
   const taskShort = task.length > 20 ? task.slice(0, 20) + "…" : task;
   const title = agent
     ? t("tool.submitToAgent", {
-        agent,
+        agent: memberName,
         task: taskShort ? " " + taskShort : "",
       })
     : t("tool.submitToAgentDefault");
@@ -42,6 +46,7 @@ const SubmitToAgentCard: React.FC<SubmitToAgentCardProps> = ({
       icon={<RocketOutlined />}
       title={title}
       inlineResult={inlineResult}
+      summaryAction={agent ? <MemberBubble name={memberName} /> : undefined}
     />
   );
 };
