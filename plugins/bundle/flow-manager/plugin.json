@@ -1,0 +1,28 @@
+{
+  "id": "flow-manager",
+  "name": "FlowManager",
+  "version": "0.1.0",
+  "description": "Flow orchestration engine — define visual flow graphs (stages, decisions, parallel, loop) and bind them to group chats or agent sessions. Pure flow logic; no chat or agent runtime.",
+  "author": "Sum",
+  "type": "app",
+  "builtin": true,
+  "entry": {
+    "backend": "backend/main.py",
+    "frontend": "ui/plugin-entry.js"
+  },
+  "aiarb_version": {
+    "min": "2.0.1"
+  },
+  "meta": {
+    "pawapp": {
+      "icon": "🔀",
+      "category": "tools",
+      "entry_page": "/apps/flow-manager",
+      "launch_scope": "page"
+    },
+    "permissions": {
+      "storage": true
+    },
+    "settings": []
+  }
+}

@@ -149,6 +149,10 @@ export function lazyImportWithRetry(path: string): ComponentType<unknown> {
     ? `${base}/index.tsx`
     : PAGE_MODULES[`${base}/index.ts`]
     ? `${base}/index.ts`
+    : PAGE_MODULES[`${base}.tsx`]
+    ? `${base}.tsx`
+    : PAGE_MODULES[`${base}.ts`]
+    ? `${base}.ts`
     : base;
   const factory = PAGE_MODULES[globKey];
   if (!factory) {
