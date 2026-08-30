@@ -350,6 +350,38 @@
   flex: 1;
 }
 
+// Member bubble chip (群聊 member identity)
+.memberBubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 160px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.memberBubbleAvatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.memberBubbleName {
+  font-size: 12px;
+  color: var(--ant-color-text-secondary, #666);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
 // JSON syntax highlighting.
 // Double class selector + !important to beat the blanket
 // `color: rgba(255,255,255,0.85) !important` from chat-anywhere dark-mode.

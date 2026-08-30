@@ -838,7 +838,7 @@ function CronJobsPage() {
                         onOpenChange={(open) =>
                           setActivePopoverDate(open ? dateKey : null)
                         }
-                        overlayClassName={styles.dayJobPopoverOverlay}
+                        classNames={{ root: styles.dayJobPopoverOverlay }}
                         content={popoverContent}
                       >
                         <button className={styles.calendarMoreBtn}>

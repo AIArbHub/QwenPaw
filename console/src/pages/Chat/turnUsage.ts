@@ -205,8 +205,13 @@ export function patchLastResponseCardUsage(
   if (snapshot.context_usage) {
     updatedData.context_usage = snapshot.context_usage;
   }
-  ReactDOM.flushSync(() => {
-    messagesApi.updateMessage(updatedMsg);
+  // Defer flushSync to avoid calling it inside React's render cycle.
+  // Using queueMicrotask ensures the update runs after the current
+  // synchronous work (effects, event handlers) completes.
+  queueMicrotask(() => {
+    ReactDOM.flushSync(() => {
+      messagesApi.updateMessage(updatedMsg);
+    });
   });
   return true;
 }
@@ -271,8 +276,11 @@ export function patchContextMaxInputLength(
       context_usage_ratio: newRatio,
     };
     updatedData.context_usage = updatedContext;
-    ReactDOM.flushSync(() => {
-      messagesApi.updateMessage(updatedMsg);
+    // Defer flushSync to avoid calling it inside React's render cycle.
+    queueMicrotask(() => {
+      ReactDOM.flushSync(() => {
+        messagesApi.updateMessage(updatedMsg);
+      });
     });
     useTurnUsageStore.getState().setSnapshot({
       usage: snap.usage,

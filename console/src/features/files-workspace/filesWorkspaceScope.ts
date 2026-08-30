@@ -26,9 +26,5 @@ export function sessionFilesScopeKey(
   agentId: string,
   sessionId: string,
 ): string {
-  return filesWorkspaceScopeKey({
-    kind: "session",
-    agentId,
-    sessionId,
-  });
+  return filesWorkspaceScopeKey({ kind: "session", agentId, sessionId });
 }

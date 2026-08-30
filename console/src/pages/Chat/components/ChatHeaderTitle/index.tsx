@@ -3,6 +3,13 @@ import { Dropdown } from "antd";
 import { useChatAnywhereSessionsState } from "@agentscope-ai/chat";
 import { Check } from "lucide-react";
 import { useCodingMode } from "../../../../stores/codingModeStore";
+import { useAgentStore } from "../../../../stores/agentStore";
+import {
+  agentAvatarColor,
+  agentInitial,
+  isHostAgent,
+  parseHostMeta,
+} from "../../../../utils/hostAgent";
 import styles from "./index.module.less";
 
 const MOBILE_BREAKPOINT_PX = 480;
@@ -11,8 +18,36 @@ const ChatHeaderTitle: React.FC = () => {
   const { sessions, currentSessionId, setCurrentSessionId } =
     useChatAnywhereSessionsState();
   const { codingMode } = useCodingMode();
+  const { selectedAgent, agents } = useAgentStore();
   const currentSession = sessions.find((s) => s.id === currentSessionId);
   const chatName = currentSession?.name || "New Chat";
+
+  // When the current agent is a 群聊主持人, show its member avatar stack.
+  const currentAgent = agents.find((a) => a.id === selectedAgent);
+  const hostMeta =
+    currentAgent && isHostAgent(currentAgent)
+      ? parseHostMeta(currentAgent)
+      : null;
+
+  const memberStack = hostMeta ? (
+    <span className={styles.hostHeaderStack}>
+      {hostMeta.members.slice(0, 4).map((m) => (
+        <span
+          key={m.id}
+          className={styles.hostHeaderAvatar}
+          style={{ backgroundColor: agentAvatarColor(m.name) }}
+          title={m.name}
+        >
+          {agentInitial(m.name)}
+        </span>
+      ))}
+      {hostMeta.members.length > 4 && (
+        <span className={styles.hostHeaderAvatarMore}>
+          +{hostMeta.members.length - 4}
+        </span>
+      )}
+    </span>
+  ) : null;
 
   const [open, setOpen] = useState(false);
 
@@ -77,6 +112,15 @@ const ChatHeaderTitle: React.FC = () => {
     </span>
   );
 
+  const titleWrap = memberStack ? (
+    <span className={styles.hostHeaderWrap}>
+      {memberStack}
+      {titleContent}
+    </span>
+  ) : (
+    titleContent
+  );
+
   // Hidden span used to measure intrinsic text width for the marquee decision.
   // Placed outside .chatName so it does not duplicate text for screen readers
   // or testing-library queries.
@@ -98,7 +142,7 @@ const ChatHeaderTitle: React.FC = () => {
   if (sessions.length <= 1) {
     return (
       <>
-        {titleContent}
+        {titleWrap}
         {measureSpan}
       </>
     );
@@ -119,7 +163,7 @@ const ChatHeaderTitle: React.FC = () => {
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        {titleContent}
+        {titleWrap}
         {measureSpan}
       </button>
     </Dropdown>

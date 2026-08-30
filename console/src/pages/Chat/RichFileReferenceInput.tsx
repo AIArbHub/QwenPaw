@@ -274,7 +274,7 @@ function CodeSnippetChip({
     <Popover
       trigger="click"
       placement="topLeft"
-      overlayClassName={styles.codePopover}
+      classNames={{ root: styles.codePopover }}
       content={
         <div className={styles.codePreview}>
           <div className={styles.codePreviewHeader}>{language}</div>

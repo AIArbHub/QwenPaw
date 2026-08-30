@@ -152,6 +152,13 @@ export interface CreateAgentRequest {
     reasoning_effort?: string;
     [key: string]: unknown;
   };
+  /**
+   * Optional map of filename -> markdown content to write into the
+   * new agent's workspace after the default templates are applied.
+   * Accepted filenames: AGENTS.md, PROFILE.md, SOUL.md, CONTACTS.md,
+   * MAIL_TRIAGE.md, MEMORY.md.
+   */
+  initial_md_files?: Record<string, string>;
 }
 
 export interface CopyAgentRequest {
