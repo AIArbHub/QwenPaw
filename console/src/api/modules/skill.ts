@@ -256,14 +256,16 @@ export const skillApi = {
       body: JSON.stringify(payload),
     }),
 
-  enableSkill: (skillName: string) =>
+  enableSkill: (skillName: string, agentId?: string) =>
     request<void>(`/skills/${encodeURIComponent(skillName)}/enable`, {
       method: "POST",
+      ...(agentId ? { headers: { "X-Agent-Id": agentId } } : {}),
     }),
 
-  disableSkill: (skillName: string) =>
+  disableSkill: (skillName: string, agentId?: string) =>
     request<void>(`/skills/${encodeURIComponent(skillName)}/disable`, {
       method: "POST",
+      ...(agentId ? { headers: { "X-Agent-Id": agentId } } : {}),
     }),
 
   batchEnableSkills: (skillNames: string[]) =>
@@ -305,9 +307,10 @@ export const skillApi = {
       body: JSON.stringify(skillNames),
     }),
 
-  deleteSkill: (skillName: string) =>
+  deleteSkill: (skillName: string, agentId?: string) =>
     request<{ deleted: boolean }>(`/skills/${encodeURIComponent(skillName)}`, {
       method: "DELETE",
+      ...(agentId ? { headers: { "X-Agent-Id": agentId } } : {}),
     }),
 
   startHubSkillInstall: (

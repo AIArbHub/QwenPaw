@@ -8,12 +8,14 @@ import json
 import logging
 import re
 import shutil
+import uuid
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Literal
 
-from fastapi import APIRouter, Body, HTTPException, Request
+from fastapi import APIRouter, Body, File, HTTPException, Request, UploadFile
 from fastapi import Path as PathParam
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from aiarb.exceptions import (
@@ -55,6 +57,7 @@ from ...agents.utils import (
     normalize_agent_language,
 )
 from ...agents.skill_system import SkillPoolService, get_workspace_skills_dir
+from ...agents.templates import DEFAULT_KNOWLEDGE_SKILL_NAMES
 from ...harnesses.registry import ProviderCatalogItem, get_provider
 from ..agent_startup import AgentStartupStatus
 from ..multi_agent_manager import MultiAgentManager
@@ -73,6 +76,7 @@ class AgentSummary(BaseModel):
     id: str
     name: str
     description: str
+    group: str = ""
     workspace_dir: str
     enabled: bool
     pinned: bool
@@ -82,6 +86,7 @@ class AgentSummary(BaseModel):
     backend_model: str | None = None
     backend_reasoning_effort: str | None = None
     active_model: ModelSlotConfig | None = None
+    avatar: str | None = None
     managed_by_app: str | None = None
     available_in_chat: bool = True
 
@@ -246,6 +251,7 @@ class CreateAgentRequest(BaseModel):
     id: str | None = None
     name: str
     description: str = ""
+    group: str = ""
     workspace_dir: str | None = None
     language: str | None = None
     skill_names: list[str] | None = None
@@ -513,6 +519,7 @@ async def list_agents(request: Request = None) -> AgentListResponse:
                     id=agent_id,
                     name=agent_config.name,
                     description=description,
+                    group=getattr(agent_config, "group", "") or "",
                     workspace_dir=agent_ref.workspace_dir,
                     enabled=enabled,
                     pinned=pinned,
@@ -526,6 +533,7 @@ async def list_agents(request: Request = None) -> AgentListResponse:
                         )
                     ),
                     active_model=active_model,
+                    avatar=getattr(agent_config, "avatar", None),
                     managed_by_app=managed_by_app,
                     available_in_chat=managed_by_app is None,
                 ),
@@ -617,6 +625,37 @@ async def set_agent_pinned(
         "agent_id": agentId,
         "pinned": True if agentId == "default" else pinned,
     }
+
+
+class AgentGroupPatch(BaseModel):
+    """Request model for updating an agent's group label."""
+
+    group: str = ""
+
+
+@router.patch(
+    "/{agentId}/group",
+    response_model=AgentProfileConfig,
+    summary="Update agent group label",
+    description="Persist an agent's category/group label",
+)
+async def set_agent_group(
+    agentId: str = PathParam(...),
+    body: AgentGroupPatch = Body(...),
+) -> AgentProfileConfig:
+    """Persist an agent's group label without changing other settings."""
+
+    def apply_group(existing_config: AgentProfileConfig) -> None:
+        existing_config.group = body.group
+
+    try:
+        return await run_sync_io(
+            mutate_agent_config,
+            agentId,
+            apply_group,
+        )
+    except (ValueError, AppBaseException) as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 @router.get(
@@ -883,6 +922,7 @@ async def create_agent(
         id=new_id,
         name=request.name,
         description=request.description,
+        group=request.group,
         workspace_dir=str(workspace_dir),
         backend=request.backend,
         backend_settings=request.backend_settings,
@@ -899,7 +939,9 @@ async def create_agent(
         _initialize_agent_workspace,
         workspace_dir,
         skill_names=(
-            request.skill_names if request.skill_names is not None else []
+            request.skill_names
+            if request.skill_names is not None
+            else list(DEFAULT_KNOWLEDGE_SKILL_NAMES)
         ),
         language=language,
     )
@@ -2128,3 +2170,249 @@ def _initialize_agent_workspace(
                 ensure_ascii=False,
                 indent=2,
             )
+
+
+class MigrateWorkspaceRequest(BaseModel):
+    """Request model for migrating an agent's workspace directory."""
+
+    new_workspace_dir: str
+    migrate_files: bool = True
+
+
+class MigrateWorkspaceResponse(BaseModel):
+    """Response model for a workspace migration."""
+
+    success: bool
+    old_workspace_dir: str
+    new_workspace_dir: str
+    migrated: bool
+
+
+@router.post(
+    "/{agentId}/migrate-workspace",
+    response_model=MigrateWorkspaceResponse,
+    summary="Migrate agent workspace",
+    description="Change agent workspace directory with optional file migration",
+)
+async def migrate_workspace(
+    agentId: str = PathParam(...),
+    body: MigrateWorkspaceRequest = Body(...),
+    request: Request = None,
+) -> MigrateWorkspaceResponse:
+    """Migrate agent workspace to a new directory."""
+    config = await run_sync_io(load_config)
+
+    if agentId not in config.agents.profiles:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Agent '{agentId}' not found",
+        )
+
+    old_dir = Path(config.agents.profiles[agentId].workspace_dir).expanduser()
+    new_dir = Path(body.new_workspace_dir).expanduser()
+
+    if new_dir.resolve() == old_dir.resolve():
+        return MigrateWorkspaceResponse(
+            success=True,
+            old_workspace_dir=str(old_dir),
+            new_workspace_dir=str(new_dir),
+            migrated=False,
+        )
+
+    def migrate_files() -> bool:
+        migrated = False
+        if body.migrate_files and old_dir.is_dir():
+            new_dir.mkdir(parents=True, exist_ok=True)
+            for item in old_dir.iterdir():
+                dest = new_dir / item.name
+                if not dest.exists():
+                    try:
+                        if item.is_dir():
+                            shutil.copytree(str(item), str(dest))
+                        else:
+                            shutil.copy2(str(item), str(dest))
+                    except Exception as exc:
+                        logger.warning(
+                            "Failed to migrate %s: %s", item.name, exc,
+                        )
+            migrated = True
+        else:
+            new_dir.mkdir(parents=True, exist_ok=True)
+        return migrated
+
+    migrated = await run_sync_io(migrate_files)
+
+    def apply_migration(latest_config: Any) -> None:
+        if agentId not in latest_config.agents.profiles:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Agent '{agentId}' not found",
+            )
+        latest_config.agents.profiles[agentId].workspace_dir = str(new_dir)
+
+    await run_sync_io(mutate_config, apply_migration)
+
+    def update_agent_workspace() -> None:
+        existing_config = load_agent_config(agentId)
+        existing_config.workspace_dir = str(new_dir)
+        save_agent_config(agentId, existing_config)
+
+    await run_sync_io(update_agent_workspace)
+
+    schedule_agent_reload(request, agentId)
+
+    logger.info(
+        "Migrated agent %s workspace: %s -> %s (migrated_files=%s)",
+        sanitize_log_value(agentId),
+        sanitize_log_value(old_dir),
+        sanitize_log_value(new_dir),
+        migrated,
+    )
+
+    return MigrateWorkspaceResponse(
+        success=True,
+        old_workspace_dir=str(old_dir),
+        new_workspace_dir=str(new_dir),
+        migrated=migrated,
+    )
+
+
+_AVATAR_ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
+_AVATAR_MAX_SIZE_BYTES = 2 * 1024 * 1024
+_AVATARS_DIR_NAME = "avatars"
+
+
+def _get_avatars_dir() -> Path:
+    """Return the global avatars directory under WORKING_DIR."""
+    avatars_dir = Path(WORKING_DIR) / _AVATARS_DIR_NAME
+    avatars_dir.mkdir(parents=True, exist_ok=True)
+    return avatars_dir
+
+
+@router.post(
+    "/{agentId}/avatar",
+    summary="Upload agent avatar",
+    description="Upload a custom avatar image for an agent",
+)
+async def upload_agent_avatar(
+    agentId: str = PathParam(...),
+    file: UploadFile = File(..., description="Avatar image file"),
+) -> dict:
+    """Upload a custom avatar image for an agent."""
+    config = await run_sync_io(load_config)
+
+    if agentId not in config.agents.profiles:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Agent '{agentId}' not found",
+        )
+
+    if not file.filename:
+        raise HTTPException(
+            status_code=400,
+            detail="No filename provided",
+        )
+
+    ext = Path(file.filename).suffix.lower()
+    if ext not in _AVATAR_ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"File extension '{ext}' not allowed. Allowed: "
+                f"{', '.join(sorted(_AVATAR_ALLOWED_EXTENSIONS))}"
+            ),
+        )
+
+    data = await file.read()
+    if len(data) > _AVATAR_MAX_SIZE_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "File too large. Maximum size: "
+                f"{_AVATAR_MAX_SIZE_BYTES // (1024 * 1024)}MB"
+            ),
+        )
+
+    def write_avatar() -> str:
+        avatars_dir = _get_avatars_dir()
+        existing_config = load_agent_config(agentId)
+        old_avatar = getattr(existing_config, "avatar", None)
+        if old_avatar and old_avatar.startswith("/api/agents/avatars/"):
+            old_filename = old_avatar.rsplit("/", 1)[-1]
+            old_filepath = avatars_dir / old_filename
+            if old_filepath.exists():
+                try:
+                    old_filepath.unlink()
+                except OSError:
+                    pass
+        filename = f"{agentId}_{uuid.uuid4().hex[:8]}{ext}"
+        filepath = avatars_dir / filename
+        with open(filepath, "wb") as handle:
+            handle.write(data)
+        avatar_url = f"/api/agents/avatars/{filename}"
+        existing_config.avatar = avatar_url
+        save_agent_config(agentId, existing_config)
+        return avatar_url
+
+    avatar_url = await run_sync_io(write_avatar)
+
+    return {"success": True, "avatar": avatar_url}
+
+
+@router.get(
+    "/avatars/{filename}",
+    summary="Get agent avatar file",
+    description="Serve an uploaded agent avatar image",
+)
+async def get_agent_avatar(
+    filename: str = PathParam(...),
+):
+    """Serve an uploaded agent avatar image."""
+    avatars_dir = _get_avatars_dir()
+    filepath = avatars_dir / filename
+
+    if not filepath.exists() or not filepath.is_file():
+        raise HTTPException(status_code=404, detail="Avatar not found")
+
+    resolved = filepath.resolve()
+    avatars_resolved = avatars_dir.resolve()
+    if not resolved.is_relative_to(avatars_resolved):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    return FileResponse(str(filepath))
+
+
+@router.delete(
+    "/{agentId}/avatar",
+    summary="Delete agent avatar",
+    description="Remove custom avatar and revert to default",
+)
+async def delete_agent_avatar(
+    agentId: str = PathParam(...),
+) -> dict:
+    """Delete custom avatar for an agent, reverting to default."""
+    config = await run_sync_io(load_config)
+
+    if agentId not in config.agents.profiles:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Agent '{agentId}' not found",
+        )
+
+    def remove_avatar() -> None:
+        existing_config = load_agent_config(agentId)
+        old_avatar = getattr(existing_config, "avatar", None)
+        if old_avatar and old_avatar.startswith("/api/agents/avatars/"):
+            old_filename = old_avatar.rsplit("/", 1)[-1]
+            old_filepath = _get_avatars_dir() / old_filename
+            if old_filepath.exists():
+                try:
+                    old_filepath.unlink()
+                except OSError:
+                    pass
+        existing_config.avatar = None
+        save_agent_config(agentId, existing_config)
+
+    await run_sync_io(remove_avatar)
+
+    return {"success": True, "avatar": None}

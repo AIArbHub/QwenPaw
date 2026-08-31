@@ -362,6 +362,15 @@
   }
 }
 
+// 列表顶部搜索框
+.agentSearchBox {
+  width: 190px;
+
+  :global(.ant-input) {
+    font-size: 12px;
+  }
+}
+
 .listTabs {
   flex-shrink: 0;
   display: flex;
@@ -842,6 +851,170 @@
 .detailHostMemberName {
   font-size: 12px;
   color: var(--text-primary);
+}
+
+// ── 分组（Group）标签与内联编辑 ────────────────────────────────────────────
+
+.groupTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: rgba(0, 101, 253, 0.10);
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    background: rgba(0, 101, 253, 0.18);
+  }
+
+  &.groupTagEmpty {
+    background: transparent;
+    border: 1px dashed var(--border-color);
+    color: var(--text-tertiary);
+  }
+}
+
+.groupEditPopover {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 240px;
+}
+
+.groupEditSave {
+  flex-shrink: 0;
+  height: 24px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.detailInfoMeta {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.agentMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.pinnedBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: rgba(250, 173, 20, 0.15);
+  color: #d48806;
+  font-size: 10px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+// ── QQ 好友/通讯录式折叠分组 ──────────────────────────────────────────────
+
+.groupContainer {
+  margin-bottom: 2px;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 30px;
+  padding: 0 8px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+}
+
+.groupHeaderChevron {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  transition: transform 0.15s ease;
+}
+
+.groupHeaderChevronCollapsed {
+  transform: rotate(-90deg);
+}
+
+.groupHeaderTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.groupHeaderCount {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+// ── Quick actions: 新增聊天 / 历史会话 ──────────────────────────────────────
+
+.quickActions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px 12px;
+}
+
+.quickActionButton {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-panel);
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--color-primary);
+    border-color: rgba(0, 101, 253, 0.4);
+  }
+
+  span {
+    white-space: nowrap;
+  }
 }
 
 // ── Column 3: Content ─────────────────────────────────────────────────────────

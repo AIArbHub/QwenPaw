@@ -14,6 +14,8 @@ export interface AgentSummary {
   id: string;
   name: string;
   description: string;
+  /** User-assigned category/group label for the agent. */
+  group?: string;
   workspace_dir: string;
   enabled: boolean;
   pinned?: boolean;
@@ -23,6 +25,8 @@ export interface AgentSummary {
   backend_model?: string | null;
   backend_reasoning_effort?: string | null;
   active_model?: ModelSlotConfig | null;
+  /** Custom avatar URL path (e.g. "/api/agents/avatars/<filename>"). */
+  avatar?: string | null;
   /** PawApp id when this profile is an app-owned execution engine. */
   managed_by_app?: string | null;
   /** False for app-owned profiles that must not appear in normal Chat. */
@@ -38,6 +42,13 @@ export interface AgentListResponse {
 export interface ReorderAgentsResponse {
   success: boolean;
   agent_ids: string[];
+}
+
+export interface MigrateWorkspaceResponse {
+  success: boolean;
+  old_workspace_dir: string;
+  new_workspace_dir: string;
+  migrated: boolean;
 }
 
 export interface AgentMailCredential {
@@ -98,6 +109,7 @@ export interface AgentProfileConfig {
   id: string;
   name: string;
   description?: string;
+  group?: string;
   workspace_dir?: string;
   backend?: AgentBackend;
   backend_settings?: {
@@ -140,6 +152,7 @@ export interface CreateAgentRequest {
   id?: string;
   name: string;
   description?: string;
+  group?: string;
   workspace_dir?: string;
   language?: string;
   skill_names?: string[];

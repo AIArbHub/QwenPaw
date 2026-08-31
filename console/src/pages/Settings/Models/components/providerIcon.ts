@@ -33,7 +33,7 @@ export const providerIcon = (provider: string) => {
     case "siliconflow-intl":
       return "https://img.alicdn.com/imgextra/i1/O1CN01TUkzVC1clAoPa2ix8_!!6000000003640-2-tps-520-520.png";
     case "aiarb-local":
-      return "https://gw.alicdn.com/imgextra/i2/O1CN01pyXzjQ1EL1PuZMlSd_!!6000000000334-2-tps-288-288.png";
+      return "/aiarb.png";
     case "zhipu-cn":
     case "zhipu-intl":
     case "zhipu-cn-codingplan":

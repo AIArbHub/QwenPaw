@@ -43,7 +43,8 @@
     "resources": [
       "binaries/aiarb-backend",
       "binaries/python-runtime",
-      "binaries/node-runtime"
+      "binaries/node-runtime",
+      "../../plugins/bundle"
     ],
     "windows": {
       "webviewInstallMode": {

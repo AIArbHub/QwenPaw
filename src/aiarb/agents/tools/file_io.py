@@ -20,6 +20,7 @@ from ...config.context import (
     get_current_recent_max_bytes,
     get_tool_base_dir,
 )
+from ...knowledge import get_knowledge_dirs
 from ...runtime.tool_registry import tool_descriptor
 from ...utils.io_utils import (
     append_text_async,
@@ -84,6 +85,30 @@ def _resolve_file_path(file_path: str) -> str:
     if path.is_absolute():
         return str(path)
     return str(_effective_project_roots()[0] / file_path)
+
+
+def _resolve_read_path(file_path: str) -> str:
+    """Resolve a read-only tool-supplied path against project + knowledge roots.
+
+    Relative paths resolve from the primary project directory first; if that
+    does not exist, they fall back to the shared knowledge-base roots, so the
+    shared corpus is readable exactly like the agent's own files (merged).
+    """
+    path = Path(file_path).expanduser()
+    if path.is_absolute():
+        return str(path)
+    primary = _effective_project_roots()[0]
+    candidate = primary / file_path
+    if candidate.exists():
+        return str(candidate)
+    try:
+        for kd in get_knowledge_dirs():
+            fallback = kd / file_path
+            if fallback.exists():
+                return str(fallback)
+    except Exception:  # pragma: no cover - defensive
+        pass
+    return str(candidate)
 
 
 def _get_encoding_for_file(file_path: str) -> str:
@@ -178,7 +203,7 @@ async def read_file(  # pylint: disable=too-many-return-statements
                 ],
             )
 
-    file_path = _resolve_file_path(file_path)
+    file_path = _resolve_read_path(file_path)
 
     try:
         content = await read_file_safe(file_path)

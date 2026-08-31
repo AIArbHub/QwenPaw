@@ -267,23 +267,30 @@ export const workspaceApi = {
     return response.json();
   },
 
-  listFiles: () =>
-    request<MdFileInfo[]>("/workspace/files").then((files) =>
+  listFiles: (agentId?: string) =>
+    request<MdFileInfo[]>(
+      "/workspace/files",
+      agentId ? { headers: { "X-Agent-Id": agentId } } : undefined,
+    ).then((files) =>
       files.map((file) => ({
         ...file,
         updated_at: new Date(file.modified_time).getTime(),
       })),
     ),
 
-  loadFile: (fileName: string) =>
-    request<MdFileContent>(`/workspace/files/${encodeURIComponent(fileName)}`),
+  loadFile: (fileName: string, agentId?: string) =>
+    request<MdFileContent>(
+      `/workspace/files/${encodeURIComponent(fileName)}`,
+      agentId ? { headers: { "X-Agent-Id": agentId } } : undefined,
+    ),
 
-  saveFile: (fileName: string, content: string) =>
+  saveFile: (fileName: string, content: string, agentId?: string) =>
     request<Record<string, unknown>>(
       `/workspace/files/${encodeURIComponent(fileName)}`,
       {
         method: "PUT",
         body: JSON.stringify({ content }),
+        ...(agentId ? { headers: { "X-Agent-Id": agentId } } : {}),
       },
     ),
 
@@ -384,13 +391,17 @@ export const workspaceApi = {
     ),
 
   // System prompt files management
-  getSystemPromptFiles: () =>
-    request<string[]>("/workspace/system-prompt-files"),
+  getSystemPromptFiles: (agentId?: string) =>
+    request<string[]>(
+      "/workspace/system-prompt-files",
+      agentId ? { headers: { "X-Agent-Id": agentId } } : undefined,
+    ),
 
-  setSystemPromptFiles: (files: string[]) =>
+  setSystemPromptFiles: (files: string[], agentId?: string) =>
     request<string[]>("/workspace/system-prompt-files", {
       method: "PUT",
       body: JSON.stringify(files),
+      ...(agentId ? { headers: { "X-Agent-Id": agentId } } : {}),
     }),
 
   // Coding Mode – full file tree (all file types)

@@ -1,0 +1,108 @@
+/* UnderlineTabs — 下划线选项卡（适配 QwenPaw 主题） */
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 2px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(20, 20, 19, 0.45);
+  transition: color 0.2s ease, font-weight 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    color: rgba(20, 20, 19, 0.88);
+  }
+
+  /* Active underline */
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: transparent;
+    transition: background 0.2s ease;
+  }
+}
+
+.active {
+  color: rgba(20, 20, 19, 0.88);
+  font-weight: 600;
+
+  &::after {
+    background: #0065fd;
+  }
+}
+
+.label {
+  line-height: 1;
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(20, 20, 19, 0.45);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.countDot {
+  min-width: 6px;
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  background: #0065fd;
+}
+
+/* Dark mode */
+:global(.dark-mode) {
+  .tabs {
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .tab {
+    color: rgba(255, 255, 255, 0.45);
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.88);
+    }
+  }
+
+  .active {
+    color: rgba(255, 255, 255, 0.88);
+
+    &::after {
+      background: #4da3ff;
+    }
+  }
+
+  .count {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .countDot {
+    background: #4da3ff;
+  }
+}

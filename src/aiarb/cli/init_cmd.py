@@ -26,6 +26,7 @@ from ..config.config import (
     HeartbeatConfig,
 )
 from ..constant import HEARTBEAT_DEFAULT_EVERY
+from ..knowledge import ensure_global_knowledge_base
 from ..providers import ProviderManager
 from ..constant import WORKING_DIR
 
@@ -175,6 +176,7 @@ def init_cmd(
 ) -> None:
     """Create working dir with config.json and HEARTBEAT.md (interactive)."""
     from ..app.migration import (
+        ensure_builtin_arbitration_agents_exists,
         ensure_default_agent_exists,
         ensure_qa_agent_exists,
         migrate_legacy_skills_to_skill_pool,
@@ -234,12 +236,31 @@ def init_cmd(
     click.echo("✓ Default workspace initialized")
     ensure_qa_agent_exists()
     click.echo("✓ Builtin QA agent workspace ensured")
+    ensure_builtin_arbitration_agents_exists()
+    click.echo("✓ Builtin arbitration agents ensured")
+    ensure_global_knowledge_base()
+    click.echo("✓ Shared knowledge base ensured")
 
     # --- Ensure local skill hub exists ---
     from ..agents.skill_system import ensure_skill_pool_initialized
 
     if ensure_skill_pool_initialized():
         click.echo("✓ Skill pool initialized")
+
+    # --- Seed built-in plugins (e.g. flow-manager) ---
+    from ..plugins.builtin_seed import seed_builtin_plugins
+
+    from ..constant import PLUGINS_DIR
+
+    try:
+        _seeded = seed_builtin_plugins(PLUGINS_DIR)
+        if _seeded:
+            click.echo(
+                f"✓ Seeded {len(_seeded)} built-in plugin(s): "
+                + ", ".join(_seeded),
+            )
+    except Exception:
+        click.echo("⚠ Built-in plugin seeding failed (non-blocking)")
 
     # Get default workspace path for subsequent operations
     default_workspace = Path(f"{WORKING_DIR}/workspaces/default").expanduser()
