@@ -37,14 +37,19 @@ function getErrorMessageFromBody(
   return text;
 }
 
-function buildHeaders(method?: string, extra?: HeadersInit): Headers {
+function buildHeaders(
+  method?: string,
+  extra?: HeadersInit,
+  isFormData = false,
+): Headers {
   // Normalize extra to a Headers instance for consistent handling
   const headers = extra instanceof Headers ? extra : new Headers(extra);
 
   // Only add Content-Type for methods that typically have a body
   if (method && ["POST", "PUT", "PATCH"].includes(method.toUpperCase())) {
-    // Don't override if caller explicitly set Content-Type
-    if (!headers.has("Content-Type")) {
+    // Don't override if the caller set it explicitly, and skip for FormData
+    // uploads (the browser generates the multipart boundary automatically).
+    if (!isFormData && !headers.has("Content-Type")) {
       headers.set("Content-Type", "application/json");
     }
   }
@@ -77,7 +82,8 @@ export async function request<T = unknown>(
 ): Promise<T> {
   const url = getApiUrl(path);
   const method = options.method || "GET";
-  const headers = buildHeaders(method, options.headers);
+  const isFormData = options.body instanceof FormData;
+  const headers = buildHeaders(method, options.headers, isFormData);
   const {
     timeout = DEFAULT_TIMEOUT_MS,
     retries = DEFAULT_RETRIES,

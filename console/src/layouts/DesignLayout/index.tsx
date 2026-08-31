@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useState, useRef } from "react";
 import type { ReactNode } from "react";
-import { Layout, Tooltip, Badge, Avatar, Spin, Divider, Popover, Popconfirm } from "antd";
+import { Layout, Tooltip, Badge, Avatar, Spin, Divider, Popover, Input } from "antd";
 import {
   Routes,
   Route,
@@ -11,6 +11,8 @@ import {
 import { useTranslation } from "react-i18next";
 import {
   MessageSquareText,
+  MessageSquarePlus,
+  History,
   ChevronLeft,
   ChevronRight,
   PanelLeftClose,
@@ -19,8 +21,12 @@ import {
   Search,
   Users2,
   Plus,
-  Pencil,
-  Trash2,
+  Info,
+  Sparkles,
+  Zap,
+  Brain,
+  Tag,
+  ChevronDown,
 } from "lucide-react";
 import { useAgentStore } from "../../stores/agentStore";
 import { useRoutes, useMenuItems } from "../../plugins/registry/hooks";
@@ -43,9 +49,9 @@ import { useTheme } from "../../contexts/ThemeContext";
 import SidebarSettingsPanel from "../SidebarSettingsPanel";
 import CreateGroupChatModal from "../../components/CreateGroupChatModal";
 import EditGroupChatModal from "../../components/EditGroupChatModal";
+import CreateAgentModal from "../../components/CreateAgentModal";
 import { agentsApi } from "../../api/modules/agents";
 import { useAppMessage } from "../../hooks/useAppMessage";
-import { purgeAgentSpace } from "../../os/osCleanup";
 import {
   HOST_MODE_LABEL,
   isHostAgent,
@@ -53,6 +59,7 @@ import {
   stripHostMeta,
 } from "../../utils/hostAgent";
 import styles from "./designLayout.module.less";
+import { AgentDetailDrawer } from "../../pages/Settings/Agents/components";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -97,6 +104,72 @@ function getInitials(name: string): string {
   return trimmed.charAt(0).toUpperCase();
 }
 
+/**
+ * 分组标签：展示当前分组，点击后内联编辑并保存。
+ * 通过 onSave 回调把新值持久化到后端。
+ */
+function GroupTag({
+  group,
+  onSave,
+}: {
+  group?: string;
+  onSave: (next: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState(group || "");
+
+  useEffect(() => {
+    setDraft(group || "");
+  }, [group]);
+
+  const handleConfirm = () => {
+    setOpen(false);
+    onSave(draft);
+  };
+
+  const label = (group || "").trim();
+
+  return (
+    <Popover
+      open={open}
+      onOpenChange={(v) => {
+        setOpen(v);
+        if (v) setDraft(group || "");
+      }}
+      trigger="click"
+      placement="bottomLeft"
+      content={
+        <div className={styles.groupEditPopover}>
+          <Input
+            size="small"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onPressEnter={handleConfirm}
+            placeholder="分组名称"
+            maxLength={20}
+          />
+          <button
+            type="button"
+            className={styles.groupEditSave}
+            onClick={handleConfirm}
+          >
+            保存
+          </button>
+        </div>
+      }
+    >
+      <span
+        className={`${styles.groupTag}${label ? "" : ` ${styles.groupTagEmpty}`}`}
+        onClick={(e) => e.stopPropagation()}
+        title={label ? `${label}（点击修改分组）` : "设置分组"}
+      >
+        <Tag size={10} />
+        {label || "分组"}
+      </span>
+    </Popover>
+  );
+}
+
 // ── Component ───────────────────────────────────────────────────────────────
 
 /**
@@ -126,7 +199,14 @@ export default function DesignLayout({
   const [editGroupAgent, setEditGroupAgent] = useState<AgentSummary | null>(
     null,
   );
+  const [createAgentOpen, setCreateAgentOpen] = useState(false);
   const [listTab, setListTab] = useState<"agents" | "groups">("agents");
+  const [drawerAgent, setDrawerAgent] = useState<AgentSummary | null>(null);
+  const [drawerTab, setDrawerTab] = useState("basic");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
+    () => new Set(),
+  );
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
 
   // ── Hooks ──────────────────────────────────────────────────────────────────
@@ -140,7 +220,7 @@ export default function DesignLayout({
     selectedAgent,
     setSelectedAgent,
     refreshAgents,
-    removeAgent,
+    updateAgent,
   } = useAgentStore();
   const routes = useRoutes();
   const rawAgentMenu = useMenuItems("primary.agentScoped");
@@ -231,6 +311,30 @@ export default function DesignLayout({
       });
     }
 
+    // 3b. Memory center (global entry in design mode)
+    const memoryItem = findMenuItem(rawAgentMenu, "core.memory");
+    if (memoryItem) {
+      items.push({
+        key: "core.memory",
+        icon: renderIcon(memoryItem.icon, RAIL_ICON_SIZE),
+        label: resolveLabel(memoryItem.label),
+        path: routeIdToPath(memoryItem.route, routes),
+        href: memoryItem.href,
+      });
+    }
+
+    // 3c. Shared knowledge base (global entry in design mode)
+    const kbItem = findMenuItem(rawAgentMenu, "core.knowledge-base");
+    if (kbItem) {
+      items.push({
+        key: "core.knowledge-base",
+        icon: renderIcon(kbItem.icon, RAIL_ICON_SIZE),
+        label: resolveLabel(kbItem.label),
+        path: routeIdToPath(kbItem.route, routes),
+        href: kbItem.href,
+      });
+    }
+
     // 4. Settings group header (hidden when collapsed)
     items.push({
       key: "settings-group-header",
@@ -275,11 +379,13 @@ export default function DesignLayout({
     }
 
     // Items under core.workspace-group → "工作区"
+    // (skills is promoted to the "基本信息" group below)
     const workspaceGroup = agentMenu.find(
       (i) => i.id === "core.workspace-group",
     ) as TreeMenuItem | undefined;
     for (const child of workspaceGroup?.__children ?? []) {
       if (child.id === "core.inbox" || child.id === "core.marketplace") continue;
+      if (child.id === "core.skills") continue;
       if (child.visible?.() === false) continue;
       workspace.push({
         key: child.id,
@@ -305,11 +411,42 @@ export default function DesignLayout({
       });
     }
 
-    return { control, workspace };
-  }, [agentMenu, routes]);
+    // 基本信息 group — static entries (basic/persona open the edit drawer,
+    // skills/memory route into the right content panel).
+    const profile: FeatureCardData[] = [
+      { key: "basic", icon: <Info size={FEATURE_ICON_SIZE} />, label: t("agent.basicInfo", "基本信息") },
+      { key: "persona", icon: <Sparkles size={FEATURE_ICON_SIZE} />, label: t("agent.persona", "人设") },
+      {
+        key: "skills",
+        icon: <Zap size={FEATURE_ICON_SIZE} />,
+        label: t("nav.skills", "技能"),
+        path: routeIdToPath("core.skills", routes),
+      },
+      {
+        key: "memory",
+        icon: <Brain size={FEATURE_ICON_SIZE} />,
+        label: t("agent.memory", "记忆"),
+      },
+    ];
+
+    return { profile, control, workspace };
+  }, [agentMenu, routes, t]);
 
   // ── Derived: panel agent object ────────────────────────────────────────────
   const panelAgent = agents.find((a) => a.id === panelAgentId) ?? null;
+
+  // 面板智能体是否为群聊（主持人）智能体，以及其元信息（成员/模式）。
+  const panelIsHost = panelAgent ? isHostAgent(panelAgent) : false;
+  const panelHostMeta = panelIsHost ? parseHostMeta(panelAgent!) : null;
+  const panelHostMemberNames = panelHostMeta
+    ? panelHostMeta.members.map((m) => m.name)
+    : [];
+  const panelHostModeLabel = panelHostMeta
+    ? HOST_MODE_LABEL[panelHostMeta.mode]
+    : "";
+  const panelHostCleanDesc = panelIsHost
+    ? stripHostMeta(panelAgent!.description)
+    : "";
 
   // 主持人智能体（群聊）与普通智能体分开展示，避免混在一起。
   const { regularAgents, hostAgents } = useMemo(() => {
@@ -350,24 +487,67 @@ export default function DesignLayout({
   };
 
   const handleGroupClick = (agent: AgentSummary) => {
+    // 与单个智能体一致：中栏展示详情（新增聊天/基本信息/控制/工作区 + 群聊管理），
+    // 同时右栏跳转到该群聊的聊天页。
+    setPanelAgentId(agent.id);
     setSelectedAgent(agent.id);
     navigate(buildChatPath());
   };
 
-  const handleEditGroup = (agent: AgentSummary) => {
-    setEditGroupAgent(agent);
+  const handleOpenDrawer = (agent: AgentSummary, tab: string) => {
+    setDrawerAgent(agent);
+    setDrawerTab(tab);
   };
 
-  const handleDeleteGroup = async (agent: AgentSummary) => {
+  // 新增聊天：若已在聊天页则派发事件创建新会话，否则跳转 /chat。
+  const handleNewChat = () => {
+    const onChatPage = currentPath.startsWith("/chat");
+    if (onChatPage) {
+      window.dispatchEvent(new CustomEvent("aiarb:sidebar-new-chat"));
+    } else {
+      sessionStorage.setItem("aiarb_pending_new_chat", "1");
+      navigate(buildChatPath());
+    }
+  };
+
+  // 历史会话：跳转到会话历史页（右栏区域）。若处于某个智能体详情，则进入其专属历史页。
+  const handleHistorySessions = () => {
+    if (panelAgent) {
+      navigate(`/agents/${encodeURIComponent(panelAgent.id)}/sessions`);
+    } else {
+      navigate("/sessions");
+    }
+  };
+
+  const handleProfileCardClick = (card: FeatureCardData) => {
+    if (!panelAgent) return;
+    if (card.key === "basic") {
+      handleOpenDrawer(panelAgent, "basic");
+      return;
+    }
+    if (card.key === "persona") {
+      handleOpenDrawer(panelAgent, "persona");
+      return;
+    }
+    if (card.key === "memory") {
+      handleOpenDrawer(panelAgent, "memory");
+      return;
+    }
+    if (card.path) {
+      navigate(card.path);
+    }
+  };
+
+  // 列表中直接修改分组：持久化到后端并同步到本地 store。
+  const handleGroupChange = async (agentId: string, group: string) => {
+    const next = (group || "").trim();
     try {
-      await agentsApi.deleteAgent(agent.id);
-      purgeAgentSpace(agent.id);
-      removeAgent(agent.id);
-      message.success(t("agent.deleteSuccess", "删除成功"));
-      await refreshAgents();
+      await agentsApi.setAgentGroup(agentId, next);
+      updateAgent(agentId, { group: next });
+      message.success(t("agent.groupUpdated", "分组已更新"));
     } catch (err: unknown) {
       message.error(
-        err instanceof Error ? err.message : t("agent.deleteFailed", "删除失败"),
+        err instanceof Error ? err.message : t("agent.groupUpdateFailed", "分组更新失败"),
       );
     }
   };
@@ -380,6 +560,266 @@ export default function DesignLayout({
     if (card.path) {
       navigate(card.path);
     }
+  };
+
+  // 针对某个具体智能体/群聊发起新对话：先切换 selectedAgent（同步生效，
+  // 决定 X-Agent-Id 请求头的归属），再走通用新建会话流程。
+  const handleAgentNewChat = (agent: AgentSummary) => {
+    setSelectedAgent(agent.id);
+    handleNewChat();
+  };
+
+  // 进入该智能体/群聊的会话历史页。
+  const handleAgentHistory = (agent: AgentSummary) => {
+    setSelectedAgent(agent.id);
+    navigate(`/agents/${encodeURIComponent(agent.id)}/sessions`);
+  };
+
+  // 折叠/展开 QQ 好友式分组。
+  const toggleGroupCollapse = (key: string) => {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  // ── QQ 好友/通讯录式分组 + 搜索 ───────────────────────────────────────────
+  const queryNorm = searchQuery.trim().toLowerCase();
+
+  // 按 名称 / id / 基本信息(简介) 检索。
+  const filterByQuery = (items: AgentSummary[]): AgentSummary[] => {
+    if (!queryNorm) return items;
+    return items.filter(
+      (a) =>
+        (a.name || "").toLowerCase().includes(queryNorm) ||
+        (a.id || "").toLowerCase().includes(queryNorm) ||
+        (a.description || "").toLowerCase().includes(queryNorm),
+    );
+  };
+
+  // 将列表按 group 字段折叠成可折叠分组，未分组排最后。
+  const groupByGroupName = (
+    items: AgentSummary[],
+    prefix: string,
+  ): Array<{ key: string; label: string; items: AgentSummary[] }> => {
+    const src = filterByQuery(items);
+    const uncatLabel = t("chat.groups.uncategorized", "未分组");
+    const order: string[] = [];
+    const map = new Map<string, AgentSummary[]>();
+    for (const item of src) {
+      const label = (item.group || "").trim() || uncatLabel;
+      if (!map.has(label)) {
+        map.set(label, []);
+        order.push(label);
+      }
+      map.get(label)!.push(item);
+    }
+    order.sort((a, b) => {
+      if (a === uncatLabel) return 1;
+      if (b === uncatLabel) return -1;
+      return a.localeCompare(b, "zh-CN");
+    });
+    return order.map((label) => ({
+      key: `${prefix}:${label}`,
+      label,
+      items: map.get(label)!,
+    }));
+  };
+
+  const regularGrouped = useMemo(
+    () => groupByGroupName(regularAgents, "ag"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [regularAgents, searchQuery],
+  );
+  const hostGrouped = useMemo(
+    () => groupByGroupName(hostAgents, "gr"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [hostAgents, searchQuery],
+  );
+
+  // 分组下每个条目的 hover 快捷操作：新增对话 + 对话历史。
+  const renderQuickActions = (agent: AgentSummary): ReactNode => (
+    <div
+      className={styles.hostAgentActions}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <Tooltip title={t("chat.newChat", "新增对话")}>
+        <button
+          type="button"
+          className={styles.hostAgentActionButton}
+          aria-label={t("chat.newChat", "新增对话")}
+          onClick={() => handleAgentNewChat(agent)}
+        >
+          <MessageSquarePlus size={14} />
+        </button>
+      </Tooltip>
+      <Tooltip title={t("sessions.history.shortcut", "对话历史")}>
+        <button
+          type="button"
+          className={styles.hostAgentActionButton}
+          aria-label={t("sessions.history.shortcut", "对话历史")}
+          onClick={() => handleAgentHistory(agent)}
+        >
+          <History size={14} />
+        </button>
+      </Tooltip>
+    </div>
+  );
+
+  // 单个普通智能体条目。
+  const renderAgentItem = (agent: AgentSummary): ReactNode => (
+    <div
+      key={agent.id}
+      className={styles.agentItem}
+      role="button"
+      tabIndex={0}
+      onClick={() => handleAgentClick(agent)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleAgentClick(agent);
+        }
+      }}
+    >
+      <div className={styles.agentAvatar}>
+        <Avatar
+          size={40}
+          style={{ backgroundColor: "var(--color-primary)" }}
+        >
+          {getInitials(agent.name)}
+        </Avatar>
+        <span
+          className={styles.agentStatusDot}
+          style={{
+            backgroundColor: STATUS_COLORS[agent.startup_status ?? "disabled"],
+          }}
+        />
+      </div>
+      <div className={styles.agentInfo}>
+        <div className={styles.agentInfoRow}>
+          <span className={styles.agentName}>{agent.name}</span>
+          {!agent.enabled && (
+            <span className={styles.agentTime}>
+              {t("agent.disabled", "已禁用")}
+            </span>
+          )}
+        </div>
+        <div className={styles.agentDesc}>
+          {agent.description || t("agent.noDescription")}
+        </div>
+        {agent.pinned && (
+          <div className={styles.agentMetaRow}>
+            <span className={styles.pinnedBadge}>
+              {t("agent.pinned", "置顶")}
+            </span>
+          </div>
+        )}
+      </div>
+      {renderQuickActions(agent)}
+    </div>
+  );
+
+  // 单个群聊条目。
+  const renderHostItem = (agent: AgentSummary): ReactNode => {
+    const meta = parseHostMeta(agent);
+    const modeLabel = meta ? HOST_MODE_LABEL[meta.mode] : "";
+    const memberNames = meta ? meta.members.map((m) => m.name) : [];
+    const memberCount = memberNames.length;
+    const cleanDesc = stripHostMeta(agent.description);
+    return (
+      <div
+        key={agent.id}
+        className={styles.agentItem}
+        role="button"
+        tabIndex={0}
+        onClick={() => handleGroupClick(agent)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleGroupClick(agent);
+          }
+        }}
+      >
+        <div className={styles.hostAvatarStack}>
+          <Avatar
+            size={40}
+            className={styles.hostAvatarStackMain}
+            style={{ backgroundColor: "var(--color-primary)" }}
+          >
+            <Users2 size={18} />
+          </Avatar>
+          <span className={styles.hostAvatarStackMini}>{memberCount || "?"}</span>
+        </div>
+        <div className={styles.agentInfo}>
+          <div className={styles.agentInfoRow}>
+            <span className={styles.agentName}>{agent.name}</span>
+            <span className={styles.agentItemHostBadge}>
+              <Users2 size={10} />
+              {t("hostModal.badge", "群聊")}
+            </span>
+          </div>
+          {modeLabel && <div className={styles.agentModeTag}>{modeLabel}</div>}
+          <div className={styles.agentDesc}>
+            {cleanDesc ||
+              memberNames.join("、") ||
+              t("agent.noDescription")}
+          </div>
+          {memberCount > 0 && (
+            <div className={styles.hostMemberCountPill}>
+              {memberNames.slice(0, 3).join("、")}
+              {memberCount > 3 ? ` 等 ${memberCount} 人` : `（${memberCount} 人）`}
+            </div>
+          )}
+        </div>
+        {renderQuickActions(agent)}
+      </div>
+    );
+  };
+
+  // 折叠分组容器渲染：顶部为分组标题栏，下方为条目。
+  const renderGroupedList = (
+    groups: Array<{ key: string; label: string; items: AgentSummary[] }>,
+    emptyLabel: string,
+    isHost: boolean,
+  ): ReactNode => {
+    if (groups.length === 0) {
+      return <div className={styles.emptyState}>{emptyLabel}</div>;
+    }
+    const searching = !!queryNorm;
+    return groups.map((group) => {
+      const collapsed = !searching && collapsedGroups.has(group.key);
+      return (
+        <div key={group.key} className={styles.groupContainer}>
+          <div
+            className={styles.groupHeader}
+            role="button"
+            tabIndex={0}
+            onClick={() => !searching && toggleGroupCollapse(group.key)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                if (!searching) toggleGroupCollapse(group.key);
+              }
+            }}
+          >
+            <ChevronDown
+              size={14}
+              className={`${styles.groupHeaderChevron}${
+                collapsed ? ` ${styles.groupHeaderChevronCollapsed}` : ""
+              }`}
+            />
+            <span className={styles.groupHeaderTitle}>{group.label}</span>
+            <span className={styles.groupHeaderCount}>{group.items.length}</span>
+          </div>
+          {!collapsed &&
+            group.items.map((agent) =>
+              isHost ? renderHostItem(agent) : renderAgentItem(agent),
+            )}
+        </div>
+      );
+    });
   };
 
   const handleMiddleToggle = () => {
@@ -456,12 +896,12 @@ export default function DesignLayout({
                   key={item.key}
                   title={item.label}
                   placement="right"
-styles={{
-body: {
-background: "rgba(0,0,0,0.75)",
-color: "#fff",
-},
-}}
+                  styles={{
+                    body: {
+                      background: "rgba(0,0,0,0.75)",
+                      color: "#fff",
+                    },
+                  }}
                 >
                   {itemContent}
                 </Tooltip>
@@ -533,28 +973,146 @@ color: "#fff",
 
             {/* Agent info — fixed, does not scroll */}
             <div className={styles.detailInfo}>
-              <Avatar
-                size={40}
-                style={{
-                  backgroundColor: "var(--color-primary)",
-                  flexShrink: 0,
-                }}
-              >
-                {getInitials(panelAgent.name)}
-              </Avatar>
+              {panelIsHost ? (
+                <div className={styles.hostAvatarStack}>
+                  <Avatar
+                    size={40}
+                    className={styles.hostAvatarStackMain}
+                    style={{ backgroundColor: "var(--color-primary)" }}
+                  >
+                    <Users2 size={18} />
+                  </Avatar>
+                  <span className={styles.hostAvatarStackMini}>
+                    {panelHostMemberNames.length || "?"}
+                  </span>
+                </div>
+              ) : (
+                <Avatar
+                  size={40}
+                  style={{
+                    backgroundColor: "var(--color-primary)",
+                    flexShrink: 0,
+                  }}
+                >
+                  {getInitials(panelAgent.name)}
+                </Avatar>
+              )}
               <div className={styles.detailInfoText}>
-                <div className={styles.detailInfoName}>{panelAgent.name}</div>
+                <div className={styles.detailInfoName}>
+                  {panelAgent.name}
+                  {panelIsHost && (
+                    <span className={styles.agentItemHostBadge}>
+                      <Users2 size={10} />
+                      {t("hostModal.badge", "群聊")}
+                    </span>
+                  )}
+                </div>
                 <div className={styles.detailInfoDesc}>
-                  {panelAgent.description || t("agent.noDescription")}
+                  {panelIsHost
+                    ? panelHostCleanDesc ||
+                      panelHostMemberNames.join("、") ||
+                      t("agent.noDescription")
+                    : panelAgent.description || t("agent.noDescription")}
+                </div>
+                {panelIsHost && (
+                  <div className={styles.detailHostBadgeRow}>
+                    {panelHostModeLabel && (
+                      <span className={styles.agentModeTag}>
+                        {panelHostModeLabel}
+                      </span>
+                    )}
+                    {panelHostMemberNames.length > 0 && (
+                      <span className={styles.hostMemberCountPill}>
+                        {panelHostMemberNames.slice(0, 3).join("、")}
+                        {panelHostMemberNames.length > 3
+                          ? ` 等 ${panelHostMemberNames.length} 人`
+                          : `（${panelHostMemberNames.length} 人）`}
+                      </span>
+                    )}
+                  </div>
+                )}
+                <div
+                  className={styles.detailInfoMeta}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <GroupTag
+                    group={panelAgent.group}
+                    onSave={(next) => handleGroupChange(panelAgent.id, next)}
+                  />
                 </div>
               </div>
             </div>
 
+            {/* Quick actions: 新增聊天 / 历史会话 */}
+            <div className={styles.quickActions}>
+              <button
+                type="button"
+                className={styles.quickActionButton}
+                onClick={handleNewChat}
+              >
+                <MessageSquarePlus size={16} />
+                <span>{t("chat.newChat", "新增聊天")}</span>
+              </button>
+              <button
+                type="button"
+                className={styles.quickActionButton}
+                onClick={handleHistorySessions}
+              >
+                <History size={16} />
+                <span>{t("chat.historySessions", "历史会话")}</span>
+              </button>
+            </div>
+
             <Divider className={styles.detailDivider} />
 
-            {/* Feature grid — Control + Workspace */}
+            {/* Feature grid — 基本信息 + 控制 + 工作区 */}
             <div className={styles.detailScrollArea}>
               <div className={styles.featureGrid}>
+              {featureGroups.profile.length > 0 && (
+                <>
+                  <div className={styles.featureGroupHeader}>
+                    {t("agent.basicInfoGroup", "基本信息")}
+                  </div>
+                  <div className={styles.featureCards}>
+                    {featureGroups.profile.map((card) => (
+                      <button
+                        key={card.key}
+                        type="button"
+                        className={styles.featureCard}
+                        onClick={() => handleProfileCardClick(card)}
+                      >
+                        <span className={styles.featureCardIcon}>
+                          {card.icon}
+                        </span>
+                        <span className={styles.featureCardLabel}>
+                          {card.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              {panelIsHost && (
+                <>
+                  <div className={styles.featureGroupHeader}>
+                    {t("hostModal.groupManagement", "群聊管理")}
+                  </div>
+                  <div className={styles.featureCards}>
+                    <button
+                      type="button"
+                      className={styles.featureCard}
+                      onClick={() => setEditGroupAgent(panelAgent)}
+                    >
+                      <span className={styles.featureCardIcon}>
+                        <Users2 size={FEATURE_ICON_SIZE} />
+                      </span>
+                      <span className={styles.featureCardLabel}>
+                        {t("hostModal.editTitle", "编辑群聊")}
+                      </span>
+                    </button>
+                  </div>
+                </>
+              )}
               {featureGroups.control.length > 0 && (
                 <>
                   <div className={styles.featureGroupHeader}>控制</div>
@@ -609,9 +1167,18 @@ color: "#fff",
             <div className={styles.panelHeader}>
               <span className={styles.panelTitle}>AIArb</span>
               <div className={styles.panelHeaderActions}>
-                <button type="button" className={styles.panelSearchButton}>
-                  <Search size={18} />
-                </button>
+                <Input
+                  allowClear
+                  size="small"
+                  className={styles.agentSearchBox}
+                  prefix={<Search size={14} />}
+                  placeholder={t(
+                    "agentSearch.placeholder",
+                    "搜索名称/ID/简介",
+                  )}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
             </div>
 
@@ -639,56 +1206,26 @@ color: "#fff",
 
             {/* List content */}
             <div className={styles.listContent}>
+              {listTab === "agents" && (
+                <div className={styles.groupsToolbar}>
+                  <button
+                    type="button"
+                    className={styles.newGroupButton}
+                    onClick={() => setCreateAgentOpen(true)}
+                    title={t("agent.createTitle", "新建智能体")}
+                  >
+                    <Plus size={14} />
+                    {t("agent.createShort", "智能体")}
+                  </button>
+                </div>
+              )}
+
               {listTab === "agents" &&
-                (regularAgents.length === 0 ? (
-                  <div className={styles.emptyState}>
-                    {t("agent.noAgents", "暂无智能体")}
-                  </div>
-                ) : (
-                  regularAgents.map((agent) => (
-                    <button
-                      key={agent.id}
-                      type="button"
-                      className={styles.agentItem}
-                      onClick={() => handleAgentClick(agent)}
-                    >
-                      <div className={styles.agentAvatar}>
-                        <Avatar
-                          size={40}
-                          style={{
-                            backgroundColor: "var(--color-primary)",
-                          }}
-                        >
-                          {getInitials(agent.name)}
-                        </Avatar>
-                        <span
-                          className={styles.agentStatusDot}
-                          style={{
-                            backgroundColor:
-                              STATUS_COLORS[
-                                agent.startup_status ?? "disabled"
-                              ],
-                          }}
-                        />
-                      </div>
-                      <div className={styles.agentInfo}>
-                        <div className={styles.agentInfoRow}>
-                          <span className={styles.agentName}>
-                            {agent.name}
-                          </span>
-                          {!agent.enabled && (
-                            <span className={styles.agentTime}>
-                              {t("agent.disabled", "已禁用")}
-                            </span>
-                          )}
-                        </div>
-                        <div className={styles.agentDesc}>
-                          {agent.description || t("agent.noDescription")}
-                        </div>
-                      </div>
-                    </button>
-                  ))
-                ))}
+                renderGroupedList(
+                  regularGrouped,
+                  t("agent.noAgents", "暂无智能体"),
+                  false,
+                )}
 
               {listTab === "groups" && (
                 <div className={styles.groupsToolbar}>
@@ -706,116 +1243,11 @@ color: "#fff",
               )}
 
               {listTab === "groups" &&
-                (hostAgents.length === 0 ? (
-                  <div className={styles.emptyState}>
-                    {t("hostModal.empty", "暂无群聊")}
-                  </div>
-                ) : (
-                  hostAgents.map((agent) => {
-                    const meta = parseHostMeta(agent);
-                    const modeLabel = meta ? HOST_MODE_LABEL[meta.mode] : "";
-                    const memberNames = meta
-                      ? meta.members.map((m) => m.name)
-                      : [];
-                    const memberCount = memberNames.length;
-                    const cleanDesc = stripHostMeta(agent.description);
-                    return (
-                      <div
-                        key={agent.id}
-                        className={styles.agentItem}
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => handleGroupClick(agent)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            handleGroupClick(agent);
-                          }
-                        }}
-                      >
-                        <div className={styles.hostAvatarStack}>
-                          <Avatar
-                            size={40}
-                            className={styles.hostAvatarStackMain}
-                            style={{
-                              backgroundColor: "var(--color-primary)",
-                            }}
-                          >
-                            <Users2 size={18} />
-                          </Avatar>
-                          <span className={styles.hostAvatarStackMini}>
-                            {memberCount || "?"}
-                          </span>
-                        </div>
-                        <div className={styles.agentInfo}>
-                          <div className={styles.agentInfoRow}>
-                            <span className={styles.agentName}>
-                              {agent.name}
-                            </span>
-                            <span className={styles.agentItemHostBadge}>
-                              <Users2 size={10} />
-                              {t("hostModal.badge", "群聊")}
-                            </span>
-                          </div>
-                          {modeLabel && (
-                            <div className={styles.agentModeTag}>
-                              {modeLabel}
-                            </div>
-                          )}
-                          <div className={styles.agentDesc}>
-                            {cleanDesc ||
-                              memberNames.join("、") ||
-                              t("agent.noDescription")}
-                          </div>
-                          {memberCount > 0 && (
-                            <div className={styles.hostMemberCountPill}>
-                              {memberNames.slice(0, 3).join("、")}
-                              {memberCount > 3
-                                ? ` 等 ${memberCount} 人`
-                                : `（${memberCount} 人）`}
-                            </div>
-                          )}
-                        </div>
-                        <div
-                          className={styles.hostAgentActions}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Tooltip title={t("hostModal.edit", "编辑")}>
-                            <button
-                              type="button"
-                              className={styles.hostAgentActionButton}
-                              aria-label={t("hostModal.edit", "编辑")}
-                              onClick={() => handleEditGroup(agent)}
-                            >
-                              <Pencil size={14} />
-                            </button>
-                          </Tooltip>
-                          <Popconfirm
-                            title={t("hostModal.deleteConfirm", "删除这个群聊？")}
-                            description={t(
-                              "hostModal.deleteConfirmDesc",
-                              "删除后主持人及其工作区将被移除，成员智能体不受影响。",
-                            )}
-                            okText={t("common.delete", "删除")}
-                            cancelText={t("common.cancel", "取消")}
-                            okButtonProps={{ danger: true }}
-                            onConfirm={() => handleDeleteGroup(agent)}
-                          >
-                            <Tooltip title={t("hostModal.delete", "删除")}>
-                              <button
-                                type="button"
-                                className={styles.hostAgentActionButton}
-                                aria-label={t("hostModal.delete", "删除")}
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </Tooltip>
-                          </Popconfirm>
-                        </div>
-                      </div>
-                    );
-                  })
-                ))}
+                renderGroupedList(
+                  hostGrouped,
+                  t("hostModal.empty", "暂无群聊"),
+                  true,
+                )}
             </div>
           </div>
         )
@@ -879,6 +1311,24 @@ color: "#fff",
         open={Boolean(editGroupAgent)}
         agent={editGroupAgent}
         onCancel={() => setEditGroupAgent(null)}
+        onSaved={refreshAgents}
+      />
+
+      <CreateAgentModal
+        open={createAgentOpen}
+        onCancel={() => setCreateAgentOpen(false)}
+        onCreated={(agentId) => {
+          setSelectedAgent(agentId);
+          navigate(buildChatPath());
+        }}
+      />
+
+      <AgentDetailDrawer
+        open={Boolean(drawerAgent)}
+        agent={drawerAgent}
+        initialTab={drawerTab}
+        onClose={() => setDrawerAgent(null)}
+        onUpdated={refreshAgents}
       />
     </div>
   );

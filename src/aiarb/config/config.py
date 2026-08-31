@@ -2132,6 +2132,14 @@ class AgentProfileConfig(BaseModel):
     id: str = Field(..., description="Unique agent ID")
     name: str = Field(..., description="Human-readable agent name")
     description: str = Field(default="", description="Agent description")
+    group: str = Field(
+        default="",
+        description="User-assigned category/group label for the agent",
+    )
+    avatar: Optional[str] = Field(
+        default=None,
+        description="Custom avatar URL for this agent (uploaded image path or URL)",
+    )
     workspace_dir: str = Field(
         default="",
         description="Path to agent's workspace (optional, for reference)",
@@ -3031,6 +3039,12 @@ class Config(BaseModel):
         "the primary skill_pool in order. Paths support ~ expansion. "
         "Skills found here are read-only (no edit/create); they can be "
         "listed, downloaded to a workspace, and deleted.",
+    )
+    knowledge_paths: List[str] = Field(
+        default_factory=list,
+        description="Additional read-only shared knowledge base roots, "
+        "searched by the search_knowledge tool after the global "
+        "knowledge_base directory. Paths support ~ expansion.",
     )
 
 

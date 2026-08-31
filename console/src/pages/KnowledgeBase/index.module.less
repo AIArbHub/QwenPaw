@@ -1,0 +1,393 @@
+.page {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.headerIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: rgba(0, 101, 253, 0.08);
+  color: #0065fd;
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.headerTitle strong {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.headerSub {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.headerActions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.layout {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── 左侧栏 ──────────────────────────────────────────── */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 14px 12px;
+  overflow: hidden;
+}
+
+.searchBox {
+  margin-bottom: 12px;
+}
+
+.categoryTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.55);
+  padding: 2px 4px;
+  margin-bottom: 4px;
+}
+
+.categoryTitle span {
+  flex: 1;
+}
+
+.categoryTitle .ant-btn {
+  opacity: 0.6;
+}
+
+.categoryList {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.categoryItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 8px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.75);
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.categoryItem:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.categoryItemActive {
+  background: rgba(0, 101, 253, 0.09);
+  color: #0065fd;
+  font-weight: 500;
+}
+
+.categoryIcon {
+  flex-shrink: 0;
+}
+
+.rootsBox {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 10px;
+  margin-top: 8px;
+  max-height: 120px;
+  overflow: auto;
+}
+
+.rootsTitle {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.55);
+  margin-bottom: 6px;
+}
+
+.rootItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.rootPath {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.rootBadge {
+  flex-shrink: 0;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(22, 180, 120, 0.12);
+  color: #16b478;
+}
+
+.rootBadgeRo {
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* ── 右侧主区 ────────────────────────────────────────── */
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.toolbarTitle {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.toolbarActions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.filePane {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px 20px;
+}
+
+.resultList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resultItem {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.resultItem:hover {
+  border-color: rgba(0, 101, 253, 0.4);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+}
+
+.resultPath {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+}
+
+.resultFileName {
+  font-weight: 500;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.resultLine {
+  color: rgba(0, 0, 0, 0.35);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.resultSize {
+  margin-left: auto;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+}
+
+.resultActions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.resultSnippet {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.previewBody {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(0, 0, 0, 0.85);
+  margin: 0;
+  font-family: inherit;
+}
+
+/* ── 深色模式 ────────────────────────────────────────── */
+:global(.dark-mode) {
+  .page {
+    background: #181614;
+  }
+
+  .header {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .headerIcon {
+    background: rgba(77, 163, 255, 0.14);
+    color: #4da3ff;
+  }
+
+  .headerTitle strong {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .headerSub {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .sidebar {
+    border-right-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .categoryTitle {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .categoryItem {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .categoryItem:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .categoryItemActive {
+    background: rgba(77, 163, 255, 0.14);
+    color: #4da3ff;
+  }
+
+  .rootsBox {
+    border-top-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .rootsTitle {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .rootPath {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .rootBadgeRo {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .toolbar {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .toolbarTitle {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .resultItem {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .resultItem:hover {
+    border-color: rgba(77, 163, 255, 0.5);
+  }
+
+  .resultPath {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .resultLine,
+  .resultSize {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .resultSnippet {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .previewBody {
+    color: rgba(255, 255, 255, 0.85);
+  }
+}

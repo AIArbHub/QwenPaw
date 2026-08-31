@@ -9,8 +9,13 @@ import shutil
 from pathlib import Path
 
 from ..agents.templates import (
+    ARBITRATION_ROLE_TEMPLATES,
+    ARBITRATOR_TEMPLATE,
+    CLAIMANT_TEMPLATE,
     DEFAULT_AGENT_TEMPLATE,
     QA_AGENT_TEMPLATE,
+    RESPONDENT_TEMPLATE,
+    SECRETARY_TEMPLATE,
     build_agent_template,
 )
 from ..config.config import (
@@ -19,13 +24,25 @@ from ..config.config import (
     AgentsConfig,
     AgentsLLMRoutingConfig,
     AgentsRunningConfig,
+    ChannelConfig,
+    HeartbeatConfig,
+    MCPConfig,
+    ToolsConfig,
+    build_local_agent_tools_config,
     save_agent_config,
 )
 from ..constant import (
+    BUILTIN_ARBITRATION_GROUP,
+    BUILTIN_ARBITRATOR_AGENT_ID,
+    BUILTIN_CLAIMANT_AGENT_ID,
+    BUILTIN_MOCK_ARBITRATION_AGENT_ID,
     BUILTIN_QA_AGENT_ID,
+    BUILTIN_RESPONDENT_AGENT_ID,
+    BUILTIN_SECRETARY_AGENT_ID,
+    LEGACY_QA_AGENT_ID,
     WORKING_DIR,
 )
-from ..config.utils import load_config, save_config
+from ..config.utils import load_config, mutate_config, save_config
 
 logger = logging.getLogger(__name__)
 
@@ -763,11 +780,76 @@ def ensure_qa_agent_exists() -> None:
         )
 
 
+def _merge_legacy_qa_agent(config) -> bool:
+    """Merge the legacy ``QwenPaw_QA_Agent_0.2`` profile into the canonical id.
+
+    Older releases persisted the builtin QA agent under a ``QwenPaw`` prefix.
+    ``ensure_qa_agent_exists`` keys off the canonical ``AIArb`` id, so a config
+    that still carries the legacy id ends up with *two* Q&A agents after a
+    restart.  This reconciles them:
+
+    - If only the legacy id exists, rename it to the canonical id (keeping its
+      workspace and ``agent.json`` id in sync).
+    - If both exist, drop the legacy duplicate and keep the canonical one.
+
+    Returns True when the config was mutated and should be saved.
+    """
+    if LEGACY_QA_AGENT_ID not in config.agents.profiles:
+        return False
+
+    canonical_id = BUILTIN_QA_AGENT_ID
+    legacy_ref = config.agents.profiles[LEGACY_QA_AGENT_ID]
+
+    if canonical_id in config.agents.profiles:
+        config.agents.profiles.pop(LEGACY_QA_AGENT_ID, None)
+        config.agents.agent_order = [
+            i for i in config.agents.agent_order if i != LEGACY_QA_AGENT_ID
+        ]
+        logger.warning(
+            "Removed duplicate legacy QA profile %r (canonical %r already "
+            "exists)",
+            LEGACY_QA_AGENT_ID,
+            canonical_id,
+        )
+        return True
+
+    # Only the legacy id exists: promote it to the canonical id.
+    config.agents.profiles.pop(LEGACY_QA_AGENT_ID, None)
+    legacy_ref.id = canonical_id
+    config.agents.profiles[canonical_id] = legacy_ref
+    config.agents.agent_order = [
+        canonical_id if i == LEGACY_QA_AGENT_ID else i
+        for i in config.agents.agent_order
+    ]
+    workspace_dir = Path(legacy_ref.workspace_dir).expanduser()
+    agent_json = workspace_dir / "agent.json"
+    try:
+        if agent_json.is_file():
+            data = json.loads(agent_json.read_text(encoding="utf-8"))
+            data["id"] = canonical_id
+            with open(agent_json, "w", encoding="utf-8") as handle:
+                json.dump(data, handle, ensure_ascii=False, indent=2)
+    except Exception:
+        logger.warning(
+            "Failed to rewrite legacy QA agent.json id to %r",
+            canonical_id,
+            exc_info=True,
+        )
+    logger.info(
+        "Promoted legacy QA profile %r -> %r",
+        LEGACY_QA_AGENT_ID,
+        canonical_id,
+    )
+    return True
+
+
 def _do_ensure_qa_agent() -> None:
     """Internal implementation of QA agent initialization."""
     from .routers.agents import _initialize_agent_workspace
 
     config = load_config()
+    if _merge_legacy_qa_agent(config):
+        save_config(config)
     qa_id = BUILTIN_QA_AGENT_ID
 
     if qa_id in config.agents.profiles:
@@ -827,4 +909,278 @@ def _do_ensure_qa_agent() -> None:
     logger.info(
         "Created builtin QA agent with workspace: %s",
         qa_workspace,
+    )
+
+
+_BUILTIN_ARBITRATION_ROLE_AGENTS: tuple[tuple[str, str], ...] = (
+    (ARBITRATOR_TEMPLATE, BUILTIN_ARBITRATOR_AGENT_ID),
+    (CLAIMANT_TEMPLATE, BUILTIN_CLAIMANT_AGENT_ID),
+    (RESPONDENT_TEMPLATE, BUILTIN_RESPONDENT_AGENT_ID),
+    (SECRETARY_TEMPLATE, BUILTIN_SECRETARY_AGENT_ID),
+)
+
+_MOCK_ARBITRATION_NAME = "模拟仲裁智能体"
+_MOCK_ARBITRATION_MODE = "round_robin"
+
+
+def ensure_builtin_arbitration_agents_exists() -> None:
+    """Ensure builtin arbitration agents (single + group chat) exist.
+
+    Seeds the builtin single agents (仲裁员/申请人/被申请人/仲裁秘书)
+    and the builtin group chat agent (模拟仲裁智能体) on first creation
+    only.  On later startups existing profiles and their workspaces are
+    left untouched, so user edits (persona, group, memory, workspace
+    files) are never overwritten.
+    """
+    try:
+        _do_ensure_builtin_arbitration_agents()
+    except Exception as e:
+        logger.error(
+            f"Failed to ensure builtin arbitration agents exist: {e}. "
+            "Builtin arbitration agents may not be available.",
+            exc_info=True,
+        )
+
+
+def _do_ensure_builtin_arbitration_agents() -> None:
+    """Internal implementation of builtin arbitration agent seeding."""
+    from .routers.agents import _initialize_agent_workspace
+
+    config = load_config()
+    language = config.agents.language or "zh"
+    changed = False
+
+    # 1) Builtin single agents: 仲裁员/申请人/被申请人/仲裁秘书
+    members: list[dict[str, str]] = []
+    for template_id, agent_id in _BUILTIN_ARBITRATION_ROLE_AGENTS:
+        default_name, _ = ARBITRATION_ROLE_TEMPLATES[template_id]
+        members.append({"id": agent_id, "name": default_name})
+
+        if agent_id in config.agents.profiles:
+            continue
+
+        workspace = Path(f"{WORKING_DIR}/workspaces/{agent_id}").expanduser()
+        workspace.mkdir(parents=True, exist_ok=True)
+        _ensure_workspace_json_files(workspace, agent_id)
+
+        other_id = _other_agent_owns_workspace(
+            config.agents.profiles,
+            workspace,
+            agent_id,
+        )
+        if other_id is not None:
+            logger.warning(
+                "Skipping builtin arbitration role %r: workspace %s is "
+                "already used by agent %r.",
+                agent_id,
+                workspace,
+                other_id,
+            )
+            continue
+
+        template_result = build_agent_template(
+            template_id,
+            agent_id=agent_id,
+            workspace_dir=workspace,
+            fallback_language=language,
+        )
+        template_result.agent_config.group = BUILTIN_ARBITRATION_GROUP
+
+        _initialize_agent_workspace(
+            workspace,
+            skill_names=list(template_result.initial_skill_names),
+            md_template_id=template_result.md_template_id,
+        )
+
+        config.agents.profiles[agent_id] = AgentProfileRef(
+            id=agent_id,
+            workspace_dir=str(workspace),
+        )
+        if agent_id not in config.agents.agent_order:
+            config.agents.agent_order.append(agent_id)
+        save_agent_config(agent_id, template_result.agent_config)
+        changed = True
+        logger.info("Created builtin arbitration role agent: %s", agent_id)
+
+    # 2) Builtin group chat agent: 模拟仲裁智能体 (host agent)
+    host_id = BUILTIN_MOCK_ARBITRATION_AGENT_ID
+    if host_id not in config.agents.profiles:
+        host_workspace = Path(
+            f"{WORKING_DIR}/workspaces/{host_id}",
+        ).expanduser()
+        host_workspace.mkdir(parents=True, exist_ok=True)
+        _ensure_workspace_json_files(host_workspace, host_id)
+
+        other_id = _other_agent_owns_workspace(
+            config.agents.profiles,
+            host_workspace,
+            host_id,
+        )
+        if other_id is not None:
+            logger.warning(
+                "Skipping builtin mock arbitration host %r: workspace %s "
+                "is already used by agent %r.",
+                host_id,
+                host_workspace,
+                other_id,
+            )
+        else:
+            _create_builtin_mock_arbitration_host(
+                config,
+                host_id,
+                host_workspace,
+                language,
+                members,
+            )
+            changed = True
+
+    if changed:
+        save_config(config)
+
+
+def _create_builtin_mock_arbitration_host(
+    config,
+    host_id: str,
+    host_workspace: Path,
+    language: str,
+    members: list[dict[str, str]],
+) -> None:
+    """Create the builtin 模拟仲裁智能体 host (group chat) agent."""
+    from .routers.agents import _initialize_agent_workspace
+
+    user_description = (
+        "模拟仲裁庭群聊：由仲裁员、申请人、被申请人与仲裁秘书共同参与的"
+        "争议解决模拟讨论。"
+    )
+    host_meta = {"v": 1, "members": members, "mode": _MOCK_ARBITRATION_MODE}
+    description = (
+        user_description
+        + "\n\n<!-- HOST:"
+        + json.dumps(host_meta, ensure_ascii=False)
+        + " -->"
+    )
+
+    agent_config = AgentProfileConfig(
+        id=host_id,
+        name=_MOCK_ARBITRATION_NAME,
+        description=description,
+        group=BUILTIN_ARBITRATION_GROUP,
+        workspace_dir=str(host_workspace),
+        language=language,
+        channels=ChannelConfig(),
+        mcp=MCPConfig(),
+        heartbeat=HeartbeatConfig(),
+        tools=build_local_agent_tools_config(),
+    )
+
+    _initialize_agent_workspace(
+        host_workspace,
+        skill_names=[],
+        language=language,
+    )
+
+    (host_workspace / "AGENTS.md").write_text(
+        _build_mock_arbitration_agents_md(members),
+        encoding="utf-8",
+    )
+    (host_workspace / "PROFILE.md").write_text(
+        _build_mock_arbitration_profile_md(members, user_description),
+        encoding="utf-8",
+    )
+
+    config.agents.profiles[host_id] = AgentProfileRef(
+        id=host_id,
+        workspace_dir=str(host_workspace),
+    )
+    if host_id not in config.agents.agent_order:
+        config.agents.agent_order.append(host_id)
+    save_agent_config(host_id, agent_config)
+    logger.info("Created builtin mock arbitration host agent: %s", host_id)
+
+
+def _build_mock_arbitration_agents_md(members: list[dict[str, str]]) -> str:
+    """Build AGENTS.md for the builtin 模拟仲裁智能体 host."""
+    roster = "\n".join(
+        f"- 智能体ID「{m['id']}」— {m['name']}" for m in members
+    )
+    order = " → ".join(m["name"] for m in members)
+    return (
+        "# 群聊：模拟仲裁 — 主持人 AGENTS.md\n"
+        "\n"
+        "本文件由内置「模拟仲裁智能体」自动生成。\n"
+        "讨论模式：**串行圆桌**\n"
+        "\n"
+        "## 成员名单（必须使用下面列出的 ID 调用 chat_with_agent 或 submit_to_agent）\n"
+        "\n"
+        f"{roster}\n"
+        "\n"
+        "讨论中务必使用成员的真实姓名/头衔来称呼，不要直接显示 ID。\n"
+        "\n"
+        "## 工具使用说明\n"
+        "\n"
+        "- 用 `chat_with_agent(to_agent=ID, text=发言内容, timeout=600)` 逐个提问，每位成员的问题里务必附上前一位或几位成员的观点。\n"
+        "- 如果预计某成员需要超过 5 分钟才能答复，可以用 `submit_to_agent` + `check_agent_task` 的方式等候。\n"
+        "- 涉及具体法条、仲裁规则、机构程序、案例或文书模板时，先调用 `search_knowledge` 检索共享知识库；严禁凭记忆编造法条或规则条文。\n"
+        "- 全部成员回答完毕后再输出最终结论。\n"
+        "\n"
+        "## 讨论流程（串行圆桌）\n"
+        "\n"
+        f"发言顺序：{order}\n"
+        "\n"
+        "1. 把用户的原始议题拆成清晰的仲裁程序问题说明，作为主持人的引导。\n"
+        "2. 先向「申请人」发问，请其陈述仲裁请求、事实与理由，并提交证据线索。\n"
+        "3. 再向「被申请人」发问，附上申请人的观点，请其答辩、抗辩或提出反请求。\n"
+        "4. 请「仲裁员」就争议焦点发表独立、专业的裁判意见，认定事实并适用法律与仲裁规则。\n"
+        "5. 请「仲裁秘书」就程序性事项（日程、文书、证据交换、记录）给出说明或纪要。\n"
+        "6. 所有成员发言后，主持人综合各方意见，形成条理清晰的结论，并明确标注每位成员的核心观点。\n"
+        "7. 如果用户继续追问，按同样顺序再次讨论。\n"
+        "\n"
+        "## 输出风格\n"
+        "\n"
+        "- 最终回复使用面向 C 端用户的通俗中文（默认简体中文），避免使用技术黑话。\n"
+        "- 引用成员发言时使用清晰的小标题（如「[申请人 观点]」）并引用其核心论据。\n"
+        "- 每次讨论结束后，给出「📋 本次讨论纪要」章节，包含：议题、各成员观点摘要、共识与分歧、主持人的最终建议或结论。\n"
+        "\n"
+        "## 身份定位\n"
+        "\n"
+        "- 你是「模拟仲裁」的主持人（不是普通的个人助手）。\n"
+        "- 用户的每一条消息都是一次「发起议题 / 继续讨论」，而不是对你个人的提问。\n"
+        "- 你必须通过与成员讨论来回答，不能只凭自己的想法直接给结论。\n"
+        "- 如果用户希望单独和某成员对话，请告诉他们切换到该成员的单聊窗口即可。\n"
+        "\n"
+        "---\n"
+        "\n"
+        "> 提示：如果用户在对话中修改了成员，你需要提醒其通过「编辑群聊」功能来刷新本文件，以确保成员名单和协议一致。\n"
+    )
+
+
+def _build_mock_arbitration_profile_md(
+    members: list[dict[str, str]],
+    user_description: str,
+) -> str:
+    """Build PROFILE.md for the builtin 模拟仲裁智能体 host."""
+    member_summary = "\n".join(f"- {m['name']}" for m in members)
+    about = user_description.strip() or "模拟仲裁 讨论会。"
+    return (
+        "# 模拟仲裁 — 群聊主持人\n"
+        "\n"
+        "## 身份\n"
+        "\n"
+        "我是 **模拟仲裁** 的专职主持人，负责按照「串行圆桌」流程组织仲裁员、申请人、被申请人与仲裁秘书围绕争议议题展开讨论，并整理讨论纪要。\n"
+        "我不会只凭自己的知识直接给出答案，而是会调用参与的成员智能体进行讨论，综合后给出最终结论。\n"
+        "\n"
+        "## 职责\n"
+        "\n"
+        "- 正确理解用户的争议议题，并拆成成员可以直接讨论的问题。\n"
+        "- 按照既定讨论流程调度成员发言。\n"
+        "- 在回复中清晰呈现每位成员的观点，而不是混为一谈。\n"
+        "- 讨论结束时输出「📋 本次讨论纪要」章节。\n"
+        "\n"
+        "## 成员\n"
+        "\n"
+        f"{member_summary}\n"
+        "\n"
+        "## 关于\n"
+        "\n"
+        f"{about}\n"
     )

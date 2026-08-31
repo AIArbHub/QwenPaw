@@ -24,6 +24,7 @@
 import {
   SparkAgentLine,
   SparkBarChartLine,
+  SparkBookLine,
   SparkBrowseLine,
   SparkDataLine,
   SparkDateLine,
@@ -46,7 +47,7 @@ import {
 } from "@agentscope-ai/icons";
 import { GitBranch } from "lucide-react";
 import i18next from "i18next";
-import { Files } from "lucide-react";
+import { Files, Brain } from "lucide-react";
 import { menuRegistry } from "../../plugins/registry/store";
 import type { MenuItem } from "../../plugins/registry/types";
 
@@ -72,6 +73,15 @@ export const BUILTIN_MENU: MenuItem[] = [
     icon: SparkMyApplicationLine,
     route: "core.marketplace",
     order: 15,
+  },
+
+  {
+    id: "core.knowledge-base",
+    location: "primary.agentScoped",
+    label: navLabel("nav.knowledgeBase", "知识库"),
+    icon: SparkBookLine,
+    route: "core.knowledge-base",
+    order: 16,
   },
 
   // control-group
@@ -135,6 +145,15 @@ export const BUILTIN_MENU: MenuItem[] = [
     icon: Files,
     route: "core.files",
     order: 5,
+  },
+  {
+    id: "core.memory",
+    location: "primary.agentScoped",
+    parentId: "core.workspace-group",
+    label: navLabel("nav.memory", "记忆中心"),
+    icon: Brain,
+    route: "core.memory",
+    order: 7,
   },
   {
     id: "core.skills",

@@ -17,6 +17,7 @@ from agentscope.tool import ToolChunk
 from agentscope.message import ToolResultState
 
 from ...config.context import get_tool_base_dir
+from ...knowledge import get_knowledge_dirs
 from ...runtime.tool_registry import tool_descriptor
 from .file_io import _resolve_file_path
 
@@ -192,6 +193,42 @@ def _resolve_search_root(
             f"Error: The path {search_root} is not a directory.",
         )
     return search_root
+
+
+def _default_search_roots() -> list[Path]:
+    """Roots searched when no explicit ``path`` is given.
+
+    The agent's own project/workspace directory comes first, then the shared
+    knowledge-base roots, so the shared corpus is searched *together with* the
+    agent's own files — merged rather than a separate tool.
+    """
+    roots: list[Path] = []
+    seen: set[Path] = set()
+
+    try:
+        base = get_tool_base_dir().resolve()
+    except OSError:
+        base = get_tool_base_dir()
+    if base.is_dir():
+        roots.append(base)
+        seen.add(base)
+
+    try:
+        for kd in get_knowledge_dirs():
+            if kd in seen or not kd.is_dir():
+                continue
+            try:
+                kd.relative_to(base)
+                # kd lives under the base root already; covered by the walk.
+                continue
+            except ValueError:
+                pass
+            seen.add(kd)
+            roots.append(kd)
+    except Exception:  # pragma: no cover - defensive
+        pass
+
+    return roots
 
 
 def _append_output_line(
@@ -648,74 +685,105 @@ async def grep_search(
     if not pattern:
         return _make_response("Error: No search `pattern` provided.")
 
-    root_or_err = _resolve_search_root(path)
-    if isinstance(root_or_err, ToolChunk):
-        return root_or_err
-    search_root: Path = root_or_err
-
     flags = 0 if case_sensitive else re.IGNORECASE
     try:
         regex = _compile_search_pattern(pattern, is_regex, flags)
     except re.error as e:
         return _make_response(f"Error: Invalid regex pattern — {e}")
 
+    if path:
+        root_or_err = _resolve_search_root(path)
+        if isinstance(root_or_err, ToolChunk):
+            return root_or_err
+        search_roots: list[Path] = [root_or_err]
+    else:
+        search_roots = _default_search_roots()
+
+    if not search_roots:
+        return _make_response("Error: No searchable directories are available.")
+
     cancel = threading.Event()
+    all_matches: list[str] = []
+    total_chars = 0
+    status = "ok"
+    timed_out = False
 
-    def _worker() -> tuple[list[str], str]:
+    for search_root in search_roots:
+        if cancel.is_set() or len(all_matches) >= _MAX_MATCHES:
+            break
+
+        def _worker(root: Path = search_root) -> tuple[list[str], str]:
+            try:
+                return _walk_and_grep(
+                    root,
+                    regex,
+                    context_lines,
+                    cancel,
+                    include_pattern,
+                    show_file,
+                )
+            except Exception as exc:
+                return [], f"error: {exc}"
+
         try:
-            return _walk_and_grep(
-                search_root,
-                regex,
-                context_lines,
-                cancel,
-                include_pattern,
-                show_file,
+            from ...tool_calls import cancellable_wait
+
+            match_lines, root_status = await cancellable_wait(
+                asyncio.to_thread(_worker),
+                fallback_secs=_GREP_TIMEOUT,
+                as_kill_deadline=True,
             )
-        except Exception as exc:
-            return [], f"error: {exc}"
+        except (asyncio.TimeoutError, asyncio.CancelledError):
+            cancel.set()
+            await asyncio.sleep(0.05)
+            timed_out = True
+            break
 
-    try:
-        from ...tool_calls import cancellable_wait
+        if root_status.startswith("error:"):
+            status = root_status
+            continue
+        if root_status.startswith("truncated:"):
+            status = root_status
+        if root_status == "timeout":
+            timed_out = True
 
-        match_lines, status = await cancellable_wait(
-            asyncio.to_thread(_worker),
-            fallback_secs=_GREP_TIMEOUT,
-            as_kill_deadline=True,
-        )
-    except (asyncio.TimeoutError, asyncio.CancelledError):
-        cancel.set()
-        await asyncio.sleep(0.05)
-        return _make_response(
-            f"Error: Search timed out after {_GREP_TIMEOUT}s. "
-            f"Try narrowing the search path or using a more specific pattern.",
-        )
+        for line in match_lines:
+            if len(all_matches) >= _MAX_MATCHES:
+                status = f"truncated: match limit ({_MAX_MATCHES})"
+                break
+            if total_chars + len(line) + 1 > _MAX_OUTPUT_CHARS:
+                status = (
+                    f"truncated: output size limit "
+                    f"(~{_MAX_OUTPUT_CHARS // 1000}KB)"
+                )
+                break
+            all_matches.append(line)
+            total_chars += len(line) + 1
 
-    if status.startswith("error:"):
-        result = f"Error: grep failed — {status}"
-    elif status.startswith("truncated:"):
-        # Even if no matches were appended (e.g., first match exceeded limit),
-        # we should report truncation, not "No matches found"
-        reason = status.split(":", 1)[1].strip()
-        if match_lines:
-            result = "\n".join(match_lines)
-            result += (
-                f"\n\n(Results truncated due to {reason}. "
-                f"Try narrowing the search path or using a more specific pattern.)"
-            )
-        else:
-            result = (
+    if status.startswith("error:") and not all_matches:
+        return _make_response(f"Error: grep failed — {status}")
+
+    if not all_matches:
+        if status.startswith("truncated:"):
+            reason = status.split(":", 1)[1].strip()
+            return _make_response(
                 f"Results truncated due to {reason}. "
                 f"Try narrowing the search path or using a more specific pattern."
             )
-    elif not match_lines:
-        result = f"No matches found for pattern: {pattern}"
-    else:
-        result = "\n".join(match_lines)
-        if status == "timeout":
-            result += (
-                f"\n\n(Partial results — search timed out after {_GREP_TIMEOUT}s. "
-                f"Try narrowing the search scope.)"
-            )
+        return _make_response(f"No matches found for pattern: {pattern}")
+
+    result = "\n".join(all_matches)
+    if status.startswith("truncated:"):
+        reason = status.split(":", 1)[1].strip()
+        result += (
+            f"\n\n(Results truncated due to {reason}. "
+            f"Try narrowing the search path or using a more specific pattern.)"
+        )
+    if timed_out:
+        result += (
+            f"\n\n(Partial results — search timed out after {_GREP_TIMEOUT}s. "
+            f"Try narrowing the search scope.)"
+        )
 
     return _make_response(result)
 
@@ -749,40 +817,65 @@ async def glob_search(
     if not pattern:
         return _make_response("Error: No glob `pattern` provided.")
 
-    root_or_err = _resolve_search_root(path, require_dir=True)
-    if isinstance(root_or_err, ToolChunk):
-        return root_or_err
-    search_root: Path = root_or_err
+    if path:
+        root_or_err = _resolve_search_root(path, require_dir=True)
+        if isinstance(root_or_err, ToolChunk):
+            return root_or_err
+        search_roots: list[Path] = [root_or_err]
+    else:
+        search_roots = _default_search_roots()
+
+    if not search_roots:
+        return _make_response("Error: No searchable directories are available.")
 
     cancel = threading.Event()
+    all_results: list[str] = []
+    truncated = False
+    timed_out = False
 
-    def _worker() -> tuple[list[str], bool]:
+    for search_root in search_roots:
+        def _worker(root: Path = search_root) -> tuple[list[str], bool]:
+            try:
+                return _walk_and_glob(root, pattern, cancel)
+            except Exception:
+                return [], False
+
         try:
-            return _walk_and_glob(search_root, pattern, cancel)
-        except Exception:
-            return [], False
+            from ...tool_calls import cancellable_wait
 
-    try:
-        from ...tool_calls import cancellable_wait
+            results, root_truncated = await cancellable_wait(
+                asyncio.to_thread(_worker),
+                fallback_secs=_GLOB_TIMEOUT,
+                as_kill_deadline=True,
+            )
+        except (asyncio.TimeoutError, asyncio.CancelledError):
+            cancel.set()
+            await asyncio.sleep(0.05)
+            timed_out = True
+            break
 
-        results, truncated = await cancellable_wait(
-            asyncio.to_thread(_worker),
-            fallback_secs=_GLOB_TIMEOUT,
-            as_kill_deadline=True,
-        )
-    except (asyncio.TimeoutError, asyncio.CancelledError):
-        cancel.set()
-        await asyncio.sleep(0.05)
-        return _make_response(
-            f"Error: Glob search timed out after {_GLOB_TIMEOUT}s. "
-            f"Try a more specific pattern or narrower search path.",
-        )
+        if root_truncated:
+            truncated = True
+        for entry in results:
+            if len(all_results) >= _MAX_MATCHES:
+                truncated = True
+                break
+            all_results.append(entry)
 
-    if not results:
+    if not all_results:
+        if timed_out:
+            return _make_response(
+                f"Error: Glob search timed out after {_GLOB_TIMEOUT}s. "
+                f"Try a more specific pattern or narrower search path."
+            )
         return _make_response(f"No files matched pattern: {pattern}")
 
-    text = "\n".join(results)
+    text = "\n".join(all_results)
     if truncated:
         text += f"\n\n(Results truncated at {_MAX_MATCHES} entries.)"
+    if timed_out:
+        text += (
+            f"\n\n(Partial results — search timed out after {_GLOB_TIMEOUT}s.)"
+        )
 
     return _make_response(text)

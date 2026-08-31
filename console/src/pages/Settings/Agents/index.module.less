@@ -73,6 +73,153 @@
   gap: 12px;
 }
 
+/* ---- Search Box ---- */
+
+.searchBox {
+  width: 240px;
+  height: 36px;
+  border-radius: 999px !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  background: #ffffff !important;
+
+  &:hover,
+  &:focus {
+    border-color: rgba(20, 20, 19, 0.55) !important;
+  }
+}
+
+/* ---- Stats Cards ---- */
+
+.statsRow {
+  display: flex;
+  gap: 16px;
+  padding: 0 16px 16px;
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+.statCard {
+  flex: 1;
+  min-height: 100px;
+  border-radius: 12px;
+  background: #f5f5f5;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  transition: box-shadow 0.2s ease;
+}
+
+.statNum {
+  font-size: 28px;
+  font-weight: 700;
+  color: rgba(20, 20, 19, 0.88);
+  line-height: 1.2;
+}
+
+.statLbl {
+  font-size: 13px;
+  color: rgba(20, 20, 19, 0.45);
+}
+
+/* ---- Tabs Row ---- */
+
+.tabsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  margin-bottom: 4px;
+  gap: 16px;
+}
+
+/* ---- View Toggle ---- */
+
+.viewToggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.viewToggleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: rgba(20, 20, 19, 0.45);
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: all 0.2s;
+
+  &:hover {
+    color: rgba(20, 20, 19, 0.88);
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  &.viewToggleBtnActive {
+    color: rgba(20, 20, 19, 0.88);
+    background: rgba(0, 0, 0, 0.06);
+  }
+}
+
+/* ---- Card Grid ---- */
+
+.agentsGrid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  auto-rows: minmax(262px, auto);
+  gap: 32px;
+  padding: 16px;
+
+  @media (max-width: 768px) {
+    gap: 18px;
+  }
+}
+
+:global(.dark-mode) {
+  .searchBox {
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    background: #1f1f1f !important;
+  }
+
+  .statCard {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .statNum {
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  .statLbl {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .viewToggleBtn {
+    color: rgba(255, 255, 255, 0.45);
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &.viewToggleBtnActive {
+      color: rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
 /* ---- Section (old style - deprecated) ---- */
 
 .section {

@@ -45,11 +45,18 @@ const VoiceTranscriptionPage = lazyImportWithRetry(
   "../../pages/Settings/VoiceTranscription",
 );
 const AgentsPage = lazyImportWithRetry("../../pages/Settings/Agents");
+const AgentSessionsHistoryPage = lazyImportWithRetry(
+  "../../pages/Agent/SessionsHistory",
+);
 const DebugPage = lazyImportWithRetry("../../pages/Settings/Debug");
 const BackupsPage = lazyImportWithRetry("../../pages/Settings/Backups");
 const AppCenterPage = lazyImportWithRetry("../../pages/AppCenter");
 const MarketplacePage = lazyImportWithRetry("../../pages/Market");
 const FilesPage = lazyImportWithRetry("../../pages/Files");
+const MemoryPage = lazyImportWithRetry("../../pages/Memory");
+const KnowledgeBasePage = lazyImportWithRetry(
+  "../../pages/KnowledgeBase",
+);
 
 /**
  * "/" always lands on the canonical Chat workspace.
@@ -67,6 +74,12 @@ export const BUILTIN_ROUTES: Route[] = [
   { id: "core.root", path: "/", component: DefaultRedirect },
   { id: "core.chat", path: "/chat/*", component: ChatPage },
   { id: "core.files", path: "/files", component: FilesPage },
+  { id: "core.memory", path: "/memory", component: MemoryPage },
+  {
+    id: "core.knowledge-base",
+    path: "/knowledge-base",
+    component: KnowledgeBasePage,
+  },
   { id: "core.channels", path: "/channels", component: ChannelsPage },
   { id: "core.sessions", path: "/sessions", component: SessionsPage },
   { id: "core.inbox", path: "/inbox", component: InboxPage },
@@ -80,6 +93,11 @@ export const BUILTIN_ROUTES: Route[] = [
   { id: "core.acp-alias", path: "/ACP", component: ACPRedirect },
   { id: "core.checkpoints", path: "/checkpoints", component: CheckpointsPage },
   { id: "core.agents", path: "/agents", component: AgentsPage },
+  {
+    id: "core.agent-sessions",
+    path: "/agents/:agentId/sessions",
+    component: AgentSessionsHistoryPage,
+  },
   { id: "core.models", path: "/models", component: ModelsPage },
   {
     id: "core.environments",

@@ -198,11 +198,29 @@ SUPPORTED_AGENT_LANGUAGES: frozenset[str] = _discover_agent_languages()
 
 BUILTIN_QA_AGENT_ID = "AIArb_QA_Agent_0.2"
 BUILTIN_QA_AGENT_NAME = "QA Agent"
+# Older releases used a "QwenPaw" prefix for the builtin QA agent before it
+# was renamed to the "AIArb" prefix.  Persisted configs from those versions
+# still carry the legacy id, so it must be merged away on startup to avoid
+# two Q&A agents appearing side by side.
+LEGACY_QA_AGENT_ID = "QwenPaw_QA_Agent_0.2"
 # Default skills when the builtin QA workspace is first created only.
 BUILTIN_QA_AGENT_SKILL_NAMES: tuple[str, ...] = (
     "guidance",
     "QA_source_index",
 )
+
+# Builtin arbitration role agents (single agents) seeded on first install.
+# These are stable identifiers so the builtin mock-arbitration group chat can
+# reference them as members.  They carry only persona/skill files, never a
+# user's private memory or workspace files.
+BUILTIN_ARBITRATOR_AGENT_ID = "builtin_arbitrator"
+BUILTIN_CLAIMANT_AGENT_ID = "builtin_claimant"
+BUILTIN_RESPONDENT_AGENT_ID = "builtin_respondent"
+BUILTIN_SECRETARY_AGENT_ID = "builtin_secretary"
+# Builtin group-chat (host) agent that orchestrates the arbitration roles.
+BUILTIN_MOCK_ARBITRATION_AGENT_ID = "host_mock_arbitration"
+# Default group label applied to the builtin arbitration agents.
+BUILTIN_ARBITRATION_GROUP = "内置仲裁角色"
 
 TOKEN_USAGE_FILE = EnvVarLoader.get_str(
     "AIARB_TOKEN_USAGE_FILE",

@@ -1,21 +1,38 @@
-import { useState, useRef, useCallback } from "react";
-import { Card, Button, Form } from "antd";
+import { useState, useRef, useCallback, useMemo } from "react";
+import { Card, Button, Form, Input } from "antd";
 import { useAppMessage } from "../../../hooks/useAppMessage";
-import { PlusOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  AppstoreOutlined,
+  UnorderedListOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { agentsApi } from "../../../api/modules/agents";
 import { invalidateSkillCache, skillApi } from "../../../api/modules/skill";
 import type { AgentSummary, CopyAgentRequest } from "../../../api/types/agents";
 import { useAgentStore } from "../../../stores/agentStore";
 import { useAgents } from "./useAgents";
-import { AgentTable, AgentModal, CopyAgentModal } from "./components";
+import { useAgentStatsBatch } from "./hooks/useAgentStatsBatch";
+import {
+  AgentTable,
+  AgentCard,
+  AgentModal,
+  CopyAgentModal,
+  AgentDetailDrawer,
+} from "./components";
 import { MAIL_DOMAIN_WHITELIST } from "./components/mailDomains";
 import { PageHeader } from "@/components/PageHeader";
+import { UnderlineTabs } from "@/components/UnderlineTabs";
 import { reorderAgents } from "./reorder";
 import styles from "./index.module.less";
 
+type FilterMode = "all" | "enabled" | "disabled";
+
 export default function AgentsPage() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const {
     agents,
     loading,
@@ -26,16 +43,48 @@ export default function AgentsPage() {
     setAgents,
   } = useAgents();
   const { selectedAgent, setSelectedAgent } = useAgentStore();
+  const { statsMap } = useAgentStatsBatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingAgent, setEditingAgent] = useState<AgentSummary | null>(null);
   const [copyModalVisible, setCopyModalVisible] = useState(false);
   const [copyingAgent, setCopyingAgent] = useState<AgentSummary | null>(null);
   const [copying, setCopying] = useState(false);
+  const [detailAgent, setDetailAgent] = useState<AgentSummary | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [reordering, setReordering] = useState(false);
   const [form] = Form.useForm();
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const installedSkillsRef = useRef<string[]>([]);
   const { message } = useAppMessage();
+
+  const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const enabledCount = useMemo(
+    () => agents.filter((a) => a.enabled).length,
+    [agents],
+  );
+  const disabledCount = agents.length - enabledCount;
+
+  const filteredAgents = useMemo(() => {
+    let result = agents;
+    if (filterMode === "enabled") {
+      result = result.filter((a) => a.enabled);
+    } else if (filterMode === "disabled") {
+      result = result.filter((a) => !a.enabled);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter(
+        (a) =>
+          a.name?.toLowerCase().includes(q) ||
+          a.id.toLowerCase().includes(q) ||
+          a.description?.toLowerCase().includes(q),
+      );
+    }
+    return result;
+  }, [agents, filterMode, searchQuery]);
 
   const handleCreate = () => {
     setEditingAgent(null);
@@ -54,45 +103,9 @@ export default function AgentsPage() {
     setModalVisible(true);
   };
 
-  const handleEdit = async (agent: AgentSummary) => {
-    try {
-      setSelectedSkills([]);
-      installedSkillsRef.current = [];
-      invalidateSkillCache({ agentId: agent.id });
-      const config = await agentsApi.getAgent(agent.id);
-      setEditingAgent(agent);
-      const { mail, ...configRest } = config;
-      form.setFieldsValue({
-        ...configRest,
-        active_model_provider: config.active_model?.provider_id || undefined,
-        active_model_model: config.active_model?.model || undefined,
-        mail_mode: mail
-          ? mail.is_new_account
-            ? "dedicated"
-            : "personal"
-          : "none",
-        mail_credential: mail ? mail.credential : undefined,
-        mail_push: mail?.push
-          ? {
-              mode: mail.push.mode ?? "off",
-              // Legacy field "subject" is displayed and saved as
-              // "content" (subject + body matching).
-              rules: (mail.push.rules ?? []).map((rule) =>
-                rule.field === "subject"
-                  ? { ...rule, field: "content" as const }
-                  : rule,
-              ),
-              poll_interval_seconds: mail.push.poll_interval_seconds,
-              // Missing in legacy configs → backend defaults to false.
-              access_control_enabled: mail.push.access_control_enabled ?? false,
-            }
-          : undefined,
-      });
-      setModalVisible(true);
-    } catch (error) {
-      console.error("Failed to load agent config:", error);
-      message.error(t("agent.loadConfigFailed"));
-    }
+  const handleEdit = (agent: AgentSummary) => {
+    setDetailAgent(agent);
+    setDetailOpen(true);
   };
 
   const handleDelete = async (agentId: string) => {
@@ -155,6 +168,11 @@ export default function AgentsPage() {
     } catch {
       // Error already handled in hook
     }
+  };
+
+  const handleChat = (agentId: string) => {
+    setSelectedAgent(agentId);
+    navigate("/chat");
   };
 
   const handleInstalledSkillsLoaded = useCallback((skills: string[]) => {
@@ -342,6 +360,16 @@ export default function AgentsPage() {
         current={t("agent.agents")}
         extra={
           <div className={styles.headerRight}>
+            <Input
+              className={styles.searchBox}
+              placeholder={t("agent.searchPlaceholder")}
+              prefix={
+                <SearchOutlined style={{ color: "rgba(20,20,19,0.45)" }} />
+              }
+              allowClear
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -353,19 +381,92 @@ export default function AgentsPage() {
         }
       />
 
-      <Card className={styles.tableCard}>
-        <AgentTable
-          agents={agents}
-          loading={loading || reordering}
-          reordering={reordering}
-          onEdit={handleEdit}
-          onCopy={handleOpenCopy}
-          onDelete={handleDelete}
-          onToggle={handleToggle}
-          onPin={handlePin}
-          onReorder={handleReorder}
+      <div className={styles.statsRow}>
+        <div className={styles.statCard}>
+          <span className={styles.statNum}>{agents.length}</span>
+          <span className={styles.statLbl}>{t("agent.statsTotal")}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statNum}>{enabledCount}</span>
+          <span className={styles.statLbl}>{t("agent.filterEnabled")}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statNum}>{disabledCount}</span>
+          <span className={styles.statLbl}>{t("agent.filterDisabled")}</span>
+        </div>
+      </div>
+
+      <div className={styles.tabsRow}>
+        <UnderlineTabs
+          items={[
+            { key: "all", label: t("agent.filterAll"), count: agents.length },
+            {
+              key: "enabled",
+              label: t("agent.filterEnabled"),
+              count: enabledCount,
+            },
+            {
+              key: "disabled",
+              label: t("agent.filterDisabled"),
+              count: disabledCount,
+            },
+          ]}
+          active={filterMode}
+          onChange={(key) => setFilterMode(key as FilterMode)}
         />
-      </Card>
+        <div className={styles.viewToggle}>
+          <button
+            className={`${styles.viewToggleBtn} ${
+              viewMode === "list" ? styles.viewToggleBtnActive : ""
+            }`}
+            onClick={() => setViewMode("list")}
+            title={t("agent.listView")}
+          >
+            <UnorderedListOutlined />
+          </button>
+          <button
+            className={`${styles.viewToggleBtn} ${
+              viewMode === "card" ? styles.viewToggleBtnActive : ""
+            }`}
+            onClick={() => setViewMode("card")}
+            title={t("agent.gridView")}
+          >
+            <AppstoreOutlined />
+          </button>
+        </div>
+      </div>
+
+      {viewMode === "card" ? (
+        <div className={styles.agentsGrid}>
+          {filteredAgents.map((agent) => (
+            <AgentCard
+              key={agent.id}
+              agent={agent}
+              stats={statsMap[agent.id]}
+              isSelected={selectedAgent === agent.id}
+              onSelect={setSelectedAgent}
+              onEdit={handleEdit}
+              onChat={handleChat}
+              onDelete={handleDelete}
+              onToggle={handleToggle}
+            />
+          ))}
+        </div>
+      ) : (
+        <Card className={styles.tableCard}>
+          <AgentTable
+            agents={filteredAgents}
+            loading={loading || reordering}
+            reordering={reordering}
+            onEdit={handleEdit}
+            onCopy={handleOpenCopy}
+            onDelete={handleDelete}
+            onToggle={handleToggle}
+            onPin={handlePin}
+            onReorder={handleReorder}
+          />
+        </Card>
+      )}
 
       <AgentModal
         open={modalVisible}
@@ -387,6 +488,13 @@ export default function AgentsPage() {
           setCopyModalVisible(false);
           setCopyingAgent(null);
         }}
+      />
+
+      <AgentDetailDrawer
+        open={detailOpen}
+        agent={detailAgent}
+        onClose={() => setDetailOpen(false)}
+        onUpdated={loadAgents}
       />
     </div>
   );

@@ -44,7 +44,7 @@ vi.mock("@agentscope-ai/icons", () => {
 });
 vi.mock("lucide-react", () => {
   const stub = () => null;
-  return { GitBranch: stub, Files: stub };
+  return { GitBranch: stub, Files: stub, Brain: stub };
 });
 vi.mock("i18next", () => ({
   default: { t: (key: string, fallback?: string) => fallback ?? key },
