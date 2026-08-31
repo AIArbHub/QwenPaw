@@ -1,0 +1,327 @@
+.memoryCenterPanel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .memoryTabs {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    :global(.aiarb-tabs-content-holder) {
+      flex: 1;
+      overflow: auto;
+    }
+  }
+}
+
+.tabLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Overview Tab ──────────────────────────────────────────── */
+
+.overviewTab {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.overviewCard {
+  :global(.aiarb-card-head) {
+    min-height: 36px;
+    padding: 0 12px;
+  }
+
+  :global(.aiarb-card-body) {
+    padding: 12px;
+  }
+}
+
+.statusLoading {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.statusItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statusLabel {
+  font-size: 12px;
+}
+
+.errorBanner {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 77, 79, 0.06);
+  border: 1px solid rgba(255, 77, 79, 0.2);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(255, 77, 79, 0.85);
+}
+
+.fileStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.fileStatItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.graphStats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── File Manager Tab ─────────────────────────────────────── */
+
+.fileManagerTab {
+  display: flex;
+  gap: 1px;
+  height: 100%;
+  min-height: 400px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.fileSidebar {
+  width: 260px;
+  min-width: 200px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.fileSidebarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.fileListLoading {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.fileTreeContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+/* ── File Tree ────────────────────────────────────────────── */
+
+.treeRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s;
+  user-select: none;
+
+  &:hover {
+    background: rgba(0, 101, 253, 0.04);
+  }
+}
+
+.treeRowSelected {
+  background: rgba(0, 101, 253, 0.08);
+  color: #0065fd;
+}
+
+.treeIcon {
+  flex-shrink: 0;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.treeLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.treeMeta {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.35);
+}
+
+/* ── File Editor ──────────────────────────────────────────── */
+
+.fileEditor {
+  flex: 1;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editorContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.editorFilePath {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.editorLoading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+
+.editorTextarea {
+  flex: 1;
+  resize: none;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", "Menlo", "Consolas",
+    monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 12px 16px !important;
+
+  &:focus {
+    box-shadow: none !important;
+  }
+}
+
+.editorEmpty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  min-height: 300px;
+}
+
+.editorUnsavedHint {
+  padding: 6px 12px;
+  background: rgba(255, 183, 0, 0.06);
+  border-top: 1px solid rgba(255, 183, 0, 0.15);
+  font-size: 12px;
+  color: rgba(255, 183, 0, 0.85);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ── Dark mode ────────────────────────────────────────────── */
+
+:global(.dark-mode) {
+  .fileManagerTab {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .fileSidebar,
+  .fileEditor {
+    background: rgba(30, 30, 30, 1);
+  }
+
+  .fileSidebarHeader,
+  .editorHeader {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .editorFilePath {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .treeRow {
+    &:hover {
+      background: rgba(0, 101, 253, 0.12);
+    }
+  }
+
+  .treeRowSelected {
+    background: rgba(0, 101, 253, 0.15);
+  }
+
+  .treeIcon {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .treeMeta {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .editorTextarea {
+    color: rgba(255, 255, 255, 0.85);
+  background: transparent;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  .editorUnsavedHint {
+    background: rgba(255, 183, 0, 0.08);
+    border-top-color: rgba(255, 183, 0, 0.15);
+  }
+
+  .errorBanner {
+    background: rgba(255, 77, 79, 0.08);
+    border-color: rgba(255, 77, 79, 0.2);
+  }
+}
