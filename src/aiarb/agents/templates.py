@@ -20,13 +20,48 @@ from ..constant import BUILTIN_QA_AGENT_NAME, BUILTIN_QA_AGENT_SKILL_NAMES
 DEFAULT_AGENT_TEMPLATE = "default"
 LOCAL_AGENT_TEMPLATE = "local"
 QA_AGENT_TEMPLATE = "qa"
+
+ARBITRATOR_TEMPLATE = "arbitrator"
+CLAIMANT_TEMPLATE = "claimant"
+RESPONDENT_TEMPLATE = "respondent"
+SECRETARY_TEMPLATE = "secretary"
+
+# Arbitration role templates map a template id to its default display name
+# and description.  Each role carries only persona files (PROFILE.md/SOUL.md).
+ARBITRATION_ROLE_TEMPLATES: dict[str, tuple[str, str]] = {
+    ARBITRATOR_TEMPLATE: (
+        "仲裁员",
+        "中立、专业的仲裁员，独立公正地审理争议，认定事实并适用法律与仲裁规则。",
+    ),
+    CLAIMANT_TEMPLATE: (
+        "申请人",
+        "申请仲裁的一方当事人，负责陈述仲裁请求、事实理由并提交证据。",
+    ),
+    RESPONDENT_TEMPLATE: (
+        "被申请人",
+        "被申请仲裁的一方当事人，负责答辩、抗辩与提出反请求并提交证据。",
+    ),
+    SECRETARY_TEMPLATE: (
+        "仲裁秘书",
+        "协助仲裁庭处理程序性事务，管理日程、文书、证据交换并记录会议。",
+    ),
+}
+
 SUPPORTED_AGENT_TEMPLATES = (
     DEFAULT_AGENT_TEMPLATE,
     LOCAL_AGENT_TEMPLATE,
     QA_AGENT_TEMPLATE,
+    *ARBITRATION_ROLE_TEMPLATES,
 )
 
 LOCAL_TEMPLATE_SKILL_NAMES = ("make_plan",)
+# Guidance skill for arbitration roles: teaches them to search the shared
+# knowledge base before answering legal/rule/case/template questions.
+ARBITRATION_TEMPLATE_SKILL_NAMES = ("kb_arbitration",)
+# Installed by default for every newly created agent (default template + the
+# create-agent API/CLI paths) so the shared knowledge base is always part of
+# an agent's knowledge without any extra per-agent setup.
+DEFAULT_KNOWLEDGE_SKILL_NAMES = ("kb_arbitration",)
 QA_TEMPLATE_DESCRIPTION = (
     "Builtin Q&A helper for AIArb setup, local config under "
     "AIARB_WORKING_DIR, and documentation. Prefer reading files "
@@ -51,7 +86,11 @@ def list_supported_agent_templates() -> tuple[str, ...]:
 
 def get_workspace_md_template_id(template_id: str | None) -> str | None:
     """Map an agent template id to the workspace markdown template id."""
-    if template_id in {LOCAL_AGENT_TEMPLATE, QA_AGENT_TEMPLATE}:
+    if template_id in {
+        LOCAL_AGENT_TEMPLATE,
+        QA_AGENT_TEMPLATE,
+        *ARBITRATION_ROLE_TEMPLATES,
+    }:
         return template_id
     return None
 
@@ -86,7 +125,7 @@ def build_agent_template(
         )
         return AgentTemplateBuildResult(
             agent_config=agent_config,
-            initial_skill_names=(),
+            initial_skill_names=DEFAULT_KNOWLEDGE_SKILL_NAMES,
             md_template_id=get_workspace_md_template_id(template_id),
         )
 
@@ -127,6 +166,28 @@ def build_agent_template(
         return AgentTemplateBuildResult(
             agent_config=agent_config,
             initial_skill_names=tuple(BUILTIN_QA_AGENT_SKILL_NAMES),
+            md_template_id=get_workspace_md_template_id(template_id),
+        )
+
+    if template_id in ARBITRATION_ROLE_TEMPLATES:
+        default_name, default_description = ARBITRATION_ROLE_TEMPLATES[
+            template_id
+        ]
+        agent_config = AgentProfileConfig(
+            id=agent_id,
+            name=name or default_name,
+            description=description or default_description,
+            workspace_dir=str(workspace_dir),
+            template_id=template_id,
+            language=resolved_language,
+            channels=ChannelConfig(),
+            mcp=MCPConfig(),
+            heartbeat=HeartbeatConfig(),
+            tools=ToolsConfig(),
+        )
+        return AgentTemplateBuildResult(
+            agent_config=agent_config,
+            initial_skill_names=ARBITRATION_TEMPLATE_SKILL_NAMES,
             md_template_id=get_workspace_md_template_id(template_id),
         )
 

@@ -31,6 +31,7 @@ from ..constant import (
     WORKING_DIR,
 )
 from ..envs import load_envs_into_environ
+from ..knowledge import ensure_global_knowledge_base
 from ..local_models.manager import LocalModelManager
 from ..providers.provider_manager import ProviderManager
 from ..utils.daily_telemetry import start_daily_telemetry
@@ -52,6 +53,7 @@ from .auth import (
 from .exception_handlers import register_exception_handlers
 from .response_compression import ResponseCompressionMiddleware
 from .migration import (
+    ensure_builtin_arbitration_agents_exists,
     ensure_default_agent_exists,
     ensure_qa_agent_exists,
     migrate_legacy_skills_to_skill_pool,
@@ -299,6 +301,8 @@ async def lifespan(  # pylint: disable=too-many-statements,too-many-branches
     ensure_default_agent_exists()
     migrate_legacy_skills_to_skill_pool()
     ensure_qa_agent_exists()
+    ensure_builtin_arbitration_agents_exists()
+    ensure_global_knowledge_base()
 
     from ..config.utils import get_agent_dirs
     from ..portability.transaction_journal import recover_import_transactions

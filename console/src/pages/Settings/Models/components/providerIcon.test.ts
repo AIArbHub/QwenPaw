@@ -25,7 +25,13 @@ describe("providerIcon", () => {
     expect(providerIcon("")).toBe(FALLBACK);
   });
 
-  it("always returns a non-empty https url for every supported provider", () => {
+  it("returns the local bundled image for the embedded aiarb-local provider", () => {
+    expect(providerIcon("aiarb-local")).toBe("/aiarb.png");
+  });
+
+  it("always returns a non-empty url for every supported provider", () => {
+    // aiarb-local is the embedded local model and uses a bundled asset
+    // (/aiarb.png) instead of a remote CDN url, so it is asserted separately.
     const known = [
       "modelscope",
       "aliyun-codingplan",
@@ -42,7 +48,6 @@ describe("providerIcon", () => {
       "lmstudio",
       "siliconflow-cn",
       "siliconflow-intl",
-      "aiarb-local",
       "zhipu-cn",
       "zhipu-intl",
       "zhipu-cn-codingplan",

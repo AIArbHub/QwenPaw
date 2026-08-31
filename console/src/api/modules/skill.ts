@@ -277,12 +277,14 @@ export const skillApi = {
     request<void>(`/skills/${encodeURIComponent(skillName)}/enable`, {
       headers: agentId ? new Headers({ "X-Agent-Id": agentId }) : undefined,
       method: "POST",
+      ...(agentId ? { headers: { "X-Agent-Id": agentId } } : {}),
     }),
 
   disableSkill: (skillName: string, agentId?: string) =>
     request<void>(`/skills/${encodeURIComponent(skillName)}/disable`, {
       headers: agentId ? new Headers({ "X-Agent-Id": agentId }) : undefined,
       method: "POST",
+      ...(agentId ? { headers: { "X-Agent-Id": agentId } } : {}),
     }),
 
   batchEnableSkills: (skillNames: string[]) =>
@@ -329,6 +331,7 @@ export const skillApi = {
     request<{ deleted: boolean }>(`/skills/${encodeURIComponent(skillName)}`, {
       headers: agentId ? new Headers({ "X-Agent-Id": agentId }) : undefined,
       method: "DELETE",
+      ...(agentId ? { headers: { "X-Agent-Id": agentId } } : {}),
     }),
 
   startHubSkillInstall: (
