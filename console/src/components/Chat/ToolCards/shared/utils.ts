@@ -625,3 +625,30 @@ export function stringifyResult(result: unknown): string {
   if (result != null) return JSON.stringify(result, null, 2);
   return "";
 }
+
+/**
+ * Extract the actual member reply text from an inter-agent tool result.
+ *
+ * Foreground `chat_with_agent` results look like:
+ *   `[SESSION: host:to:...]\n<reply text>`
+ * and `check_agent_task` results add metadata headers plus boilerplate
+ * status lines. This strips those transport headers so the member's real
+ * speech can be rendered as a standalone chat bubble.
+ */
+const _MEMBER_REPLY_META_LINE = /^\[(?:SESSION|TASK_ID|STATUS|TIMEOUT|FORK_BRANCH|FORK_FINALIZE_FAILED):.*\]$/;
+const _MEMBER_REPLY_BOILERPLATE =
+  /^(Task (?:completed|failed)\.?|Task is (?:still running|pending in queue)\.\.\.|Task submitted(?: successfully)?\.?|Task submitted, waiting to start\.\.\.|The subagent is working autonomously.*|Wait at least \d+ seconds.*|Do NOT poll immediately.*|Worktree cleanup is not automatic.*)$/i;
+
+export function extractMemberReply(raw: string): string {
+  if (!raw) return "";
+  const lines = raw.split("\n");
+  const kept: string[] = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (_MEMBER_REPLY_META_LINE.test(trimmed)) continue;
+    if (_MEMBER_REPLY_BOILERPLATE.test(trimmed)) continue;
+    kept.push(line);
+  }
+  return kept.join("\n").trim();
+}
+

@@ -5,6 +5,8 @@ export { default as DefaultBlock } from "./DefaultBlock";
 export type { DefaultBlockProps } from "./DefaultBlock";
 export { default as MemberBubble } from "./MemberBubble";
 export type { MemberBubbleProps } from "./MemberBubble";
+export { default as MemberReplyBubble } from "./MemberReplyBubble";
+export type { MemberReplyBubbleProps } from "./MemberReplyBubble";
 export { default as MediaPreview } from "./MediaPreview";
 export type { MediaPreviewProps } from "./MediaPreview";
 export { default as FileAttachmentPreview } from "./FileAttachmentPreview";
@@ -23,6 +25,7 @@ export {
   formatAgentList,
   looksLikeMarkdown,
   stringifyResult,
+  extractMemberReply,
 } from "./utils";
 export type { MediaType, MediaInfo } from "./utils";
 export type {

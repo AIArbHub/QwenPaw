@@ -296,17 +296,22 @@ def copy_workspace_md_files(
     *,
     md_template_id: str | None = None,
     only_if_missing: bool = True,
+    exclude_filenames: set[str] | None = None,
 ) -> list[str]:
     """Copy common workspace md files plus optional template overrides."""
     workspace_dir = Path(workspace_dir).expanduser()
+
+    common_excludes: set[str] = set()
+    if md_template_id:
+        common_excludes.update(_TEMPLATE_OVERRIDE_FILENAMES)
+    if exclude_filenames:
+        common_excludes.update(exclude_filenames)
 
     copied_files = copy_md_files(
         language,
         skip_existing=only_if_missing,
         workspace_dir=workspace_dir,
-        exclude_filenames=(
-            _TEMPLATE_OVERRIDE_FILENAMES if md_template_id else None
-        ),
+        exclude_filenames=common_excludes or None,
     )
 
     if not md_template_id:
