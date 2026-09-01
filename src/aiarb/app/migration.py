@@ -29,8 +29,10 @@ from ..config.config import (
     MCPConfig,
     ToolsConfig,
     build_local_agent_tools_config,
+    load_agent_config,
     save_agent_config,
 )
+from ..exceptions import AppBaseException
 from ..constant import (
     BUILTIN_ARBITRATION_GROUP,
     BUILTIN_ARBITRATOR_AGENT_ID,
@@ -998,6 +1000,9 @@ def _do_ensure_builtin_arbitration_agents() -> None:
         )
         if agent_id not in config.agents.agent_order:
             config.agents.agent_order.append(agent_id)
+        # Persist the new profile BEFORE saving the agent config: save_agent_config
+        # reloads the root config and fails if the profile is missing on disk.
+        save_config(config)
         save_agent_config(agent_id, template_result.agent_config)
         changed = True
         logger.info("Created builtin arbitration role agent: %s", agent_id)
@@ -1034,8 +1039,68 @@ def _do_ensure_builtin_arbitration_agents() -> None:
             )
             changed = True
 
+    # Group chat hosts must never run bootstrap guidance: the host's job is
+    # to organize member discussion, not to onboard the user. Remove any
+    # BOOTSTRAP.md left behind by earlier versions — for the builtin host
+    # and for every user-created host agent. Hosts also must not exempt
+    # chat_with_agent from tool-result pruning: every member reply arrives
+    # through that tool, and keeping each historical reply at the recent
+    # (50k-byte) limit blows the context window mid-discussion (member
+    # speeches get cut off). Prune old replies like any other tool output.
+    from .routers.agents import _remove_bootstrap_md as _cleanup_bootstrap
+
+    for profile_id, profile in config.agents.profiles.items():
+        is_host = profile_id.startswith("host_")
+        if not is_host:
+            try:
+                profile_desc = load_agent_config(profile_id).description
+            except (ValueError, AppBaseException, OSError):
+                profile_desc = None
+            is_host = bool(profile_desc and "<!-- HOST:" in profile_desc)
+        if not is_host:
+            continue
+        host_workspace = Path(profile.workspace_dir).expanduser()
+        _cleanup_bootstrap(host_workspace)
+        try:
+            host_cfg = load_agent_config(profile_id)
+            pruning_cfg = (
+                host_cfg.running.light_context_config.tool_result_pruning_config
+            )
+            exempt = [
+                name
+                for name in pruning_cfg.exempt_tool_names
+                if name != "chat_with_agent"
+            ]
+            if exempt != pruning_cfg.exempt_tool_names:
+                pruning_cfg.exempt_tool_names = exempt
+                save_agent_config(profile_id, host_cfg)
+                changed = True
+        except (ValueError, AppBaseException, OSError) as exc:
+            logger.warning(
+                "Could not update pruning config for host %s: %s",
+                profile_id,
+                exc,
+            )
+
     if changed:
         save_config(config)
+
+
+def _remove_bootstrap_md(workspace: Path) -> None:
+    """Remove BOOTSTRAP.md (and its completion flag) from a workspace."""
+    bootstrap = workspace / "BOOTSTRAP.md"
+    try:
+        if bootstrap.exists():
+            bootstrap.unlink()
+            logger.info(
+                "Removed BOOTSTRAP.md from group chat host workspace %s",
+                workspace,
+            )
+        flag = workspace / ".bootstrap_completed"
+        if flag.exists():
+            flag.unlink()
+    except OSError as e:
+        logger.warning("Could not remove BOOTSTRAP.md from %s: %s", workspace, e)
 
 
 def _create_builtin_mock_arbitration_host(
@@ -1077,6 +1142,7 @@ def _create_builtin_mock_arbitration_host(
         host_workspace,
         skill_names=[],
         language=language,
+        exclude_md_filenames={"BOOTSTRAP.md"},
     )
 
     (host_workspace / "AGENTS.md").write_text(
@@ -1094,6 +1160,8 @@ def _create_builtin_mock_arbitration_host(
     )
     if host_id not in config.agents.agent_order:
         config.agents.agent_order.append(host_id)
+    # Persist the new profile before save_agent_config (it reloads root config).
+    save_config(config)
     save_agent_config(host_id, agent_config)
     logger.info("Created builtin mock arbitration host agent: %s", host_id)
 

@@ -935,6 +935,26 @@ async def create_agent(
         mail=request.mail,
     )
 
+    # Group chat host agents are orchestrators, not personal assistants:
+    # skip the first-interaction BOOTSTRAP.md guidance so a freshly created
+    # group chat opens directly into the discussion instead of onboarding.
+    is_group_host = bool(
+        request.description and "<!-- HOST:" in request.description
+    )
+
+    if is_group_host:
+        # Every member's reply arrives via chat_with_agent. Keeping every
+        # historical reply at the recent (50k-byte) limit lets the context
+        # balloon past the model window mid-discussion (members' speeches
+        # then get cut off). Prune old replies to the old-result limit like
+        # any other tool output — only the live exchange stays recent.
+        pruning_cfg = (
+            agent_config.running.light_context_config.tool_result_pruning_config
+        )
+        exempt = [n for n in pruning_cfg.exempt_tool_names if n != "chat_with_agent"]
+        if exempt != pruning_cfg.exempt_tool_names:
+            pruning_cfg.exempt_tool_names = exempt
+
     await run_sync_io(
         _initialize_agent_workspace,
         workspace_dir,
@@ -944,7 +964,10 @@ async def create_agent(
             else list(DEFAULT_KNOWLEDGE_SKILL_NAMES)
         ),
         language=language,
+        exclude_md_filenames={"BOOTSTRAP.md"} if is_group_host else None,
     )
+    if is_group_host:
+        _remove_bootstrap_md(workspace_dir)
 
     # Write any caller-supplied initial MD files (overwrite defaults)
     if request.initial_md_files:
@@ -1811,12 +1834,14 @@ def _apply_workspace_md_templates(
     language: str,
     *,
     md_template_id: str | None,
+    exclude_md_filenames: set[str] | None = None,
 ) -> None:
     """Copy common and template-specific markdown files for a workspace."""
     copy_workspace_md_files(
         language,
         workspace_dir,
         md_template_id=md_template_id,
+        exclude_filenames=exclude_md_filenames,
     )
 
 
@@ -2119,6 +2144,27 @@ def _ensure_mail_triage_file(workspace_dir: Path, language: str) -> None:
     _ensure_workspace_md_file(workspace_dir, language, "MAIL_TRIAGE.md")
 
 
+def _remove_bootstrap_md(workspace_dir: Path) -> None:
+    """Remove BOOTSTRAP.md (and its completion flag) from a workspace."""
+    bootstrap = workspace_dir / "BOOTSTRAP.md"
+    try:
+        if bootstrap.exists():
+            bootstrap.unlink()
+            logger.info(
+                "Removed BOOTSTRAP.md from group chat host workspace %s",
+                workspace_dir,
+            )
+        flag = workspace_dir / ".bootstrap_completed"
+        if flag.exists():
+            flag.unlink()
+    except OSError as exc:
+        logger.warning(
+            "Could not remove BOOTSTRAP.md from %s: %s",
+            workspace_dir,
+            exc,
+        )
+
+
 def _initialize_agent_workspace(
     workspace_dir: Path,
     skill_names: list[str] | None = None,
@@ -2128,6 +2174,7 @@ def _initialize_agent_workspace(
     apply_md_templates: bool = True,
     create_skills_dir: bool = True,
     create_jobs_file: bool = True,
+    exclude_md_filenames: set[str] | None = None,
 ) -> None:
     """Initialize agent workspace with only explicitly requested skills."""
     from ...config import load_config as load_global_config
@@ -2146,6 +2193,7 @@ def _initialize_agent_workspace(
             workspace_dir,
             language,
             md_template_id=md_template_id,
+            exclude_md_filenames=exclude_md_filenames,
         )
         _ensure_heartbeat_file(workspace_dir, language)
     _install_initial_skills(workspace_dir, skill_names)

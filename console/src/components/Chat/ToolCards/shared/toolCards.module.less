@@ -382,6 +382,121 @@
   min-width: 0;
 }
 
+// Group-chat member speech bubble — a full-width, self-contained card so
+// each member's reply reads as its own chat bubble instead of being
+// visually merged into the host's bubble.
+.memberReplyBubble {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 8px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--ant-color-border-secondary, rgba(0, 0, 0, 0.1));
+  border-radius: 10px;
+  background: var(--ant-color-bg-container, #fff);
+  box-shadow: 0 1px 4px var(--ant-color-border-secondary, rgba(0, 0, 0, 0.08));
+  overflow: hidden;
+}
+
+.memberReplyHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.memberReplyAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.memberReplyName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ant-color-text, rgba(0, 0, 0, 0.88));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.memberReplyBody {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ant-color-text, rgba(0, 0, 0, 0.88)) !important;
+
+  :global(p),
+  :global(ul),
+  :global(ol),
+  :global(pre) {
+    margin: 4px 0;
+  }
+  :global(pre) {
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+  :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  :global(th),
+  :global(td) {
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 6px 10px;
+    text-align: left;
+  }
+  :global(th) {
+    background: rgba(0, 0, 0, 0.02);
+    font-weight: 500;
+  }
+}
+
+:global(.dark-mode) {
+  .memberReplyBubble {
+    background: #22252a;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+  .memberReplyName {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+  .memberReplyBody {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+}
+
+// Compact trace line shown alongside a member speech bubble so the
+// underlying tool call stays inspectable without dominating the UI.
+.memberReplyToolLine {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 2px 0 6px;
+  font-size: 12px;
+  color: var(--ant-color-text-tertiary, #999);
+
+  summary {
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+}
+
 // JSON syntax highlighting.
 // Double class selector + !important to beat the blanket
 // `color: rgba(255,255,255,0.85) !important` from chat-anywhere dark-mode.

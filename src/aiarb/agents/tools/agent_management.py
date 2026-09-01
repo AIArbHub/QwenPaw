@@ -34,6 +34,13 @@ AGENT_CHAT_STOP_TIMEOUT = 3.0
 MAX_SPAWN_BATCH_SIZE = 10
 MAX_SPAWN_BATCH_CONCURRENCY = 3
 
+# Floor for `chat_with_agent` foreground wait. Group-chat hosts orchestrate
+# members by calling this tool, and the target agent can take well over a
+# minute to answer (especially on slow / rate-limited free providers). A
+# model-chosen short timeout (e.g. 30s) would kill the member's reply and
+# end the host's turn prematurely, so clamp callers up to this minimum.
+MIN_CHAT_WITH_AGENT_TIMEOUT_SECS = 300
+
 
 def resolve_agent_api_base_url(base_url: Optional[str] = None) -> str:
     """Resolve the agent API base URL.
@@ -654,6 +661,13 @@ async def chat_with_agent(
         from_agent=None,
         root_session_id=final_root_session,
     )
+
+    # Clamp caller-supplied timeouts up to the floor so a member agent's
+    # reply can't be cut off mid-generation (see MIN_CHAT_WITH_AGENT_TIMEOUT_SECS).
+    try:
+        timeout = max(int(timeout), MIN_CHAT_WITH_AGENT_TIMEOUT_SECS)
+    except (TypeError, ValueError):
+        timeout = MIN_CHAT_WITH_AGENT_TIMEOUT_SECS
 
     response_data = await _collect_foreground_agent_chat(
         request_payload,

@@ -60,9 +60,20 @@ import {
   getCollapsedStepRenderKey,
   getResponseMessageDisplayMode,
   groupResponseMessages,
+  isMemberReplyMessage,
 } from "./messageDisplay";
 import styles from "./HostBubbles.module.less";
 import LazyAccordion from "./LazyAccordion";
+import { useAgentStore } from "../../stores/agentStore";
+import {
+  agentAvatarColor,
+  agentInitial,
+  resolveAgentDisplayName,
+} from "../../utils/hostAgent";
+import {
+  extractMemberReply,
+  stringifyResult,
+} from "../../components/Chat/ToolCards/shared/utils";
 
 function sortByOrder<T extends { item: { order?: number } }>(arr: T[]): T[] {
   return arr
@@ -199,6 +210,70 @@ function renderResponseMessage(item: IAgentScopeRuntimeMessage) {
   }
 }
 
+/**
+ * MemberReplyRow — renders a group-chat member's speech as its own,
+ * fully independent chat bubble (avatar on the left + distinct bubble body),
+ * detached from the host agent's bubble. Group replies arrive as tool calls
+ * inside the host's single response; drawing them as a real Bubble is what
+ * makes the conversation read like an actual group chat instead of one big
+ * host message.
+ */
+function MemberReplyRow({
+  message,
+}: {
+  message: IAgentScopeRuntimeMessage;
+}) {
+  const { agents } = useAgentStore();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const contentArray = (message.content as unknown as any[]) ?? [];
+  const callData = (contentArray[0]?.data ?? {}) as Record<string, unknown>;
+  const resultData = (contentArray[1]?.data ?? {}) as Record<string, unknown>;
+
+  // Only render completed replies; no result content yet = still calling.
+  const result = resultData.output;
+  if (result == null) return null;
+
+  let params: Record<string, unknown> = {};
+  const rawArgs = callData.arguments;
+  if (typeof rawArgs === "string") {
+    try {
+      params = JSON.parse(rawArgs);
+    } catch {
+      params = {};
+    }
+  } else if (rawArgs && typeof rawArgs === "object") {
+    params = rawArgs as Record<string, unknown>;
+  }
+
+  const agentId = (params.to_agent as string) || "";
+  if (!agentId) return null;
+  const name = resolveAgentDisplayName(agentId, agents) || agentId;
+
+  const replyText = extractMemberReply(stringifyResult(result));
+  if (!replyText) return null;
+
+  const color = agentAvatarColor(name);
+  const avatarNode = (
+    <span className={styles.memberReplyAvatar} style={{ backgroundColor: color }}>
+      {agentInitial(name)}
+    </span>
+  );
+
+  return (
+    <div className={styles.memberReplyRow}>
+      <div className={styles.memberReplyName}>{name}</div>
+      <Bubble
+        avatar={avatarNode}
+        className={styles.memberReplyBubble}
+        content={replyText}
+        // `variant` turns on the filled bubble background at runtime, but the
+        // vendor `.d.ts` does not yet describe it — cast to satisfy TS.
+        {...({ variant: "filled" } as object)}
+      />
+    </div>
+  );
+}
+
 function DefaultHostResponseCard({
   data,
   isLast,
@@ -246,6 +321,16 @@ function DefaultHostResponseCard({
       {contentPrepend}
       {messageBlocks.map((block, index) => {
         if (block.kind === "message") {
+          // Group-chat member replies render as their own independent bubble
+          // instead of being merged into the host agent's card.
+          if (isMemberReplyMessage(block.message)) {
+            return (
+              <MemberReplyRow
+                key={block.message.id}
+                message={block.message}
+              />
+            );
+          }
           return renderResponseMessage(block.message);
         }
 

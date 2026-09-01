@@ -262,4 +262,41 @@ describe("message display mode", () => {
       });
     },
   );
+
+  it("keeps group-chat member reply tool calls visible as bubbles", () => {
+    const memberTool = {
+      id: "member-1",
+      type: AgentScopeRuntimeMessageType.TOOL_CALL,
+      role: "assistant",
+      status: AgentScopeRuntimeRunStatus.Completed,
+      content: [{ data: { name: "chat_with_agent" } }],
+    } as never;
+    const hostTool = {
+      id: "host-1",
+      type: AgentScopeRuntimeMessageType.TOOL_CALL,
+      role: "assistant",
+      status: AgentScopeRuntimeRunStatus.Completed,
+      content: [{ data: { name: "execute_shell_command" } }],
+    } as never;
+
+    const resultOnly = groupResponseMessages(
+      [hostTool, memberTool],
+      "result-only",
+    );
+    expect(
+      resultOnly.flatMap((block) =>
+        block.kind === "message" ? [block.message.id] : [],
+      ),
+    ).toEqual(["member-1"]);
+
+    const textOnly = groupResponseMessages(
+      [memberTool, hostTool],
+      "text-only",
+    );
+    expect(
+      textOnly.flatMap((block) =>
+        block.kind === "message" ? [block.message.id] : [],
+      ),
+    ).toEqual(["member-1"]);
+  });
 });

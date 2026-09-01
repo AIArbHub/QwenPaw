@@ -25,6 +25,28 @@ function isAlwaysVisible(message: IAgentScopeRuntimeMessage): boolean {
   );
 }
 
+/**
+ * Tools that carry a group-chat member's actual speech (the host calls
+ * these to let each member agent speak in turn). Their replies must be
+ * rendered as visible, independent bubbles — never hidden inside the
+ * collapsed "steps" accordion — so the group chat reads like a real chat.
+ */
+const MEMBER_REPLY_TOOLS = new Set(["chat_with_agent", "check_agent_task"]);
+
+export function isMemberReplyMessage(
+  message: IAgentScopeRuntimeMessage,
+): boolean {
+  if (message.type !== AgentScopeRuntimeMessageType.TOOL_CALL) return false;
+  const anyMessage = message as unknown as {
+    content?: Array<{ data?: { name?: string } }>;
+    toolName?: string;
+  };
+  const callItem = anyMessage?.content?.[0];
+  const toolName =
+    (callItem?.data?.name as string | undefined) || anyMessage?.toolName || "";
+  return MEMBER_REPLY_TOOLS.has(toolName);
+}
+
 export type ResponseMessageBlock =
   | { kind: "message"; message: IAgentScopeRuntimeMessage }
   | { kind: "steps"; messages: IAgentScopeRuntimeMessage[] };
@@ -143,8 +165,12 @@ export function groupResponseMessages(
 
   messages.forEach((message, index) => {
     if (message.type === AgentScopeRuntimeMessageType.HEARTBEAT) return;
+    // Group-chat member replies are always shown as their own bubble so the
+    // discussion reads like a real chat, even after the run completes.
+    const memberReply = isMemberReplyMessage(message);
     const visible =
       isAlwaysVisible(message) ||
+      memberReply ||
       (mode === "text-only" &&
         message.type === AgentScopeRuntimeMessageType.MESSAGE) ||
       (mode === "result-only" && index === lastMessageIndex);

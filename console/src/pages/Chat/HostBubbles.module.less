@@ -30,3 +30,36 @@
     }
   }
 }
+
+// Group-chat member reply rendered as its own independent chat bubble,
+// visually detached from the host agent's bubble.
+.memberReplyRow {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 8px 0;
+}
+
+.memberReplyName {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ant-color-text-secondary, #666);
+  margin: 0 0 4px;
+  font-weight: 500;
+}
+
+.memberReplyAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.memberReplyBubble {
+  width: 100%;
+}

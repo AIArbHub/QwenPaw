@@ -900,7 +900,45 @@ def ensure_skill_pool_initialized() -> bool:
         import_builtin_skills()
     else:
         migrate_pool_builtin_language_fields()
+        _import_missing_builtins()
     return created
+
+
+def _import_missing_builtins() -> None:
+    """Incrementally import packaged builtins that are missing from the pool.
+
+    Pool creation seeds every builtin once; when the packaged registry grows
+    afterwards (e.g. a newly shipped builtin skill), this makes sure the new
+    builtins are copied into the existing pool so ``download_to_workspace``
+    can find them — without touching already-present skills.
+    """
+    try:
+        registry = _get_packaged_builtin_registry()
+        if not registry:
+            return
+        pool_skills = read_skill_pool_manifest().get("skills", {}) or {}
+        pref = get_builtin_skill_language_preference()
+        missing: list[dict[str, Any]] = []
+        for skill_name in sorted(registry):
+            if skill_name in pool_skills:
+                continue
+            variant = _select_builtin_variant(
+                registry,
+                skill_name,
+                pref,
+                preferred_language=pref,
+            )
+            if variant is not None:
+                missing.append(
+                    {"skill_name": skill_name, "language": variant.language},
+                )
+        if missing:
+            import_builtin_skills(imports=missing)
+    except Exception as exc:  # pragma: no cover - best effort, non-fatal
+        logger.warning(
+            "Failed to import missing builtin skills into pool: %s",
+            exc,
+        )
 
 
 # ---------------------------------------------------------------------------
