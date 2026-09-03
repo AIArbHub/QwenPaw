@@ -12,14 +12,23 @@ from ..config.config import (
     HeartbeatConfig,
     MCPConfig,
     ToolsConfig,
+    build_arbitration_tools_config,
+    build_kb_curator_tools_config,
     build_local_agent_tools_config,
     build_qa_agent_tools_config,
 )
-from ..constant import BUILTIN_QA_AGENT_NAME, BUILTIN_QA_AGENT_SKILL_NAMES
+from ..constant import (
+    BUILTIN_KB_CURATOR_AGENT_ID,
+    BUILTIN_KB_CURATOR_AGENT_NAME,
+    BUILTIN_KB_CURATOR_SKILL_NAMES,
+    BUILTIN_QA_AGENT_NAME,
+    BUILTIN_QA_AGENT_SKILL_NAMES,
+)
 
 DEFAULT_AGENT_TEMPLATE = "default"
 LOCAL_AGENT_TEMPLATE = "local"
 QA_AGENT_TEMPLATE = "qa"
+KB_CURATOR_TEMPLATE = "kb_curator"
 
 ARBITRATOR_TEMPLATE = "arbitrator"
 CLAIMANT_TEMPLATE = "claimant"
@@ -51,6 +60,7 @@ SUPPORTED_AGENT_TEMPLATES = (
     DEFAULT_AGENT_TEMPLATE,
     LOCAL_AGENT_TEMPLATE,
     QA_AGENT_TEMPLATE,
+    KB_CURATOR_TEMPLATE,
     *ARBITRATION_ROLE_TEMPLATES,
 )
 
@@ -67,6 +77,10 @@ QA_TEMPLATE_DESCRIPTION = (
     "AIARB_WORKING_DIR, and documentation. Prefer reading files "
     "before answering; use absolute paths for code outside this "
     "workspace."
+)
+KB_CURATOR_TEMPLATE_DESCRIPTION = (
+    "内置知识库整理器：接收用户投递的法务素材（法律、规则、案例、文书等），"
+    "将其整理为结构化的知识库文档并发布到全局共享知识库。"
 )
 
 
@@ -89,6 +103,7 @@ def get_workspace_md_template_id(template_id: str | None) -> str | None:
     if template_id in {
         LOCAL_AGENT_TEMPLATE,
         QA_AGENT_TEMPLATE,
+        KB_CURATOR_TEMPLATE,
         *ARBITRATION_ROLE_TEMPLATES,
     }:
         return template_id
@@ -169,6 +184,25 @@ def build_agent_template(
             md_template_id=get_workspace_md_template_id(template_id),
         )
 
+    if template_id == KB_CURATOR_TEMPLATE:
+        agent_config = AgentProfileConfig(
+            id=agent_id,
+            name=name or BUILTIN_KB_CURATOR_AGENT_NAME,
+            description=description or KB_CURATOR_TEMPLATE_DESCRIPTION,
+            workspace_dir=str(workspace_dir),
+            template_id=template_id,
+            language=resolved_language,
+            channels=ChannelConfig(),
+            mcp=MCPConfig(),
+            heartbeat=HeartbeatConfig(),
+            tools=build_kb_curator_tools_config(),
+        )
+        return AgentTemplateBuildResult(
+            agent_config=agent_config,
+            initial_skill_names=tuple(BUILTIN_KB_CURATOR_SKILL_NAMES),
+            md_template_id=get_workspace_md_template_id(template_id),
+        )
+
     if template_id in ARBITRATION_ROLE_TEMPLATES:
         default_name, default_description = ARBITRATION_ROLE_TEMPLATES[
             template_id
@@ -183,7 +217,7 @@ def build_agent_template(
             channels=ChannelConfig(),
             mcp=MCPConfig(),
             heartbeat=HeartbeatConfig(),
-            tools=ToolsConfig(),
+            tools=build_arbitration_tools_config(),
         )
         return AgentTemplateBuildResult(
             agent_config=agent_config,

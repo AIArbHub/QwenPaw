@@ -38,7 +38,7 @@ export interface SkillMarket {
 export const skillMarkets: SkillMarket[] = [
   {
     key: "aiarb",
-    name: "AIArb",
+    name: "AgentScope",
     homepage: "https://platform.agentscope.io/skills",
     urlPrefix: "https://platform.agentscope.io/skills/",
     examples: [

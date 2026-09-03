@@ -31,9 +31,11 @@ const IDLE_TIMEOUT = Symbol("idle-timeout");
 
 const isMarker = (event: string): boolean => event.trim() === REPLAY_END_EVENT;
 
-/** Split buffered text into complete SSE events and the partial tail. */
+/** Split buffered text into complete SSE events and the partial tail.
+ *  Frames on both LF (`\n\n`) and CRLF (`\r\n\r\n`) event terminators so the
+ *  reconnect parser tolerates fixtures captured from Windows line endings. */
 function splitEvents(buf: string): { events: string[]; rest: string } {
-  const parts = buf.split("\n\n");
+  const parts = buf.split(/\r\n\r\n|\n\n/);
   const rest = parts.pop() ?? "";
   return { events: parts.filter((e) => e.length > 0), rest };
 }

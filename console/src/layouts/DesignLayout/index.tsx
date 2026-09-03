@@ -15,19 +15,28 @@ import {
   History,
   ChevronLeft,
   ChevronRight,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Settings,
   Search,
   Users2,
   Plus,
   Info,
   Sparkles,
   Zap,
-  Brain,
   Tag,
   ChevronDown,
+  Pin,
+  PinOff,
+  Power,
+  PowerOff,
+  Files,
+  BookOpen,
+  NotebookPen,
+  Settings,
 } from "lucide-react";
+import {
+  SparkSettingLine,
+  SparkMenuExpandLine,
+  SparkMenuFoldLine,
+} from "@agentscope-ai/icons";
 import { useAgentStore } from "../../stores/agentStore";
 import { useRoutes, useMenuItems } from "../../plugins/registry/hooks";
 import {
@@ -51,6 +60,9 @@ import CreateGroupChatModal from "../../components/CreateGroupChatModal";
 import EditGroupChatModal from "../../components/EditGroupChatModal";
 import CreateAgentModal from "../../components/CreateAgentModal";
 import { agentsApi } from "../../api/modules/agents";
+import { chatApi } from "../../api/modules/chat";
+import { getApiUrl } from "../../api/config";
+import type { ChatSpec } from "../../api/types/chat";
 import { useAppMessage } from "../../hooks/useAppMessage";
 import {
   HOST_MODE_LABEL,
@@ -60,6 +72,10 @@ import {
 } from "../../utils/hostAgent";
 import styles from "./designLayout.module.less";
 import { AgentDetailDrawer } from "../../pages/Settings/Agents/components";
+// 已隐藏：多标签页栏和实验性工作台 — A1 架构已采纳。
+// 如需恢复，取消下方导入注释。
+// import ChatTabsBar from "../../components/ChatTabsBar";
+// import { useChatWorkspaceStore } from "../../pages/Experimental/chatWorkspaceStore";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -104,15 +120,33 @@ function getInitials(name: string): string {
   return trimmed.charAt(0).toUpperCase();
 }
 
+/** Resolve a backend avatar path into a full URL for <img src>. */
+function resolveAgentAvatar(avatar?: string | null): string {
+  if (!avatar) return "";
+  if (/^https?:\/\//.test(avatar)) return avatar;
+  const path = avatar.replace(/^\/api/, "");
+  return getApiUrl(path);
+}
+
+interface SessionSearchHit {
+  agentId: string;
+  agentName: string;
+  chatId: string;
+  name: string;
+  updatedAt?: string | null;
+}
+
 /**
  * 分组标签：展示当前分组，点击后内联编辑并保存。
  * 通过 onSave 回调把新值持久化到后端。
  */
 function GroupTag({
   group,
+  options,
   onSave,
 }: {
   group?: string;
+  options: string[];
   onSave: (next: string) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -122,12 +156,19 @@ function GroupTag({
     setDraft(group || "");
   }, [group]);
 
-  const handleConfirm = () => {
+  const confirm = (next: string) => {
     setOpen(false);
-    onSave(draft);
+    onSave(next);
+  };
+
+  const handleConfirm = () => {
+    confirm(draft);
   };
 
   const label = (group || "").trim();
+  const existingOptions = options.filter(
+    (opt) => opt && opt !== label,
+  );
 
   return (
     <Popover
@@ -140,21 +181,37 @@ function GroupTag({
       placement="bottomLeft"
       content={
         <div className={styles.groupEditPopover}>
-          <Input
-            size="small"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onPressEnter={handleConfirm}
-            placeholder="分组名称"
-            maxLength={20}
-          />
-          <button
-            type="button"
-            className={styles.groupEditSave}
-            onClick={handleConfirm}
-          >
-            保存
-          </button>
+          {existingOptions.length > 0 && (
+            <div className={styles.groupEditOptions}>
+              {existingOptions.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  className={styles.groupEditOption}
+                  onClick={() => confirm(opt)}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className={styles.groupEditInputRow}>
+            <Input
+              size="small"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onPressEnter={handleConfirm}
+              placeholder="分组名称"
+              maxLength={20}
+            />
+            <button
+              type="button"
+              className={styles.groupEditSave}
+              onClick={handleConfirm}
+            >
+              保存
+            </button>
+          </div>
         </div>
       }
     >
@@ -207,6 +264,7 @@ export default function DesignLayout({
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
     () => new Set(),
   );
+  const [sessionHits, setSessionHits] = useState<SessionSearchHit[]>([]);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
 
   // ── Hooks ──────────────────────────────────────────────────────────────────
@@ -225,11 +283,25 @@ export default function DesignLayout({
   const routes = useRoutes();
   const rawAgentMenu = useMenuItems("primary.agentScoped");
   const rawSettingsMenu = useMenuItems("primary.settings");
+  const rawBottomMenu = useMenuItems("primary.bottom");
 
   const currentPath = location.pathname;
   const isChatActive =
     currentPath.startsWith("/chat") ||
     currentPath.startsWith("/groups/");
+  // 多实例聊天工作台：激活时，中间面板的新建聊天 / 打开会话
+  // 操作会在工作台 store 中打开标签页，而不是路由到遗留的
+  // 单聊天 `/chat/*` 页面。
+  // 已隐藏：A1 架构已采纳 — 工作台始终为非激活状态。
+  const isWorkspaceActive = false;
+  const agentsManagePath = routeIdToPath("core.agents", routes) ?? "/agents";
+
+// 多实例宿主标签页治理。
+// 已隐藏：useChatWorkspaceStore 导入已注释（A1 架构已采纳）。
+// const openWorkspaceTab = useChatWorkspaceStore((s) => s.openTab);
+// Noop 占位符，使 `if (isWorkspaceActive)` 分支能通过类型检查
+// （它们是死代码 — isWorkspaceActive 始终为 false）。
+const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) => {};
 
   // ── Auto-collapse middle panel when content is unrelated to agents ────────
   // If the user hasn't manually toggled, auto-collapse when navigating away
@@ -286,32 +358,9 @@ export default function DesignLayout({
       path: buildChatPath(),
     });
 
-    // 2. Inbox (extract from agent menu — global in design mode)
-    const inboxItem = findMenuItem(rawAgentMenu, "core.inbox");
-    if (inboxItem) {
-      items.push({
-        key: "core.inbox",
-        icon: renderIcon(inboxItem.icon, RAIL_ICON_SIZE),
-        label: resolveLabel(inboxItem.label),
-        path: routeIdToPath(inboxItem.route, routes),
-        href: inboxItem.href,
-        showBadge: false, // Wire to inbox unread state when available
-      });
-    }
+    // (Inbox is rendered in the bottom toolbar — same as full-mode Sidebar.)
 
-    // 3. Market (extract from agent menu — global in design mode)
-    const marketItem = findMenuItem(rawAgentMenu, "core.marketplace");
-    if (marketItem) {
-      items.push({
-        key: "core.marketplace",
-        icon: renderIcon(marketItem.icon, RAIL_ICON_SIZE),
-        label: resolveLabel(marketItem.label),
-        path: routeIdToPath(marketItem.route, routes),
-        href: marketItem.href,
-      });
-    }
-
-    // 3b. Memory center (global entry in design mode)
+    // 2. Memory center (global entry in design mode)
     const memoryItem = findMenuItem(rawAgentMenu, "core.memory");
     if (memoryItem) {
       items.push({
@@ -323,7 +372,7 @@ export default function DesignLayout({
       });
     }
 
-    // 3c. Shared knowledge base (global entry in design mode)
+    // 3. Shared knowledge base (global entry in design mode)
     const kbItem = findMenuItem(rawAgentMenu, "core.knowledge-base");
     if (kbItem) {
       items.push({
@@ -335,17 +384,25 @@ export default function DesignLayout({
       });
     }
 
-    // 4. Settings group header (hidden when collapsed)
+    // 4. Global Settings group header (hidden when collapsed)
     items.push({
       key: "settings-group-header",
       icon: null,
-      label: t("nav.settings"),
+      label: t("nav.globalSettings", "全局设置"),
       isGroupHeader: true,
     });
 
-    // 5. All settings items (flattened)
+    // 5. Settings items — when collapsed only the 4 primary entries remain
+    // (agents / models / skill-pool / token-usage); expanded shows all.
     const settingsFlat = flattenMenu(rawSettingsMenu, routes, RAIL_ICON_SIZE);
+    const collapsedSettings = new Set([
+      "core.agents",
+      "core.models",
+      "core.skill-pool",
+      "core.token-usage",
+    ]);
     for (const entry of settingsFlat) {
+      if (railCollapsed && !collapsedSettings.has(entry.key)) continue;
       items.push({
         key: entry.key,
         icon: entry.icon,
@@ -356,7 +413,7 @@ export default function DesignLayout({
     }
 
     return items;
-  }, [rawAgentMenu, rawSettingsMenu, routes, t]);
+  }, [rawAgentMenu, rawBottomMenu, rawSettingsMenu, routes, t, railCollapsed]);
 
   // ── Derived: feature groups for the "功能" tab ─────────────────────────────
   const featureGroups = useMemo(() => {
@@ -412,20 +469,33 @@ export default function DesignLayout({
     }
 
     // 基本信息 group — static entries (basic/persona open the edit drawer,
-    // skills/memory route into the right content panel).
+    // diary/workspace-files/specific-kb route into the right content panel).
     const profile: FeatureCardData[] = [
       { key: "basic", icon: <Info size={FEATURE_ICON_SIZE} />, label: t("agent.basicInfo", "基本信息") },
-      { key: "persona", icon: <Sparkles size={FEATURE_ICON_SIZE} />, label: t("agent.persona", "人设") },
+      { key: "persona", icon: <Sparkles size={FEATURE_ICON_SIZE} />, label: t("nav.agentFilesPersona", "灵魂人设") },
+      {
+        key: "diary",
+        icon: <NotebookPen size={FEATURE_ICON_SIZE} />,
+        label: t("nav.agentFilesDiary", "日记"),
+        path: routeIdToPath("core.agent-files-diary", routes),
+      },
+      {
+        key: "workspace-files",
+        icon: <Files size={FEATURE_ICON_SIZE} />,
+        label: t("nav.agentFilesWorkspace", "工作区文件"),
+        path: routeIdToPath("core.agent-files-workspace", routes),
+      },
+      {
+        key: "specific-kb",
+        icon: <BookOpen size={FEATURE_ICON_SIZE} />,
+        label: t("nav.agentFilesSpecificKB", "专属知识库"),
+        path: routeIdToPath("core.agent-files-kb", routes),
+      },
       {
         key: "skills",
         icon: <Zap size={FEATURE_ICON_SIZE} />,
         label: t("nav.skills", "技能"),
         path: routeIdToPath("core.skills", routes),
-      },
-      {
-        key: "memory",
-        icon: <Brain size={FEATURE_ICON_SIZE} />,
-        label: t("agent.memory", "记忆"),
       },
     ];
 
@@ -447,6 +517,7 @@ export default function DesignLayout({
   const panelHostCleanDesc = panelIsHost
     ? stripHostMeta(panelAgent!.description)
     : "";
+  const panelAvatarSrc = resolveAgentAvatar(panelAgent?.avatar);
 
   // 主持人智能体（群聊）与普通智能体分开展示，避免混在一起。
   const { regularAgents, hostAgents } = useMemo(() => {
@@ -459,12 +530,75 @@ export default function DesignLayout({
     return { regularAgents: regular, hostAgents: hosts };
   }, [agents]);
 
+  // 已有分组（去重），用于分组标签快速选取。
+  const existingGroups = useMemo(() => {
+    const set = new Set<string>();
+    for (const agent of agents) {
+      const g = (agent.group || "").trim();
+      if (g) set.add(g);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "zh-CN"));
+  }, [agents]);
+
   // ── Effects ─────────────────────────────────────────────────────────────────
 
   // Load agents on mount
   useEffect(() => {
     refreshAgents();
   }, [refreshAgents]);
+
+  // 全量会话搜索：在搜索框输入时，按标题/ID 检索所有智能体的会话。
+  useEffect(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) {
+      setSessionHits([]);
+      return;
+    }
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      const hits: SessionSearchHit[] = [];
+      try {
+        for (const agent of agents) {
+          if (cancelled) return;
+          let chats: ChatSpec[];
+          try {
+            chats = await chatApi.listChats({
+              archived: false,
+              include_app_owned: false,
+              agent_id: agent.id,
+            });
+          } catch {
+            continue;
+          }
+          if (cancelled) return;
+          for (const chat of chats) {
+            const name = (chat.name || "").toLowerCase();
+            if (name.includes(q) || (chat.id || "").toLowerCase().includes(q)) {
+              hits.push({
+                agentId: agent.id,
+                agentName: agent.name,
+                chatId: chat.id,
+                name: chat.name || "New Chat",
+                updatedAt: chat.updated_at,
+              });
+            }
+          }
+        }
+        if (!cancelled) {
+          hits.sort((a, b) =>
+            (b.updatedAt || "").localeCompare(a.updatedAt || ""),
+          );
+          setSessionHits(hits);
+        }
+      } catch {
+        if (!cancelled) setSessionHits([]);
+      }
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [searchQuery, agents]);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
@@ -488,9 +622,13 @@ export default function DesignLayout({
 
   const handleGroupClick = (agent: AgentSummary) => {
     // 与单个智能体一致：中栏展示详情（新增聊天/基本信息/控制/工作区 + 群聊管理），
-    // 同时右栏跳转到该群聊的聊天页。
+    // 同时右栏跳转到该群聊的聊天页；若处于多实例工作台则打开新标签。
     setPanelAgentId(agent.id);
     setSelectedAgent(agent.id);
+    if (isWorkspaceActive) {
+      openWorkspaceTab(agent.id, undefined, "新对话");
+      return;
+    }
     navigate(buildChatPath());
   };
 
@@ -499,8 +637,13 @@ export default function DesignLayout({
     setDrawerTab(tab);
   };
 
-  // 新增聊天：若已在聊天页则派发事件创建新会话，否则跳转 /chat。
+  // 新增聊天：若处于多实例工作台则在工作台 store 打开新标签，
+  // 否则若已在聊天页派发事件创建新会话，反之跳转 /chat。
   const handleNewChat = () => {
+    if (isWorkspaceActive) {
+      openWorkspaceTab(selectedAgent, undefined, "新对话");
+      return;
+    }
     const onChatPage = currentPath.startsWith("/chat");
     if (onChatPage) {
       window.dispatchEvent(new CustomEvent("aiarb:sidebar-new-chat"));
@@ -510,13 +653,22 @@ export default function DesignLayout({
     }
   };
 
-  // 历史会话：跳转到会话历史页（右栏区域）。若处于某个智能体详情，则进入其专属历史页。
+  // 历史会话：在右栏打开原生聊天历史面板（与右栏「聊天历史」一致）。
+  // 若已在聊天页则直接触发面板，否则跳转聊天页后由 Chat 页处理待打开标记。
+  const openHistoryPanel = () => {
+    if (currentPath.startsWith("/chat")) {
+      window.dispatchEvent(new CustomEvent("aiarb:open-history-panel"));
+    } else {
+      sessionStorage.setItem("aiarb_pending_open_history", "1");
+      navigate(buildChatPath());
+    }
+  };
+
   const handleHistorySessions = () => {
     if (panelAgent) {
-      navigate(`/agents/${encodeURIComponent(panelAgent.id)}/sessions`);
-    } else {
-      navigate("/sessions");
+      setSelectedAgent(panelAgent.id);
     }
+    openHistoryPanel();
   };
 
   const handleProfileCardClick = (card: FeatureCardData) => {
@@ -527,10 +679,6 @@ export default function DesignLayout({
     }
     if (card.key === "persona") {
       handleOpenDrawer(panelAgent, "persona");
-      return;
-    }
-    if (card.key === "memory") {
-      handleOpenDrawer(panelAgent, "memory");
       return;
     }
     if (card.path) {
@@ -552,6 +700,39 @@ export default function DesignLayout({
     }
   };
 
+  // 中栏快捷操作：上线 / 下线（切换 enabled）。
+  const handleToggleEnabled = async (agent: AgentSummary) => {
+    const next = !agent.enabled;
+    try {
+      await agentsApi.toggleAgentEnabled(agent.id, next);
+      updateAgent(agent.id, { enabled: next });
+      message.success(
+        next
+          ? t("agent.enableSuccess", "已启用")
+          : t("agent.disableSuccess", "已停用"),
+      );
+    } catch (err: unknown) {
+      message.error(
+        err instanceof Error
+          ? err.message
+          : t("agent.enableToggleFailed", "操作失败"),
+      );
+    }
+  };
+
+  // 中栏快捷操作：置顶 / 取消置顶。
+  const handleTogglePin = async (agent: AgentSummary) => {
+    const next = !agent.pinned;
+    try {
+      await agentsApi.setAgentPinned(agent.id, next);
+      updateAgent(agent.id, { pinned: next });
+    } catch (err: unknown) {
+      message.error(
+        err instanceof Error ? err.message : t("agent.pinFailed", "置顶失败"),
+      );
+    }
+  };
+
   const handleBackClick = () => {
     setPanelAgentId(null);
   };
@@ -564,15 +745,31 @@ export default function DesignLayout({
 
   // 针对某个具体智能体/群聊发起新对话：先切换 selectedAgent（同步生效，
   // 决定 X-Agent-Id 请求头的归属），再走通用新建会话流程。
+  // 处于多实例工作台时，明确用「被悬停的智能体」在工作台打开新标签，
+  // 而不是依赖全局 selectedAgent，避免点 A 却建 B 的串扰。
   const handleAgentNewChat = (agent: AgentSummary) => {
     setSelectedAgent(agent.id);
+    if (isWorkspaceActive) {
+      openWorkspaceTab(agent.id, undefined, "新对话");
+      return;
+    }
     handleNewChat();
   };
 
-  // 进入该智能体/群聊的会话历史页。
+  // 进入该智能体/群聊的会话历史面板（右栏原生聊天历史）。
   const handleAgentHistory = (agent: AgentSummary) => {
     setSelectedAgent(agent.id);
-    navigate(`/agents/${encodeURIComponent(agent.id)}/sessions`);
+    openHistoryPanel();
+  };
+
+  // 从搜索结果进入某个智能体的具体会话；若处于多实例工作台则在工作台打开该会话标签。
+  const handleSessionHitClick = (hit: SessionSearchHit) => {
+    setSelectedAgent(hit.agentId);
+    if (isWorkspaceActive) {
+      openWorkspaceTab(hit.agentId, hit.chatId, hit.name);
+      return;
+    }
+    navigate(buildChatPath(hit.chatId));
   };
 
   // 折叠/展开 QQ 好友式分组。
@@ -600,11 +797,12 @@ export default function DesignLayout({
   };
 
   // 将列表按 group 字段折叠成可折叠分组，未分组排最后。
+  // 注意：`items` 在此应为已经过滤（搜索）后的数据。
   const groupByGroupName = (
     items: AgentSummary[],
     prefix: string,
   ): Array<{ key: string; label: string; items: AgentSummary[] }> => {
-    const src = filterByQuery(items);
+    const src = items;
     const uncatLabel = t("chat.groups.uncategorized", "未分组");
     const order: string[] = [];
     const map = new Map<string, AgentSummary[]>();
@@ -628,23 +826,67 @@ export default function DesignLayout({
     }));
   };
 
+  // 先对输入做搜索过滤，再把「置顶」的智能体从各自分组抽出，
+  // 作为最顶部的「置顶」分组排在所有普通分组之前。
+  const composeGrouped = (
+    items: AgentSummary[],
+    prefix: string,
+  ): Array<{ key: string; label: string; items: AgentSummary[] }> => {
+    const src = filterByQuery(items);
+    const pinnedLabel = t("agent.pinnedGroup", "置顶");
+    const pinned = src.filter((a) => a.pinned && a.id !== "default");
+    const rest = src.filter((a) => !(a.pinned && a.id !== "default"));
+    const pinnedGroup: Array<{
+      key: string;
+      label: string;
+      items: AgentSummary[];
+    }> = pinned.length
+      ? [{ key: `${prefix}:pinned`, label: pinnedLabel, items: pinned }]
+      : [];
+    return [...pinnedGroup, ...groupByGroupName(rest, prefix)];
+  };
+
   const regularGrouped = useMemo(
-    () => groupByGroupName(regularAgents, "ag"),
+    () => composeGrouped(regularAgents, "ag"),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [regularAgents, searchQuery],
   );
   const hostGrouped = useMemo(
-    () => groupByGroupName(hostAgents, "gr"),
+    () => composeGrouped(hostAgents, "gr"),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [hostAgents, searchQuery],
   );
 
-  // 分组下每个条目的 hover 快捷操作：新增对话 + 对话历史。
+  // 分组下每个条目的 hover 快捷操作：上线/下线 + 置顶 + 新增对话 + 对话历史。
   const renderQuickActions = (agent: AgentSummary): ReactNode => (
     <div
       className={styles.hostAgentActions}
       onClick={(e) => e.stopPropagation()}
     >
+      {agent.id !== "default" && (
+        <>
+          <Tooltip title={agent.enabled ? t("agent.disable", "停用") : t("agent.enable", "启用")}>
+            <button
+              type="button"
+              className={styles.hostAgentActionButton}
+              aria-label={agent.enabled ? t("agent.disable", "停用") : t("agent.enable", "启用")}
+              onClick={() => handleToggleEnabled(agent)}
+            >
+              {agent.enabled ? <Power size={14} /> : <PowerOff size={14} />}
+            </button>
+          </Tooltip>
+          <Tooltip title={agent.pinned ? t("agent.unpinAgent", "取消置顶") : t("agent.pinAgent", "置顶")}>
+            <button
+              type="button"
+              className={styles.hostAgentActionButton}
+              aria-label={agent.pinned ? t("agent.unpinAgent", "取消置顶") : t("agent.pinAgent", "置顶")}
+              onClick={() => handleTogglePin(agent)}
+            >
+              {agent.pinned ? <Pin size={14} /> : <PinOff size={14} />}
+            </button>
+          </Tooltip>
+        </>
+      )}
       <Tooltip title={t("chat.newChat", "新增对话")}>
         <button
           type="button"
@@ -669,57 +911,57 @@ export default function DesignLayout({
   );
 
   // 单个普通智能体条目。
-  const renderAgentItem = (agent: AgentSummary): ReactNode => (
-    <div
-      key={agent.id}
-      className={styles.agentItem}
-      role="button"
-      tabIndex={0}
-      onClick={() => handleAgentClick(agent)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          handleAgentClick(agent);
-        }
-      }}
-    >
-      <div className={styles.agentAvatar}>
-        <Avatar
-          size={40}
-          style={{ backgroundColor: "var(--color-primary)" }}
-        >
-          {getInitials(agent.name)}
-        </Avatar>
-        <span
-          className={styles.agentStatusDot}
-          style={{
-            backgroundColor: STATUS_COLORS[agent.startup_status ?? "disabled"],
-          }}
-        />
-      </div>
-      <div className={styles.agentInfo}>
-        <div className={styles.agentInfoRow}>
-          <span className={styles.agentName}>{agent.name}</span>
-          {!agent.enabled && (
-            <span className={styles.agentTime}>
-              {t("agent.disabled", "已禁用")}
-            </span>
+  const renderAgentItem = (agent: AgentSummary): ReactNode => {
+    const avatarSrc = resolveAgentAvatar(agent.avatar);
+    return (
+      <div
+        key={agent.id}
+        className={styles.agentItem}
+        role="button"
+        tabIndex={0}
+        onClick={() => handleAgentClick(agent)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleAgentClick(agent);
+          }
+        }}
+      >
+        <div className={styles.agentAvatar}>
+          {avatarSrc ? (
+            <Avatar size={40} src={avatarSrc} />
+          ) : (
+            <Avatar
+              size={40}
+              style={{ backgroundColor: "var(--color-primary)" }}
+            >
+              {getInitials(agent.name)}
+            </Avatar>
           )}
+          <span
+            className={styles.agentStatusDot}
+            style={{
+              backgroundColor: STATUS_COLORS[agent.startup_status ?? "disabled"],
+            }}
+          />
         </div>
-        <div className={styles.agentDesc}>
-          {agent.description || t("agent.noDescription")}
-        </div>
-        {agent.pinned && (
-          <div className={styles.agentMetaRow}>
-            <span className={styles.pinnedBadge}>
-              {t("agent.pinned", "置顶")}
-            </span>
+        <div className={styles.agentInfo}>
+          <div className={styles.agentInfoRow}>
+            <span className={styles.agentName}>{agent.name}</span>
+            {!agent.enabled && (
+              <span className={styles.agentTime}>
+                {t("agent.disabled", "已禁用")}
+              </span>
+            )}
           </div>
-        )}
+          <div className={styles.agentDesc}>
+            {agent.description || t("agent.noDescription")}
+          </div>
+        </div>
+        {renderQuickActions(agent)}
       </div>
-      {renderQuickActions(agent)}
-    </div>
-  );
+    );
+  };
 
   // 单个群聊条目。
   const renderHostItem = (agent: AgentSummary): ReactNode => {
@@ -777,6 +1019,38 @@ export default function DesignLayout({
       </div>
     );
   };
+
+  // 搜索结果中的会话条目。
+  const renderSessionHitItem = (hit: SessionSearchHit): ReactNode => (
+    <div
+      key={`${hit.agentId}:${hit.chatId}`}
+      className={styles.agentItem}
+      role="button"
+      tabIndex={0}
+      onClick={() => handleSessionHitClick(hit)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleSessionHitClick(hit);
+        }
+      }}
+    >
+      <div className={styles.agentAvatar}>
+        <Avatar
+          size={40}
+          style={{ backgroundColor: "var(--color-primary)" }}
+        >
+          <MessageSquareText size={18} />
+        </Avatar>
+      </div>
+      <div className={styles.agentInfo}>
+        <div className={styles.agentInfoRow}>
+          <span className={styles.agentName}>{hit.name}</span>
+        </div>
+        <div className={styles.agentDesc}>{hit.agentName}</div>
+      </div>
+    </div>
+  );
 
   // 折叠分组容器渲染：顶部为分组标题栏，下方为条目。
   const renderGroupedList = (
@@ -847,9 +1121,17 @@ export default function DesignLayout({
     >
       {/* ── Column 1: Left Rail ─────────────────────────────────────────────── */}
       <aside className={styles.leftRail}>
-        {/* Logo */}
+        {/* Logo: collapsed → "A" letter, expanded → full SVG logo */}
         <div className={styles.railLogo}>
-          <span>A</span>
+          {railCollapsed ? (
+            <span>A</span>
+          ) : (
+            <img
+              src={isDark ? "/logo-dark.svg" : "/logo-light.svg"}
+              alt="AI Arb"
+              className={styles.railLogoImg}
+            />
+          )}
         </div>
 
         {/* Scrollable navigation area */}
@@ -911,12 +1193,48 @@ export default function DesignLayout({
           })}
         </nav>
 
-        {/* Bottom controls (fixed) */}
+        {/* Bottom controls (fixed) — mirrors full-mode Sidebar layout */}
         <div className={styles.railBottom}>
+          {/* Inbox button — from primary.bottom toolbar */}
+          {(() => {
+            const inboxEntry = flattenMenu(rawBottomMenu, routes, RAIL_ICON_SIZE).find(
+              (e) => e.key === "core.inbox",
+            );
+            if (!inboxEntry) return null;
+            const isActive = selectedKey === inboxEntry.key;
+            return (
+              <Tooltip
+                title={inboxEntry.label}
+                placement={railCollapsed ? "right" : "top"}
+                styles={{
+                  body: {
+                    background: "rgba(0,0,0,0.75)",
+                    color: "#fff",
+                  },
+                }}
+              >
+                <button
+                  type="button"
+                  className={`${styles.railBottomButton}${
+                    isActive ? ` ${styles.railMenuItemActive}` : ""
+                  }`}
+                  onClick={() => {
+                    if (inboxEntry.href) {
+                      window.open(inboxEntry.href, "_blank", "noopener,noreferrer");
+                    } else {
+                      navigate(inboxEntry.path);
+                    }
+                  }}
+                >
+                  {inboxEntry.icon}
+                </button>
+              </Tooltip>
+            );
+          })()}
           <Popover
             open={settingsOpen}
             onOpenChange={setSettingsOpen}
-            placement="topRight"
+            placement={railCollapsed ? "rightBottom" : "topRight"}
             trigger="click"
             content={
               <SidebarSettingsPanel onClose={() => setSettingsOpen(false)} />
@@ -927,13 +1245,12 @@ export default function DesignLayout({
               type="button"
               className={styles.railBottomButton}
             >
-              <Settings size={RAIL_ICON_SIZE} />
-              {!railCollapsed && <span>{t("nav.settings")}</span>}
+              <SparkSettingLine size={RAIL_ICON_SIZE} />
             </button>
           </Popover>
           <Tooltip
             title={railCollapsed ? t("common.expand") : t("common.collapse")}
-            placement="right"
+            placement={railCollapsed ? "right" : "top"}
           >
             <button
               type="button"
@@ -941,12 +1258,9 @@ export default function DesignLayout({
               onClick={() => setRailCollapsed((prev) => !prev)}
             >
               {railCollapsed ? (
-                <PanelLeftOpen size={RAIL_ICON_SIZE} />
+                <SparkMenuExpandLine size={RAIL_ICON_SIZE} />
               ) : (
-                <>
-                  <PanelLeftClose size={RAIL_ICON_SIZE} />
-                  <span>收起</span>
-                </>
+                <SparkMenuFoldLine size={RAIL_ICON_SIZE} />
               )}
             </button>
           </Tooltip>
@@ -969,6 +1283,56 @@ export default function DesignLayout({
                 <ChevronLeft size={20} />
               </button>
               <span className={styles.detailTitle}>{panelAgent.name}</span>
+              <div className={styles.detailHeaderActions}>
+                {panelAgent.id !== "default" && (
+                  <>
+                    <Tooltip
+                      title={
+                        panelAgent.enabled
+                          ? t("agent.disable", "停用")
+                          : t("agent.enable", "启用")
+                      }
+                    >
+                      <button
+                        type="button"
+                        className={styles.hostAgentActionButton}
+                        aria-label={
+                          panelAgent.enabled
+                            ? t("agent.disable", "停用")
+                            : t("agent.enable", "启用")
+                        }
+                        onClick={() => handleToggleEnabled(panelAgent)}
+                      >
+                        {panelAgent.enabled ? (
+                          <Power size={14} />
+                        ) : (
+                          <PowerOff size={14} />
+                        )}
+                      </button>
+                    </Tooltip>
+                    <Tooltip
+                      title={
+                        panelAgent.pinned
+                          ? t("agent.unpinAgent", "取消置顶")
+                          : t("agent.pinAgent", "置顶")
+                      }
+                    >
+                      <button
+                        type="button"
+                        className={styles.hostAgentActionButton}
+                        aria-label={
+                          panelAgent.pinned
+                            ? t("agent.unpinAgent", "取消置顶")
+                            : t("agent.pinAgent", "置顶")
+                        }
+                        onClick={() => handleTogglePin(panelAgent)}
+                      >
+                        {panelAgent.pinned ? <Pin size={14} /> : <PinOff size={14} />}
+                      </button>
+                    </Tooltip>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Agent info — fixed, does not scroll */}
@@ -986,6 +1350,12 @@ export default function DesignLayout({
                     {panelHostMemberNames.length || "?"}
                   </span>
                 </div>
+              ) : panelAvatarSrc ? (
+                <Avatar
+                  size={40}
+                  src={panelAvatarSrc}
+                  style={{ flexShrink: 0 }}
+                />
               ) : (
                 <Avatar
                   size={40}
@@ -1037,6 +1407,7 @@ export default function DesignLayout({
                 >
                   <GroupTag
                     group={panelAgent.group}
+                    options={existingGroups}
                     onSave={(next) => handleGroupChange(panelAgent.id, next)}
                   />
                 </div>
@@ -1163,25 +1534,6 @@ export default function DesignLayout({
         ) : (
           /* ── State A: Agent List ── */
           <div className={styles.agentList}>
-            {/* Top bar */}
-            <div className={styles.panelHeader}>
-              <span className={styles.panelTitle}>AIArb</span>
-              <div className={styles.panelHeaderActions}>
-                <Input
-                  allowClear
-                  size="small"
-                  className={styles.agentSearchBox}
-                  prefix={<Search size={14} />}
-                  placeholder={t(
-                    "agentSearch.placeholder",
-                    "搜索名称/ID/简介",
-                  )}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-
             {/* Tabs: 智能体 / 群聊 */}
             <div className={styles.listTabs}>
               <button
@@ -1191,7 +1543,7 @@ export default function DesignLayout({
                 }`}
                 onClick={() => setListTab("agents")}
               >
-                {t("nav.agents", "智能体")}
+                {t("agent.agents", "智能体")}
               </button>
               <button
                 type="button"
@@ -1204,19 +1556,55 @@ export default function DesignLayout({
               </button>
             </div>
 
-            {/* List content */}
-            <div className={styles.listContent}>
-              {listTab === "agents" && (
-                <div className={styles.groupsToolbar}>
+            {/* Search + create/manage toolbar (below tabs) */}
+            <div className={styles.listToolbar}>
+              <Input
+                allowClear
+                className={styles.agentSearchBox}
+                prefix={<Search size={14} />}
+                placeholder={t(
+                  "agentSearch.placeholder",
+                  "搜索智能体 / 会话",
+                )}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {listTab === "agents" ? (
+                <Tooltip title={t("agent.management", "智能体管理")}>
                   <button
                     type="button"
-                    className={styles.newGroupButton}
-                    onClick={() => setCreateAgentOpen(true)}
-                    title={t("agent.createTitle", "新建智能体")}
+                    className={styles.manageLinkButton}
+                    aria-label={t("agent.management", "智能体管理")}
+                    onClick={() => navigate(`${agentsManagePath}?type=single`)}
                   >
-                    <Plus size={14} />
-                    {t("agent.createShort", "智能体")}
+                    <Settings size={14} />
                   </button>
+                </Tooltip>
+              ) : (
+                <Tooltip title={t("hostModal.manage", "群聊智能体管理")}>
+                  <button
+                    type="button"
+                    className={styles.manageLinkButton}
+                    aria-label={t("hostModal.manage", "群聊智能体管理")}
+                    onClick={() => navigate(`${agentsManagePath}?type=group`)}
+                  >
+                    <Settings size={14} />
+                  </button>
+                </Tooltip>
+              )}
+            </div>
+
+            {/* List content */}
+            <div className={styles.listContent}>
+              {queryNorm && sessionHits.length > 0 && (
+                <div className={styles.sessionSearchSection}>
+                  <div className={styles.searchSectionHeader}>
+                    {t("agentSearch.sessions", "会话")}
+                    <span className={styles.groupHeaderCount}>
+                      {sessionHits.length}
+                    </span>
+                  </div>
+                  {sessionHits.map(renderSessionHitItem)}
                 </div>
               )}
 
@@ -1226,21 +1614,6 @@ export default function DesignLayout({
                   t("agent.noAgents", "暂无智能体"),
                   false,
                 )}
-
-              {listTab === "groups" && (
-                <div className={styles.groupsToolbar}>
-                  <button
-                    type="button"
-                    className={styles.newGroupButton}
-                    onClick={() => setCreateGroupOpen(true)}
-                    title={t("hostModal.title", "新建群聊")}
-                  >
-                    <Plus size={14} />
-                    <Users2 size={14} />
-                    {t("hostModal.cta", "群聊")}
-                  </button>
-                </div>
-              )}
 
               {listTab === "groups" &&
                 renderGroupedList(
@@ -1277,6 +1650,9 @@ export default function DesignLayout({
         <ConsolePollService />
         <AgentStatusPollingController />
         <Slot name="content.statusBar" kind="fill" />
+        {/* 已隐藏：多标签页栏 — A1 架构已采纳，标签页暂时隐藏。
+             如需恢复，取消下方 ChatTabsBar 导入和渲染的注释。 */}
+        {/* <ChatTabsBar /> */}
         <div className="page-content">
           <ChunkErrorBoundary resetKey={currentPath} canRestartRuntime={hubMode}>
             <Suspense

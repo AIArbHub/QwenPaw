@@ -35,8 +35,18 @@ def sanitize_filename(name: str) -> str:
     'discord--dm--12345'
     >>> sanitize_filename('normal-name')
     'normal-name'
+
+    Also truncates to 120 characters to prevent exceeding Windows
+    MAX_PATH (260) when combined with the ``{user_id}_`` prefix and
+    ``.json`` suffix in ``session_filename``.
     """
-    return _UNSAFE_FILENAME_RE.sub("--", name)
+    safe = _UNSAFE_FILENAME_RE.sub("--", name)
+    if len(safe) > 120:
+        import hashlib
+
+        digest = hashlib.md5(safe.encode()).hexdigest()[:8]
+        safe = f"{safe[:104]}~{digest}"
+    return safe
 
 
 def session_filename(session_id: str, user_id: str = "") -> str:

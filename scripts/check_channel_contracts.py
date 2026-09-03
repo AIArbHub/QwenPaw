@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Check built-in channel contract coverage without importing QwenPaw.
+"""Check built-in channel contract coverage without importing aiarb.
 
 Usage:
     python scripts/check_channel_contracts.py
@@ -22,10 +22,10 @@ from typing import Iterable
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-REGISTRY_PATH = Path("src/qwenpaw/app/channels/registry.py")
-CHANNELS_PATH = Path("src/qwenpaw/app/channels")
+REGISTRY_PATH = Path("src/aiarb/app/channels/registry.py")
+CHANNELS_PATH = Path("src/aiarb/app/channels")
 CONTRACT_TESTS_PATH = Path("tests/contract/channels")
-CHANNEL_PACKAGE = "qwenpaw.app.channels"
+CHANNEL_PACKAGE = "aiarb.app.channels"
 BASE_CHANNEL = f"{CHANNEL_PACKAGE}.base.BaseChannel"
 CONTRACT_BASE = "tests.contract.channels.ChannelContractTest"
 DISABLED_PYTEST_CALLS = {

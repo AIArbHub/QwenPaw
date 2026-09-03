@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=too-many-branches,too-many-statements
 """Console Channel.
 
@@ -614,7 +614,7 @@ class ConsoleChannel(BaseChannel):
         piped or contains unsupported characters. This wrapper handles
         such cases gracefully.
 
-        When stdout is detached/closed (common for ``qwenpaw app`` after
+        When stdout is detached/closed (common for ``AIARB app`` after
         the launching terminal exits), print() raises EIO/EPIPE. Log once
         and suppress further prints instead of flooding ERROR logs.
         """
