@@ -68,7 +68,7 @@ export const getPoolBuiltinStatusTone = (
 // ─── Install-origin helpers ────────────────────────────────────
 
 export const INSTALLED_FROM_LABELS: Record<string, string> = {
-  aiarb: "AIArb",
+  aiarb: "AgentScope",
   "skills-sh": "skills.sh",
   github: "GitHub",
   lobehub: "LobeHub",

@@ -54,6 +54,39 @@
   color: var(--text-tertiary, rgba(14, 17, 21, 0.35));
 }
 
+.selectToggle {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border: 1px solid var(--border-color, #e7eaef);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-primary, #0065fd);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: var(--bg-hover, rgba(0, 0, 0, 0.04));
+    border-color: var(--color-primary, #0065fd);
+  }
+}
+
+.selectionBar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-color, #e7eaef);
+  background: var(--bg-subtle, rgba(0, 0, 0, 0.02));
+}
+
+.selectedCount {
+  font-size: 13px;
+  color: var(--text-secondary, rgba(14, 17, 21, 0.65));
+}
+
 .list {
   flex: 1;
   min-height: 0;
@@ -79,11 +112,33 @@
   padding: 40px 0;
 }
 
+.sessionItemWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--bg-hover, rgba(0, 0, 0, 0.04));
+  }
+}
+
+.sessionItemSelected {
+  background: var(--bg-active, rgba(0, 101, 253, 0.08));
+}
+
+.sessionCheckbox {
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
 .sessionItem {
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   padding: 10px 12px;
   border: none;
   background: transparent;
@@ -93,7 +148,7 @@
   transition: background 0.15s;
 
   &:hover {
-    background: var(--bg-hover, rgba(0, 0, 0, 0.04));
+    background: transparent;
   }
 }
 

@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Drawer, Empty, Input, Modal, Spin, Tooltip } from "antd";
+import { Button, Checkbox, Drawer, Empty, Input, Modal, Spin, Tooltip } from "antd";
 import { VariableSizeList, type ListChildComponentProps } from "react-window";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -85,6 +85,9 @@ interface VirtualRowData {
   switchingSessionId: string | null;
   editingSessionId: string | null;
   editValue: string;
+  selecting: boolean;
+  selectedIds: ReadonlySet<string>;
+  toggleSelect: (sessionId: string) => void;
   t: ReturnType<typeof useTranslation>["t"];
   handleSessionClick: (sessionId: string) => void;
   handleEditStart: (sessionId: string, currentName: string) => void;
@@ -213,6 +216,9 @@ const VirtualRow = React.memo(function VirtualRow({
           disabled={false}
           editing={isEditing}
           editValue={isEditing ? data.editValue : undefined}
+          selecting={data.selecting}
+          selected={data.selectedIds.has(session.id)}
+          onToggleSelect={data.toggleSelect}
           onClick={data.handleSessionClick}
           onEdit={data.handleEditStart}
           onDelete={data.handleDelete}
@@ -295,7 +301,7 @@ const getBackendId = (session: ExtendedChatSession): string | null => {
 
 const ChatSessionDrawer: React.FC<ChatSessionDrawerProps> = (props) => {
   const { t } = useTranslation();
-  const { message } = useAppMessage();
+  const { message, modal } = useAppMessage();
   const navigate = useNavigate();
   const location = useLocation();
   const sdkState = useChatAnywhereSessionsState();
@@ -362,6 +368,9 @@ const ChatSessionDrawer: React.FC<ChatSessionDrawerProps> = (props) => {
   const [creatingGroup, setCreatingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [isSessionDragging, setIsSessionDragging] = useState(false);
+  const [selecting, setSelecting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [deleting, setDeleting] = useState(false);
   const visibleChatGroups = useMemo(
     () =>
       localizeSystemGroups(chatGroups, {
@@ -863,6 +872,108 @@ const ChatSessionDrawer: React.FC<ChatSessionDrawerProps> = (props) => {
     t,
   ]);
 
+  const visibleSessionIds = useMemo(() => {
+    return flatRows
+      .filter(
+        (row): row is Extract<FlatRow, { kind: "session" }> =>
+          row.kind === "session",
+      )
+      .map((row) => row.session.id);
+  }, [flatRows]);
+
+  const toggleSelecting = useCallback(() => {
+    setSelecting((prev) => !prev);
+    setSelectedIds(new Set());
+  }, []);
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const allSelected =
+    visibleSessionIds.length > 0 &&
+    visibleSessionIds.every((id) => selectedIds.has(id));
+
+  const toggleSelectAll = useCallback(() => {
+    setSelectedIds(allSelected ? new Set() : new Set(visibleSessionIds));
+  }, [allSelected, visibleSessionIds]);
+
+  const handleBatchDelete = useCallback(() => {
+    if (selectedIds.size === 0) return;
+    const ids = Array.from(selectedIds);
+    modal.confirm({
+      title: t("sessions.confirmDelete"),
+      content: t("sessions.batchDeleteConfirm", { count: ids.length }),
+      okText: t("common.delete"),
+      okButtonProps: { danger: true },
+      cancelText: t("common.cancel"),
+      onOk: async () => {
+        setDeleting(true);
+        try {
+          const owner = sessionApi.getActiveOwner();
+          const resolved = ids.map((id) => {
+            const session = sessions.find((s) => s.id === id) as
+              | ExtendedChatSession
+              | undefined;
+            return { id, backendId: session ? getBackendId(session) : null };
+          });
+          const backendIds = resolved
+            .map((r) => r.backendId)
+            .filter((b): b is string => !!b);
+
+          if (backendIds.length > 0) {
+            await chatApi.batchDeleteChats(backendIds);
+          }
+
+          resolved.forEach(({ id, backendId }) => {
+            localStorage.removeItem(`approval_level-${id}`);
+            const mq = useMessageQueueStore.getState();
+            mq.clear(id);
+            if (backendId && backendId !== id) mq.clear(backendId);
+          });
+
+          if (!sessionApi.isActiveOwner(owner)) return;
+          resolved.forEach(({ id, backendId }) =>
+            sessionApi.onSessionRemoved?.(backendId ?? id),
+          );
+
+          const freshList =
+            (await sessionApi.getSessionList()) as ExtendedChatSession[];
+          if (!sessionApi.isActiveOwner(owner)) return;
+          setSessions(freshList);
+          syncSessionsGlobal(freshList as unknown as ExtendedSession[]);
+
+          setSelectedIds(new Set());
+          setSelecting(false);
+
+          const urlChatId = getSessionIdFromPath(location.pathname);
+          if (urlChatId) {
+            const stillExists = freshList.some(
+              (s) => s.id === urlChatId || s.realId === urlChatId,
+            );
+            if (!stillExists) {
+              window.dispatchEvent(new CustomEvent("aiarb:sidebar-new-chat"));
+            }
+          }
+
+          message.success(
+            t("sessions.batchDeleteSuccess", { count: ids.length }),
+          );
+        } catch (error) {
+          console.error("Failed to batch delete sessions:", error);
+          message.error(t("sessions.batchDeleteFailed"));
+        } finally {
+          setDeleting(false);
+        }
+      },
+    });
+  }, [selectedIds, sessions, modal, t, message, location.pathname, setSessions]);
+
   /** Row height calculator for VariableSizeList */
   const getRowHeight = useCallback(
     (index: number) => {
@@ -933,6 +1044,9 @@ const ChatSessionDrawer: React.FC<ChatSessionDrawerProps> = (props) => {
       switchingSessionId,
       editingSessionId,
       editValue,
+      selecting,
+      selectedIds,
+      toggleSelect,
       t,
       handleSessionClick,
       handleEditStart,
@@ -957,6 +1071,9 @@ const ChatSessionDrawer: React.FC<ChatSessionDrawerProps> = (props) => {
       switchingSessionId,
       editingSessionId,
       editValue,
+      selecting,
+      selectedIds,
+      toggleSelect,
       t,
       handleSessionClick,
       handleEditStart,
@@ -990,6 +1107,17 @@ const ChatSessionDrawer: React.FC<ChatSessionDrawerProps> = (props) => {
           <span className={styles.headerTitle}>{t("chat.allChats")}</span>
         </div>
         <div className={styles.headerRight}>
+          {sortedSessions.length > 0 && (
+            <button
+              type="button"
+              className={styles.selectToggle}
+              onClick={toggleSelecting}
+            >
+              {selecting
+                ? t("common.cancel")
+                : t("sessions.history.select", "Select")}
+            </button>
+          )}
           {!props.embedded && (
             <Tooltip
               title={
@@ -1025,6 +1153,31 @@ const ChatSessionDrawer: React.FC<ChatSessionDrawerProps> = (props) => {
           </button>
         </div>
       </div>
+
+      {/* Batch selection toolbar */}
+      {selecting && (
+        <div className={styles.selectionBar}>
+          <Checkbox
+            checked={allSelected}
+            indeterminate={selectedIds.size > 0 && !allSelected}
+            onChange={toggleSelectAll}
+          >
+            {t("sessions.history.selectAll", "Select all")}
+          </Checkbox>
+          <span className={styles.selectedCount}>
+            {t("sessions.selectedItems", { count: selectedIds.size })}
+          </span>
+          <Button
+            danger
+            size="small"
+            disabled={selectedIds.size === 0}
+            loading={deleting}
+            onClick={handleBatchDelete}
+          >
+            {t("sessions.batchDeleteButton")} ({selectedIds.size})
+          </Button>
+        </div>
+      )}
 
       {/* Create new chat button */}
       <div className={styles.createSection}>

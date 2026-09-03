@@ -60,6 +60,7 @@ describe("providerIcon", () => {
       "volcengine-cn-agentplan",
       "mimo-tokenplan",
       "mimo",
+      "agnes",
     ];
     for (const p of known) {
       const url = providerIcon(p);

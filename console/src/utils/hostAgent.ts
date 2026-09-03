@@ -44,7 +44,7 @@ export const HOST_MODE_DESC: Record<HostScheduleMode, string> = {
   parallel:
     "同时向所有成员发送相同议题，成员之间独立思考互不干扰，收齐后主持人综合各方独立观点。适合需要多视角、避免从众效应的议题。",
   autonomous:
-    "由主持人根据讨论进程自由决定让谁发言、追问什么、是否并行或串行。最灵活的模式，适合复杂开放、难以预设流程的议题。",
+    "由主持人根据讨论进程自由决定让谁发言、追问什么、是否并行或串行。最灵活的模式，适合复杂开放、难以预设流程的议题。（实验性：使用 LLM 自主调度，原生运行时不支持此模式）",
 };
 
 /** Returns true when the agent summary refers to a host agent. */
@@ -107,40 +107,44 @@ export function generateHostId(): string {
 // and "what discussion protocol to follow". They intentionally use plain
 // Chinese suitable for C端 users (法学背景人员) — no technical jargon.
 
-function memberRosterBlock(members: HostMember[]): string {
+function memberRosterBlock(members: HostMember[], mode: HostScheduleMode): string {
   const rows = members
-    .map((m) => `- 智能体ID「${m.id}」— ${m.name}`)
+    .map((m) => `- ${m.name}（智能体 ID: ${m.id}）`)
     .join("\n");
-  return `## 成员名单（必须使用下面列出的 ID 调用 chat_with_agent 或 submit_to_agent）\n\n${rows}\n\n讨论中务必使用成员的真实姓名/头衔来称呼，不要直接显示 ID。\n`;
+  const toolNote =
+    mode === "autonomous"
+      ? "你需要使用上述 ID 通过 `chat_with_agent` 工具与成员对话。"
+      : "运行时会自动将议题派发给每位成员，你无需手动调用任何工具。";
+  return `## 成员名单\n\n${rows}\n\n讨论中务必使用成员的真实姓名/头衔来称呼，不要直接显示 ID。\n${toolNote}\n`;
 }
 
-function toolReminderBlock(mode: HostScheduleMode): string {
-  if (mode === "parallel") {
+function runtimeInfoBlock(mode: HostScheduleMode): string {
+  if (mode === "autonomous") {
+    // Autonomous mode is not supported by the native runtime, so it
+    // falls back to _process where the host must use tools.
     return [
-      "## 工具使用说明",
+      "## 运行机制",
       "",
-      "- 用 `submit_to_agent(to_agent=ID, text=发言内容, task_timeout=1800)` 同时给每位成员派题，然后再用 `check_agent_task(task_id)` 查询每位的结果。",
-      "- 不要用 `chat_with_agent` 串行问，会破坏并行独立的意义。",
-      "- 所有成员返回后再给出综合结论，中途不要提前总结。",
+      "- 本群聊使用「主持人自主」模式，由你主动调度成员发言。",
+      "- 你需要使用 `chat_with_agent(to_agent=ID, text=发言内容)` 工具来与成员对话。",
+      "- 你可以根据讨论情况自由决定让谁发言、追问什么、是否并行或串行。",
+      "- 当你认为信息足够时，请输出最终结论。",
       "",
     ].join("\n");
   }
-  if (mode === "round_robin") {
-    return [
-      "## 工具使用说明",
-      "",
-      "- 用 `chat_with_agent(to_agent=ID, text=发言内容, timeout=600)` 逐个提问，每位成员的问题里务必附上前一位或几位成员的观点。",
-      "- 如果预计某成员需要超过 5 分钟才能答复，可以用 `submit_to_agent` + `check_agent_task` 的方式等候。",
-      "- 全部成员回答完毕后再输出最终结论。",
-      "",
-    ].join("\n");
-  }
+  // round_robin and parallel are supported by the native runtime
+  const modeSpecific =
+    mode === "parallel"
+      ? "所有成员将同时收到相同的议题，各自独立思考，互不影响。所有成员回答完毕后，你会收到汇总并进行综合。"
+      : "成员将按顺序依次发言。每位成员都可以参考前面成员的观点。所有成员发言完毕后，你将进行总结。";
   return [
-    "## 工具使用说明",
+    "## 运行机制（原生群聊运行时）",
     "",
-    "- 你可以自由地选择 `chat_with_agent`（同步对话，适合追问）或 `submit_to_agent` + `check_agent_task`（后台任务，适合长时间独立思考）。",
-    "- 可以根据讨论情况决定对哪位成员追问、邀请新成员发言、或者请大家分别就一个子问题独立作答。",
-    "- 当你认为信息已经足够时，请输出最终结论，不要再继续开会。",
+    "- 本群聊由原生运行时编排，成员的发言和调度由系统自动完成。",
+    `- ${modeSpecific}`,
+    "- 你的主要职责是：理解用户议题、形成讨论引导、最终综合成员观点并输出结论。",
+    "- 你**无需**调用 `chat_with_agent` 或 `submit_to_agent` 等工具——运行时会自动将议题派发给成员。",
+    "- 如果你判断需要追加追问或开启新一轮讨论，直接在回复中说明即可，运行时会识别你的意图。",
     "",
   ].join("\n");
 }
@@ -153,11 +157,11 @@ function protocolBlock(mode: HostScheduleMode, members: HostMember[]): string {
       "",
       `发言顺序：${order}`,
       "",
-      "1. 把用户的原始议题拆成清晰的问题说明，作为主持人的引导。",
-      "2. 先向第一位成员发问，请其就议题发表自己的独立观点。",
-      "3. 从第二位成员开始，在问题里附上前面成员的原话/要点，让其在参考已有观点的基础上给出自己的判断（同意/不同意/补充/修正）。",
-      "4. 所有成员依次发言后，主持人综合所有人意见，形成一份条理清晰的结论，并明确标注每位成员的核心观点。",
-      "5. 如果用户后续继续追问新的问题，按同样顺序再次讨论。",
+      "1. 运行时会先将用户议题交给你，你需将其拆解为清晰的讨论引导。",
+      "2. 成员按上述顺序依次发言，后发言的成员会收到前面成员的观点摘要。",
+      "3. 所有成员发言完毕后，运行时将所有观点交给你进行综合。",
+      "4. 你需要形成一份条理清晰的结论，并明确标注每位成员的核心观点。",
+      "5. 如果用户后续继续追问新的问题，按同样流程再次讨论。",
       "",
     ].join("\n");
   }
@@ -165,10 +169,10 @@ function protocolBlock(mode: HostScheduleMode, members: HostMember[]): string {
     return [
       "## 讨论流程（并行独立）",
       "",
-      "1. 把用户的原始议题改写成完全相同的一份问题说明。",
-      "2. **同一轮内给每位成员发送完全相同的问题**，不要告诉他们其他成员也在回答，避免互相影响。",
-      "3. 所有成员提交后，把每个人的独立回答并列展示。",
-      "4. 最后主持人综合各方独立观点，提炼共识点和分歧点，给出一份不带偏向的综合结论。",
+      "1. 运行时会将你拆解后的议题同时发给所有成员，成员之间互不知晓彼此存在。",
+      "2. 所有成员独立提交后，运行时将结果汇总给你。",
+      "3. 你需把每个人的独立回答并列展示，然后综合各方观点，提炼共识点和分歧点。",
+      "4. 给出一份不带偏向的综合结论。",
       "5. 若需要第二轮，可以把第一轮的观点汇总再次发给成员（这一轮就不是独立了，可注明是讨论稿）。",
       "",
     ].join("\n");
@@ -178,7 +182,7 @@ function protocolBlock(mode: HostScheduleMode, members: HostMember[]): string {
     "",
     "你作为主持人拥有完全的调度自由，请根据议题灵活决定：",
     "",
-    "- 第一轮先请核心成员分别表态，再视情况请其余成员补充；",
+    "- 使用 `chat_with_agent` 工具与成员对话，根据讨论情况自由选择先请哪位成员发言；",
     "- 对含混的回答进行追问，要求给出更具体的论证；",
     "- 出现分歧时邀请各方进一步辩论，必要时请某成员就另一位的具体观点直接回应；",
     "- 如果成员回答已经非常充分，可直接收束；如果明显不够，继续提问。",
@@ -220,8 +224,8 @@ export function buildHostAGENTSMD(
     `本文件由「创建群聊」向导自动生成。`,
     `讨论模式：**${HOST_MODE_LABEL[mode]}**`,
     "",
-    memberRosterBlock(members),
-    toolReminderBlock(mode),
+    memberRosterBlock(members, mode),
+    runtimeInfoBlock(mode),
     protocolBlock(mode, members),
     closingBlock(groupName),
     "---",
@@ -249,7 +253,7 @@ export function buildHostPROFILEMD(
     "## 身份",
     "",
     `我是 **${groupName}** 的专职主持人，负责按照「${modeLabel}」流程组织成员围绕议题展开讨论，并整理讨论纪要。`,
-    `我不会只凭自己的知识直接给出答案，而是会调用参与的成员智能体进行讨论，综合后给出最终结论。`,
+    `我不会只凭自己的知识直接给出答案，而是通过原生群聊运行时自动调度成员智能体发言，综合各方观点后给出最终结论。`,
     "",
     "## 职责",
     "",

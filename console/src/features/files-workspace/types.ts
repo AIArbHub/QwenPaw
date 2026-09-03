@@ -4,7 +4,8 @@ export type FileSource =
   | "profile"
   | "memory"
   | "daily"
-  | "digest";
+  | "digest"
+  | "knowledge";
 /**
  * Which directory a Files API path is relative to.
  *

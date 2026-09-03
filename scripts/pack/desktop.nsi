@@ -21,6 +21,9 @@ InstallDir "$LOCALAPPDATA\AIArb"
 InstallDirRegKey HKCU "Software\AIArb" "InstallPath"
 RequestExecutionLevel user
 
+; Author / branding shown at the bottom of the NSIS installer window
+BrandingText "AI Arb - Sum"
+
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH

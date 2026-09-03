@@ -9,6 +9,7 @@
   },
   "author": "AIARB Team",
   "type": "app",
+  "builtin": true,
   "entry": {
     "backend": "backend/main.py",
     "frontend": "ui/index.js"

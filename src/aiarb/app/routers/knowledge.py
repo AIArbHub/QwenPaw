@@ -212,6 +212,21 @@ def read_file(rel: str) -> dict:
     return {"path": str(safe), "content": text, "truncated": truncated}
 
 
+@router.put("/file", summary="Save a knowledge-base text file")
+def save_file(rel: str = Body(..., embed=True), content: str = Body(..., embed=True)) -> dict:
+    """Write text content to a file in the editable knowledge base."""
+    safe = _safe_relative(rel)
+    target = _writable_target(safe)
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding="utf-8")
+    except OSError as exc:
+        raise HTTPException(
+            status_code=500, detail=f"Write failed: {exc}"
+        ) from exc
+    return {"path": str(safe), "saved": True}
+
+
 @router.post("/upload", summary="Upload a file into a category")
 async def upload(
     file: UploadFile,
