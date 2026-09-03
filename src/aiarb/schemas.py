@@ -200,6 +200,7 @@ class Message(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     id: str = Field(default_factory=lambda: uuid4().hex)
+    object: str = "message"
     type: MessageType = MessageType.MESSAGE
     role: Optional[Role] = None
     content: List[Any] = Field(default_factory=list)
@@ -265,6 +266,7 @@ class AgentRequest(BaseModel):
 class AgentResponse(BaseModel):
     model_config = ConfigDict(extra="allow")
 
+    object: str = "response"
     id: Optional[str] = None
     output: List[Message] = Field(default_factory=list)
     status: RunStatus = RunStatus.Completed

@@ -198,3 +198,63 @@
   border: 2px solid var(--ant-color-bg-container, #fff);
   box-sizing: content-box;
 }
+
+/* ---- Design-mode agent badge: shows which agent you're chatting with ---- */
+.titleWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.agentBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 2px 8px 2px 2px;
+  border-radius: 14px;
+  background: rgba(0, 101, 253, 0.06);
+  border: 1px solid rgba(0, 101, 253, 0.15);
+  max-width: 140px;
+  overflow: hidden;
+}
+
+.agentBadgeAvatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.agentBadgeFallback {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.agentBadgeName {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ant-color-text, rgba(0, 0, 0, 0.88));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+:global(.dark-mode) {
+  .agentBadgeName {
+    color: rgba(255, 255, 255, 0.88);
+  }
+}

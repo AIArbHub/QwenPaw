@@ -1053,7 +1053,7 @@ def _extract_modelscope_skill_spec(
 def _extract_aiarb_skill_spec(
     url: str,
 ) -> tuple[str, str, str] | None:
-    """Parse a AIArb skill URL into (owner, name_or_id, version).
+    """Parse a AgentScope skill URL into (owner, name_or_id, version).
 
     Public detail pages use ``/skills/{uuid}``; archive URLs use the
     ModelScope-compatible ``/skills/{owner}/{name}/...`` shape. An empty
@@ -1746,12 +1746,12 @@ def _aiarb_detail_archive_to_bundle(
     payload: bytes,
     fallback_name: str,
 ) -> dict[str, Any]:
-    """Convert the flat zip returned by AIArb's UUID download endpoint."""
+    """Convert the flat zip returned by AgentScope's UUID download endpoint."""
     try:
         zf = zipfile.ZipFile(io.BytesIO(payload))
     except zipfile.BadZipFile as e:
         raise SkillsError(
-            message="AIArb archive is not a valid zip",
+            message="AgentScope archive is not a valid zip",
         ) from e
 
     files: dict[str, str] = {}
@@ -1764,12 +1764,12 @@ def _aiarb_detail_archive_to_bundle(
             entry_count += 1
             if entry_count > SKILL_PACKAGE_MAX_ENTRIES:
                 raise SkillsError(
-                    message="AIArb archive has too many files",
+                    message="AgentScope archive has too many files",
                 )
             total_bytes += max(0, info.file_size)
             if total_bytes > SKILL_PACKAGE_MAX_BYTES:
                 raise SkillsError(
-                    message="AIArb archive is too large to import",
+                    message="AgentScope archive is too large to import",
                 )
             parts = _safe_path_parts(info.filename.replace("\\", "/"))
             if not parts:
@@ -1782,7 +1782,7 @@ def _aiarb_detail_archive_to_bundle(
 
     if "SKILL.md" not in files:
         raise SkillsError(
-            message="AIArb archive is missing SKILL.md",
+            message="AgentScope archive is missing SKILL.md",
         )
 
     name = fallback_name
@@ -1804,7 +1804,7 @@ async def _fetch_bundle_from_aiarb_url(
     if spec is None:
         raise ConfigurationException(
             config_key="skills_hub.bundle_url",
-            message="Invalid AIArb URL format. Use URL like "
+            message="Invalid AgentScope URL format. Use URL like "
             "https://platform.agentscope.io/skills/@owner/skill-name",
         )
     owner, skill_name, version_hint = spec
@@ -1828,7 +1828,7 @@ async def _fetch_bundle_from_aiarb_url(
     except httpx.HTTPStatusError as e:
         raise SkillsError(
             message=(
-                "AIArb archive download failed: "
+                "AgentScope archive download failed: "
                 f"{_format_http_error_body(e)}."
             ),
         ) from e

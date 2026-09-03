@@ -2,7 +2,7 @@ import { useState } from "react";
 import styles from "./SkillIcon.module.less";
 
 export const SOURCE_LABELS: Record<string, string> = {
-  aiarb: "AIArb",
+  aiarb: "AgentScope",
   clawhub: "ClawHub",
   modelscope: "ModelScope",
   aliyun: "Aliyun",

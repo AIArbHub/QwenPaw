@@ -61,13 +61,30 @@ from ...agents.templates import DEFAULT_KNOWLEDGE_SKILL_NAMES
 from ...harnesses.registry import ProviderCatalogItem, get_provider
 from ..agent_startup import AgentStartupStatus
 from ..multi_agent_manager import MultiAgentManager
-from ...constant import WORKING_DIR
+from ...constant import (
+    BUILTIN_KB_CURATOR_AGENT_ID,
+    BUILTIN_QA_AGENT_ID,
+    WORKING_DIR,
+)
 from ...utils.io_utils import run_sync_io, write_json_atomic
 from ...utils.logging import sanitize_log_value
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/agents", tags=["agents"])
+
+# Builtin agents that can never be deleted nor disabled.  The "default" agent
+# is the user's personal assistant; the builtin QA and KB curator agents are
+# fixed system agents.  ``BUILTIN_QA_AGENT_ID`` is included defensively — the
+# reserved-id guard already prevents creating a duplicate profile, but the
+# delete/toggle guards stay consistent with the other builtins.
+_PROTECTED_AGENT_IDS = frozenset(
+    {
+        "default",
+        BUILTIN_QA_AGENT_ID,
+        BUILTIN_KB_CURATOR_AGENT_ID,
+    },
+)
 
 
 class AgentSummary(BaseModel):
@@ -1739,10 +1756,10 @@ async def delete_agent(
             detail=f"Agent '{agentId}' not found",
         )
 
-    if agentId == "default":
+    if agentId in _PROTECTED_AGENT_IDS:
         raise HTTPException(
             status_code=400,
-            detail="Cannot delete the default agent",
+            detail=f"Cannot delete the protected agent '{agentId}'",
         )
 
     manager = _get_multi_agent_manager(request)
@@ -1788,10 +1805,10 @@ async def toggle_agent_enabled(
             detail=f"Agent '{agentId}' not found",
         )
 
-    if agentId == "default":
+    if agentId in _PROTECTED_AGENT_IDS:
         raise HTTPException(
             status_code=400,
-            detail="Cannot disable the default agent",
+            detail=f"Cannot disable the protected agent '{agentId}'",
         )
 
     agent_ref = config.agents.profiles[agentId]

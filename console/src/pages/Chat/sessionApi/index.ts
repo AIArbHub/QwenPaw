@@ -536,6 +536,31 @@ export interface SessionOwnerToken {
 }
 
 class SessionApi implements IAgentScopeRuntimeWebUISessionAPI {
+  /**
+   * Optional per-instance agent binding (multi-instance host). When set, the
+   * in-flight `listChats` honours this agent; otherwise it falls back to the
+   * global X-Agent-Id header so legacy single-chat behaviour is unchanged.
+   */
+  readonly instanceAgentId?: string;
+
+  /**
+   * True when this SessionApi instance is created by `createSessionApi` for a
+   * multi-instance host tab. Instance-level identity fields are used instead of
+   * the shared `window.currentSessionId/currentUserId/currentChannel` globals,
+   * so hidden tabs never clobber the focused tab's global identity.
+   */
+  private readonly isInstance: boolean;
+
+  /** Instance-scoped session identity when `isInstance` (falls back to globals otherwise). */
+  private instanceSessionId?: string | null;
+  private instanceUserId?: string | null;
+  private instanceChannel?: string | null;
+
+  constructor(instanceAgentId?: string, isInstance = false) {
+    this.instanceAgentId = instanceAgentId;
+    this.isInstance = isInstance;
+  }
+
   private sessionList: IAgentScopeRuntimeWebUISession[] = [];
 
   /** Previous returned list reference for shallow-compare optimisation. */
@@ -1016,9 +1041,7 @@ class SessionApi implements IAgentScopeRuntimeWebUISessionAPI {
     owner: SessionOwnerToken,
   ): ExtendedSession {
     if (this.isActiveOwner(owner)) {
-      window.currentSessionId = sessionId;
-      window.currentUserId = DEFAULT_USER_ID;
-      window.currentChannel = DEFAULT_CHANNEL;
+      this.writeIdentity(sessionId, DEFAULT_USER_ID, DEFAULT_CHANNEL);
       useTurnUsageStore.getState().setSnapshot(null);
     }
     return {
@@ -1032,17 +1055,43 @@ class SessionApi implements IAgentScopeRuntimeWebUISessionAPI {
     } as ExtendedSession;
   }
 
-  private updateWindowVariables(session: ExtendedSession): void {
-    window.currentSessionId = session.sessionId || "";
-    window.currentUserId = session.userId || DEFAULT_USER_ID;
-    window.currentChannel = session.channel || DEFAULT_CHANNEL;
+  /** Writes session identity to the instance fields (multi-instance) or the
+   *  shared window globals (legacy singleton) depending on construction. */
+  private writeIdentity(
+    sessionId: string,
+    userId: string,
+    channel: string,
+  ): void {
+    if (this.isInstance) {
+      this.instanceSessionId = sessionId;
+      this.instanceUserId = userId;
+      this.instanceChannel = channel;
+      return;
+    }
+    window.currentSessionId = sessionId;
+    window.currentUserId = userId;
+    window.currentChannel = channel;
   }
 
-  /** Resets window identity globals to their defaults. Called on agent
-   *  switch: the globals are otherwise only rewritten when another session
-   *  loads, so a new agent would inherit the previous agent's session and
-   *  channel (possibly one that has since been deleted). */
+  private updateWindowVariables(session: ExtendedSession): void {
+    this.writeIdentity(
+      session.sessionId || "",
+      session.userId || DEFAULT_USER_ID,
+      session.channel || DEFAULT_CHANNEL,
+    );
+  }
+
+  /** Resets session identity to its defaults. Called on agent switch: the
+   *  globals are otherwise only rewritten when another session loads, so a new
+   *  agent would inherit the previous agent's session and channel (possibly
+   *  one that has since been deleted). */
   resetWindowIdentity(): void {
+    if (this.isInstance) {
+      this.instanceSessionId = "";
+      this.instanceUserId = DEFAULT_USER_ID;
+      this.instanceChannel = DEFAULT_CHANNEL;
+      return;
+    }
     window.currentSessionId = "";
     window.currentUserId = DEFAULT_USER_ID;
     window.currentChannel = DEFAULT_CHANNEL;
@@ -1130,7 +1179,9 @@ class SessionApi implements IAgentScopeRuntimeWebUISessionAPI {
     // still resolve to a session in the current list. After an agent switch
     // the list is reloaded and a stale identity — including a channel that
     // may no longer exist — fails this lookup and falls through to defaults.
-    const windowSessionId = window.currentSessionId || "";
+    const windowSessionId = this.isInstance
+      ? (this.instanceSessionId || "")
+      : (window.currentSessionId || "");
     const windowSession = windowSessionId
       ? (this.sessionList.find(
           (s) =>
@@ -1322,6 +1373,7 @@ class SessionApi implements IAgentScopeRuntimeWebUISessionAPI {
         const chats = await api.listChats({
           archived: false,
           include_app_owned: false,
+          agent_id: this.instanceAgentId,
         });
         // A result from a stale epoch must not replace the current agent's
         // session list; hand back the current list without mutation.
@@ -1423,6 +1475,7 @@ class SessionApi implements IAgentScopeRuntimeWebUISessionAPI {
     const chatHistory = await api.getChat(backendId, {
       signal,
       include_app_owned: false,
+      agent_id: this.instanceAgentId,
     });
     if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
     const generating = isGenerating(chatHistory);
@@ -1683,7 +1736,10 @@ class SessionApi implements IAgentScopeRuntimeWebUISessionAPI {
     const deleteId =
       existing?.realId ?? (isLocalTimestamp(sessionId) ? null : sessionId);
 
-    if (deleteId) await api.deleteChat(deleteId);
+    if (deleteId)
+      await api.deleteChat(deleteId, {
+        agent_id: this.instanceAgentId,
+      });
 
     // Invalidate LRU cache for the deleted session
     if (deleteId) this.invalidateConvertedCache(deleteId);
@@ -1712,6 +1768,19 @@ sessionApi.setActiveAgent(useAgentStore.getState().selectedAgent);
 useAgentStore.subscribe((state) => {
   sessionApi.setActiveAgent(state.selectedAgent);
 });
+
+/**
+ * Instance-level SessionApi factory for the multi-instance host. Each call
+ * returns a fresh, independent SessionApi bound to the given agent — its own
+ * session list, ownership epoch, caches, and agent-scoped backend auth. Unlike
+ * the default singleton it does NOT subscribe to the global agent store; the
+ * caller owns the binding (typically captured once per tab).
+ */
+export function createSessionApi(agentId: string | undefined): typeof sessionApi {
+  const instance = new SessionApi(agentId, true);
+  instance.setActiveAgent(agentId ?? "");
+  return instance;
+}
 
 export default sessionApi;
 

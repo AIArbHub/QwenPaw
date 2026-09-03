@@ -38,6 +38,7 @@ from aiarb.exceptions import (
 
 from .timezone import detect_system_timezone
 from ..constant import (
+    BUILTIN_KB_CURATOR_AGENT_ID,
     HEARTBEAT_DEFAULT_EVERY,
     HEARTBEAT_DEFAULT_TARGET,
     HEARTBEAT_DEFAULT_TIMEOUT_SECONDS,
@@ -223,7 +224,9 @@ _AGENT_ID_PATTERN = re.compile(
 )
 _AGENT_ID_MIN_LENGTH = 2
 _AGENT_ID_MAX_LENGTH = 64
-_RESERVED_AGENT_IDS = frozenset({"default"})
+_RESERVED_AGENT_IDS = frozenset(
+    {"default", BUILTIN_KB_CURATOR_AGENT_ID},
+)
 
 
 def generate_short_agent_id() -> str:
@@ -2350,6 +2353,17 @@ class AgentsConfig(BaseModel):
             'e.g. "whisper-1", "whisper-large-v3".'
         ),
     )
+    group_chat_native_enabled: bool = Field(
+        default=True,
+        description=(
+            "Whether the native group-chat orchestration runtime is "
+            "enabled. When True, agents with `<!-- HOST:{...} -->` "
+            "metadata in their description will use the structured "
+            "group-chat runtime instead of the LLM-driven tool-call "
+            "fallback. Does NOT affect regular single-agent chats. "
+            "This setting is included in global config backups."
+        ),
+    )
 
 
 class LastDispatchConfig(BaseModel):
@@ -2715,6 +2729,62 @@ def build_qa_agent_tools_config() -> ToolsConfig:
             "write_file",
             "edit_file",
             "view_image",
+        },
+    )
+    builtin_tools = {
+        name: tc.model_copy(update={"enabled": name in allow})
+        for name, tc in _default_builtin_tools().items()
+    }
+    return ToolsConfig(builtin_tools=builtin_tools)
+
+
+def build_kb_curator_tools_config() -> ToolsConfig:
+    """Tools preset for the builtin knowledge-base curator agent.
+
+    The curator only needs to read materials, search the shared knowledge
+    base for de-duplication, and view images.  Shell/network/chat tools stay
+    disabled so the agent cannot disturb other work.
+    """
+    allow = frozenset(
+        {
+            "read_file",
+            "write_file",
+            "edit_file",
+            "view_image",
+            "search_knowledge",
+        },
+    )
+    builtin_tools = {
+        name: tc.model_copy(update={"enabled": name in allow})
+        for name, tc in _default_builtin_tools().items()
+    }
+    return ToolsConfig(builtin_tools=builtin_tools)
+
+
+def build_arbitration_tools_config() -> ToolsConfig:
+    """Tools preset for builtin arbitration role agents.
+
+    Arbitration roles (arbitrator / claimant / respondent / secretary)
+    need to search the shared knowledge base for statutes, rules, cases and
+    templates, plus the file/inter-agent tools they rely on in a group chat.
+    ``search_knowledge`` / ``grep_search`` / ``glob_search`` are enabled so the
+    ``search_knowledge`` instruction in their SOUL.md and kb_arbitration skill
+    matches their actual toolset.  All other built-ins are disabled.
+    """
+    allow = frozenset(
+        {
+            "list_agents",
+            "chat_with_agent",
+            "submit_to_agent",
+            "check_agent_task",
+            "execute_shell_command",
+            "read_file",
+            "write_file",
+            "edit_file",
+            "view_image",
+            "search_knowledge",
+            "grep_search",
+            "glob_search",
         },
     )
     builtin_tools = {

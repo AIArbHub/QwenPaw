@@ -65,8 +65,9 @@ export function resolveLocalized<T>(
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type MenuLocation =
-  | "primary.agentScoped" // Sidebar Menu #1 (agent-bound entries: inbox, control, agent-group)
+  | "primary.agentScoped" // Sidebar Menu #1 (agent-bound entries: control, agent-group)
   | "primary.settings" //   Sidebar Menu #2 (global settings + plugins-group)
+  | "primary.bottom" //   Bottom toolbar (inbox, parallel to settings gear + collapse)
   | "userMenu"; //          Reserved for future avatar-dropdown items
 
 export interface MenuItem {

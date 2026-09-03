@@ -7,6 +7,7 @@ import { getPendingProjectDirectory } from "../project-directory/pendingProjectD
 import { loadSessionProjectDirs } from "../project-directory/loadSessionProjectDirs";
 import { listenForProjectDirectoryChanges } from "../project-directory/projectDirectoryChangeEvent";
 import { workspaceApi } from "../../api/modules/workspace";
+import { knowledgeApi } from "../../api/modules/knowledge";
 import GitPanel from "../../pages/Coding/GitPanel";
 import TabbedEditor from "../../pages/Coding/TabbedEditor";
 import {
@@ -17,6 +18,7 @@ import {
 import { useCodingMode } from "../../stores/codingModeStore";
 import { downloadFileFromUrl } from "../../utils/downloadFileFromUrl";
 import FilesNavigator from "./FilesNavigator";
+import type { NavigatorSource } from "./FilesNavigator";
 import MemoryGraphView from "./MemoryGraphView";
 import { projectRootPath, workspaceRoots } from "./directorySources";
 import {
@@ -35,6 +37,10 @@ import styles from "./FilesWorkspace.module.less";
 interface FilesWorkspaceProps {
   initialTarget?: FileTarget;
   scope: FilesWorkspaceScope;
+  /** Lock the navigator to a specific source tab (for sub-page routes). */
+  initialSource?: NavigatorSource;
+  /** Hide the source tabs (for sub-page routes where the tab is fixed). */
+  hideSourceTabs?: boolean;
 }
 
 function inferPreviewKind(
@@ -60,6 +66,8 @@ function inferPreviewKind(
 export default function FilesWorkspace({
   initialTarget,
   scope,
+  initialSource,
+  hideSourceTabs,
 }: FilesWorkspaceProps) {
   const { t } = useTranslation();
   const { codingMode } = useCodingMode();
@@ -196,7 +204,7 @@ export default function FilesWorkspace({
     async (target: FileTarget) => {
       if (target.source === "profile") {
         return {
-          content: (await workspaceApi.loadFile(target.path)).content,
+          content: (await workspaceApi.loadFile(target.path, scopeKind === "agent" ? agentId : undefined)).content,
           previewKind: "text" as const,
           readOnly: false,
           etag: "",
@@ -205,16 +213,27 @@ export default function FilesWorkspace({
       if (
         target.source === "memory" ||
         target.source === "daily" ||
-        target.source === "digest"
+        target.source === "digest" ||
+        target.source === "knowledge"
       ) {
+        if (target.source === "knowledge") {
+          const fileContent = await knowledgeApi.readFile(target.path);
+          return {
+            content: fileContent.content,
+            previewKind: "text" as const,
+            readOnly: false,
+            etag: "",
+          };
+        }
         const section =
           target.source === "daily" || target.source === "digest"
             ? target.source
             : undefined;
+        const memAgentId = scopeKind === "agent" ? agentId : undefined;
         return {
           content: (
             await (section
-              ? workspaceApi.loadMemoryFile(target.path, section)
+              ? workspaceApi.loadMemoryFile(target.path, section, memAgentId)
               : workspaceApi.loadDailyMemory(target.path))
           ).content,
           previewKind: "text" as const,
@@ -438,6 +457,8 @@ export default function FilesWorkspace({
           activeMemoryGraphRoot={memoryGraphRoot}
           onShowMemoryGraph={(root) => setMemoryGraphRoot(root)}
           onShowFiles={() => setMemoryGraphRoot(null)}
+          initialSource={initialSource}
+          hideSourceTabs={hideSourceTabs}
         />
       ) : (
         <aside className={styles.sourcePanel}>
@@ -546,10 +567,13 @@ export default function FilesWorkspace({
               }
               const source = path.slice(0, separator);
               const sourcePath = path.slice(separator + 2);
+              const saveAgentId = scopeKind === "agent" ? agentId : undefined;
               if (source === "profile") {
-                await workspaceApi.saveFile(sourcePath, content);
+                await workspaceApi.saveFile(sourcePath, content, saveAgentId);
               } else if (source === "daily" || source === "digest") {
-                await workspaceApi.saveMemoryFile(sourcePath, content, source);
+                await workspaceApi.saveMemoryFile(sourcePath, content, source, saveAgentId);
+              } else if (source === "knowledge") {
+                await knowledgeApi.saveFile(sourcePath, content);
               } else if (source === "memory") {
                 await workspaceApi.saveDailyMemory(sourcePath, content);
               }

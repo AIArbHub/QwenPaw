@@ -7,7 +7,7 @@
  */
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Dropdown, Tooltip } from "antd";
+import { Dropdown, Tooltip, type MenuProps } from "antd";
 import {
   LayoutPanelTop,
   Bell,
@@ -16,7 +16,13 @@ import {
   BatteryFull,
   ArrowLeft,
   Monitor,
+  Cog,
+  MessageSquareText,
 } from "lucide-react";
+import {
+  SparkFullscreenLine,
+  SparkExitFullscreenLine,
+} from "@agentscope-ai/icons";
 import { useAgentStore } from "../stores/agentStore";
 import { useShallow } from "zustand/react/shallow";
 import { useOsWindows } from "./osWindowStore";
@@ -24,7 +30,9 @@ import { useOsNotify } from "./osNotifyStore";
 import { resolveAppDef } from "./osAppRegistry";
 import { useOsStyles } from "./useOsStyles";
 import { getConsoleRootHref } from "../utils/navigationMode";
-import LanguageSwitcher from "../components/LanguageSwitcher";
+import { useSidebarModeStore, type SidebarMode } from "../stores/sidebarModeStore";
+import { LANGUAGE_LIST } from "../components/LanguageSwitcher";
+import { languageApi } from "../api/modules/language";
 
 function useClock() {
   const [now, setNow] = useState(() => new Date());
@@ -37,8 +45,10 @@ function useClock() {
 
 export default function MenuBar({ hidden = false }: { hidden?: boolean }) {
   const { styles, cx } = useOsStyles();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { agents } = useAgentStore();
+  const sidebarMode = useSidebarModeStore((s) => s.mode);
+  const setSidebarMode = useSidebarModeStore((s) => s.setMode);
   // Narrow subscription: geometry updates never re-render the menu bar.
   const { spaceId, activeId, missionControlOpen, setMissionControl } =
     useOsWindows(
@@ -69,6 +79,68 @@ export default function MenuBar({ hidden = false }: { hidden?: boolean }) {
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  const KNOWN_LANG_KEYS = new Set(LANGUAGE_LIST.map((l) => l.key));
+  const resolvedLanguage = i18n.resolvedLanguage || i18n.language;
+  const currentLangKey = KNOWN_LANG_KEYS.has(resolvedLanguage)
+    ? resolvedLanguage
+    : resolvedLanguage.split("-")[0];
+
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+    localStorage.setItem("language", lang);
+    languageApi
+      .updateLanguage(lang)
+      .catch((err) =>
+        console.error("Failed to save language preference:", err),
+      );
+  };
+
+  const settingsItems: MenuProps["items"] = [
+    {
+      type: "group",
+      label: t("sidebar.settings.mode", "Mode"),
+      children: [
+        {
+          key: "mode-full",
+          icon: <SparkFullscreenLine />,
+          label: t("sidebar.fullMode", "Full Mode"),
+        },
+        {
+          key: "mode-simple",
+          icon: <SparkExitFullscreenLine />,
+          label: t("sidebar.simpleMode", "Simple Mode"),
+        },
+        {
+          key: "mode-design",
+          icon: <MessageSquareText size={14} />,
+          label: t("sidebar.designMode", "Design Mode"),
+        },
+      ],
+    },
+    { type: "divider" },
+    {
+      type: "group",
+      label: t("sidebar.settings.language", "Language"),
+      children: LANGUAGE_LIST.map(({ key, label, icon }) => ({
+        key: `lang-${key}`,
+        label: label as string,
+        icon,
+      })),
+    },
+  ];
+
+  const onSettingsClick: MenuProps["onClick"] = ({ key }) => {
+    if (key.startsWith("mode-")) {
+      const mode = key.replace("mode-", "") as SidebarMode;
+      setSidebarMode(mode);
+      window.location.assign(getConsoleRootHref(window.location.pathname));
+      return;
+    }
+    if (key.startsWith("lang-")) {
+      changeLanguage(key.replace("lang-", ""));
+    }
+  };
 
   return (
     <div
@@ -146,7 +218,24 @@ export default function MenuBar({ hidden = false }: { hidden?: boolean }) {
       </div>
 
       <div className={styles.menubarRight}>
-        <LanguageSwitcher />
+        <Dropdown
+          placement="bottomRight"
+          trigger={["click"]}
+          menu={{
+            items: settingsItems,
+            selectedKeys: [`mode-${sidebarMode}`, `lang-${currentLangKey}`],
+            onClick: onSettingsClick,
+          }}
+        >
+          <button
+            type="button"
+            className={styles.menubarBtn}
+            title={t("os.settings", "Settings")}
+            aria-label={t("os.settings", "Settings")}
+          >
+            <Cog size={14} />
+          </button>
+        </Dropdown>
         <Tooltip title={notificationLabel}>
           <button
             type="button"

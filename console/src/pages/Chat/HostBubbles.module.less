@@ -45,6 +45,64 @@
   color: var(--ant-color-text-secondary, #666);
   margin: 0 0 4px;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.humanBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #fff;
+  background: #fa8c16;
+  border-radius: 3px;
+}
+
+.humanPendingHint {
+  font-size: 12px;
+  color: var(--ant-color-primary, #1677ff);
+  font-weight: 400;
+}
+
+.humanTimeoutHint {
+  font-size: 12px;
+  color: var(--ant-color-text-tertiary, #999);
+  font-weight: 400;
+}
+
+.awaitingHint {
+  font-size: 13px;
+  color: var(--ant-color-text-tertiary, #999);
+  padding: 4px 0;
+}
+
+.hitlButtons {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.hitlBtn {
+  padding: 1px 6px;
+  font-size: 11px;
+  border: 1px solid var(--ant-color-border, #d9d9d9);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ant-color-text-secondary, #666);
+  cursor: pointer;
+  line-height: 1.4;
+  transition: all 0.15s;
+
+  &:hover {
+    background: var(--ant-color-fill-tertiary, rgba(0, 0, 0, 0.04));
+    color: var(--ant-color-primary, #1677ff);
+    border-color: var(--ant-color-primary, #1677ff);
+  }
 }
 
 .memberReplyAvatar {

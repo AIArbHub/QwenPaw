@@ -103,9 +103,20 @@ describe("Sidebar navigation — A#84552933 应用导航入口", () => {
     const agentScoped = BUILTIN_MENU.filter(
       (item) => item.location === "primary.agentScoped",
     );
-    // Must have inbox, marketplace, and workspace-group at minimum
+    // Must have marketplace, workspace-group, agent-files-group, memory, and knowledge-base at minimum
     const ids = agentScoped.map((item) => item.id);
-    expect(ids).toContain("core.inbox");
     expect(ids).toContain("core.marketplace");
+    expect(ids).toContain("core.workspace-group");
+    expect(ids).toContain("core.agent-files-group");
+    expect(ids).toContain("core.memory");
+    expect(ids).toContain("core.knowledge-base");
+  });
+
+  it("inbox is in primary.bottom location (parallel to settings gear)", () => {
+    const inboxEntry = BUILTIN_MENU.find(
+      (item) => item.id === "core.inbox",
+    );
+    expect(inboxEntry).toBeDefined();
+    expect(inboxEntry!.location).toBe("primary.bottom");
   });
 });

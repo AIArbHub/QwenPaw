@@ -46,7 +46,9 @@ from ..constant import (
     LLM_RATE_LIMIT_JITTER,
     LLM_RATE_LIMIT_PAUSE,
     LLM_STREAM_FIRST_CONTENT_TIMEOUT,
+    LLM_STREAM_FIRST_CONTENT_TIMEOUT_FREE,
     LLM_STREAM_IDLE_TIMEOUT,
+    LLM_STREAM_IDLE_TIMEOUT_FREE,
 )
 from .error_utils import extract_status_code as _extract_status_code
 from .model_capability_cache import get_capability_cache
@@ -66,6 +68,33 @@ _pending_provider_cleanup_tasks_by_model: dict[
     str,
     set[asyncio.Future[Any]],
 ] = {}
+
+# Provider IDs that are known free-tier or community-hosted gateways.
+# These often have longer upstream queue times (cold start, shared
+# capacity, rate limiting) so they get a longer first-content timeout.
+# The check is case-insensitive on the provider_id portion of
+# model_key (``provider_id:model_name``).
+_FREE_TIER_PROVIDER_IDS = frozenset({
+    "kilo",
+    "opencode",
+    "openrouter",
+    "github-models",
+    "siliconflow",
+    "siliconflow-intl",
+    "gemini",
+    "zhipu-cn",
+})
+
+
+def _is_free_tier_model_key(model_key: str) -> bool:
+    """Return True if *model_key* belongs to a known free-tier provider.
+
+    The key format is ``provider_id:model_name`` (e.g.
+    ``kilo:kilo-auto/free``).  When no colon is present the entire
+    string is treated as the provider_id for backward compatibility.
+    """
+    provider_id = model_key.split(":", 1)[0].lower()
+    return provider_id in _FREE_TIER_PROVIDER_IDS
 
 
 def _track_stream_cleanup(
@@ -405,13 +434,42 @@ class RetryChatModel(ChatModelBase):
         self._rate_limit_config = _normalize_rate_limit_config(
             rate_limit_config,
         )
+
+        # Auto-detect free-tier models and use longer timeouts for them.
+        # Free-tier providers (kilo, openrouter, github-models, etc.) often
+        # have longer upstream queue times.  Only apply the bump when the
+        # caller hasn't explicitly overridden the timeout away from the
+        # default — an explicit non-default value means the operator wants
+        # that specific timeout.
+        resolved_first = stream_first_content_timeout
+        resolved_idle = stream_idle_timeout
+        if _is_free_tier_model_key(self.model_key):
+            if resolved_first == LLM_STREAM_FIRST_CONTENT_TIMEOUT:
+                resolved_first = LLM_STREAM_FIRST_CONTENT_TIMEOUT_FREE
+                logger.info(
+                    "Model %s is free-tier; using longer "
+                    "first-content timeout %.0fs (default %.0fs)",
+                    self.model_key,
+                    resolved_first,
+                    LLM_STREAM_FIRST_CONTENT_TIMEOUT,
+                )
+            if resolved_idle == LLM_STREAM_IDLE_TIMEOUT:
+                resolved_idle = LLM_STREAM_IDLE_TIMEOUT_FREE
+                logger.info(
+                    "Model %s is free-tier; using longer "
+                    "idle timeout %.0fs (default %.0fs)",
+                    self.model_key,
+                    resolved_idle,
+                    LLM_STREAM_IDLE_TIMEOUT,
+                )
+
         self._stream_idle_timeout = max(
             0.0,
-            float(stream_idle_timeout),
+            float(resolved_idle),
         )
         self._stream_first_content_timeout = max(
             0.0,
-            float(stream_first_content_timeout),
+            float(resolved_first),
         )
         self._pending_provider_cleanup_tasks: set[asyncio.Future[Any]] = set()
 

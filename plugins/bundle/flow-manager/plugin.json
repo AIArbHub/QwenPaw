@@ -1,7 +1,7 @@
 {
   "id": "flow-manager",
   "name": "FlowManager",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Flow orchestration engine — define visual flow graphs (stages, decisions, parallel, loop) and bind them to group chats or agent sessions. Pure flow logic; no chat or agent runtime.",
   "author": "Sum",
   "type": "app",

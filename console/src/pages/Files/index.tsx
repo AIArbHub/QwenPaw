@@ -10,13 +10,13 @@ export default function FilesPage() {
   const { selectedAgent } = useAgentStore();
 
   return (
-    <section className={styles.page} aria-label={t("files.agentWorkspace")}>
+    <section className={styles.page} aria-label={t("nav.agentFiles", "智能体文件")}>
       <header className={workspaceStyles.drawerHeader}>
         <div className={workspaceStyles.fileMark} aria-hidden="true">
           <FileText size={17} />
         </div>
         <div className={workspaceStyles.drawerTitle}>
-          <strong>{t("files.title")}</strong>
+          <strong>{t("nav.agentFiles", "智能体文件")}</strong>
         </div>
       </header>
       <div className={styles.workspace}>

@@ -1,10 +1,11 @@
 {
   "id": "agent-kanban",
   "name": "Agent Kanban",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Kanban board to create issues, assign them to agents, auto-run them via the assigned agent, and watch their output stream in real time.",
   "author": "AIArb Team",
   "type": "app",
+  "builtin": true,
   "entry": {
     "backend": "backend/main.py",
     "frontend": "ui/index.js"

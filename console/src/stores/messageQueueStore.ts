@@ -345,7 +345,11 @@ export const useMessageQueueStore = create<MessageQueueStore>((set, get) => ({
   currentSendingId: null,
   lastMigratedTo: null,
 
-  enqueue: (sessionId: string, input: QueueItemInput) => {
+  enqueue: (
+    sessionId: string,
+    input: QueueItemInput,
+    backendSessionIdArg?: string,
+  ) => {
     const current = get().queues[sessionId] ?? [];
     if (current.length >= MAX_QUEUE_SIZE) {
       // Queue is full, reject
@@ -367,7 +371,10 @@ export const useMessageQueueStore = create<MessageQueueStore>((set, get) => ({
     }
     // Capture backend session_id so background sender targets the correct
     // session even if the session list is cleared after agent switch.
+    // Multi-instance callers pass an explicit instance-resolved backend id so
+    // a hidden tab never captures the focused tab's global id.
     const backendSessionId =
+      backendSessionIdArg ||
       (window as unknown as { currentSessionId?: string }).currentSessionId ||
       undefined;
     const item: QueueItem = {

@@ -33,9 +33,28 @@ function isAlwaysVisible(message: IAgentScopeRuntimeMessage): boolean {
  */
 const MEMBER_REPLY_TOOLS = new Set(["chat_with_agent", "check_agent_task"]);
 
+/**
+ * Detect a group-chat member's speech in two ways:
+ *
+ * 1. **Native runtime (M3+):** The message carries a ``meta.group_member``
+ *    marker in its metadata. This is the primary, reliable detection path —
+ *    the backend runtime explicitly tags member messages.
+ *
+ * 2. **Legacy path (pre-M3 / fallback):** The message is a TOOL_CALL whose
+ *    name is ``chat_with_agent`` or ``check_agent_task``. This is the
+ *    original heuristic that guessed member replies from tool names.
+ */
 export function isMemberReplyMessage(
   message: IAgentScopeRuntimeMessage,
 ): boolean {
+  // Native runtime: check meta.group_member marker (primary path)
+  const meta = (message as unknown as { metadata?: Record<string, unknown> })
+    .metadata;
+  if (meta && typeof meta.group_member === "string" && meta.group_member) {
+    return true;
+  }
+
+  // Legacy: tool-name heuristic (fallback for old sessions / autonomous mode)
   if (message.type !== AgentScopeRuntimeMessageType.TOOL_CALL) return false;
   const anyMessage = message as unknown as {
     content?: Array<{ data?: { name?: string } }>;
@@ -45,6 +64,133 @@ export function isMemberReplyMessage(
   const toolName =
     (callItem?.data?.name as string | undefined) || anyMessage?.toolName || "";
   return MEMBER_REPLY_TOOLS.has(toolName);
+}
+
+/**
+ * Check if a member reply message was produced by a human (human_override).
+ */
+export function isHumanOverrideMessage(
+  message: IAgentScopeRuntimeMessage,
+): boolean {
+  const meta = (message as unknown as { metadata?: Record<string, unknown> })
+    .metadata;
+  return Boolean(meta?.human_override);
+}
+
+/**
+ * Check if a member reply is awaiting human input (human_pending).
+ */
+export function isHumanPendingMessage(
+  message: IAgentScopeRuntimeMessage,
+): boolean {
+  const meta = (message as unknown as { metadata?: Record<string, unknown> })
+    .metadata;
+  return Boolean(meta?.human_pending);
+}
+
+/**
+ * Check if a member reply timed out waiting for human input.
+ */
+export function isHumanPendingTimeoutMessage(
+  message: IAgentScopeRuntimeMessage,
+): boolean {
+  const meta = (message as unknown as { metadata?: Record<string, unknown> })
+    .metadata;
+  return Boolean(meta?.human_pending_timeout);
+}
+
+/**
+ * Check if a member reply is awaiting human approval (approval_pending).
+ */
+export function isApprovalPendingMessage(
+  message: IAgentScopeRuntimeMessage,
+): boolean {
+  const meta = (message as unknown as { metadata?: Record<string, unknown> })
+    .metadata;
+  return Boolean(meta?.approval_pending);
+}
+
+/**
+ * Extract the member agent ID from a member reply message.
+ *
+ * For native runtime messages, this comes from ``meta.group_member``.
+ * For legacy tool-call messages, this comes from the tool call arguments
+ * (``to_agent`` parameter).
+ */
+export function getMemberAgentId(
+  message: IAgentScopeRuntimeMessage,
+): string | null {
+  // Native runtime path
+  const meta = (message as unknown as { metadata?: Record<string, unknown> })
+    .metadata;
+  if (meta && typeof meta.group_member === "string" && meta.group_member) {
+    return meta.group_member;
+  }
+
+  // Legacy: parse from tool call arguments
+  if (message.type !== AgentScopeRuntimeMessageType.TOOL_CALL) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const legacyMsg = message as any;
+  const callItem = legacyMsg?.content?.[0];
+  const rawArgs = callItem?.data?.arguments;
+  if (!rawArgs) return null;
+
+  let params: Record<string, unknown> = {};
+  if (typeof rawArgs === "string") {
+    try {
+      params = JSON.parse(rawArgs);
+    } catch {
+      return null;
+    }
+  } else if (rawArgs && typeof rawArgs === "object") {
+    params = rawArgs as Record<string, unknown>;
+  }
+
+  const toAgent = params.to_agent;
+  return typeof toAgent === "string" ? toAgent : null;
+}
+
+/**
+ * Extract the member display name from a member reply message.
+ *
+ * For native runtime messages, this comes from ``meta.group_member_name``.
+ * Returns ``null`` if not available (caller should fall back to agent ID).
+ */
+export function getMemberName(
+  message: IAgentScopeRuntimeMessage,
+): string | null {
+  const meta = (message as unknown as { metadata?: Record<string, unknown> })
+    .metadata;
+  if (meta && typeof meta.group_member_name === "string") {
+    return meta.group_member_name;
+  }
+  return null;
+}
+
+/**
+ * Extract the reply text from a member reply message.
+ *
+ * For native runtime messages (MESSAGE type), the text is in the content
+ * blocks directly. For legacy tool-call messages, the text is extracted
+ * from the tool result via ``extractMemberReply``.
+ */
+export function getMemberReplyText(
+  message: IAgentScopeRuntimeMessage,
+): string | null {
+  // Native runtime: message content is text blocks
+  if (message.type === AgentScopeRuntimeMessageType.MESSAGE) {
+    const content = message.content;
+    if (!Array.isArray(content)) return null;
+    const textParts: string[] = [];
+    for (const item of content) {
+      const text = (item as { text?: string }).text;
+      if (text) textParts.push(text);
+    }
+    return textParts.length > 0 ? textParts.join("\n") : null;
+  }
+
+  // Legacy: will be handled by the caller via extractMemberReply
+  return null;
 }
 
 export type ResponseMessageBlock =
@@ -167,6 +313,8 @@ export function groupResponseMessages(
     if (message.type === AgentScopeRuntimeMessageType.HEARTBEAT) return;
     // Group-chat member replies are always shown as their own bubble so the
     // discussion reads like a real chat, even after the run completes.
+    // This covers both native runtime (MESSAGE with meta.group_member) and
+    // legacy (TOOL_CALL with chat_with_agent) detection paths.
     const memberReply = isMemberReplyMessage(message);
     const visible =
       isAlwaysVisible(message) ||

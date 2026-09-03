@@ -11,7 +11,11 @@ import {
   getCollapsedStepPresentation,
   getCollapsedStepRenderKey,
   getResponseMessageDisplayMode,
+  getMemberAgentId,
+  getMemberName,
+  getMemberReplyText,
   groupResponseMessages,
+  isMemberReplyMessage,
 } from "./messageDisplay";
 
 function message(
@@ -298,5 +302,72 @@ describe("message display mode", () => {
         block.kind === "message" ? [block.message.id] : [],
       ),
     ).toEqual(["member-1"]);
+  });
+
+  // ── Native runtime tests (M3) ───────────────────────────────────
+
+  it("detects native runtime member messages via meta.group_member", () => {
+    const nativeMember = {
+      id: "native-member-1",
+      type: AgentScopeRuntimeMessageType.MESSAGE,
+      role: "assistant",
+      status: AgentScopeRuntimeRunStatus.Completed,
+      content: [{ type: "text", text: "I agree with the proposal." }],
+      metadata: {
+        group_member: "agent_001",
+        group_member_name: "Legal Advisor",
+      },
+    } as never;
+
+    const hostMessage = {
+      id: "host-msg-1",
+      type: AgentScopeRuntimeMessageType.MESSAGE,
+      role: "assistant",
+      status: AgentScopeRuntimeRunStatus.Completed,
+      content: [{ type: "text", text: "Let's discuss..." }],
+    } as never;
+
+    expect(isMemberReplyMessage(nativeMember)).toBe(true);
+    expect(isMemberReplyMessage(hostMessage)).toBe(false);
+
+    expect(getMemberAgentId(nativeMember)).toBe("agent_001");
+    expect(getMemberName(nativeMember)).toBe("Legal Advisor");
+    expect(getMemberReplyText(nativeMember)).toBe(
+      "I agree with the proposal.",
+    );
+
+    // Host message without meta should not return member info
+    expect(getMemberAgentId(hostMessage)).toBeNull();
+    expect(getMemberName(hostMessage)).toBeNull();
+  });
+
+  it("keeps native runtime member messages visible as bubbles in result mode", () => {
+    const memberMsg = {
+      id: "native-1",
+      type: AgentScopeRuntimeMessageType.MESSAGE,
+      role: "assistant",
+      status: AgentScopeRuntimeRunStatus.Completed,
+      content: [{ type: "text", text: "Member reply" }],
+      metadata: { group_member: "agent_1" },
+    } as never;
+    const hostMsg = {
+      id: "host-1",
+      type: AgentScopeRuntimeMessageType.MESSAGE,
+      role: "assistant",
+      status: AgentScopeRuntimeRunStatus.Completed,
+      content: [{ type: "text", text: "Host summary" }],
+    } as never;
+
+    const resultOnly = groupResponseMessages(
+      [hostMsg, memberMsg, hostMsg],
+      "result-only",
+    );
+    // Member message should be visible, but only the last host message
+    // (not the first host message) is visible in result mode
+    expect(
+      resultOnly.flatMap((block) =>
+        block.kind === "message" ? [block.message.id] : [],
+      ),
+    ).toEqual(["native-1", "host-1"]);
   });
 });

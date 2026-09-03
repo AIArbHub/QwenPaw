@@ -24,6 +24,10 @@ import { setTextareaValue } from "../../pages/Chat/utils";
 import { downloadFileFromUrl } from "../../utils/downloadFileFromUrl";
 import { copyText } from "../../utils/clipboard";
 import { useAppMessage } from "../../hooks/useAppMessage";
+import {
+  isDefaultOpenWorkspaceEnabled,
+  setDefaultOpenWorkspaceEnabled,
+} from "./defaultOpenWorkspacePreference";
 import type { FileMetadata, FilesDrawerEvent, FilesDrawerState } from "./types";
 import type { FilesWorkspaceScope } from "./filesWorkspaceScope";
 import styles from "./FilesWorkspace.module.less";
@@ -82,6 +86,9 @@ export default function FilesDrawer({
     ? WORKSPACE_WIDTH_STORAGE_KEY
     : PREVIEW_WIDTH_STORAGE_KEY;
   const [width, setWidth] = useState(0);
+  const [defaultOpen, setDefaultOpen] = useState(
+    isDefaultOpenWorkspaceEnabled(),
+  );
 
   useEffect(() => {
     const stored = Number(localStorage.getItem(widthStorageKey));
@@ -355,6 +362,22 @@ export default function FilesDrawer({
             <ArrowLeft size={15} />
             {t("files.backToPreview")}
           </button>
+        )}
+        {isWorkspace && (
+          <label
+            className={styles.defaultOpenToggle}
+            title={t("files.defaultOpenWorkspaceHint")}
+          >
+            <input
+              type="checkbox"
+              checked={defaultOpen}
+              onChange={(event) => {
+                setDefaultOpen(event.target.checked);
+                setDefaultOpenWorkspaceEnabled(event.target.checked);
+              }}
+            />
+            <span>{t("files.defaultOpenWorkspace")}</span>
+          </label>
         )}
         {target && canCopy && (
           <button

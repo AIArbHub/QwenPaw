@@ -52,6 +52,8 @@ ANTHROPIC_MODELS = _models("ANTHROPIC_MODELS")
 GEMINI_MODELS = _models("GEMINI_MODELS")
 KIMI_CODINGPLAN_MODELS = _models("KIMI_CODINGPLAN_MODELS")
 GITHUB_MODELS_MODELS = _models("GITHUB_MODELS_MODELS")
+AGNES_MODELS = _models("AGNES_MODELS")
+
 
 PROVIDER_MODELSCOPE = ModelScopeProvider(
     id="modelscope",
@@ -516,6 +518,20 @@ PROVIDER_MIMO = MiMoProvider(
     provider_variant="standard",
 )
 
+PROVIDER_AGNES = OpenAIProvider(
+    id="agnes",
+    name="Agnes AI",
+    base_url="https://apihub.agnes-ai.com/v1",
+    api_key_prefix="sk-",
+    models=AGNES_MODELS,
+    freeze_url=True,
+    require_api_key=True,
+    support_model_discovery=True,
+    meta={
+        "is_free_tier": True,
+    },
+)
+
 
 BUILTIN_PROVIDERS: tuple[Provider, ...] = (
     PROVIDER_AIARB,
@@ -553,6 +569,7 @@ BUILTIN_PROVIDERS: tuple[Provider, ...] = (
     PROVIDER_VOLCENGINE_CN_AGENTPLAN,
     PROVIDER_MIMO_TOKENPLAN,
     PROVIDER_MIMO,
+    PROVIDER_AGNES,
 )
 
 BUILTIN_PROVIDER_CATALOG_KEYS = {
@@ -585,6 +602,7 @@ BUILTIN_PROVIDER_CATALOG_KEYS = {
     "volcengine-cn-agentplan": "VOLCENGINE_AGENTPLAN_MODELS",
     "mimo-tokenplan": "MIMO_TOKENPLAN_MODELS",
     "mimo": "MIMO_MODELS",
+    "agnes": "AGNES_MODELS",
 }
 
 for _provider in BUILTIN_PROVIDERS:

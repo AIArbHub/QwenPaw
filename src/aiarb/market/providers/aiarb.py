@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""AIArb plaza market provider.
+"""AgentScope plaza market provider.
 
 Public OpenAPI (no auth required for GET) via hub's shared async client.
 
@@ -25,7 +25,7 @@ _MAX_PAGE_SIZE = 100
 
 class AIArbProvider:
     key = "aiarb"
-    label = "AIArb"
+    label = "AgentScope"
     supports_browse = True
 
     def available(self) -> tuple[bool, str | None]:
@@ -59,7 +59,7 @@ class AIArbProvider:
             )
         except httpx.HTTPStatusError as e:
             raise RuntimeError(
-                f"AIArb search returned HTTP {e.response.status_code}",
+                f"AgentScope search returned HTTP {e.response.status_code}",
             ) from e
         if not isinstance(body, dict) or not body.get("success", True):
             message = (
@@ -67,7 +67,7 @@ class AIArbProvider:
                 if isinstance(body, dict)
                 else "non-JSON response"
             )
-            raise RuntimeError(f"AIArb search failed: {message}")
+            raise RuntimeError(f"AgentScope search failed: {message}")
 
         data = body.get("data") if isinstance(body, dict) else None
         items: list[dict[str, object]] = []

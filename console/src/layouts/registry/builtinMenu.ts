@@ -45,9 +45,8 @@ import {
   SparkVoiceChat01Line,
   SparkWifiLine,
 } from "@agentscope-ai/icons";
-import { GitBranch } from "lucide-react";
+import { GitBranch, Files, Brain, BookOpen, Sparkles, NotebookPen } from "lucide-react";
 import i18next from "i18next";
-import { Files, Brain } from "lucide-react";
 import { menuRegistry } from "../../plugins/registry/store";
 import type { MenuItem } from "../../plugins/registry/types";
 
@@ -56,25 +55,81 @@ const navLabel = (key: string, defaultValue?: string) => (): string =>
   i18next.t(key, defaultValue ?? key);
 
 export const BUILTIN_MENU: MenuItem[] = [
-  // ── Agent-scoped (Sidebar Menu #1) ───────────────────────────────────────
-  {
-    id: "core.inbox",
-    location: "primary.agentScoped",
-    label: navLabel("nav.inbox"),
-    icon: SparkEmailLine,
-    route: "core.inbox",
-    order: 10,
-  },
-
+  // ── Agent-scoped top-level entries ──────────────────────────────────────
   {
     id: "core.marketplace",
     location: "primary.agentScoped",
     label: navLabel("nav.marketplace", "Marketplace"),
     icon: SparkMyApplicationLine,
     route: "core.marketplace",
+    order: 10,
+  },
+
+  // ── Agent Files (一级菜单, 排在最前) ──────────────────────────────────────
+  {
+    id: "core.agent-files-group",
+    location: "primary.agentScoped",
+    label: navLabel("nav.agentFiles", "智能体文件"),
+    isGroup: true,
+    order: 5,
+  },
+  {
+    id: "core.agent-files-overview",
+    location: "primary.agentScoped",
+    parentId: "core.agent-files-group",
+    label: navLabel("nav.agentFilesOverview", "总览"),
+    icon: Files,
+    route: "core.files",
+    order: 5,
+  },
+  {
+    id: "core.agent-files-workspace",
+    location: "primary.agentScoped",
+    parentId: "core.agent-files-group",
+    label: navLabel("nav.agentFilesWorkspace", "工作区文件"),
+    icon: Files,
+    route: "core.agent-files-workspace",
+    order: 10,
+  },
+  {
+    id: "core.agent-files-persona",
+    location: "primary.agentScoped",
+    parentId: "core.agent-files-group",
+    label: navLabel("nav.agentFilesPersona", "灵魂人设"),
+    icon: Sparkles,
+    route: "core.agent-files-persona",
+    order: 20,
+  },
+  {
+    id: "core.agent-files-diary",
+    location: "primary.agentScoped",
+    parentId: "core.agent-files-group",
+    label: navLabel("nav.agentFilesDiary", "日记"),
+    icon: NotebookPen,
+    route: "core.agent-files-diary",
+    order: 30,
+  },
+  {
+    id: "core.agent-files-kb",
+    location: "primary.agentScoped",
+    parentId: "core.agent-files-group",
+    label: navLabel("nav.agentFilesSpecificKB", "专属知识库"),
+    icon: BookOpen,
+    route: "core.agent-files-kb",
+    order: 40,
+  },
+
+  // ── Memory Center (一级菜单) ─────────────────────────────────────────────
+  {
+    id: "core.memory",
+    location: "primary.agentScoped",
+    label: navLabel("nav.memory", "记忆中心"),
+    icon: Brain,
+    route: "core.memory",
     order: 15,
   },
 
+  // ── Knowledge Base (一级菜单) ────────────────────────────────────────────
   {
     id: "core.knowledge-base",
     location: "primary.agentScoped",
@@ -84,7 +139,7 @@ export const BUILTIN_MENU: MenuItem[] = [
     order: 16,
   },
 
-  // control-group
+  // ── Control group ────────────────────────────────────────────────────────
   {
     id: "core.control-group",
     location: "primary.agentScoped",
@@ -129,31 +184,13 @@ export const BUILTIN_MENU: MenuItem[] = [
     order: 40,
   },
 
-  // workspace-group
+  // ── Workspace group (skills, tools, mcp, acp, config, stats, checkpoints) ─
   {
     id: "core.workspace-group",
     location: "primary.agentScoped",
     label: navLabel("nav.agent"),
     isGroup: true,
     order: 30,
-  },
-  {
-    id: "core.files",
-    location: "primary.agentScoped",
-    parentId: "core.workspace-group",
-    label: navLabel("nav.files"),
-    icon: Files,
-    route: "core.files",
-    order: 5,
-  },
-  {
-    id: "core.memory",
-    location: "primary.agentScoped",
-    parentId: "core.workspace-group",
-    label: navLabel("nav.memory", "记忆中心"),
-    icon: Brain,
-    route: "core.memory",
-    order: 7,
   },
   {
     id: "core.skills",
@@ -212,18 +249,18 @@ export const BUILTIN_MENU: MenuItem[] = [
   {
     id: "core.checkpoints",
     location: "primary.agentScoped",
-    parentId: "core.agent-group",
+    parentId: "core.workspace-group",
     label: navLabel("checkpoints.nav"),
     icon: GitBranch,
     route: "core.checkpoints",
     order: 80,
   },
 
-  // ── Settings (Sidebar Menu #2) ───────────────────────────────────────────
+  // ── Global Settings (Sidebar Menu #2) ───────────────────────────────────
   {
     id: "core.settings-group",
     location: "primary.settings",
-    label: navLabel("nav.settings"),
+    label: navLabel("nav.globalSettings", "全局设置"),
     isGroup: true,
     order: 10,
   },
@@ -255,13 +292,32 @@ export const BUILTIN_MENU: MenuItem[] = [
     order: 30,
   },
   {
+    id: "core.token-usage",
+    location: "primary.settings",
+    parentId: "core.settings-group",
+    label: navLabel("nav.tokenUsage"),
+    icon: SparkDataLine,
+    route: "core.token-usage",
+    order: 40,
+  },
+  // ── Secondary settings (hidden when sidebar collapsed) ──────────────────
+  {
+    id: "core.market",
+    location: "primary.settings",
+    parentId: "core.settings-group",
+    label: navLabel("nav.market", "市场"),
+    icon: SparkMyApplicationLine,
+    route: "core.marketplace",
+    order: 50,
+  },
+  {
     id: "core.environments",
     location: "primary.settings",
     parentId: "core.settings-group",
     label: navLabel("nav.environments"),
     icon: SparkInternetLine,
     route: "core.environments",
-    order: 50,
+    order: 60,
   },
   {
     id: "core.offload-policy",
@@ -270,7 +326,7 @@ export const BUILTIN_MENU: MenuItem[] = [
     label: navLabel("nav.offloadPolicy", "Tool Offload"),
     icon: SparkDateLine,
     route: "core.offload-policy",
-    order: 55,
+    order: 70,
   },
   {
     id: "core.security",
@@ -279,16 +335,7 @@ export const BUILTIN_MENU: MenuItem[] = [
     label: navLabel("nav.security"),
     icon: SparkBrowseLine,
     route: "core.security",
-    order: 60,
-  },
-  {
-    id: "core.token-usage",
-    location: "primary.settings",
-    parentId: "core.settings-group",
-    label: navLabel("nav.tokenUsage"),
-    icon: SparkDataLine,
-    route: "core.token-usage",
-    order: 70,
+    order: 80,
   },
   {
     id: "core.backups",
@@ -297,7 +344,7 @@ export const BUILTIN_MENU: MenuItem[] = [
     label: navLabel("nav.backups"),
     icon: SparkSaveLine,
     route: "core.backups",
-    order: 80,
+    order: 90,
   },
   {
     id: "core.voice-transcription",
@@ -306,7 +353,7 @@ export const BUILTIN_MENU: MenuItem[] = [
     label: navLabel("nav.voiceTranscription"),
     icon: SparkMicLine,
     route: "core.voice-transcription",
-    order: 90,
+    order: 100,
   },
   {
     id: "core.debug",
@@ -315,7 +362,17 @@ export const BUILTIN_MENU: MenuItem[] = [
     label: navLabel("nav.debug", "Debug"),
     icon: SparkDebugLine,
     route: "core.debug",
-    order: 100,
+    order: 110,
+  },
+
+  // ── Bottom toolbar (parallel to settings gear + collapse button) ──────────
+  {
+    id: "core.inbox",
+    location: "primary.bottom",
+    label: navLabel("nav.inbox"),
+    icon: SparkEmailLine,
+    route: "core.inbox",
+    order: 10,
   },
 ];
 

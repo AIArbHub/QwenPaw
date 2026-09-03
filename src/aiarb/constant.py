@@ -209,6 +209,18 @@ BUILTIN_QA_AGENT_SKILL_NAMES: tuple[str, ...] = (
     "QA_source_index",
 )
 
+# Builtin knowledge-base curator agent. A fixed, protected agent that receives
+# user-submitted materials (files/documents/images) and organises them into the
+# global shared knowledge base through the kb_curator pipeline. It is never
+# deleted nor disabled and is kept isolated from ordinary chats.
+BUILTIN_KB_CURATOR_AGENT_ID = "AIArb_KB_Curator_0.1"
+BUILTIN_KB_CURATOR_AGENT_NAME = "知识库整理器"
+# Skills seeded on first creation of the curator workspace only.
+BUILTIN_KB_CURATOR_SKILL_NAMES: tuple[str, ...] = (
+    "guidance",
+    "kb_arbitration",
+)
+
 # Builtin arbitration role agents (single agents) seeded on first install.
 # These are stable identifiers so the builtin mock-arbitration group chat can
 # reference them as members.  They carry only persona/skill files, never a
@@ -405,6 +417,23 @@ LLM_STREAM_FIRST_CONTENT_TIMEOUT = EnvVarLoader.get_float(
 LLM_STREAM_IDLE_TIMEOUT = EnvVarLoader.get_float(
     "AIARB_LLM_STREAM_IDLE_TIMEOUT",
     30.0,
+    min_value=0.0,
+)
+
+# Longer first-content timeout (seconds) for free-tier / slow models.
+# Free models (kilo, opencode, openrouter free, github-models, siliconflow,
+# gemini free, zhipu-cn) often have longer queue times on the upstream
+# side.  This gives them more room to start responding before timing out.
+LLM_STREAM_FIRST_CONTENT_TIMEOUT_FREE = EnvVarLoader.get_float(
+    "AIARB_LLM_STREAM_FIRST_CONTENT_TIMEOUT_FREE",
+    90.0,
+    min_value=0.0,
+)
+
+# Longer steady-state idle timeout (seconds) for free-tier / slow models.
+LLM_STREAM_IDLE_TIMEOUT_FREE = EnvVarLoader.get_float(
+    "AIARB_LLM_STREAM_IDLE_TIMEOUT_FREE",
+    60.0,
     min_value=0.0,
 )
 

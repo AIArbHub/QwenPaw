@@ -420,59 +420,137 @@ class ConsoleChannel(BaseChannel):
             event_count = 0
             headline_stream_states: dict[str, Any] = {}
 
-            async for event in self._process(request):
-                event_count += 1
-                obj = getattr(event, "object", None)
-                status = getattr(event, "status", None)
-                ev_type = getattr(event, "type", None)
+            # ── Group-chat native runtime bypass ───────────────────────
+            # When the target agent is a group-chat host (description carries
+            # <!-- HOST:{...} -->) AND the per-request ``group_chat_native``
+            # flag from the frontend is enabled, replace the usual _process
+            # iterator with the group-chat runtime that orchestrates member
+            # turns and produces standard message events with
+            # meta.group_member markers.
+            group_chat_events = None
+            if await _should_use_group_runtime(request, self._workspace):
+                try:
+                    from ....app.group_chats.runtime import run_group_chat
 
-                logger.debug(
-                    "console event #%s: object=%s status=%s type=%s",
-                    event_count,
-                    obj,
-                    status,
-                    ev_type,
-                )
-
-                if (
-                    event.object == "response"
-                    and event.status == RunStatus.Completed
-                ):
-                    event_output = event.output
-                    event.output = []
-                    if event_output is not None:
-                        for message in event_output:
-                            event.output.append(message)
-
-                if obj == "message" and status == RunStatus.Completed:
-                    msg_id = str(
-                        getattr(event, "msg_id", "")
-                        or getattr(event, "id", "")
-                        or "",
+                    group_chat_events = run_group_chat(request, self)
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning(
+                        "Group-chat runtime failed to start, "
+                        "falling back to _process: %s",
+                        exc,
+                        exc_info=True,
                     )
-                    for pending_data in self._flush_headline_stream_states(
-                        headline_stream_states,
-                        msg_id=msg_id,
+                    group_chat_events = None
+
+            if group_chat_events is not None:
+                async for event in group_chat_events:
+                    event_count += 1
+                    obj = getattr(event, "object", None)
+                    status = getattr(event, "status", None)
+                    ev_type = getattr(event, "type", None)
+
+                    logger.debug(
+                        "group-chat event #%s: object=%s status=%s type=%s",
+                        event_count,
+                        obj,
+                        status,
+                        ev_type,
+                    )
+
+                    if (
+                        obj == "response"
+                        and status == RunStatus.Completed
                     ):
-                        yield f"data: {pending_data}\n\n"
-                elif obj == "response" and status == RunStatus.Completed:
-                    for pending_data in self._flush_headline_stream_states(
+                        event_output = event.output
+                        event.output = []
+                        if event_output is not None:
+                            for message in event_output:
+                                event.output.append(message)
+
+                    if obj == "message" and status == RunStatus.Completed:
+                        msg_id = str(
+                            getattr(event, "msg_id", "")
+                            or getattr(event, "id", "")
+                            or "",
+                        )
+                        for pending_data in self._flush_headline_stream_states(
+                            headline_stream_states,
+                            msg_id=msg_id,
+                        ):
+                            yield f"data: {pending_data}\n\n"
+                    elif obj == "response" and status == RunStatus.Completed:
+                        for pending_data in self._flush_headline_stream_states(
+                            headline_stream_states,
+                        ):
+                            yield f"data: {pending_data}\n\n"
+
+                    data = self._serialize_event_for_sse(
+                        event,
                         headline_stream_states,
+                    )
+                    yield f"data: {data}\n\n"
+
+                    if obj == "message" and status == RunStatus.Completed:
+                        parts = self._message_to_content_parts(event)
+                        self._print_parts(parts, ev_type)
+
+                    elif obj == "response":
+                        last_response = event
+            else:
+                # ── Original _process path ────────────────────────────
+                async for event in self._process(request):
+                    event_count += 1
+                    obj = getattr(event, "object", None)
+                    status = getattr(event, "status", None)
+                    ev_type = getattr(event, "type", None)
+
+                    logger.debug(
+                        "console event #%s: object=%s status=%s type=%s",
+                        event_count,
+                        obj,
+                        status,
+                        ev_type,
+                    )
+
+                    if (
+                        obj == "response"
+                        and status == RunStatus.Completed
                     ):
-                        yield f"data: {pending_data}\n\n"
+                        event_output = event.output
+                        event.output = []
+                        if event_output is not None:
+                            for message in event_output:
+                                event.output.append(message)
 
-                data = self._serialize_event_for_sse(
-                    event,
-                    headline_stream_states,
-                )
-                yield f"data: {data}\n\n"
+                    if obj == "message" and status == RunStatus.Completed:
+                        msg_id = str(
+                            getattr(event, "msg_id", "")
+                            or getattr(event, "id", "")
+                            or "",
+                        )
+                        for pending_data in self._flush_headline_stream_states(
+                            headline_stream_states,
+                            msg_id=msg_id,
+                        ):
+                            yield f"data: {pending_data}\n\n"
+                    elif obj == "response" and status == RunStatus.Completed:
+                        for pending_data in self._flush_headline_stream_states(
+                            headline_stream_states,
+                        ):
+                            yield f"data: {pending_data}\n\n"
 
-                if obj == "message" and status == RunStatus.Completed:
-                    parts = self._message_to_content_parts(event)
-                    self._print_parts(parts, ev_type)
+                    data = self._serialize_event_for_sse(
+                        event,
+                        headline_stream_states,
+                    )
+                    yield f"data: {data}\n\n"
 
-                elif obj == "response":
-                    last_response = event
+                    if obj == "message" and status == RunStatus.Completed:
+                        parts = self._message_to_content_parts(event)
+                        self._print_parts(parts, ev_type)
+
+                    elif obj == "response":
+                        last_response = event
 
             for pending_data in self._flush_headline_stream_states(
                 headline_stream_states,
@@ -734,3 +812,68 @@ class ConsoleChannel(BaseChannel):
         if not self.enabled:
             return
         logger.info("console channel stopped")
+
+
+# ── Module-level helpers ───────────────────────────────────────────────
+
+
+async def _should_use_group_runtime(
+    request: Any,
+    workspace: Any,
+) -> bool:
+    """Check whether this request should use the native group-chat runtime.
+
+    Resolution priority (highest first):
+    1. ``GROUP_CHAT_NATIVE_DISABLED`` env var → force-off (operator override).
+    2. Per-request ``group_chat_native`` flag from frontend.
+    3. Global ``group_chat_native_enabled`` in config.json.
+    4. Default: **True**.
+
+    Plus: the agent description must contain ``<!-- HOST:{...} -->``
+    metadata and the schedule mode must not be ``autonomous``.
+
+    This is an async function to avoid blocking the event loop when
+    reading agent config from disk.
+    """
+    try:
+        from ....app.group_chats.runtime import should_use_native_runtime
+
+        # Extract request_context from channel_meta
+        channel_meta = getattr(request, "channel_meta", None) or {}
+        request_context = channel_meta.get("request_context") if isinstance(
+            channel_meta, dict,
+        ) else None
+
+        host_agent_id = getattr(request, "user_id", "") or ""
+        if not host_agent_id or workspace is None:
+            logger.debug(
+                "[group-chat-detect] _should_use_group_runtime=False "
+                "(host_agent_id=%r, workspace=%r)",
+                host_agent_id, workspace,
+            )
+            return False
+
+        # Async config read — avoids blocking the event loop.
+        from ....config.config import load_agent_config_async
+
+        agent_config = await load_agent_config_async(host_agent_id)
+        description = agent_config.description or ""
+
+        result = should_use_native_runtime(
+            description, None, request_context,
+        )
+        logger.debug(
+            "[group-chat-detect] _should_use_group_runtime result=%s "
+            "for host_agent_id=%s, request_context=%s",
+            result, host_agent_id, request_context,
+        )
+        return result
+    except Exception as exc:  # noqa: BLE001
+        # Any failure in detection → fall back to _process (safe default)
+        logger.debug(
+            "[group-chat-detect] _should_use_group_runtime=False "
+            "(exception: %s)",
+            exc,
+            exc_info=True,
+        )
+        return False

@@ -10,7 +10,9 @@ import {
   MoreOutlined,
   EyeInvisibleOutlined,
   EyeOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
+import { Pin, PinOff } from "lucide-react";
 import type { AgentSummary } from "../../../../api/types/agents";
 import { getApiUrl } from "../../../../api/config";
 import { getAgentDisplayName } from "../../../../utils/agentDisplayName";
@@ -22,7 +24,7 @@ import styles from "./AgentCard.module.less";
  */
 export interface AgentCardStats {
   sessions: number;
-  messages: number;
+  messages?: number;
   lastActive: string;
 }
 
@@ -35,6 +37,8 @@ interface AgentCardProps {
   onChat: (agentId: string) => void;
   onDelete: (agentId: string) => void;
   onToggle: (agentId: string, currentEnabled: boolean) => void;
+  onPin: (agentId: string, currentPinned: boolean) => void;
+  onCopy: (agent: AgentSummary) => void;
 }
 
 /** Resolve a backend avatar path into a full URL for <img src>. */
@@ -54,6 +58,8 @@ export const AgentCard = memo(function AgentCard({
   onChat,
   onDelete,
   onToggle,
+  onPin,
+  onCopy,
 }: AgentCardProps) {
   const { t } = useTranslation();
   const isDefault = agent.id === "default";
@@ -99,6 +105,25 @@ export const AgentCard = memo(function AgentCard({
       },
     },
     {
+      key: "pin",
+      label: agent.pinned ? t("agent.unpinAgent") : t("agent.pinAgent"),
+      icon: agent.pinned ? <PinOff size={14} /> : <Pin size={14} />,
+      disabled: isDefault,
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        onPin(agent.id, Boolean(agent.pinned));
+      },
+    },
+    {
+      key: "copy",
+      label: t("agent.copyAgent", "复制智能体"),
+      icon: <CopyOutlined />,
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        onCopy(agent);
+      },
+    },
+    {
       key: "delete",
       label: t("agent.delete"),
       icon: <DeleteOutlined />,
@@ -119,7 +144,10 @@ export const AgentCard = memo(function AgentCard({
   ] as MenuProps["items"];
 
   const sessionsValue = stats ? String(stats.sessions) : "--";
-  const messagesValue = stats ? String(stats.messages) : "--";
+  const messagesValue =
+    stats && typeof stats.messages === "number"
+      ? String(stats.messages)
+      : "--";
   const lastActiveValue = stats ? stats.lastActive : "--";
 
   return (

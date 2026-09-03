@@ -1,9 +1,9 @@
 # 原生群聊运行时 —— 设计 · 风险登记表 · 任务拆解
 
-> 状态：**设计定稿待评审**（尚未编码）
+> 状态：**已实现 M1–M6（全部完成）**
 > 作者：QwenPaw 工程团队
 > 日期：2026-09-01
-> 关联代码：`src/aiarb/app/routers/console.py`、`src/aiarb/app/channels/console/channel.py`、`src/aiarb/app/task_tracker.py`、`src/aiarb/agents/tools/agent_management.py`、`console/src/pages/Chat/*`
+> 关联代码：`src/aiarb/app/group_chats/`、`src/aiarb/app/channels/console/channel.py`、`src/aiarb/app/routers/workspace.py`、`src/aiarb/config/config.py`、`console/src/stores/groupChatSettingsStore.ts`、`console/src/pages/Chat/*`
 
 ***
 
@@ -223,7 +223,13 @@ POST   /api/console/groups/{id}/stream          # SSE 流式编排事件（web /
 
 * 新增 `group_chats/` 存储，与 host 会话解耦。
 
-* `group_v` 版本字段 + 开关 `GROUP_CHAT_NATIVE_ENABLED`（默认开，可一键回退 `_process` 旧路径）。
+* `group_v` 版本字段 + 多层开关（优先级从高到低）：
+    1. ``GROUP_CHAT_NATIVE_DISABLED`` 环境变量 → 运维一键关闭
+    2. 前端 ``useGroupChatSettingsStore`` → 每请求 ``request_context.group_chat_native``
+    3. ``config.json`` 中 ``agents.group_chat_native_enabled`` (默认 True，纳入 ``include_global_config`` 备份范围)
+    4. 默认 **True**（不影响单聊）
+
+* 前端通过 ``/workspace/group-chat-native`` GET/PUT API 读写后端设置，同时缓存在 localStorage。
 
 * 旧 host / 旧会话不迁移，`is_group_host` 判据不变，无群聊元数据自动走旧路径。
 
@@ -261,14 +267,14 @@ POST   /api/console/groups/{id}/stream          # SSE 流式编排事件（web /
 
 ## 6. 里程碑拆分（全部排期）
 
-| 里程碑    | 内容                                                                                                        | 验收                                                        |
-| ------ | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| **M1** | `group_chats.{models,store,context}` + `is_group_host` 检测与路由占位（`_group_process` 空实现,先 yield host message） | 群聊消息进 `_group_process`，普通 agent 不受影响；`tsc -b`、`pytest` 通过 |
-| **M2** | `runtime.py` round\_robin 串行编排 + `adapter.collect_member_once`（一次性回退路径）                                   | 群聊按成员顺序发言，超时/取消正确，无孤儿                                     |
-| **M3** | `sse.py` 标准 message + `meta.group_member` 事件输出；前端 `isGroupMemberMessage` 分流 + `MemberReplyRow` 独立气泡（一次性）  | 前端显示真正独立气泡；刷新后从 `rounds[]` 回放                             |
-| **M4** | `context.py` 摘要窗口 + host opener/summary 受限子 run                                                           | 长轮不膨胀；host 正常拆题与汇总纪要                                      |
-| **M5** | `parallel` 模式（`asyncio.gather` + 并发闸门） + `/chat/task` 后台平滑 + 旧会话回退验证                                      | 并行可用；旧 host 不回归                                           |
-| **M6** | 成员**实时转写**：`adapter.stream_member` 进程内流式增量 → 前端增量追加气泡                                                     | 成员"边想边显示"，running→completed 完整链路                          |
+| 里程碑    | 内容                                                                                                        | 验收                                                        | 状态 |
+| ------ | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | --- |
+| **M1** | `group_chats.{models,store,context}` + `is_group_host` 检测与路由占位（`_group_process` 空实现,先 yield host message） | 群聊消息进 `_group_process`，普通 agent 不受影响；`tsc -b`、`pytest` 通过 | ✅ 已完成 |
+| **M2** | `runtime.py` round\_robin 串行编排 + `adapter.collect_member_once`（一次性回退路径）                                   | 群聊按成员顺序发言，超时/取消正确，无孤儿                                     | ✅ 已完成 |
+| **M3** | `sse.py` 标准 message + `meta.group_member` 事件输出；前端 `isGroupMemberMessage` 分流 + `MemberReplyRow` 独立气泡（一次性）  | 前端显示真正独立气泡；刷新后从 `rounds[]` 回放                             | ✅ 已完成 |
+| **M4** | `context.py` 摘要窗口 + host opener/summary 受限子 run                                                           | 长轮不膨胀；host 正常拆题与汇总纪要                                      | ✅ 已完成 |
+| **M5** | `parallel` 模式（`asyncio.gather` + 并发闸门） + `/chat/task` 后台平滑 + 旧会话回退验证                                      | 并行可用；旧 host 不回归                                           | ✅ 已完成 |
+| **M6** | 成员**实时转写**：`adapter.stream_member` 进程内流式增量 → 前端增量追加气泡                                                     | 成员"边想边显示"，running→completed 完整链路                          | ✅ 已完成 |
 
 每步向后兼容，可随时回退 `_process` 旧路径。
 

@@ -40,7 +40,7 @@ from aiarb.app.routers.agents import (
     update_backend_settings,
     BackendSettingsRequest,
 )
-from qwenpaw.exceptions import AppBaseException
+from aiarb.exceptions import AppBaseException
 from aiarb.config.config import (
     AgentProfileConfig,
     AgentProfileRef,
@@ -666,11 +666,11 @@ def test_rebuild_memory_index_rejects_disabled_embedding(
 
     with (
         patch(
-            "qwenpaw.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "qwenpaw.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -734,10 +734,10 @@ def test_undo_pending_embedding_reindex_restores_indexed_config(
 
     with (
         patch(
-            "qwenpaw.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=profile,
         ),
-        patch("qwenpaw.app.routers.agents.schedule_agent_reload"),
+        patch("aiarb.app.routers.agents.schedule_agent_reload"),
     ):
         response = client.post("/api/agents/bot/memory/reindex/undo")
 
@@ -765,11 +765,11 @@ def test_rebuild_memory_index_rejects_disabled_embedding(
 
     with (
         patch(
-            "qwenpaw.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "qwenpaw.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -800,11 +800,11 @@ def test_rebuild_all_rejects_disabled_embedding(
 
     with (
         patch(
-            "qwenpaw.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "qwenpaw.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -833,10 +833,10 @@ def test_undo_pending_embedding_reindex_restores_indexed_config(
 
     with (
         patch(
-            "qwenpaw.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=profile,
         ),
-        patch("qwenpaw.app.routers.agents.schedule_agent_reload"),
+        patch("aiarb.app.routers.agents.schedule_agent_reload"),
     ):
         response = client.post("/api/agents/bot/memory/reindex/undo")
 

@@ -42,14 +42,14 @@ workspace/
 └── mem_metadata/                     # 可重建的索引、图谱与缓存
 ```
 
-| 对象或机制                           | 定位与维护方式                                                                                              | 读取或检索方式                                                          |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `MEMORY.md`                          | AIArb 管理的核心长期记忆；用户和主会话中的 Agent 都可以自由读取、编辑和更新                               | 通过文件工具按需读取；不属于 ReMe 的 `memory_search` 索引               |
-| `memory/YYYY-MM-DD.md`               | 当天所有记忆笔记的索引页；ReMe 自动维护 `<!-- notes:auto -->` 区块，用户和主 Agent 可在自动区块之外补充内容 | 属于个人知识库，可被 `memory_search` 找到；也可直接读取并沿索引继续展开 |
-| `memory/YYYY-MM-DD/{name}.md`        | Auto-Memory 为一个 session 创建或更新的一条记忆笔记；`name` 是模型生成的稳定主题或事件名                    | 属于个人知识库；主 Agent 通常不需要主动管理                             |
-| `digest/` 中的所有 `.md`             | ReMe 管理的长期个人知识库；分为 `personal`、`procedure` 和 `wiki` 三类，并用 Wikilink 相互连接              | 属于 `memory_search` 的检索范围，可沿图谱继续展开                       |
-| `memory/` + `digest/` 中的所有 `.md` | ReMe 个人知识库的完整文件范围：`memory/` 保存每日现场，`digest/` 保存跨时间整理后的知识                     | `memory_search` 的完整检索范围                                          |
-| `memory_search` 返回的片段           | 当前问题最相关的局部内容，并附带文件路径                                                                    | 片段不足时使用 `read_file` 按路径渐进式展开，只读取当前任务所需内容     |
+| 对象或机制                            | 定位与维护方式                                                                 | 读取或检索方式                                      |
+| -------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------- |
+| `MEMORY.md`                      | AIArb 管理的核心长期记忆；用户和主会话中的 Agent 都可以自由读取、编辑和更新                            | 通过文件工具按需读取；不属于 ReMe 的 `memory_search` 索引     |
+| `memory/YYYY-MM-DD.md`           | 当天所有记忆笔记的索引页；ReMe 自动维护 `<!-- notes:auto -->` 区块，用户和主 Agent 可在自动区块之外补充内容 | 属于个人知识库，可被 `memory_search` 找到；也可直接读取并沿索引继续展开 |
+| `memory/YYYY-MM-DD/{name}.md`    | Auto-Memory 为一个 session 创建或更新的一条记忆笔记；`name` 是模型生成的稳定主题或事件名              | 属于个人知识库；主 Agent 通常不需要主动管理                    |
+| `digest/` 中的所有 `.md`             | ReMe 管理的长期个人知识库；分为 `personal`、`procedure` 和 `wiki` 三类，并用 Wikilink 相互连接  | 属于 `memory_search` 的检索范围，可沿图谱继续展开            |
+| `memory/` + `digest/` 中的所有 `.md` | ReMe 个人知识库的完整文件范围：`memory/` 保存每日现场，`digest/` 保存跨时间整理后的知识                | `memory_search` 的完整检索范围                      |
+| `memory_search` 返回的片段            | 当前问题最相关的局部内容，并附带文件路径                                                    | 片段不足时使用 `read_file` 按路径渐进式展开，只读取当前任务所需内容     |
 
 此外，`mem_session/` 保存可追溯的来源对话，`resource/` 保存 Daily Paper 下载的 PDF 等原始资料，`mem_metadata/` 保存可重建的索引、图谱和缓存。
 
@@ -89,7 +89,9 @@ ReMe 不是简单地“每隔固定字符切一刀”。索引器会先解析 fr
 这样做有三个直接好处：
 
 - **语义不被截断**：`## 宁德时代` 下的毛利率讨论尽量留在同一片段；
+
 - **上下文不丢失**：片段会携带必要的祖先标题 breadcrumb，即使单独召回也知道它属于哪一章；
+
 - **结构仍然有效**：超长表格按行切分并重复表头，超长列表按条目切分，代码块保留围栏；每个片段保留原文件路径和行号。
 
 Wikilink 则独立抽取成文件图谱。最终，一个 Markdown 文件同时贡献了“用于 BM25/向量检索的片段”和“用于关系展开的边”。标题特别多的超大文档会回退为纯文本分块，避免构建 AST 带来不必要的开销。
@@ -99,9 +101,13 @@ Wikilink 则独立抽取成文件图谱。最终，一个 Markdown 文件同时�
 Auto-Memory 不会复制整段聊天，而是周期性识别以后仍可能有用的内容，例如：
 
 - 稳定偏好与长期约定；
+
 - 项目背景和限制条件；
+
 - 已确认的决定及其原因；
+
 - 当前进展、阻塞项与下一步；
+
 - 可以复用的流程和排查经验。
 
 例如，你说“先把宁德时代加入重点跟踪；当前假设是碳酸锂价格下跌有利于电芯单位成本，但还要检查库存减值和价格联动”，它会保留研究对象、当前判断、限制条件、待验证项和来源，而不是把一句临时观点直接写成永久事实。
@@ -164,7 +170,9 @@ Inbox 只用于查看运行结果；真正可编辑、可复用的记忆仍然�
 当前内置能力是 **Daily Paper**：启用后，AIArb 会从 Hugging Face Papers 的周榜和月榜中筛选与你关注主题相关的热门论文，保存原始 PDF，并生成三篇精读和一份每日简报。例如把主题设置为 `battery, lithium, energy storage`，就可以持续补充电池材料、寿命预测和储能技术相关研究。
 
 - PDF 写入 `resource/papers/`；
+
 - 精读和简报写入 `memory/YYYY-MM-DD/`；
+
 - Markdown 阅读记录进入普通记忆索引，也能继续参与长期整理。
 
 <p align="center">
@@ -181,11 +189,11 @@ Daily Paper 是当前内置的资料入口。任意文件仅仅放进 `resource/
 
 Auto-Dream 首先判断一条信息属于哪种长期记忆。三种类型不仅对应不同目录，也决定最终笔记应该怎样表达：
 
-| 记忆类型    | 保存内容与写法                                           | 金融分析师示例                           |
-| ----------- | -------------------------------------------------------- | ---------------------------------------- |
-| `personal`  | 用户的身份、偏好、关注范围和长期约定                     | 重点跟踪中国新能源汽车产业链和锂资源公司 |
-| `procedure` | 可复用的操作流程，写成包含步骤、输入和注意事项的 runbook | 动力电池公司盈利敏感性分析流程           |
-| `wiki`      | 定义、事实、观察、原则和心智模型，写成简洁的百科知识节点 | 宁德时代、碳酸锂、库存减值及锂价传导机制 |
+| 记忆类型        | 保存内容与写法                          | 金融分析师示例              |
+| ----------- | -------------------------------- | -------------------- |
+| `personal`  | 用户的身份、偏好、关注范围和长期约定               | 重点跟踪中国新能源汽车产业链和锂资源公司 |
+| `procedure` | 可复用的操作流程，写成包含步骤、输入和注意事项的 runbook | 动力电池公司盈利敏感性分析流程      |
+| `wiki`      | 定义、事实、观察、原则和心智模型，写成简洁的百科知识节点     | 宁德时代、碳酸锂、库存减值及锂价传导机制 |
 
 分类之后，关于“我长期研究什么”的内容进入 `personal/`，关于“以后应该怎样分析”的方法进入 `procedure/`，关于“公司、行业和指标是什么、如何相互影响”的知识进入 `wiki/`。这样，Auto-Dream 不是简单压缩日记，而是在把研究记录变成结构清晰、可以复用的个人知识库。
 
@@ -193,12 +201,12 @@ Auto-Dream 首先判断一条信息属于哪种长期记忆。三种类型不仅
 
 确定记忆类型后，Auto-Dream 会检索已有的 digest 节点，判断新材料与旧知识的关系，并且只选择一个动作：
 
-| 动作          | 含义                                       |
-| ------------- | ------------------------------------------ |
-| `CREATE`      | 没有相同知识时创建新节点                   |
+| 动作            | 含义                    |
+| ------------- | --------------------- |
+| `CREATE`      | 没有相同知识时创建新节点          |
 | `CORROBORATE` | 新材料再次证明已有记忆，补充来源或强化表述 |
-| `REFINE`      | 新材料增加步骤、条件、边界或细节           |
-| `CORRECT`     | 新材料修正已有节点中的错误、遗漏或冲突     |
+| `REFINE`      | 新材料增加步骤、条件、边界或细节      |
+| `CORRECT`     | 新材料修正已有节点中的错误、遗漏或冲突   |
 
 例如，不同日期的研究记录可能分别写着：“锂价下跌降低正极材料成本”“电芯价格也可能随之下调”“高价库存会造成短期减值压力”。Auto-Dream 不会把其中任何一句孤立地当成结论，而会把它们整合为更有边界的长期知识：
 
@@ -211,11 +219,14 @@ Auto-Dream 首先判断一条信息属于哪种长期记忆。三种类型不仅
 Auto-Link 是 Auto-Dream 构建文档图谱的关键。它不是等整理结束后，仅凭文件名机械补链接；在整合每条记忆时，Agent 同时拥有较完整的上下文：
 
 - 当前从 daily note 中抽取出的记忆单元，以及对应的来源路径；
+
 - 搜索召回的现有 `personal`、`procedure` 和 `wiki` 节点；
+
 - 经过读取后确认的同一知识节点和相关知识节点；
+
 - 本次准备创建或更新的目标节点及其原有正文。
 
-有了这些上下文，Agent 可以先区分“同一知识”和“相关知识”：同一知识决定应该执行四种动作中的哪一种；相关知识则被自然地织入正文，形成有语义的 Wikilink。例如，“锂价变化通过 [[digest/wiki/碳酸锂.md]] 影响 [[digest/wiki/宁德时代.md]] 的材料成本，具体评估可使用 [[digest/procedure/动力电池盈利敏感性分析.md]]。”这比单独罗列几个裸链接更清楚，因为链接周围的文字同时说明了节点之间的关系。
+有了这些上下文，Agent 可以先区分“同一知识”和“相关知识”：同一知识决定应该执行四种动作中的哪一种；相关知识则被自然地织入正文，形成有语义的 Wikilink。例如，“锂价变化通过 \[\[digest/wiki/碳酸锂.md]] 影响 \[\[digest/wiki/宁德时代.md]] 的材料成本，具体评估可使用 \[\[digest/procedure/动力电池盈利敏感性分析.md]]。”这比单独罗列几个裸链接更清楚，因为链接周围的文字同时说明了节点之间的关系。
 
 每个长期节点还会在 `## Sources` 中用带上下文的 Wikilink 指回 daily note，保留结论到原始材料的证据链；digest 节点之间的 Wikilink 则承载概念图谱。索引器随后从这些链接生成出边和入边，供 Memory Search 渐进式展开。Auto-Dream 不会改写每日记忆：`memory/` 保留“当时看到了什么、怎样判断”，`digest/` 保存“跨时间后仍值得复用的结论”。这就是“让日记长成个人知识库”。
 
@@ -283,11 +294,11 @@ BM25 擅长“宁德时代”“CATL”“碳酸锂”这类明确名称；向�
 
 上面的新能源汽车案例用于解释工作方式，不能代替量化评测。ReMe 另外使用公开 benchmark 测试多会话与超长历史中的记忆能力：
 
-| Benchmark             | 规模                 | 整体 Agentic 得分 |
-| --------------------- | -------------------- | ----------------- |
-| LongMemEval cleaned-S | 500 道题             | **89.4%**         |
-| BEAM 100K             | 20 个案例 / 400 道题 | **66.1%**         |
-| BEAM 1M               | 35 个案例 / 700 道题 | **65.0%**         |
+| Benchmark             | 规模              | 整体 Agentic 得分 |
+| --------------------- | --------------- | ------------- |
+| LongMemEval cleaned-S | 500 道题          | **89.4%**     |
+| BEAM 100K             | 20 个案例 / 400 道题 | **66.1%**     |
+| BEAM 1M               | 35 个案例 / 700 道题 | **65.0%**     |
 
 ![ReMe 在 LongMemEval 与 BEAM 上的公开基准结果](https://img.alicdn.com/imgextra/i4/O1CN01ohO0e31MntKw6mQZL_!!6000000001480-55-tps-1200-640.svg)
 
@@ -324,36 +335,36 @@ BM25 擅长“宁德时代”“CATL”“碳酸锂”这类明确名称；向�
 }
 ```
 
-| 配置项                                  | 默认值         | 说明                                                               |
-| --------------------------------------- | -------------- | ------------------------------------------------------------------ |
+| 配置项                                     | 默认值            | 说明                                               |
+| --------------------------------------- | -------------- | ------------------------------------------------ |
 | `auto_memory_interval`                  | `5`            | 每累计 N 个用户回合触发 Auto-Memory；`null` 或 `<= 0` 关闭周期触发 |
-| `auto_memory_inbox_push_enabled`        | `true`         | Auto-Memory 实际改变记忆或执行失败后推送到 Inbox                   |
-| `dream_cron_enabled`                    | `true`         | 启用定时 Auto-Dream                                                |
-| `dream_cron`                            | `"0 23 * * *"` | 五段式 cron；实际运行前会随机延迟 0–60 秒                          |
-| `auto_dream_inbox_push_enabled`         | `true`         | Auto-Dream 实际改变记忆或执行失败后推送到 Inbox                    |
-| `daily_paper_cron_enabled`              | `false`        | 启用定时 Daily Paper                                               |
-| `daily_paper_cron`                      | `"0 9 * * *"`  | Daily Paper 的五段式 cron                                          |
-| `daily_paper_use_hf_mirror`             | `false`        | 通过 Hugging Face 镜像获取论文信息                                 |
-| `daily_paper_topics`                    | `""`           | 选论文时优先考虑的主题                                             |
-| `daily_paper_inbox_push_enabled`        | `true`         | 把 Daily Paper 结果推送到 Inbox                                    |
-| `memory_search_enabled`                 | `true`         | 向 Agent 提供手动 `memory_search` 工具                             |
-| `auto_memory_search_config.enabled`     | `false`        | 每次普通用户请求前自动搜索记忆                                     |
-| `auto_memory_search_config.max_results` | `2`            | 自动搜索时最多注入的结果数                                         |
+| `auto_memory_inbox_push_enabled`        | `true`         | Auto-Memory 实际改变记忆或执行失败后推送到 Inbox                |
+| `dream_cron_enabled`                    | `true`         | 启用定时 Auto-Dream                                  |
+| `dream_cron`                            | `"0 23 * * *"` | 五段式 cron；实际运行前会随机延迟 0–60 秒                       |
+| `auto_dream_inbox_push_enabled`         | `true`         | Auto-Dream 实际改变记忆或执行失败后推送到 Inbox                 |
+| `daily_paper_cron_enabled`              | `false`        | 启用定时 Daily Paper                                 |
+| `daily_paper_cron`                      | `"0 9 * * *"`  | Daily Paper 的五段式 cron                            |
+| `daily_paper_use_hf_mirror`             | `false`        | 通过 Hugging Face 镜像获取论文信息                         |
+| `daily_paper_topics`                    | `""`           | 选论文时优先考虑的主题                                      |
+| `daily_paper_inbox_push_enabled`        | `true`         | 把 Daily Paper 结果推送到 Inbox                        |
+| `memory_search_enabled`                 | `true`         | 向 Agent 提供手动 `memory_search` 工具                  |
+| `auto_memory_search_config.enabled`     | `false`        | 每次普通用户请求前自动搜索记忆                                  |
+| `auto_memory_search_config.max_results` | `2`            | 自动搜索时最多注入的结果数                                    |
 
 自动搜索结果只注入当前请求，不写入正式会话历史，也不会再次被 Auto-Memory 保存。自动化产生的请求不会触发自动搜索。
 
 ### 目录与索引配置
 
-| 配置项                   | 默认值           | 说明                                         |
-| ------------------------ | ---------------- | -------------------------------------------- |
-| `metadata_dir`           | `"mem_metadata"` | 索引、图谱、catalog 和缓存目录               |
-| `session_dir`            | `"mem_session"`  | Auto-Memory 来源对话目录                     |
-| `mem_session_dir`        | `"mem_agent"`    | ReMe 内部 memory-agent 会话目录              |
-| `resource_dir`           | `"resource"`     | Daily Paper 等工作流的原始资源目录           |
-| `daily_dir`              | `"memory"`       | 每日记忆目录                                 |
-| `digest_dir`             | `"digest"`       | 长期知识目录                                 |
-| `embedding_model_config` | 默认关闭         | 可选向量模型配置，见 [向量模型](./embedding) |
-| `needs_reindex`          | `false`          | 向量空间变化后由运行时维护的待重建标记       |
+| 配置项                      | 默认值              | 说明                             |
+| ------------------------ | ---------------- | ------------------------------ |
+| `metadata_dir`           | `"mem_metadata"` | 索引、图谱、catalog 和缓存目录            |
+| `session_dir`            | `"mem_session"`  | Auto-Memory 来源对话目录             |
+| `mem_session_dir`        | `"mem_agent"`    | ReMe 内部 memory-agent 会话目录      |
+| `resource_dir`           | `"resource"`     | Daily Paper 等工作流的原始资源目录        |
+| `daily_dir`              | `"memory"`       | 每日记忆目录                         |
+| `digest_dir`             | `"digest"`       | 长期知识目录                         |
+| `embedding_model_config` | 默认关闭             | 可选向量模型配置，见 [向量模型](./embedding) |
+| `needs_reindex`          | `false`          | 向量空间变化后由运行时维护的待重建标记            |
 
 旧字段 `inbox_push_enabled` 仅用于迁移：它会初始化尚未设置的三个任务级 Inbox 开关，但不会写回已验证的配置。
 
@@ -377,7 +388,7 @@ POST /api/agents/{agentId}/memory/reindex
   <img src="https://img.alicdn.com/imgextra/i3/O1CN01BCTjXC0jfMG1GYA0_!!6000000005728-0-tps-624-276.jpg" alt="重建记忆索引前的资源占用确认提示" />
 </p>
 
----
+***
 
 ## 其他 Memory Backend
 
@@ -390,8 +401,11 @@ AIArb 的记忆系统采用可插拔的 Backend 架构。除了默认的 ReMeLig
 **核心特点：**
 
 - **跨会话持久化** — 记忆存储在云端数据库，重启后不丢失，支持多设备共享
+
 - **服务端事实抽取** — 由 ADBPG 记忆服务完成事实提取，客户端无额外开销
+
 - **REST API 接入** — 通过 HTTP API 调用 ADBPG 记忆服务
+
 - **优雅降级** — ADBPG 不可达时 Agent 正常运行，仅长期记忆功能暂时禁用
 
 **配置方式：**
@@ -407,12 +421,12 @@ AIArb 的记忆系统采用可插拔的 Backend 架构。除了默认的 ReMeLig
 > 会被忽略；请改为配置 `rest_base_url` 和 `rest_api_key`，保存后重启
 > AIArb。
 
-| 配置项                      | 说明                                                                    | 默认值                                |
-| --------------------------- | ----------------------------------------------------------------------- | ------------------------------------- |
-| `rest_base_url`             | ADBPG 记忆服务的 REST API 地址                                          | `""`                                  |
-| `rest_api_key`              | REST API 的访问密钥                                                     | `""`                                  |
-| `memory_isolation`          | 记忆隔离模式，`true` 为每个 Agent 独立，`false` 为共享                  | `true`                                |
-| `search_timeout`            | 记忆搜索超时时间（秒）                                                  | `10.0`                                |
+| 配置项                         | 说明                                                       | 默认值                                   |
+| --------------------------- | -------------------------------------------------------- | ------------------------------------- |
+| `rest_base_url`             | ADBPG 记忆服务的 REST API 地址                                  | `""`                                  |
+| `rest_api_key`              | REST API 的访问密钥                                           | `""`                                  |
+| `memory_isolation`          | 记忆隔离模式，`true` 为每个 Agent 独立，`false` 为共享                   | `true`                                |
+| `search_timeout`            | 记忆搜索超时时间（秒）                                              | `10.0`                                |
 | `auto_memory_search_config` | 自动记忆搜索配置，结构与 ReMe Light 的 `auto_memory_search_config` 一致 | `{"enabled": true, "max_results": 3}` |
 
 **配置示例：**
@@ -439,11 +453,15 @@ AIArb 的记忆系统采用可插拔的 Backend 架构。除了默认的 ReMeLig
 
 > 💡 通过 Console「运行配置」页面填写时，框架会自动将这些字段写入 `agent.json`，无需手动编辑文件。
 
----
+***
 
 ## 相关页面
 
 - [智能体记忆进化](./memory-evolving-and-proactive) — Auto-Memory、Auto-Dream、Auto-Memory-Search 与 Proactive 工作流
+
 - [向量模型](./embedding) — 向量模型能力、后端、配置与排查
+
 - [控制台](./console) — 在控制台管理记忆与配置
+
 - [配置与工作目录](./config) — 工作目录与 Agent 配置
+

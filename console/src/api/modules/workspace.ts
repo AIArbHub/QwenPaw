@@ -339,20 +339,30 @@ export const workspaceApi = {
     return await response.json();
   },
 
-  listMemoryFiles: (section: MemorySection) =>
-    request<MdFileInfo[]>(workspaceQuery("/workspace/memory", { section })),
+  listMemoryFiles: (section: MemorySection, agentId?: string) =>
+    request<MdFileInfo[]>(workspaceQuery("/workspace/memory", { section }), {
+      ...(agentId ? { headers: { "X-Agent-Id": agentId } } : {}),
+    }),
 
-  loadMemoryFile: (memoryPath: string, section: MemorySection) =>
+  loadMemoryFile: (
+    memoryPath: string,
+    section: MemorySection,
+    agentId?: string,
+  ) =>
     request<MdFileContent>(
       workspaceQuery(`/workspace/memory/${encodePath(memoryPath)}`, {
         section,
       }),
+      {
+        ...(agentId ? { headers: { "X-Agent-Id": agentId } } : {}),
+      },
     ),
 
   saveMemoryFile: (
     memoryPath: string,
     content: string,
     section: MemorySection,
+    agentId?: string,
   ) =>
     request<Record<string, unknown>>(
       workspaceQuery(`/workspace/memory/${encodePath(memoryPath)}`, {
@@ -361,6 +371,7 @@ export const workspaceApi = {
       {
         method: "PUT",
         body: JSON.stringify({ content }),
+        ...(agentId ? { headers: { "X-Agent-Id": agentId } } : {}),
       },
     ),
 

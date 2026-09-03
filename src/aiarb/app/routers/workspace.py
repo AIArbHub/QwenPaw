@@ -1365,6 +1365,53 @@ async def put_audio_mode(
 
 
 @router.get(
+    "/group-chat-native",
+    summary="Get group-chat native runtime setting",
+    description=(
+        "Whether the native group-chat orchestration runtime is enabled. "
+        "When True, agents with `<!-- HOST:{...} -->` metadata use the "
+        "structured runtime. Does NOT affect regular single-agent chats."
+    ),
+)
+async def get_group_chat_native() -> dict:
+    """Get group-chat native runtime setting."""
+    config = load_config()
+    return {
+        "group_chat_native_enabled": config.agents.group_chat_native_enabled,
+    }
+
+
+@router.put(
+    "/group-chat-native",
+    summary="Update group-chat native runtime setting",
+    description=(
+        "Enable or disable the native group-chat orchestration runtime. "
+        "This setting is stored in config.json and is included in "
+        "global config backups."
+    ),
+)
+async def put_group_chat_native(
+    body: dict = Body(
+        ...,
+        description='{"group_chat_native_enabled": true}',
+    ),
+) -> dict:
+    """Update group-chat native runtime setting."""
+    enabled = body.get("group_chat_native_enabled")
+    if not isinstance(enabled, bool):
+        raise HTTPException(
+            status_code=400,
+            detail="group_chat_native_enabled must be a boolean",
+        )
+
+    def apply_group_chat_native(config: Any) -> None:
+        config.agents.group_chat_native_enabled = enabled
+
+    await run_sync_io(mutate_config, apply_group_chat_native)
+    return {"group_chat_native_enabled": enabled}
+
+
+@router.get(
     "/transcription-provider-type",
     summary="Get transcription provider type",
     description=(

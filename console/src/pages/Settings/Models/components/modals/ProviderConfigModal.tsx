@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import type { KeyboardEvent, ReactNode, UIEvent } from "react";
 import {
+  Alert,
   Form,
   Input,
   Modal,
@@ -662,6 +663,28 @@ export function ProviderConfigModal({
       }
       destroyOnHidden
     >
+      {/* SiliconFlow promotion */}
+      {provider.id.includes("siliconflow") && (
+        <Alert
+          type="info"
+          showIcon
+          message={
+            <span>
+              硅基流动注册即送全平台通用代金券 16 元（须填写邀请码 KvmTp5P8）。
+              <a
+                href="https://cloud.siliconflow.cn/i/KvmTp5P8"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ marginLeft: 4 }}
+              >
+                点击立即领取 →
+              </a>
+            </span>
+          }
+          style={{ marginBottom: 16 }}
+        />
+      )}
+
       <Form
         form={form}
         layout="vertical"

@@ -38,6 +38,8 @@ from .pawapps import router as pawapps_router
 from .harnesses import router as harnesses_router
 from .checkpoints import router as checkpoints_router
 from .knowledge import router as knowledge_router
+from ..kb_curator.router import router as kb_curator_router
+from ..group_chats.api import router as group_chats_router
 
 router = APIRouter()
 
@@ -76,6 +78,8 @@ router.include_router(pawapps_router)
 router.include_router(harnesses_router)
 router.include_router(checkpoints_router)
 router.include_router(knowledge_router)
+router.include_router(kb_curator_router)
+router.include_router(group_chats_router)
 
 
 def create_agent_scoped_router() -> APIRouter:

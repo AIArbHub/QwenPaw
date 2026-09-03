@@ -86,6 +86,51 @@
   color: var(--color-primary, #0065fd);
 }
 
+.selectToggle {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--colorPrimary, #0065fd);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--colorFillTertiary, rgba(0, 0, 0, 0.04));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary, #0065fd);
+    outline-offset: 1px;
+  }
+}
+
+/* Batch selection toolbar */
+.selectionBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border-top: 1px solid var(--colorBorderSecondary, rgba(0, 101, 253, 0.055));
+  border-bottom: 1px solid var(--colorBorderSecondary, rgba(0, 101, 253, 0.055));
+  background: var(--colorFillQuaternary, rgba(0, 0, 0, 0.02));
+
+  :global(.aiarb-checkbox-wrapper) {
+    margin-right: auto;
+  }
+}
+
+.selectedCount {
+  font-size: 12px;
+  color: var(--colorTextSecondary, rgba(0, 0, 0, 0.45));
+  white-space: nowrap;
+}
+
 /* Create new chat button area */
 .createSection {
   flex-shrink: 0;
@@ -361,6 +406,15 @@
   .stickyGroupHeader {
     border-bottom-color: rgba(255, 255, 255, 0.08);
     background: color-mix(in srgb, #0e1115 96%, transparent);
+  }
+
+  .selectionBar {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .selectedCount {
+    color: rgba(255, 255, 255, 0.5);
   }
 
   .topGradient {

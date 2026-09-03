@@ -13,10 +13,21 @@ function modifiedTimestamp(value: string): number {
 }
 
 export function buildMemoryTree(files: DirectoryEntry[]): MemoryTreeEntry[] {
+  return buildGenericTree(files.filter((file) => file.path.toLowerCase().endsWith(".md")));
+}
+
+/**
+ * Build a file tree from arbitrary files (not just .md).
+ * Used by the shared knowledge base view which can contain .txt, .md, etc.
+ */
+export function buildKnowledgeTree(files: DirectoryEntry[]): MemoryTreeEntry[] {
+  return buildGenericTree(files);
+}
+
+function buildGenericTree(files: DirectoryEntry[]): MemoryTreeEntry[] {
   const root: MemoryTreeEntry[] = [];
 
   files
-    .filter((file) => file.path.toLowerCase().endsWith(".md"))
     .forEach((file) => {
       const parts = file.path.split("/").filter(Boolean);
       let entries = root;

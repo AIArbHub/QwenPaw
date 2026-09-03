@@ -636,6 +636,7 @@ AIArb 需要 LLM 提供商才能运行。配置存储在 `$AIARB_SECRET_DIR/prov
 | OpenCode                                | `opencode`               | OpenCode Zen 模型服务         |
 | SiliconFlow（China）                    | `siliconflow-cn`         | 硅基流动国内版                |
 | SiliconFlow（International）            | `siliconflow-intl`       | 硅基流动国际版                |
+| Agnes AI                                | `agnes`                  | Agnes AI 多模态模型服务       |
 | 自定义                                  | `custom`                 | 自定义 OpenAI 兼容服务        |
 
 > **完整配置说明：** 每个提供商的详细配置方式、`providers.json` 字段结构、模型发现等请参见 [模型](./models)。

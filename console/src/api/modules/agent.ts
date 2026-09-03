@@ -91,6 +91,20 @@ export const agentApi = {
       body: JSON.stringify({ audio_mode }),
     }),
 
+  getGroupChatNative: () =>
+    request<{ group_chat_native_enabled: boolean }>(
+      "/workspace/group-chat-native",
+    ),
+
+  updateGroupChatNative: (enabled: boolean) =>
+    request<{ group_chat_native_enabled: boolean }>(
+      "/workspace/group-chat-native",
+      {
+        method: "PUT",
+        body: JSON.stringify({ group_chat_native_enabled: enabled }),
+      },
+    ),
+
   getTranscriptionProviders: () =>
     request<{
       providers: { id: string; name: string; available: boolean }[];

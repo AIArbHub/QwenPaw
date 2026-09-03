@@ -50,6 +50,7 @@ import {
   findMenuItem,
   flattenMenu,
   renderIcon,
+  resolveLabel,
   routeIdToPath,
   toAntdItems,
 } from "./registry/adapter";
@@ -78,12 +79,19 @@ const INBOX_BADGE_POLLING_MS = 6000;
 
 /** Menu item IDs that remain visible in simple sidebar mode (no groups). */
 const SIMPLE_MODE_WHITELIST = new Set([
-  "core.files",
+  "core.agent-files-overview",
+  "core.agent-files-workspace",
+  "core.agent-files-persona",
+  "core.agent-files-diary",
+  "core.agent-files-kb",
   "core.inbox",
   "core.marketplace",
+  "core.memory",
+  "core.knowledge-base",
   "core.cron-jobs",
   "core.agent-config",
   "core.models",
+  "core.token-usage",
 ]);
 
 /**
@@ -172,6 +180,7 @@ export default function Sidebar({
   // Menu + route snapshots from registry (builtin + plugin registrations merged).
   const rawAgentMenu = useMenuItems("primary.agentScoped");
   const rawSettingsMenu = useMenuItems("primary.settings");
+  const rawBottomMenu = useMenuItems("primary.bottom");
   const routes = useRoutes();
 
   // Apply simple-mode filtering when enabled
@@ -192,14 +201,24 @@ export default function Sidebar({
     [rawSettingsMenu, sidebarMode],
   );
 
+  // Bottom toolbar items (inbox, etc.) — rendered in the bottom bar area.
+  const bottomMenu = useMemo(
+    () =>
+      sidebarMode === "simple"
+        ? flattenMenuForSimpleMode(rawBottomMenu)
+        : rawBottomMenu,
+    [rawBottomMenu, sidebarMode],
+  );
+
   // Flat nav entries for simple mode (icon + label + path)
   const simpleFlatNav = useMemo(() => {
     if (sidebarMode !== "simple") return [];
     return [
       ...flattenMenu(agentMenu, routes, 16),
       ...flattenMenu(settingsMenu, routes, 16),
+      ...flattenMenu(bottomMenu, routes, 16),
     ];
-  }, [agentMenu, settingsMenu, routes, sidebarMode]);
+  }, [agentMenu, settingsMenu, bottomMenu, routes, sidebarMode]);
   const simpleInboxEntry = simpleFlatNav.find(
     (entry) => entry.key === "core.inbox",
   );
@@ -409,10 +428,13 @@ export default function Sidebar({
         )}
       </span>
     );
+    // In collapsed mode, do NOT flatten settings sub-menu items into
+    // individual icons — that would flood the narrow rail with every
+    // setting entry.  Only agent-scoped items are shown; the settings
+    // gear button at the bottom provides access to the full settings.
     const flat = [
       stickyChat,
       ...flattenMenu(agentMenu, routes, 18),
-      ...flattenMenu(settingsMenu, routes, 18),
     ];
     return flat.map((entry) =>
       entry.key === "core.inbox"
@@ -421,7 +443,6 @@ export default function Sidebar({
     );
   }, [
     agentMenu,
-    settingsMenu,
     routes,
     chatPath,
     t,
@@ -429,7 +450,143 @@ export default function Sidebar({
     inboxDotColor,
   ]);
 
+  // Collapsed bottom toolbar items (inbox, etc.) — rendered parallel to settings gear.
+  const collapsedBottomItems = useMemo(
+    () => flattenMenu(bottomMenu, routes, 18),
+    [bottomMenu, routes],
+  );
+  const decorateInboxIcon = (icon: ReactNode): ReactNode => (
+    <span style={{ position: "relative", display: "inline-flex" }}>
+      {icon ?? <SparkEmailLine size={18} />}
+      {hasInboxUnread && (
+        <span
+          style={{
+            position: "absolute",
+            top: -1,
+            right: -3,
+            width: 6,
+            height: 6,
+            borderRadius: "50%",
+            background: inboxDotColor,
+          }}
+        />
+      )}
+    </span>
+  );
+  const collapsedBottomNavItems = collapsedBottomItems.map((entry) =>
+    entry.key === "core.inbox"
+      ? { ...entry, icon: decorateInboxIcon(entry.icon) }
+      : entry,
+  );
+
   // ── Handlers ──────────────────────────────────────────────────────────────
+
+  // ── Render helpers for bottom toolbar (inbox) ────────────────────────────
+
+  const renderBottomNavItem = (item: FlatMenuEntry) => {
+    const isActive = selectedKey === item.key;
+    return (
+      <Tooltip
+        key={item.key}
+        title={item.label}
+        placement={collapsed ? "right" : "top"}
+        styles={{
+          body: {
+            background: "rgba(0,0,0,0.75)",
+            color: "#fff",
+          },
+        }}
+      >
+        <button
+          type="button"
+          aria-label={typeof item.label === "string" ? item.label : undefined}
+          className={`${styles.collapsedNavItem}${
+            isActive ? ` ${styles.collapsedNavItemActive}` : ""
+          }${
+            item.key === "core.inbox" && effectiveShake
+              ? ` ${styles.inboxShake}`
+              : ""
+          }`}
+          onClick={() => {
+            if (item.href) {
+              window.open(item.href, "_blank", "noopener,noreferrer");
+            } else {
+              navigate(item.path);
+            }
+          }}
+          onMouseEnter={
+            item.key === "core.inbox" ? handleInboxHover : undefined
+          }
+        >
+          {item.icon}
+        </button>
+      </Tooltip>
+    );
+  };
+
+  const renderExpandedBottomNavItem = (item: MenuItem) => {
+    const path = routeIdToPath(item.route, routes);
+    if (!path && !item.href) return null;
+    const isActive = selectedKey === item.id;
+    const icon = renderIcon(item.icon, 18);
+    const label = resolveLabel(item.label);
+    return (
+      <Tooltip
+        key={item.id}
+        title={label}
+        placement="top"
+        styles={{
+          body: {
+            background: "rgba(0,0,0,0.75)",
+            color: "#fff",
+          },
+        }}
+      >
+        <button
+          type="button"
+          aria-label={typeof label === "string" ? label : undefined}
+          className={`${styles.bottomBarItem}${
+            isActive ? ` ${styles.collapsedNavItemActive}` : ""
+          }${
+            item.id === "core.inbox" && effectiveShake
+              ? ` ${styles.inboxShake}`
+              : ""
+          }`}
+          onClick={() => {
+            if (item.href) {
+              window.open(item.href, "_blank", "noopener,noreferrer");
+            } else if (path) {
+              navigate(path);
+            }
+          }}
+          onMouseEnter={
+            item.id === "core.inbox" ? handleInboxHover : undefined
+          }
+        >
+          {item.id === "core.inbox" ? (
+            <span style={{ position: "relative", display: "inline-flex" }}>
+              {icon}
+              {hasInboxUnread && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: -1,
+                    right: -3,
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: inboxDotColor,
+                  }}
+                />
+              )}
+            </span>
+          ) : (
+            icon
+          )}
+        </button>
+      </Tooltip>
+    );
+  };
 
   const handleMenuClick = (key: string, allItems: MenuItem[]) => {
     const item = findMenuItem(allItems, key);
@@ -600,8 +757,7 @@ export default function Sidebar({
     );
   };
 
-  // `renderIcon` retained for tree-shaking awareness.
-  void renderIcon;
+  // renderIcon is now actively used by renderExpandedBottomNavItem above.
 
   // On mobile, the expanded sidebar shows sessions (like simple mode) instead
   // of the full menu — matching the desktop history panel UX.
@@ -858,6 +1014,11 @@ export default function Sidebar({
       )}
 
       <div className={styles.collapseToggleContainer}>
+        {/* Inbox (bottom toolbar) — parallel to settings gear + collapse.
+            Rendered in both collapsed and expanded states. */}
+        {collapsed
+          ? collapsedBottomNavItems.map(renderBottomNavItem)
+          : bottomMenu.map(renderExpandedBottomNavItem)}
         {/* Gear stays visible in collapsed state too — otherwise users
             (especially on mobile, where the sidebar starts collapsed)
             cannot discover how to restore full mode. */}

@@ -10,6 +10,8 @@ import {
   isHostAgent,
   parseHostMeta,
 } from "../../../../utils/hostAgent";
+import { useSidebarModeStore } from "../../../../stores/sidebarModeStore";
+import { getApiUrl } from "../../../../api/config";
 import styles from "./index.module.less";
 
 const MOBILE_BREAKPOINT_PX = 480;
@@ -19,15 +21,51 @@ const ChatHeaderTitle: React.FC = () => {
     useChatAnywhereSessionsState();
   const { codingMode } = useCodingMode();
   const { selectedAgent, agents } = useAgentStore();
+  const { mode: sidebarMode } = useSidebarModeStore();
   const currentSession = sessions.find((s) => s.id === currentSessionId);
   const chatName = currentSession?.name || "New Chat";
 
   // When the current agent is a 群聊主持人, show its member avatar stack.
   const currentAgent = agents.find((a) => a.id === selectedAgent);
+  const isHost = currentAgent ? isHostAgent(currentAgent) : false;
   const hostMeta =
-    currentAgent && isHostAgent(currentAgent)
-      ? parseHostMeta(currentAgent)
-      : null;
+    currentAgent && isHost ? parseHostMeta(currentAgent) : null;
+
+  // Resolve agent avatar URL (for non-host agents in design mode).
+  const agentAvatarSrc = (() => {
+    if (!currentAgent || isHost) return "";
+    const avatar = currentAgent.avatar;
+    if (!avatar) return "";
+    if (/^https?:\/\//.test(avatar)) return avatar;
+    const path = avatar.replace(/^\/api/, "");
+    return getApiUrl(path);
+  })();
+
+  // In design mode, show the current agent name + avatar next to the
+  // session title so the user always knows which agent they are chatting
+  // with.  In full / simple mode the sidebar already provides this context.
+  const showAgentBadge = sidebarMode === "design" && currentAgent;
+  const agentBadge = showAgentBadge ? (
+    <span className={styles.agentBadge}>
+      {agentAvatarSrc ? (
+        <img
+          src={agentAvatarSrc}
+          alt={currentAgent!.name}
+          className={styles.agentBadgeAvatar}
+        />
+      ) : (
+        <span
+          className={styles.agentBadgeFallback}
+          style={{
+            backgroundColor: agentAvatarColor(currentAgent!.name),
+          }}
+        >
+          {agentInitial(currentAgent!.name)}
+        </span>
+      )}
+      <span className={styles.agentBadgeName}>{currentAgent!.name}</span>
+    </span>
+  ) : null;
 
   const memberStack = hostMeta ? (
     <span className={styles.hostHeaderStack}>
@@ -112,13 +150,18 @@ const ChatHeaderTitle: React.FC = () => {
     </span>
   );
 
-  const titleWrap = memberStack ? (
-    <span className={styles.hostHeaderWrap}>
-      {memberStack}
-      {titleContent}
+  const titleWrap = (
+    <span className={styles.titleWrap}>
+      {agentBadge}
+      {memberStack ? (
+        <span className={styles.hostHeaderWrap}>
+          {memberStack}
+          {titleContent}
+        </span>
+      ) : (
+        titleContent
+      )}
     </span>
-  ) : (
-    titleContent
   );
 
   // Hidden span used to measure intrinsic text width for the marquee decision.

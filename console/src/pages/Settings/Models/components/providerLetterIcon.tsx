@@ -28,6 +28,7 @@ const PROVIDER_LETTER_COLORS: Record<string, string> = {
   opencode: "#2563EB",
   kilo: "#FF5722",
   "github-models": "#24292F",
+  "agnes": "#6D28D9",
 };
 
 /** A palette of fallback colors for providers without a predefined color. */

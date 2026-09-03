@@ -7,6 +7,10 @@ import MenuBar from "./MenuBar";
 
 vi.mock("../components/LanguageSwitcher", () => ({
   default: () => <button type="button">Language switcher</button>,
+  LANGUAGE_LIST: [
+    { key: "en", label: "English", icon: <span /> },
+    { key: "zh", label: "简体中文", icon: <span /> },
+  ],
 }));
 
 vi.mock("react-i18next", () => ({
@@ -20,6 +24,11 @@ vi.mock("react-i18next", () => ({
       }
       if (typeof options === "string") return options;
       return options?.name ?? key;
+    },
+    i18n: {
+      resolvedLanguage: "en",
+      language: "en",
+      changeLanguage: () => Promise.resolve(),
     },
   }),
 }));
@@ -38,12 +47,10 @@ beforeEach(() => {
 });
 
 describe("MenuBar notification count", () => {
-  it("includes the shared language switcher", () => {
+  it("renders the settings gear for mode & language switching", () => {
     renderWithProviders(<MenuBar />);
 
-    expect(
-      screen.getByRole("button", { name: "Language switcher" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Settings" })).toBeInTheDocument();
   });
 
   it("hides the count when there are no unread items", () => {

@@ -55,6 +55,7 @@
         "installerIcon": "../../scripts/pack/assets/icon.ico",
         "uninstallerIcon": "../../scripts/pack/assets/icon.ico",
         "installerHooks": "nsis-hooks.nsh",
+        "publisher": "AI Arb - Sum",
         "languages": [
           "English",
           "SimpChinese",

@@ -76,6 +76,10 @@
     background: var(--color-fill-secondary, rgba(0, 101, 253, 0.08));
   }
 
+  &.selected {
+    background: var(--color-fill-secondary, rgba(0, 101, 253, 0.08));
+  }
+
   &.editing .content {
     padding-right: 12px;
   }
@@ -164,6 +168,16 @@
     border: 1px solid var(--colorBorder, #d9d9d9);
     z-index: 1;
   }
+}
+
+/* ── Selection checkbox ───────────────────────────────────────────────── */
+
+.selectCheckbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  flex-shrink: 0;
 }
 
 /* ── Content area ─────────────────────────────────────────────────────── */

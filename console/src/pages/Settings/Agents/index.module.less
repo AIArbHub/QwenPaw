@@ -126,6 +126,38 @@
   color: rgba(20, 20, 19, 0.45);
 }
 
+/* ---- Page-level Tabs (single vs group) ---- */
+
+.pageTabs {
+  padding: 0 16px;
+
+  :global {
+    .aiarb-tabs-nav {
+      margin-bottom: 0;
+
+      &::before {
+        border-bottom: none;
+      }
+    }
+
+    .aiarb-tabs-tab {
+      padding: 12px 0;
+      font-size: 15px;
+      font-weight: 500;
+
+      &.aiarb-tabs-tab-active .aiarb-tabs-tab-btn {
+        font-weight: 600;
+        color: #0065fd;
+      }
+    }
+
+    .aiarb-tabs-ink-bar {
+      background: #0065fd;
+      height: 3px;
+    }
+  }
+}
+
 /* ---- Tabs Row ---- */
 
 .tabsRow {

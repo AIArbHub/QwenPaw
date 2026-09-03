@@ -727,6 +727,7 @@ AIArb needs an LLM provider to work. You can set it up in three ways:
 | OpenCode                           | `opencode`               | `https://opencode.ai/zen/v1`                        | _(any)_        |
 | SiliconFlow (China)                | `siliconflow-cn`         | `https://api.siliconflow.cn/v1`                     | `sk-`          |
 | SiliconFlow (International)        | `siliconflow-intl`       | `https://api.siliconflow.com/v1`                    | `sk-`          |
+| Agnes AI                           | `agnes`                  | `https://apihub.agnes-ai.com/v1`                    | `sk-`          |
 | Custom                             | `custom`                 | _(you set it)_                                      | _(any)_        |
 
 For each provider you need to set:

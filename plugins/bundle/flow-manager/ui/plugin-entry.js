@@ -30,9 +30,8 @@
 
   function apiFetch(path, opts) {
     opts = opts || {};
-    var base = host.getApiUrl("") || "/api";
     var token = host.getApiToken ? host.getApiToken() : "";
-    var url = base + "/pawapps/flow-manager" + path;
+    var url = host.getApiUrl("/flow-manager" + path);
     var headers = opts.headers || {};
     headers["Content-Type"] = "application/json";
     if (token) headers["Authorization"] = "Bearer " + token;

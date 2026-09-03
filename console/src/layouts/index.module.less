@@ -21,6 +21,7 @@
   align-items: center;
   justify-content: space-between;
   background: #ffffff;
+  line-height: 1;
 
   :global {
     .aiarb-space-item {
@@ -208,6 +209,18 @@
       width: calc(100% + 16px);
       margin: 0 -8px;
       padding: 8px 0;
+      gap: 4px;
+
+      // Ensure antd <Button> elements match collapsedNavItem dimensions
+      :global(.aiarb-btn) {
+        width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 10px !important;
+      }
     }
 
     :global {
@@ -387,6 +400,8 @@
 .logoImg {
   height: 16px;
   width: auto;
+  display: block;
+  min-height: 16px;
 }
 
 .logoDivider {
@@ -565,6 +580,31 @@
   justify-content: flex-end;
   gap: 4px;
   background: #ffffff; // match sider background so scrolled content is hidden
+}
+
+// Bottom bar item (inbox, etc.) — used in expanded sidebar mode.
+// Same dimensions as collapsedNavItem so the icon is visible and clickable.
+.bottomBarItem {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.55);
+  transition: all 0.15s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: rgba(0, 0, 0, 0.88);
+  }
+
+  &.inboxShake {
+    animation-name: inboxWobbleLarge;
+  }
 }
 
 .collapseToggle {
@@ -1263,6 +1303,15 @@
   .collapsedNavItemActive {
     background: rgba(0, 101, 253, 0.5) !important;
     color: rgba(255, 255, 255, 0.88) !important;
+  }
+
+  .bottomBarItem {
+    color: rgba(255, 255, 255, 0.5);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.88);
+    }
   }
 
   .codeBlock {

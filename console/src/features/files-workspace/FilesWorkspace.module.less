@@ -89,6 +89,27 @@
   }
 }
 
+.defaultOpenToggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--files-line);
+  border-radius: 9px;
+  color: var(--files-text);
+  background: var(--files-bg);
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+
+  input {
+    accent-color: var(--files-accent);
+    cursor: pointer;
+  }
+}
+
 .iconButton,
 .secondaryButton,
 .primaryButton {
@@ -302,10 +323,10 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.45);
 
   &[data-root="workspace"] {
-    border-color: color-mix(in srgb, #7867b8 18%, var(--files-line));
+    border-color: color-mix(in srgb, var(--files-accent) 16%, var(--files-line));
     background: linear-gradient(
       135deg,
-      color-mix(in srgb, #7867b8 8%, var(--files-bg)),
+      color-mix(in srgb, var(--files-accent) 7%, var(--files-bg)),
       var(--files-bg)
     );
   }
@@ -322,8 +343,8 @@
   background: color-mix(in srgb, var(--files-accent) 11%, transparent);
 
   .directoryContext[data-root="workspace"] & {
-    color: #7867b8;
-    background: color-mix(in srgb, #7867b8 12%, transparent);
+    color: var(--files-accent);
+    background: color-mix(in srgb, var(--files-accent) 11%, transparent);
   }
 }
 
@@ -380,15 +401,7 @@
   }
 }
 
-.directoryContext[data-root="workspace"] .directoryIdentityText {
-  strong {
-    color: #5f4e98;
-  }
-
-  span {
-    color: color-mix(in srgb, #7867b8 72%, var(--files-muted));
-  }
-}
+/* workspace root uses the same accent as project root (blue) */
 
 .directorySwitch {
   width: 28px;
@@ -755,12 +768,7 @@
   }
 }
 
-.navigator[data-root="workspace"] {
-  .sourceTab[data-source="workspace"].sourceTabActive {
-    color: #7867b8;
-    background: #efebfb;
-  }
-}
+/* workspace root no longer overrides the active source tab colour */
 
 .tree {
   flex: 1;
@@ -962,30 +970,7 @@
     }
   }
 
-  .directoryContext {
-    box-shadow: none;
-
-    &[data-root="workspace"] {
-      border-color: color-mix(in srgb, #b8a8ee 20%, var(--files-line));
-    }
-  }
-
-  .directoryIdentityText {
-    strong {
-      color: #d3c8f5;
-    }
-
-    span {
-      color: #a99dc9;
-    }
-  }
-
-  .navigator[data-root="workspace"] {
-    .sourceTab[data-source="workspace"].sourceTabActive {
-      color: #b8a8ee;
-      background: #302946;
-    }
-  }
+  /* workspace root uses the same blue accent as project root */
 
   .profileRow.treeRowSelected {
     color: #b8a8ee;

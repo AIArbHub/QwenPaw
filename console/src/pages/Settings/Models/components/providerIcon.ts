@@ -54,6 +54,8 @@ export const providerIcon = (provider: string) => {
     case "mimo-tokenplan":
     case "mimo":
       return "https://img.alicdn.com/imgextra/i1/O1CN01TSCOAt1XP7fywLDei_!!6000000002915-2-tps-3483-3483.png";
+    case "agnes":
+      return "https://mintcdn.com/agnestech/263eoft2RjfDEy_A/logo/light.svg?fit=max&auto=format&n=263eoft2RjfDEy_A&q=85&s=8c78922716d1926aad638f3c6df6c831";
     default:
       return "https://gw.alicdn.com/imgextra/i4/O1CN01IWnlOw1lebfpiFrIL_!!6000000004844-0-tps-100-100.jpg";
   }

@@ -19,6 +19,11 @@ import type { Route } from "../../plugins/registry/types";
 
 // Lazy pages
 const ChatPage = lazyImportWithRetry("../../pages/Chat");
+// 已隐藏：实验性多实例工作台 — A1 架构已采纳，路由冻结。
+// 如需恢复，取消下方导入注释和路由条目注释。
+// const ChatMultiInstance = lazyImportWithRetry(
+//   "../../pages/Experimental/ChatMultiInstance",
+// );
 const ChannelsPage = lazyImportWithRetry("../../pages/Control/Channels");
 const SessionsPage = lazyImportWithRetry("../../pages/Control/Sessions");
 const InboxPage = lazyImportWithRetry("../../pages/Inbox");
@@ -53,6 +58,18 @@ const BackupsPage = lazyImportWithRetry("../../pages/Settings/Backups");
 const AppCenterPage = lazyImportWithRetry("../../pages/AppCenter");
 const MarketplacePage = lazyImportWithRetry("../../pages/Market");
 const FilesPage = lazyImportWithRetry("../../pages/Files");
+const AgentFilesWorkspacePage = lazyImportWithRetry(
+  "../../pages/Files/AgentFilesWorkspace",
+);
+const AgentFilesPersonaPage = lazyImportWithRetry(
+  "../../pages/Files/AgentFilesPersona",
+);
+const AgentFilesDiaryPage = lazyImportWithRetry(
+  "../../pages/Files/AgentFilesDiary",
+);
+const AgentFilesKBPage = lazyImportWithRetry(
+  "../../pages/Files/AgentFilesKB",
+);
 const MemoryPage = lazyImportWithRetry("../../pages/Memory");
 const KnowledgeBasePage = lazyImportWithRetry(
   "../../pages/KnowledgeBase",
@@ -72,8 +89,35 @@ function ACPRedirect() {
 
 export const BUILTIN_ROUTES: Route[] = [
   { id: "core.root", path: "/", component: DefaultRedirect },
-  { id: "core.chat", path: "/chat/*", component: ChatPage },
+    { id: "core.chat", path: "/chat/*", component: ChatPage },
+  // 已隐藏：实验性多实例工作台 — A1 架构已采纳。
+  // 路由以注释形式保留，供未来恢复使用。
+  // {
+  //   id: "core.chat-workspace",
+  //   path: "/experiments/chat-workspace",
+  //   component: ChatMultiInstance,
+  // },
   { id: "core.files", path: "/files", component: FilesPage },
+  {
+    id: "core.agent-files-workspace",
+    path: "/agent-files/workspace",
+    component: AgentFilesWorkspacePage,
+  },
+  {
+    id: "core.agent-files-persona",
+    path: "/agent-files/persona",
+    component: AgentFilesPersonaPage,
+  },
+  {
+    id: "core.agent-files-diary",
+    path: "/agent-files/diary",
+    component: AgentFilesDiaryPage,
+  },
+  {
+    id: "core.agent-files-kb",
+    path: "/agent-files/kb",
+    component: AgentFilesKBPage,
+  },
   { id: "core.memory", path: "/memory", component: MemoryPage },
   {
     id: "core.knowledge-base",

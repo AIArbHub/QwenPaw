@@ -15,9 +15,16 @@ type MenuTreeItem = MenuItem & { __children?: MenuItem[] };
 
 const NATIVE_WORKSPACE_MENU_IDS = new Set([
   "core.workspace",
+  "core.agent-files-group",
+  "core.agent-files-overview",
+  "core.agent-files-workspace",
+  "core.agent-files-persona",
+  "core.agent-files-diary",
+  "core.agent-files-kb",
   "core.acp",
   "core.agent-config",
   "core.agent-stats",
+  "core.memory",
 ]);
 
 export function filterMenuForAgentCapabilities(

@@ -30,6 +30,35 @@ from .phases import Phase
 logger = logging.getLogger(__name__)
 
 
+def _is_generator_exit() -> bool:
+    """检测当前是否处于 GeneratorExit 异常上下文。
+
+    背景
+    ----
+    ``Runtime.run()`` 是一个 async generator。当 SSE 消费者（前端
+    EventSource / fetch stream）断开连接时，Python 解释器会向该生成器
+    注入 ``GeneratorExit`` 异常，促使其关闭。
+
+    PEP 525 规定：在 ``GeneratorExit`` 异常的 ``finally`` 块中，不允许
+    执行任何可能再次 yield 的 ``await``。否则触发::
+
+        RuntimeError: async generator ignored GeneratorExit
+
+    本函数用于在 ``finally`` 块中判断当前场景，从而决定是同步 await
+    清理逻辑（正常路径），还是将其调度为后台任务（GeneratorExit 路径）。
+
+    实现
+    ----
+    通过 ``sys.exc_info()`` 读取当前正在传播的异常，判断其类型是否为
+    ``GeneratorExit``。在 ``finally`` 块中，被处理的异常仍然可通过
+    ``sys.exc_info()`` 获取。
+    """
+    import sys
+
+    exc = sys.exc_info()[1]
+    return exc is not None and isinstance(exc, GeneratorExit)
+
+
 class Runtime:
     """Per-workspace request orchestrator.
 
@@ -204,20 +233,72 @@ class Runtime:
                 yield ev
             raise
         finally:
-            # Close agent first so governor can flush audit log and persist
-            # policy before downstream FINALLY hooks observe the context.
-            # See ``AIArbAgent.close`` (agents/react_agent.py).
+            # ── 清理阶段：关闭 agent + 执行 FINALLY hooks ──────────────────
+            #
+            # 顺序：先 agent.close()（让 ResourceGovernor 刷审计日志、持久化
+            # 安全策略），再 FINALLY hooks（它们可能读取 ctx 中的状态）。
+            # 详见 ``AIArbAgent.close`` (agents/react_agent.py)。
+            #
+            # ── GeneratorExit 防护（PEP 525）──────────────────────────────
+            #
+            # 本函数 ``Runtime.run()`` 是 async generator。当前端 SSE 消费者
+            # 断开连接（关闭标签页、网络中断、用户停止生成）时，Python 会
+            # 向生成器注入 GeneratorExit 异常，进入此 finally 块。
+            #
+            # PEP 525 禁止在 GeneratorExit 的 finally 中执行可能再次 yield
+            # 的 await——而 agent.close() 和 hooks.run(FINALLY) 内部都包含
+            # await，且 FINALLY hooks 可能通过 envelope yield SSE 事件。
+            # 这会触发 RuntimeError: async generator ignored GeneratorExit。
+            #
+            # 修复策略：
+            #   - GeneratorExit 路径：将清理逻辑调度为后台任务
+            #     (asyncio.ensure_future)，不等待，让生成器立即关闭。
+            #     后台任务在事件循环中独立执行，即使外部任务已取消也能
+            #     完成 agent.close() 和 FINALLY hooks。属于"尽力清理"——
+            #     消费者已经离开，确定性清理不再是硬要求。
+            #   - 正常路径（Completed / CancelledError / 其他异常）：
+            #     同步 await 清理，保证清理在函数返回前完成。
             agent = getattr(ctx, "agent", None)
-            if agent is not None and hasattr(agent, "close"):
+
+            async def _deferred_cleanup():
+                """后台清理任务，独立于 GeneratorExit 传播链执行。
+
+                从 ``finally`` 块中通过 ``asyncio.ensure_future`` 调度，
+                因此不受 GeneratorExit 的 PEP 525 限制。任务内可安全 await。
+                """
+                # 1. 关闭 agent（刷审计日志、持久化安全策略）
+                if agent is not None and hasattr(agent, "close"):
+                    try:
+                        await agent.close()
+                    except Exception:  # pylint: disable=broad-except
+                        logger.warning(
+                            "runtime: agent.close() failed session=%s",
+                            getattr(ctx, "session_id", ""),
+                            exc_info=True,
+                        )
+                # 2. 执行 FINALLY 阶段 hooks（SessionSaveHook 等）
                 try:
-                    await agent.close()
+                    await hooks.run(Phase.FINALLY, ctx)
                 except Exception:  # pylint: disable=broad-except
                     logger.warning(
-                        "runtime: agent.close() failed session=%s",
+                        "runtime: FINALLY hooks failed session=%s",
                         getattr(ctx, "session_id", ""),
                         exc_info=True,
                     )
-            await hooks.run(Phase.FINALLY, ctx)
+
+            try:
+                if _is_generator_exit():
+                    # SSE 消费者已断开——调度后台清理，生成器立即关闭
+                    asyncio.ensure_future(_deferred_cleanup())
+                else:
+                    # 正常完成 / 取消 / 异常——同步等待清理完成
+                    await _deferred_cleanup()
+            except Exception:  # pylint: disable=broad-except
+                logger.warning(
+                    "runtime: finally cleanup failed session=%s",
+                    getattr(ctx, "session_id", ""),
+                    exc_info=True,
+                )
 
     # ----------------------------------------------------------------- helpers
 

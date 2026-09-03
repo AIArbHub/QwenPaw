@@ -61,6 +61,7 @@ export const chatApi = {
     channel?: string;
     archived?: boolean;
     include_app_owned?: boolean;
+    agent_id?: string;
   }) => {
     const searchParams = new URLSearchParams();
     if (params?.user_id) searchParams.append("user_id", params.user_id);
@@ -73,7 +74,12 @@ export const chatApi = {
         String(params.include_app_owned),
       );
     const query = searchParams.toString();
-    return request<ChatSpec[]>(`/chats${query ? `?${query}` : ""}`);
+    return request<ChatSpec[]>(
+      `/chats${query ? `?${query}` : ""}`,
+      params?.agent_id
+        ? { headers: { "X-Agent-Id": params.agent_id } }
+        : undefined,
+    );
   },
 
   createChat: (chat: Partial<ChatSpec>) =>
@@ -84,7 +90,11 @@ export const chatApi = {
 
   getChat: (
     chatId: string,
-    options?: { signal?: AbortSignal; include_app_owned?: boolean },
+    options?: {
+      signal?: AbortSignal;
+      include_app_owned?: boolean;
+      agent_id?: string;
+    },
   ) => {
     const searchParams = new URLSearchParams();
     if (options?.include_app_owned !== undefined)
@@ -97,6 +107,9 @@ export const chatApi = {
       `/chats/${encodeURIComponent(chatId)}${query ? `?${query}` : ""}`,
       {
         signal: options?.signal,
+        headers: options?.agent_id
+          ? { "X-Agent-Id": options.agent_id }
+          : undefined,
       },
     );
   },
@@ -107,9 +120,10 @@ export const chatApi = {
       body: JSON.stringify(chat),
     }),
 
-  deleteChat: (chatId: string) =>
+  deleteChat: (chatId: string, opts?: { agent_id?: string }) =>
     request<ChatDeleteResponse>(`/chats/${encodeURIComponent(chatId)}`, {
       method: "DELETE",
+      headers: opts?.agent_id ? { "X-Agent-Id": opts.agent_id } : undefined,
     }),
 
   batchDeleteChats: (chatIds: string[]) =>

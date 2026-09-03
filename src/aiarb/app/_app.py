@@ -50,6 +50,7 @@ from .exception_handlers import register_exception_handlers
 from .migration import (
     ensure_builtin_arbitration_agents_exists,
     ensure_default_agent_exists,
+    ensure_kb_curator_agent_exists,
     ensure_qa_agent_exists,
     migrate_legacy_skills_to_skill_pool,
     migrate_legacy_workspace_to_default_agent,
@@ -182,6 +183,7 @@ async def lifespan(  # pylint: disable=too-many-statements,too-many-branches
     migrate_legacy_skills_to_skill_pool()
     ensure_qa_agent_exists()
     ensure_builtin_arbitration_agents_exists()
+    ensure_kb_curator_agent_exists()
     ensure_global_knowledge_base()
 
     # Migrate old conversations from sessions/*.json into each scroll agent's

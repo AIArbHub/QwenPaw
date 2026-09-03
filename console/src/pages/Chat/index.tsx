@@ -4,7 +4,7 @@ import {
   type IAgentScopeRuntimeWebUIRef,
 } from "@agentscope-ai/chat";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Button, Modal, Result, Tooltip } from "antd";
+import { Alert, Button, Modal, Result, Select, Tooltip } from "antd";
 import { useAppMessage } from "../../hooks/useAppMessage";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { ExclamationCircleOutlined, SettingOutlined } from "@ant-design/icons";
@@ -15,6 +15,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import i18n from "../../i18n";
 import { useLocation, useNavigate } from "react-router-dom";
 import sessionApi from "./sessionApi";
+import { useChatScope, useChatSessionApi } from "./sessionScope";
 import {
   getDraftStorageKey,
   parseDraft,
@@ -33,7 +34,9 @@ import {
   AIARB_CLIENT_MESSAGE_ID_KEY,
 } from "../../utils/clientMessageId";
 import defaultConfig, { getDefaultConfig } from "./OptionsPanel/defaultConfig";
+import RotatingDisclaimer from "./components/RotatingDisclaimer";
 import { chatApi } from "../../api/modules/chat";
+import { groupChatsApi } from "../../api/modules/groupChats";
 import { agentApi } from "../../api/modules/agent";
 import { skillApi } from "../../api/modules/skill";
 import { getApiUrl } from "../../api/config";
@@ -60,6 +63,7 @@ import { IconButton } from "@agentscope-ai/design";
 import ChatActionGroup from "./components/ChatActionGroup";
 import ChatSessionDrawer from "./components/ChatSessionDrawer";
 import { useSidebarModeStore } from "../../stores/sidebarModeStore";
+import { useGroupChatSettingsStore } from "../../stores/groupChatSettingsStore";
 import ContextUsageIndicator from "./components/ContextUsageIndicator";
 import {
   patchContextMaxInputLength,
@@ -68,6 +72,7 @@ import {
 import { wrapReplayFastForward } from "./replayFastForward";
 import { useTurnUsageStore } from "./turnUsageStore";
 import ChatHeaderTitle from "./components/ChatHeaderTitle";
+import GroupChatControlBar from "../../components/GroupChatControlBar";
 import {
   buildFallbackSystemMessage,
   modelFallbackEventKey,
@@ -115,6 +120,7 @@ import type {
   FilesDrawerEvent,
   FileTarget,
 } from "../../features/files-workspace/types";
+import { isDefaultOpenWorkspaceEnabled } from "../../features/files-workspace/defaultOpenWorkspacePreference";
 import { chatProjectDirectoryApi } from "../../api/modules/chatProjectDirectory";
 import { projectDirectoryApi } from "../../api/modules/projectDirectory";
 import {
@@ -423,6 +429,9 @@ async function startBackgroundQueue(
             user_id: item.userId || DEFAULT_USER_ID,
             channel: item.channel || DEFAULT_CHANNEL,
             stream: true,
+            request_context: {
+              group_chat_native: useGroupChatSettingsStore.getState().enabled,
+            },
           },
           queueAgentId,
           queueKey,
@@ -1149,15 +1158,46 @@ const HISTORY_PANEL_STORAGE_KEY = "aiarb_history_panel_open";
 const isLocalTimestampId = (id: string | null | undefined): boolean =>
   !!id && /^\d+-[a-z0-9]+$/.test(id);
 
-export default function ChatPage() {
+/**
+ * Optional per-instance overrides used by the experimental multi-instance
+ * host. Legacy single-chat route renders ChatPage with no props and derives
+ * everything from the URL / global stores.
+ */
+export interface ChatPageProps {
+  /** Override the route-derived chat id for a hosted session. */
+  chatId?: string | null;
+  /** Override the selected-agent binding for a hosted session. */
+  agentId?: string;
+}
+
+export default function ChatPage(props: ChatPageProps = {}) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { isDark } = useTheme();
-  const { selectedAgent, agents } = useAgentStore();
+  const { agents } = useAgentStore();
+  const storeSelectedAgent = useAgentStore((s) => s.selectedAgent);
+  const scopedAgentId = useChatScope().agentId;
+  // In the multi-instance host the session runtime is per-instance: read the
+  // scoped SessionApi so each tab uses its OWN session list / agent-bound
+  // instance (falling back to the module singleton on the legacy single-chat
+  // route where no scope is present). Module-level background helpers that run
+  // outside this component continue to use the imported singleton.
+  const sessionApi = useChatSessionApi();
+  // In the multi-instance host the agent binding comes from the session scope;
+  // otherwise fall back to the global selection (legacy single-chat path).
+  const selectedAgent = scopedAgentId ?? storeSelectedAgent;
+  // Whether this ChatPage is mounted inside a multi-instance scope. Mirrored to
+  // a ref so background helpers read a stable capture without re-registering
+  // effect deps. In multi-instance mode we must NOT write the shared
+  // window.currentSessionId (identity is per-instance).
+  const hasScopeRef = useRef(
+    Boolean(useChatScope().sessionApi) || Boolean(scopedAgentId),
+  );
+  const routeChatId = getSessionIdFromPath(location.pathname);
   const chatId = useMemo(
-    () => getSessionIdFromPath(location.pathname),
-    [location.pathname],
+    () => props.chatId ?? routeChatId,
+    [props.chatId, routeChatId],
   );
   const queueSessionId = chatId ?? sessionApi.lastActiveChatId ?? "new";
   const backendChatId = resolveBackendChatId(chatId);
@@ -1209,6 +1249,44 @@ export default function ChatPage() {
   }, [currentSessionFilesScopeKey, dispatchFilesDrawer]);
   const loopAvailableModes = useLoopStore((state) => state.availableModes);
 
+  // Auto-open the files workspace when entering a new chat session for the
+  // first time.  A ref tracks which scope keys have been seen so the drawer
+  // only opens once per session — if the user closes it, it stays closed.
+  // By default this is disabled: the workspace stays closed on a new session
+  // unless the user has opted into auto-open (see
+  // features/files-workspace/defaultOpenWorkspacePreference.ts).
+  const autoOpenedScopes = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (autoOpenedScopes.current.has(currentSessionFilesScopeKey)) return;
+    if (!isDefaultOpenWorkspaceEnabled()) return;
+    autoOpenedScopes.current.add(currentSessionFilesScopeKey);
+    // Only auto-open if the drawer is currently closed (not already opened
+    // by a file preview or user action).
+    const current = useFilesSurfaceStore.getState().sessionDrawers[
+      currentSessionFilesScopeKey
+    ];
+    if (!current || current.kind === "closed") {
+      dispatchFilesDrawer({ type: "OPEN_WORKSPACE", trigger: null });
+    }
+  }, [currentSessionFilesScopeKey, dispatchFilesDrawer]);
+
+  // Sync the group-chat native setting from backend config on mount.
+  // The store reads localStorage for instant display, but the backend
+  // config.json is the source of truth (and is included in backups).
+  const syncGroupChatSettings = useRef(false);
+  useEffect(() => {
+    if (syncGroupChatSettings.current) return;
+    syncGroupChatSettings.current = true;
+    useGroupChatSettingsStore.getState().syncFromBackend();
+  }, []);
+
+  // M1 HITL: Fetch group chat members when group chat is enabled.
+  //
+  // NOTE: moved below the `groupChatEnabled` declaration to avoid a TDZ
+  // (temporal dead zone) reference — the dependency array evaluates
+  // `groupChatEnabled` at render time before the const is initialized,
+  // which crashes the ChatPage with "Cannot access 'groupChatEnabled'
+  // before initialization".
   useEffect(() => {
     const openPreview = (event: Event) => {
       const customEvent = event as CustomEvent<{
@@ -1312,6 +1390,57 @@ export default function ChatPage() {
   const backendControlsRef = useRef<Record<string, unknown>>({});
   const runningConfigApprovalLevel = useAgentRunningConfigApprovalLevel();
 
+  // M1 HITL: Sender identity selection for group chat inject.
+  // null = normal mode (send as "me" to host). A member_id = inject as that member.
+  const senderIdentityRef = useRef<string | null>(null);
+  const [senderIdentity, setSenderIdentity] = useState<string | null>(null);
+  const [groupChatMembers, setGroupChatMembers] = useState<
+    Array<{ agent_id: string; name: string; controller: string }>
+  >([]);
+
+  // M1 HITL: Sync senderIdentityRef whenever the state changes.
+  useEffect(() => {
+    senderIdentityRef.current = senderIdentity;
+  }, [senderIdentity]);
+
+  const groupChatEnabled = useGroupChatSettingsStore(
+    (s) => s.enabled,
+  );
+
+  // M1 HITL: Fetch group chat members when group chat is enabled.
+  // This populates the sender identity dropdown. Declared after
+  // `groupChatEnabled` so the dependency array has no TDZ reference.
+  useEffect(() => {
+    if (!groupChatEnabled || !selectedAgent || !queueSessionId || queueSessionId === "new") {
+      setGroupChatMembers([]);
+      return;
+    }
+    let cancelled = false;
+    const fetchMembers = async () => {
+      try {
+        const state = await groupChatsApi.getGroupChat(selectedAgent, queueSessionId);
+        if (!cancelled) {
+          setGroupChatMembers(
+            state.members.map((m) => ({
+              agent_id: m.agent_id,
+              name: m.name,
+              controller: m.controller,
+            })),
+          );
+        }
+      } catch {
+        // Not a group chat or not found — silently ignore
+        if (!cancelled) setGroupChatMembers([]);
+      }
+    };
+    void fetchMembers();
+    const interval = setInterval(fetchMembers, 5000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [groupChatEnabled, selectedAgent, queueSessionId]);
+
   // Track pending attachments for queue support
   const pendingFileListRef = useRef<
     {
@@ -1381,12 +1510,33 @@ export default function ChatPage() {
     };
   }, [queueSessionId]);
 
+  // M-A1-1: On mount or URL chatId change, immediately reset
+  // window.currentSessionId so it doesn't linger on the previous session.
+  // Without this, getSession() takes a network round-trip to complete,
+  // during which any code reading window.currentSessionId would see the
+  // stale value from the previous tab, causing the panel to briefly show
+  // the wrong session. Only applies on the legacy single-chat route (no
+  // scope); multi-instance identity lives in per-instance fields.
+  useEffect(() => {
+    if (hasScopeRef.current) return;
+    if (!chatId) return;
+    const w = window as unknown as { currentSessionId?: string };
+    // Only update if different to avoid redundant writes.
+    if (w.currentSessionId !== chatId) {
+      w.currentSessionId = chatId;
+    }
+  }, [chatId]);
+
   const syncLoopModeStatus = useCallback(() => {
+    // Prefer the instance-mapped backend id: in multi-instance mode the queue
+    // session id resolves to this tab's own backend session, avoiding a hidden
+    // tab picking up the focused tab's window.currentSessionId.
     const backendSessionId =
-      window.currentSessionId ||
       (queueSessionId !== "new"
         ? sessionApi.getBackendSessionId(queueSessionId)
-        : "");
+        : "") ||
+      window.currentSessionId ||
+      "";
     return fetchActiveLoopMode({
       chatId,
       sessionId: backendSessionId,
@@ -1400,8 +1550,7 @@ export default function ChatPage() {
     if (chatId) {
       void fetchActiveLoopMode({
         chatId,
-        sessionId:
-          window.currentSessionId || sessionApi.getBackendSessionId(chatId),
+        sessionId: sessionApi.getBackendSessionId(chatId) || window.currentSessionId,
         signal: controller.signal,
       });
     }
@@ -1491,8 +1640,10 @@ export default function ChatPage() {
         useMessageQueueStore.getState().remove(queueSessionId, next.id);
         // Force-set window.currentSessionId from the queue item's snapshot
         // so customFetch uses the correct session_id, even if the global
-        // was overwritten by a recent agent switch.
-        if (next.backendSessionId) {
+        // was overwritten by a recent agent switch. Only needed on the legacy
+        // single-chat route: multi-instance identity lives in per-instance
+        // fields, so writing the global would clobber other tabs.
+        if (next.backendSessionId && !hasScopeRef.current) {
           (
             window as unknown as { currentSessionId?: string }
           ).currentSessionId = next.backendSessionId;
@@ -1581,6 +1732,30 @@ export default function ChatPage() {
       }
       return next;
     });
+  }, []);
+
+  // 中栏「历史会话」入口：通过全局事件打开右侧原生聊天历史面板。
+  useEffect(() => {
+    const openHistory = () => {
+      setHistoryPanelOpen(true);
+      try {
+        localStorage.setItem(HISTORY_PANEL_STORAGE_KEY, "true");
+      } catch {
+        // storage unavailable
+      }
+    };
+    window.addEventListener("aiarb:open-history-panel", openHistory);
+
+    // 从中栏其他页面跳转过来时，挂载后处理待打开历史面板的标记。
+    const pending = sessionStorage.getItem("aiarb_pending_open_history");
+    if (pending) {
+      sessionStorage.removeItem("aiarb_pending_open_history");
+      requestAnimationFrame(openHistory);
+    }
+
+    return () => {
+      window.removeEventListener("aiarb:open-history-panel", openHistory);
+    };
   }, []);
   const [chatSkills, setChatSkills] = useState<SkillSpec[]>([]);
   const consoleSkills = useMemo(
@@ -1999,20 +2174,27 @@ export default function ChatPage() {
       }
       const queueText = prepareLoopModeMessage(val);
       const enqueueIdentity = sessionApi.getSessionIdentity();
-      useMessageQueueStore.getState().enqueue(queueSessionId, {
-        text: queueText,
-        attachments:
-          pendingFileListRef.current.length > 0
-            ? pendingFileListRef.current.map((f) => ({
-                url: f.url,
-                name: f.name,
-                type: f.type,
-                size: f.size,
-              }))
-            : undefined,
-        userId: enqueueIdentity.userId,
-        channel: enqueueIdentity.channel,
-      });
+      const enqueueBackendSessionId =
+        sessionApi.getBackendSessionId(queueSessionId) ||
+        enqueueIdentity.sessionId;
+      useMessageQueueStore.getState().enqueue(
+        queueSessionId,
+        {
+          text: queueText,
+          attachments:
+            pendingFileListRef.current.length > 0
+              ? pendingFileListRef.current.map((f) => ({
+                  url: f.url,
+                  name: f.name,
+                  type: f.type,
+                  size: f.size,
+                }))
+              : undefined,
+          userId: enqueueIdentity.userId,
+          channel: enqueueIdentity.channel,
+        },
+        enqueueBackendSessionId,
+      );
       // Clear tracked attachments after enqueuing
       pendingFileListRef.current = [];
       setTextareaValue(textarea, "");
@@ -2292,7 +2474,14 @@ export default function ChatPage() {
         setLastChatIdRef.current,
         selectedAgentRef.current,
       );
-      navigateRef.current(buildCurrentSessionPath(realId), { replace: true });
+      // Multi-instance scope: do NOT drive the real SPA router. The workspace
+      // host owns tab switching; navigating here would kick the whole app out
+      // of /experiments/chat-workspace into the legacy /chat route. The scoped
+      // sessionApi keeps the temp→real mapping (resolveRealId) so re-mounts bind
+      // correctly via preferredChatId without any URL change.
+      if (!hasScopeRef.current) {
+        navigateRef.current(buildCurrentSessionPath(realId), { replace: true });
+      }
     };
 
     sessionApi.onSessionRemoved = (removedId) => {
@@ -2401,9 +2590,13 @@ export default function ChatPage() {
           setLastChatIdRef.current,
           selectedAgentRef.current,
         );
-        navigateRef.current(buildCurrentSessionPath(resolvedTarget), {
-          replace: true,
-        });
+        // Multi-instance scope: don't rewrite the SPA URL when the SDK session
+        // selection changes inside a workspace panel; the host drives tabs.
+        if (!hasScopeRef.current) {
+          navigateRef.current(buildCurrentSessionPath(resolvedTarget), {
+            replace: true,
+          });
+        }
       }
     };
 
@@ -2431,7 +2624,11 @@ export default function ChatPage() {
       } else {
         setLastChatIdRef.current(selectedAgentRef.current, sessionId);
       }
-      navigateRef.current(buildCurrentBasePath(), { replace: true });
+      // Multi-instance scope: keep the workspace panel where it is; a new chat
+      // inside a panel must not navigate the whole app back to /chat.
+      if (!hasScopeRef.current) {
+        navigateRef.current(buildCurrentBasePath(), { replace: true });
+      }
     };
 
     return () => {
@@ -2654,6 +2851,22 @@ export default function ChatPage() {
         };
       }
 
+      // Inject the native group-chat runtime flag from local settings so
+      // the backend can decide whether to use the orchestration runtime.
+      // This is read by _should_use_group_runtime in channel.py.
+      {
+        const groupChatEnabled = useGroupChatSettingsStore.getState().enabled;
+        const existingContext =
+          requestBody.request_context &&
+          typeof requestBody.request_context === "object"
+            ? (requestBody.request_context as Record<string, unknown>)
+            : {};
+        requestBody.request_context = {
+          ...existingContext,
+          group_chat_native: groupChatEnabled,
+        };
+      }
+
       const backendChatId =
         sessionApi.getRealIdForSession(String(requestBody.session_id || "")) ??
         chatIdRef.current ??
@@ -2685,6 +2898,42 @@ export default function ChatPage() {
         }
       }
 
+      // M1 HITL: If sender identity is a member (not null), redirect to
+      // the group-chats inject API instead of the normal /console/chat.
+      // The user's text is extracted from the request input.
+      const identityMemberId = senderIdentityRef.current;
+      if (identityMemberId && selectedAgent && queueSessionId) {
+        const userText = rewrittenInput
+          .filter((m) => m.role === "user")
+          .map(extractUserMessageText)
+          .join("\n")
+          .trim();
+        if (userText) {
+          try {
+            await groupChatsApi.injectTurn({
+              host_agent_id: selectedAgent,
+              session_id: queueSessionId,
+              member_id: identityMemberId,
+              text: userText,
+            });
+            // Return an empty successful response so the SDK does not error.
+            // The injected turn will appear as a member bubble via SSE.
+            const emptyBody = new ReadableStream({
+              start(controller) {
+                controller.close();
+              },
+            });
+            return new Response(emptyBody, {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            });
+          } catch (e) {
+            console.warn("[Chat] inject turn failed", e);
+            // Fall through to normal send on failure
+          }
+        }
+      }
+
       headlineStreamFilterRef.current = createHeadlineFilterState();
 
       const response = await fetch(getApiUrl("/console/chat"), {
@@ -2708,7 +2957,7 @@ export default function ChatPage() {
 
       return wrapChatResponseUsageStream(response, chatRef, usageTurn);
     },
-    [extLists, selectedAgent, runningConfigApprovalLevel, usesAIArbBackend],
+    [extLists, selectedAgent, runningConfigApprovalLevel, usesAIArbBackend, queueSessionId],
   );
 
   const handleFileUpload = useCallback(
@@ -2867,6 +3116,27 @@ export default function ChatPage() {
         const textarea = getActiveSenderTextarea();
         const val = textarea?.value.trim() ?? "";
         if (!val) return false;
+
+        // M1 HITL: If a member identity is selected, inject directly
+        // (inject API is not streaming — no need for queue/owner pattern).
+        const identityMemberId = senderIdentityRef.current;
+        if (identityMemberId && selectedAgent && queueSessionId) {
+          try {
+            await groupChatsApi.injectTurn({
+              host_agent_id: selectedAgent,
+              session_id: queueSessionId,
+              member_id: identityMemberId,
+              text: val,
+            });
+          } catch (e) {
+            console.warn("[Chat] inject turn (non-owner) failed", e);
+          }
+          if (textarea) setTextareaValue(textarea, "");
+          localStorage.removeItem(getDraftStorageKey(selectedAgent));
+          draftSuppressed = true;
+          return false;
+        }
+
         const currentQ = useMessageQueueStore
           .getState()
           .getQueue(queueSessionId);
@@ -2878,20 +3148,27 @@ export default function ChatPage() {
           ? prepareLoopModeMessage(val)
           : val;
         const enqueueIdentity = sessionApi.getSessionIdentity();
-        useMessageQueueStore.getState().enqueue(queueSessionId, {
-          text: queueText,
-          attachments:
-            pendingFileListRef.current.length > 0
-              ? pendingFileListRef.current.map((f) => ({
-                  url: f.url,
-                  name: f.name,
-                  type: f.type,
-                  size: f.size,
-                }))
-              : undefined,
-          userId: enqueueIdentity.userId,
-          channel: enqueueIdentity.channel,
-        });
+        const enqueueBackendSessionId =
+          sessionApi.getBackendSessionId(queueSessionId) ||
+          enqueueIdentity.sessionId;
+        useMessageQueueStore.getState().enqueue(
+          queueSessionId,
+          {
+            text: queueText,
+            attachments:
+              pendingFileListRef.current.length > 0
+                ? pendingFileListRef.current.map((f) => ({
+                    url: f.url,
+                    name: f.name,
+                    type: f.type,
+                    size: f.size,
+                  }))
+                : undefined,
+            userId: enqueueIdentity.userId,
+            channel: enqueueIdentity.channel,
+          },
+          enqueueBackendSessionId,
+        );
         pendingFileListRef.current = [];
         if (textarea) setTextareaValue(textarea, "");
         // Clear sender attachment preview (deferred to next tick)
@@ -3173,6 +3450,12 @@ export default function ChatPage() {
                 message={t("chat.queue.otherTabOwner")}
               />
             )}
+            {groupChatEnabled && selectedAgent && queueSessionId && queueSessionId !== "new" && (
+              <GroupChatControlBar
+                hostAgentId={selectedAgent}
+                sessionId={queueSessionId}
+              />
+            )}
             <ChatSenderTabsPanel
               bgSessionId={bgBackendSessionId}
               queueSessionId={queueSessionId}
@@ -3199,6 +3482,30 @@ export default function ChatPage() {
               <LoopModeSelector
                 className={isMobile ? styles.mobileComposerControl : undefined}
                 compact={isMobile}
+              />
+            )}
+            {groupChatEnabled && groupChatMembers.length > 0 && (
+              <Select
+                size="small"
+                variant="borderless"
+                style={{ minWidth: 120, maxWidth: 200 }}
+                popupMatchSelectWidth={false}
+                value={senderIdentity ?? "__host__"}
+                onChange={(val: string) => {
+                  setSenderIdentity(val === "__host__" ? null : val);
+                }}
+                options={[
+                  {
+                    value: "__host__",
+                    label: t("chat.groupChat.senderHost"),
+                  },
+                  ...groupChatMembers.map((m) => ({
+                    value: m.agent_id,
+                    label: t("chat.groupChat.senderAsMember", {
+                      name: m.name || m.agent_id,
+                    }),
+                  })),
+                ]}
               />
             )}
             {pluginSenderPrefix}
@@ -3303,7 +3610,9 @@ export default function ChatPage() {
             }
           : {}),
         placeholder: extPlaceholder ?? t("chat.inputPlaceholder"),
-        ...(extDisclaimer !== undefined ? { disclaimer: extDisclaimer } : {}),
+        ...(extDisclaimer !== undefined
+          ? { disclaimer: extDisclaimer }
+          : { disclaimer: <RotatingDisclaimer /> }),
         suggestions: [...baseSuggestions, ...activePluginSuggestions],
       },
       session: {

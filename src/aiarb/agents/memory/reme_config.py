@@ -555,7 +555,7 @@ def _base_config() -> dict[str, Any]:
                     },
                 ],
             },
-            # QwenPaw schedules Daily Paper through ServiceCronJob using the
+            # aiarb schedules Daily Paper through ServiceCronJob using the
             # per-agent cron configuration. Override the plugin's fixed 08:00
             # CronJob so enabling its backends does not run the job twice.
             "daily_paper_cron": {
@@ -563,7 +563,7 @@ def _base_config() -> dict[str, Any]:
                 "enable_serve": False,
                 "steps": [],
             },
-            # Auto Fin is available for explicit execution, but QwenPaw must
+            # Auto Fin is available for explicit execution, but aiarb must
             # not inherit the plugin's fixed daily schedule.
             "auto_fin_cron": {
                 "backend": "base",

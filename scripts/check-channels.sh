@@ -106,13 +106,13 @@ if [ "$CHECK_CHANGED" -eq 1 ]; then
             sed -nE '\#^tests/unit/channels/test_.*\.py$#p'
     )"
 
-    if grep -qE '^(src/qwenpaw/app/channels/[^/]+\.py|tests/contract(/channels)?/__init__\.py|tests/(conftest\.py|unit/channels/(conftest|__init__)\.py)|scripts/(check-channels\.sh|check_channel_contracts\.py))$' <<<"$ALL_CHANGED"; then
+    if grep -qE '^(src/aiarb/app/channels/[^/]+\.py|tests/contract(/channels)?/__init__\.py|tests/(conftest\.py|unit/channels/(conftest|__init__)\.py)|scripts/(check-channels\.sh|check_channel_contracts\.py))$' <<<"$ALL_CHANGED"; then
         echo -e "${YELLOW}BaseChannel or common code changed; testing all channels.${NC}"
         CHANNELS="all"
     else
         SOURCE_DIRS="$(
             printf '%s\n' "$ALL_CHANGED" |
-                sed -nE 's#^src/qwenpaw/app/channels/([^/]+)/.*#\1#p' |
+                sed -nE 's#^src/aiarb/app/channels/([^/]+)/.*#\1#p' |
                 sort -u
         )"
         SOURCE_CHANNELS=""

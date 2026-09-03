@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useMemo } from "react";
-import { Card, Button, Form, Input } from "antd";
+import { Card, Button, Form, Input, Tabs } from "antd";
 import { useAppMessage } from "../../../hooks/useAppMessage";
 import {
   PlusOutlined,
@@ -8,13 +8,14 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { agentsApi } from "../../../api/modules/agents";
 import { invalidateSkillCache, skillApi } from "../../../api/modules/skill";
 import type { AgentSummary, CopyAgentRequest } from "../../../api/types/agents";
 import { useAgentStore } from "../../../stores/agentStore";
 import { useAgents } from "./useAgents";
 import { useAgentStatsBatch } from "./hooks/useAgentStatsBatch";
+import CreateGroupChatModal from "../../../components/CreateGroupChatModal";
 import {
   AgentTable,
   AgentCard,
@@ -26,13 +27,16 @@ import { MAIL_DOMAIN_WHITELIST } from "./components/mailDomains";
 import { PageHeader } from "@/components/PageHeader";
 import { UnderlineTabs } from "@/components/UnderlineTabs";
 import { reorderAgents } from "./reorder";
+import { isHostAgent } from "../../../utils/hostAgent";
 import styles from "./index.module.less";
 
 type FilterMode = "all" | "enabled" | "disabled";
+type AgentTypeMode = "single" | "group";
 
 export default function AgentsPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const {
     agents,
     loading,
@@ -43,7 +47,13 @@ export default function AgentsPage() {
     setAgents,
   } = useAgents();
   const { selectedAgent, setSelectedAgent } = useAgentStore();
-  const { statsMap } = useAgentStatsBatch();
+
+  // 会话统计：仅对当前正在展示的智能体批量拉取，避免无谓请求。
+  const agentIds = useMemo(
+    () => (agents || []).map((a) => a.id),
+    [agents],
+  );
+  const { statsMap } = useAgentStatsBatch(agentIds);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingAgent, setEditingAgent] = useState<AgentSummary | null>(null);
   const [copyModalVisible, setCopyModalVisible] = useState(false);
@@ -59,16 +69,36 @@ export default function AgentsPage() {
 
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
+  const [createGroupOpen, setCreateGroupOpen] = useState(false);
+  const [typeMode, setTypeMode] = useState<AgentTypeMode>(() =>
+    searchParams.get("type") === "group" ? "group" : "single",
+  );
   const [searchQuery, setSearchQuery] = useState("");
 
-  const enabledCount = useMemo(
-    () => agents.filter((a) => a.enabled).length,
+  // 区分单个智能体与群聊（host）智能体：默认仅展示单个智能体，
+  // 群聊保持入口（typeMode 切到 "group" 后显示）。
+  const singleAgents = useMemo(
+    () => (agents || []).filter((a) => !isHostAgent(a)),
     [agents],
   );
-  const disabledCount = agents.length - enabledCount;
+  const groupAgents = useMemo(
+    () => (agents || []).filter((a) => isHostAgent(a)),
+    [agents],
+  );
+  const typeCounts = useMemo(
+    () => ({ single: singleAgents.length, group: groupAgents.length }),
+    [singleAgents, groupAgents],
+  );
+
+  const enabledCount = useMemo(
+    () => (typeMode === "single" ? singleAgents : groupAgents).filter((a) => a.enabled).length,
+    [singleAgents, groupAgents, typeMode],
+  );
+  const typeBaseAgents = typeMode === "single" ? singleAgents : groupAgents;
+  const disabledCount = typeBaseAgents.length - enabledCount;
 
   const filteredAgents = useMemo(() => {
-    let result = agents;
+    let result = typeBaseAgents;
     if (filterMode === "enabled") {
       result = result.filter((a) => a.enabled);
     } else if (filterMode === "disabled") {
@@ -84,7 +114,7 @@ export default function AgentsPage() {
       );
     }
     return result;
-  }, [agents, filterMode, searchQuery]);
+  }, [typeBaseAgents, filterMode, searchQuery]);
 
   const handleCreate = () => {
     setEditingAgent(null);
@@ -373,17 +403,49 @@ export default function AgentsPage() {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={handleCreate}
+              onClick={
+                typeMode === "single" ? handleCreate : () => setCreateGroupOpen(true)
+              }
+              title={
+                typeMode === "single"
+                  ? t("agent.createTitle", "创建新智能体")
+                  : t("hostModal.title", "新建群聊")
+              }
             >
-              {t("agent.create")}
+              {typeMode === "single"
+                ? t("agent.create", "创建智能体")
+                : t("hostModal.create", "创建群聊")}
             </Button>
           </div>
         }
       />
 
+      <div className={styles.pageTabs}>
+        <Tabs
+          activeKey={typeMode}
+          onChange={(key) => {
+            const next = key as AgentTypeMode;
+            setTypeMode(next);
+            const params = new URLSearchParams(searchParams);
+            params.set("type", next);
+            setSearchParams(params, { replace: true });
+          }}
+          items={[
+            {
+              key: "single",
+              label: `${t("agent.typeSingle")} (${typeCounts.single})`,
+            },
+            {
+              key: "group",
+              label: `${t("agent.typeGroup")} (${typeCounts.group})`,
+            },
+          ]}
+        />
+      </div>
+
       <div className={styles.statsRow}>
         <div className={styles.statCard}>
-          <span className={styles.statNum}>{agents.length}</span>
+          <span className={styles.statNum}>{typeBaseAgents.length}</span>
           <span className={styles.statLbl}>{t("agent.statsTotal")}</span>
         </div>
         <div className={styles.statCard}>
@@ -399,7 +461,7 @@ export default function AgentsPage() {
       <div className={styles.tabsRow}>
         <UnderlineTabs
           items={[
-            { key: "all", label: t("agent.filterAll"), count: agents.length },
+            { key: "all", label: t("agent.filterAll"), count: typeBaseAgents.length },
             {
               key: "enabled",
               label: t("agent.filterEnabled"),
@@ -449,6 +511,8 @@ export default function AgentsPage() {
               onChat={handleChat}
               onDelete={handleDelete}
               onToggle={handleToggle}
+              onPin={handlePin}
+              onCopy={handleOpenCopy}
             />
           ))}
         </div>
@@ -477,6 +541,16 @@ export default function AgentsPage() {
         onInstalledSkillsLoaded={handleInstalledSkillsLoaded}
         onSave={handleSubmit}
         onCancel={() => setModalVisible(false)}
+      />
+
+      <CreateGroupChatModal
+        open={createGroupOpen}
+        onCancel={() => setCreateGroupOpen(false)}
+        navigate={navigate}
+        onCreated={() => {
+          setCreateGroupOpen(false);
+          void loadAgents();
+        }}
       />
 
       <CopyAgentModal

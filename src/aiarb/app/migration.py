@@ -13,6 +13,7 @@ from ..agents.templates import (
     ARBITRATOR_TEMPLATE,
     CLAIMANT_TEMPLATE,
     DEFAULT_AGENT_TEMPLATE,
+    KB_CURATOR_TEMPLATE,
     QA_AGENT_TEMPLATE,
     RESPONDENT_TEMPLATE,
     SECRETARY_TEMPLATE,
@@ -28,7 +29,7 @@ from ..config.config import (
     HeartbeatConfig,
     MCPConfig,
     ToolsConfig,
-    build_local_agent_tools_config,
+    build_arbitration_tools_config,
     load_agent_config,
     save_agent_config,
 )
@@ -37,6 +38,7 @@ from ..constant import (
     BUILTIN_ARBITRATION_GROUP,
     BUILTIN_ARBITRATOR_AGENT_ID,
     BUILTIN_CLAIMANT_AGENT_ID,
+    BUILTIN_KB_CURATOR_AGENT_ID,
     BUILTIN_MOCK_ARBITRATION_AGENT_ID,
     BUILTIN_QA_AGENT_ID,
     BUILTIN_RESPONDENT_AGENT_ID,
@@ -914,6 +916,92 @@ def _do_ensure_qa_agent() -> None:
     )
 
 
+def ensure_kb_curator_agent_exists() -> None:
+    """Ensure the builtin knowledge-base curator agent profile exists.
+
+    The curator is a fixed, protected agent: users cannot create a profile
+    with its id (reserved), and the agent cannot be deleted or disabled.
+    On **first creation** only, skills are seeded and tools are restricted to
+    the curation set (see ``build_kb_curator_tools_config``).  Later startups
+    leave existing profiles and workspaces untouched.
+    """
+    try:
+        _do_ensure_kb_curator_agent()
+    except Exception as e:
+        logger.error(
+            f"Failed to ensure KB curator agent exists: {e}. "
+            "KB curator agent will not be available.",
+            exc_info=True,
+        )
+
+
+def _do_ensure_kb_curator_agent() -> None:
+    """Internal implementation of KB curator agent initialization."""
+    from .routers.agents import _initialize_agent_workspace
+
+    config = load_config()
+    curator_id = BUILTIN_KB_CURATOR_AGENT_ID
+
+    if curator_id in config.agents.profiles:
+        agent_ref = config.agents.profiles[curator_id]
+        curator_workspace = Path(agent_ref.workspace_dir).expanduser()
+        agent_existed = True
+    else:
+        curator_workspace = Path(
+            f"{WORKING_DIR}/workspaces/{curator_id}",
+        ).expanduser()
+        agent_existed = False
+
+    curator_workspace.mkdir(parents=True, exist_ok=True)
+
+    _ensure_workspace_json_files(curator_workspace, "KB curator agent")
+
+    if agent_existed:
+        return
+
+    other_id = _other_agent_owns_workspace(
+        config.agents.profiles,
+        curator_workspace,
+        curator_id,
+    )
+    if other_id is not None:
+        logger.warning(
+            "Skipping builtin KB curator profile %r: workspace %s is already "
+            "used by agent %r. Point that agent to another directory "
+            "or remove it from config before the builtin curator slot can "
+            "be created.",
+            curator_id,
+            curator_workspace,
+            other_id,
+        )
+        return
+
+    logger.info("Creating builtin KB curator agent...")
+    template_result = build_agent_template(
+        KB_CURATOR_TEMPLATE,
+        agent_id=curator_id,
+        workspace_dir=curator_workspace,
+        fallback_language=config.agents.language or "zh",
+    )
+
+    _initialize_agent_workspace(
+        curator_workspace,
+        skill_names=list(template_result.initial_skill_names),
+        md_template_id=template_result.md_template_id,
+    )
+
+    config.agents.profiles[curator_id] = AgentProfileRef(
+        id=curator_id,
+        workspace_dir=str(curator_workspace),
+    )
+    save_config(config)
+    save_agent_config(curator_id, template_result.agent_config)
+    logger.info(
+        "Created builtin KB curator agent with workspace: %s",
+        curator_workspace,
+    )
+
+
 _BUILTIN_ARBITRATION_ROLE_AGENTS: tuple[tuple[str, str], ...] = (
     (ARBITRATOR_TEMPLATE, BUILTIN_ARBITRATOR_AGENT_ID),
     (CLAIMANT_TEMPLATE, BUILTIN_CLAIMANT_AGENT_ID),
@@ -923,6 +1011,77 @@ _BUILTIN_ARBITRATION_ROLE_AGENTS: tuple[tuple[str, str], ...] = (
 
 _MOCK_ARBITRATION_NAME = "模拟仲裁智能体"
 _MOCK_ARBITRATION_MODE = "round_robin"
+
+# Shared-KB tools the arbitration SOUL.md / kb_arbitration skill expects but
+# the local-agent preset (used to seed the mock-arbitration host) omits.
+_ARBITRATION_ADDITIONAL_TOOL_NAMES = frozenset(
+    {"search_knowledge", "grep_search", "glob_search", "view_image"}
+)
+
+# Host + the four role agents all need the arbitration tool preset.
+_ARBITRATION_PRESET_AGENT_IDS = tuple(
+    agent_id for _, agent_id in _BUILTIN_ARBITRATION_ROLE_AGENTS
+) + (BUILTIN_MOCK_ARBITRATION_AGENT_ID,)
+
+
+def migrate_existing_arbitration_tools() -> list[str]:
+    """One-time, idempotent migration for existing builtin arbitration agents.
+
+    Additively enables the shared-KB search tools (``search_knowledge`` /
+    ``grep_search`` / ``glob_search`` / ``view_image``) on every builtin
+    arbitration agent (仲裁员/申请人/被申请人/仲裁秘书 + 模拟仲裁智能体 host)
+    so their actual toolset matches the ``search_knowledge`` instruction in
+    their SOUL.md / kb_arbitration skill.  Never disables anything, so any
+    user tool customisation on these agents is preserved.
+
+    Returns the list of agent ids that were actually updated.
+    """
+    config = load_config()
+    profiles = config.agents.profiles
+    updated: list[str] = []
+
+    for agent_id in _ARBITRATION_PRESET_AGENT_IDS:
+        if agent_id not in profiles:
+            continue
+        try:
+            agent_cfg = load_agent_config(agent_id)
+        except AppBaseException:
+            logger.warning(
+                "Skipping arbitration tool migration for %r: config not "
+                "available.",
+                agent_id,
+            )
+            continue
+
+        tools = agent_cfg.tools or ToolsConfig()
+        builtin_tools = tools.builtin_tools
+        changed = False
+        for name in _ARBITRATION_ADDITIONAL_TOOL_NAMES:
+            tool_cfg = builtin_tools.get(name)
+            if tool_cfg is None:
+                logger.debug(
+                    "Tool %r missing from %r builtin_tools; skipping.",
+                    name,
+                    agent_id,
+                )
+                continue
+            if not tool_cfg.enabled:
+                tool_cfg.enabled = True
+                changed = True
+
+        if not changed:
+            continue
+
+        agent_cfg.tools = tools
+        save_agent_config(agent_id, agent_cfg)
+        updated.append(agent_id)
+        logger.info(
+            "Migrated builtin arbitration agent %r tools: enabled "
+            "search_knowledge/grep_search/glob_search/view_image.",
+            agent_id,
+        )
+
+    return updated
 
 
 def ensure_builtin_arbitration_agents_exists() -> None:
@@ -1085,6 +1244,10 @@ def _do_ensure_builtin_arbitration_agents() -> None:
     if changed:
         save_config(config)
 
+    # Align existing arbitration agents' toolset with their SOUL.md /
+    # kb_arbitration skill instructions (idempotent, additive).
+    migrate_existing_arbitration_tools()
+
 
 def _remove_bootstrap_md(workspace: Path) -> None:
     """Remove BOOTSTRAP.md (and its completion flag) from a workspace."""
@@ -1135,7 +1298,7 @@ def _create_builtin_mock_arbitration_host(
         channels=ChannelConfig(),
         mcp=MCPConfig(),
         heartbeat=HeartbeatConfig(),
-        tools=build_local_agent_tools_config(),
+        tools=build_arbitration_tools_config(),
     )
 
     _initialize_agent_workspace(

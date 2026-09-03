@@ -109,6 +109,10 @@ BUILTIN_DISCOVERY_POLICIES: dict[str, ProviderDiscoveryPolicy] = {
     "volcengine-cn-agentplan": _CATALOG_PLAN,
     "mimo-tokenplan": _CATALOG_PLAN,
     "mimo": _OPENAI_DYNAMIC,
+    "agnes": ProviderDiscoveryPolicy(
+        "openai_models",
+        sync_mode="startup",
+    ),
 }
 
 CUSTOM_DISCOVERY_POLICIES: dict[str, ProviderDiscoveryPolicy] = {

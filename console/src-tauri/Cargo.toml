@@ -2,7 +2,7 @@
 name = "aiarb-desktop"
 version = "0.1.0"
 description = "AIArb Desktop Tauri shell that wraps the AIArb Console frontend and runs the Python FastAPI backend as a local sidecar process."
-authors = ["AIArb Contributors"]
+authors = ["AI Arb - Sum"]
 license = "Apache-2.0"
 repository = "https://github.com/agentscope-ai/AIArb"
 edition = "2021"

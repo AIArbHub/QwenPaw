@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { Dropdown, Input } from "antd";
+import { Checkbox, Dropdown, Input } from "antd";
 import type { InputRef } from "antd";
 import { useTranslation } from "react-i18next";
 import {
@@ -41,6 +41,11 @@ export interface SessionItemProps {
   editing?: boolean;
   editValue?: string;
 
+  // -- Selection --
+  selecting?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (sessionId: string) => void;
+
   // -- Variant --
   variant: "drawer" | "sidebar";
 
@@ -74,6 +79,9 @@ const SessionItem: React.FC<SessionItemProps> = ({
   disabled,
   editing,
   editValue,
+  selecting,
+  selected,
+  onToggleSelect,
   variant,
   onClick,
   onEdit,
@@ -106,8 +114,12 @@ const SessionItem: React.FC<SessionItemProps> = ({
 
   const handleClick = useCallback(() => {
     if (disabled || editing) return;
+    if (selecting) {
+      onToggleSelect?.(sessionId);
+      return;
+    }
     onClick?.(sessionId);
-  }, [disabled, editing, onClick, sessionId]);
+  }, [disabled, editing, selecting, onToggleSelect, onClick, sessionId]);
 
   const handleStartEdit = useCallback(() => {
     onEdit?.(sessionId, name);
@@ -189,6 +201,7 @@ const SessionItem: React.FC<SessionItemProps> = ({
     disabled ? styles.disabled : "",
     editing ? styles.editing : "",
     dropdownOpen ? styles.dropdownOpen : "",
+    selecting && selected ? styles.selected : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -202,7 +215,22 @@ const SessionItem: React.FC<SessionItemProps> = ({
       tabIndex={0}
     >
       {/* Drawer variant: timeline indicator */}
-      {variant === "drawer" && <div className={styles.iconPlaceholder} />}
+      {variant === "drawer" && !selecting && (
+        <div className={styles.iconPlaceholder} />
+      )}
+
+      {/* Selection checkbox */}
+      {selecting && (
+        <span
+          className={styles.selectCheckbox}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Checkbox
+            checked={selected}
+            onChange={() => onToggleSelect?.(sessionId)}
+          />
+        </span>
+      )}
 
       {/* Status slot — leftmost for sidebar variant only */}
       {!editing && variant === "sidebar" && (

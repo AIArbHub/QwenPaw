@@ -160,7 +160,7 @@ async def test_manual_reindex_clears_persisted_requirement() -> None:
 
     with (
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "load_agent_config_async",
             return_value=profile,
         ),
@@ -196,12 +196,12 @@ async def test_reindex_rejects_disabled_target_without_mutation() -> None:
 
     with (
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "load_agent_config_async",
             return_value=profile,
         ),
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "update_agent_config_async",
         ) as update_config,
         pytest.raises(
@@ -231,12 +231,12 @@ async def test_all_reindex_rejects_disabled_embedding() -> None:
 
     with (
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "load_agent_config_async",
             return_value=profile,
         ),
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "update_agent_config_async",
         ) as update_config,
         pytest.raises(
@@ -276,12 +276,12 @@ async def test_reindex_cancellation_after_persist_still_closes_live_gate() -> (
 
     with (
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "load_agent_config_async",
             return_value=profile,
         ),
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "update_agent_config_async",
             side_effect=update_config,
         ),
@@ -319,7 +319,7 @@ async def test_reindex_does_not_clear_a_new_vector_space_requirement() -> None:
 
     with (
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "load_agent_config_async",
             return_value=profile,
         ),
@@ -362,12 +362,12 @@ async def test_reindex_cancel_regates_newer_vector_space() -> None:
 
     with (
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "load_agent_config_async",
             return_value=profile,
         ),
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "update_agent_config_async",
             side_effect=update_config,
         ),
@@ -404,12 +404,12 @@ async def test_reindex_regates_vectors_when_state_persistence_fails() -> None:
 
     with (
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "load_agent_config_async",
             return_value=profile,
         ),
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "update_agent_config_async",
             side_effect=update_config,
         ),
@@ -441,12 +441,12 @@ async def test_failed_embedding_reindex_keeps_vector_search_disabled() -> None:
 
     with (
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "load_agent_config_async",
             return_value=profile,
         ),
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "update_agent_config_async",
             side_effect=update_config,
         ),
@@ -477,12 +477,12 @@ async def test_cancelled_embedding_reindex_keeps_restart_gate_persisted() -> (
 
     with (
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "load_agent_config_async",
             return_value=profile,
         ),
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "update_agent_config_async",
             side_effect=update_config,
         ),
@@ -512,7 +512,7 @@ async def test_undo_restores_indexed_config_under_reindex_lock() -> None:
 
     manager._reload_embedding_config_unlocked = AsyncMock(return_value=True)
     with patch(
-        "qwenpaw.agents.memory.reme_light_memory_manager."
+        "aiarb.agents.memory.reme_light_memory_manager."
         "update_agent_config_async",
         side_effect=update_config,
     ):
@@ -553,7 +553,7 @@ async def test_undo_cancel_after_persist_reloads_runtime() -> (None):
     )
     with (
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "update_agent_config_async",
             side_effect=update_config,
         ),
@@ -598,7 +598,7 @@ async def test_failed_undo_restores_pending_config_and_runtime() -> None:
     )
     with (
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "update_agent_config_async",
             side_effect=update_config,
         ),
@@ -637,7 +637,7 @@ async def test_failed_undo_reports_pending_runtime_recovery_failure() -> None:
     )
     with (
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "update_agent_config_async",
             side_effect=update_config,
         ),
@@ -728,7 +728,7 @@ async def test_reindex_and_embedding_update_share_lifecycle_boundary() -> None:
 
     with (
         patch(
-            "qwenpaw.agents.memory.reme_light_memory_manager."
+            "aiarb.agents.memory.reme_light_memory_manager."
             "load_agent_config_async",
             return_value=profile,
         ),

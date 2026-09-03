@@ -166,6 +166,7 @@ Currently supported cloud providers include:
 - Xiaomi MiMo Token Plan
 - GitHub Models
 - Kilo
+- Agnes AI
 
 > Some providers offer different base URLs for Mainland China and other regions. Please select the correct provider based on your location.
 

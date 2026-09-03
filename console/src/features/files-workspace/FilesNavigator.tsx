@@ -31,6 +31,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UploadConflictError, workspaceApi } from "../../api/modules/workspace";
+import { knowledgeApi } from "../../api/modules/knowledge";
 import {
   chatProjectDirectoryApi,
   type ProjectDirEntry,
@@ -53,6 +54,7 @@ import {
 import {
   buildDailyMemoryTree,
   buildMemoryTree,
+  buildKnowledgeTree,
   type MemoryTreeEntry,
 } from "./memoryTree";
 import { selectProfileFiles } from "./profileFileSelection";
@@ -82,7 +84,7 @@ interface ProfileFileRowProps {
   onToggle: () => void;
 }
 
-type NavigatorSource = "workspace" | "profile" | "daily" | "digest";
+export type NavigatorSource = "workspace" | "profile" | "daily" | "digest" | "knowledge";
 
 /** Switcher entry that opens the binding panel instead of changing the root. */
 const MANAGE_DIRS_KEY = "__manage_project_dirs__";
@@ -358,6 +360,10 @@ interface FilesNavigatorProps {
   onShowMemoryGraph: (root: MemoryGraphRoot) => void;
   onShowFiles: () => void;
   scope: FilesWorkspaceScope;
+  /** Lock to a specific source tab (for sub-page routes). */
+  initialSource?: NavigatorSource;
+  /** Hide the source tabs bar (for sub-page routes). */
+  hideSourceTabs?: boolean;
 }
 
 export default function FilesNavigator({
@@ -367,6 +373,8 @@ export default function FilesNavigator({
   onShowMemoryGraph,
   onShowFiles,
   scope,
+  initialSource,
+  hideSourceTabs,
 }: FilesNavigatorProps) {
   const { t } = useTranslation();
   const chatId = scope.kind === "session" ? scope.chatId : undefined;
@@ -390,6 +398,7 @@ export default function FilesNavigator({
   const [allProfileFiles, setAllProfileFiles] = useState<DirectoryEntry[]>([]);
   const [dailyFiles, setDailyFiles] = useState<MemoryTreeEntry[]>([]);
   const [digestFiles, setDigestFiles] = useState<MemoryTreeEntry[]>([]);
+  const [knowledgeFiles, setKnowledgeFiles] = useState<MemoryTreeEntry[]>([]);
   const [enabledFiles, setEnabledFiles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -399,7 +408,7 @@ export default function FilesNavigator({
   const [conflictingNames, setConflictingNames] = useState<string[]>([]);
   const [profilePickerOpen, setProfilePickerOpen] = useState(false);
   const [profileSearch, setProfileSearch] = useState("");
-  const [source, setSource] = useState<NavigatorSource>("workspace");
+  const [source, setSource] = useState<NavigatorSource>(initialSource ?? "workspace");
   const [projectDirectory, setProjectDirectory] = useState("");
   const [workspaceDirectory, setWorkspaceDirectory] = useState("");
   const [workspaceRoot, setWorkspaceRoot] = useState<WorkspaceRoot>("project");
@@ -659,9 +668,10 @@ export default function FilesNavigator({
   const loadProfile = useCallback(async () => {
     setLoading(true);
     try {
+      const agentIdParam = scopeKind === "agent" ? agentId : undefined;
       const [files, enabled] = await Promise.all([
-        workspaceApi.listFiles(),
-        workspaceApi.getSystemPromptFiles(),
+        workspaceApi.listFiles(agentIdParam),
+        workspaceApi.getSystemPromptFiles(agentIdParam),
       ]);
       const order = Array.isArray(enabled) ? enabled : [];
       const mappedFiles = files.map((file) => ({
@@ -682,7 +692,8 @@ export default function FilesNavigator({
   const loadMemory = useCallback(async (section: "daily" | "digest") => {
     setLoading(true);
     try {
-      const files = await workspaceApi.listMemoryFiles(section);
+      const agentIdParam = scopeKind === "agent" ? agentId : undefined;
+      const files = await workspaceApi.listMemoryFiles(section, agentIdParam);
       const entries = files.map((file) => ({
         name: file.filename.split("/").pop() ?? file.filename,
         path: file.filename,
@@ -702,6 +713,29 @@ export default function FilesNavigator({
     }
   }, []);
 
+  const loadKnowledge = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await knowledgeApi.tree("");
+      const entries = data.files.map((file) => ({
+        name: file.name,
+        path: file.path,
+        kind: "file" as const,
+        size: file.size,
+        modified_at: "",
+        preview_kind: "text" as const,
+      }));
+      // buildMemoryTree filters to .md only; the shared knowledge base
+      // can contain .txt files too, so build a generic tree here instead.
+      setKnowledgeFiles(buildKnowledgeTree(entries));
+    } catch (err) {
+      console.error("[FilesNavigator] loadKnowledge failed:", err);
+      setKnowledgeFiles([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     void Promise.all([loadDirectoryIdentity(), loadRoot(), loadProfile()]);
   }, [loadDirectoryIdentity, loadProfile, loadRoot]);
@@ -715,18 +749,29 @@ export default function FilesNavigator({
   // tree there, because the real list contains that root too and this effect
   // would have nothing left to correct.
   useEffect(() => {
+    // When source tabs are hidden (fixed-source sub-pages like memory
+    // center and knowledge base), skip the workspace root reconciliation:
+    // those pages never offer a root switcher and the "workspace" root
+    // flavour paints the navigator purple, which clashes with the
+    // project-blue used everywhere else.
+    if (hideSourceTabs && initialSource && initialSource !== "workspace") return;
     if (roots.length === 0 || roots.includes(workspaceRoot)) return;
     setWorkspaceRoot(roots[0]);
-  }, [roots, workspaceRoot]);
+  }, [roots, workspaceRoot, hideSourceTabs, initialSource]);
 
   useEffect(() => {
     if (source === "profile") void loadProfile();
     if (source === "daily" || source === "digest") void loadMemory(source);
-  }, [loadMemory, loadProfile, source]);
+    if (source === "knowledge") void loadKnowledge();
+  }, [loadMemory, loadProfile, loadKnowledge, source]);
 
   const refreshCurrent = async () => {
     if (source === "daily" || source === "digest") {
       await loadMemory(source);
+      return;
+    }
+    if (source === "knowledge") {
+      await loadKnowledge();
       return;
     }
     if (source === "profile") {
@@ -769,14 +814,16 @@ export default function FilesNavigator({
     const next = enabledFiles.includes(filename)
       ? enabledFiles.filter((file) => file !== filename)
       : [...enabledFiles, filename];
-    await workspaceApi.setSystemPromptFiles(next);
+    const agentIdParam = scopeKind === "agent" ? agentId : undefined;
+    await workspaceApi.setSystemPromptFiles(next, agentIdParam);
     setEnabledFiles(next);
   };
 
   const addProfileFile = async (filename: string) => {
     if (enabledFiles.includes(filename)) return;
     const next = [...enabledFiles, filename];
-    await workspaceApi.setSystemPromptFiles(next);
+    const agentIdParam = scopeKind === "agent" ? agentId : undefined;
+    await workspaceApi.setSystemPromptFiles(next, agentIdParam);
     setEnabledFiles(next);
     setProfilePickerOpen(false);
     setProfileSearch("");
@@ -788,13 +835,15 @@ export default function FilesNavigator({
     const newIndex = enabledFiles.indexOf(String(event.over.id));
     if (oldIndex < 0 || newIndex < 0) return;
     const next = arrayMove(enabledFiles, oldIndex, newIndex);
-    await workspaceApi.setSystemPromptFiles(next);
+    const agentIdParam = scopeKind === "agent" ? agentId : undefined;
+    await workspaceApi.setSystemPromptFiles(next, agentIdParam);
     setEnabledFiles(next);
   };
 
   const displayEntries = useMemo(() => {
     if (source === "daily") return dailyFiles;
     if (source === "digest") return digestFiles;
+    if (source === "knowledge") return knowledgeFiles;
     if (source === "profile") return profileFiles;
     if (source === "workspace") return entries;
     return [];
@@ -920,6 +969,7 @@ export default function FilesNavigator({
           }}
         />
       </header>
+      {hideSourceTabs ? null : (
       <div className={styles.sourceTabs} role="tablist">
         {(["workspace", "profile", "daily", "digest"] as NavigatorSource[]).map(
           (item) => (
@@ -942,6 +992,7 @@ export default function FilesNavigator({
           ),
         )}
       </div>
+      )}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -970,7 +1021,7 @@ export default function FilesNavigator({
             ) : (
               displayEntries.map((entry) => {
                 if (entry.kind === "directory") {
-                  if (source === "daily" || source === "digest") {
+                  if (source === "daily" || source === "digest" || source === "knowledge") {
                     return (
                       <MemoryDirectoryNode
                         key={entry.path}
