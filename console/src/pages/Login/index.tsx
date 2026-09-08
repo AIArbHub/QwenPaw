@@ -298,7 +298,7 @@ export default function LoginPage() {
         {isHub && (
           <nav className={styles.hubLinks} aria-label={t("login.hubLinks")}>
             <a
-              href="https://github.com/agentscope-ai/AIArb"
+              href="https://www.aiarb.cn"
               target="_blank"
               rel="noopener noreferrer"
             >

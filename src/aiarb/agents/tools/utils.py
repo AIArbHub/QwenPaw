@@ -542,16 +542,120 @@ def truncate_text_output(
         return text, {}
 
 
+#: File extensions that are binary document formats requiring
+#: dedicated extraction rather than raw byte decoding.
+_BINARY_DOC_SUFFIXES = frozenset({
+    ".docx", ".doc", ".pdf", ".xlsx", ".xls", ".pptx", ".ppt",
+    ".odt", ".ods", ".odp", ".rtf",
+})
+
+
+def _try_extract_binary_doc(path: Path) -> str | None:
+    """Extract text from a binary document.
+
+    Tries ``markitdown`` first (covers .docx, .pdf, .xlsx, .pptx, …).
+    When ``markitdown`` is not installed, falls back to a stdlib-only
+    ``zipfile`` + XML extraction for ``.docx`` (a ZIP of OOXML parts).
+
+    Returns ``None`` when extraction is not applicable or all methods
+    fail, so the caller falls back to the raw byte read path.
+    """
+    suffix = path.suffix.lower()
+    if suffix not in _BINARY_DOC_SUFFIXES:
+        return None
+
+    # --- Primary: markitdown (covers all supported formats) ---
+    try:
+        from markitdown import MarkItDown
+
+        converter = MarkItDown()
+        result = converter.convert(str(path))
+        text = result.text_content or ""
+        if text.strip():
+            return text.replace("\r\n", "\n").replace("\r", "\n")
+    except ImportError:
+        # markitdown not installed — continue to fallback below.
+        pass
+    except Exception:
+        logger.debug(
+            "markitdown extraction failed for %s, trying fallback",
+            path,
+            exc_info=True,
+        )
+
+    # --- Fallback: stdlib-only .docx extraction (no extra deps) ---
+    if suffix == ".docx":
+        return _extract_docx_stdlib(path)
+
+    # No fallback available for .pdf/.xlsx/.pptx without markitdown.
+    # Return a clear hint instead of garbled bytes.
+    logger.warning(
+        "Cannot extract %s: markitdown is not installed or failed. "
+        "Install with: pip install markitdown",
+        path,
+    )
+    return None
+
+
+def _extract_docx_stdlib(path: Path) -> str | None:
+    """Extract plain text from a .docx using only the stdlib.
+
+    ``.docx`` is a ZIP archive; the main text lives in
+    ``word/document.xml`` as ``<w:t>`` elements. This fallback is
+    deliberately simple — it does not preserve tables, headers,
+    footers, or formatting, but it makes the text readable so the
+    agent can work with it.
+    """
+    import re
+    import zipfile
+
+    try:
+        with zipfile.ZipFile(str(path)) as zf:
+            try:
+                xml = zf.read("word/document.xml").decode("utf-8")
+            except KeyError:
+                return None
+        # Extract text from <w:t>...</w:t> elements.
+        texts = re.findall(r"<w:t[^>]*>(.*?)</w:t>", xml, re.DOTALL)
+        if not texts:
+            return None
+        # Unescape XML entities and join paragraphs with newlines.
+        joined = "\n".join(t.strip() for t in texts if t.strip())
+        # Basic XML entity unescaping.
+        joined = (
+            joined.replace("&amp;", "&")
+            .replace("&lt;", "<")
+            .replace("&gt;", ">")
+            .replace("&quot;", '"')
+            .replace("&apos;", "'")
+        )
+        return joined if joined.strip() else None
+    except Exception:
+        logger.debug("stdlib .docx extraction failed for %s", path, exc_info=True)
+        return None
+
+
 def _read_file_safe_sync(
     file_path: str,
     max_bytes: int,
 ) -> str:
-    """Read one byte snapshot from a single opened file handle."""
+    """Read one byte snapshot from a single opened file handle.
+
+    Binary document formats (.docx, .pdf, .xlsx, etc.) are
+    automatically extracted to text via ``markitdown`` when available.
+    """
     path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError(file_path)
     if not path.is_file():
         raise IsADirectoryError(file_path)
+
+    # Try binary document extraction first — if the file is a .docx,
+    # .pdf, .xlsx, etc., raw byte decoding produces unusable garbage.
+    extracted = _try_extract_binary_doc(path)
+    if extracted is not None:
+        return extracted
+
     with path.open("rb") as file:
         read_size = min(os.fstat(file.fileno()).st_size, max_bytes)
         content = file.read(read_size)

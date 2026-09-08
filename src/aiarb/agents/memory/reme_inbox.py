@@ -13,7 +13,7 @@ NOTIFICATION_FIELDS = {
     "auto_dream": "auto_dream_inbox_push_enabled",
     "daily_paper": "daily_paper_inbox_push_enabled",
 }
-EMITTED_METADATA_KEY = "_qwenpaw_inbox_emitted"
+EMITTED_METADATA_KEY = "_aiarb_inbox_emitted"
 MAX_BODY_CHARS = 4000
 
 

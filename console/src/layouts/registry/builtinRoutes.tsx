@@ -74,7 +74,9 @@ const MemoryPage = lazyImportWithRetry("../../pages/Memory");
 const KnowledgeBasePage = lazyImportWithRetry(
   "../../pages/KnowledgeBase",
 );
-
+const DocumentToolsPage = lazyImportWithRetry(
+  "../../pages/DocumentTools",
+);
 /**
  * "/" always lands on the canonical Chat workspace.
  */
@@ -119,10 +121,13 @@ export const BUILTIN_ROUTES: Route[] = [
     component: AgentFilesKBPage,
   },
   { id: "core.memory", path: "/memory", component: MemoryPage },
-  {
-    id: "core.knowledge-base",
+    { id: "core.knowledge-base",
     path: "/knowledge-base",
     component: KnowledgeBasePage,
+  },
+  { id: "core.document-tools",
+    path: "/document-tools",
+    component: DocumentToolsPage,
   },
   { id: "core.channels", path: "/channels", component: ChannelsPage },
   { id: "core.sessions", path: "/sessions", component: SessionsPage },

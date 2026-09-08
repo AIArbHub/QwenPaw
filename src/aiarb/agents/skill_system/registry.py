@@ -31,6 +31,7 @@ from .models import (
 from .store import (
     build_skill_metadata,
     classify_pool_skill_source,
+    compute_skill_md_hash,
     copy_pool_skill_automation,
     copy_skill_dir,
     default_pool_manifest,
@@ -774,12 +775,42 @@ def import_builtin_skills(
         candidates,
     )
     if conflicts and not overwrite_conflicts:
-        return {
-            "imported": [],
-            "updated": [],
-            "unchanged": [],
-            "conflicts": conflicts,
-        }
+        # Filter out "outdated" conflicts where the pool copy has not
+        # been modified by the user — those are safe to update without
+        # explicit confirmation.
+        safe_conflicts: list[dict[str, Any]] = []
+        blocking_conflicts: list[dict[str, Any]] = []
+        for conflict in conflicts:
+            if conflict.get("status") != "outdated":
+                blocking_conflicts.append(conflict)
+                continue
+            skill_name = conflict.get("skill_name", "")
+            pool_skill_dir = pool_dir / skill_name
+            pool_recorded_hash = str(
+                pool_skills.get(skill_name, {}).get(
+                    "builtin_content_hash",
+                    "",
+                )
+                or "",
+            )
+            pool_actual_hash = compute_skill_md_hash(pool_skill_dir)
+            if (
+                pool_recorded_hash
+                and pool_actual_hash
+                and pool_actual_hash == pool_recorded_hash
+            ):
+                # User has not modified the pool copy — safe to update.
+                safe_conflicts.append(conflict)
+            else:
+                blocking_conflicts.append(conflict)
+        if blocking_conflicts:
+            return {
+                "imported": [],
+                "updated": [],
+                "unchanged": [],
+                "conflicts": blocking_conflicts,
+            }
+        # Only safe conflicts remain — proceed with the import.
 
     imported: list[str] = []
     updated: list[str] = []
@@ -1002,6 +1033,19 @@ def _build_reconciled_pool_entry(
         source=source,
         protected=protected,
     )
+    # Preserve the recorded builtin_content_hash from the existing
+    # entry so that reconcile does not silently update it to the
+    # current on-disk hash.  The hash is only refreshed when a builtin
+    # is explicitly imported or updated, which lets us detect user
+    # modifications by comparing the recorded hash against the actual
+    # on-disk hash.
+    existing_recorded_hash = existing.get("builtin_content_hash")
+    if existing_recorded_hash:
+        new_entry["builtin_content_hash"] = existing_recorded_hash
+    elif "builtin_content_hash" in new_entry:
+        # No prior recorded hash — drop the freshly computed one so
+        # it does not mask user edits on the first reconcile pass.
+        del new_entry["builtin_content_hash"]
     new_entry["external"] = is_external
     if not is_external and (
         source == "builtin" or is_pool_builtin_entry(existing)
@@ -1021,7 +1065,7 @@ def _build_reconciled_pool_entry(
     if "config" in existing:
         new_entry["config"] = existing.get("config")
     existing_tags = existing.get("tags")
-    if existing_tags is not None:
+    if existing_tags:
         new_entry["tags"] = existing_tags
     existing_installed_from = existing.get("installed_from")
     if existing_installed_from:
@@ -1169,19 +1213,35 @@ def reconcile_workspace_manifest(workspace_dir: Path) -> dict[str, Any]:
                     source=source,
                     protected=False,
                 )
+                # Preserve the recorded builtin_content_hash from the
+                # existing entry so that reconcile does not silently
+                # update it to the current on-disk hash.  The hash is
+                # only refreshed when a builtin is explicitly downloaded
+                # into the workspace.
+                existing_recorded_hash = (
+                    existing.get("metadata") or {}
+                ).get("builtin_content_hash")
+                if existing_recorded_hash:
+                    metadata["builtin_content_hash"] = (
+                        existing_recorded_hash
+                    )
+                elif "builtin_content_hash" in metadata:
+                    del metadata["builtin_content_hash"]
                 next_entry = {
                     "enabled": enabled,
                     "channels": channels,
                     "source": source,
                     "metadata": metadata,
                     "requirements": metadata["requirements"],
+                    "tags": metadata.get("tags", []),
                     "updated_at": metadata["updated_at"],
                 }
                 if "config" in existing:
                     next_entry["config"] = existing.get("config")
                 existing_tags = existing.get("tags")
-                if existing_tags is not None:
+                if existing_tags:
                     next_entry["tags"] = existing_tags
+                # else: tags from frontmatter already in metadata
                 existing_installed_from = existing.get("installed_from")
                 if existing_installed_from:
                     next_entry["installed_from"] = existing_installed_from
@@ -1749,6 +1809,33 @@ def auto_update_builtin_skills(
             )
             continue
         if current_version_text == target_version_text:
+            continue
+
+        # Three-state detection: check whether the pool copy was edited
+        # by the user. If the pool's actual content hash differs from the
+        # hash recorded when the builtin was last imported/updated, the
+        # user has modified it — skip auto-update to preserve their edits.
+        pool_recorded_hash = str(
+            entry.get("builtin_content_hash", "") or "",
+        )
+        pool_skill_dir = get_skill_pool_dir() / name
+        pool_actual_hash = compute_skill_md_hash(pool_skill_dir)
+        packaged_hash = compute_skill_md_hash(variant.skill_dir)
+        if (
+            pool_recorded_hash
+            and pool_actual_hash
+            and pool_actual_hash != pool_recorded_hash
+        ):
+            # User has modified the pool copy — skip auto-update.
+            failed.append(
+                {
+                    "skill": name,
+                    "language": language,
+                    "from_version": current_version_text,
+                    "to_version": target_version_text,
+                    "reason": "user_modified",
+                },
+            )
             continue
 
         try:

@@ -1,5 +1,6 @@
-import { Button, Input, Select, Tooltip } from "@agentscope-ai/design";
+import { Button, Input, Select, Tooltip, Dropdown } from "@agentscope-ai/design";
 import { Badge } from "antd";
+import type { MenuProps } from "antd";
 import {
   AppstoreOutlined,
   CloseOutlined,
@@ -8,8 +9,10 @@ import {
   SendOutlined,
   SyncOutlined,
   UnorderedListOutlined,
+  SettingOutlined,
+  GroupOutlined,
 } from "@ant-design/icons";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ImportHubModal } from "../../Agent/Skills/components/ImportHubModal";
@@ -24,14 +27,116 @@ import {
 } from "./components";
 import { getBuiltinNoticeLines } from "./builtinNotice";
 import { useSkillPool } from "./useSkillPool";
+import { useBuiltinUpdatePrefs, type BuiltinUpdatePolicy } from "./useBuiltinUpdatePrefs";
 import { useProgressiveRender } from "../../../hooks/useProgressiveRender";
 import { PageHeader } from "@/components/PageHeader";
 import type { PoolSkillSpec } from "../../../api/types";
 import styles from "./index.module.less";
 
+interface GroupedSkillsViewProps {
+  skills: PoolSkillSpec[];
+  selectedPoolSkills: Set<string>;
+  batchModeEnabled: boolean;
+  automationPendingSkills: Set<string>;
+  onToggleSelect: (name: string) => void;
+  onEdit: (skill: PoolSkillSpec) => void;
+  onBroadcast: (skill: PoolSkillSpec) => void;
+  onDelete: (skill: PoolSkillSpec) => void;
+  onAutomationQuickAction: (skill: PoolSkillSpec) => void | Promise<void>;
+  styles: Record<string, string>;
+  sentinelRef: React.RefObject<HTMLDivElement | null>;
+  hasMore: boolean;
+}
+
+function GroupedSkillsView({
+  skills,
+  selectedPoolSkills,
+  batchModeEnabled,
+  automationPendingSkills,
+  onToggleSelect,
+  onEdit,
+  onBroadcast,
+  onDelete,
+  onAutomationQuickAction,
+  styles,
+  sentinelRef,
+  hasMore,
+}: GroupedSkillsViewProps) {
+  const { t } = useTranslation();
+
+  const groups = useMemo(() => {
+    const map = new Map<string, PoolSkillSpec[]>();
+    for (const skill of skills) {
+      const category = skill.tags?.[0] || t("skills.uncategorized", "未分类");
+      if (!map.has(category)) {
+        map.set(category, []);
+      }
+      map.get(category)!.push(skill);
+    }
+    return Array.from(map.entries()).sort((a, b) =>
+      a[0].localeCompare(b[0], "zh"),
+    );
+  }, [skills, t]);
+
+  return (
+    <div className={styles.skillsGroupView}>
+      {groups.map(([category, groupSkills]) => (
+        <div key={category} className={styles.skillGroup}>
+          <div className={styles.skillGroupHeader}>
+            <span className={styles.skillGroupTitle}>{category}</span>
+            <span className={styles.skillGroupCount}>
+              {groupSkills.length}
+            </span>
+          </div>
+          <div className={`${styles.skillsGrid} responsive-grid`}>
+            {groupSkills.map((skill: PoolSkillSpec) => (
+              <PoolSkillCard
+                key={skill.name}
+                skill={skill}
+                isSelected={selectedPoolSkills.has(skill.name)}
+                batchModeEnabled={batchModeEnabled}
+                automationPending={automationPendingSkills.has(skill.name)}
+                onToggleSelect={onToggleSelect}
+                onEdit={onEdit}
+                onBroadcast={onBroadcast}
+                onDelete={onDelete}
+                onAutomationQuickAction={onAutomationQuickAction}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
+      {hasMore && <div ref={sentinelRef} style={{ height: 1 }} />}
+    </div>
+  );
+}
+
 function SkillPoolPage() {
   const { t } = useTranslation();
   const pool = useSkillPool();
+  const updatePrefs = useBuiltinUpdatePrefs();
+
+  const policyMenuItems: MenuProps["items"] = [
+    {
+      key: "safe_update",
+      label: t("skillPool.policySafeUpdate", "用户未改则自动更新"),
+    },
+    {
+      key: "ask",
+      label: t("skillPool.policyAsk", "每次询问"),
+    },
+    {
+      key: "never",
+      label: t("skillPool.policyNever", "从不自动更新"),
+    },
+  ];
+
+  const onPolicyChange: MenuProps["onClick"] = useCallback(
+    ({ key }) => {
+      updatePrefs.setPolicy(key as BuiltinUpdatePolicy);
+    },
+    [updatePrefs],
+  );
   const builtinNoticeLines = getBuiltinNoticeLines(pool.builtinNotice, t);
   const {
     visibleItems: visibleSkills,
@@ -136,6 +241,16 @@ function SkillPoolPage() {
                   </Tooltip>
                 </div>
                 <div className={styles.headerActionsRight}>
+                  <Dropdown
+                    menu={{ items: policyMenuItems, onClick: onPolicyChange, selectedKeys: [updatePrefs.policy] }}
+                    trigger={["click"]}
+                  >
+                    <Tooltip title={t("skillPool.updatePolicyHint", "内置技能更新策略")}>
+                      <Button type="default" icon={<SettingOutlined />}>
+                        {t("skillPool.updatePolicy", "更新策略")}
+                      </Button>
+                    </Tooltip>
+                  </Dropdown>
                   <Button type="primary" onClick={pool.toggleBatchMode}>
                     {t("skills.batchOperation")}
                   </Button>
@@ -196,6 +311,15 @@ function SkillPoolPage() {
               <div className={styles.viewToggle}>
                 <button
                   className={`${styles.viewToggleBtn} ${
+                    pool.viewMode === "group" ? styles.viewToggleBtnActive : ""
+                  }`}
+                  onClick={() => pool.setViewMode("group")}
+                  title={t("skills.groupView", "分组视图")}
+                >
+                  <GroupOutlined />
+                </button>
+                <button
+                  className={`${styles.viewToggleBtn} ${
                     pool.viewMode === "list" ? styles.viewToggleBtnActive : ""
                   }`}
                   onClick={() => pool.setViewMode("list")}
@@ -228,6 +352,21 @@ function SkillPoolPage() {
               {t("skills.noSearchResults")}
             </span>
           </div>
+        ) : pool.viewMode === "group" ? (
+          <GroupedSkillsView
+            skills={visibleSkills}
+            selectedPoolSkills={pool.selectedPoolSkills}
+            batchModeEnabled={pool.batchModeEnabled}
+            automationPendingSkills={pool.automationPendingSkills}
+            onToggleSelect={pool.togglePoolSelect}
+            onEdit={pool.openEdit}
+            onBroadcast={pool.openBroadcast}
+            onDelete={pool.handleDelete}
+            onAutomationQuickAction={pool.handleAutomationQuickAction}
+            styles={styles}
+            sentinelRef={sentinelRef}
+            hasMore={hasMore}
+          />
         ) : pool.viewMode === "card" ? (
           <div className={`${styles.skillsGrid} responsive-grid`}>
             {visibleSkills.map((skill: PoolSkillSpec) => (

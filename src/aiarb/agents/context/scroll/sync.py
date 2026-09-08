@@ -438,17 +438,59 @@ def _skip_is_safe(history: "HistoryStore", prior: dict) -> bool:
         return False
 
 
+# Sub-directory used by the group-chat runtime to persist its own state
+# (member turns, round records, host opener / summary texts).  Those files
+# are not user-visible chat sessions and must not be imported into
+# ``history.db`` — doing so would just orphan them under the chat registry.
+_GROUP_CHATS_SUBDIR = "group_chats"
+
+# Filename markers that identify non-chat session files produced by the
+# group-chat runtime and inter-agent ``chat_with_agent`` calls.  After
+# ``sanitize_filename`` replaces ``:`` with ``--``, these markers appear in
+# the on-disk filename.  Matching on the stem (without ``.json``) avoids
+# false positives from the ``.json`` suffix.
+_NON_CHAT_MARKERS = (
+    "_gmc--",          # group member session  (gmc:<hash>)
+    "_group--",         # legacy group member   (group:…:member:…)
+    "--to--",           # inter-agent chat       (from:to:to:ts:uuid)
+    "--subrun--",       # sub-run session        (…:subrun:ts)
+    "--sub--",          # sub session            (…:sub:ts)
+    "--member--",       # legacy member suffix   (…:member:agent_id)
+    "discussion--sub--",  # discussion sub-session (discussion:sub:ts)
+)
+
+
+def _is_non_chat_session(rel_name: str) -> bool:
+    """Return True if *rel_name* is a group-chat or inter-agent session file.
+
+    These files are written by the group-chat runtime and the
+    ``chat_with_agent`` tool, not by user-initiated conversations.  They are
+    not registered in ``chats.json`` and would always appear as orphans.
+    """
+    # Group-chat runtime state lives under a ``group_chats/`` subdirectory.
+    if any(part == _GROUP_CHATS_SUBDIR for part in Path(rel_name).parts):
+        return True
+    stem = Path(rel_name).stem
+    return any(marker in stem for marker in _NON_CHAT_MARKERS)
+
+
 def _iter_session_files(sessions_path: Path):
     """Yield ``*.json`` session files, recursing into channel subdirs.
 
     Any path with a dotted component (the ``.weixin-legacy`` archive, this
-    manifest, etc.) is excluded.
+    manifest, etc.) is excluded.  Files produced by the group-chat runtime
+    and inter-agent ``chat_with_agent`` calls are also excluded — they are
+    not user-visible chat sessions and would always be orphaned under the
+    chat registry.
     """
     for path in sorted(sessions_path.rglob("*.json")):
         rel = path.relative_to(sessions_path)
         if any(part.startswith(".") for part in rel.parts):
             continue
-        yield path, rel.as_posix()
+        rel_name = rel.as_posix()
+        if _is_non_chat_session(rel_name):
+            continue
+        yield path, rel_name
 
 
 def _load_chat_session_id_map(

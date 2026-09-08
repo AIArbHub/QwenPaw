@@ -18,9 +18,13 @@ import {
 import { useCodingMode } from "../../stores/codingModeStore";
 import { downloadFileFromUrl } from "../../utils/downloadFileFromUrl";
 import FilesNavigator from "./FilesNavigator";
-import type { NavigatorSource } from "./FilesNavigator";
+import type {
+  KnowledgeLibraryGroup,
+  NavigatorSource,
+} from "./FilesNavigator";
 import MemoryGraphView from "./MemoryGraphView";
 import { projectRootPath, workspaceRoots } from "./directorySources";
+import { decodeTabPath, encodeTabPath, targetForTab } from "./tabPath";
 import {
   filesWorkspaceScopeKey,
   type FilesWorkspaceScope,
@@ -41,6 +45,8 @@ interface FilesWorkspaceProps {
   initialSource?: NavigatorSource;
   /** Hide the source tabs (for sub-page routes where the tab is fixed). */
   hideSourceTabs?: boolean;
+  /** Render the knowledge source as one tree grouping several libraries. */
+  knowledgeGroups?: KnowledgeLibraryGroup[];
 }
 
 function inferPreviewKind(
@@ -68,6 +74,7 @@ export default function FilesWorkspace({
   scope,
   initialSource,
   hideSourceTabs,
+  knowledgeGroups,
 }: FilesWorkspaceProps) {
   const { t } = useTranslation();
   const { codingMode } = useCodingMode();
@@ -202,9 +209,12 @@ export default function FilesWorkspace({
 
   const loadTarget = useCallback(
     async (target: FileTarget) => {
+      // A target may carry its own owner when the navigator is showing files
+      // of an agent other than the one this workspace is bound to.
+      const ownerAgentId = target.agentId ?? (scopeKind === "agent" ? agentId : undefined);
       if (target.source === "profile") {
         return {
-          content: (await workspaceApi.loadFile(target.path, scopeKind === "agent" ? agentId : undefined)).content,
+          content: (await workspaceApi.loadFile(target.path, ownerAgentId)).content,
           previewKind: "text" as const,
           readOnly: false,
           etag: "",
@@ -229,11 +239,10 @@ export default function FilesWorkspace({
           target.source === "daily" || target.source === "digest"
             ? target.source
             : undefined;
-        const memAgentId = scopeKind === "agent" ? agentId : undefined;
         return {
           content: (
             await (section
-              ? workspaceApi.loadMemoryFile(target.path, section, memAgentId)
+              ? workspaceApi.loadMemoryFile(target.path, section, ownerAgentId)
               : workspaceApi.loadDailyMemory(target.path))
           ).content,
           previewKind: "text" as const,
@@ -286,25 +295,20 @@ export default function FilesWorkspace({
         etag: response.headers.get("ETag") ?? "",
       };
     },
-    [chatId, projectDirOverride],
+    [agentId, chatId, projectDirOverride, scopeKind],
   );
 
   const loadTabContent = useCallback(
     async (tabPath: string) => {
       const tab = tabsRef.current.find((item) => item.path === tabPath);
-      const separator = tabPath.indexOf("::");
-      const target =
-        targetsByTab.current.get(tabPath) ??
-        ({
-          source:
-            tab?.source ??
-            (separator < 0
-              ? "workspace"
-              : (tabPath.slice(0, separator) as FileTarget["source"])),
-          path: separator < 0 ? tabPath : tabPath.slice(separator + 2),
+      const target = targetForTab(
+        tabPath,
+        targetsByTab.current.get(tabPath),
+        {
           root: tab?.workspaceRoot,
           artifactUrl: tab?.artifactUrl,
-        } satisfies FileTarget);
+        },
+      );
       const loaded = await loadTarget(target);
       setTabEtag(scopeKey, tabPath, loaded.etag);
       return loaded.content;
@@ -324,9 +328,13 @@ export default function FilesWorkspace({
           ? resolvedTarget.root === "workspace"
             ? `workspace-root::${resolvedTarget.path}`
             : resolvedTarget.root && resolvedTarget.root !== "project"
-            ? `${resolvedTarget.root}::${resolvedTarget.path}`
-            : resolvedTarget.path
-          : `${resolvedTarget.source}::${resolvedTarget.path}`;
+              ? `${resolvedTarget.root}::${resolvedTarget.path}`
+              : resolvedTarget.path
+          : encodeTabPath(
+              resolvedTarget.source,
+              resolvedTarget.path,
+              resolvedTarget.agentId,
+            );
       targetsByTab.current.set(tabPath, resolvedTarget);
       if (resolvedTarget.line) {
         navigationSequence.current += 1;
@@ -459,6 +467,7 @@ export default function FilesWorkspace({
           onShowFiles={() => setMemoryGraphRoot(null)}
           initialSource={initialSource}
           hideSourceTabs={hideSourceTabs}
+          knowledgeGroups={knowledgeGroups}
         />
       ) : (
         <aside className={styles.sourcePanel}>
@@ -506,10 +515,12 @@ export default function FilesWorkspace({
             navigation={editorNavigation}
             onDownloadFile={async (path) => {
               const tab = tabsRef.current.find((item) => item.path === path);
-              const separator = path.indexOf("::");
+              const decoded = decodeTabPath(path);
               const sourcePath =
                 tab?.displayPath ??
-                (separator < 0 ? path : path.slice(separator + 2));
+                (decoded.source === "workspace"
+                  ? path
+                  : decoded.path);
               const filename = sourcePath.split("/").pop() ?? sourcePath;
               if (tab?.artifactUrl) {
                 await downloadFileFromUrl(tab.artifactUrl, filename, {
@@ -552,7 +563,6 @@ export default function FilesWorkspace({
             }}
             onSaveFile={async (path, content) => {
               const tab = tabsRef.current.find((item) => item.path === path);
-              const separator = path.indexOf("::");
               if ((tab?.source ?? "workspace") === "workspace") {
                 const saved = await workspaceApi.saveFileContent(
                   tab?.displayPath ?? path,
@@ -565,9 +575,11 @@ export default function FilesWorkspace({
                 setTabEtag(scopeKey, path, saved.etag);
                 return;
               }
-              const source = path.slice(0, separator);
-              const sourcePath = path.slice(separator + 2);
-              const saveAgentId = scopeKind === "agent" ? agentId : undefined;
+              const decoded = decodeTabPath(path);
+              const saveAgentId =
+                decoded.agentId ?? (scopeKind === "agent" ? agentId : undefined);
+              const sourcePath = decoded.path;
+              const source = decoded.source;
               if (source === "profile") {
                 await workspaceApi.saveFile(sourcePath, content, saveAgentId);
               } else if (source === "daily" || source === "digest") {

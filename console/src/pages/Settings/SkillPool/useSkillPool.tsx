@@ -171,7 +171,7 @@ export function useSkillPool() {
     new Set(),
   );
   const [batchModeEnabled, setBatchModeEnabled] = useState(false);
-  const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  const [viewMode, setViewMode] = useState<"card" | "list" | "group">("group");
   const [filterOpen, setFilterOpen] = useState(false);
   const {
     searchQuery,
@@ -187,7 +187,16 @@ export function useSkillPool() {
     : "en";
 
   const sortedSkills = useMemo(
-    () => filteredSkills.slice().sort((a, b) => a.name.localeCompare(b.name)),
+    () =>
+      filteredSkills.slice().sort((a, b) => {
+        const aTags = a.tags || [];
+        const bTags = b.tags || [];
+        const aCat = aTags.length > 0 ? aTags[0] : "\uFFFF";
+        const bCat = bTags.length > 0 ? bTags[0] : "\uFFFF";
+        const catCmp = aCat.localeCompare(bCat, "zh");
+        if (catCmp !== 0) return catCmp;
+        return a.name.localeCompare(b.name);
+      }),
     [filteredSkills],
   );
   const hasUnseenBuiltinNotice = useMemo(

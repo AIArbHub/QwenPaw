@@ -6,6 +6,7 @@ metadata:
   aiarb:
     emoji: "🤖"
     requires: {}
+tags: ['系统工具']
 ---
 
 # 钉钉频道自动连接（可视浏览器）

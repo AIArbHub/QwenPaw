@@ -1,0 +1,13 @@
+{
+  "name": "arb_ldir",
+  "version": "0.1.0",
+  "description": "LDIR 仲裁文档解析 — 将原始文档解析为带页码/坐标/置信度的统一中间表示",
+  "language": "zh",
+  "triggers": {
+    "commands": ["/ldir", "/parse-doc"],
+    "promptPatterns": ["解析.*文档", "提取.*PDF", "文档.*中间表示", "LDIR"],
+    "fileTypes": [".pdf", ".docx", ".doc", ".txt", ".md"]
+  },
+  "allowedTools": ["shell"],
+  "priority": 60
+}

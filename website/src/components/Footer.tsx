@@ -40,7 +40,7 @@ const socialLinks: SocialLink[] = [
       "https://img.alicdn.com/imgextra/i1/O1CN01sWPF3o1Fp523692rJ_!!6000000000535-2-tps-400-400.png",
   },
   {
-    href: "https://github.com/agentscope-ai/AIArb",
+    href: "https://www.aiarb.cn",
     ariaLabel: "footer.social.github",
     icon: <GitHubIcon size={20} className="block text-orange-400" />,
     qrCode:

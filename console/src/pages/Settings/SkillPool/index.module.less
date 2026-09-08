@@ -307,6 +307,42 @@
   }
 }
 
+/* ─── Group View ──────────────────────────────────────────────────────────── */
+.skillsGroupView {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px;
+}
+
+.skillGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skillGroupHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-secondary, #eae8e7);
+}
+
+.skillGroupTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(20, 20, 19, 0.88);
+}
+
+.skillGroupCount {
+  font-size: 13px;
+  color: rgba(20, 20, 19, 0.45);
+  background: rgba(0, 0, 0, 0.04);
+  padding: 1px 8px;
+  border-radius: 4px;
+}
+
 /* ─── List Mode ─────────────────────────────────────────────────────────── */
 .skillsList {
   display: flex;
@@ -1234,6 +1270,19 @@
     background: rgba(22, 119, 255, 0.15);
     color: #69b1ff;
     border-color: rgba(105, 177, 255, 0.3);
+  }
+
+  .skillGroupHeader {
+    border-bottom-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .skillGroupTitle {
+    color: rgba(255, 255, 255, 1);
+  }
+
+  .skillGroupCount {
+    color: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.08);
   }
 
   /* List view status badge */

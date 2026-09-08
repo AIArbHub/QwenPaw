@@ -14,7 +14,7 @@
  *   cursor selection), and malformed/empty stored data must never throw.
  */
 
-export const DRAFT_STORAGE_KEY_PREFIX = "qwenpaw_chat_input_draft";
+export const DRAFT_STORAGE_KEY_PREFIX = "aiarb_chat_input_draft";
 
 export interface DraftState {
   value: string;

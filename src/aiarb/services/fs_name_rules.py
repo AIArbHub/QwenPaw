@@ -20,7 +20,7 @@ throwaway name and looks at whether the second appears.
 
 **For comparing directories that already exist, do not use this.** Ask the
 filesystem which entry a path reaches, by comparing ``(st_dev, st_ino)`` —
-:func:`qwenpaw.services.project_directory.dir_key` does. Identity is exact
+:func:`aiarb.services.project_directory.dir_key` does. Identity is exact
 where name rules are a heuristic: it is right across case folding, Unicode
 normalization, symlinks, bind mounts and mount points, none of which a
 name comparison gets right on its own. Name rules are only the fallback

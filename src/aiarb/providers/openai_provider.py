@@ -997,3 +997,32 @@ class GitHubModelsProvider(OpenAIProvider):
             )
         finally:
             await self._close_client(client)
+
+
+class AgnesProvider(OpenAIProvider):
+    """Agnes AI provider.
+
+    Agnes AI (https://agnes-ai.com) exposes an OpenAI-compatible API at
+    ``https://apihub.agnes-ai.com/v1``.  Some CDN/proxy configurations cause
+    TLS handshake failures when Python's default ``httpx`` client inherits
+    system proxy settings (``trust_env=True``).  This override passes a
+    custom ``httpx.AsyncClient`` with ``trust_env=False`` so the SDK talks
+    directly to the Agnes AI gateway, bypassing any local proxy that may
+    break the TLS connection.
+    """
+
+    def _client(self, timeout: float = 5) -> AsyncOpenAI:
+        http_client = httpx.AsyncClient(
+            trust_env=False,
+            timeout=timeout,
+        )
+        kwargs: dict = {
+            "base_url": self.base_url,
+            "api_key": self.api_key,
+            "timeout": timeout,
+            "http_client": http_client,
+        }
+        headers = self._build_default_headers()
+        if headers:
+            kwargs["default_headers"] = headers
+        return AsyncOpenAI(**kwargs)

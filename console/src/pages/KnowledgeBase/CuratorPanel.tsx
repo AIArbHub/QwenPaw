@@ -102,11 +102,18 @@ export default function CuratorPanel({ open, onClose, onTaskCompleted }: Curator
     if (!silent) setLoadingTasks(true);
     try {
       const data = await kbCuratorApi.listTasks();
-      // Detect tasks that just transitioned to "done" or "error"
+      // Detect tasks that just transitioned to "done" or "error".
+      // On first load (empty prev map) we also check for recently-finished
+      // tasks so that completions which happened while the panel was closed
+      // still trigger a knowledge-base refresh.
       let completed = false;
+      const wasEmpty = prevTaskStatuses.current.size === 0;
       for (const task of data.tasks) {
         const prev = prevTaskStatuses.current.get(task.id);
         if (prev && prev !== task.status && (task.status === "done" || task.status === "error")) {
+          completed = true;
+        }
+        if (wasEmpty && (task.status === "done" || task.status === "error") && task.published.length > 0) {
           completed = true;
         }
         prevTaskStatuses.current.set(task.id, task.status);

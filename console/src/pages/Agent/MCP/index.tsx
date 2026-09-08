@@ -7,6 +7,7 @@ import { MCPClientCard } from "./components";
 import { useMCP } from "./useMCP";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/PageHeader";
+import { BuiltinMCPSetupGuide } from "@/components/BuiltinMCPSetupGuide";
 import styles from "./index.module.less";
 
 type MCPTransport = "stdio" | "streamable_http" | "sse";
@@ -278,6 +279,8 @@ function MCPPage() {
           </Button>
         }
       />
+
+      <BuiltinMCPSetupGuide />
 
       {loading ? (
         <div className={styles.loading}>

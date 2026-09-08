@@ -21,7 +21,7 @@ from typing import Any
 import httpx
 from mcp import types as mcp_types
 
-from ...__version__ import __version__ as _QWENPAW_VERSION
+from ...__version__ import __version__ as _AIARB_VERSION
 
 logger = logging.getLogger(__name__)
 

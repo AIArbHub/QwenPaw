@@ -109,6 +109,7 @@ def _register_pool_skill_entry(
         entry["tags"] = tags
     elif preserve_from.get("tags") is not None:
         entry["tags"] = preserve_from["tags"]
+    # else: entry["tags"] already set by build_skill_metadata from frontmatter
 
     if source == "builtin":
         builtin_language = (
@@ -964,9 +965,20 @@ class SkillPoolService:
         workspace_identity: dict[str, str],
         workspace_dir: Path,
     ) -> dict[str, Any] | None:
-        """Return a conflict dict if download should be blocked."""
+        """Return a conflict dict if download should be blocked.
+
+        Three-state detection for builtin skills:
+
+        - **new**: workspace does not have the skill → proceed.
+        - **safe_update**: workspace copy is builtin and its recorded
+          ``builtin_content_hash`` matches the pool's → the user has
+          not edited the workspace copy, so the update is safe.
+        - **user_modified**: the workspace copy's content hash differs
+          from the pool's recorded hash → the user edited it, so we
+          block the download unless ``overwrite=True``.
+        """
         if not existing:
-            return None
+            return None  # new — no conflict
         ws_id = workspace_identity["workspace_id"]
         ws_name = workspace_identity["workspace_name"]
         if (
@@ -1038,14 +1050,53 @@ class SkillPoolService:
                     "workspace_name": ws_name,
                     "backfill_language": pool_lang or "",
                 }
+            # Version differs — this is a builtin upgrade. Use content
+            # hash to determine whether the workspace copy was edited.
+            pool_recorded_hash = str(
+                entry.get("builtin_content_hash", "") or "",
+            )
+            ws_recorded_hash = str(
+                (existing.get("metadata") or {}).get(
+                    "builtin_content_hash",
+                    "",
+                )
+                or "",
+            )
+            ws_actual_hash = compute_skill_md_hash(
+                safe_skill_dir(
+                    get_workspace_skills_dir(workspace_dir),
+                    final_name,
+                ),
+            )
+            if (
+                ws_recorded_hash
+                and pool_recorded_hash
+                and ws_recorded_hash == pool_recorded_hash
+                and ws_actual_hash == ws_recorded_hash
+            ):
+                # User has not modified the workspace copy — safe to
+                # update without confirmation.
+                return {
+                    "success": True,
+                    "mode": "safe_update",
+                    "name": final_name,
+                    "workspace_id": ws_id,
+                    "workspace_name": ws_name,
+                    "skill_name": final_name,
+                    "source_version_text": pool_ver,
+                    "current_version_text": ws_ver,
+                }
+            # User has edited the workspace copy — block unless
+            # overwrite is explicitly requested.
             return {
                 "success": False,
-                "reason": "builtin_upgrade",
+                "reason": "user_modified",
                 "workspace_id": ws_id,
                 "workspace_name": ws_name,
                 "skill_name": final_name,
                 "source_version_text": pool_ver,
                 "current_version_text": ws_ver,
+                "suggested_name": suggest_conflict_name(final_name),
             }
         return {
             "success": False,
@@ -1116,7 +1167,10 @@ class SkillPoolService:
                         final_name,
                         conflict["backfill_language"],
                     )
-                return conflict
+                # safe_update: the user has not modified their workspace
+                # copy, so proceed with the download instead of blocking.
+                if conflict.get("mode") != "safe_update":
+                    return conflict
 
         target_dir.parent.mkdir(parents=True, exist_ok=True)
         with staged_skill_dir(final_name) as staged_dir:

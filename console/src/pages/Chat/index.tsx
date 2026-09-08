@@ -1416,6 +1416,7 @@ export default function ChatPage(props: ChatPageProps = {}) {
       return;
     }
     let cancelled = false;
+    let interval: ReturnType<typeof setInterval> | null = null;
     const fetchMembers = async () => {
       try {
         const state = await groupChatsApi.getGroupChat(selectedAgent, queueSessionId);
@@ -1428,16 +1429,25 @@ export default function ChatPage(props: ChatPageProps = {}) {
             })),
           );
         }
-      } catch {
-        // Not a group chat or not found — silently ignore
+      } catch (err: unknown) {
+        // Not a group chat or session not found.
+        // If 404 (session deleted), stop polling to avoid
+        // endless 404 spam in the console and backend logs.
+        const status =
+          (err as { status?: number })?.status ??
+          (err as { response?: { status?: number } })?.response?.status;
+        if (status === 404) {
+          if (interval) clearInterval(interval);
+          interval = null;
+        }
         if (!cancelled) setGroupChatMembers([]);
       }
     };
     void fetchMembers();
-    const interval = setInterval(fetchMembers, 5000);
+    interval = setInterval(fetchMembers, 5000);
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      if (interval) clearInterval(interval);
     };
   }, [groupChatEnabled, selectedAgent, queueSessionId]);
 

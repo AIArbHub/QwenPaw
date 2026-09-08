@@ -119,7 +119,7 @@ vi.mock("@/stores/agentStore", () => {
   const makeState = () => ({
     selectedAgent: mockSelectedAgent(),
     setSelectedAgent: mockSetSelectedAgent,
-    agents: [{ id: "default", name: "Default", backend: "qwenpaw" }],
+    agents: [{ id: "default", name: "Default", backend: "aiarb" }],
     setLastChatId: vi.fn(),
     getLastChatId: vi.fn(() => null),
     removeLastChatId: vi.fn(),
@@ -661,7 +661,7 @@ describe("ChatPage coverage", () => {
           object: "response",
           status: "completed",
           metadata: {
-            qwenpaw_model_fallbacks: [
+            aiarb_model_fallbacks: [
               {
                 type: "model_fallback",
                 from_provider_id: "openai",
@@ -1546,8 +1546,8 @@ describe("ChatPage coverage", () => {
     });
   });
 
-  // ── qwenpaw:open-file-preview event ────────────────────────────────────
-  it("handles qwenpaw:open-file-preview custom event", async () => {
+  // ── aiarb:open-file-preview event ────────────────────────────────────
+  it("handles aiarb:open-file-preview custom event", async () => {
     renderWithProviders(<ChatPage />, {
       initialEntries: ["/chat/test-session"],
     });

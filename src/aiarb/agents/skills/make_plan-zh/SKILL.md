@@ -5,6 +5,7 @@ metadata:
   builtin_skill_version: "1.3"
   aiarb:
     emoji: "🗺️"
+tags: ['系统工具']
 ---
 
 # 制定计划

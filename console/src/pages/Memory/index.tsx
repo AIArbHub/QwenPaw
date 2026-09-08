@@ -13,6 +13,7 @@ import {
   Spin,
   Tree,
   Select,
+  Upload,
 } from "antd";
 import {
   SearchOutlined,
@@ -24,6 +25,7 @@ import {
   HomeOutlined,
   InboxOutlined,
   RobotOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import { Brain } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -95,9 +97,10 @@ export default function MemoryPage() {
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<string | null>(null);
+  const [searchResults, setSearchResults] = useState<TaggedMdFileInfo[] | null>(null);
 
   const [reindexing, setReindexing] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState<string>(
     selectedAgent || ALL_AGENTS,
   );
@@ -341,6 +344,29 @@ export default function MemoryPage() {
     }
   };
 
+  /** Upload files into the current editor agent's workspace, then refresh. */
+  const handleUpload = async (files: File[]) => {
+    if (files.length === 0) return;
+    setUploading(true);
+    try {
+      await workspaceApi.uploadFiles(
+        files,
+        "",
+        undefined,
+        undefined,
+        "project",
+        undefined,
+        editorAgentId || "default",
+      );
+      message.success(t("memoryCenter.uploadSuccess", "上传成功"));
+      await fetchAll();
+    } catch (err: any) {
+      message.error(err?.message || t("memoryCenter.uploadFailed", "上传失败"));
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const agentOptions = useMemo(() => {
     const opts = agents.map((a) => ({ label: a.name || a.id, value: a.id }));
     return [{ label: t("memoryCenter.allAgents", "全部智能体"), value: ALL_AGENTS as string }, ...opts];
@@ -406,23 +432,55 @@ export default function MemoryPage() {
               const matched = files.filter((f) =>
                 f.filename.toLowerCase().includes(q.toLowerCase()),
               );
-              if (matched.length === 0) {
-                setSearchResults(t("memoryCenter.searchNoResults", "未找到相关结果"));
-              } else {
-                setSearchResults(
-                  matched.map((f) => {
-                    const agentLabel = f._agentName ? `[${f._agentName}] ` : "";
-                    return `${agentLabel}${f.filename}`;
-                  }).join("\n"),
-                );
-              }
+              setSearchResults(matched);
             }}
             allowClear
           />
         </div>
 
         {searchResults !== null && (
-          <div className={styles.searchResults}>{searchResults}</div>
+          <div className={styles.searchResults}>
+            {searchResults.length === 0 ? (
+              <div className={styles.searchEmpty}>
+                {t("memoryCenter.searchNoResults", "未找到相关结果")}
+              </div>
+            ) : (
+              <>
+                <div className={styles.searchResultsHeader}>
+                  {t("memoryCenter.searchResultsCount", "{{count}} 条结果", { count: searchResults.length })}
+                </div>
+                <div className={styles.searchResultsList}>
+                  {searchResults.map((f, idx) => (
+                    <button
+                      type="button"
+                      key={`${f._agentId || ""}-${f.filename}-${idx}`}
+                      className={styles.searchResultItem}
+                      title={f.filename}
+                      onClick={() => {
+                        const agentId = f._agentId || (selectedAgentId !== ALL_AGENTS ? selectedAgentId : "default");
+                        setEditorAgentId(agentId);
+                        const section: "daily" | "digest" =
+                          f.filename.startsWith("digest/") ? "digest" : "daily";
+                        setInitialTarget({ source: section, path: f.filename });
+                        setSearchResults(null);
+                        setSearchQuery("");
+                      }}
+                    >
+                      <div className={styles.searchResultInfo}>
+                        <FileTextOutlined className={styles.searchResultIcon} />
+                        <span className={styles.searchResultPath}>{f.filename}</span>
+                      </div>
+                      {f._agentName && selectedAgentId === ALL_AGENTS && (
+                        <div className={styles.searchResultSnippet}>
+                          <Tag color="blue" className={styles.agentTag}>{f._agentName}</Tag>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         )}
 
         <div className={styles.mainLayout}>
@@ -432,7 +490,28 @@ export default function MemoryPage() {
               <span className={styles.treeHeaderTitle}>
                 {t("memoryCenter.fileList", "文件列表")}
               </span>
-              <Tag>{files.length + workingFiles.length}</Tag>
+              <div className={styles.treeHeaderRight}>
+                <Upload
+                  multiple
+                  showUploadList={false}
+                  beforeUpload={() => false}
+                  onChange={({ fileList }) => {
+                    const picked = fileList
+                      .map((f) => f.originFileObj)
+                      .filter((f): f is NonNullable<typeof f> => Boolean(f));
+                    if (picked.length > 0) void handleUpload(picked);
+                  }}
+                >
+                  <Tooltip title={t("files.upload", "上传文件")}>
+                    <Button
+                      size="small"
+                      icon={<UploadOutlined />}
+                      loading={uploading}
+                    />
+                  </Tooltip>
+                </Upload>
+                <Tag>{files.length + workingFiles.length}</Tag>
+              </div>
             </div>
             {loading ? (
               <div className={styles.loadingCenter}><Spin /></div>

@@ -2320,7 +2320,7 @@ describe("useSkillPool — computed properties", () => {
     });
 
     // Pre-set the ack in localStorage
-    localStorage.setItem("qwenpaw.skill-pool.builtin-notice.ack", "fp-seen");
+    localStorage.setItem("aiarb.skill-pool.builtin-notice.ack", "fp-seen");
 
     const { result } = renderHook(() => useSkillPool());
     await waitFor(() => expect(result.current.loading).toBe(false));

@@ -6,6 +6,7 @@ metadata:
   aiarb:
     emoji: "📚"
     requires: {}
+tags: ['仲裁核心', '知识管理']
 ---
 
 # 仲裁知识库检索引导

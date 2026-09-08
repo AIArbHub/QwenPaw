@@ -6,6 +6,7 @@ metadata:
   aiarb:
     emoji: "📄"
     requires: {}
+tags: ['系统工具']
 ---
 # 文件读取工具箱
 

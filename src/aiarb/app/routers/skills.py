@@ -740,7 +740,7 @@ def _build_workspace_skill_specs(workspace_dir: Path) -> list[SkillSpec]:
                     emoji=str(metadata.get("emoji", "") or ""),
                     enabled=entry.get("enabled", False),
                     channels=entry.get("channels") or ["all"],
-                    tags=entry.get("tags") or [],
+                    tags=entry.get("tags") or metadata.get("tags") or [],
                     last_updated=str(metadata.get("updated_at", "") or ""),
                 ),
             )
@@ -787,7 +787,7 @@ def _build_pool_skill_specs() -> list[PoolSkillSpec]:
                     external=is_external,
                     external_path=str(skill_dir) if is_external else "",
                     sync_status=str(info.get("sync_status", "") or ""),
-                    tags=entry.get("tags") or [],
+                    tags=entry.get("tags") or metadata.get("tags") or [],
                     last_updated=str(metadata.get("updated_at", "") or ""),
                     auto_sync=automation.auto_sync,
                     auto_update=(

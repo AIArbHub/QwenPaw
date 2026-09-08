@@ -4,6 +4,7 @@ description: "Use this skill any time a .pptx file is involved in any way — as
 license: Proprietary. LICENSE.txt has complete terms
 metadata:
   builtin_skill_version: "1.1"
+tags: ['系统工具', '文档处理']
 ---
 
 > **Important:** All `scripts/` paths are relative to this skill directory.

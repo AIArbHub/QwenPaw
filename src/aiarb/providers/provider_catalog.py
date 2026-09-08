@@ -11,6 +11,7 @@ from .mimo_provider import MiMoProvider
 from .modelscope_provider import ModelScopeProvider
 from .ollama_provider import OllamaProvider
 from .openai_provider import (
+    AgnesProvider,
     GitHubModelsProvider,
     KiloProvider,
     OpenAIProvider,
@@ -518,7 +519,7 @@ PROVIDER_MIMO = MiMoProvider(
     provider_variant="standard",
 )
 
-PROVIDER_AGNES = OpenAIProvider(
+PROVIDER_AGNES = AgnesProvider(
     id="agnes",
     name="Agnes AI",
     base_url="https://apihub.agnes-ai.com/v1",

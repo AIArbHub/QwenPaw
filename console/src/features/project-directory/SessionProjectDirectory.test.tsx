@@ -130,7 +130,7 @@ describe("SessionProjectDirectory", () => {
     ).toBeInTheDocument();
     expect(trigger).toHaveAttribute("aria-expanded", "true");
     expect(
-      document.querySelector(".ant-popover, .qwenpaw-popover"),
+      document.querySelector(".ant-popover, .aiarb-popover"),
     ).not.toBeInTheDocument();
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
 

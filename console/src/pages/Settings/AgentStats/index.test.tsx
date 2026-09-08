@@ -16,7 +16,7 @@ const mocks = vi.hoisted(() => ({
         description: "",
         workspace_dir: "/workspace/agent-a",
         enabled: true,
-        backend: "qwenpaw",
+        backend: "aiarb",
       },
       {
         id: "agent-b",
@@ -24,7 +24,7 @@ const mocks = vi.hoisted(() => ({
         description: "",
         workspace_dir: "/workspace/agent-b",
         enabled: true,
-        backend: "qwenpaw",
+        backend: "aiarb",
       },
     ],
   },

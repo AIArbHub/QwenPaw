@@ -128,8 +128,12 @@ def _sync_default_workspace_skills(
 
     Returns the number of skills enabled.
     """
-    from ..agents.skill_system import SkillPoolService, SkillService
+    import logging
 
+    from ..agents.skill_system import SkillPoolService, SkillService
+    from ..agents.skill_system.arb_defaults import ARB_BUILTIN_SKILLS
+
+    logger = logging.getLogger(__name__)
     pool = SkillPoolService()
     service = SkillService(default_workspace)
     prior_names = {skill.name for skill in service.list_all_skills()}
@@ -147,6 +151,26 @@ def _sync_default_workspace_skills(
         result = service.enable_skill(skill.name)
         if result.get("success"):
             enabled += 1
+
+    # Arbitration skills ship with the product: make sure they exist in the
+    # workspace and are enabled, even when this workspace predates them.
+    # Existing files are never overwritten (overwrite=False), so local edits
+    # to a skill survive re-running init.
+    for skill_name in ARB_BUILTIN_SKILLS:
+        try:
+            pool.download_to_workspace(
+                skill_name,
+                default_workspace,
+                overwrite=False,
+            )
+        except Exception as exc:
+            logger.debug("Arb skill download skipped (%s): %s", skill_name, exc)
+            continue
+        try:
+            if service.enable_skill(skill_name).get("success"):
+                enabled += 1
+        except Exception as exc:
+            logger.debug("Arb skill enable failed (%s): %s", skill_name, exc)
     return enabled
 
 

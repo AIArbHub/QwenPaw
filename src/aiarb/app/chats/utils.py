@@ -184,7 +184,7 @@ def build_env_context(
         f"framework built by AgentScope team from Qwen lab.",
     )
     parts.append(
-        "- GitHub: https://github.com/agentscope-ai/AIArb",
+        "- Website: https://www.aiarb.cn",
     )
     parts.append(
         "- Docs: https://qwenpaw.agentscope.io/",

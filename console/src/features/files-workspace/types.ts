@@ -24,6 +24,13 @@ export interface FileTarget {
   root?: WorkspaceRoot;
   /** Stable URL emitted by a chat tool result for a historical artifact. */
   artifactUrl?: string;
+  /**
+   * Owning agent for agent-scoped sources (`profile` / `daily` / `digest`).
+   * Only set when the file belongs to an agent other than the one the
+   * workspace is currently bound to — mixed views such as the aggregated
+   * knowledge base rely on it to reach the right storage.
+   */
+  agentId?: string;
   line?: number;
   endLine?: number;
   column?: number;

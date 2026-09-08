@@ -954,7 +954,11 @@ def _build_skill_metadata_from_post(
     protected: bool = False,
 ) -> dict[str, Any]:
     requirements = _extract_requirements(post)
-    return {
+    # Extract tags from frontmatter (top-level or under metadata.aiarb)
+    tags_value = post.get("tags")
+    if not isinstance(tags_value, list):
+        tags_value = []
+    metadata: dict[str, Any] = {
         "name": skill_name,
         "description": str(post.get("description", "") or ""),
         "version_text": extract_version(post),
@@ -963,8 +967,16 @@ def _build_skill_metadata_from_post(
         "source": source,
         "protected": protected,
         "requirements": requirements.model_dump(),
+        "tags": tags_value,
         "updated_at": get_skill_mtime(skill_dir),
     }
+    # Record the content hash for builtin skills so that updates can
+    # detect whether the user has modified their local copy.  This hash
+    # is set at import/update time and preserved across reconciles.
+    content_hash = compute_skill_md_hash(skill_dir)
+    if content_hash:
+        metadata["builtin_content_hash"] = content_hash
+    return metadata
 
 
 def read_skill_content_and_metadata_from_dir(
@@ -1149,6 +1161,7 @@ def read_skill_from_dir(skill_dir: Path, source: str) -> SkillInfo | None:
         content = read_text_file_with_encoding_fallback(skill_md)
         description = ""
         emoji = ""
+        tags: list[str] = []
         post: Any = {}
         try:
             post = frontmatter.loads(content)
@@ -1156,6 +1169,10 @@ def read_skill_from_dir(skill_dir: Path, source: str) -> SkillInfo | None:
 
             # Extract emoji from metadata.aiarb.emoji
             emoji = _extract_emoji_from_metadata(post.get("metadata", {}))
+            # Extract tags from frontmatter top-level
+            raw_tags = post.get("tags")
+            if isinstance(raw_tags, list):
+                tags = [str(t) for t in raw_tags]
         except Exception:
             pass
 
@@ -1177,6 +1194,7 @@ def read_skill_from_dir(skill_dir: Path, source: str) -> SkillInfo | None:
             references=references,
             scripts=scripts,
             emoji=emoji,
+            tags=tags,
         )
     except Exception as exc:
         logger.error("Failed to read skill %s: %s", skill_dir, exc)

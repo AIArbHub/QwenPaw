@@ -72,7 +72,7 @@ describe("ChatHeaderTitle", () => {
     expect(trigger).toHaveAttribute("aria-expanded", "true");
     expect(
       (await screen.findByRole("menu")).closest(
-        ".qwenpaw-dropdown, .ant-dropdown",
+        ".aiarb-dropdown, .ant-dropdown",
       ),
     ).toHaveClass(styles.sessionDropdown);
   });

@@ -44,7 +44,7 @@ const hoisted = vi.hoisted(() => {
   const harnessMocks = { listSkills: vi.fn() };
   const agentState = {
     selectedAgent: "agent-1",
-    agents: [{ id: "agent-1", backend: "qwenpaw" }],
+    agents: [{ id: "agent-1", backend: "aiarb" }],
   };
   const stableT = (k: string) => k;
   return {

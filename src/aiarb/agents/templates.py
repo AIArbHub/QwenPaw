@@ -24,6 +24,13 @@ from ..constant import (
     BUILTIN_QA_AGENT_NAME,
     BUILTIN_QA_AGENT_SKILL_NAMES,
 )
+from .skill_system.arb_defaults import (
+    ARBITRATOR_BROADCAST_SKILLS,
+    CLAIMANT_BROADCAST_SKILLS,
+    DEFAULT_BROADCAST_SKILLS,
+    RESPONDENT_BROADCAST_SKILLS,
+    SECRETARY_BROADCAST_SKILLS,
+)
 
 DEFAULT_AGENT_TEMPLATE = "default"
 LOCAL_AGENT_TEMPLATE = "local"
@@ -67,6 +74,8 @@ SUPPORTED_AGENT_TEMPLATES = (
 LOCAL_TEMPLATE_SKILL_NAMES = ("make_plan",)
 # Guidance skill for arbitration roles: teaches them to search the shared
 # knowledge base before answering legal/rule/case/template questions.
+# Broadcast skills from LegalWork port are merged into each role's initial
+# skill set so they are available out of the box.
 ARBITRATION_TEMPLATE_SKILL_NAMES = ("kb_arbitration",)
 # Installed by default for every newly created agent (default template + the
 # create-agent API/CLI paths) so the shared knowledge base is always part of
@@ -140,7 +149,7 @@ def build_agent_template(
         )
         return AgentTemplateBuildResult(
             agent_config=agent_config,
-            initial_skill_names=DEFAULT_KNOWLEDGE_SKILL_NAMES,
+            initial_skill_names=(*DEFAULT_KNOWLEDGE_SKILL_NAMES, *DEFAULT_BROADCAST_SKILLS),
             md_template_id=get_workspace_md_template_id(template_id),
         )
 
@@ -219,9 +228,21 @@ def build_agent_template(
             heartbeat=HeartbeatConfig(),
             tools=build_arbitration_tools_config(),
         )
+        # Merge arbitration base skills with role-specific broadcast skills
+        role_broadcast: tuple[str, ...]
+        if template_id == ARBITRATOR_TEMPLATE:
+            role_broadcast = ARBITRATOR_BROADCAST_SKILLS
+        elif template_id == CLAIMANT_TEMPLATE:
+            role_broadcast = CLAIMANT_BROADCAST_SKILLS
+        elif template_id == RESPONDENT_TEMPLATE:
+            role_broadcast = RESPONDENT_BROADCAST_SKILLS
+        elif template_id == SECRETARY_TEMPLATE:
+            role_broadcast = SECRETARY_BROADCAST_SKILLS
+        else:
+            role_broadcast = ()
         return AgentTemplateBuildResult(
             agent_config=agent_config,
-            initial_skill_names=ARBITRATION_TEMPLATE_SKILL_NAMES,
+            initial_skill_names=(*ARBITRATION_TEMPLATE_SKILL_NAMES, *role_broadcast),
             md_template_id=get_workspace_md_template_id(template_id),
         )
 

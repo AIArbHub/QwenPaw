@@ -45,7 +45,7 @@ import {
   SparkVoiceChat01Line,
   SparkWifiLine,
 } from "@agentscope-ai/icons";
-import { GitBranch, Files, Brain, BookOpen, Sparkles, NotebookPen } from "lucide-react";
+import { GitBranch, Files, Brain, BookOpen, Sparkles, NotebookPen, FileSearch } from "lucide-react";
 import i18next from "i18next";
 import { menuRegistry } from "../../plugins/registry/store";
 import type { MenuItem } from "../../plugins/registry/types";
@@ -137,6 +137,16 @@ export const BUILTIN_MENU: MenuItem[] = [
     icon: SparkBookLine,
     route: "core.knowledge-base",
     order: 16,
+  },
+
+  // ── Document Tools (一级菜单) ───────────────────────────────────────────
+  {
+    id: "core.document-tools",
+    location: "primary.agentScoped",
+    label: navLabel("nav.documentTools", "文档工具箱"),
+    icon: FileSearch,
+    route: "core.document-tools",
+    order: 17,
   },
 
   // ── Control group ────────────────────────────────────────────────────────

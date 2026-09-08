@@ -207,6 +207,16 @@ class Runtime:
             ):
                 yield ev
             raise
+        except GeneratorExit:
+            # GeneratorExit 是正常的生成器关闭信号（消费者断开 SSE 连接
+            # 或调用 aclose()）。不要将其当作 "unhandled error" 记录——
+            # 这是群聊子运行（host sub-run / member stream）在
+            # _stream_with_timeout.aclose() 时的预期行为。
+            #
+            # 仅做最小化清理（保存中断状态），然后 re-raise 让生成器
+            # 正确关闭。不 yield error_envelope——消费者已经离开。
+            await self._try_save_on_cancel(ctx)
+            raise
         except BaseException as e:
             await self._try_save_on_cancel(ctx)
 

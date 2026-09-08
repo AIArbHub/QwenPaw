@@ -229,6 +229,7 @@ export const workspaceApi = {
     chatId?: string,
     root: WorkspaceRoot = "project",
     projectDirOverride?: string,
+    agentId?: string,
   ): Promise<{
     files: Array<{
       name: string;
@@ -249,7 +250,10 @@ export const workspaceApi = {
       ),
       {
         method: "POST",
-        headers: projectHeaders(chatId, projectDirOverride),
+        headers: {
+          ...projectHeaders(chatId, projectDirOverride),
+          ...(agentId ? { "X-Agent-Id": agentId } : {}),
+        },
         body: formData,
       },
     );

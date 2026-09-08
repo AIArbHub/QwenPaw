@@ -40,6 +40,9 @@ from .checkpoints import router as checkpoints_router
 from .knowledge import router as knowledge_router
 from ..kb_curator.router import router as kb_curator_router
 from ..group_chats.api import router as group_chats_router
+from .document_tools import router as document_tools_router
+from .ima import router as ima_router
+from .case_framework import router as case_framework_router
 
 router = APIRouter()
 
@@ -80,6 +83,9 @@ router.include_router(checkpoints_router)
 router.include_router(knowledge_router)
 router.include_router(kb_curator_router)
 router.include_router(group_chats_router)
+router.include_router(document_tools_router)
+router.include_router(ima_router)
+router.include_router(case_framework_router)
 
 
 def create_agent_scoped_router() -> APIRouter:

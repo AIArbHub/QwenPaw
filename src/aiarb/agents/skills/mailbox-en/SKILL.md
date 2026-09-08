@@ -7,6 +7,7 @@ metadata:
     emoji: "📧"
     requires:
       mcp: ["aiarbmail-mcp"]
+tags: ['系统工具']
 ---
 
 # Mailbox Operations (aiarbmail-mcp)

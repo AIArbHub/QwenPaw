@@ -844,9 +844,14 @@ async def _should_use_group_runtime(
             channel_meta, dict,
         ) else None
 
-        host_agent_id = getattr(request, "user_id", "") or ""
+        host_agent_id = (
+            getattr(workspace, "agent_id", None)
+            or getattr(request.state, "agent_id", None)
+            or request.headers.get("X-Agent-Id")
+            or ""
+        )
         if not host_agent_id or workspace is None:
-            logger.debug(
+            logger.warning(
                 "[group-chat-detect] _should_use_group_runtime=False "
                 "(host_agent_id=%r, workspace=%r)",
                 host_agent_id, workspace,
@@ -862,7 +867,7 @@ async def _should_use_group_runtime(
         result = should_use_native_runtime(
             description, None, request_context,
         )
-        logger.debug(
+        logger.info(
             "[group-chat-detect] _should_use_group_runtime result=%s "
             "for host_agent_id=%s, request_context=%s",
             result, host_agent_id, request_context,
@@ -870,7 +875,7 @@ async def _should_use_group_runtime(
         return result
     except Exception as exc:  # noqa: BLE001
         # Any failure in detection → fall back to _process (safe default)
-        logger.debug(
+        logger.warning(
             "[group-chat-detect] _should_use_group_runtime=False "
             "(exception: %s)",
             exc,

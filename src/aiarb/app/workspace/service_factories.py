@@ -87,6 +87,27 @@ async def create_driver_service(
     # runtime surface to MCP while leaving DriverManager protocol-neutral.
     await migrate_legacy_mcp_if_needed(ws, driver_manager)
     await driver_manager.start()
+
+    # Seed built-in legal research MCP clients (元典, 北大法宝) so users
+    # can simply fill in their API key to activate them.
+    try:
+        from ..mcp.builtin_seed import seed_builtin_mcp_clients
+
+        seeded = await seed_builtin_mcp_clients(ws)
+        if seeded:
+            logger.info(
+                "Seeded %d built-in MCP client(s) for agent %s: %s",
+                len(seeded),
+                ws.agent_id,
+                ", ".join(seeded),
+            )
+    except Exception:
+        logger.warning(
+            "Failed to seed built-in MCP clients for agent %s",
+            ws.agent_id,
+            exc_info=True,
+        )
+
     logger.debug(
         "DriverManager external capability runtime initialized for agent: %s",
         ws.agent_id,

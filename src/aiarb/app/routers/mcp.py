@@ -160,6 +160,26 @@ async def list_mcp_access_principals(
 
 
 @router.get(
+    "/builtin",
+    response_model=List[MCPClientInfo],
+    summary="List built-in MCP clients",
+)
+async def list_builtin_mcp_clients(request: Request) -> List[MCPClientInfo]:
+    """Return only the built-in MCP clients (元典, 北大法宝).
+
+    These are pre-seeded legal research MCP clients. They are created in
+    a disabled state and require the user to fill in their API key.
+    """
+    from ..mcp.builtin_seed import get_builtin_mcp_keys
+
+    agent = await _agent_for_request(request)
+    service = _mcp_service(agent)
+    all_clients = await service.list_clients()
+    builtin_keys = set(get_builtin_mcp_keys())
+    return [c for c in all_clients if c.key in builtin_keys]
+
+
+@router.get(
     "",
     response_model=List[MCPClientInfo],
     summary="List all MCP clients",

@@ -20,7 +20,7 @@ describe("compact approval controls", () => {
     mockUseIsMobile.mockReturnValue(false);
   });
 
-  it("renders only the QwenPaw approval icon", () => {
+  it("renders only the AIArb approval icon", () => {
     const { container } = renderWithProviders(
       <ApprovalLevelToggle
         compact

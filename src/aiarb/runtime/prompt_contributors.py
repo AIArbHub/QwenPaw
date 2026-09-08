@@ -279,7 +279,7 @@ project directory** — `read_file("src/main.py")` and a bare `pytest`
 both act on it, so you do not need to pass absolute paths or an
 explicit `cwd` for ordinary work there.{extra_dirs_guidance}
 
-The agent workspace holds internal QwenPaw state (config, memory,
+The agent workspace holds internal AIArb state (config, memory,
 sessions, skills). Do not read or write there unless the user asks.
 """
 

@@ -75,6 +75,9 @@ dependencies = [
     "html2text>=2024.2.26",
     "mcp>=1.28,<2.0",
     "imap-tools>=1.13,<2.0",
+    # Binary document (.docx/.pdf/.xlsx/.pptx) text extraction in
+    # read_file — single dependency covering many formats.
+    "markitdown>=0.1.2",
 ]
 
 [project.urls]
@@ -96,6 +99,7 @@ include-package-data = true
     "console/**",
     "agents/md_files/**",
     "agents/skills/**",
+    "knowledge_base/**",
     "agents/context/visual_compression/assets/atlas-gray.ts",
     "agents/context/visual_compression/assets/atlas-gray-medium.ts",
     "agents/context/visual_compression/assets/atlas-gray-high.ts",
@@ -155,7 +159,7 @@ qoder = [
     "qoder-agent-sdk==1.0.9",
 ]
 full = [
-    "aiarb[hub,local,whisper,codex,qoder]",
+    "aiarb[hub,local,whisper,codex,qoder,ocr]",
 ]
 sip = [
     "pyVoIP>=1.6.0",
@@ -167,6 +171,24 @@ sip-livekit = [
     "aiarb[sip]",
     "livekit>=1.0.0",
     "livekit-api>=0.6.0",
+]
+# OCR engine bundle — install with: pip install "aiarb[ocr]"
+# Includes all local OCR engines + layout parser + PDF-to-image conversion.
+# Users who only need cloud OCR can skip this extras and configure API keys instead.
+ocr = [
+    "paddlepaddle>=2.6.0",          # Best CJK accuracy; ~3GB disk
+    "paddleocr>=2.7.0",            # PaddleOCR wrapper
+    "easyocr>=1.7.0",               # Multilingual fallback; ~500MB
+    "pytesseract>=0.3.10",         # Lightweight tesseract Python binding
+    "pdf2image>=1.17.0",           # PDF → PIL Image conversion
+    "PyMuPDF>=1.24.0",             # Fallback PDF rendering (fitz)
+    "pillow>=10.0.0",              # Image handling (already in core, listed for clarity)
+]
+# MinerU layout parser — install separately due to heavy dependencies (~10GB models)
+# Requires Python 3.10+ and is incompatible with some environments.
+# Install with: pip install "aiarb[ocr,mineru]"
+mineru = [
+    "magic-pdf[full]>=0.6.0",      # MinerU: table/dual-column layout parsing
 ]
 
 [tool.pytest.ini_options]

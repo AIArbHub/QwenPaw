@@ -4,6 +4,7 @@ description: "Use this skill whenever the user wants to create, read, edit, or m
 license: Proprietary. LICENSE.txt has complete terms
 metadata:
   builtin_skill_version: "1.1"
+tags: ['系统工具', '文档处理']
 ---
 
 > **Important:** All `scripts/` paths are relative to this skill directory.

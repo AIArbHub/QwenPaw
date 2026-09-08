@@ -91,7 +91,7 @@ describe("Chat mobile layout styles", () => {
 
     expect(mobileStart).toBeGreaterThanOrEqual(0);
     expect(mobileRule).toContain("@media (max-width: 768px)");
-    expect(mobileRule).toContain(".qwenpaw-chat-anywhere-layout");
+    expect(mobileRule).toContain(".aiarb-chat-anywhere-layout");
     expect(mobileRule).toMatch(/min-width:\s*0\s*!important/);
     expect(mobileRule).toContain("safe-area-inset-bottom");
   });

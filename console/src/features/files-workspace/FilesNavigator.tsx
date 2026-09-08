@@ -55,6 +55,7 @@ import {
   buildDailyMemoryTree,
   buildMemoryTree,
   buildKnowledgeTree,
+  stampSubtree,
   type MemoryTreeEntry,
 } from "./memoryTree";
 import { selectProfileFiles } from "./profileFileSelection";
@@ -85,6 +86,15 @@ interface ProfileFileRowProps {
 }
 
 export type NavigatorSource = "workspace" | "profile" | "daily" | "digest" | "knowledge";
+
+/** One knowledge library rendered as a top-level group in a merged tree. */
+export interface KnowledgeLibraryGroup {
+  key: string;
+  /** Visible label of the group node. */
+  name: string;
+  /** Agent owning this library; omit for the global knowledge base. */
+  agentId?: string;
+}
 
 /** Switcher entry that opens the binding panel instead of changing the root. */
 const MANAGE_DIRS_KEY = "__manage_project_dirs__";
@@ -269,14 +279,22 @@ function MemoryDirectoryNode({
   selectedPath: string;
   onSelect: (target: FileTarget) => void;
   depth: number;
-  source: "daily" | "digest";
+  source: NavigatorSource;
   activeGraphRoot: MemoryGraphRoot | null;
   onShowGraph: (root: MemoryGraphRoot) => void;
 }) {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
+  // Merged (grouped) trees stamp each node with its owning source & agent, so
+  // recursion can resolve the real location even deep inside a nested folder.
+  const nodeSource = (entry.source ?? source) as NavigatorSource;
+  const nodeAgentId = entry.agentId;
+  // The graph affordance only applies to the bound agent's own digest top-level
+  // folders — a merged node pointing at another agent's data must not open a
+  // graph rooted in this agent's memory.
   const graphRoot =
-    source === "digest" &&
+    nodeSource === "digest" &&
+    !nodeAgentId &&
     depth === 0 &&
     (["wiki", "procedure", "personal"] as string[]).includes(entry.name)
       ? (entry.name as MemoryGraphRoot)
@@ -339,8 +357,9 @@ function MemoryDirectoryNode({
               style={{ paddingInlineStart: 29 + (depth + 1) * 16 }}
               onClick={() =>
                 onSelect({
-                  source,
+                  source: child.source ?? nodeSource,
                   path: child.path,
+                  agentId: child.agentId ?? nodeAgentId,
                 })
               }
             >
@@ -364,6 +383,8 @@ interface FilesNavigatorProps {
   initialSource?: NavigatorSource;
   /** Hide the source tabs bar (for sub-page routes). */
   hideSourceTabs?: boolean;
+  /** When present, the knowledge source is a merged tree of these libraries. */
+  knowledgeGroups?: KnowledgeLibraryGroup[];
 }
 
 export default function FilesNavigator({
@@ -375,6 +396,7 @@ export default function FilesNavigator({
   scope,
   initialSource,
   hideSourceTabs,
+  knowledgeGroups,
 }: FilesNavigatorProps) {
   const { t } = useTranslation();
   const chatId = scope.kind === "session" ? scope.chatId : undefined;
@@ -399,6 +421,9 @@ export default function FilesNavigator({
   const [dailyFiles, setDailyFiles] = useState<MemoryTreeEntry[]>([]);
   const [digestFiles, setDigestFiles] = useState<MemoryTreeEntry[]>([]);
   const [knowledgeFiles, setKnowledgeFiles] = useState<MemoryTreeEntry[]>([]);
+  const [groupedKnowledgeFiles, setGroupedKnowledgeFiles] = useState<
+    MemoryTreeEntry[]
+  >([]);
   const [enabledFiles, setEnabledFiles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -689,10 +714,9 @@ export default function FilesNavigator({
     }
   }, []);
 
-  const loadMemory = useCallback(async (section: "daily" | "digest") => {
-    setLoading(true);
-    try {
-      const agentIdParam = scopeKind === "agent" ? agentId : undefined;
+  const loadMemory = useCallback(
+    async (section: "daily" | "digest", forAgentId?: string) => {
+      const agentIdParam = forAgentId ?? (scopeKind === "agent" ? agentId : undefined);
       const files = await workspaceApi.listMemoryFiles(section, agentIdParam);
       const entries = files.map((file) => ({
         name: file.filename.split("/").pop() ?? file.filename,
@@ -706,13 +730,58 @@ export default function FilesNavigator({
         section === "daily"
           ? buildDailyMemoryTree(entries)
           : buildMemoryTree(entries);
-      if (section === "daily") setDailyFiles(tree);
-      else setDigestFiles(tree);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      return tree;
+    },
+    [agentId, scopeKind],
+  );
 
+  // Loads a memory section and commits it into the matching single-view state.
+  const loadMemoryView = useCallback(
+    async (section: "daily" | "digest") => {
+      setLoading(true);
+      try {
+        const tree = await loadMemory(section);
+        if (section === "daily") setDailyFiles(tree);
+        else setDigestFiles(tree);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loadMemory],
+  );
+
+  // Loads a single library (the global KB, or one agent's digest) and returns
+  // its tree without committing it — the caller decides where it lands.
+  const loadKnowledgeLibrary = useCallback(
+    async (
+      library: { kind: "global" } | { kind: "agent"; agentId: string },
+      badge: string,
+    ): Promise<MemoryTreeEntry[]> => {
+      if (library.kind === "agent") {
+        const tree = await loadMemory("digest", library.agentId);
+        return stampSubtree(tree, {
+          source: "digest",
+          agentId: library.agentId,
+          badge,
+        });
+      }
+      const data = await knowledgeApi.tree("");
+      const entries = data.files.map((file) => ({
+        name: file.name,
+        path: file.path,
+        kind: "file" as const,
+        size: file.size,
+        modified_at: "",
+        preview_kind: "text" as const,
+      }));
+      return stampSubtree(buildKnowledgeTree(entries), {
+        source: "knowledge",
+      });
+    },
+    [loadMemory],
+  );
+
+  // Plain global knowledge base (single-library view).
   const loadKnowledge = useCallback(async () => {
     setLoading(true);
     try {
@@ -735,6 +804,55 @@ export default function FilesNavigator({
       setLoading(false);
     }
   }, []);
+
+  // Merged "all libraries" view driven by the page's knowledgeGroups.
+  const loadGroupedKnowledge = useCallback(async () => {
+    setLoading(true);
+    try {
+      if (!knowledgeGroups || knowledgeGroups.length === 0) {
+        setGroupedKnowledgeFiles([]);
+        return;
+      }
+      const grouped = await Promise.all(
+        knowledgeGroups.map(async (group) => {
+          const library: { kind: "global" } | { kind: "agent"; agentId: string } =
+            group.agentId
+              ? { kind: "agent", agentId: group.agentId }
+              : { kind: "global" };
+          try {
+            return {
+              name: group.name,
+              path: `library:${group.key}`,
+              kind: "directory" as const,
+              size: null,
+              modified_at: "",
+              preview_kind: "text" as const,
+              children: await loadKnowledgeLibrary(library, group.name),
+              source: group.agentId ? ("digest" as const) : ("knowledge" as const),
+              agentId: group.agentId,
+              badge: group.name,
+            };
+          } catch {
+            return {
+              name: group.name,
+              path: `library:${group.key}`,
+              kind: "directory" as const,
+              size: null,
+              modified_at: "",
+              preview_kind: "text" as const,
+              children: [],
+              source: group.agentId ? ("digest" as const) : ("knowledge" as const),
+              agentId: group.agentId,
+              badge: group.name,
+            };
+          }
+        }),
+      );
+      setGroupedKnowledgeFiles(grouped);
+    } finally {
+      setLoading(false);
+    }
+  }, [knowledgeGroups, loadKnowledgeLibrary]);
 
   useEffect(() => {
     void Promise.all([loadDirectoryIdentity(), loadRoot(), loadProfile()]);
@@ -761,17 +879,34 @@ export default function FilesNavigator({
 
   useEffect(() => {
     if (source === "profile") void loadProfile();
-    if (source === "daily" || source === "digest") void loadMemory(source);
-    if (source === "knowledge") void loadKnowledge();
-  }, [loadMemory, loadProfile, loadKnowledge, source]);
+    if (source === "daily" || source === "digest") void loadMemoryView(source);
+    if (source === "knowledge") {
+      if (knowledgeGroups && knowledgeGroups.length > 0) {
+        void loadGroupedKnowledge();
+      } else {
+        void loadKnowledge();
+      }
+    }
+  }, [
+    knowledgeGroups,
+    loadGroupedKnowledge,
+    loadKnowledge,
+    loadMemoryView,
+    loadProfile,
+    source,
+  ]);
 
   const refreshCurrent = async () => {
     if (source === "daily" || source === "digest") {
-      await loadMemory(source);
+      await loadMemoryView(source);
       return;
     }
     if (source === "knowledge") {
-      await loadKnowledge();
+      if (knowledgeGroups && knowledgeGroups.length > 0) {
+        await loadGroupedKnowledge();
+      } else {
+        await loadKnowledge();
+      }
       return;
     }
     if (source === "profile") {
@@ -843,11 +978,23 @@ export default function FilesNavigator({
   const displayEntries = useMemo(() => {
     if (source === "daily") return dailyFiles;
     if (source === "digest") return digestFiles;
-    if (source === "knowledge") return knowledgeFiles;
+    if (source === "knowledge")
+      return knowledgeGroups && knowledgeGroups.length > 0
+        ? groupedKnowledgeFiles
+        : knowledgeFiles;
     if (source === "profile") return profileFiles;
     if (source === "workspace") return entries;
     return [];
-  }, [dailyFiles, digestFiles, entries, profileFiles, source]);
+  }, [
+    dailyFiles,
+    digestFiles,
+    entries,
+    groupedKnowledgeFiles,
+    knowledgeFiles,
+    knowledgeGroups,
+    profileFiles,
+    source,
+  ]);
 
   return (
     <aside
@@ -942,32 +1089,36 @@ export default function FilesNavigator({
             >
               <RefreshCw size={15} />
             </button>
-            <button
-              type="button"
-              className={styles.iconButton}
-              onClick={() => uploadRef.current?.click()}
-              aria-label={t("files.upload")}
-              disabled={uploading}
-            >
-              {uploading ? (
-                <LoaderCircle className={styles.spin} size={15} />
-              ) : (
-                <Upload size={15} />
-              )}
-            </button>
+            {source !== "knowledge" && (
+              <button
+                type="button"
+                className={styles.iconButton}
+                onClick={() => uploadRef.current?.click()}
+                aria-label={t("files.upload")}
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <LoaderCircle className={styles.spin} size={15} />
+                ) : (
+                  <Upload size={15} />
+                )}
+              </button>
+            )}
           </div>
         </div>
-        <input
-          ref={uploadRef}
-          type="file"
-          multiple
-          hidden
-          onChange={(event) => {
-            const files = Array.from(event.target.files ?? []);
-            event.target.value = "";
-            if (files.length > 0) void runUpload(files);
-          }}
-        />
+        {source !== "knowledge" && (
+          <input
+            ref={uploadRef}
+            type="file"
+            multiple
+            hidden
+            onChange={(event) => {
+              const files = Array.from(event.target.files ?? []);
+              event.target.value = "";
+              if (files.length > 0) void runUpload(files);
+            }}
+          />
+        )}
       </header>
       {hideSourceTabs ? null : (
       <div className={styles.sourceTabs} role="tablist">

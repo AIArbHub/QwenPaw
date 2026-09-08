@@ -69,13 +69,13 @@ __all__ = [
 os.environ.setdefault("REME_DISABLE_LOGURU", "true")
 
 NO_MEMORY_RESULTS = "(no memory results)"
-INBOX_RESULT_HOOK_KEY = "qwenpaw_memory_result_hook"
-_REME_SESSION_ID_HASH_PREFIX = "qpsid_sha256_"
+INBOX_RESULT_HOOK_KEY = "aiarb_memory_result_hook"
+_REME_SESSION_ID_HASH_PREFIX = "apsid_sha256_"
 _REQUIRED_REME_VERSION = "0.4.1.10"
 
 
 class _ReMeContractError(RuntimeError):
-    """Installed ReMe does not implement QwenPaw's pinned integration API."""
+    """Installed ReMe does not implement AIArb's pinned integration API."""
 
 
 def _load_validated_reme_app() -> type:
@@ -86,7 +86,7 @@ def _load_validated_reme_app() -> type:
 
     if reme.__version__ != _REQUIRED_REME_VERSION:
         raise _ReMeContractError(
-            "QwenPaw requires "
+            "AIArb requires "
             f"reme-ai=={_REQUIRED_REME_VERSION}, found {reme.__version__}",
         )
     required = {

@@ -6,6 +6,7 @@ metadata:
   aiarb:
     emoji: "🧭"
     requires: {}
+tags: ['系统工具']
 ---
 
 # AIArb 安装与配置问答指南
@@ -35,7 +36,7 @@ DOCS_DIR=$(python3 -c "from aiarb.constant import DOCS_DIR; print(DOCS_DIR or ''
 
 **查找记忆中的文档目录**
 
-首先你可以查看memory中是否有文档目录，如果有则直接使用，如果没有则继续执行下一步。
+首先查看 memory 中是否有文档目录，如果有则直接使用，如果没有则继续执行下一步。
 
 ```bash
 # 获取memory中的文档目录
@@ -135,7 +136,7 @@ find $DOCS_DIR -type f -name "*.md"
 
 若前面步骤无法完成（本地无文档、文档缺失、信息不足），使用官网作为兜底：
 
-- http://qwenpaw.agentscope.io/
+- https://aiarb.ai/
 
 基于官网可获得内容继续回答，并在答案中明确说明该结论来自官网文档。
 

@@ -205,7 +205,7 @@ export function Nav() {
                     <CommunityBenefitsTriggerLabel badgeAfter />
                   </a>
                   <a
-                    href="https://github.com/agentscope-ai/AIArb"
+                    href="https://www.aiarb.cn"
                     target="_blank"
                     rel="noopener noreferrer"
                     className={exploreMenuItemClass}
@@ -285,7 +285,7 @@ export function Nav() {
           <BlogIcon size={18} aria-hidden /> {t("nav.blog")}
         </Link>
         <a
-          href="https://github.com/agentscope-ai/AIArb"
+          href="https://www.aiarb.cn"
           target="_blank"
           rel="noopener noreferrer"
           className={navLinkOrangeClass}
