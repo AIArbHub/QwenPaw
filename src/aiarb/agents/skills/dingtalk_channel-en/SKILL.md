@@ -6,6 +6,7 @@ metadata:
   aiarb:
     emoji: "🤖"
     requires: {}
+tags: ['系统工具']
 ---
 
 # DingTalk Channel Auto-Connect (Headed Browser)

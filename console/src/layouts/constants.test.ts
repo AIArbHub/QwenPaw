@@ -29,9 +29,8 @@ describe("URL constants", () => {
     expect(PYPI_URL).toBe("https://pypi.org/pypi/aiarb/json");
   });
 
-  it("GITHUB_URL points to AIArb repo", () => {
-    expect(GITHUB_URL).toContain("github.com");
-    expect(GITHUB_URL).toContain("AIArb");
+  it("GITHUB_URL points to AIArb website", () => {
+    expect(GITHUB_URL).toBe("https://www.aiarb.cn");
   });
 });
 

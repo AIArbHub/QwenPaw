@@ -7,7 +7,7 @@
  * Fetches state from the backend GET /api/console/group-chats endpoint
  * and calls PATCH for controller changes.
  */
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Tag, Tooltip, Input, Button, Spin } from "antd";
 import { UserOutlined, RobotOutlined, BulbOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
@@ -61,6 +61,8 @@ export default function GroupChatControlBar({
   const [round, setRound] = useState(0);
   const [scriptPhase, setScriptPhase] = useState<string | null>(null);
 
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   const refresh = useCallback(async () => {
     if (!hostAgentId || !sessionId) return;
     try {
@@ -68,8 +70,19 @@ export default function GroupChatControlBar({
       setMembers(state.members);
       setRound(state.round);
       setScriptPhase(state.script_phase);
-    } catch {
-      // Not a group chat or not found — hide silently
+    } catch (err: unknown) {
+      // Not a group chat or session not found.
+      // If 404 (session deleted), stop polling to avoid
+      // endless 404 spam in the console and backend logs.
+      const status =
+        (err as { status?: number })?.status ??
+        (err as { response?: { status?: number } })?.response?.status;
+      if (status === 404) {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -79,8 +92,13 @@ export default function GroupChatControlBar({
     setLoading(true);
     void refresh();
     // Poll every 3 seconds for state updates while the panel is mounted
-    const interval = setInterval(refresh, 3000);
-    return () => clearInterval(interval);
+    intervalRef.current = setInterval(refresh, 3000);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
   }, [refresh]);
 
   const handleSetController = async (

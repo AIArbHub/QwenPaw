@@ -29,6 +29,7 @@ import { backupApi } from "./modules/backup";
 import { cloudBackupApi } from "./modules/cloudBackup";
 import { consoleApi } from "./modules/console";
 import { accessControlApi } from "./modules/accessControl";
+import { imaApi } from "./modules/ima";
 
 export const api = {
   // Root
@@ -103,6 +104,9 @@ export const api = {
 
   // Access Control
   ...accessControlApi,
+
+  // IMA Cloud Knowledge Base
+  ...imaApi,
 };
 
 export default api;

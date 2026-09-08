@@ -1,0 +1,41 @@
+{
+  "_comment": "知识库采集来源清单。url 为空表示尚未取得官方直链，脚本会跳过并列入待办。填写 url 前必须确认该链接确实指向官方发布的现行版本，不得凭猜测填写。",
+  "_note_on_institutions": "司法部 2025-08 遴选 22 家仲裁机构作为'中国特色国际一流仲裁机构培育工程'首批培育对象，完整名单以司法部/人民日报公告为准；本清单仅收录已公开确认的机构，名单待核对补齐。",
+
+  "rules": [
+    {"id": "CIETAC",   "institution": "中国国际经济贸易仲裁委员会（贸仲）", "jurisdiction": "中国大陆", "rules": ["仲裁规则", "仲裁员守则", "费用表", "金融争议仲裁规则"], "url": ""},
+    {"id": "BAC",      "institution": "北京仲裁委员会/北京国际仲裁院（北仲）", "jurisdiction": "中国大陆", "rules": ["仲裁规则", "国际投资仲裁规则", "仲裁员守则", "费用表"], "url": ""},
+    {"id": "SHIAC",    "institution": "上海国际经济贸易仲裁委员会/上海国际仲裁中心", "jurisdiction": "中国大陆", "rules": ["仲裁规则", "自贸区仲裁规则", "费用表"], "url": ""},
+    {"id": "SCIA",     "institution": "深圳国际仲裁院（深国仲）", "jurisdiction": "中国大陆", "rules": ["仲裁规则", "仲裁员守则", "费用表", "调解规则"], "url": ""},
+    {"id": "GZAC",     "institution": "广州仲裁委员会", "jurisdiction": "中国大陆", "rules": ["仲裁规则", "互联网仲裁规则", "费用表"], "url": ""},
+    {"id": "CMAC",     "institution": "中国海事仲裁委员会", "jurisdiction": "中国大陆", "rules": ["仲裁规则", "费用表"], "url": ""},
+    {"id": "WHAC",     "institution": "武汉仲裁委员会", "jurisdiction": "中国大陆", "rules": ["仲裁规则"], "url": ""},
+    {"id": "CQAC",     "institution": "重庆仲裁委员会", "jurisdiction": "中国大陆", "rules": ["仲裁规则"], "url": ""},
+    {"id": "CDAC",     "institution": "成都仲裁委员会", "jurisdiction": "中国大陆", "rules": ["仲裁规则"], "url": ""},
+    {"id": "HIAC",     "institution": "海南国际仲裁院", "jurisdiction": "中国大陆", "rules": ["仲裁规则"], "url": ""},
+    {"id": "ZCIA",     "institution": "珠海国际仲裁院", "jurisdiction": "中国大陆", "rules": ["仲裁规则"], "url": ""},
+    {"id": "DIAC",     "institution": "大连国际仲裁院", "jurisdiction": "中国大陆", "rules": ["仲裁规则"], "url": ""},
+    {"id": "SHAC",     "institution": "上海仲裁委员会", "jurisdiction": "中国大陆", "rules": ["仲裁规则"], "url": ""},
+    {"id": "HKIAC",    "institution": "香港国际仲裁中心", "jurisdiction": "中国香港", "rules": ["机构仲裁规则"], "url": ""},
+    {"id": "SIAC",     "institution": "新加坡国际仲裁中心", "jurisdiction": "新加坡", "rules": ["仲裁规则"], "url": ""},
+    {"id": "ICC",      "institution": "国际商会国际仲裁院", "jurisdiction": "国际", "rules": ["仲裁规则"], "url": ""},
+    {"id": "LCIA",     "institution": "伦敦国际仲裁院", "jurisdiction": "英国", "rules": ["仲裁规则"], "url": ""}
+  ],
+
+  "laws": [
+    {"id": "仲裁法-2026", "title": "中华人民共和国仲裁法", "level": "法律", "institution": "全国人大常委会", "version": "2025 修订", "effective_date": "2026-03-01", "jurisdiction": "中国大陆", "url": ""},
+    {"id": "仲裁法-2017", "title": "中华人民共和国仲裁法", "level": "法律", "institution": "全国人大常委会", "version": "2017 修正", "effective_date": "2018-01-01", "jurisdiction": "中国大陆", "url": ""},
+    {"id": "民法典-合同编", "title": "中华人民共和国民法典（合同编）", "level": "法律", "institution": "全国人大", "version": "2020", "effective_date": "2021-01-01", "jurisdiction": "中国大陆", "url": ""},
+    {"id": "民事诉讼法", "title": "中华人民共和国民事诉讼法", "level": "法律", "institution": "全国人大常委会", "version": "现行", "effective_date": "", "jurisdiction": "中国大陆", "url": ""},
+    {"id": "公司法", "title": "中华人民共和国公司法", "level": "法律", "institution": "全国人大常委会", "version": "2023 修订", "effective_date": "2024-07-01", "jurisdiction": "中国大陆", "url": ""},
+    {"id": "合伙企业法", "title": "中华人民共和国合伙企业法", "level": "法律", "institution": "全国人大常委会", "version": "现行", "effective_date": "", "jurisdiction": "中国大陆", "url": ""},
+    {"id": "保险法", "title": "中华人民共和国保险法", "level": "法律", "institution": "全国人大常委会", "version": "现行", "effective_date": "", "jurisdiction": "中国大陆", "url": ""},
+    {"id": "票据法", "title": "中华人民共和国票据法", "level": "法律", "institution": "全国人大常委会", "version": "现行", "effective_date": "", "jurisdiction": "中国大陆", "url": ""},
+    {"id": "海商法", "title": "中华人民共和国海商法", "level": "法律", "institution": "全国人大常委会", "version": "现行", "effective_date": "", "jurisdiction": "中国大陆", "url": ""},
+    {"id": "证券法", "title": "中华人民共和国证券法", "level": "法律", "institution": "全国人大常委会", "version": "现行", "effective_date": "", "jurisdiction": "中国大陆", "url": ""},
+    {"id": "企业破产法", "title": "中华人民共和国企业破产法", "level": "法律", "institution": "全国人大常委会", "version": "现行", "effective_date": "", "jurisdiction": "中国大陆", "url": ""},
+    {"id": "信托法", "title": "中华人民共和国信托法", "level": "法律", "institution": "全国人大常委会", "version": "现行", "effective_date": "", "jurisdiction": "中国大陆", "url": ""},
+    {"id": "仲裁法司法解释", "title": "最高人民法院关于适用《中华人民共和国仲裁法》若干问题的解释", "level": "司法解释", "institution": "最高人民法院", "version": "现行", "effective_date": "", "jurisdiction": "中国大陆", "url": ""},
+    {"id": "纽约公约", "title": "承认及执行外国仲裁裁决公约", "level": "国际公约", "institution": "联合国", "version": "1958", "effective_date": "", "jurisdiction": "国际", "url": ""}
+  ]
+}

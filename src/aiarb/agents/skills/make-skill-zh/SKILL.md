@@ -6,6 +6,7 @@ metadata:
   AIARB:
     emoji: "✍️"
     requires: {}
+tags: ['系统工具', '知识管理']
 ---
 
 # 创建 Skill

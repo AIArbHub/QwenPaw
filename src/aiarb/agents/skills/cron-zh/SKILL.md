@@ -5,6 +5,7 @@ metadata:
   builtin_skill_version: "1.8"
   AIARB:
     emoji: "⏰"
+tags: ['系统工具']
 ---
 
 # 定时任务管理

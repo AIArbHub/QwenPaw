@@ -157,9 +157,9 @@ async def read_file(  # pylint: disable=too-many-return-statements
 
     Use start_line/end_line to read a specific line range (output includes
     line numbers). Omit both to read from the start. If output is truncated,
-    the tail says which start_line to resume from. Images, PDFs and other
-    binaries come back as unusable bytes rather than an error. Use view_image
-    for images.
+    the tail says which start_line to resume from. Binary document formats
+    (.docx, .pdf, .xlsx, .pptx, etc.) are automatically extracted to text.
+    Images still come back as unusable bytes — use view_image for images.
 
     Args:
         file_path (`str`):

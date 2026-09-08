@@ -4,6 +4,7 @@ description: "当用户需要创建、读取、编辑或处理 Word 文档（.do
 license: Proprietary. LICENSE.txt has complete terms
 metadata:
   builtin_skill_version: "1.1"
+tags: ['系统工具', '文档处理']
 ---
 
 > **重要:** 所有 `scripts/` 路径均相对于本技能目录。

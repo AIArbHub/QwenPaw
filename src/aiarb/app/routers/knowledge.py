@@ -12,6 +12,7 @@ configured ``knowledge_paths`` root is treated as read-only.
 from __future__ import annotations
 
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Body, Form, HTTPException, UploadFile
@@ -76,11 +77,16 @@ def _walk_files(root: Path, rel: Path) -> list[dict]:
         if entry.name.startswith("."):
             continue
         if entry.is_file():
+            stat = entry.stat()
             files.append(
                 {
                     "name": entry.name,
                     "path": str(entry.relative_to(root)).replace("\\", "/"),
-                    "size": entry.stat().st_size,
+                    "size": stat.st_size,
+                    "modified_time": datetime.fromtimestamp(
+                        stat.st_mtime,
+                        tz=timezone.utc,
+                    ).isoformat(),
                 }
             )
     return files

@@ -22,6 +22,13 @@ export const mcpApi = {
     ),
 
   /**
+   * List built-in MCP clients (元典, 北大法宝)
+   * Returns only the pre-seeded legal research MCP clients.
+   */
+  listBuiltinMCPClients: () =>
+    request<MCPClientInfo[]>("/mcp/builtin"),
+
+  /**
    * Get details of a specific MCP client
    */
   getMCPClient: (clientKey: string) =>

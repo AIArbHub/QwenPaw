@@ -5,6 +5,7 @@ metadata:
   builtin_skill_version: "1.2"
   aiarb:
     emoji: "💬"
+tags: ['系统工具']
 ---
 
 # Chat with Agent

@@ -2,7 +2,7 @@
 
 export const PYPI_URL = "https://pypi.org/pypi/aiarb/json";
 
-export const GITHUB_URL = "https://github.com/agentscope-ai/AIArb" as const;
+export const GITHUB_URL = "https://www.aiarb.cn" as const;
 
 // ── Timing ────────────────────────────────────────────────────────────────
 

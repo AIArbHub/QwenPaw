@@ -61,6 +61,7 @@ class SkillInfo(BaseModel):
     references: dict[str, Any] = Field(default_factory=dict)
     scripts: dict[str, Any] = Field(default_factory=dict)
     emoji: str = ""
+    tags: list[str] = Field(default_factory=list)
 
 
 class SkillRequirements(BaseModel):

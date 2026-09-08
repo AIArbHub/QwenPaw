@@ -5,6 +5,7 @@ metadata:
   builtin_skill_version: "1.4"
   aiarb:
     emoji: "🤝"
+tags: ['系统工具']
 ---
 
 # 多智能体协作

@@ -17,7 +17,7 @@ export const defaultConfig: SiteConfig = {
   projectName: "AIArb",
   projectTaglineEn: "Works for you, grows with you",
   projectTaglineZh: "懂你所需，伴你左右",
-  repoUrl: "https://github.com/agentscope-ai/AIArb",
+  repoUrl: "https://www.aiarb.cn",
   docsPath: "/docs/",
   showTestimonials: true,
   modelScopeForkUrl:

@@ -6,6 +6,7 @@ metadata:
   aiarb:
     emoji: "🧭"
     requires: {}
+tags: ['系统工具']
 ---
 
 # AIArb Installation and Configuration Q&A Guide
@@ -135,7 +136,7 @@ Language requirement: the answer language must match the language of the user's 
 
 If the previous steps cannot be completed (no local documentation, missing documentation, or insufficient information), use the official website as a fallback:
 
-- http://qwenpaw.agentscope.io/
+- https://aiarb.ai/
 
 Answer based on the content available from the official website, and clearly state in the answer that the conclusion comes from the official website documentation.
 

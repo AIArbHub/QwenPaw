@@ -4,6 +4,7 @@ description: "当涉及到 .pptx 文件的任何操作时使用此技能——�
 license: Proprietary. LICENSE.txt has complete terms
 metadata:
   builtin_skill_version: "1.1"
+tags: ['系统工具', '文档处理']
 ---
 
 > **重要：** 所有 `scripts/` 路径都相对于此技能目录。
