@@ -12,10 +12,11 @@ import {
   EyeOutlined,
   CopyOutlined,
 } from "@ant-design/icons";
-import { Pin, PinOff } from "lucide-react";
+import { Pin, PinOff, Tag, PawPrint, SquareTerminal } from "lucide-react";
 import type { AgentSummary } from "../../../../api/types/agents";
 import { getApiUrl } from "../../../../api/config";
 import { getAgentDisplayName } from "../../../../utils/agentDisplayName";
+import { providerIcon } from "../../Models/components/providerIcon";
 import styles from "./AgentCard.module.less";
 
 /**
@@ -223,6 +224,44 @@ export const AgentCard = memo(function AgentCard({
           <p className={styles.desc}>{agent.description}</p>
         </Tooltip>
       )}
+
+      {/* Meta row: group + backend + model */}
+      <div className={styles.metaRow}>
+        {agent.group && (
+          <span className={styles.groupTag}>
+            <Tag size={10} />
+            {agent.group}
+          </span>
+        )}
+        {agent.id !== "default" && (
+          <span className={styles.backendTag}>
+            {agent.backend !== "aiarb" ? (
+              <SquareTerminal size={10} />
+            ) : (
+              <PawPrint size={10} />
+            )}
+            {agent.backend !== "aiarb" ? agent.backend : "AIArb"}
+          </span>
+        )}
+        {agent.id !== "default" && agent.active_model && (
+          <span className={styles.modelTag}>
+            <img
+              src={providerIcon(agent.active_model.provider_id)}
+              alt=""
+              style={{ width: 12, height: 12 }}
+            />
+            {agent.active_model.model}
+          </span>
+        )}
+        {agent.id !== "default" &&
+          agent.backend !== "aiarb" &&
+          agent.backend_model && (
+            <span className={styles.modelTag}>
+              <SquareTerminal size={12} />
+              {agent.backend_model}
+            </span>
+          )}
+      </div>
 
       <div className={styles.statsTri}>
         <div className={styles.stat}>

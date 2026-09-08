@@ -120,7 +120,7 @@ describe("LoginPage", () => {
     ).toBeChecked();
     expect(screen.getByRole("link", { name: /GitHub/ })).toHaveAttribute(
       "href",
-      "https://github.com/agentscope-ai/AIArb",
+      "https://www.aiarb.cn",
     );
   });
 

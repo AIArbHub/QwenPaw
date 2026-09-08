@@ -6,6 +6,7 @@ metadata:
   aiarb:
     emoji: "🗂️"
     requires: {}
+tags: ['系统工具']
 ---
 
 # 文档与源码速查

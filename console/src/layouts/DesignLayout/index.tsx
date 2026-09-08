@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useState, useRef } from "react";
+import { Suspense, useEffect, useMemo, useState, useRef, memo } from "react";
 import type { ReactNode } from "react";
 import { Layout, Tooltip, Badge, Avatar, Spin, Divider, Popover, Input } from "antd";
 import {
@@ -20,7 +20,6 @@ import {
   Plus,
   Info,
   Sparkles,
-  Zap,
   Tag,
   ChevronDown,
   Pin,
@@ -31,6 +30,13 @@ import {
   BookOpen,
   NotebookPen,
   Settings,
+  Copy,
+  Trash2,
+  Check,
+  X,
+  Cpu,
+  SquareTerminal,
+  PawPrint,
 } from "lucide-react";
 import {
   SparkSettingLine,
@@ -48,7 +54,10 @@ import {
 } from "../registry/adapter";
 import { filterMenuForAgentCapabilities } from "../registry/capabilities";
 import type { MenuItem } from "../../plugins/registry/types";
-import type { AgentSummary } from "../../api/types/agents";
+import type { AgentSummary, AgentProfileConfig } from "../../api/types/agents";
+import type { ProviderInfo } from "../../api/types/provider";
+import { providerApi } from "../../api/modules/provider";
+import { providerIcon } from "../../pages/Settings/Models/components/providerIcon";
 import { buildChatPath } from "../../utils/sessionRoute";
 import ConsolePollService from "../../components/ConsolePollService";
 import { AgentStatusPollingController } from "../../components/AgentStatusPollingController";
@@ -227,6 +236,114 @@ function GroupTag({
   );
 }
 
+// ── ModelPicker: inline model selector for the middle panel ──────────────────
+
+interface ModelPickerProps {
+  providers: ProviderInfo[];
+  loading: boolean;
+  currentProviderId?: string;
+  currentModelId?: string;
+  saving: boolean;
+  onSave: (providerId: string | undefined, modelId: string | undefined) => void;
+  onCancel: () => void;
+}
+
+const ModelPicker = memo(function ModelPicker({
+  providers,
+  loading,
+  currentProviderId,
+  currentModelId,
+  saving,
+  onSave,
+  onCancel,
+}: ModelPickerProps) {
+  const { t } = useTranslation();
+  const [selProvider, setSelProvider] = useState<string | undefined>(currentProviderId);
+  const [selModel, setSelModel] = useState<string | undefined>(currentModelId);
+
+  const eligibleProviders = useMemo(
+    () =>
+      providers
+        .filter((p) => {
+          const hasModels =
+            (p.models?.length ?? 0) + (p.extra_models?.length ?? 0) > 0;
+          if (!hasModels) return false;
+          if (p.require_api_key === false) return !!p.base_url;
+          if (p.is_custom) return !!p.base_url;
+          if (p.require_api_key ?? true) return !!p.api_key;
+          return true;
+        })
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          models: [...(p.models ?? []), ...(p.extra_models ?? [])],
+        })),
+    [providers],
+  );
+
+  const availableModels = useMemo(() => {
+    if (!selProvider) return [];
+    const p = eligibleProviders.find((ep) => ep.id === selProvider);
+    return p?.models ?? [];
+  }, [selProvider, eligibleProviders]);
+
+  return (
+    <div className={styles.modelPicker}>
+      <select
+        className={styles.modelPickerSelect}
+        value={selProvider ?? ""}
+        onChange={(e) => {
+          setSelProvider(e.target.value || undefined);
+          setSelModel(undefined);
+        }}
+        disabled={loading || saving}
+      >
+        <option value="">{t("agent.modelPlaceholder", "使用全局默认")}</option>
+        {eligibleProviders.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.name}
+          </option>
+        ))}
+      </select>
+      {selProvider && (
+        <select
+          className={styles.modelPickerSelect}
+          value={selModel ?? ""}
+          onChange={(e) => setSelModel(e.target.value || undefined)}
+          disabled={loading || saving || !selProvider}
+        >
+          <option value="">{t("agent.model", "模型")}</option>
+          {availableModels.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.name || m.id}
+            </option>
+          ))}
+        </select>
+      )}
+      <div className={styles.modelPickerActions}>
+        <button
+          type="button"
+          className={styles.inlineEditSave}
+          onClick={() => onSave(selProvider, selModel)}
+          disabled={saving}
+          title={t("common.save", "保存")}
+        >
+          <Check size={12} />
+        </button>
+        <button
+          type="button"
+          className={styles.inlineEditCancel}
+          onClick={onCancel}
+          disabled={saving}
+          title={t("common.cancel", "取消")}
+        >
+          <X size={12} />
+        </button>
+      </div>
+    </div>
+  );
+});
+
 // ── Component ───────────────────────────────────────────────────────────────
 
 /**
@@ -267,12 +384,23 @@ export default function DesignLayout({
   const [sessionHits, setSessionHits] = useState<SessionSearchHit[]>([]);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
 
+  // Inline edit state for description in the middle panel detail view
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [descDraft, setDescDraft] = useState("");
+  const [savingDesc, setSavingDesc] = useState(false);
+
+  // Inline model selector state
+  const [modelProviders, setModelProviders] = useState<ProviderInfo[]>([]);
+  const [loadingProviders, setLoadingProviders] = useState(false);
+  const [modelPickerOpen, setModelPickerOpen] = useState(false);
+  const [savingModel, setSavingModel] = useState(false);
+
   // ── Hooks ──────────────────────────────────────────────────────────────────
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { isDark } = useTheme();
-  const { message } = useAppMessage();
+  const { message, modal } = useAppMessage();
   const {
     agents,
     selectedAgent,
@@ -437,12 +565,20 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
 
     // Items under core.workspace-group → "工作区"
     // (skills is promoted to the "基本信息" group below)
+    // (memory/knowledge-base are also in 基本信息, so exclude from workspace to avoid duplication)
+    // (document-tools and case-framework are excluded — they are agent tools, not user-facing pages)
     const workspaceGroup = agentMenu.find(
       (i) => i.id === "core.workspace-group",
     ) as TreeMenuItem | undefined;
+    const HIDDEN_WORKSPACE_IDS = new Set([
+      "core.skills",
+      "core.document-tools",
+      "core.case-framework",
+    ]);
     for (const child of workspaceGroup?.__children ?? []) {
       if (child.id === "core.inbox" || child.id === "core.marketplace") continue;
-      if (child.id === "core.skills") continue;
+      if (HIDDEN_WORKSPACE_IDS.has(child.id)) continue;
+      if (child.id === "core.memory" || child.id === "core.knowledge-base") continue;
       if (child.visible?.() === false) continue;
       workspace.push({
         key: child.id,
@@ -454,9 +590,12 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
 
     // Orphan top-level items (e.g. checkpoints whose parentId "core.agent-group"
     // doesn't exist as a registered group) → also under "工作区"
+    // (document-tools and case-framework are excluded — they are agent tools, not user-facing pages)
     for (const item of agentMenu) {
       if (item.isGroup) continue;
       if (item.id === "core.inbox" || item.id === "core.marketplace") continue;
+      if (item.id === "core.memory" || item.id === "core.knowledge-base") continue;
+      if (HIDDEN_WORKSPACE_IDS.has(item.id)) continue;
       const treeItem = item as TreeMenuItem;
       if (treeItem.__children && treeItem.__children.length > 0) continue;
       if (item.visible?.() === false) continue;
@@ -469,7 +608,9 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
     }
 
     // 基本信息 group — static entries (basic/persona open the edit drawer,
-    // diary/workspace-files/specific-kb route into the right content panel).
+    // diary/specific-kb route into the right content panel).
+    // Note: workspace-files moved to 工作区 group to avoid duplication.
+    // Note: skills removed — it's an agent config, not a user-facing feature.
     const profile: FeatureCardData[] = [
       { key: "basic", icon: <Info size={FEATURE_ICON_SIZE} />, label: t("agent.basicInfo", "基本信息") },
       { key: "persona", icon: <Sparkles size={FEATURE_ICON_SIZE} />, label: t("nav.agentFilesPersona", "灵魂人设") },
@@ -480,24 +621,31 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
         path: routeIdToPath("core.agent-files-diary", routes),
       },
       {
-        key: "workspace-files",
-        icon: <Files size={FEATURE_ICON_SIZE} />,
-        label: t("nav.agentFilesWorkspace", "工作区文件"),
-        path: routeIdToPath("core.agent-files-workspace", routes),
-      },
-      {
         key: "specific-kb",
         icon: <BookOpen size={FEATURE_ICON_SIZE} />,
         label: t("nav.agentFilesSpecificKB", "专属知识库"),
         path: routeIdToPath("core.agent-files-kb", routes),
       },
-      {
-        key: "skills",
-        icon: <Zap size={FEATURE_ICON_SIZE} />,
-        label: t("nav.skills", "技能"),
-        path: routeIdToPath("core.skills", routes),
-      },
     ];
+
+    // 工作区文件 — moved from 基本信息 to 工作区
+    const workspaceFilesEntry: FeatureCardData = {
+      key: "workspace-files",
+      icon: <Files size={FEATURE_ICON_SIZE} />,
+      label: t("nav.agentFilesWorkspace", "工作区文件"),
+      path: routeIdToPath("core.agent-files-workspace", routes),
+    };
+
+    // Prepend workspace-files to workspace so it appears first in the 工作区 section
+    workspace.unshift(workspaceFilesEntry);
+
+    // 技能池管理入口 — 允许在设计模式下直接管理内置技能的三态更新
+    workspace.push({
+      key: "skill-pool",
+      icon: <Settings size={FEATURE_ICON_SIZE} />,
+      label: t("nav.skillPool", "Skill Pool"),
+      path: routeIdToPath("core.skill-pool", routes),
+    });
 
     return { profile, control, workspace };
   }, [agentMenu, routes, t]);
@@ -546,6 +694,25 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
   useEffect(() => {
     refreshAgents();
   }, [refreshAgents]);
+
+  // Load providers when a panel agent is selected (for model picker)
+  useEffect(() => {
+    if (!panelAgentId || panelAgent?.backend !== "aiarb") return;
+    setLoadingProviders(true);
+    providerApi
+      .listProviders()
+      .then((data) => {
+        if (Array.isArray(data)) setModelProviders(data);
+      })
+      .catch((err) => console.error("Failed to load providers:", err))
+      .finally(() => setLoadingProviders(false));
+  }, [panelAgentId, panelAgent?.backend]);
+
+  // Reset inline edit state when panel agent changes
+  useEffect(() => {
+    setEditingDesc(false);
+    setModelPickerOpen(false);
+  }, [panelAgentId]);
 
   // 全量会话搜索：在搜索框输入时，按标题/ID 检索所有智能体的会话。
   useEffect(() => {
@@ -729,6 +896,86 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
     } catch (err: unknown) {
       message.error(
         err instanceof Error ? err.message : t("agent.pinFailed", "置顶失败"),
+      );
+    }
+  };
+
+  // 中栏内联编辑简介：保存到后端。
+  const handleSaveDesc = async () => {
+    if (!panelAgent) return;
+    const trimmed = descDraft.trim();
+    if (trimmed === (panelAgent.description || "")) {
+      setEditingDesc(false);
+      return;
+    }
+    setSavingDesc(true);
+    try {
+      const config = await agentsApi.getAgent(panelAgent.id);
+      const payload: AgentProfileConfig = {
+        ...config,
+        description: trimmed,
+      };
+      await agentsApi.updateAgent(panelAgent.id, payload);
+      updateAgent(panelAgent.id, { description: trimmed });
+      message.success(t("agent.updateSuccess", "更新成功"));
+      setEditingDesc(false);
+    } catch (err: unknown) {
+      message.error(
+        err instanceof Error ? err.message : t("agent.saveFailed", "保存失败"),
+      );
+    } finally {
+      setSavingDesc(false);
+    }
+  };
+
+  // 中栏内联选择模型：保存到后端。
+  const handleSaveModel = async (providerId: string | undefined, modelId: string | undefined) => {
+    if (!panelAgent) return;
+    setSavingModel(true);
+    try {
+      const config = await agentsApi.getAgent(panelAgent.id);
+      const active_model = providerId && modelId ? { provider_id: providerId, model: modelId } : null;
+      const payload: AgentProfileConfig = { ...config, active_model };
+      await agentsApi.updateAgent(panelAgent.id, payload);
+      updateAgent(panelAgent.id, { active_model });
+      message.success(t("agent.updateSuccess", "更新成功"));
+      setModelPickerOpen(false);
+    } catch (err: unknown) {
+      message.error(
+        err instanceof Error ? err.message : t("agent.saveFailed", "保存失败"),
+      );
+    } finally {
+      setSavingModel(false);
+    }
+  };
+
+  // 中栏快捷操作：复制智能体。
+  const handleCopyAgent = (agent: AgentSummary) => {
+    if (agent.id === "default") return;
+    navigate(`${agentsManagePath}?type=single`);
+    // Defer to ensure navigation happens first
+    setTimeout(() => {
+      window.dispatchEvent(
+        new CustomEvent("aiarb:copy-agent", { detail: { agentId: agent.id } }),
+      );
+    }, 100);
+  };
+
+  // 中栏快捷操作：删除智能体。
+  const handleDeleteAgent = async (agent: AgentSummary) => {
+    if (agent.id === "default") return;
+    try {
+      await agentsApi.deleteAgent(agent.id);
+      if (selectedAgent === agent.id) {
+        setSelectedAgent("default");
+        message.info(t("agent.switchedToDefault", "已切换到默认智能体"));
+      }
+      await refreshAgents();
+      setPanelAgentId(null);
+      message.success(t("agent.deleteSuccess", "删除成功"));
+    } catch (err: unknown) {
+      message.error(
+        err instanceof Error ? err.message : t("agent.deleteFailed", "删除失败"),
       );
     }
   };
@@ -1330,6 +1577,35 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
                         {panelAgent.pinned ? <Pin size={14} /> : <PinOff size={14} />}
                       </button>
                     </Tooltip>
+                    <Tooltip title={t("agent.copyTooltip", "复制智能体配置")}>
+                      <button
+                        type="button"
+                        className={styles.hostAgentActionButton}
+                        aria-label={t("agent.copyTooltip", "复制智能体配置")}
+                        onClick={() => handleCopyAgent(panelAgent)}
+                      >
+                        <Copy size={14} />
+                      </button>
+                    </Tooltip>
+                    <Tooltip title={t("agent.delete", "删除")}>
+                      <button
+                        type="button"
+                        className={styles.hostAgentActionButton}
+                        aria-label={t("agent.delete", "删除")}
+                        onClick={() => {
+                          modal.confirm({
+                            title: t("agent.deleteConfirm", "确认删除智能体"),
+                            content: t("agent.deleteConfirmDesc", "删除后智能体将不可用，但工作区文件会保留"),
+                            okText: t("common.confirm", "确认"),
+                            okType: "danger",
+                            cancelText: t("common.cancel", "取消"),
+                            onOk: () => handleDeleteAgent(panelAgent),
+                          });
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </Tooltip>
                   </>
                 )}
               </div>
@@ -1376,14 +1652,77 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
                       {t("hostModal.badge", "群聊")}
                     </span>
                   )}
+                  {/* Backend type badge */}
+                  {!panelIsHost && panelAgent.id !== "default" && (
+                    <span className={styles.agentBackendBadge}>
+                      {panelAgent.backend !== "aiarb" ? (
+                        <SquareTerminal size={10} />
+                      ) : (
+                        <PawPrint size={10} />
+                      )}
+                      {panelAgent.backend !== "aiarb"
+                        ? panelAgent.backend
+                        : "AIArb"}
+                    </span>
+                  )}
                 </div>
-                <div className={styles.detailInfoDesc}>
-                  {panelIsHost
-                    ? panelHostCleanDesc ||
-                      panelHostMemberNames.join("、") ||
-                      t("agent.noDescription")
-                    : panelAgent.description || t("agent.noDescription")}
-                </div>
+                {/* Description with inline edit */}
+                {!panelIsHost && panelAgent.id !== "default" ? (
+                  editingDesc ? (
+                    <div className={styles.inlineEditRow} onClick={(e) => e.stopPropagation()}>
+                      <Input.TextArea
+                        autoFocus
+                        value={descDraft}
+                        onChange={(e) => setDescDraft(e.target.value)}
+                        rows={2}
+                        maxLength={200}
+                        showCount
+                        className={styles.inlineEditInput}
+                        placeholder={t("agent.descriptionPlaceholder", "简要介绍这个智能体")}
+                      />
+                      <div className={styles.inlineEditActions}>
+                        <button
+                          type="button"
+                          className={styles.inlineEditSave}
+                          onClick={() => void handleSaveDesc()}
+                          disabled={savingDesc}
+                          title={t("common.save", "保存")}
+                        >
+                          <Check size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.inlineEditCancel}
+                          onClick={() => setEditingDesc(false)}
+                          disabled={savingDesc}
+                          title={t("common.cancel", "取消")}
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className={`${styles.detailInfoDesc} ${styles.editableDesc}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDescDraft(panelAgent.description || "");
+                        setEditingDesc(true);
+                      }}
+                      title={t("agent.clickToEdit", "点击编辑简介")}
+                    >
+                      {panelAgent.description || t("agent.noDescription", "暂无简介")}
+                    </div>
+                  )
+                ) : (
+                  <div className={styles.detailInfoDesc}>
+                    {panelIsHost
+                      ? panelHostCleanDesc ||
+                        panelHostMemberNames.join("、") ||
+                        t("agent.noDescription")
+                      : panelAgent.description || t("agent.noDescription")}
+                  </div>
+                )}
                 {panelIsHost && (
                   <div className={styles.detailHostBadgeRow}>
                     {panelHostModeLabel && (
@@ -1399,6 +1738,63 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
                           : `（${panelHostMemberNames.length} 人）`}
                       </span>
                     )}
+                  </div>
+                )}
+                {/* Model display with inline selector */}
+                {!panelIsHost && panelAgent.id !== "default" && panelAgent.backend === "aiarb" && (
+                  <div className={styles.detailModelRow} onClick={(e) => e.stopPropagation()}>
+                    <span className={styles.detailModelLabel}>
+                      <Cpu size={12} />
+                      {t("agent.model", "模型")}
+                    </span>
+                    {modelPickerOpen ? (
+                      <ModelPicker
+                        providers={modelProviders}
+                        loading={loadingProviders}
+                        currentProviderId={panelAgent.active_model?.provider_id}
+                        currentModelId={panelAgent.active_model?.model}
+                        saving={savingModel}
+                        onSave={handleSaveModel}
+                        onCancel={() => setModelPickerOpen(false)}
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        className={styles.detailModelValue}
+                        onClick={() => setModelPickerOpen(true)}
+                        title={t("agent.clickToChangeModel", "点击更改模型")}
+                      >
+                        {panelAgent.active_model ? (
+                          <>
+                            <img
+                              src={providerIcon(panelAgent.active_model.provider_id)}
+                              alt=""
+                              style={{ width: 14, height: 14 }}
+                            />
+                            <span>{panelAgent.active_model.model}</span>
+                          </>
+                        ) : (
+                          <span className={styles.detailModelPlaceholder}>
+                            {t("agent.modelPlaceholder", "使用全局默认")}
+                          </span>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                )}
+                {/* Backend model for third-party agents */}
+                {!panelIsHost && panelAgent.id !== "default" && panelAgent.backend !== "aiarb" && panelAgent.backend_model && (
+                  <div className={styles.detailModelRow}>
+                    <span className={styles.detailModelLabel}>
+                      <SquareTerminal size={12} />
+                      {t("agent.model", "模型")}
+                    </span>
+                    <span className={styles.detailModelValueStatic}>
+                      {panelAgent.backend_model}
+                      {panelAgent.backend_reasoning_effort
+                        ? ` · ${panelAgent.backend_reasoning_effort}`
+                        : ""}
+                    </span>
                   </div>
                 )}
                 <div

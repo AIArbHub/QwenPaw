@@ -5,6 +5,7 @@ metadata:
   builtin_skill_version: "1.8"
   AIARB:
     emoji: "⏰"
+tags: ['系统工具']
 ---
 
 # Cron (Scheduled Task Management)

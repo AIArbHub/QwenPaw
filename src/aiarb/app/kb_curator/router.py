@@ -180,6 +180,15 @@ async def curate_upload(
     if not names:
         raise HTTPException(status_code=400, detail="没有可用的上传文件")
 
+    # Auto-generate a title from file names when the user did not
+    # provide one, so the task list shows a meaningful label instead
+    # of the generic "(未命名素材)" fallback.
+    if not title or not title.strip():
+        if len(names) == 1:
+            title = names[0]
+        else:
+            title = f"{names[0]} 等 {len(names)} 个文件"
+
     result = await _create_and_start(
         request,
         title=title,

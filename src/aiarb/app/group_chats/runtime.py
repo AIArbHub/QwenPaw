@@ -95,7 +95,7 @@ def is_native_group_chat_enabled(request_context: Any = None) -> bool:
     if isinstance(request_context, dict):
         flag = request_context.get("group_chat_native")
         if flag is not None:
-            logger.debug(
+            logger.warning(
                 "[group-chat-detect] is_native_group_chat_enabled=%s "
                 "(per-request flag group_chat_native=%s)",
                 bool(flag), flag,
@@ -171,7 +171,7 @@ def should_use_native_runtime(
         )
         return False
 
-    logger.debug(
+    logger.info(
         "[group-chat-detect] should_use_native_runtime=True "
         "(mode=%s, members=%d)",
         mode,
@@ -193,7 +193,6 @@ async def run_group_chat(
     invoking this function.
     """
     # Extract request fields
-    host_agent_id = getattr(request, "user_id", "") or ""
     session_id = getattr(request, "session_id", "") or ""
     # channel._workspace_dir 可能为 None（workspace 未初始化时），
     # 回退到 contextvar 中的当前 workspace_dir。
@@ -202,8 +201,16 @@ async def run_group_chat(
         or get_current_workspace_dir()
     )
 
-    # Get the workspace for persistence
+    # Get the workspace for persistence. The host agent is the workspace's
+    # agent (console host), not request.user_id (the end user). Prefer
+    # workspace.agent_id so group-chat metadata is loaded from the correct
+    # host description.
     workspace = getattr(channel, "_workspace", None)
+    host_agent_id = (
+        getattr(workspace, "agent_id", None)
+        or getattr(request, "user_id", None)
+        or ""
+    )
 
     # Extract the user's message text
     user_message = ""
@@ -479,6 +486,18 @@ async def run_group_chat(
                         "Approval timeout for member %s, using draft as-is",
                         member.agent_id,
                     )
+                except asyncio.CancelledError:
+                    # ── 群聊在审批等待期间被取消 ──────────────────
+                    # 清理 pending Future，使用原始草稿作为
+                    # 审批结果，然后 re-raise 让上层处理。
+                    cancel_pending_future(
+                        group_session.group_id, member.agent_id,
+                    )
+                    logger.info(
+                        "Approval wait cancelled for member %s",
+                        member.agent_id,
+                    )
+                    raise
 
                 # 发出已审批的成员消息（与上面的 InProgress 使用相同
                 # msg_id，SDK 会自动合并为同一个气泡的最终状态）
@@ -531,15 +550,35 @@ async def run_group_chat(
 
     except asyncio.CancelledError:
         logger.info("Group chat round %d cancelled", round_no)
+        # ── 清理所有挂起的 pending Future ──────────────────────────
+        #
+        # 当 SSE 客户端断开连接或 task_tracker 取消后台 producer task
+        # 时，群聊运行时会收到 CancelledError。此时可能有成员正在
+        # 等待人工输入（controller=human 的 Future 挂起）或审批待决
+        # （controller=assist 的 Future 挂起）。如果不清理，残留的
+        # Future 会阻止后续轮次的 inject，并造成 asyncio 警告
+        # ("Future exception was never retrieved")。
+        try:
+            cleanup_group(group_id)
+        except Exception:  # noqa: BLE001
+            logger.debug(
+                "Failed to cleanup pending futures on cancel (group=%s)",
+                group_id,
+            )
         # In M6, member events were already streamed live — no need to
         # replay them.  Just yield a response.completed so the frontend
         # exits the loading state cleanly.
         from ...schemas import AgentResponse
 
-        yield AgentResponse(
-            output=[],
-            status=RunStatus.Completed,
-        )
+        try:
+            yield AgentResponse(
+                output=[],
+                status=RunStatus.Completed,
+            )
+        except (RuntimeError, StopAsyncIteration):
+            # 生成器已被消费者关闭（SSE 断开后 aclose()），
+            # 无法 yield。这是预期行为——消费者已经离开。
+            pass
         raise
     finally:
         # M3: 本轮结束后推进脚本阶段索引。
@@ -664,6 +703,32 @@ async def _stream_round_robin_turns(
                     human_pending_timeout=True,
                 )
                 yield timeout_turn, timeout_msg
+            except asyncio.CancelledError:
+                # ── 群聊被取消（SSE 断开 / task_tracker 停止）────────
+                # 此时 human 成员正在等待 inject，但整个流程已被取消。
+                # 清理 pending Future，yield 一个取消消息让前端显示
+                # "已取消" 状态，然后 re-raise 让上层 run_group_chat
+                # 的 except CancelledError 块做最终清理。
+                cancel_pending_future(session.group_id, member.agent_id)
+                cancel_turn = MemberTurn(
+                    member_id=member.agent_id,
+                    prompt="(cancelled)",
+                    status="error",
+                    result="(已取消)",
+                    started_at=time.time(),
+                    finished_at=time.time(),
+                )
+                cancel_msg = sse.make_member_message(
+                    member, cancel_turn.result,
+                    status=RunStatus.Completed,
+                )
+                try:
+                    yield cancel_turn, cancel_msg
+                except (RuntimeError, StopAsyncIteration):
+                    # 生成器已被消费者关闭——无法 yield，
+                    # 但 turn 状态已更新，上层会处理。
+                    pass
+                raise
             finally:
                 # 无论正常完成、超时还是异常，都清理 pending Future，
                 # 避免残留的 Future 阻止后续轮次的 inject。
@@ -798,6 +863,29 @@ async def _stream_parallel_turns(
                     human_pending_timeout=True,
                 )
                 yield timeout_turn, timeout_msg
+            except asyncio.CancelledError:
+                # ── 群聊被取消（SSE 断开 / task_tracker 停止）────────
+                # 并行模式下，取消只影响当前成员的 _stream_one 生成器。
+                # 清理 pending Future，yield 取消消息，然后 re-raise
+                # 让 _merge 的异常处理捕获。
+                cancel_pending_future(session.group_id, member.agent_id)
+                cancel_turn = MemberTurn(
+                    member_id=member.agent_id,
+                    prompt="(cancelled)",
+                    status="error",
+                    result="(已取消)",
+                    started_at=time.time(),
+                    finished_at=time.time(),
+                )
+                cancel_msg = sse.make_member_message(
+                    member, cancel_turn.result,
+                    status=RunStatus.Completed,
+                )
+                try:
+                    yield cancel_turn, cancel_msg
+                except (RuntimeError, StopAsyncIteration):
+                    pass
+                raise
             finally:
                 # 清理 pending Future，避免残留影响后续轮次
                 cancel_pending_future(session.group_id, member.agent_id)

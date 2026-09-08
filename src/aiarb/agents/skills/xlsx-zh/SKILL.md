@@ -4,6 +4,7 @@ description: "当电子表格文件是主要输入或输出时使用此技能。
 license: Proprietary. LICENSE.txt has complete terms
 metadata:
   builtin_skill_version: "1.1"
+tags: ['系统工具', '文档处理']
 ---
 
 > **重要说明：** 所有 `scripts/` 路径均相对于此技能目录。

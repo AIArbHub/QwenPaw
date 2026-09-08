@@ -22,6 +22,8 @@ export interface KnowledgeFile {
   name: string;
   path: string;
   size: number;
+  /** UTC ISO timestamp, added for date-grouped listing. */
+  modified_time?: string;
 }
 
 export interface KnowledgeFileContent {

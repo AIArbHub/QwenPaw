@@ -235,7 +235,7 @@ export function Contributors() {
             <p>
               {t("contributors.noteLine2Prefix")}
               <a
-                href="https://github.com/agentscope-ai/AIArb"
+                href="https://www.aiarb.cn"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-(--color-primary) ml-1"

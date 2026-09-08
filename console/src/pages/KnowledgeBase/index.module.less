@@ -31,6 +31,109 @@
   overflow: hidden;
 }
 
+/* ── Search ────────────────────────────────────────────── */
+.searchSection {
+  flex-shrink: 0;
+  padding: 0 12px 8px;
+}
+
+.searchError {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #ff4d4f;
+}
+
+.searchResults {
+  flex-shrink: 0;
+  max-height: 280px;
+  display: flex;
+  flex-direction: column;
+  margin: 0 12px 8px;
+  border: 1px solid var(--files-line);
+  border-radius: 8px;
+  background: var(--files-panel);
+  overflow: hidden;
+}
+
+.searchResultsHeader {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--files-muted);
+  border-bottom: 1px solid var(--files-line);
+  background: var(--files-bg);
+}
+
+.searchResultsList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.searchResultItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--files-accent-soft);
+  }
+}
+
+.searchResultInfo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.searchResultIcon {
+  color: var(--files-accent);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.searchResultPath {
+  font-size: 13px;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  color: var(--files-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.searchResultLine {
+  font-size: 12px;
+  color: var(--files-muted);
+  flex-shrink: 0;
+}
+
+.searchResultSnippet {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--files-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 22px;
+}
+
+.searchEmpty {
+  padding: 16px;
+  font-size: 13px;
+  color: var(--files-muted);
+  text-align: center;
+}
+
 /* ── Dark mode ────────────────────────────────────────── */
 :global(.dark-mode) {
   .page {

@@ -10,6 +10,7 @@ const DISCLAIMER_KEYS = [
   "chat.disclaimer2",
   "chat.disclaimer3",
   "chat.disclaimer4",
+  "chat.disclaimer5",
 ] as const;
 
 /**

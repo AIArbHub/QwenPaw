@@ -14,7 +14,7 @@ NOTIFICATION_FIELDS = {
     "daily_paper": "daily_paper_inbox_push_enabled",
     "auto_fin": "auto_fin_inbox_push_enabled",
 }
-EMITTED_METADATA_KEY = "_qwenpaw_inbox_emitted"
+EMITTED_METADATA_KEY = "_aiarb_inbox_emitted"
 MAX_BODY_CHARS = 4000
 
 

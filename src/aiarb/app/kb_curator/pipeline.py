@@ -80,16 +80,74 @@ async def _run_task(manager: Any, task: CurateTask) -> None:
             )
             return
 
+        # Pre-check: ensure a model is configured before starting the
+        # agent run, so the user sees a clear Chinese error instead of
+        # an opaque "KB curator agent run failed".
+        model_error = await _check_model_configured()
+        if model_error:
+            await registry.mark_error(task, model_error)
+            return
+
         workspace = await manager.get_agent(BUILTIN_KB_CURATOR_AGENT_ID)
         inbox_rel, outbox_rel = await _prepare_staging(workspace, task)
-        prompt = _build_prompt(task, settings, inbox_rel, outbox_rel)
-        await _run_curator_inprocess(
+        prompt = _build_prompt(task, settings, inbox_rel, outbox_rel, workspace)
+        run_info = await _run_curator_inprocess(
             workspace,
             prompt,
             session_id=f"curate_{task.id}",
             timeout=float(settings.get("timeout_seconds", 600)),
         )
+
+        # If the agent run itself failed, surface that as a task error
+        # instead of marking it "done" with an empty outbox.
+        if run_info.get("failed"):
+            error_detail = run_info.get("error") or "agent run failed"
+            # Translate common configuration errors into user-friendly
+            # Chinese hints so the user knows what to fix.
+            error_detail = _humanize_error(error_detail)
+            await registry.mark_error(task, error_detail)
+            return
+
         published = await _publish_outbox(workspace, task, settings)
+
+        if not published:
+            # The agent completed but produced nothing in the outbox.
+            # Provide diagnostic detail so the user can tell the difference
+            # between "nothing was written" and "files were filtered out".
+            outbox_rel = f"{_CURATE_REL}/{task.id}/outbox"
+            outbox = Path(workspace.workspace_dir) / outbox_rel
+            if not outbox.is_dir():
+                msg = (
+                    "整理完成，但 outbox 目录不存在 — "
+                    "智能体可能未正确调用 write_file 工具写入产物。"
+                    "请检查知识库整理器是否配置了可用的 LLM 模型。"
+                )
+            else:
+                all_items = list(outbox.rglob("*"))
+                files_found = [f for f in all_items if f.is_file()]
+                md_txt = [
+                    f for f in files_found if f.suffix.lower() in _PUBLISHABLE_SUFFIXES
+                ]
+                other = [
+                    f for f in files_found if f.suffix.lower() not in _PUBLISHABLE_SUFFIXES
+                ]
+                if not files_found:
+                    msg = (
+                        "整理完成，但 outbox 为空 — "
+                        "智能体可能未正确调用 write_file 工具写入产物。"
+                        "请检查知识库整理器是否配置了可用的 LLM 模型。"
+                    )
+                elif not md_txt and other:
+                    suffixes = sorted({f.suffix.lower() for f in other})
+                    msg = (
+                        f"整理完成，但 outbox 中只有非 .md/.txt 文件 "
+                        f"({suffixes})，无法发布到知识库。"
+                    )
+                else:
+                    msg = "整理完成，但未能发布到知识库（原因未知，请查看日志）。"
+            await registry.mark_error(task, msg)
+            return
+
         await registry.mark_done(task, published)
     except asyncio.CancelledError:
         await registry.mark_error(task, "任务已取消")
@@ -99,6 +157,45 @@ async def _run_task(manager: Any, task: CurateTask) -> None:
         await registry.mark_error(task, f"{type(exc).__name__}: {exc}")
     finally:
         await registry.cleanup_spool(task)
+
+
+async def _check_model_configured() -> Optional[str]:
+    """Return an error message if no model is configured, else None.
+
+    Checks both the KB curator agent's ``active_model`` and the global
+    ``ProviderManager`` active model, mirroring the logic in
+    :meth:`AgentBuilder.build`.
+    """
+    from ...config.config import load_agent_config
+    from ...providers.provider_manager import ProviderManager
+
+    try:
+        agent_config = await run_sync_io(
+            load_agent_config, BUILTIN_KB_CURATOR_AGENT_ID,
+        )
+        active = getattr(agent_config, "active_model", None)
+        if not (active and active.provider_id and active.model):
+            active = ProviderManager.get_instance().get_active_model()
+        if active is None or not active.provider_id or not active.model:
+            return (
+                "知识库整理器尚未配置可用的 LLM 模型，"
+                "请先在设置 → 模型管理中选择一个模型。"
+            )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("KB curator model pre-check failed: %s", exc)
+    return None
+
+
+def _humanize_error(error_detail: str) -> str:
+    """Translate common English error strings into Chinese user hints."""
+    text = error_detail or ""
+    lowered = text.lower()
+    if "no active model" in lowered or "model_not_configured" in lowered:
+        return (
+            "知识库整理器尚未配置可用的 LLM 模型，"
+            "请先在设置 → 模型管理中选择一个模型。"
+        )
+    return error_detail
 
 
 async def _prepare_staging(workspace: Any, task: CurateTask) -> tuple[str, str]:
@@ -132,14 +229,57 @@ async def _prepare_staging(workspace: Any, task: CurateTask) -> tuple[str, str]:
     return inbox_rel, outbox_rel
 
 
-def _build_prompt(task: CurateTask, settings: dict, inbox_rel: str, outbox_rel: str) -> str:
+def _build_prompt(
+    task: CurateTask,
+    settings: dict,
+    inbox_rel: str,
+    outbox_rel: str,
+    workspace: Any | None = None,
+) -> str:
     """Build the per-run instruction prompt for the curator agent."""
     category_hint = (task.category or "").strip()
-    language = (settings.get("language") or "zh") if (settings.get("language") or "zh") in ("zh", "en") else "zh"
+    language = (
+        settings.get("language") or "zh"
+    ) if (settings.get("language") or "zh") in ("zh", "en") else "zh"
+
+    # Build a file listing so the agent knows exactly what to read
+    # instead of trying to list the inbox directory (read_file only
+    # reads files, not directories).
+    file_listing = ""
+    if workspace is not None:
+        try:
+            inbox_abs = Path(workspace.workspace_dir) / inbox_rel
+            names = sorted(
+                f.name for f in inbox_abs.iterdir() if f.is_file()
+            )
+            if names:
+                file_listing = "\n".join(
+                    f"  - `{inbox_rel}/{n}`" for n in names
+                )
+        except Exception:
+            pass
+    # Fallback: use task.file_names if the listing failed.
+    if not file_listing and task.file_names:
+        file_listing = "\n".join(
+            f"  - `{inbox_rel}/{n}`" for n in task.file_names
+        )
+
     lines = [
         "请整理一批素材，把内容提炼成结构化、可直接入库的知识库文档。",
         "",
-        f"素材位置：`{inbox_rel}`（用 read_file 逐个阅读；图片用 view_image 查看）。",
+        f"素材位置：`{inbox_rel}`",
+        "",
+        "收件箱中的文件清单（请逐个用 read_file 阅读）：",
+    ]
+    if file_listing:
+        lines.append(file_listing)
+    else:
+        lines.append("  （目录为空或无法读取）")
+    lines.extend([
+        "",
+        "注意：read_file 可以直接读取 .docx、.pdf、.xlsx 等二进制文档，",
+        "会自动提取为文本，无需额外工具。",
+        "",
         f"整理产物：请写入 `{outbox_rel}`，并在其下按分类建立子目录：",
         "  - laws    — 法律、司法解释",
         "  - rules   — 仲裁规则、机构规则",
@@ -154,7 +294,7 @@ def _build_prompt(task: CurateTask, settings: dict, inbox_rel: str, outbox_rel: 
         "5. 写入前用 search_knowledge 检索全局知识库；若已有同主题文档，请在文件名后加序号或用版本标注，避免重复。",
         "6. 不要直接写入全局知识库目录，你的产物只写到 outbox；系统会自动发布到共享知识库。",
         f"7. 产物文档的语言：{'中文' if language == 'zh' else 'English'}。",
-    ]
+    ])
     if category_hint:
         lines.append(f"用户指定的分类：{category_hint}（可优先使用，仍可自行判断）。")
     lines.append(f"素材标题：{task.title or '（未命名）'}")
@@ -167,11 +307,16 @@ async def _run_curator_inprocess(
     *,
     session_id: str,
     timeout: float,
-) -> None:
+) -> dict:
     """Run the curator in-process, consuming the stream until completion.
 
     The generated documents live on disk in the outbox; the returned text
     is informational only.
+
+    Returns a diagnostic dict with keys:
+      - ``failed`` (bool): True if the run reported failure.
+      - ``error`` (str|None): Error detail when ``failed`` is True.
+      - ``tool_calls`` (int): How many tool-call events were observed.
     """
     from ...schemas import (
         AgentRequest,
@@ -197,6 +342,7 @@ async def _run_curator_inprocess(
     )
     request.request_context = {"source": "kb_curator"}
 
+    result: dict = {"failed": False, "error": None, "tool_calls": 0}
     deadline = time.time() + timeout
     try:
         async for event in workspace.stream_query(request):
@@ -206,14 +352,39 @@ async def _run_curator_inprocess(
                 )
             obj = getattr(event, "object", None)
             status = getattr(event, "status", None)
+            # Count tool-call events to help diagnose runs where the agent
+            # produced text but never called write_file.
+            if obj == "tool_call" or obj == "function_call":
+                result["tool_calls"] += 1
             if obj == "response" and status is not None:
+                if status == RunStatus.Failed:
+                    result["failed"] = True
+                    # Try to extract the error message from the event.
+                    error_text = ""
+                    output = getattr(event, "output", None)
+                    if output:
+                        for msg in output:
+                            content = getattr(msg, "content", None)
+                            if content:
+                                for block in (
+                                    content if isinstance(content, list)
+                                    else [content]
+                                ):
+                                    text = getattr(block, "text", None)
+                                    if text:
+                                        error_text += text
+                    result["error"] = (
+                                        f"KB curator agent run failed. "
+                                        f"{error_text}".strip()
+                    )
+                    logger.warning("KB curator run reported failure")
                 if status in (RunStatus.Completed, RunStatus.Failed):
-                    if status == RunStatus.Failed:
-                        logger.warning("KB curator run reported failure")
                     break
     except asyncio.TimeoutError:
         logger.warning("KB curator task timed out after %.0fs", timeout)
         raise
+
+    return result
 
 
 # ── Publishing bridge (knowledge base write channel) ─────────────────

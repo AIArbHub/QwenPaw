@@ -35,11 +35,11 @@ describe("market app state", () => {
   });
 
   it("allows official entries to match their bundled app ID", () => {
-    const entry = makeEntry({ id: "@agentscope/qwenpaw-creator" });
+    const entry = makeEntry({ id: "@agentscope/aiarb-creator" });
     expect(
       getInstalledMarketAppVersion(
         entry,
-        new Map([["qwenpaw-creator", "1.0.0"]]),
+        new Map([["aiarb-creator", "1.0.0"]]),
         "official",
       ),
     ).toBe("1.0.0");
