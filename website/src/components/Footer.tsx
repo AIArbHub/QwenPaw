@@ -2,7 +2,7 @@ import { useState, type ReactNode, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { AIArbMascot } from "@/components/AIArbMascot";
+import { QwenpawMascot } from "@/components/QwenpawMascot";
 import {
   GitHubIcon,
   XIcon,
@@ -40,7 +40,7 @@ const socialLinks: SocialLink[] = [
       "https://img.alicdn.com/imgextra/i1/O1CN01sWPF3o1Fp523692rJ_!!6000000000535-2-tps-400-400.png",
   },
   {
-    href: "https://www.aiarb.cn",
+    href: "https://github.com/agentscope-ai/QwenPaw",
     ariaLabel: "footer.social.github",
     icon: <GitHubIcon size={20} className="block text-orange-400" />,
     qrCode:
@@ -160,12 +160,12 @@ export function Footer() {
         <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
           <section className="min-w-0 max-w-xl">
             <Link to="/" className="inline-flex items-center mb-4">
-              <AIArbMascot size={100} />
+              <QwenpawMascot size={100} />
             </Link>
             <p className="mb-2 text-[15px] leading-7 text-(--text)">
-              {t("whyAIArb.heroLine")}
+              {t("whyQwenpaw.heroLine")}
               <br />
-              {t("whyAIArb.secondPrefix")}
+              {t("whyQwenpaw.secondPrefix")}
             </p>
             <div className="mt-5 flex items-center gap-4 text-[#f2a25b]">
               {socialLinks.map((link) => (

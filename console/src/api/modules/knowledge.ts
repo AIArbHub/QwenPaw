@@ -107,6 +107,10 @@ export const knowledgeApi = {
       method: "POST",
       body: JSON.stringify({ name }),
     }),
+
+  /** 知识库 wikilink 图快照 */
+  graph: () =>
+    request<{ version: 1; nodes: unknown[]; edges: unknown[] }>("/knowledge/graph"),
 };
 
 // ── KB Curator (AI 知识整理) ──────────────────────────

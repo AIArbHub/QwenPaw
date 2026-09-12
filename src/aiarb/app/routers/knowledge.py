@@ -24,6 +24,142 @@ from aiarb.knowledge import (
 
 router = APIRouter(prefix="/knowledge", tags=["knowledge"])
 
+# ── Wikilink graph helpers ──────────────────────────────────────────────
+
+_WIKILINK_RE = re.compile(
+    r"\[\["                      # opening brackets
+    r"([^\]\|#]+)"               # target (filename, no ] | #)
+    r"(?:#([^\]\|]*))?"          # optional anchor
+    r"(?:\|([^\]]*))?"           # optional alias
+    r"\]\]",                     # closing brackets
+)
+
+
+def _slugify(name: str) -> str:
+    """Normalise a wikilink target to match a file path stem."""
+    return name.replace("\\", "/").strip().replace(".md", "").lower()
+
+
+def _node_id(root: Path, file_path: Path) -> str:
+    """Stable node id: the relative path with forward slashes."""
+    try:
+        return str(file_path.relative_to(root)).replace("\\", "/")
+    except ValueError:
+        return str(file_path).replace("\\", "/")
+
+
+def _build_graph_snapshot() -> dict:
+    """Scan all knowledge roots for .md files and build a wikilink graph."""
+    nodes: list[dict] = []
+    edges: list[dict] = []
+    # Map: slug -> node_id, for resolving wikilinks
+    slug_to_id: dict[str, str] = {}
+    # Collect all .md files across roots
+    all_files: list[tuple[Path, Path]] = []  # (root, abs_path)
+
+    for root in get_knowledge_dirs():
+        if not root.is_dir():
+            continue
+        for entry in root.rglob("*"):
+            if entry.name.startswith("."):
+                continue
+            if entry.is_file() and entry.suffix.lower() == ".md":
+                all_files.append((root, entry))
+
+    # Build nodes
+    for root, file_path in all_files:
+        node_id = _node_id(root, file_path)
+        stem = file_path.stem  # filename without .md
+        slug = _slugify(stem)
+        slug_to_id[slug] = node_id
+        # Also map the full relative path slug for disambiguation
+        rel_slug = _slugify(node_id)
+        slug_to_id.setdefault(rel_slug, node_id)
+
+        nodes.append(
+            {
+                "id": node_id,
+                "path": node_id,
+                "name": stem,
+                "description": "",
+                "indexed": True,
+                "virtual": False,
+                "section": None,
+                "relative_path": node_id,
+            }
+        )
+
+    # Parse wikilinks and build edges
+    for root, file_path in all_files:
+        source_id = _node_id(root, file_path)
+        try:
+            text = file_path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+
+        seen_targets: set[str] = set()
+        for match in _WIKILINK_RE.finditer(text):
+            target_raw = match.group(1).strip()
+            anchor = match.group(2)
+            if not target_raw:
+                continue
+            target_slug = _slugify(target_raw)
+            target_id = slug_to_id.get(target_slug)
+            if not target_id or target_id == source_id:
+                continue
+            edge_key = f"{source_id}->{target_id}"
+            if edge_key in seen_targets:
+                continue
+            seen_targets.add(edge_key)
+            edges.append(
+                {
+                    "source": source_id,
+                    "target": target_id,
+                    "target_anchor": anchor or None,
+                }
+            )
+
+    # Add virtual root nodes for top-level categories
+    top_categories: set[str] = set()
+    for root in get_knowledge_dirs():
+        if not root.is_dir():
+            continue
+        for entry in root.iterdir():
+            if entry.name.startswith(".") or not entry.is_dir():
+                continue
+            cat_name = entry.name
+            if cat_name not in top_categories:
+                top_categories.add(cat_name)
+                virtual_id = f"virtual:{cat_name}"
+                nodes.insert(
+                    0,
+                    {
+                        "id": virtual_id,
+                        "path": cat_name,
+                        "name": cat_name,
+                        "description": f"Category: {cat_name}",
+                        "indexed": False,
+                        "virtual": True,
+                        "section": None,
+                        "relative_path": None,
+                    },
+                )
+                # Add edges from virtual category root to files in it
+                cat_slug = _slugify(cat_name)
+                for root2, file_path in all_files:
+                    file_id = _node_id(root2, file_path)
+                    file_rel = file_id.lower()
+                    if file_rel.startswith(cat_name.lower() + "/"):
+                        edges.append(
+                            {
+                                "source": virtual_id,
+                                "target": file_id,
+                                "target_anchor": None,
+                            }
+                        )
+
+    return {"version": 1, "nodes": nodes, "edges": edges}
+
 
 def _editable_root() -> Path:
     return get_global_knowledge_base_dir()
@@ -320,3 +456,14 @@ def create_category(name: str = Body(...)) -> dict:
     except OSError as exc:
         raise HTTPException(status_code=500, detail=f"Create failed: {exc}") from exc
     return {"name": safe.parts[0], "path": str(safe).replace("\\", "/")}
+
+
+@router.get("/graph", summary="Knowledge base wikilink graph")
+def graph() -> dict:
+    """Return a graph snapshot of all .md files and their wikilink relations.
+
+    The snapshot follows the same ``MemoryGraphSnapshot`` schema used by the
+    agent memory graph, so the frontend ``MemoryGraphView`` component can
+    render it without modification.
+    """
+    return _build_graph_snapshot()

@@ -71,6 +71,16 @@
   margin-left: 74px;
   flex: 1;
   min-width: 0;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 2px 4px;
+  margin-top: -2px;
+  margin-bottom: -2px;
+  transition: background 0.15s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
 }
 
 .name {
@@ -176,9 +186,16 @@
   font-size: 10px;
   font-weight: 500;
   max-width: 80px;
+  border: none;
+  cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: background 0.15s;
+
+  &:hover {
+    background: rgba(0, 101, 253, 0.20);
+  }
 }
 
 .backendTag {
@@ -226,9 +243,25 @@
   .stat {
     padding: 6px 12px;
     text-align: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s;
 
     &:not(:last-child) {
       border-right: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    &:hover:not(:disabled) {
+      background: rgba(0, 101, 253, 0.06);
+    }
+
+    &:disabled {
+      cursor: default;
+
+      &:hover {
+        background: transparent;
+      }
     }
 
     strong {
@@ -244,6 +277,12 @@
       font-size: 9px;
       font-style: normal;
       color: rgba(20, 20, 19, 0.55);
+    }
+
+    .statIcon {
+      display: block;
+      margin: 0 auto 2px;
+      color: rgba(20, 20, 19, 0.45);
     }
   }
 }
@@ -315,9 +354,19 @@
     color: rgba(255, 255, 255, 0.55);
   }
 
+  .headerInfo {
+    &:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+  }
+
   .groupTag {
     background: rgba(0, 101, 253, 0.15);
     color: #4da3ff;
+
+    &:hover {
+      background: rgba(0, 101, 253, 0.25);
+    }
   }
 
   .backendTag {
@@ -338,12 +387,20 @@
         border-right-color: rgba(255, 255, 255, 0.06);
       }
 
+      &:hover:not(:disabled) {
+        background: rgba(0, 101, 253, 0.10);
+      }
+
       strong {
         color: rgba(255, 255, 255, 0.88);
       }
 
       em {
         color: rgba(255, 255, 255, 0.55);
+      }
+
+      .statIcon {
+        color: rgba(255, 255, 255, 0.45);
       }
     }
   }

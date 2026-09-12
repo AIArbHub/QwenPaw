@@ -443,8 +443,39 @@ export const documentToolsApi = {
       available_engines: string[];
       stderr_tail?: string;
       stdout_tail?: string;
-    }>(`/document-tools/ocr/install?engine=${encodeURIComponent(engine)}${useMirror !== undefined ? `&use_mirror=${useMirror}` : ""}`, {
+    }>("/document-tools/ocr/install", {
       method: "POST",
+      body: JSON.stringify({ engine, use_mirror: useMirror }),
       timeout: 300000, // 5 minutes for large packages like paddlepaddle
+    }),
+
+  /** Open a file with the system default application */
+  openFile: (filePath: string) =>
+    request<{ success: boolean; message: string }>("/document-tools/file/open", {
+      method: "POST",
+      body: JSON.stringify({ file_path: filePath }),
+    }),
+
+  /** Reveal a file/f folder in the system file explorer */
+  revealInFolder: (folderPath: string, selectFile?: string) =>
+    request<{ success: boolean; message: string }>("/document-tools/file/reveal", {
+      method: "POST",
+      body: JSON.stringify({ folder_path: folderPath, select_file: selectFile }),
+    }),
+
+  /** Read file content for preview (text files only) */
+  previewFile: (filePath: string) =>
+    request<{
+      success: boolean;
+      is_binary: boolean;
+      content?: string;
+      file_name: string;
+      file_size: number;
+      file_type?: string;
+      truncated?: boolean;
+      message?: string;
+    }>("/document-tools/file/preview", {
+      method: "POST",
+      body: JSON.stringify({ file_path: filePath }),
     }),
 };

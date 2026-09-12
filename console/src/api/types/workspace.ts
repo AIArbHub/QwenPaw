@@ -10,7 +10,7 @@ export interface MdFileContent {
   content: string;
 }
 
-export type MemorySection = "daily" | "digest";
+export type MemorySection = "daily" | "digest" | "knowledge";
 
 export interface MarkdownFile extends MdFileInfo {
   updated_at: number;
