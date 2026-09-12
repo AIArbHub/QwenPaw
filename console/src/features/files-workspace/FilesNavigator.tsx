@@ -280,8 +280,8 @@ function MemoryDirectoryNode({
   onSelect: (target: FileTarget) => void;
   depth: number;
   source: NavigatorSource;
-  activeGraphRoot: MemoryGraphRoot | null;
-  onShowGraph: (root: MemoryGraphRoot) => void;
+  activeGraphRoot: MemoryGraphRoot | string | null;
+  onShowGraph: (root: MemoryGraphRoot | string) => void;
 }) {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
@@ -289,16 +289,28 @@ function MemoryDirectoryNode({
   // recursion can resolve the real location even deep inside a nested folder.
   const nodeSource = (entry.source ?? source) as NavigatorSource;
   const nodeAgentId = entry.agentId;
-  // The graph affordance only applies to the bound agent's own digest top-level
+  // The graph affordance applies to the bound agent's own digest top-level
   // folders — a merged node pointing at another agent's data must not open a
   // graph rooted in this agent's memory.
+  // For knowledge source, top-level category directories (not library groups)
+  // are graph roots. In merged view, categories sit at depth 1 inside library
+  // groups, so we allow depth ≤ 1 there.
+  const isLibraryGroup = entry.path.startsWith("library:");
+  const knowledgeGraphEligible =
+    nodeSource === "knowledge" &&
+    entry.kind === "directory" &&
+    !isLibraryGroup &&
+    !nodeAgentId &&
+    (depth === 0 || (depth === 1 && source === "knowledge"));
   const graphRoot =
     nodeSource === "digest" &&
     !nodeAgentId &&
     depth === 0 &&
     (["wiki", "procedure", "personal"] as string[]).includes(entry.name)
       ? (entry.name as MemoryGraphRoot)
-      : null;
+      : knowledgeGraphEligible
+        ? entry.name
+        : null;
 
   return (
     <>
@@ -375,8 +387,8 @@ function MemoryDirectoryNode({
 interface FilesNavigatorProps {
   selectedPath: string;
   onSelect: (target: FileTarget) => void;
-  activeMemoryGraphRoot: MemoryGraphRoot | null;
-  onShowMemoryGraph: (root: MemoryGraphRoot) => void;
+  activeMemoryGraphRoot: MemoryGraphRoot | string | null;
+  onShowMemoryGraph: (root: MemoryGraphRoot | string) => void;
   onShowFiles: () => void;
   scope: FilesWorkspaceScope;
   /** Lock to a specific source tab (for sub-page routes). */

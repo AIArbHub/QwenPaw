@@ -16,6 +16,7 @@ import {
   Spin,
   message,
   Typography,
+  Collapse,
 } from "antd";
 import {
   ScanOutlined,
@@ -35,16 +36,14 @@ import { documentToolsApi } from "../../api/modules/documentTools";
 const { Text } = Typography;
 
 /**
- * OCR Config Panel — standalone configuration for OCR engines.
+ * OCR Config Panel — simplified, user-friendly configuration.
  *
- * This panel is shown as a dedicated tab in the DocumentTools page and also
- * embedded in the Settings sidebar. It manages:
- *   1. Text Recognition engine (local vs cloud)
- *   2. Layout Parsing / MinerU (optional, local vs cloud)
- *   3. Common settings (language, DPI, fallback)
- *
- * Configuration is persisted server-side at ~/.aiarb/ocr_config.json and
- * takes effect immediately (no restart required).
+ * Design principles (inspired by legalwork):
+ *   - Clean card-based layout with clear visual hierarchy
+ *   - Radio buttons that actually work (no flex layout issues)
+ *   - Switch toggles that are always clickable
+ *   - Graceful error handling — never block the UI
+ *   - Auto-install only on explicit user action (not on page load)
  */
 export default function OCRConfigPanel() {
   const { t } = useTranslation();
@@ -54,72 +53,58 @@ export default function OCRConfigPanel() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [installing, setInstalling] = useState(false);
-  const [autoInstallTriggered, setAutoInstallTriggered] = useState(false);
+  const [installError, setInstallError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // -- Data loading --
   const loadConfig = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const data = await documentToolsApi.getOCRConfig();
       setOcrConfig(data.config);
       setOcrEngines(data.available_engines || []);
-
-      // Auto-install if no engines available and mode is local
-      if (
-        !autoInstallTriggered &&
-        data.available_engines?.length === 0 &&
-        data.config?.text_engine?.mode !== "cloud_api"
-      ) {
-        setAutoInstallTriggered(true);
-        // Trigger auto-install in background
-        (async () => {
-          setInstalling(true);
-          message.info(
-            t(
-              "documentTools.ocr.autoInstalling",
-              "未检测到 OCR 引擎，正在自动安装...（已根据网络自动选择镜像源）",
-            ),
-          );
-          try {
-            const result = await documentToolsApi.installOCREngines("auto");
-            if (result.success) {
-              message.success(
-                t("documentTools.ocr.installSuccess", "OCR 引擎安装成功！") +
-                  (result.mirror_used ? "（已使用国内镜像源）" : ""),
-              );
-              // Refresh config to show newly installed engines
-              const data2 = await documentToolsApi.getOCRConfig();
-              setOcrConfig(data2.config);
-              setOcrEngines(data2.available_engines || []);
-            } else {
-              message.error(
-                t("documentTools.ocr.installFailed", "安装失败：") +
-                  (result.stderr_tail || ""),
-              );
-            }
-          } catch {
-            message.error(
-              t("documentTools.ocr.installFailed", "安装失败，请检查网络或手动安装"),
-            );
-          } finally {
-            setInstalling(false);
-          }
-        })();
-      }
-    } catch {
-      // Silently fail — panel shows empty state
+    } catch (err: any) {
+      setLoadError(
+        err?.message ||
+          t("documentTools.ocr.loadFailed", "加载 OCR 配置失败，请检查后端服务是否正常运行"),
+      );
+      // Set default config so UI is still usable
+      setOcrConfig({
+        text_engine: { mode: "local", provider: "auto", use_gpu: true },
+        layout_parser: null,
+        language: "ch",
+        confidence_threshold: 0.5,
+        dpi: 300,
+        max_workers: 2,
+        enable_ocr: true,
+        fallback_to_cloud: false,
+      });
     } finally {
       setLoading(false);
     }
-  }, [t, autoInstallTriggered]);
+  }, [t]);
 
   useEffect(() => {
     loadConfig();
   }, [loadConfig]);
 
-  // -- Helper: update config and refresh --
+  // -- Helper: update config and refresh (optimistic) --
   const updateConfig = useCallback(
     async (patch: Record<string, any>) => {
+      // Optimistic: update local state immediately so UI never feels stuck
+      setOcrConfig((prev: any) => {
+        if (!prev) return patch;
+        const next = { ...prev };
+        for (const [key, val] of Object.entries(patch)) {
+          if (val && typeof val === "object" && !Array.isArray(val)) {
+            next[key] = { ...(prev[key] || {}), ...val };
+          } else {
+            next[key] = val;
+          }
+        }
+        return next;
+      });
       setSaving(true);
       try {
         await documentToolsApi.updateOCRConfig(patch);
@@ -127,8 +112,19 @@ export default function OCRConfigPanel() {
         const data = await documentToolsApi.getOCRConfig();
         setOcrConfig(data.config);
         setOcrEngines(data.available_engines || []);
-      } catch {
-        message.error(t("documentTools.ocr.saveFailed", "保存失败，请重试"));
+      } catch (err: any) {
+        // Show error but don't block — local state is already updated
+        message.warning(
+          err?.message || t("documentTools.ocr.saveFailed", "保存失败，配置已更新但可能需要重启后端"),
+        );
+        // Refresh to get server's actual state
+        try {
+          const data = await documentToolsApi.getOCRConfig();
+          setOcrConfig(data.config);
+          setOcrEngines(data.available_engines || []);
+        } catch {
+          // Keep optimistic state if refresh also fails
+        }
       } finally {
         setSaving(false);
       }
@@ -137,44 +133,106 @@ export default function OCRConfigPanel() {
   );
 
   // -- Manual install handler --
-  const handleManualInstall = useCallback(async (engine: string) => {
-    setInstalling(true);
-    message.info(t("documentTools.ocr.installing", "正在安装 OCR 引擎..."));
-    try {
-      const result = await documentToolsApi.installOCREngines(engine);
-      if (result.success) {
-        message.success(
-          t("documentTools.ocr.installSuccess", "OCR 引擎安装成功！") +
-            (result.mirror_used ? "（已使用国内镜像源）" : ""),
-        );
-        const data = await documentToolsApi.getOCRConfig();
-        setOcrConfig(data.config);
-        setOcrEngines(data.available_engines || []);
-      } else {
-        message.error(
-          t("documentTools.ocr.installFailed", "安装失败：") +
-            (result.stderr_tail || ""),
-        );
+  const handleInstall = useCallback(
+    async (engine: string) => {
+      setInstalling(true);
+      setInstallError(null);
+      message.info(
+        t(
+          "documentTools.ocr.installing",
+          "正在安装 OCR 引擎...（已根据网络自动选择镜像源）",
+        ),
+      );
+      try {
+        const result = await documentToolsApi.installOCREngines(engine);
+        if (result.success) {
+          message.success(
+            t("documentTools.ocr.installSuccess", "OCR 引擎安装成功！") +
+              (result.mirror_used ? "（已使用国内镜像源）" : ""),
+          );
+          // Refresh config to show newly installed engines
+          const data = await documentToolsApi.getOCRConfig();
+          setOcrConfig(data.config);
+          setOcrEngines(data.available_engines || []);
+        } else {
+          const errMsg =
+            result.stderr_tail ||
+            t("documentTools.ocr.installFailed", "安装失败，请检查网络或手动安装");
+          setInstallError(errMsg);
+          message.error(
+            t("documentTools.ocr.installFailed", "安装失败：") + errMsg,
+          );
+        }
+      } catch (err: any) {
+        const errMsg =
+          err?.message ||
+          t("documentTools.ocr.installFailed", "安装失败，请检查网络");
+        setInstallError(errMsg);
+        message.error(errMsg);
+      } finally {
+        setInstalling(false);
       }
-    } catch {
-      message.error(t("documentTools.ocr.installFailed", "安装失败，请检查网络"));
-    } finally {
-      setInstalling(false);
-    }
-  }, [t]);
+    },
+    [t],
+  );
 
   if (loading && !ocrConfig) {
     return (
       <div style={{ textAlign: "center", padding: 40 }}>
-        <Spin />
+        <Spin tip={t("common.loading", "加载中...")} />
       </div>
     );
   }
 
   const ocrEnabled = ocrConfig?.enable_ocr !== false;
+  const textMode = ocrConfig?.text_engine?.mode || "local";
+  const layoutEnabled = ocrConfig?.layout_parser != null;
+  const layoutMode = ocrConfig?.layout_parser?.mode || "local";
 
   return (
     <div style={{ maxWidth: 800, margin: "0 auto" }}>
+      {loadError && (
+        <Alert
+          type="warning"
+          showIcon
+          message={loadError}
+          description={t(
+            "documentTools.ocr.loadErrorDesc",
+            "后端 OCR 模块可能未正确安装。您可以尝试一键安装，或使用云端 API 模式。",
+          )}
+          style={{ marginBottom: 16 }}
+          action={
+            <Button size="small" onClick={() => loadConfig()}>
+              {t("common.retry", "重试")}
+            </Button>
+          }
+        />
+      )}
+
+      {installError && (
+        <Alert
+          type="error"
+          showIcon
+          closable
+          onClose={() => setInstallError(null)}
+          message={t("documentTools.ocr.installFailedTitle", "OCR 引擎安装失败")}
+          description={
+            <div>
+              <Text style={{ fontSize: 12, fontFamily: "monospace", whiteSpace: "pre-wrap", display: "block", maxHeight: 120, overflow: "auto" }}>
+                {installError}
+              </Text>
+              <Text type="secondary" style={{ fontSize: 11, marginTop: 8, display: "block" }}>
+                {t(
+                  "documentTools.ocr.manualInstallHint",
+                  "您也可以在终端中手动执行：pip install paddlepaddle paddleocr",
+                )}
+              </Text>
+            </div>
+          }
+          style={{ marginBottom: 16 }}
+        />
+      )}
+
       <Card
         size="small"
         title={
@@ -192,15 +250,22 @@ export default function OCRConfigPanel() {
       >
         <Space direction="vertical" style={{ width: "100%" }} size="middle">
           {/* Global OCR toggle */}
-          <div>
-            <Text strong>
-              {t("documentTools.redaction.globalOcrToggle", "全局 OCR 开关")}
-            </Text>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <Text strong>
+                {t("documentTools.redaction.globalOcrToggle", "全局 OCR 开关")}
+              </Text>
+              <div style={{ fontSize: 12, color: "#999" }}>
+                {t(
+                  "documentTools.ocr.globalToggleDesc",
+                  "关闭后，所有文档处理将跳过 OCR 步骤",
+                )}
+              </div>
+            </div>
             <Switch
               checked={ocrEnabled}
               onChange={(checked) => updateConfig({ enable_ocr: checked })}
-              size="small"
-              style={{ marginLeft: 8 }}
+              loading={saving}
             />
           </div>
 
@@ -214,10 +279,7 @@ export default function OCRConfigPanel() {
               <Space>
                 <FontSizeOutlined />
                 <span style={{ fontWeight: 600 }}>
-                  {t(
-                    "documentTools.redaction.textRecognition",
-                    "1. 文字识别引擎",
-                  )}
+                  {t("documentTools.redaction.textRecognition", "1. 文字识别引擎")}
                 </span>
                 <Tag color="blue">
                   {t("documentTools.redaction.required", "必需")}
@@ -226,34 +288,38 @@ export default function OCRConfigPanel() {
             }
             style={{ background: "#fafafa" }}
           >
-            <Radio.Group
-              value={ocrConfig?.text_engine?.mode || "local"}
-              onChange={(e) => {
-                const mode = e.target.value;
-                updateConfig({
-                  text_engine: {
-                    ...(ocrConfig?.text_engine || {}),
-                    mode,
-                    // Reset provider-specific fields when switching mode
-                    ...(mode === "local"
-                      ? { provider: "", api_key: "", endpoint: "" }
-                      : {}),
-                  },
-                });
-              }}
-              style={{ width: "100%", marginBottom: 12 }}
-            >
-              <Radio.Button value="local" style={{ flex: 1, textAlign: "center" }}>
-                <DesktopOutlined />{" "}
-                {t("documentTools.redaction.localDeployment", "本地部署")}
-              </Radio.Button>
-              <Radio.Button value="cloud_api" style={{ flex: 1, textAlign: "center" }}>
-                <CloudServerOutlined />{" "}
-                {t("documentTools.redaction.cloudApi", "云端 API")}
-              </Radio.Button>
-            </Radio.Group>
+            {/* Mode selector — use Radio.Group with buttonStyle="solid" for reliable clicking */}
+            <div style={{ marginBottom: 12 }}>
+              <Text strong style={{ fontSize: 12, display: "block", marginBottom: 8 }}>
+                {t("documentTools.redaction.engineMode", "引擎模式")}
+              </Text>
+              <Radio.Group
+                value={textMode}
+                onChange={(e) => {
+                  const mode = e.target.value;
+                  updateConfig({
+                    text_engine: {
+                      ...(ocrConfig?.text_engine || {}),
+                      mode,
+                      ...(mode === "local"
+                        ? { provider: "", api_key: "", endpoint: "" }
+                        : {}),
+                    },
+                  });
+                }}
+                buttonStyle="solid"
+                disabled={saving}
+              >
+                <Radio.Button value="local">
+                  <DesktopOutlined /> {t("documentTools.redaction.localDeployment", "本地部署")}
+                </Radio.Button>
+                <Radio.Button value="cloud_api">
+                  <CloudServerOutlined /> {t("documentTools.redaction.cloudApi", "云端 API")}
+                </Radio.Button>
+              </Radio.Group>
+            </div>
 
-            {(ocrConfig?.text_engine?.mode || "local") === "local" ? (
+            {textMode === "local" ? (
               /* ===== LOCAL ENGINE CONFIG ===== */
               <div>
                 <Alert
@@ -283,32 +349,21 @@ export default function OCRConfigPanel() {
                       })
                     }
                     style={{ width: "100%" }}
+                    disabled={saving}
                     options={[
                       {
-                        label: t(
-                          "documentTools.redaction.autoDetectBest",
-                          "自动选择最佳（推荐）",
-                        ),
+                        label: t("documentTools.redaction.autoDetectBest", "自动选择最佳（推荐）"),
                         value: "auto",
                       },
-                      {
-                        label: "🔷 PaddleOCR (中文最优，需 ~3GB 磁盘)",
-                        value: "paddleocr",
-                      },
-                      {
-                        label: "🌐 EasyOCR (多语言，需 ~500MB)",
-                        value: "easyocr",
-                      },
-                      {
-                        label: "⚡ Tesseract (最快最轻，~50MB)",
-                        value: "tesseract",
-                      },
+                      { label: "PaddleOCR (中文最优，需 ~3GB 磁盘)", value: "paddleocr" },
+                      { label: "EasyOCR (多语言，需 ~500MB)", value: "easyocr" },
+                      { label: "Tesseract (最快最轻，~50MB)", value: "tesseract" },
                     ]}
                   />
                 </div>
 
-                {/* GPU toggle for local engines */}
-                <div>
+                {/* GPU toggle */}
+                <div style={{ marginBottom: 12 }}>
                   <Switch
                     checked={ocrConfig?.text_engine?.use_gpu !== false}
                     onChange={(checked) =>
@@ -320,12 +375,10 @@ export default function OCRConfigPanel() {
                       })
                     }
                     size="small"
+                    disabled={saving}
                   />
                   <Text style={{ marginLeft: 8, fontSize: 12 }}>
-                    {t(
-                      "documentTools.redaction.useGpuAcceleration",
-                      "使用 GPU 加速（推荐，大幅提升速度）",
-                    )}
+                    {t("documentTools.redaction.useGpuAcceleration", "使用 GPU 加速（推荐，大幅提升速度）")}
                   </Text>
                 </div>
 
@@ -336,54 +389,46 @@ export default function OCRConfigPanel() {
                     showIcon
                     icon={<CheckCircleFilled />}
                     message={`${t("documentTools.ocr.installedEngines", "已安装引擎")}: ${ocrEngines.join(", ")}`}
-                    style={{ marginTop: 8 }}
+                    style={{ marginBottom: 8 }}
                   />
                 ) : installing ? (
                   <Alert
                     type="info"
                     showIcon
                     icon={<LoadingOutlined />}
-                    message={t("documentTools.ocr.autoInstalling", "正在自动安装 OCR 引擎...（已根据网络自动选择镜像源）")}
-                    style={{ marginTop: 8 }}
+                    message={t("documentTools.ocr.installing", "正在安装 OCR 引擎...")}
+                    style={{ marginBottom: 8 }}
                   />
                 ) : (
                   <Alert
-                    type="info"
+                    type="warning"
                     showIcon
-                    message={t("documentTools.ocr.noEngineDetected", "未检测到 OCR 引擎，正在准备自动安装...")}
-                    style={{ marginTop: 8 }}
+                    icon={<WarningOutlined />}
+                    message={t(
+                      "documentTools.ocr.noEngineDetected",
+                      "未检测到 OCR 引擎，请点击下方按钮安装",
+                    )}
+                    style={{ marginBottom: 8 }}
                   />
                 )}
 
                 {/* Install buttons */}
-                <Space style={{ marginTop: 8 }}>
+                <Space wrap>
                   <Button
                     size="small"
                     type="primary"
                     loading={installing}
-                    onClick={() => handleManualInstall("auto")}
+                    onClick={() => handleInstall("auto")}
                   >
                     {t("documentTools.ocr.installNow", "一键安装")}
                   </Button>
-                  <Button
-                    size="small"
-                    loading={installing}
-                    onClick={() => handleManualInstall("paddleocr")}
-                  >
+                  <Button size="small" loading={installing} onClick={() => handleInstall("paddleocr")}>
                     PaddleOCR
                   </Button>
-                  <Button
-                    size="small"
-                    loading={installing}
-                    onClick={() => handleManualInstall("easyocr")}
-                  >
+                  <Button size="small" loading={installing} onClick={() => handleInstall("easyocr")}>
                     EasyOCR
                   </Button>
-                  <Button
-                    size="small"
-                    loading={installing}
-                    onClick={() => handleManualInstall("tesseract")}
-                  >
+                  <Button size="small" loading={installing} onClick={() => handleInstall("tesseract")}>
                     Tesseract
                   </Button>
                 </Space>
@@ -412,8 +457,7 @@ export default function OCRConfigPanel() {
                     onChange={(val) => {
                       const defaultEndpoints: Record<string, string> = {
                         "ocr-space": "https://api.ocr.space",
-                        "baidu-ocr":
-                          "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic",
+                        "baidu-ocr": "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic",
                         "tencent-ocr": "https://ocr.tencentcloudapi.com/",
                         "mineru-cloud": "https://api.mineru.org",
                       };
@@ -429,20 +473,17 @@ export default function OCRConfigPanel() {
                       });
                     }}
                     style={{ width: "100%" }}
+                    disabled={saving}
                     options={[
-                      {
-                        label: "OCR.space (免费 500次/月, $0.001/页)",
-                        value: "ocr-space",
-                      },
+                      { label: "OCR.space (免费 500次/月)", value: "ocr-space" },
                       { label: "百度智能云 OCR (国内首选)", value: "baidu-ocr" },
                       { label: "腾讯云 OCR (表格识别强)", value: "tencent-ocr" },
-                      { label: "MinerU 云服务 (版面解析)", value: "mineru-cloud" },
                       { label: "自定义 API 端点", value: "custom" },
                     ]}
                   />
                 </div>
 
-                {/* Custom endpoint (if "custom" selected) */}
+                {/* Custom endpoint */}
                 {(ocrConfig?.text_engine?.provider === "custom" ||
                   !ocrConfig?.text_engine?.provider) && (
                   <div style={{ marginBottom: 8 }}>
@@ -458,6 +499,7 @@ export default function OCRConfigPanel() {
                         })
                       }
                       addonBefore={<LinkOutlined />}
+                      disabled={saving}
                     />
                   </div>
                 )}
@@ -482,39 +524,11 @@ export default function OCRConfigPanel() {
                       "输入 API Key 以启用云端 OCR 服务",
                     )}
                     style={{ width: "100%" }}
+                    disabled={saving}
                   />
                 </div>
 
-                {/* Test connection button */}
-                <Button
-                  icon={<CloudServerOutlined />}
-                  onClick={async () => {
-                    setLoading(true);
-                    try {
-                      const result = await documentToolsApi.listOCREngines();
-                      if (!ocrConfig?.text_engine?.api_key) {
-                        message.warning(
-                          t("documentTools.redaction.noCloudKey", "请先输入 API Key"),
-                        );
-                        return;
-                      }
-                      message.success(
-                        t(
-                          "documentTools.redaction.connectionSuccess",
-                          "连接测试成功！可用引擎：",
-                        ) + result.available?.join(", "),
-                      );
-                    } finally {
-                      setLoading(false);
-                    }
-                  }}
-                  loading={loading}
-                  size="small"
-                >
-                  {t("documentTools.redaction.testConnection", "测试连接")}
-                </Button>
-
-                <div style={{ fontSize: 11, color: "#888", marginTop: 8 }}>
+                <div style={{ fontSize: 11, color: "#888" }}>
                   <InfoCircleOutlined style={{ marginRight: 4 }} />
                   {t(
                     "documentTools.redaction.costWarning",
@@ -535,10 +549,7 @@ export default function OCRConfigPanel() {
               <Space>
                 <TableOutlined />
                 <span style={{ fontWeight: 600 }}>
-                  {t(
-                    "documentTools.redaction.layoutParsing",
-                    "2. 版面解析引擎 (MinerU)",
-                  )}
+                  {t("documentTools.redaction.layoutParsing", "2. 版面解析引擎 (MinerU)")}
                 </span>
                 <Tag color="purple">
                   {t("documentTools.redaction.optional", "可选增强")}
@@ -546,12 +557,22 @@ export default function OCRConfigPanel() {
               </Space>
             }
             style={{ background: "#fafafa" }}
-            extra={
+          >
+            {/* Enable/disable toggle — placed in the card body, not in `extra`, to ensure clickability */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: layoutEnabled ? 12 : 0 }}>
+              <div>
+                <Text strong style={{ fontSize: 13 }}>
+                  {t("documentTools.redaction.enableLayoutParser", "启用版面解析")}
+                </Text>
+                <div style={{ fontSize: 12, color: "#999" }}>
+                  {t(
+                    "documentTools.redaction.layoutParserDesc",
+                    "处理复杂表格、双栏排版、公式等场景。日常简单文档无需启用。",
+                  )}
+                </div>
+              </div>
               <Switch
-                checked={
-                  ocrConfig?.layout_parser !== null &&
-                  ocrConfig?.layout_parser !== undefined
-                }
+                checked={layoutEnabled}
                 onChange={(checked) => {
                   if (checked) {
                     updateConfig({
@@ -566,39 +587,43 @@ export default function OCRConfigPanel() {
                     updateConfig({ layout_parser: null });
                   }
                 }}
-                size="small"
+                loading={saving}
               />
-            }
-          >
-            {ocrConfig?.layout_parser && (
-              <>
-                <Radio.Group
-                  value={ocrConfig?.layout_parser?.mode || "local"}
-                  onChange={(e) => {
-                    const mode = e.target.value;
-                    updateConfig({
-                      layout_parser: {
-                        ...(ocrConfig?.layout_parser || {}),
-                        mode,
-                        ...(mode === "local"
-                          ? { provider: "", api_key: "", endpoint: "" }
-                          : {}),
-                      },
-                    });
-                  }}
-                  style={{ width: "100%", marginBottom: 12 }}
-                >
-                  <Radio.Button value="local" style={{ flex: 1, textAlign: "center" }}>
-                    <DesktopOutlined />{" "}
-                    {t("documentTools.redaction.localDeployment", "本地部署")}
-                  </Radio.Button>
-                  <Radio.Button value="cloud_api" style={{ flex: 1, textAlign: "center" }}>
-                    <CloudServerOutlined />{" "}
-                    {t("documentTools.redaction.cloudApi", "云端 API")}
-                  </Radio.Button>
-                </Radio.Group>
+            </div>
 
-                {(ocrConfig?.layout_parser?.mode || "local") === "local" ? (
+            {layoutEnabled && (
+              <>
+                <div style={{ marginBottom: 12 }}>
+                  <Text strong style={{ fontSize: 12, display: "block", marginBottom: 8 }}>
+                    {t("documentTools.redaction.engineMode", "引擎模式")}
+                  </Text>
+                  <Radio.Group
+                    value={layoutMode}
+                    onChange={(e) => {
+                      const mode = e.target.value;
+                      updateConfig({
+                        layout_parser: {
+                          ...(ocrConfig?.layout_parser || {}),
+                          mode,
+                          ...(mode === "local"
+                            ? { provider: "", api_key: "", endpoint: "" }
+                            : {}),
+                        },
+                      });
+                    }}
+                    buttonStyle="solid"
+                    disabled={saving}
+                  >
+                    <Radio.Button value="local">
+                      <DesktopOutlined /> {t("documentTools.redaction.localDeployment", "本地部署")}
+                    </Radio.Button>
+                    <Radio.Button value="cloud_api">
+                      <CloudServerOutlined /> {t("documentTools.redaction.cloudApi", "云端 API")}
+                    </Radio.Button>
+                  </Radio.Group>
+                </div>
+
+                {layoutMode === "local" ? (
                   /* ===== MINERU LOCAL CONFIG ===== */
                   <div>
                     <Alert
@@ -607,7 +632,7 @@ export default function OCRConfigPanel() {
                       icon={<WarningOutlined />}
                       message={t(
                         "documentTools.redaction.mineruLocalRequirements",
-                        "MinerU 本地部署需要较强硬件：GPU ≥8GB VRAM (推荐)，首次运行下载 ~10GB 模型。CPU 模式极慢 (~30秒/页)。",
+                        "MinerU 本地部署需要较强硬件：GPU ≥8GB VRAM (推荐)，首次运行下载 ~10GB 模型。",
                       )}
                       style={{ marginBottom: 12 }}
                     />
@@ -627,14 +652,9 @@ export default function OCRConfigPanel() {
                           })
                         }
                         style={{ width: "100%" }}
+                        disabled={saving}
                         options={[
-                          {
-                            label: t(
-                              "documentTools.redaction.autoSelect",
-                              "自动（根据硬件选择）",
-                            ),
-                            value: "auto",
-                          },
+                          { label: t("documentTools.redaction.autoSelect", "自动（根据硬件选择）"), value: "auto" },
                           { label: "Small (~2GB VRAM, 较快)", value: "small" },
                           { label: "Medium (~6GB VRAM, 平衡)", value: "medium" },
                           { label: "Large (~10GB+ VRAM, 最准)", value: "large" },
@@ -654,20 +674,17 @@ export default function OCRConfigPanel() {
                           })
                         }
                         size="small"
+                        disabled={saving}
                       />
                       <Text style={{ marginLeft: 8, fontSize: 12 }}>
-                        {t(
-                          "documentTools.redaction.useGpuForMinerU",
-                          "使用 GPU 加速（强烈推荐）",
-                        )}
+                        {t("documentTools.redaction.useGpuForMinerU", "使用 GPU 加速（强烈推荐）")}
                       </Text>
                     </div>
 
                     <div style={{ fontSize: 11, color: "#666", marginTop: 8 }}>
-                      💡{" "}
                       {t(
                         "documentTools.redaction.mineruInstallCommand",
-                        "安装命令：pip install \"magic-pdf[full]\" (需要 Python 3.10+)",
+                        "安装命令：pip install \"magic-pdf[full]\"",
                       )}
                     </div>
                   </div>
@@ -680,17 +697,14 @@ export default function OCRConfigPanel() {
                       icon={<CloudServerOutlined />}
                       message={t(
                         "documentTools.redaction.mineruCloudDesc",
-                        "使用 MinerU 云端 API 进行版面解析，无需本地 GPU，适合无高性能硬件的环境。",
+                        "使用 MinerU 云端 API 进行版面解析，无需本地 GPU。",
                       )}
                       style={{ marginBottom: 12 }}
                     />
 
                     <div style={{ marginBottom: 8 }}>
                       <Text strong style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
-                        {t(
-                          "documentTools.redaction.mineruCloudProvider",
-                          "MinerU 云服务商",
-                        )}
+                        {t("documentTools.redaction.mineruCloudProvider", "MinerU 云服务商")}
                       </Text>
                       <Select
                         value={ocrConfig?.layout_parser?.provider || "mineru-cloud"}
@@ -708,11 +722,9 @@ export default function OCRConfigPanel() {
                           });
                         }}
                         style={{ width: "100%" }}
+                        disabled={saving}
                         options={[
-                          {
-                            label: "MinerU 官方云服务 (api.mineru.org)",
-                            value: "mineru-cloud",
-                          },
+                          { label: "MinerU 官方云服务 (api.mineru.org)", value: "mineru-cloud" },
                           { label: "自定义端点 (私有化部署)", value: "custom" },
                         ]}
                       />
@@ -732,6 +744,7 @@ export default function OCRConfigPanel() {
                             })
                           }
                           addonBefore={<LinkOutlined />}
+                          disabled={saving}
                         />
                       </div>
                     )}
@@ -755,23 +768,16 @@ export default function OCRConfigPanel() {
                           "输入 MinerU 云服务 API Key",
                         )}
                         style={{ width: "100%" }}
+                        disabled={saving}
                       />
-                    </div>
-
-                    <div style={{ fontSize: 11, color: "#888" }}>
-                      <InfoCircleOutlined style={{ marginRight: 4 }} />
-                      {t(
-                        "documentTools.redaction.mineruCloudNote",
-                        "MinerU 云服务按文档页数计费，适合偶尔处理复杂版面的场景。日常简单文档可仅使用文字识别引擎。",
-                      )}
                     </div>
                   </div>
                 )}
               </>
             )}
 
-            {!ocrConfig?.layout_parser && (
-              <div style={{ textAlign: "center", padding: "12px 0", color: "#999" }}>
+            {!layoutEnabled && (
+              <div style={{ textAlign: "center", padding: "8px 0", color: "#999" }}>
                 <TableOutlined style={{ fontSize: 24, marginBottom: 8, display: "block" }} />
                 <div style={{ fontSize: 12 }}>
                   {t(
@@ -783,93 +789,97 @@ export default function OCRConfigPanel() {
             )}
           </Card>
 
-          {/* Common settings */}
-          <Divider orientation="left" plain>
-            {t("documentTools.redaction.commonSettings", "通用设置")}
-          </Divider>
-
-          <Row gutter={[12, 12]}>
-            <Col span={12}>
-              <div>
-                <Text strong style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
-                  {t("documentTools.redaction.language", "识别语言")}
-                </Text>
-                <Select
-                  value={ocrConfig?.language || "ch"}
-                  onChange={(val) => updateConfig({ language: val })}
-                  style={{ width: "100%" }}
-                  options={[
-                    { label: "中文 (推荐)", value: "ch" },
-                    { label: "English", value: "en" },
-                    { label: "中英混合", value: "ch_en" },
-                  ]}
-                />
-              </div>
-            </Col>
-            <Col span={12}>
-              <div>
-                <Text strong style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
-                  DPI ({t("documentTools.redaction.imageQuality", "图像质量")})
-                </Text>
-                <InputNumber
-                  value={ocrConfig?.dpi || 300}
-                  onChange={(val) => {
-                    if (val && val >= 72 && val <= 600) {
-                      updateConfig({ dpi: parseInt(String(val)) });
-                    }
-                  }}
-                  min={72}
-                  max={600}
-                  style={{ width: "100%" }}
-                  addonAfter="DPI"
-                />
-              </div>
-            </Col>
-          </Row>
-
-          {/* Confidence threshold */}
-          <Row gutter={[12, 12]}>
-            <Col span={12}>
-              <div>
-                <Text strong style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
-                  {t(
-                    "documentTools.ocr.confidenceThreshold",
-                    "置信度阈值",
-                  )}
-                </Text>
-                <InputNumber
-                  value={ocrConfig?.confidence_threshold ?? 0.5}
-                  onChange={(val) => {
-                    if (val !== null && val >= 0 && val <= 1) {
-                      updateConfig({ confidence_threshold: val });
-                    }
-                  }}
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  style={{ width: "100%" }}
-                />
-              </div>
-            </Col>
-            <Col span={12}>
-              <div>
-                <Text strong style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
-                  {t("documentTools.ocr.maxWorkers", "并行工作线程")}
-                </Text>
-                <InputNumber
-                  value={ocrConfig?.max_workers ?? 2}
-                  onChange={(val) => {
-                    if (val && val >= 1 && val <= 16) {
-                      updateConfig({ max_workers: parseInt(String(val)) });
-                    }
-                  }}
-                  min={1}
-                  max={16}
-                  style={{ width: "100%" }}
-                />
-              </div>
-            </Col>
-          </Row>
+          {/* Common settings — collapsible */}
+          <Collapse
+            size="small"
+            items={[
+              {
+                key: "common",
+                label: t("documentTools.redaction.commonSettings", "通用设置"),
+                children: (
+                  <Row gutter={[12, 12]}>
+                    <Col span={12}>
+                      <div>
+                        <Text strong style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
+                          {t("documentTools.redaction.language", "识别语言")}
+                        </Text>
+                        <Select
+                          value={ocrConfig?.language || "ch"}
+                          onChange={(val) => updateConfig({ language: val })}
+                          style={{ width: "100%" }}
+                          disabled={saving}
+                          options={[
+                            { label: "中文 (推荐)", value: "ch" },
+                            { label: "English", value: "en" },
+                            { label: "中英混合", value: "ch_en" },
+                          ]}
+                        />
+                      </div>
+                    </Col>
+                    <Col span={12}>
+                      <div>
+                        <Text strong style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
+                          DPI ({t("documentTools.redaction.imageQuality", "图像质量")})
+                        </Text>
+                        <InputNumber
+                          value={ocrConfig?.dpi || 300}
+                          onChange={(val) => {
+                            if (val && val >= 72 && val <= 600) {
+                              updateConfig({ dpi: parseInt(String(val)) });
+                            }
+                          }}
+                          min={72}
+                          max={600}
+                          style={{ width: "100%" }}
+                          addonAfter="DPI"
+                          disabled={saving}
+                        />
+                      </div>
+                    </Col>
+                    <Col span={12}>
+                      <div>
+                        <Text strong style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
+                          {t("documentTools.ocr.confidenceThreshold", "置信度阈值")}
+                        </Text>
+                        <InputNumber
+                          value={ocrConfig?.confidence_threshold ?? 0.5}
+                          onChange={(val) => {
+                            if (val !== null && val >= 0 && val <= 1) {
+                              updateConfig({ confidence_threshold: val });
+                            }
+                          }}
+                          min={0}
+                          max={1}
+                          step={0.05}
+                          style={{ width: "100%" }}
+                          disabled={saving}
+                        />
+                      </div>
+                    </Col>
+                    <Col span={12}>
+                      <div>
+                        <Text strong style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
+                          {t("documentTools.ocr.maxWorkers", "并行工作线程")}
+                        </Text>
+                        <InputNumber
+                          value={ocrConfig?.max_workers ?? 2}
+                          onChange={(val) => {
+                            if (val && val >= 1 && val <= 16) {
+                              updateConfig({ max_workers: parseInt(String(val)) });
+                            }
+                          }}
+                          min={1}
+                          max={16}
+                          style={{ width: "100%" }}
+                          disabled={saving}
+                        />
+                      </div>
+                    </Col>
+                  </Row>
+                ),
+              },
+            ]}
+          />
 
           {/* Fallback option */}
           <div>
@@ -877,17 +887,15 @@ export default function OCRConfigPanel() {
               checked={ocrConfig?.fallback_to_cloud || false}
               onChange={(checked) => updateConfig({ fallback_to_cloud: checked })}
               size="small"
+              disabled={saving}
             />
             <Text style={{ marginLeft: 8, fontSize: 12 }}>
-              {t(
-                "documentTools.redaction.autoFallbackToCloud",
-                "本地引擎失败时自动切换到云端 API",
-              )}
+              {t("documentTools.redaction.autoFallbackToCloud", "本地引擎失败时自动切换到云端 API")}
             </Text>
           </div>
 
           {/* Config file path */}
-          {loading === false && (
+          {loadError === null && (
             <div style={{ fontSize: 11, color: "#999" }}>
               <InfoCircleOutlined style={{ marginRight: 4 }} />
               {t(

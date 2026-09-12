@@ -43,6 +43,8 @@ interface GroupedSkillsViewProps {
   onBroadcast: (skill: PoolSkillSpec) => void;
   onDelete: (skill: PoolSkillSpec) => void;
   onAutomationQuickAction: (skill: PoolSkillSpec) => void | Promise<void>;
+  onTogglePin: (name: string) => void;
+  pinnedSkills: Set<string>;
   styles: Record<string, string>;
   sentinelRef: React.RefObject<HTMLDivElement | null>;
   hasMore: boolean;
@@ -58,6 +60,8 @@ function GroupedSkillsView({
   onBroadcast,
   onDelete,
   onAutomationQuickAction,
+  onTogglePin,
+  pinnedSkills,
   styles,
   sentinelRef,
   hasMore,
@@ -101,6 +105,8 @@ function GroupedSkillsView({
                 onBroadcast={onBroadcast}
                 onDelete={onDelete}
                 onAutomationQuickAction={onAutomationQuickAction}
+                onTogglePin={onTogglePin}
+                isPinned={pinnedSkills.has(skill.name)}
               />
             ))}
           </div>
@@ -142,7 +148,7 @@ function SkillPoolPage() {
     visibleItems: visibleSkills,
     hasMore,
     sentinelRef,
-  } = useProgressiveRender(pool.sortedSkills);
+  } = useProgressiveRender(pool.categoryFilteredSkills);
 
   const navigate = useNavigate();
 
@@ -341,6 +347,45 @@ function SkillPoolPage() {
           </div>
         )}
 
+        {/* Category Tabs */}
+        {!pool.loading && pool.skills.length > 0 && pool.viewMode === "group" && (
+          <div className={styles.categoryTabs}>
+            <button
+              className={`${styles.categoryTab} ${
+                pool.activeCategory === "__all__" ? styles.categoryTabActive : ""
+              }`}
+              onClick={() => pool.setActiveCategory("__all__")}
+            >
+              {t("skills.allCategories", "全部")}
+              <span className={styles.categoryTabCount}>
+                {pool.skills.length}
+              </span>
+            </button>
+            {pool.categories.map(([cat, count]) => (
+              <button
+                key={cat}
+                className={`${styles.categoryTab} ${
+                  pool.activeCategory === cat ? styles.categoryTabActive : ""
+                }`}
+                onClick={() => pool.setActiveCategory(cat)}
+              >
+                {cat}
+                <span className={styles.categoryTabCount}>{count}</span>
+              </button>
+            ))}
+            <button
+              className={`${styles.categoryTab} ${
+                pool.activeCategory === "__uncategorized__"
+                  ? styles.categoryTabActive
+                  : ""
+              }`}
+              onClick={() => pool.setActiveCategory("__uncategorized__")}
+            >
+              {t("skills.uncategorized", "未分类")}
+            </button>
+          </div>
+        )}
+
         {pool.loading ? (
           <div className={styles.loading}>
             <span className={styles.loadingText}>{t("common.loading")}</span>
@@ -363,6 +408,8 @@ function SkillPoolPage() {
             onBroadcast={pool.openBroadcast}
             onDelete={pool.handleDelete}
             onAutomationQuickAction={pool.handleAutomationQuickAction}
+            onTogglePin={pool.togglePin}
+            pinnedSkills={pool.pinnedSkills}
             styles={styles}
             sentinelRef={sentinelRef}
             hasMore={hasMore}
@@ -381,6 +428,8 @@ function SkillPoolPage() {
                 onBroadcast={pool.openBroadcast}
                 onDelete={pool.handleDelete}
                 onAutomationQuickAction={pool.handleAutomationQuickAction}
+                onTogglePin={pool.togglePin}
+                isPinned={pool.pinnedSkills.has(skill.name)}
               />
             ))}
             {hasMore && <div ref={sentinelRef} style={{ height: 1 }} />}
@@ -397,6 +446,8 @@ function SkillPoolPage() {
                 onEdit={pool.openEdit}
                 onBroadcast={pool.openBroadcast}
                 onDelete={pool.handleDelete}
+                onTogglePin={pool.togglePin}
+                isPinned={pool.pinnedSkills.has(skill.name)}
               />
             ))}
             {hasMore && <div ref={sentinelRef} style={{ height: 1 }} />}

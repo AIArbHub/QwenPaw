@@ -12,7 +12,7 @@ import {
   EyeOutlined,
   CopyOutlined,
 } from "@ant-design/icons";
-import { Pin, PinOff, Tag, PawPrint, SquareTerminal } from "lucide-react";
+import { Pin, PinOff, Tag, PawPrint, SquareTerminal, History } from "lucide-react";
 import type { AgentSummary } from "../../../../api/types/agents";
 import { getApiUrl } from "../../../../api/config";
 import { getAgentDisplayName } from "../../../../utils/agentDisplayName";
@@ -36,10 +36,12 @@ interface AgentCardProps {
   onSelect: (agentId: string) => void;
   onEdit: (agent: AgentSummary) => void;
   onChat: (agentId: string) => void;
+  onHistory: (agentId: string) => void;
   onDelete: (agentId: string) => void;
   onToggle: (agentId: string, currentEnabled: boolean) => void;
   onPin: (agentId: string, currentPinned: boolean) => void;
   onCopy: (agent: AgentSummary) => void;
+  onFilterByGroup?: (group: string) => void;
 }
 
 /** Resolve a backend avatar path into a full URL for <img src>. */
@@ -57,10 +59,12 @@ export const AgentCard = memo(function AgentCard({
   onSelect,
   onEdit,
   onChat,
+  onHistory,
   onDelete,
   onToggle,
   onPin,
   onCopy,
+  onFilterByGroup,
 }: AgentCardProps) {
   const { t } = useTranslation();
   const isDefault = agent.id === "default";
@@ -145,20 +149,15 @@ export const AgentCard = memo(function AgentCard({
   ] as MenuProps["items"];
 
   const sessionsValue = stats ? String(stats.sessions) : "--";
-  const messagesValue =
-    stats && typeof stats.messages === "number"
-      ? String(stats.messages)
-      : "--";
   const lastActiveValue = stats ? stats.lastActive : "--";
 
   return (
     <div
       className={`${styles.agentCard} ${isSelected ? styles.selected : ""}`}
       onClick={() => {
+        // Card click only selects the agent; no longer auto-opens the
+        // edit drawer. Use the name area or the "more" menu to edit.
         onSelect(agent.id);
-        if (!isDefault) {
-          onEdit(agent);
-        }
       }}
     >
       <Dropdown
@@ -187,7 +186,19 @@ export const AgentCard = memo(function AgentCard({
             <RobotOutlined className={styles.avatarFallback} />
           )}
         </div>
-        <div className={styles.headerInfo}>
+        <div
+          className={styles.headerInfo}
+          onClick={(e) => {
+            // Click on the name/info area opens the edit drawer.
+            e.stopPropagation();
+            if (!isDefault) {
+              onEdit(agent);
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          title={isDefault ? undefined : t("agent.edit")}
+        >
           <div className={styles.name}>
             <span>{displayName}</span>
             {isDefault && (
@@ -228,10 +239,18 @@ export const AgentCard = memo(function AgentCard({
       {/* Meta row: group + backend + model */}
       <div className={styles.metaRow}>
         {agent.group && (
-          <span className={styles.groupTag}>
+          <button
+            type="button"
+            className={styles.groupTag}
+            onClick={(e) => {
+              e.stopPropagation();
+              onFilterByGroup?.(agent.group!);
+            }}
+            title={t("agent.filterByGroup", "按分组筛选")}
+          >
             <Tag size={10} />
             {agent.group}
-          </span>
+          </button>
         )}
         {agent.id !== "default" && (
           <span className={styles.backendTag}>
@@ -264,14 +283,31 @@ export const AgentCard = memo(function AgentCard({
       </div>
 
       <div className={styles.statsTri}>
-        <div className={styles.stat}>
+        <button
+          type="button"
+          className={styles.stat}
+          onClick={(e) => {
+            e.stopPropagation();
+            onChat(agent.id);
+          }}
+          title={t("agent.statsSessionsGo", "查看会话")}
+          disabled={sessionsValue === "--"}
+        >
           <strong>{sessionsValue}</strong>
           <em>{t("agent.statsSessions")}</em>
-        </div>
-        <div className={styles.stat}>
-          <strong>{messagesValue}</strong>
-          <em>{t("agent.statsMessages")}</em>
-        </div>
+        </button>
+        <button
+          type="button"
+          className={styles.stat}
+          onClick={(e) => {
+            e.stopPropagation();
+            onHistory(agent.id);
+          }}
+          title={t("agent.statsHistoryGo", "查看历史记录")}
+        >
+          <History size={14} className={styles.statIcon} />
+          <em>{t("agent.statsHistory", "历史")}</em>
+        </button>
         <div className={styles.stat}>
           <strong>{lastActiveValue}</strong>
           <em>{t("agent.statsLastActive")}</em>

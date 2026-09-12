@@ -37,6 +37,9 @@ import {
   CloudServerOutlined,
   DesktopOutlined,
   InboxOutlined,
+  HistoryOutlined,
+  EyeOutlined,
+  FileDoneOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import {
@@ -53,10 +56,47 @@ import {
 import { providerApi } from "../../api/modules/provider";
 import type { ProviderInfo } from "../../api/types";
 import { entityColor, modeColor, formatMode } from "./utils";
+import { Collapse } from "antd";
 
 const { TextArea } = Input;
 const { Text } = Typography;
 const { Dragger } = Upload;
+
+/** Redaction history entry stored in localStorage */
+interface RedactionHistoryEntry {
+  id: string;
+  timestamp: string;
+  mode: string;
+  inputType: "text" | "file" | "batch";
+  inputName: string;
+  entityCount: number;
+  policy: string;
+  redactionMode: RedactionMode;
+  preview: string;
+}
+
+/** Load redaction history from localStorage */
+function loadHistory(): RedactionHistoryEntry[] {
+  try {
+    const raw = localStorage.getItem("aiarb_redaction_history");
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+/** Save redaction history to localStorage */
+function saveHistory(entries: RedactionHistoryEntry[]) {
+  try {
+    localStorage.setItem(
+      "aiarb_redaction_history",
+      JSON.stringify(entries.slice(0, 50)),
+    );
+  } catch {
+    // Ignore quota errors
+  }
+}
 
 /** 文件类型 → 图标和颜色映射 */
 function fileTypeMeta(filename: string): {
@@ -126,6 +166,10 @@ export default function RedactionPanel() {
     StrengthLevelEntry[]
   >([]);
 
+  // --- History ---
+  const [history, setHistory] = useState<RedactionHistoryEntry[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
   const folderInputRef = useRef<HTMLInputElement>(null);
 
   // -- 数据加载 --
@@ -142,53 +186,104 @@ export default function RedactionPanel() {
       .then((data) => setProviders(data))
       .catch(() => {})
       .finally(() => setLoadingModels(false));
+
+    setHistory(loadHistory());
   }, []);
 
-  // -- 模型选项 --
+  // -- Model options: ONLY show providers that are actually configured (same logic as DesignLayout ModelPicker) --
   const agentModelOptions = useMemo(() => {
     if (!providers || providers.length === 0) return [];
-    const localOptions: Array<{ label: string; value: string; optionType?: string }> = [];
-    const cloudOptions: Array<{ label: string; value: string; optionType?: string }> = [];
-    for (const p of providers) {
-      const models = [...(p.models || []), ...(p.extra_models || [])];
-      for (const m of models) {
+
+    // Filter to only eligible providers (with API key or base URL configured)
+    const eligibleProviders = providers
+      .filter((p) => {
+        const hasModels =
+          (p.models?.length ?? 0) + (p.extra_models?.length ?? 0) > 0;
+        if (!hasModels) return false;
+        if (p.require_api_key === false) return !!p.base_url;
+        if (p.is_custom) return !!p.base_url;
+        if (p.require_api_key ?? true) return !!p.api_key;
+        return true;
+      })
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        models: [...(p.models ?? []), ...(p.extra_models ?? [])],
+        is_local: p.is_local,
+      }));
+
+    const localOptions: Array<{ label: string; value: string }> = [];
+    const cloudOptions: Array<{ label: string; value: string }> = [];
+
+    for (const p of eligibleProviders) {
+      for (const m of p.models) {
         const label = `${m.name || m.id} (${p.name})`;
         const value = `${p.id}:${m.id}`;
-        const entry = { label, value, optionType: p.is_local ? "local" : "cloud" };
         if (p.is_local || p.id === "ollama" || p.id === "aiarb-local") {
-          localOptions.push(entry);
+          localOptions.push({ label, value });
         } else {
-          cloudOptions.push(entry);
+          cloudOptions.push({ label, value });
         }
       }
     }
-    return [
-      {
+
+    const groups = [];
+    if (localOptions.length > 0) {
+      groups.push({
         label: (
           <span>
             <DesktopOutlined style={{ marginRight: 6 }} />
-            {t("documentTools.redaction.localModels", "本地模型")}
+            {t("documentTools.redaction.localModels", "本地模型")} ({localOptions.length})
           </span>
         ),
         options: localOptions,
-      },
-      {
+      });
+    }
+    if (cloudOptions.length > 0) {
+      groups.push({
         label: (
           <span>
             <CloudServerOutlined style={{ marginRight: 6 }} />
-            {t("documentTools.redaction.cloudModels", "云端模型")}
+            {t("documentTools.redaction.cloudModels", "云端模型")} ({cloudOptions.length})
           </span>
         ),
         options: cloudOptions,
-      },
-    ];
+      });
+    }
+    return groups;
   }, [providers, t]);
 
-  // -- 智能判断当前模式 --
+  // -- Smart mode detection --
   const mode = useMemo(() => {
     if (files.length > 0) return files.length === 1 ? "file" : "batch";
     return "text";
   }, [files]);
+
+  // -- Save to history --
+  const addToHistory = useCallback(
+    (
+      inputType: "text" | "file" | "batch",
+      inputName: string,
+      entityCount: number,
+      rMode: RedactionMode,
+    ) => {
+      const entry: RedactionHistoryEntry = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        timestamp: new Date().toISOString(),
+        mode,
+        inputType,
+        inputName,
+        entityCount,
+        policy,
+        redactionMode: rMode,
+        preview: text.slice(0, 100) || inputName,
+      };
+      const updated = [entry, ...loadHistory()].slice(0, 50);
+      saveHistory(updated);
+      setHistory(updated);
+    },
+    [mode, policy, text],
+  );
 
   // -- 统一执行脱敏 --
   const handleRedact = useCallback(async () => {
@@ -242,6 +337,7 @@ export default function RedactionPanel() {
           setNotice({ tone: "success", text: `${t("documentTools.redaction.redactSuccess", "脱敏完成，发现")}${res.entity_count}${t("documentTools.redaction.entities", "个实体")}` });
         }
         setResult(res);
+        addToHistory("text", t("documentTools.redaction.textInput", "文本输入"), res.entity_count || 0, redactionMode);
       } else if (mode === "file") {
         // 单文件
         const res = await documentToolsApi.redactUpload(files[0], {
@@ -251,6 +347,7 @@ export default function RedactionPanel() {
         });
         setResult(res);
         setNotice({ tone: "success", text: `${t("documentTools.redaction.fileRedactSuccess", "文件脱敏完成，发现")}${res.entity_count}${t("documentTools.redaction.entities", "个实体")}` });
+        addToHistory("file", files[0].name, res.entity_count || 0, redactionMode);
       } else {
         // 批量
         await documentToolsApi.batchRedact(
@@ -297,6 +394,27 @@ export default function RedactionPanel() {
                 .replace("{count}", String(summary.total_entity_count)),
             });
           },
+          (summary: any) => {
+            setBatchResult(summary);
+            if (summary.results) {
+              setBatchResults(summary.results.map((r: any) => ({
+                file: r.file || "",
+                success: r.success,
+                entity_count: r.entity_count,
+                output_file: r.output_file,
+                mapping_file: r.mapping_file,
+                error: r.error,
+              })));
+            }
+            setNotice({
+              tone: summary.fail_count > 0 ? "warning" : "success",
+              text: t("documentTools.redaction.batchComplete", "批量脱敏完成：成功 {success}/{total} 个文件，共发现 {count} 个实体")
+                .replace("{success}", String(summary.success_count))
+                .replace("{total}", String(summary.total_files))
+                .replace("{count}", String(summary.total_entity_count)),
+            });
+            addToHistory("batch", `${files.length} files`, summary.total_entity_count || 0, redactionMode);
+          },
           (err: string) => setNotice({ tone: "error", text: err }),
         );
       }
@@ -305,7 +423,7 @@ export default function RedactionPanel() {
     } finally {
       setProcessing(false);
     }
-  }, [files, text, mode, policy, strengthLevel, redactionMode, outputFormat, agentModel, t]);
+  }, [files, text, mode, policy, strengthLevel, redactionMode, outputFormat, agentModel, t, addToHistory]);
 
   // -- 文件处理 --
   const handleFileSelect = useCallback((file: File) => {
@@ -337,6 +455,17 @@ export default function RedactionPanel() {
     message.success(t("common.copied", "已复制到剪贴板"));
   }, [t]);
 
+  const deleteHistoryEntry = useCallback((id: string) => {
+    const updated = history.filter((h) => h.id !== id);
+    saveHistory(updated);
+    setHistory(updated);
+  }, [history]);
+
+  const clearHistory = useCallback(() => {
+    saveHistory([]);
+    setHistory([]);
+  }, []);
+
   const hasInput = text.trim() || files.length > 0;
   const showTextResult = mode === "text" && result;
   const showFileResult = mode === "file" && result;
@@ -360,7 +489,7 @@ export default function RedactionPanel() {
         <div style={{ position: "relative" }}>
           {/* 拖拽上传区 */}
           <Dragger
-            accept=".txt,.md,.html,.htm,.pdf,.doc,.docx"
+            accept=".txt,.md,.markdown,.html,.htm,.pdf,.doc,.docx,.csv,.tsv,.xlsx,.xls,.json,.jsonl,.pptx,.rtf,.log,.yaml,.yml,.xml"
             beforeUpload={(file) => { handleFileSelect(file as unknown as File); return false; }}
             showUploadList={false}
             disabled={processing}
@@ -374,7 +503,7 @@ export default function RedactionPanel() {
               {t("documentTools.redaction.dragOrPaste", "拖拽文件到此处，或粘贴文本直接脱敏")}
             </p>
             <p className="ant-upload-hint" style={{ fontSize: 13, color: "#999" }}>
-              {t("documentTools.redaction.supportedFormats", "支持 PDF、DOCX、TXT、MD、HTML · 多文件自动批量处理")}
+              {t("documentTools.redaction.supportedFormats", "支持 PDF/DOCX/TXT/MD/HTML/CSV/XLSX/JSON/PPTX · 多文件自动批量处理")}
             </p>
           </Dragger>
 
@@ -442,7 +571,7 @@ export default function RedactionPanel() {
               type="file"
               multiple
               hidden
-              accept=".txt,.md,.html,.htm,.pdf,.doc,.docx"
+              accept=".txt,.md,.markdown,.html,.htm,.pdf,.doc,.docx,.csv,.tsv,.xlsx,.xls,.json,.jsonl,.pptx,.rtf,.log,.yaml,.yml,.xml"
               onChange={handleAddFiles}
             />
           </div>
@@ -488,6 +617,23 @@ export default function RedactionPanel() {
               <ScanOutlined style={{ color: redactionMode === "agent_enhanced" ? "#1677ff" : "#999" }} />
               <Text strong style={{ fontSize: 13 }}>{t("documentTools.redaction.agentEnhanced", "Agent 增强")}</Text>
             </div>
+            <div
+              onClick={() => { setRedactionMode("standard"); setPolicy("public_release"); setStrengthLevel("L1"); }}
+              style={{
+                cursor: "pointer",
+                borderRadius: 8,
+                border: redactionMode === "standard" && policy === "public_release" ? "2px solid #ff4d4f" : "1px solid #d9d9d9",
+                background: redactionMode === "standard" && policy === "public_release" ? "rgba(255,77,79,0.04)" : "transparent",
+                padding: "8px 12px",
+                transition: "all 0.2s",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <div style={{ width: 14, height: 14, borderRadius: 2, background: "#333", border: "1px solid #555" }} />
+              <Text strong style={{ fontSize: 13 }}>{t("documentTools.redaction.blackoutMode", "涂黑")}</Text>
+            </div>
           </div>
 
           {/* Agent 模型选择（仅 Agent 模式） */}
@@ -508,7 +654,18 @@ export default function RedactionPanel() {
         </Space>
 
         <Space>
-          {/* 高级设置折叠 */}
+          {/* History toggle */}
+          <Button
+            type="text"
+            size="small"
+            icon={<HistoryOutlined />}
+            onClick={() => setShowHistory(!showHistory)}
+          >
+            {t("documentTools.redaction.history", "脱敏记录")}
+            {history.length > 0 && <Tag style={{ marginLeft: 4 }} color="blue">{history.length}</Tag>}
+          </Button>
+
+          {/* Advanced settings toggle */}
           <Button type="text" size="small" onClick={() => setShowAdvanced(!showAdvanced)}>
             {t("documentTools.redaction.advancedSettings", "高级设置")}
             {showAdvanced ? " ▲" : " ▼"}
@@ -529,6 +686,90 @@ export default function RedactionPanel() {
           </Button>
         </Space>
       </div>
+
+      {/* Redaction history (collapsible) */}
+      {showHistory && (
+        <Card
+          size="small"
+          title={
+            <Space>
+              <HistoryOutlined />
+              {t("documentTools.redaction.historyTitle", "脱敏记录")}
+              {history.length > 0 && <Tag color="blue">{history.length}</Tag>}
+            </Space>
+          }
+          extra={
+            history.length > 0 ? (
+              <Button size="small" danger onClick={clearHistory}>
+                {t("common.clear", "清空")}
+              </Button>
+            ) : null
+          }
+        >
+          {history.length === 0 ? (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={t("documentTools.redaction.noHistory", "暂无脱敏记录")}
+              style={{ padding: "16px 0" }}
+            />
+          ) : (
+            <Table
+              size="small"
+              pagination={{ pageSize: 5 }}
+              dataSource={history}
+              rowKey="id"
+              columns={[
+                {
+                  title: t("documentTools.redaction.time", "时间"),
+                  dataIndex: "timestamp",
+                  width: 160,
+                  render: (v: string) => new Date(v).toLocaleString(),
+                },
+                {
+                  title: t("documentTools.redaction.inputType", "输入类型"),
+                  dataIndex: "inputType",
+                  width: 80,
+                  render: (v: string) => {
+                    const colors: Record<string, string> = { text: "blue", file: "green", batch: "orange" };
+                    return <Tag color={colors[v] || "default"}>{v}</Tag>;
+                  },
+                },
+                {
+                  title: t("documentTools.redaction.inputName", "输入名称"),
+                  dataIndex: "inputName",
+                  ellipsis: true,
+                  width: 200,
+                },
+                {
+                  title: t("documentTools.redaction.mode", "模式"),
+                  dataIndex: "redactionMode",
+                  width: 100,
+                  render: (v: string) => v === "agent_enhanced" ? <Tag color="purple">Agent</Tag> : <Tag>标准</Tag>,
+                },
+                {
+                  title: t("documentTools.redaction.entityCount", "实体数"),
+                  dataIndex: "entityCount",
+                  width: 80,
+                  render: (v: number) => v,
+                },
+                {
+                  title: "",
+                  width: 50,
+                  render: (_: any, record: RedactionHistoryEntry) => (
+                    <Button
+                      type="text"
+                      size="small"
+                      danger
+                      icon={<DeleteOutlined />}
+                      onClick={() => deleteHistoryEntry(record.id)}
+                    />
+                  ),
+                },
+              ]}
+            />
+          )}
+        </Card>
+      )}
 
       {/* 高级设置（折叠） */}
       {showAdvanced && (
@@ -690,9 +931,25 @@ export default function RedactionPanel() {
                   title: t("documentTools.redaction.outputFile", "输出文件"),
                   dataIndex: "output_file",
                   ellipsis: true,
-                  width: 200,
+                  width: 280,
                   render: (v: string | undefined) => v ? (
-                    <Tooltip title={v}><Text copyable={{ text: v }} ellipsis style={{ maxWidth: 170 }}>{v.split(/[\\/]/).pop()}</Text></Tooltip>
+                    <Space>
+                      <Tooltip title={v}><Text copyable={{ text: v }} ellipsis style={{ maxWidth: 120 }}>{v.split(/[\\/]/).pop()}</Text></Tooltip>
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<FolderOpenOutlined />}
+                        onClick={async () => {
+                          try {
+                            const parts = v.split(/[\\/]/);
+                            const folder = parts.slice(0, -1).join("/");
+                            await documentToolsApi.revealInFolder(folder, v);
+                          } catch (e: any) {
+                            message.error(e?.message || "打开文件夹失败");
+                          }
+                        }}
+                      />
+                    </Space>
                   ) : "-",
                 },
                 {
@@ -707,32 +964,44 @@ export default function RedactionPanel() {
         </Card>
       )}
 
-      {/* 底部参考信息 */}
-      {strengthLevels.length > 0 && (
-        <Card size="small" title={t("documentTools.redaction.strengthLevelsTitle", "脱敏强度级别")}>
-          <Space wrap>
-            {strengthLevels.map((s) => (
-              <Tooltip key={s.id} title={s.description}>
-                <Tag color={s.id === "L1" ? "red" : s.id === "L2" ? "orange" : s.id === "L3" ? "blue" : "green"} style={{ padding: "4px 12px", fontSize: 13 }}>
-                  <Text strong>{s.id}</Text> - {s.name}
-                </Tag>
-              </Tooltip>
-            ))}
-          </Space>
-        </Card>
-      )}
-
-      {entities.length > 0 && (
-        <Card size="small" title={t("documentTools.redaction.entityTypes", "支持的实体类型")}>
-          <Space wrap>
-            {entities.map((e) => (
-              <Tooltip key={e.id} title={e.description}>
-                <Tag color={entityColor(e.id)}>{e.name} ({e.id})</Tag>
-              </Tooltip>
-            ))}
-          </Space>
-        </Card>
-      )}
+      {/* Bottom reference info — collapsed by default to keep page clean */}
+      <Collapse
+        size="small"
+        items={[
+          {
+            key: "strength-levels",
+            label: t("documentTools.redaction.strengthLevelsTitle", "脱敏强度级别说明"),
+            children: strengthLevels.length > 0 ? (
+              <Space wrap>
+                {strengthLevels.map((s) => (
+                  <Tooltip key={s.id} title={s.description}>
+                    <Tag color={s.id === "L1" ? "red" : s.id === "L2" ? "orange" : s.id === "L3" ? "blue" : "green"} style={{ padding: "4px 12px", fontSize: 13 }}>
+                      <Text strong>{s.id}</Text> - {s.name}
+                    </Tag>
+                  </Tooltip>
+                ))}
+              </Space>
+            ) : (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("documentTools.redaction.noData", "暂无数据")} />
+            ),
+          },
+          {
+            key: "entity-types",
+            label: t("documentTools.redaction.entityTypes", "支持的实体类型"),
+            children: entities.length > 0 ? (
+              <Space wrap>
+                {entities.map((e) => (
+                  <Tooltip key={e.id} title={e.description}>
+                    <Tag color={entityColor(e.id)}>{e.name} ({e.id})</Tag>
+                  </Tooltip>
+                ))}
+              </Space>
+            ) : (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("documentTools.redaction.noData", "暂无数据")} />
+            ),
+          },
+        ]}
+      />
     </div>
   );
 }
@@ -833,6 +1102,64 @@ function RedactionResult({
       {(result.output_file || result.mapping_file) && (
         <div style={{ marginTop: 12 }}>
           <Divider><Text strong>{t("documentTools.redaction.outputInfo", "输出文件")}</Text></Divider>
+          <Space style={{ marginBottom: 12 }}>
+            {result.output_file && (
+              <>
+                <Button
+                  size="small"
+                  icon={<EyeOutlined />}
+                  onClick={async () => {
+                    try {
+                      const preview = await documentToolsApi.previewFile(result.output_file!);
+                      if (preview.is_binary) {
+                        // For binary files, open with system app
+                        await documentToolsApi.openFile(result.output_file!);
+                      } else if (preview.content) {
+                        // For text files, show in new window
+                        const w = window.open("", "_blank");
+                        if (w) {
+                          w.document.write(`<pre style="white-space:pre-wrap;word-break:break-word;font-family:monospace;font-size:14px;padding:16px;">${preview.content.replace(/</g, "&lt;")}</pre>`);
+                          w.document.title = preview.file_name;
+                        }
+                      }
+                    } catch (e: any) {
+                      message.error(e?.message || "预览失败");
+                    }
+                  }}
+                >
+                  {t("documentTools.redaction.preview", "预览")}
+                </Button>
+                <Button
+                  size="small"
+                  icon={<FileDoneOutlined />}
+                  onClick={async () => {
+                    try {
+                      await documentToolsApi.openFile(result.output_file!);
+                    } catch (e: any) {
+                      message.error(e?.message || "打开文件失败");
+                    }
+                  }}
+                >
+                  {t("documentTools.redaction.openFile", "打开")}
+                </Button>
+                <Button
+                  size="small"
+                  icon={<FolderOpenOutlined />}
+                  onClick={async () => {
+                    try {
+                      const parts = result.output_file!.split(/[\\/]/);
+                      const folder = parts.slice(0, -1).join("/");
+                      await documentToolsApi.revealInFolder(folder, result.output_file!);
+                    } catch (e: any) {
+                      message.error(e?.message || "打开文件夹失败");
+                    }
+                  }}
+                >
+                  {t("documentTools.redaction.openFolder", "所在文件夹")}
+                </Button>
+              </>
+            )}
+          </Space>
           <Descriptions size="small" column={1} bordered>
             {result.output_file && (
               <Descriptions.Item label={t("documentTools.redaction.outputFile", "脱敏后文件")}>

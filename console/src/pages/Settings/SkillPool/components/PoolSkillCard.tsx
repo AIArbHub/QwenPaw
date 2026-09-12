@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Checkbox, Tooltip } from "@agentscope-ai/design";
-import { SyncOutlined } from "@ant-design/icons";
+import { SyncOutlined, PushpinOutlined, PushpinFilled } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import type { PoolSkillSpec } from "../../../../api/types";
@@ -23,6 +23,8 @@ interface PoolSkillCardProps {
   onBroadcast: (skill: PoolSkillSpec) => void;
   onDelete: (skill: PoolSkillSpec) => void;
   onAutomationQuickAction: (skill: PoolSkillSpec) => void | Promise<void>;
+  onTogglePin?: (name: string) => void;
+  isPinned?: boolean;
 }
 
 export function PoolSkillCard({
@@ -35,6 +37,8 @@ export function PoolSkillCard({
   onBroadcast,
   onDelete,
   onAutomationQuickAction,
+  onTogglePin,
+  isPinned = false,
 }: PoolSkillCardProps) {
   const { t } = useTranslation();
   const [isHover, setIsHover] = useState(false);
@@ -116,6 +120,20 @@ export function PoolSkillCard({
             <span className={styles.statusDot} />
             {getPoolBuiltinStatusLabel(skill.sync_status, t)}
           </span>
+          {onTogglePin && (
+            <Tooltip title={isPinned ? t("skills.unpin", "取消置顶") : t("skills.pin", "置顶")}>
+              <button
+                className={`${styles.pinButton} ${isPinned ? styles.pinButtonActive : ""}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTogglePin(skill.name);
+                }}
+                aria-label={isPinned ? t("skills.unpin", "取消置顶") : t("skills.pin", "置顶")}
+              >
+                {isPinned ? <PushpinFilled /> : <PushpinOutlined />}
+              </button>
+            </Tooltip>
+          )}
           {batchModeEnabled && (
             <Checkbox
               checked={isSelected}

@@ -1,29 +1,72 @@
-.document-tools-page {
-  padding: 16px 24px;
-  max-width: 1400px;
+.documentToolsPage {
+  padding: 0;
+  max-width: 960px;
   margin: 0 auto;
 
-  .doc-tools-header {
+  .docToolsHeader {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: space-between;
+    padding: 12px 0 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     margin-bottom: 16px;
 
-    .doc-tools-title {
-      font-size: 18px;
-      font-weight: 600;
+    .docToolsHeaderLeft {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .doc-tools-subtitle {
-      color: rgba(0, 0, 0, 0.45);
-      font-size: 13px;
-      margin-left: 8px;
+    .docToolsTitle {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .docToolsHeaderRight {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .headerActionBtn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+        color: rgba(0, 0, 0, 0.85);
+      }
     }
   }
 
-  .doc-tools-tabs {
-    .ant-tabs-content {
-      padding: 0 4px;
-    }
+  .docToolsContent {
+    min-height: 400px;
+  }
+
+  .spinFallback {
+    width: 28px;
+    height: 28px;
+    margin: 0 auto;
+    border: 3px solid rgba(0, 0, 0, 0.08);
+    border-top-color: #1677ff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }

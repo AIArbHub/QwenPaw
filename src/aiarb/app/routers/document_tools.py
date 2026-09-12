@@ -966,8 +966,7 @@ def _detect_china_network() -> bool:
 
 @router.post("/ocr/install", summary="Auto-install OCR engine dependencies")
 async def install_ocr_engines(
-    engine: str = "auto",
-    use_mirror: Optional[bool] = None,
+    req: Request = None,
 ) -> dict[str, Any]:
     """Automatically install OCR engine packages via pip.
 
@@ -986,6 +985,20 @@ async def install_ocr_engines(
         use_mirror: Force mirror usage. None = auto-detect based on IP.
     """
     import asyncio
+
+    # Parse body (JSON or query params for flexibility)
+    engine = "auto"
+    use_mirror = None
+    if req:
+        try:
+            body = await req.json()
+            engine = body.get("engine", "auto")
+            use_mirror = body.get("use_mirror")
+        except Exception:
+            # Fall back to query params
+            engine = req.query_params.get("engine", "auto")
+            um = req.query_params.get("use_mirror")
+            use_mirror = um.lower() == "true" if um else None
 
     # Determine if we should use Chinese mirrors
     if use_mirror is None:
@@ -1008,14 +1021,22 @@ async def install_ocr_engines(
         raise HTTPException(status_code=400, detail=f"Unknown engine: {engine}")
 
     # Build the full pip command
-    cmd = [sys.executable, "-m", "pip", "install", "--disable-pip-version-check", "--no-input"]
+    # On Windows, sys.executable might point to a frozen exe; try pip directly
+    import shutil
+
+    pip_exe = shutil.which("pip") or shutil.which("pip3")
+    if pip_exe:
+        cmd = [pip_exe, "install", "--disable-pip-version-check", "--no-input"]
+    else:
+        cmd = [sys.executable, "-m", "pip", "install", "--disable-pip-version-check", "--no-input"]
+
     if use_mirror:
         cmd += ["-i", "https://mirrors.aliyun.com/pypi/simple/", "--trusted-host", "mirrors.aliyun.com"]
     cmd += pip_args
 
-    logger.info("Installing OCR engines: %s (mirror=%s)", engine, use_mirror)
+    logger.info("Installing OCR engines: %s (mirror=%s, cmd=%s)", engine, use_mirror, " ".join(cmd))
 
-    # Run pip install in a thread pool (non-blocking)
+    # Run pip install in a subprocess (non-blocking for the event loop)
     async def _run_install():
         try:
             proc = await asyncio.create_subprocess_exec(
@@ -1060,3 +1081,116 @@ async def install_ocr_engines(
             "stderr_tail": result["stderr"][-500:],
             "stdout_tail": result["stdout"][-500:],
         }
+
+
+# -- File Operation APIs (open file, reveal folder, preview) ----------------
+
+
+class OpenFileRequest(BaseModel):
+    file_path: str = Field(..., description="Absolute path to the file to open")
+
+
+class OpenFolderRequest(BaseModel):
+    folder_path: str = Field(..., description="Absolute path to the folder to reveal")
+    select_file: Optional[str] = Field(default=None, description="Optional file to highlight in the folder")
+
+
+@router.post("/file/open", summary="Open a file with the system default application")
+async def open_file(req: OpenFileRequest) -> dict[str, Any]:
+    """Open a file using the OS default application.
+
+    Uses ``os.startfile`` on Windows, ``open`` on macOS, ``xdg-open`` on Linux.
+    """
+    import platform
+    import subprocess
+
+    path = Path(req.file_path)
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=f"File not found: {req.file_path}")
+
+    try:
+        system = platform.system()
+        if system == "Windows":
+            os.startfile(str(path))  # type: ignore[attr-defined]
+        elif system == "Darwin":
+            subprocess.Popen(["open", str(path)])
+        else:
+            subprocess.Popen(["xdg-open", str(path)])
+        return {"success": True, "message": f"Opened: {path.name}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to open file: {e}")
+
+
+@router.post("/file/reveal", summary="Reveal a file/folder in the system file explorer")
+async def reveal_in_folder(req: OpenFolderRequest) -> dict[str, Any]:
+    """Open the system file explorer and optionally select a file.
+
+    Uses ``explorer /select`` on Windows, ``open -R`` on macOS, ``xdg-open`` on Linux.
+    """
+    import platform
+    import subprocess
+
+    folder = Path(req.folder_path)
+    if not folder.exists():
+        raise HTTPException(status_code=404, detail=f"Folder not found: {req.folder_path}")
+
+    try:
+        system = platform.system()
+        if system == "Windows":
+            if req.select_file:
+                subprocess.Popen(["explorer", "/select,", str(Path(req.select_file))])
+            else:
+                subprocess.Popen(["explorer", str(folder)])
+        elif system == "Darwin":
+            if req.select_file:
+                subprocess.Popen(["open", "-R", str(req.select_file)])
+            else:
+                subprocess.Popen(["open", str(folder)])
+        else:
+            subprocess.Popen(["xdg-open", str(folder)])
+        return {"success": True, "message": f"Revealed: {folder.name}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to reveal folder: {e}")
+
+
+@router.post("/file/preview", summary="Read file content for preview")
+async def preview_file(req: OpenFileRequest) -> dict[str, Any]:
+    """Read a text file's content for preview in the browser.
+
+    Returns up to 100KB of text content. For binary files (PDF, DOCX, etc.),
+    returns the file metadata and a note that preview is not available.
+    """
+    path = Path(req.file_path)
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=f"File not found: {req.file_path}")
+
+    suffix = path.suffix.lower()
+    binary_exts = {".pdf", ".docx", ".doc", ".xlsx", ".xls", ".pptx", ".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
+
+    if suffix in binary_exts:
+        stat = path.stat()
+        return {
+            "success": True,
+            "is_binary": True,
+            "file_name": path.name,
+            "file_size": stat.st_size,
+            "file_type": suffix,
+            "message": "Binary file — use 'Open' to view in system application",
+        }
+
+    # Read text file
+    try:
+        content = path.read_text(encoding="utf-8", errors="replace")
+        truncated = len(content) > 100_000
+        if truncated:
+            content = content[:100_000] + "\n\n... (truncated, full file is larger)"
+        return {
+            "success": True,
+            "is_binary": False,
+            "content": content,
+            "file_name": path.name,
+            "file_size": len(content),
+            "truncated": truncated,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read file: {e}")

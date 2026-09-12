@@ -20,6 +20,7 @@ import {
   Plus,
   Info,
   Sparkles,
+  Zap,
   Tag,
   ChevronDown,
   Pin,
@@ -512,7 +513,19 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
       });
     }
 
-    // 4. Global Settings group header (hidden when collapsed)
+    // 4. Document Tools (global entry in design mode)
+    const docItem = findMenuItem(rawAgentMenu, "core.document-tools");
+    if (docItem) {
+      items.push({
+        key: "core.document-tools",
+        icon: renderIcon(docItem.icon, RAIL_ICON_SIZE),
+        label: resolveLabel(docItem.label),
+        path: routeIdToPath(docItem.route, routes),
+        href: docItem.href,
+      });
+    }
+
+    // 5. Global Settings group header (hidden when collapsed)
     items.push({
       key: "settings-group-header",
       icon: null,
@@ -571,8 +584,6 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
       (i) => i.id === "core.workspace-group",
     ) as TreeMenuItem | undefined;
     const HIDDEN_WORKSPACE_IDS = new Set([
-      "core.skills",
-      "core.document-tools",
       "core.case-framework",
     ]);
     for (const child of workspaceGroup?.__children ?? []) {
@@ -608,9 +619,8 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
     }
 
     // 基本信息 group — static entries (basic/persona open the edit drawer,
-    // diary/specific-kb route into the right content panel).
+    // diary/specific-kb/skills route into the right content panel).
     // Note: workspace-files moved to 工作区 group to avoid duplication.
-    // Note: skills removed — it's an agent config, not a user-facing feature.
     const profile: FeatureCardData[] = [
       { key: "basic", icon: <Info size={FEATURE_ICON_SIZE} />, label: t("agent.basicInfo", "基本信息") },
       { key: "persona", icon: <Sparkles size={FEATURE_ICON_SIZE} />, label: t("nav.agentFilesPersona", "灵魂人设") },
@@ -625,6 +635,12 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
         icon: <BookOpen size={FEATURE_ICON_SIZE} />,
         label: t("nav.agentFilesSpecificKB", "专属知识库"),
         path: routeIdToPath("core.agent-files-kb", routes),
+      },
+      {
+        key: "skills",
+        icon: <Zap size={FEATURE_ICON_SIZE} />,
+        label: t("nav.skills", "技能"),
+        path: routeIdToPath("core.skills", routes),
       },
     ];
 

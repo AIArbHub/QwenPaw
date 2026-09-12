@@ -1,4 +1,6 @@
 import { Button, Checkbox } from "@agentscope-ai/design";
+import { PushpinOutlined, PushpinFilled } from "@ant-design/icons";
+import { Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -22,6 +24,8 @@ interface PoolSkillListItemProps {
   onEdit: (skill: PoolSkillSpec) => void;
   onBroadcast: (skill: PoolSkillSpec) => void;
   onDelete: (skill: PoolSkillSpec) => void;
+  onTogglePin?: (name: string) => void;
+  isPinned?: boolean;
 }
 
 export function PoolSkillListItem({
@@ -32,6 +36,8 @@ export function PoolSkillListItem({
   onEdit,
   onBroadcast,
   onDelete,
+  onTogglePin,
+  isPinned = false,
 }: PoolSkillListItemProps) {
   const { t } = useTranslation();
   const isBuiltin = isSkillBuiltin(skill.source);
@@ -104,6 +110,20 @@ export function PoolSkillListItem({
         </div>
       </div>
       <div className={styles.listItemRight}>
+        {onTogglePin && (
+          <Tooltip title={isPinned ? t("skills.unpin", "取消置顶") : t("skills.pin", "置顶")}>
+            <button
+              className={`${styles.pinButton} ${isPinned ? styles.pinButtonActive : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onTogglePin(skill.name);
+              }}
+              aria-label={isPinned ? t("skills.unpin", "取消置顶") : t("skills.pin", "置顶")}
+            >
+              {isPinned ? <PushpinFilled /> : <PushpinOutlined />}
+            </button>
+          </Tooltip>
+        )}
         <Button
           className={styles.actionButton}
           disabled={batchModeEnabled}

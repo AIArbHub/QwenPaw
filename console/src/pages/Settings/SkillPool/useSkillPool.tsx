@@ -6,6 +6,33 @@ import {
   useState,
   type ReactNode,
 } from "react";
+
+// ─── Pinned skills (localStorage) ──────────────────────────────────────────
+const PINNED_SKILLS_STORAGE_KEY = "aiarb.skill-pool.pinned";
+
+function readPinnedSkills(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = localStorage.getItem(PINNED_SKILLS_STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? new Set(arr) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function writePinnedSkills(skills: Set<string>): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(
+      PINNED_SKILLS_STORAGE_KEY,
+      JSON.stringify(Array.from(skills)),
+    );
+  } catch {
+    // ignore
+  }
+}
 import { Modal, Form } from "@agentscope-ai/design";
 import { useAppMessage } from "../../../hooks/useAppMessage";
 import { useTranslation } from "react-i18next";
@@ -173,6 +200,10 @@ export function useSkillPool() {
   const [batchModeEnabled, setBatchModeEnabled] = useState(false);
   const [viewMode, setViewMode] = useState<"card" | "list" | "group">("group");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string>("__all__");
+  const [pinnedSkills, setPinnedSkills] = useState<Set<string>>(() =>
+    readPinnedSkills(),
+  );
   const {
     searchQuery,
     setSearchQuery,
@@ -189,6 +220,11 @@ export function useSkillPool() {
   const sortedSkills = useMemo(
     () =>
       filteredSkills.slice().sort((a, b) => {
+        // Pinned skills always come first
+        const aPinned = pinnedSkills.has(a.name) ? 0 : 1;
+        const bPinned = pinnedSkills.has(b.name) ? 0 : 1;
+        if (aPinned !== bPinned) return aPinned - bPinned;
+
         const aTags = a.tags || [];
         const bTags = b.tags || [];
         const aCat = aTags.length > 0 ? aTags[0] : "\uFFFF";
@@ -197,8 +233,45 @@ export function useSkillPool() {
         if (catCmp !== 0) return catCmp;
         return a.name.localeCompare(b.name);
       }),
-    [filteredSkills],
+    [filteredSkills, pinnedSkills],
   );
+
+  // Build category list from all skills (not just filtered)
+  const categories = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const skill of skills) {
+      const cat = skill.tags?.[0] || "";
+      if (!cat) continue;
+      map.set(cat, (map.get(cat) || 0) + 1);
+    }
+    return Array.from(map.entries()).sort((a, b) =>
+      a[0].localeCompare(b[0], "zh"),
+    );
+  }, [skills]);
+
+  // Skills filtered by active category tab
+  const categoryFilteredSkills = useMemo(() => {
+    if (activeCategory === "__all__") return sortedSkills;
+    if (activeCategory === "__uncategorized__") {
+      return sortedSkills.filter((s) => !s.tags?.length);
+    }
+    return sortedSkills.filter(
+      (s) => (s.tags?.[0] || "") === activeCategory,
+    );
+  }, [sortedSkills, activeCategory]);
+
+  const togglePin = useCallback((skillName: string) => {
+    setPinnedSkills((prev) => {
+      const next = new Set(prev);
+      if (next.has(skillName)) {
+        next.delete(skillName);
+      } else {
+        next.add(skillName);
+      }
+      writePinnedSkills(next);
+      return next;
+    });
+  }, []);
   const hasUnseenBuiltinNotice = useMemo(
     () =>
       Boolean(
@@ -1242,6 +1315,7 @@ export function useSkillPool() {
     loading,
     skills,
     sortedSkills,
+    categoryFilteredSkills,
     workspaces,
     mode,
     activeSkill,
@@ -1265,6 +1339,11 @@ export function useSkillPool() {
     batchModeEnabled,
     viewMode,
     filterOpen,
+    activeCategory,
+    setActiveCategory,
+    categories,
+    pinnedSkills,
+    togglePin,
     searchQuery,
     setSearchQuery,
     searchTags,

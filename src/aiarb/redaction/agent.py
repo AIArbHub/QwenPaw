@@ -19,7 +19,10 @@ AIArb 文件脱敏功能 (Redaction Agent)
 import sys
 import json
 import os
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================
@@ -297,6 +300,127 @@ def _get_available_ocr_engines() -> list[str]:
     return available if available else ["(none)"]
 
 
+def _extract_docx_text(path: Path) -> str | None:
+    """Extract plain text from a .docx file.
+
+    Tries python-docx first (preserves paragraph structure, tables).
+    Falls back to stdlib zipfile + regex parsing of word/document.xml.
+    """
+    # Strategy 1: python-docx (preferred — preserves paragraph structure)
+    try:
+        import docx  # type: ignore[import-untyped]
+
+        doc = docx.Document(str(path))
+        paragraphs: list[str] = []
+
+        # Extract paragraphs
+        for para in doc.paragraphs:
+            text = para.text.strip()
+            if text:
+                paragraphs.append(text)
+
+        # Extract table cell text
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    text = cell.text.strip()
+                    if text:
+                        paragraphs.append(text)
+
+        content = "\n\n".join(paragraphs)
+        if content.strip():
+            return content
+    except ImportError:
+        logger.debug("python-docx not installed, falling back to stdlib extraction")
+    except Exception as e:
+        logger.warning("python-docx extraction failed for %s: %s", path, e)
+
+    # Strategy 2: stdlib zipfile fallback (no external deps)
+    try:
+        import re
+        import zipfile
+
+        with zipfile.ZipFile(str(path)) as zf:
+            try:
+                xml = zf.read("word/document.xml").decode("utf-8")
+            except KeyError:
+                return None
+
+        # Extract text from <w:t>...</w:t> elements
+        texts = re.findall(r"<w:t[^>]*>(.*?)</w:t>", xml, re.DOTALL)
+        if not texts:
+            return None
+
+        joined = "\n".join(t.strip() for t in texts if t.strip())
+        # Basic XML entity unescaping
+        joined = (
+            joined.replace("&amp;", "&")
+            .replace("&lt;", "<")
+            .replace("&gt;", ">")
+            .replace("&quot;", '"')
+            .replace("&apos;", "'")
+        )
+        return joined if joined.strip() else None
+    except Exception as e:
+        logger.warning("stdlib docx extraction failed for %s: %s", path, e)
+        return None
+
+
+def _extract_html_text(raw: bytes) -> str:
+    """Extract plain text from HTML bytes, stripping tags.
+
+    Tries BeautifulSoup if available, falls back to stdlib regex.
+    """
+    # Detect encoding
+    encoding = "utf-8"
+    try:
+        raw.decode("utf-8")
+    except UnicodeDecodeError:
+        encoding = "gbk"
+    html = raw.decode(encoding, errors="replace")
+
+    # Strategy 1: BeautifulSoup (if available)
+    try:
+        from bs4 import BeautifulSoup  # type: ignore[import-untyped]
+
+        soup = BeautifulSoup(html, "html.parser")
+        # Remove script and style elements
+        for tag in soup(["script", "style"]):
+            tag.decompose()
+        text = soup.get_text(separator="\n", strip=True)
+        if text.strip():
+            return text
+    except ImportError:
+        pass
+    except Exception as e:
+        logger.warning("BeautifulSoup HTML extraction failed: %s", e)
+
+    # Strategy 2: stdlib regex fallback
+    import re
+
+    # Remove script and style blocks
+    html = re.sub(r"<script[^>]*>.*?</script>", "", html, flags=re.DOTALL | re.IGNORECASE)
+    html = re.sub(r"<style[^>]*>.*?</style>", "", html, flags=re.DOTALL | re.IGNORECASE)
+    # Convert <br> and <p> tags to newlines
+    html = re.sub(r"<br\s*/?>", "\n", html, flags=re.IGNORECASE)
+    html = re.sub(r"</p>", "\n\n", html, flags=re.IGNORECASE)
+    html = re.sub(r"<p[^>]*>", "", html, flags=re.IGNORECASE)
+    # Remove all remaining tags
+    text = re.sub(r"<[^>]+>", "", html)
+    # Unescape HTML entities
+    text = (
+        text.replace("&nbsp;", " ")
+        .replace("&amp;", "&")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", '"')
+        .replace("&#39;", "'")
+    )
+    # Collapse excessive blank lines
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    return "\n".join(lines)
+
+
 def redact_file(file_path: str, policy: str = "external_client",
                 entity_types: list = None,
                 custom_rules: dict = None,
@@ -305,10 +429,12 @@ def redact_file(file_path: str, policy: str = "external_client",
     """
     对文件执行脱敏（支持先 OCR 再脱敏的完整链路）。
 
-    支持：.txt / .md 文本文件 → 纯文本脱敏
-         .pdf（有文本层）→ 提取文本后脱敏
-         .pdf（扫描件）→ 自动 OCR 后再脱敏（需配置 OCR 引擎）
-         其他 → 读取文本后脱敏
+    支持：
+        .txt / .md / .markdown → 纯文本脱敏
+        .pdf（有文本层）→ 提取文本后脱敏
+        .pdf（扫描件）→ 自动 OCR 后再脱敏（需配置 OCR 引擎）
+        .docx / .doc → python-docx 或 stdlib zipfile 提取文本后脱敏
+        .html / .htm → BeautifulSoup 或 regex 提取文本后脱敏
 
     Args:
         file_path: 文件路径
@@ -432,11 +558,30 @@ def redact_file(file_path: str, policy: str = "external_client",
 
         return _serialize_mappings(result)
 
-    # --- 文本文件脱敏 ---
-    try:
-        content = path.read_text(encoding="utf-8", errors="replace")
-    except Exception:
-        content = path.read_text(encoding="gbk", errors="replace")
+    # --- DOCX 文件脱敏 ---
+    if suffix in (".docx", ".doc"):
+        content = _extract_docx_text(path)
+        if content is None:
+            return {
+                "success": False,
+                "error": (
+                    "DOCX 文件文本提取失败。可能原因：文件损坏、受密码保护，或未安装 python-docx。"
+                    "\n建议：pip install python-docx"
+                ),
+            }
+    # --- HTML 文件脱敏 ---
+    elif suffix in (".html", ".htm"):
+        try:
+            raw = path.read_bytes()
+            content = _extract_html_text(raw)
+        except Exception as e:
+            return {"success": False, "error": f"HTML 文件读取失败: {e}"}
+    # --- 纯文本文件脱敏 ---
+    else:
+        try:
+            content = path.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            content = path.read_text(encoding="gbk", errors="replace")
 
     result = pipeline.process_text(
         text=content,
@@ -569,7 +714,7 @@ def batch_redact(directory: str, policy: str = "external_client",
     if not dir_path.exists():
         return [{"success": False, "error": f"目录不存在: {directory}"}]
 
-    supported = {".txt", ".md", ".html", ".pdf"}
+    supported = {".txt", ".md", ".markdown", ".html", ".htm", ".pdf", ".docx", ".doc"}
     results = []
     for f in sorted(dir_path.iterdir()):
         if f.is_file() and f.suffix.lower() in supported:

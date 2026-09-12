@@ -112,7 +112,7 @@ export default function FilesWorkspace({
   const navigationSequence = useRef(0);
   const [loadError, setLoadError] = useState("");
   const [memoryGraphRoot, setMemoryGraphRoot] =
-    useState<MemoryGraphRoot | null>(null);
+    useState<MemoryGraphRoot | string | null>(null);
   const [activity, setActivity] = useState<"files" | "git">("files");
   const [directoryRevision, setDirectoryRevision] = useState(0);
   const [editorNavigation, setEditorNavigation] = useState<{
@@ -489,6 +489,7 @@ export default function FilesWorkspace({
           <MemoryGraphView
             agentId={scope.agentId}
             root={memoryGraphRoot}
+            graphSource={initialSource === "knowledge" ? "knowledge" : "memory"}
             onOpenFile={(source, path) => {
               setMemoryGraphRoot(null);
               void openTarget({ source, path });

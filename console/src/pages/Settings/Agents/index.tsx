@@ -205,6 +205,12 @@ export default function AgentsPage() {
     navigate("/chat");
   };
 
+  const handleHistory = (agentId: string) => {
+    setSelectedAgent(agentId);
+    sessionStorage.setItem("aiarb_pending_open_history", "1");
+    navigate("/chat");
+  };
+
   const handleInstalledSkillsLoaded = useCallback((skills: string[]) => {
     installedSkillsRef.current = skills;
   }, []);
@@ -509,10 +515,12 @@ export default function AgentsPage() {
               onSelect={setSelectedAgent}
               onEdit={handleEdit}
               onChat={handleChat}
+              onHistory={handleHistory}
               onDelete={handleDelete}
               onToggle={handleToggle}
               onPin={handlePin}
               onCopy={handleOpenCopy}
+              onFilterByGroup={(group) => setSearchQuery(group)}
             />
           ))}
         </div>

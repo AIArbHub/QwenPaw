@@ -4,7 +4,7 @@
 核心功能: 将 PDF/DOCX/TXT 等原始文档解析为带页码/坐标/置信度的统一中间表示（LDIR），并产出 4 份产物
 适用场景: 仲裁裁决书核阅、文书起草前置文档分析、证据材料结构化、引用来源定位
 关键法源: 无直接法源依赖，为文档工程基础设施
-输出物: *.md（人读文本）、*.ldir.json（机读 LDIR）、*.semantic.json（语义元数据）、*_intake_report.json（质量报告）
+输出物: "*.md（人读文本）、*.ldir.json（机读 LDIR）、*.semantic.json（语义元数据）、*_intake_report.json（质量报告）"
 关联能力:
   上游: 无
   下游: arb_award_review-zh（裁决书核阅）、arb_document_draft-zh（文书起草）、redaction-zh（脱敏）
