@@ -13,6 +13,7 @@ import {
 } from "@/utils/skill";
 import { getAgentDisplayName } from "../../../../utils/agentDisplayName";
 import { MAX_TAGS, MAX_TAG_LENGTH } from "../../../Agent/Skills/components";
+import { SKILL_PRESET_CATEGORIES } from "@/constants/skill";
 import { MarkdownCopy } from "../../../../components/MarkdownCopy/MarkdownCopy";
 import { SkillConfigEditor } from "../../../../components/SkillConfigEditor";
 import type { PoolMode } from "../useSkillPool";
@@ -294,6 +295,44 @@ export function PoolSkillDrawer({
                 maxCount={MAX_TAGS}
               />
             </Form.Item>
+
+            {/* Preset category quick-select chips */}
+            <div className={styles.presetCategories}>
+              <span className={styles.presetCategoriesLabel}>
+                {t("skillPool.presetCategories", "预设分类")}
+              </span>
+              <div className={styles.presetCategoryChips}>
+                {SKILL_PRESET_CATEGORIES.map((cat) => {
+                  const selected = (form.getFieldValue("tags") || []).includes(
+                    cat,
+                  );
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      className={`${styles.presetCategoryChip} ${
+                        selected ? styles.presetCategoryChipActive : ""
+                      }`}
+                      onClick={() => {
+                        const current: string[] =
+                          form.getFieldValue("tags") || [];
+                        if (selected) {
+                          form.setFieldsValue({
+                            tags: current.filter((t) => t !== cat),
+                          });
+                        } else if (current.length < MAX_TAGS) {
+                          form.setFieldsValue({
+                            tags: [...current, cat],
+                          });
+                        }
+                      }}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             <Form.Item label={t("skills.config")}>
               <SkillConfigEditor

@@ -36,6 +36,7 @@ import type {
   NodeObject,
 } from "3d-force-graph";
 import { agentsApi } from "../../api/modules/agents";
+import { knowledgeApi } from "../../api/modules/knowledge";
 import type { MemoryGraphNode, MemoryGraphSnapshot } from "../../api/types";
 import type { MemorySection } from "../../api/types/workspace";
 import type { MemoryGraphRoot } from "./types";
@@ -129,10 +130,16 @@ function nodeLabel(node: MemoryGraphNode): string {
 
 function nodeFileTarget(
   node: MemoryGraphNode,
+  graphSource: "memory" | "knowledge" = "memory",
 ): { section: MemorySection; path: string } | null {
   if (!node.indexed || node.virtual) return null;
   if (node.section && node.relative_path) {
     return { section: node.section, path: node.relative_path };
+  }
+  // Knowledge graph nodes carry relative_path but no section; route them
+  // through the knowledge file API.
+  if (graphSource === "knowledge" && node.relative_path) {
+    return { section: "knowledge", path: node.relative_path };
   }
 
   const normalizedPath = node.path.replace(/\\/g, "/").replace(/^\/+/, "");
@@ -151,7 +158,7 @@ function nodeFileTarget(
 
 function graphBelowRoot(
   snapshot: MemoryGraphSnapshot,
-  root: MemoryGraphRoot,
+  root: MemoryGraphRoot | string,
 ): MemoryGraphSnapshot {
   const rootNode = snapshot.nodes.find(
     (node) =>
@@ -702,10 +709,14 @@ export default function MemoryGraphView({
   agentId,
   root,
   onOpenFile,
+  graphSource = "memory",
 }: {
   agentId: string;
-  root: MemoryGraphRoot;
+  root: MemoryGraphRoot | string;
   onOpenFile: (section: MemorySection, path: string) => void;
+  /** "memory" loads from the agent memory graph API; "knowledge" loads
+   *  from the shared knowledge base graph API. */
+  graphSource?: "memory" | "knowledge";
 }) {
   const { t } = useTranslation();
   const canvasLabel = t("files.memoryGraphCanvasLabel");
@@ -742,7 +753,9 @@ export default function MemoryGraphView({
       }
       setSelectedId("");
       try {
-        const next = await agentsApi.getMemoryGraph(agentId);
+        const next = graphSource === "knowledge"
+          ? await knowledgeApi.graph() as MemoryGraphSnapshot
+          : await agentsApi.getMemoryGraph(agentId);
         if (sequence !== requestSequence.current) return;
         setSnapshot(next);
         setSnapshotAgentId(agentId);
@@ -753,7 +766,7 @@ export default function MemoryGraphView({
         if (sequence === requestSequence.current) setLoading(false);
       }
     },
-    [agentId],
+    [agentId, graphSource],
   );
 
   useEffect(() => {
@@ -794,7 +807,7 @@ export default function MemoryGraphView({
   });
   visualStateRef.current = { selectedId, selectedNeighbors };
   const selected = graphSnapshot?.nodes.find((node) => node.id === selectedId);
-  const selectedFileTarget = selected ? nodeFileTarget(selected) : null;
+  const selectedFileTarget = selected ? nodeFileTarget(selected, graphSource) : null;
   const inbound =
     graphSnapshot?.edges.filter((edge) => edge.target === selectedId) ?? [];
   const outbound =
