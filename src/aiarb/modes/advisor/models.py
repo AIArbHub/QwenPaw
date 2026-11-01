@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """The advisor model, resolved through AIARB's model factory.
 
 By default Advisor Mode reuses the agent's existing model settings: the

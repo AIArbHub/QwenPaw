@@ -1,4 +1,4 @@
-﻿import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import wordmarkUrl from "@/assets/design/wordmark-AIARB.svg";
 import wordmarkDarkUrl from "@/assets/design/wordmark-AIARB-dark.svg";
 import cursorDirector from "@/assets/design/cursor-director.svg";

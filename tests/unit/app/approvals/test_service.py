@@ -20,8 +20,8 @@ import time
 
 import pytest
 
-from AIARB.app.approvals.models import ApprovalRequestSummary
-from AIARB.app.approvals.service import (
+from aiarb.app.approvals.models import ApprovalRequestSummary
+from aiarb.app.approvals.service import (
     ApprovalActor,
     ApprovalIdentityMismatchError,
     ApprovalIdentityPolicy,
@@ -30,8 +30,8 @@ from AIARB.app.approvals.service import (
     _GC_MAX_PENDING,
     get_approval_service,
 )
-from AIARB.security.tool_guard.approval import ApprovalDecision
-from AIARB.security.tool_guard.models import (
+from aiarb.security.tool_guard.approval import ApprovalDecision
+from aiarb.security.tool_guard.models import (
     GuardFinding,
     GuardSeverity,
     GuardThreatCategory,
@@ -648,7 +648,7 @@ def test_gc_evicts_overflow_oldest_first():
 
 def test_get_approval_service_returns_singleton(monkeypatch):
     """The module-level accessor returns the same instance per process."""
-    import AIARB.app.approvals.service as svc_mod
+    import aiarb.app.approvals.service as svc_mod
 
     monkeypatch.setattr(svc_mod, "_approval_service", None)
     first = get_approval_service()

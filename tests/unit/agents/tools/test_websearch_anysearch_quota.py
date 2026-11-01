@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # flake8: noqa: E501
 """Tests for ``AnySearchProvider``'s 402 quota-exceeded handling (A/B/C
 branches) and the auto-registration message parser.

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Fresh CPython workers backed by shared sandbox process sessions."""
 
 from __future__ import annotations

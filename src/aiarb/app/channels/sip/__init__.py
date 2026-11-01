@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """SIP voice channel -- dual-track architecture.
 
 Two backend modes via ``SIPChannelConfig.sip_mode``:

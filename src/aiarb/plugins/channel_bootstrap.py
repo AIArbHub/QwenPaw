@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Trusted channel interpreter and resource policy, with no passive probes."""
 
 from __future__ import annotations

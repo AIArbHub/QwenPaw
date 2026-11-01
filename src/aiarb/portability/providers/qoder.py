@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Qoder Migration Provider for SDK and current Qoder IDE sessions."""
 
 from __future__ import annotations

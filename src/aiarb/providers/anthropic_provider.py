@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """An Anthropic provider implementation."""
 
 from __future__ import annotations

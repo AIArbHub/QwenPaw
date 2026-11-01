@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Normal generic plugin supervision through actual OS workers and IPC."""
 
 import asyncio
@@ -632,12 +632,12 @@ async def test_runtime_roots_interpreter_and_dependency_visible_in_worker(
     if layout == "source":
         scope = "a" * 64
         monkeypatch.setattr(maintenance, "_READER_SCOPE", scope)
-        monkeypatch.setenv("QWENPAW_DEPENDENCY_READER_SCOPE", "b" * 64)
+        monkeypatch.setenv("AIARB_DEPENDENCY_READER_SCOPE", "b" * 64)
         maintenance.prepare_reader_scope(
             (*runtime.dependency_paths, *maintenance.host_sites()),
             scope,
         )
-    key = "QWENPAW_DEPENDENCY_STATE_DIR"
+    key = "AIARB_DEPENDENCY_STATE_DIR"
     store._apply_to_environ({key: str(tmp_path / "untrusted-state")})
     assert maintenance.state_root() == selected_root
     monkeypatch.setenv(key, str(tmp_path / "direct-mutation"))
@@ -1562,7 +1562,7 @@ async def staged_upgrade(tmp_path, monkeypatch, request):
         site = alias
     host.site = site
     monkeypatch.setattr(sys, "path", sys.path.copy())
-    monkeypatch.setenv("QWENPAW_PLUGIN_SITE", str(site))
+    monkeypatch.setenv("AIARB_PLUGIN_SITE", str(site))
     host.registry.channel_runtime = replace(
         host.registry.channel_runtime,
         dependency_paths=(site,),
@@ -2051,7 +2051,7 @@ async def test_frozen_ordinary_loader_gate_installs_missing_sdk_in_overlay(
     runtime = resolve_default_channel_runtime()
     host.registry.channel_runtime = runtime
     monkeypatch.setenv(
-        "QWENPAW_PLUGIN_SITE",
+        "AIARB_PLUGIN_SITE",
         str(runtime.dependency_install_target),
     )
     source = tmp_path / "ordinary-plugin"

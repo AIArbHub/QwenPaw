@@ -17,7 +17,7 @@ from agentscope.message import Msg, TextBlock
 
 from ...constant import (
     MEDIA_UNSUPPORTED_PLACEHOLDER,
-    QWENPAW_MESSAGE_TAG_KEY,
+    AIARB_MESSAGE_TAG_KEY,
     SCROLL_MEMORY_MESSAGE_TAG,
     SYNTHETIC_USER_MESSAGE_TAGS,
 )
@@ -42,7 +42,7 @@ _PROVIDER_ONLY_TOOL_USE_FIELDS = frozenset({"extra_content", "raw_input"})
 # The subset that is preserved when the target is its native family.
 _GEMINI_NATIVE_FIELDS = frozenset({"extra_content"})
 
-_OMITTED_MEDIA_IDS = "qwenpaw_omitted_media_ids"
+_OMITTED_MEDIA_IDS = "AIARB_omitted_media_ids"
 
 
 def _get(value: Any, key: str, default: Any = None) -> Any:
@@ -85,7 +85,7 @@ def _historical_media(msgs: list[Msg]) -> Iterator[tuple[Msg, Any]]:
     for index, msg in enumerate(msgs):
         metadata = getattr(msg, "metadata", None)
         tag = (
-            metadata.get(QWENPAW_MESSAGE_TAG_KEY)
+            metadata.get(AIARB_MESSAGE_TAG_KEY)
             if isinstance(metadata, dict)
             else None
         )

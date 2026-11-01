@@ -15,8 +15,8 @@ import pytest
 
 from acp.schema import AllowedOutcome, RequestPermissionResponse
 
-from AIARB.agents.acp.meta import ACP_APPROVAL_EXPIRES_AT_META_KEY
-from AIARB.agents.acp.server import (
+from aiarb.agents.acp.meta import ACP_APPROVAL_EXPIRES_AT_META_KEY
+from aiarb.agents.acp.server import (
     _EnvelopeTracker,
     ACP_AGENT_META_KEY,
     ACP_ERROR_META_KEY,
@@ -135,7 +135,7 @@ async def test_registered_help_text_command_is_executed_and_advertised():
     """
     from types import SimpleNamespace
 
-    from AIARB.runtime.slash_command_registry import (
+    from aiarb.runtime.slash_command_registry import (
         CommandSpec,
         SlashCommandRegistry,
     )
@@ -248,7 +248,7 @@ async def test_prompt_passes_resolved_agent_id_to_runtime(monkeypatch):
 
 
 async def test_report_prompt_error_is_sent_to_client():
-    from AIARB.exceptions import AppBaseException
+    from aiarb.exceptions import AppBaseException
 
     agent = AIARBACPAgent(agent_id="default")
     conn = _FakeConn()
@@ -305,12 +305,12 @@ async def test_report_prompt_error_shows_details_for_local_diagnostics():
 
 
 async def test_approval_bridge_resolves_pending_approval(monkeypatch):
-    from AIARB.app.approvals.service import ApprovalService
-    from AIARB.security.tool_guard.approval import (
+    from aiarb.app.approvals.service import ApprovalService
+    from aiarb.security.tool_guard.approval import (
         ApprovalDecision,
         ApprovalScope,
     )
-    from AIARB.security.tool_guard.models import (
+    from aiarb.security.tool_guard.models import (
         GuardFinding,
         GuardSeverity,
         GuardThreatCategory,
@@ -319,7 +319,7 @@ async def test_approval_bridge_resolves_pending_approval(monkeypatch):
 
     approval_svc = ApprovalService()
     monkeypatch.setattr(
-        "AIARB.app.approvals.service._approval_service",
+        "aiarb.app.approvals.service._approval_service",
         approval_svc,
     )
 
@@ -396,12 +396,12 @@ async def test_approval_bridge_resolves_pending_approval(monkeypatch):
 
 
 async def test_approval_bridge_resolves_pattern_scope(monkeypatch):
-    from AIARB.app.approvals.service import ApprovalService
-    from AIARB.security.tool_guard.approval import (
+    from aiarb.app.approvals.service import ApprovalService
+    from aiarb.security.tool_guard.approval import (
         ApprovalDecision,
         ApprovalScope,
     )
-    from AIARB.security.tool_guard.models import (
+    from aiarb.security.tool_guard.models import (
         GuardFinding,
         GuardSeverity,
         GuardThreatCategory,
@@ -410,7 +410,7 @@ async def test_approval_bridge_resolves_pattern_scope(monkeypatch):
 
     approval_svc = ApprovalService()
     monkeypatch.setattr(
-        "AIARB.app.approvals.service._approval_service",
+        "aiarb.app.approvals.service._approval_service",
         approval_svc,
     )
 
@@ -487,9 +487,9 @@ async def test_approval_bridge_expires_when_pending_times_out(
     monkeypatch,
     cancel_bridge,
 ):
-    from AIARB.app.approvals.service import ApprovalService
-    from AIARB.security.tool_guard.approval import ApprovalDecision
-    from AIARB.security.tool_guard.models import (
+    from aiarb.app.approvals.service import ApprovalService
+    from aiarb.security.tool_guard.approval import ApprovalDecision
+    from aiarb.security.tool_guard.models import (
         GuardFinding,
         GuardSeverity,
         GuardThreatCategory,
@@ -498,7 +498,7 @@ async def test_approval_bridge_expires_when_pending_times_out(
 
     approval_svc = ApprovalService()
     monkeypatch.setattr(
-        "AIARB.app.approvals.service._approval_service",
+        "aiarb.app.approvals.service._approval_service",
         approval_svc,
     )
 
@@ -569,9 +569,9 @@ async def test_approval_bridge_survives_wait_for_timeout(monkeypatch):
     The shared approval future resolves to TIMEOUT, so observers must finish
     normally and the per-turn approval polling loop must keep running.
     """
-    from AIARB.app.approvals.service import ApprovalService
-    from AIARB.security.tool_guard.approval import ApprovalDecision
-    from AIARB.security.tool_guard.models import (
+    from aiarb.app.approvals.service import ApprovalService
+    from aiarb.security.tool_guard.approval import ApprovalDecision
+    from aiarb.security.tool_guard.models import (
         GuardFinding,
         GuardSeverity,
         GuardThreatCategory,
@@ -580,7 +580,7 @@ async def test_approval_bridge_survives_wait_for_timeout(monkeypatch):
 
     approval_svc = ApprovalService()
     monkeypatch.setattr(
-        "AIARB.app.approvals.service._approval_service",
+        "aiarb.app.approvals.service._approval_service",
         approval_svc,
     )
 
@@ -642,7 +642,7 @@ async def test_approval_bridge_survives_wait_for_timeout(monkeypatch):
 
 
 def test_acp_bootstrap_includes_runtime_slash_commands():
-    from AIARB.app.app_services import AppServiceManager
+    from aiarb.app.app_services import AppServiceManager
 
     kwargs = AIARBACPAgent._build_bootstrap_kwargs(AppServiceManager())
     command_names = {
@@ -656,7 +656,7 @@ def test_acp_bootstrap_includes_runtime_slash_commands():
 
 
 def _text_event(text: str, *, delta: bool, msg_id: str = "msg-1"):
-    from AIARB.schemas import TextContent
+    from aiarb.schemas import TextContent
 
     event = TextContent(text=text, delta=delta, index=0)
     event.object = "content"
@@ -686,7 +686,7 @@ def test_envelope_tracker_does_not_duplicate_streamed_final_text():
 
 
 def test_envelope_tracker_forwards_tool_arguments_as_raw_input():
-    from AIARB.schemas import (
+    from aiarb.schemas import (
         DataContent,
         FunctionCall,
         Message,
@@ -722,7 +722,7 @@ def test_envelope_tracker_forwards_tool_arguments_as_raw_input():
 
 
 def test_usage_meta_includes_model(monkeypatch):
-    from AIARB.token_usage.model_wrapper import TokenRecordingModelWrapper
+    from aiarb.token_usage.model_wrapper import TokenRecordingModelWrapper
 
     monkeypatch.setattr(
         TokenRecordingModelWrapper,
@@ -753,7 +753,7 @@ def test_usage_meta_includes_model(monkeypatch):
 
 
 def test_usage_meta_includes_context_size(monkeypatch):
-    from AIARB.token_usage.model_wrapper import TokenRecordingModelWrapper
+    from aiarb.token_usage.model_wrapper import TokenRecordingModelWrapper
 
     monkeypatch.setattr(
         TokenRecordingModelWrapper,
@@ -788,7 +788,7 @@ def _usage_updates(conn):
 
 
 async def test_emit_usage_emits_usage_update_with_threshold(monkeypatch):
-    from AIARB.token_usage.model_wrapper import TokenRecordingModelWrapper
+    from aiarb.token_usage.model_wrapper import TokenRecordingModelWrapper
 
     monkeypatch.setattr(
         TokenRecordingModelWrapper,
@@ -821,7 +821,7 @@ async def test_emit_usage_clears_bar_when_window_unknown(monkeypatch):
     # used/size == 0 must STILL emit a usage_update so the TUI hides a stale
     # bar (e.g. after switching to a model with an unknown window) instead of
     # retaining the previous turn's values.
-    from AIARB.token_usage.model_wrapper import TokenRecordingModelWrapper
+    from aiarb.token_usage.model_wrapper import TokenRecordingModelWrapper
 
     monkeypatch.setattr(
         TokenRecordingModelWrapper,

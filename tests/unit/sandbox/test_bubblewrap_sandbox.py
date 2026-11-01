@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-argument
 """Unit tests for Linux bubblewrap sandbox."""
 

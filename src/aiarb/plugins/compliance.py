@@ -11,7 +11,7 @@ from types import MappingProxyType
 
 PUBLIC_API = MappingProxyType(
     {
-        "AIARB.plugins": (
+        "aiarb.plugins": (
             "Plugin",
             "PluginContext",
             "SDK_VERSION",
@@ -25,42 +25,42 @@ PUBLIC_API = MappingProxyType(
             "ToolInputError",
             "PluginBusyError",
         ),
-        "AIARB.plugins.logging": ("PluginLogger",),
-        "AIARB.plugins.models": ("ModelService",),
-        "AIARB.plugins.messages": ("Message", "ContentBlock", "Attachment"),
-        "AIARB.plugins.tools": (
+        "aiarb.plugins.logging": ("PluginLogger",),
+        "aiarb.plugins.models": ("ModelService",),
+        "aiarb.plugins.messages": ("Message", "ContentBlock", "Attachment"),
+        "aiarb.plugins.tools": (
             "ToolSpec",
             "ToolContext",
             "ToolResult",
             "ToolEvent",
             "ConfigField",
         ),
-        "AIARB.plugins.resources": (
+        "aiarb.plugins.resources": (
             "ResourceOwner",
             "Registration",
             "ResourceScope",
         ),
-        "AIARB.plugins.storage": (
+        "aiarb.plugins.storage": (
             "PluginStorage",
             "MediaStore",
             "PluginConfig",
         ),
-        "AIARB.plugins.commands": (
+        "aiarb.plugins.commands": (
             "CommandSpec",
             "CommandContext",
             "CommandResult",
         ),
-        "AIARB.plugins.hooks": (
+        "aiarb.plugins.hooks": (
             "HookPhase",
             "HookSpec",
             "HookContext",
             "HookResult",
             "ContextInjection",
         ),
-        "AIARB.plugins.prompts": ("PromptSpec",),
-        "AIARB.plugins.modes": ("ModeSpec", "ModeContext"),
-        "AIARB.plugins.skills": ("SkillSpec",),
-        "AIARB.plugins.markets": (
+        "aiarb.plugins.prompts": ("PromptSpec",),
+        "aiarb.plugins.modes": ("ModeSpec", "ModeContext"),
+        "aiarb.plugins.skills": ("SkillSpec",),
+        "aiarb.plugins.markets": (
             "MarketSpec",
             "MarketContext",
             "MarketResult",
@@ -68,7 +68,7 @@ PUBLIC_API = MappingProxyType(
             "SkillBundle",
             "Availability",
         ),
-        "AIARB.plugins.providers": (
+        "aiarb.plugins.providers": (
             "ModelInfo",
             "ModelUsage",
             "ModelToolChoice",
@@ -78,13 +78,13 @@ PUBLIC_API = MappingProxyType(
             "ConnectionResult",
             "ProviderSpec",
         ),
-        "AIARB.plugins.memory": (
+        "aiarb.plugins.memory": (
             "MemorySpec",
             "MemoryBackend",
             "MemoryContext",
             "MemoryTask",
         ),
-        "AIARB.plugins.events": (
+        "aiarb.plugins.events": (
             "JSONValue",
             "StreamContent",
             "StreamMessage",
@@ -97,7 +97,7 @@ PUBLIC_API = MappingProxyType(
             "Observation",
             "EventSubscription",
         ),
-        "AIARB.plugins.apps": (
+        "aiarb.plugins.apps": (
             "JSONBody",
             "RouteResult",
             "RouteHandler",
@@ -115,7 +115,7 @@ PUBLIC_API = MappingProxyType(
             "PawApp",
             "WebSocket",
         ),
-        "AIARB.plugins.channels": (
+        "aiarb.plugins.channels": (
             "ChannelMessage",
             "OutgoingMessage",
             "ChannelStreamEvent",
@@ -127,14 +127,14 @@ PUBLIC_API = MappingProxyType(
             "StreamingChannelBackend",
             "ChannelSpec",
         ),
-        "AIARB.plugins.results": (
+        "aiarb.plugins.results": (
             "InstallResult",
             "EnableResult",
             "UnloadResult",
             "ReloadResult",
             "ConfigUpdateResult",
         ),
-        "AIARB.plugins.testing": (
+        "aiarb.plugins.testing": (
             "TestFault",
             "PluginTestHost",
             "TestModel",
@@ -142,7 +142,7 @@ PUBLIC_API = MappingProxyType(
             "TestHttpResponse",
             "TestConnection",
         ),
-        "AIARB.plugins.compliance": (
+        "aiarb.plugins.compliance": (
             "PUBLIC_API",
             "APIExport",
             "API_EXPORTS",
@@ -150,7 +150,7 @@ PUBLIC_API = MappingProxyType(
             "CheckReport",
             "check_plugin",
         ),
-        "AIARB.pawapp": ("PawApp",),
+        "aiarb.pawapp": ("PawApp",),
     },
 )
 
@@ -167,7 +167,7 @@ API_EXPORTS = tuple(
     APIExport(
         module,
         symbol,
-        stability="compatibility" if module == "AIARB.pawapp" else "stable",
+        stability="compatibility" if module == "aiarb.pawapp" else "stable",
     )
     for module, symbols in PUBLIC_API.items()
     for symbol in symbols
@@ -326,7 +326,7 @@ def check_plugin(directory: str | Path) -> CheckReport:
 
         def dependency(node, module, symbol=None):
             dependencies.add(module + ("." + symbol if symbol else ""))
-            if module == "AIARB" or module.startswith("AIARB."):
+            if module == "AIARB" or module.startswith("aiarb."):
                 full_module = module + "." + symbol if symbol else module
                 if full_module in PUBLIC_API:
                     return full_module
@@ -431,7 +431,7 @@ def check_plugin(directory: str | Path) -> CheckReport:
                         "private-context",
                         f"Private context member: {node.attr}",
                     )
-                if name.startswith("AIARB.") and any(
+                if name.startswith("aiarb.") and any(
                     part.startswith("_") for part in name.split(".")
                 ):
                     reject(
@@ -440,7 +440,7 @@ def check_plugin(directory: str | Path) -> CheckReport:
                         f"Private SDK member: {name}",
                     )
                 if isinstance(node.ctx, ast.Store) and (
-                    name.startswith("AIARB.")
+                    name.startswith("aiarb.")
                     or (
                         isinstance(node.value, ast.Name)
                         and node.value.id in contexts

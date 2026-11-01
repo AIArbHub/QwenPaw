@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Mission state for parallel migration compatibility repair."""
 
 from __future__ import annotations

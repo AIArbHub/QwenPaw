@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,unused-argument
 """Unit tests for the `env` CLI group (list / set / delete)."""
 
@@ -84,10 +84,10 @@ class TestSetCmd:
         assert result.exit_code != 0
         assert "Invalid environment variable name" in result.output
 
-    def test_rejects_lowercase_qwenpaw_key(self, env_file):
+    def test_rejects_lowercase_AIARB_key(self, env_file):
         result = CliRunner().invoke(
             env_mod.env_group,
-            ["set", "qwenpaw_lower", "v"],
+            ["set", "AIARB_lower", "v"],
         )
 
         assert result.exit_code != 0
@@ -96,17 +96,17 @@ class TestSetCmd:
     def test_rejects_internally_managed_key(self, env_file):
         result = CliRunner().invoke(
             env_mod.env_group,
-            ["set", "QWENPAW_RUNTIME_INTERNAL_TOKEN", "secret"],
+            ["set", "AIARB_RUNTIME_INTERNAL_TOKEN", "secret"],
         )
 
         assert result.exit_code != 0
         assert "managed internally" in result.output
 
     def test_rejects_read_only_known_key(self, env_file):
-        """QWENPAW_WORKING_DIR is a known non-editable spec, not internal."""
+        """AIARB_WORKING_DIR is a known non-editable spec, not internal."""
         result = CliRunner().invoke(
             env_mod.env_group,
-            ["set", "QWENPAW_WORKING_DIR", "/tmp/x"],
+            ["set", "AIARB_WORKING_DIR", "/tmp/x"],
         )
 
         assert result.exit_code != 0

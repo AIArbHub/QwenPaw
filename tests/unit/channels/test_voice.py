@@ -11,7 +11,7 @@ from twilio.request_validator import RequestValidator
 from yarl import URL
 import pytest
 import pytest_asyncio
-from AIARB.channel_protocol.models import (
+from aiarb.channel_protocol.models import (
     InboundEvent,
     SendParams,
     ResponseFinishParams,

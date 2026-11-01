@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Cross-model fallback wrapper for transient pre-output failures."""
 
 from __future__ import annotations
@@ -149,7 +149,7 @@ class FallbackChatModel(ChatModelBase):
         setter = getattr(formatter, "set_thinking_omit_ids", None)
         if callable(setter):
             return bool(setter(set(block_ids)))
-        setattr(formatter, "_qwenpaw_omit_thinking_ids", set(block_ids))
+        setattr(formatter, "_AIARB_omit_thinking_ids", set(block_ids))
         return True
 
     def _apply_thinking_omit_ids(self, model: ChatModelBase) -> bool:

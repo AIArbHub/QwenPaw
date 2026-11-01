@@ -8,9 +8,9 @@ from pathlib import Path
 
 import pytest
 
-from AIARB.hub.credentials import TenantCredentialVault
-from AIARB.hub.local_provisioner import LocalProcessRuntimeProvisioner
-from AIARB.utils.runtime_environment import system_environment
+from aiarb.hub.credentials import TenantCredentialVault
+from aiarb.hub.local_provisioner import LocalProcessRuntimeProvisioner
+from aiarb.utils.runtime_environment import system_environment
 from tests.unit.hub.factories import runtime_record as _record
 
 

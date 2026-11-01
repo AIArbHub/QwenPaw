@@ -4,7 +4,7 @@
 This module creates configured provider models and chat formatters.
 
 Example:
-    >>> from AIARB.agents.model_factory import create_model_and_formatter
+    >>> from aiarb.agents.model_factory import create_model_and_formatter
     >>> model, formatter = create_model_and_formatter()
 """
 

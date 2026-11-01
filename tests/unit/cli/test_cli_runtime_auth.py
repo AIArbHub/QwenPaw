@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Regression coverage for CLI access to managed runtime APIs."""
 
@@ -30,9 +30,9 @@ _TOKEN_HEADER = "X-QwenPaw-Runtime-Token"
 @pytest.fixture(autouse=True)
 def managed_runtime(monkeypatch):
     """Give each test an isolated managed runtime environment."""
-    monkeypatch.setenv("QWENPAW_RUNTIME_ID", "runtime-a")
-    monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "secret-a")
-    monkeypatch.setenv("QWENPAW_RUNTIME_API_URL", _RUNTIME_URL)
+    monkeypatch.setenv("AIARB_RUNTIME_ID", "runtime-a")
+    monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "secret-a")
+    monkeypatch.setenv("AIARB_RUNTIME_API_URL", _RUNTIME_URL)
     monkeypatch.setattr(
         "qwenpaw.cli.main.read_last_api",
         lambda: ("127.0.0.1", 9002),
@@ -76,9 +76,9 @@ def test_agents_list_passes_real_boundary(monkeypatch, managed):
         return {"agents": [{"id": f"runtime-{request.url.port}"}]}
 
     if not managed:
-        monkeypatch.delenv("QWENPAW_RUNTIME_INTERNAL_TOKEN")
-        monkeypatch.delenv("QWENPAW_RUNTIME_ID")
-        monkeypatch.delenv("QWENPAW_RUNTIME_API_URL")
+        monkeypatch.delenv("AIARB_RUNTIME_INTERNAL_TOKEN")
+        monkeypatch.delenv("AIARB_RUNTIME_ID")
+        monkeypatch.delenv("AIARB_RUNTIME_API_URL")
     with TestClient(app) as boundary:
         monkeypatch.setattr(
             httpx,
@@ -161,9 +161,9 @@ def test_token_does_not_follow_redirects_or_absolute_urls(
 @pytest.mark.parametrize(
     "missing",
     [
-        "QWENPAW_RUNTIME_ID",
-        "QWENPAW_RUNTIME_API_URL",
-        "QWENPAW_RUNTIME_INTERNAL_TOKEN",
+        "AIARB_RUNTIME_ID",
+        "AIARB_RUNTIME_API_URL",
+        "AIARB_RUNTIME_INTERNAL_TOKEN",
     ],
 )
 def test_incomplete_runtime_metadata_keeps_app_behavior(monkeypatch, missing):
@@ -255,7 +255,7 @@ async def test_async_agent_requests_scope_token(monkeypatch, target):
     ],
 )
 def test_invalid_runtime_endpoint_does_not_override_app(monkeypatch, endpoint):
-    monkeypatch.setenv("QWENPAW_RUNTIME_API_URL", endpoint)
+    monkeypatch.setenv("AIARB_RUNTIME_API_URL", endpoint)
     assert agent_management.resolve_agent_api_base_url() == (
         "http://127.0.0.1:9002"
     )
@@ -277,7 +277,7 @@ def test_invalid_runtime_endpoint_does_not_override_app(monkeypatch, endpoint):
 
 def test_ipv6_runtime_endpoint(monkeypatch):
     endpoint = "http://[::1]:9001"
-    monkeypatch.setenv("QWENPAW_RUNTIME_API_URL", endpoint)
+    monkeypatch.setenv("AIARB_RUNTIME_API_URL", endpoint)
     assert agent_management.resolve_agent_api_base_url() == endpoint
     seen = []
 
@@ -359,9 +359,9 @@ def test_cli_api_operations_pass_boundary(
 
     if not managed:
         for name in (
-            "QWENPAW_RUNTIME_ID",
-            "QWENPAW_RUNTIME_API_URL",
-            "QWENPAW_RUNTIME_INTERNAL_TOKEN",
+            "AIARB_RUNTIME_ID",
+            "AIARB_RUNTIME_API_URL",
+            "AIARB_RUNTIME_INTERNAL_TOKEN",
         ):
             monkeypatch.delenv(name)
     monkeypatch.setattr(

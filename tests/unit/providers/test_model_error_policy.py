@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for shared retry and cross-model fallback policy."""
 
 from __future__ import annotations

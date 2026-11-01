@@ -1,4 +1,4 @@
-﻿/**
+/**
  * AppMarket.tsx — App market view for the App Center.
  *
  * Reuses the existing plugin-market proxy (`/plugins/market/search`) and the

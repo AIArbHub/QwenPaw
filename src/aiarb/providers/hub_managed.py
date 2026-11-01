@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Runtime-side model directory with no organization credentials."""
 
 from __future__ import annotations

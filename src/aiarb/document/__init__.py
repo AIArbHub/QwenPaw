@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """AIArb Document Pipeline — LDIR (Legal Document Intermediate Representation)
 
 This package provides a lightweight document IR that carries:

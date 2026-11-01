@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """``AdvisorMiddleware`` — the advisor plans up front, steps in when the
 agent gets stuck, and answers when the agent asks.
 

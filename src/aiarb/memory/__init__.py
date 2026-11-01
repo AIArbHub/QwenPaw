@@ -5,7 +5,7 @@ Plugins should import memory contracts from this module rather than from the
 internal ``AIARB.agents`` package.
 """
 
-from AIARB.agents.memory.base_memory_manager import (
+from aiarb.agents.memory.base_memory_manager import (
     AutoMemorySearchOptions,
     BaseMemoryManager,
     MemoryBackendContext,

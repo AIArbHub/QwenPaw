@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """AIArb-Data PawApp backend entry point."""
 
 from __future__ import annotations

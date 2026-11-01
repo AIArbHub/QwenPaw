@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for the driver approval gate.
 
 The gate bridges a Driver policy ``ask`` outcome into the central

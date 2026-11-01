@@ -1,4 +1,4 @@
-﻿import { SharedModal as Modal } from "@/components/interaction/SharedModal";
+import { SharedModal as Modal } from "@/components/interaction/SharedModal";
 import { useEffect, useState, useMemo } from "react";
 import {
   Form,

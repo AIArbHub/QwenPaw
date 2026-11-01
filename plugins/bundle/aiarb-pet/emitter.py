@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Fire-and-forget desktop event emitter."""
 
 from __future__ import annotations

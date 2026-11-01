@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Host-provided Computer Use runtime capability and turn context."""
 
 from __future__ import annotations
@@ -204,7 +204,7 @@ class HostRuntimeProvider:
 
 def _environment_capability() -> RuntimeCapability | None:
     """Return a capability injected when the backend was restarted."""
-    if os.environ.get("QWENPAW_RUNTIME_MODE") == "shared":
+    if os.environ.get("AIARB_RUNTIME_MODE") == "shared":
         return None
     pipe_name = os.environ.get(_PIPE_ENV, "").strip()
     secret = os.environ.get(_CAPABILITY_ENV, "").strip()
@@ -229,7 +229,7 @@ def _control_endpoint() -> _ControlEndpoint | None:
     registered = HostRuntimeProvider.registered_endpoint()
     if registered is not None:
         return registered
-    if os.environ.get("QWENPAW_RUNTIME_MODE") == "shared":
+    if os.environ.get("AIARB_RUNTIME_MODE") == "shared":
         return None
     host = os.environ.get(_CONTROL_HOST_ENV, "").strip()
     token = os.environ.get(_CONTROL_TOKEN_ENV, "").strip()

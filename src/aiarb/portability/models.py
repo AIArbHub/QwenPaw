@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Stable models shared by AIARB import flows."""
 
 from __future__ import annotations

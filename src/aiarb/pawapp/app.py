@@ -9,7 +9,7 @@ Wraps PluginApi under the hood. Provides decorator sugar for:
 - ``app.include_router(router)`` — mount a FastAPI Router
 
 Example (decorator mode):
-    from AIARB.pawapp import PawApp
+    from aiarb.pawapp import PawApp
 
     app = PawApp()
 
@@ -19,7 +19,7 @@ Example (decorator mode):
         return {"review": reply.text}
 
 Example (router mode):
-    from AIARB.pawapp import PawApp, get_ctx
+    from aiarb.pawapp import PawApp, get_ctx
     from fastapi import APIRouter, Depends
 
     app = PawApp()
@@ -47,7 +47,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
-from AIARB.exceptions import ConfigurationException
+from aiarb.exceptions import ConfigurationException
 
 from .deps import get_ctx, get_scoped_ctx
 from .dependency import (
@@ -807,7 +807,7 @@ class PawApp:  # pylint: disable=too-many-public-methods
 
     def _register_service(self, api: Any, service: ManagedService) -> None:
         """Register one ordered start and its shared hosted cleanup."""
-        from AIARB.plugins.custody import ConnectionCloser
+        from aiarb.plugins.custody import ConnectionCloser
 
         previous = self._service_closers.get(service)
         if previous and previous.task and not previous.task.done():

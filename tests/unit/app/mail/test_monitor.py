@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access
 """Unit tests for the mail push monitor (rule matching, mode branches)."""
 

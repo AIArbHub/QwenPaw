@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """The sandboxed ``recall_history_python`` recall tool.
 
 This is raw conversation-history recall — the agent's own recorded turns
@@ -177,7 +177,7 @@ def make_recall_history_python(
                 ],
                 state=ToolResultState.DENIED,
             )
-        corruption_marker = f"QWENPAW_HISTORY_CORRUPT:{uuid.uuid4().hex}"
+        corruption_marker = f"AIARB_HISTORY_CORRUPT:{uuid.uuid4().hex}"
         cell = _build_cell(source, corruption_marker)
         argv = [sys.executable, str(cell)]
         try:

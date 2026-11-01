@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """OCR abstraction layer for aiarb document pipeline.
 
 Supports multiple OCR engines with unified interface:

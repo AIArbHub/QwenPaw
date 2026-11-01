@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument
 # pylint: disable=use-implicit-booleaness-not-comparison
 """Unit tests for the runtime resolution layer of the skill registry.
@@ -33,7 +33,7 @@ from qwenpaw.drivers.storage import card_path, dump_card
 # A name that cannot exist in any PATH the tests build. Note that
 # shell_execution_path(None) prepends the running interpreter's
 # directory, so short guesses such as "sh" are not safe negatives.
-ABSENT_BINARY = "qwenpaw_absent_binary_for_tests_0917"
+ABSENT_BINARY = "AIARB_absent_binary_for_tests_0917"
 
 
 def _write_card(
@@ -98,7 +98,7 @@ class TestCheckSkillDependencies:
     def test_binary_found_on_the_given_path_is_satisfied(self, tmp_path):
         binary_dir = tmp_path / "bins"
         binary_dir.mkdir()
-        found = binary_dir / "qwenpaw_probe_tool"
+        found = binary_dir / "AIARB_probe_tool"
         found.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
         found.chmod(0o755)
         if os.name == "nt":

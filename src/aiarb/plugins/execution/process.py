@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Explicit shared-environment component supervision."""
 
 from __future__ import annotations

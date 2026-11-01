@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Tests for ACP permission adapter trusted flag and auto-approve logic."""
 from __future__ import annotations

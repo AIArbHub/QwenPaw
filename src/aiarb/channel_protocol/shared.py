@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Static descriptors and metadata-only shared Runner handshake contracts."""
 
 from __future__ import annotations

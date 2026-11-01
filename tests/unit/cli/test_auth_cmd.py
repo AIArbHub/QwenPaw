@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument
 """Unit tests for `qwenpaw auth reset-password`."""
 
@@ -58,7 +58,7 @@ class TestAuthDisabled:
 
         assert result.exit_code == 0
         assert "Authentication is not enabled." in result.output
-        assert "QWENPAW_AUTH_ENABLED=true" in result.output
+        assert "AIARB_AUTH_ENABLED=true" in result.output
 
     def test_does_not_prompt_or_save_when_disabled(self, auth_env):
         auth_env["enabled"] = False

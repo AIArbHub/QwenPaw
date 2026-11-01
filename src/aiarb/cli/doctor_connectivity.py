@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Optional ``--deep`` network reachability checks for enabled channels.
 
 Failures are reported as non-fatal notes (firewalls and offline use are

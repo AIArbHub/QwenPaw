@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access
 """Tests for AgentMdManager."""
 from pathlib import Path

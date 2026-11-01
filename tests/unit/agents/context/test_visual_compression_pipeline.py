@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-import,unused-variable,use-implicit-booleaness-not-comparison  # noqa: E501
 """Unit tests for history-only visual compression.
 
@@ -52,7 +52,7 @@ from qwenpaw.agents.context.visual_compression.rendering import (
 )
 from qwenpaw.constant import (
     EXTERNAL_USER_QUERY_MESSAGE_TAG,
-    QWENPAW_MESSAGE_TAG_KEY,
+    AIARB_MESSAGE_TAG_KEY,
 )
 
 LOW = effort_preset("low")
@@ -509,7 +509,7 @@ class TestPlanHistory:
             role="user",
             content=[TextBlock(text="continuation stub")],
             metadata={
-                QWENPAW_MESSAGE_TAG_KEY: next(
+                AIARB_MESSAGE_TAG_KEY: next(
                     iter(SYNTHETIC_USER_MESSAGE_TAGS),
                 ),
             },
@@ -695,7 +695,7 @@ class TestTransformModelRequest:
                 role="user",
                 content=[TextBlock(text="live request")],
                 metadata={
-                    QWENPAW_MESSAGE_TAG_KEY: EXTERNAL_USER_QUERY_MESSAGE_TAG,
+                    AIARB_MESSAGE_TAG_KEY: EXTERNAL_USER_QUERY_MESSAGE_TAG,
                 },
             ),
         )

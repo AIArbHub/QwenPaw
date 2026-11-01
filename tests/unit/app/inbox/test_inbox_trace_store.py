@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access,unused-argument
 # pylint: disable=use-implicit-booleaness-not-comparison
 """Unit tests for aiarb.app.inbox_trace_store.

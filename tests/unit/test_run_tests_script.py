@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,unused-argument,protected-access
 # pylint: disable=superfluous-parens
 """Regression tests for ``scripts/run_tests.py`` (issue #7229).
@@ -26,7 +26,7 @@ _SCRIPT_PATH = _REPO_ROOT / "scripts" / "run_tests.py"
 def runner_module():
     """Load scripts/run_tests.py as a module (it is not importable)."""
     spec = importlib.util.spec_from_file_location(
-        "qwenpaw_local_test_runner",
+        "AIARB_local_test_runner",
         _SCRIPT_PATH,
     )
     module = importlib.util.module_from_spec(spec)

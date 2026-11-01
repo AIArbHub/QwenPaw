@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for cli/doctor_fix_runner.py.
 
 Covers path-allowlist helpers, cron normalization, backup/meta plumbing,
@@ -44,7 +44,7 @@ def no_config(monkeypatch):
 def no_repo_root(monkeypatch):
     monkeypatch.setattr(
         dfr,
-        "find_qwenpaw_source_repo_root",
+        "find_AIARB_source_repo_root",
         lambda: None,
     )
 
@@ -1116,7 +1116,7 @@ class TestPlanRebuildConsole:
         repo.mkdir()
         monkeypatch.setattr(
             dfr,
-            "find_qwenpaw_source_repo_root",
+            "find_AIARB_source_repo_root",
             lambda: repo,
         )
         monkeypatch.setattr(dfr.shutil, "which", lambda n: None)
@@ -1138,7 +1138,7 @@ class TestPlanRebuildConsole:
         (target / "old.js").write_text("old")
         monkeypatch.setattr(
             dfr,
-            "find_qwenpaw_source_repo_root",
+            "find_AIARB_source_repo_root",
             lambda: repo,
         )
         monkeypatch.setattr(dfr.shutil, "which", lambda n: "/usr/bin/npm")
@@ -1177,7 +1177,7 @@ class TestPlanRebuildConsole:
         (dist / "index.html").write_text("<html></html>")
         monkeypatch.setattr(
             dfr,
-            "find_qwenpaw_source_repo_root",
+            "find_AIARB_source_repo_root",
             lambda: repo,
         )
         monkeypatch.setattr(dfr.shutil, "which", lambda n: "/usr/bin/npm")
@@ -1214,7 +1214,7 @@ class TestPlanRebuildConsole:
         (target / "cur.js").write_text("cur")
         monkeypatch.setattr(
             dfr,
-            "find_qwenpaw_source_repo_root",
+            "find_AIARB_source_repo_root",
             lambda: repo,
         )
         monkeypatch.setattr(dfr.shutil, "which", lambda n: "/usr/bin/npm")
@@ -1244,7 +1244,7 @@ class TestPlanRebuildConsole:
         repo.mkdir()
         monkeypatch.setattr(
             dfr,
-            "find_qwenpaw_source_repo_root",
+            "find_AIARB_source_repo_root",
             lambda: repo,
         )
         monkeypatch.setattr(dfr.shutil, "which", lambda n: "/usr/bin/npm")
@@ -1258,7 +1258,7 @@ class TestPlanRebuildConsole:
         console.mkdir(parents=True)
         monkeypatch.setattr(
             dfr,
-            "find_qwenpaw_source_repo_root",
+            "find_AIARB_source_repo_root",
             lambda: repo,
         )
         monkeypatch.setattr(dfr.shutil, "which", lambda n: "/usr/bin/npm")
@@ -1278,7 +1278,7 @@ class TestPlanRebuildConsole:
         (console / "package-lock.json").write_text("{}")
         monkeypatch.setattr(
             dfr,
-            "find_qwenpaw_source_repo_root",
+            "find_AIARB_source_repo_root",
             lambda: repo,
         )
         monkeypatch.setattr(dfr.shutil, "which", lambda n: "/usr/bin/npm")

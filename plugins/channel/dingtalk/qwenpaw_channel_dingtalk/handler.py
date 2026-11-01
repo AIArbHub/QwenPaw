@@ -14,7 +14,7 @@ from aiarb.schemas import (
     TextContent,
 )
 
-from AIARB.schemas import ContentType
+from aiarb.schemas import ContentType
 
 from .content_utils import (
     conversation_id_from_chatbot_message,

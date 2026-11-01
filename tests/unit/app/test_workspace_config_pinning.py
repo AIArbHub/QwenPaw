@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Regression tests for the workspace config write-then-read idiom.
 
 ``load_agent_config`` hands out detached copies to protect its cache;

@@ -8,7 +8,7 @@ from typing import Any
 
 from emitter import schedule_emit_pet_event
 
-logger = logging.getLogger("AIARB.pet_desktop")
+logger = logging.getLogger("aiarb.pet_desktop")
 
 _PATCHED = False
 _ORIG_CREATE_PENDING: Any = None
@@ -29,8 +29,8 @@ def patch_approval_service() -> None:
     if _PATCHED:
         return
 
-    from AIARB.app.approvals.service import ApprovalActor, ApprovalService
-    from AIARB.security.tool_guard.approval import (
+    from aiarb.app.approvals.service import ApprovalActor, ApprovalService
+    from aiarb.security.tool_guard.approval import (
         ApprovalDecision,
         ApprovalScope,
     )
@@ -160,7 +160,7 @@ def restore_approval_service() -> None:
     if not _PATCHED:
         return
 
-    from AIARB.app.approvals.service import ApprovalService
+    from aiarb.app.approvals.service import ApprovalService
 
     ApprovalService.create_pending = _ORIG_CREATE_PENDING
     ApprovalService.resolve_request = _ORIG_RESOLVE_REQUEST

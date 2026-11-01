@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Offline official sources through the existing plugin lifecycle."""
 
 from __future__ import annotations

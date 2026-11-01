@@ -13,7 +13,7 @@ import inspect
 
 from agentscope.agent import Agent
 
-from AIARB.agents.context import _as_internals
+from aiarb.agents.context import _as_internals
 
 
 def test_prepare_model_input_still_exists_and_is_async():

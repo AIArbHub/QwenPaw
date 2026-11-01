@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Integration tests for QwenPaw Hub control-app helpers.
 
 Covers src/qwenpaw/hub/control_app.py (570 uncovered lines):
@@ -18,10 +18,10 @@ import pytest
 @pytest.mark.integration
 @pytest.mark.p1
 def test_get_hub_root_default(monkeypatch) -> None:
-    """Without QWENPAW_HUB_DIR the hub root is WORKING_DIR/hub."""
+    """Without AIARB_HUB_DIR the hub root is WORKING_DIR/hub."""
     import qwenpaw.hub.control_app as control_app
 
-    monkeypatch.delenv("QWENPAW_HUB_DIR", raising=False)
+    monkeypatch.delenv("AIARB_HUB_DIR", raising=False)
     root = control_app.get_hub_root()
     assert root.name == "hub"
     assert root.is_absolute()
@@ -30,11 +30,11 @@ def test_get_hub_root_default(monkeypatch) -> None:
 @pytest.mark.integration
 @pytest.mark.p1
 def test_get_hub_root_env_override(tmp_path: Path, monkeypatch) -> None:
-    """QWENPAW_HUB_DIR overrides the hub data root."""
+    """AIARB_HUB_DIR overrides the hub data root."""
     import qwenpaw.hub.control_app as control_app
 
     custom = tmp_path / "custom-hub"
-    monkeypatch.setenv("QWENPAW_HUB_DIR", str(custom))
+    monkeypatch.setenv("AIARB_HUB_DIR", str(custom))
     root = control_app.get_hub_root()
     assert root == custom.resolve()
 
@@ -42,10 +42,10 @@ def test_get_hub_root_env_override(tmp_path: Path, monkeypatch) -> None:
 @pytest.mark.integration
 @pytest.mark.p1
 def test_get_hub_root_blank_env_falls_back(monkeypatch) -> None:
-    """Blank QWENPAW_HUB_DIR is treated as unset."""
+    """Blank AIARB_HUB_DIR is treated as unset."""
     import qwenpaw.hub.control_app as control_app
 
-    monkeypatch.setenv("QWENPAW_HUB_DIR", "   ")
+    monkeypatch.setenv("AIARB_HUB_DIR", "   ")
     root = control_app.get_hub_root()
     assert root.name == "hub"
 

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """POSIX PTY adapter with isolated descriptors and no preexec callback."""
 
 import codecs

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for non-blocking tool configuration routes."""
 
 from __future__ import annotations

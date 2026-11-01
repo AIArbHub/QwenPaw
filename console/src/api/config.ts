@@ -1,4 +1,4 @@
-﻿declare const VITE_API_BASE_URL: string;
+declare const VITE_API_BASE_URL: string;
 declare const TOKEN: string;
 
 const AUTH_TOKEN_KEY = "AIARB_auth_token";

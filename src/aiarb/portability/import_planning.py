@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Discovery, dry-run, and lifecycle orchestration for provider imports."""
 
 from __future__ import annotations

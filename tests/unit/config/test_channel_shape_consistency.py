@@ -17,10 +17,10 @@ from __future__ import annotations
 
 from typing import get_args
 
-from AIARB.app.channels.registry import _BUILTIN_SPECS
-from AIARB.app.routers.config import _channel_config_class
-from AIARB.config.config import ChannelConfig, ChannelConfigUnion
-from AIARB.plugins.official_channel_catalog import official_channel_owners
+from aiarb.app.channels.registry import _BUILTIN_SPECS
+from aiarb.app.routers.config import _channel_config_class
+from aiarb.config.config import ChannelConfig, ChannelConfigUnion
+from aiarb.plugins.official_channel_catalog import official_channel_owners
 
 
 def _declared_config_classes() -> set[type]:

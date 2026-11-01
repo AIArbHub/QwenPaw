@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for Scroll's plain-Markdown continuation summary protocol."""
 
 from aiarb.agents.context.scroll.continuation_summary import (

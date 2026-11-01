@@ -23,14 +23,14 @@ import re
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
-from AIARB.exceptions import AppBaseException
-from AIARB.providers.model_selection import request_model_override
-from AIARB.services.session_thinking import (
+from aiarb.exceptions import AppBaseException
+from aiarb.providers.model_selection import request_model_override
+from aiarb.services.session_thinking import (
     apply_chat_model_settings,
     get_session_chat,
 )
-from AIARB.utils.io_utils import run_sync_io
-from AIARB.utils.model_response import consume_model_response
+from aiarb.utils.io_utils import run_sync_io
+from aiarb.utils.model_response import consume_model_response
 
 from .models import ChatUpdate
 

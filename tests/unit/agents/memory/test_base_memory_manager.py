@@ -9,8 +9,8 @@ import pytest
 from agentscope.message import Msg, TextBlock, ToolResultState
 from agentscope.tool import ToolChunk
 
-from AIARB.agents.memory import base_memory_manager
-from AIARB.constant import AUTO_MEMORY_SEARCH_BLOCK_IDS_KEY
+from aiarb.agents.memory import base_memory_manager
+from aiarb.constant import AUTO_MEMORY_SEARCH_BLOCK_IDS_KEY
 
 # ---------------------------------------------------------------------------
 # Concrete subclass for testing the abstract base
@@ -19,7 +19,7 @@ from AIARB.constant import AUTO_MEMORY_SEARCH_BLOCK_IDS_KEY
 
 def _make_concrete_class():
     """Return a minimal concrete subclass of BaseMemoryManager."""
-    from AIARB.agents.memory.base_memory_manager import (
+    from aiarb.agents.memory.base_memory_manager import (
         BaseMemoryManager,
     )
 

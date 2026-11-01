@@ -18,11 +18,11 @@ from pathlib import Path
 
 import pytest
 
-from AIARB.agents.context.scroll.history import (
+from aiarb.agents.context.scroll.history import (
     HistoryStore,
     HistorySchemaError,
 )
-from AIARB.agents.context.types import LogEntry
+from aiarb.agents.context.types import LogEntry
 
 
 @pytest.fixture

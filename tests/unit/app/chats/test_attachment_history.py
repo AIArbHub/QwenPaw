@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Console attachment execution and saved transcript regression tests."""
 
 # pylint: disable=protected-access
@@ -16,8 +16,8 @@ from qwenpaw.app.chats.models import ChatSpec
 from qwenpaw.app.chats.session import SafeJSONSession
 from qwenpaw.app.chats.utils import agentscope_msg_to_message
 from qwenpaw.constant import (
-    QWENPAW_CLIENT_MESSAGE_ID_KEY,
-    QWENPAW_USER_CONTENT_KEY,
+    AIARB_CLIENT_MESSAGE_ID_KEY,
+    AIARB_USER_CONTENT_KEY,
 )
 from qwenpaw.runtime._state_utils import StateProxy
 from qwenpaw.runtime.message_convert import _request_input_to_msgs
@@ -83,7 +83,7 @@ async def test_console_file_survives_agent_ingestion_and_disk_history(
                 "sender_id": "user-1",
                 "content_parts": content,
                 "message_metadata": {
-                    QWENPAW_CLIENT_MESSAGE_ID_KEY: "client-file-1",
+                    AIARB_CLIENT_MESSAGE_ID_KEY: "client-file-1",
                 },
                 "meta": {"session_id": "session-1"},
             },
@@ -122,10 +122,10 @@ async def test_console_file_survives_agent_ingestion_and_disk_history(
     assert attachment.file_size == 24
     if with_text:
         assert message.content[0].text == "read this file"
-    assert message.metadata["metadata"][QWENPAW_CLIENT_MESSAGE_ID_KEY] == (
+    assert message.metadata["metadata"][AIARB_CLIENT_MESSAGE_ID_KEY] == (
         "client-file-1"
     )
-    assert QWENPAW_USER_CONTENT_KEY not in message.metadata["metadata"]
+    assert AIARB_USER_CONTENT_KEY not in message.metadata["metadata"]
     assert "system-reminder" not in message.model_dump_json()
 
 
@@ -138,7 +138,7 @@ def test_missing_or_invalid_original_content_uses_legacy_history(original):
         name="user",
         role="user",
         content=[{"type": "text", "text": "legacy text"}],
-        metadata={QWENPAW_USER_CONTENT_KEY: original},
+        metadata={AIARB_USER_CONTENT_KEY: original},
     )
 
     [message] = agentscope_msg_to_message(msg)

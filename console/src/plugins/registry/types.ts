@@ -1,4 +1,4 @@
-﻿/**
+/**
  * registry/types.ts — public shapes for the AIARB plugin extension registries.
  *
  * Three console-wide concepts:
@@ -18,7 +18,7 @@
  * Both surfaces share the single audit log in `./audit.ts`.
  */
 import type React from "react";
-import type { ChatCodeBlockProps } from "../types/AIARB";
+import type { ChatCodeBlockProps } from "../types/aiarb";
 
 export interface ChatCodeBlockItem {
   id: string;

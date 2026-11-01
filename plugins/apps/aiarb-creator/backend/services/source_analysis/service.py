@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # flake8: noqa: E501
 # pylint: disable=protected-access,raise-missing-from
 # pylint: disable=too-many-boolean-expressions,too-many-branches

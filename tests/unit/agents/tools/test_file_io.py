@@ -21,7 +21,7 @@ from unittest.mock import patch
 
 import pytest
 
-from AIARB.agents.tools.file_io import (
+from aiarb.agents.tools.file_io import (
     _append_file,
     _get_encoding_for_file,
     _resolve_file_path,
@@ -30,7 +30,7 @@ from AIARB.agents.tools.file_io import (
     read_file,
     write_file,
 )
-from AIARB.agents.tools.utils import (
+from aiarb.agents.tools.utils import (
     TRUNCATION_METADATA_KEY,
     read_file_safe,
 )
@@ -44,7 +44,7 @@ from AIARB.agents.tools.utils import (
 class TestResolveFilePath:
     """Tests for _resolve_file_path."""
 
-    @patch("AIARB.agents.tools.file_io.get_tool_base_dir")
+    @patch("aiarb.agents.tools.file_io.get_tool_base_dir")
     def test_absolute_path_unchanged(self, mock_base):
         import sys
         from pathlib import Path
@@ -61,7 +61,7 @@ class TestResolveFilePath:
         else:
             assert result == "/tmp/test.txt"
 
-    @patch("AIARB.agents.tools.file_io.get_tool_base_dir")
+    @patch("aiarb.agents.tools.file_io.get_tool_base_dir")
     def test_relative_path_resolved(self, mock_base):
         from pathlib import Path
 
@@ -69,7 +69,7 @@ class TestResolveFilePath:
         result = _resolve_file_path("subdir/file.txt")
         assert result == str(Path("/workspace/subdir/file.txt"))
 
-    @patch("AIARB.agents.tools.file_io.get_tool_base_dir")
+    @patch("aiarb.agents.tools.file_io.get_tool_base_dir")
     def test_tilde_expansion(self, mock_base):
         from pathlib import Path
 
@@ -575,7 +575,7 @@ class TestAppendFile:
                 active -= 1
 
         with patch(
-            f"AIARB.agents.tools.file_io._append_file",
+            f"aiarb.agents.tools.file_io._append_file",
             delayed_append,
         ):
             await asyncio.gather(

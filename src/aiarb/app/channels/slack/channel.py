@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=too-many-statements,too-many-branches
 # pylint: disable=too-many-return-statements,protected-access
 """Slack Channel — streaming via chat.update edits.

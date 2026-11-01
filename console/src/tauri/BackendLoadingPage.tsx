@@ -1,4 +1,4 @@
-﻿import { Progress } from "antd";
+import { Progress } from "antd";
 import { useTranslation } from "react-i18next";
 import styles from "./BackendLoadingPage.module.less";
 type BackendReadyStatus = "checking" | "ready" | "timeout" | "error";

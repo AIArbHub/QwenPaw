@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Feishu interactive-card handler.
 
 Dispatches all interactive-card work (both outbound rendering and

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """REST API endpoints for A2A remote agent management (per-agent scoped).
 
 Endpoints:

@@ -8,19 +8,19 @@ from unittest.mock import AsyncMock
 import pytest
 from fastapi import HTTPException
 
-from AIARB.hub.model_service.protocol import upstream_payload
-from AIARB.providers.adapters.wire_protocol import WireProtocol
+from aiarb.hub.model_service.protocol import upstream_payload
+from aiarb.providers.adapters.wire_protocol import WireProtocol
 
-from AIARB.providers.model_info import ModelInfo
-from AIARB.providers.provider import agent_thinking_level
-from AIARB.providers.provider_catalog import (
+from aiarb.providers.model_info import ModelInfo
+from aiarb.providers.provider import agent_thinking_level
+from aiarb.providers.provider_catalog import (
     PROVIDER_ANTHROPIC,
     PROVIDER_DASHSCOPE,
     PROVIDER_GEMINI,
     PROVIDER_OPENAI,
     PROVIDER_OPENAI_RESPONSE,
 )
-from AIARB.providers.thinking import (
+from aiarb.providers.thinking import (
     ThinkingControl,
     ThinkingPreference,
     resolve_thinking,

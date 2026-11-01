@@ -718,7 +718,7 @@ class PluginLifecycle:
         interrupt_tasks: bool = False,
     ) -> ConfigUpdateReport:
         """Rebuild contributions from *new_config* without reimporting."""
-        from AIARB.memory import memory_registry
+        from aiarb.memory import memory_registry
 
         async with self._loader.plugin_lifecycle(plugin_id):
             async with self.activity(plugin_id).mutation(

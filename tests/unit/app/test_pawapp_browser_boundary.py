@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Browser grants must follow runtime route ownership, not URL spelling."""
 
 from fastapi import APIRouter, FastAPI
@@ -10,7 +10,7 @@ from qwenpaw.plugins.registry import PluginRegistry
 
 
 def test_scoped_cookie_cannot_read_core_or_another_app(monkeypatch):
-    monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "boundary")
+    monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "boundary")
     app = FastAPI()
     app.add_middleware(RuntimeBoundaryMiddleware)
     registry = PluginRegistry()

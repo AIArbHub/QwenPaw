@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for the ``POST /console/chat`` reconnect branch.
 
 When a client reconnects to a chat whose run already finished (the

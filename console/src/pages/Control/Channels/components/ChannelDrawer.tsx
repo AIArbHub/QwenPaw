@@ -1,4 +1,4 @@
-﻿import { NumberSlider } from "@/components/interaction/NumberSlider";
+import { NumberSlider } from "@/components/interaction/NumberSlider";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { SettingsDrawer as Drawer } from "@/components/interaction/SettingsDrawer";
 import {

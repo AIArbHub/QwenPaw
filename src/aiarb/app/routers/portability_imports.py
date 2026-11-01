@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Agent-pinned HTTP bridge for Codex/Qoder imports."""
 
 from __future__ import annotations

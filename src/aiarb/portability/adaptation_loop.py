@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Mission-mode compatibility testing and repair for imported assets."""
 
 from __future__ import annotations

@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from AIARB.services.project_directory import (
+from aiarb.services.project_directory import (
     normalize_project_dir,
     resolve_effective_project_dir,
     session_project_dir,
@@ -40,7 +40,7 @@ def test_resolver_priority(tmp_path: Path) -> None:
 def test_agent_default_list_inherited_and_session_override(
     tmp_path: Path,
 ) -> None:
-    from AIARB.services.project_directory import (
+    from aiarb.services.project_directory import (
         resolve_effective_project_dirs,
     )
 

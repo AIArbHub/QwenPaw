@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Runtime ownership survives clients without replacing a live backend."""
 
 import json
@@ -48,7 +48,7 @@ def test_runtime_lock_rejects_a_second_owner(
         "qwenpaw.tauri.backend_guard.__version__",
         version,
     )
-    monkeypatch.delenv("QWENPAW_RUNTIME_ID", raising=False)
+    monkeypatch.delenv("AIARB_RUNTIME_ID", raising=False)
     with BackendInstance(tmp_path, "shared") as first:
         first.publish(12345)
         with pytest.raises(RuntimeError, match="already owns"):
@@ -74,7 +74,7 @@ def test_runtime_lock_is_released_after_process_death(tmp_path):
         f"print('ready', flush=True); time.sleep(60)"
     )
     environment = dict(os.environ)
-    environment.pop("QWENPAW_RUNTIME_ID", None)
+    environment.pop("AIARB_RUNTIME_ID", None)
     with subprocess.Popen(
         [sys.executable, "-c", source],
         stdout=subprocess.PIPE,
@@ -105,7 +105,7 @@ def test_modes_have_separate_discovery_records(tmp_path):
 
 
 def test_hub_cannot_publish_a_shared_runtime(tmp_path, monkeypatch):
-    monkeypatch.setenv("QWENPAW_RUNTIME_ID", "hub-tenant")
+    monkeypatch.setenv("AIARB_RUNTIME_ID", "hub-tenant")
     with pytest.raises(RuntimeError, match="Hub"):
         with BackendInstance(tmp_path, "shared"):
             pytest.fail("Hub runtime acquired shared ownership")

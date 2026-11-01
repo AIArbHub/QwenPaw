@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for cross-platform Qoder CLI discovery."""
 
 from __future__ import annotations

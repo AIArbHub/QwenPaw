@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=consider-using-with
 """Unit tests for backup/_utils/meta.py and backup/_utils/constants.py.
 
@@ -29,7 +29,7 @@ from qwenpaw.backup._utils import meta as bm
 
 class TestGetQwenpawVersion:
     def test_returns_version_string(self):
-        version = bm.get_qwenpaw_version()
+        version = bm.get_AIARB_version()
         assert isinstance(version, str)
         assert version != ""
 
@@ -46,7 +46,7 @@ class TestGetQwenpawVersion:
         monkeypatch.setattr(builtins, "__import__", fake_import)
         # Drop the cached module so the import actually runs.
         monkeypatch.delitem(sys.modules, "qwenpaw.__version__", raising=False)
-        assert bm.get_qwenpaw_version() == "unknown"
+        assert bm.get_AIARB_version() == "unknown"
 
 
 class TestGenerateBackupId:
@@ -81,12 +81,12 @@ class TestFinalizeBackupMeta:
     def test_populates_fields(self):
         meta = SimpleNamespace(
             agent_count=0,
-            qwenpaw_version="",
+            AIARB_version="",
             system_info={},
         )
         bm.finalize_backup_meta(meta, 3)
         assert meta.agent_count == 3
-        assert meta.qwenpaw_version != ""
+        assert meta.AIARB_version != ""
         assert meta.system_info["os"]
 
 

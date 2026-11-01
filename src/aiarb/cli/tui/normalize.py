@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Translate ACP ``session_update`` objects into normalized ``TuiEvent``s.
 
 Kept free of Textual and of the connection runtime so it is trivially

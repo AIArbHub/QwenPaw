@@ -40,10 +40,10 @@ class ChannelContractTest(BaseContractTest):
     @pytest.fixture(autouse=True)
     def _isolate_channel_config(self, monkeypatch):
         """Prevent contract construction from reading user configuration."""
-        from AIARB.config.config import Config
+        from aiarb.config.config import Config
 
         monkeypatch.setattr(
-            "AIARB.app.channels.base.load_config",
+            "aiarb.app.channels.base.load_config",
             Config,
         )
 

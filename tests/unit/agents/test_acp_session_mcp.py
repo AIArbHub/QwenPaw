@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for ACP session-scoped MCP Driver registration."""
 
 # pylint: disable=protected-access

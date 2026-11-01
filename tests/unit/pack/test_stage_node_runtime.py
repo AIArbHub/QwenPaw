@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Verify bundled Node upgrades replace stale runtimes on each platform."""
 
@@ -145,7 +145,7 @@ def test_upgrade_replaces_old_runtime_and_reuses_new_cache(
     spec.loader.exec_module(runtime)
     monkeypatch.setattr(runtime.platform, f"system", lambda: system)
     monkeypatch.setattr(runtime.platform, f"machine", lambda: machine)
-    monkeypatch.delenv(f"QWENPAW_NODE_VERSION", raising=False)
+    monkeypatch.delenv(f"AIARB_NODE_VERSION", raising=False)
 
     nvmrc = REPO_ROOT / f".nvmrc"
     version = f"v{nvmrc.read_text(encoding=f'utf-8').strip()}"

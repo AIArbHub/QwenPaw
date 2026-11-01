@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name
 """Unit tests for the cross-process plugin install advisory lock.
 
@@ -333,7 +333,7 @@ class TestEnvironmentIdentity:
                 str(tmp_path / "changed-state"),
             )
             monkeypatch.setenv(
-                "QWENPAW_WORKING_DIR",
+                "AIARB_WORKING_DIR",
                 str(tmp_path / "changed-work"),
             )
             assert fresh.state_root() == expected.resolve()
@@ -850,7 +850,7 @@ finally:
                 stderr=asyncio.subprocess.PIPE,
                 env={
                     **os.environ,
-                    "QWENPAW_DEPENDENCY_STATE_DIR": str(
+                    "AIARB_DEPENDENCY_STATE_DIR": str(
                         maintenance.state_root(),
                     ),
                 },
@@ -1045,7 +1045,7 @@ m._close_readers()
                     stderr=asyncio.subprocess.PIPE,
                     env={
                         **os.environ,
-                        "QWENPAW_DEPENDENCY_STATE_DIR": str(
+                        "AIARB_DEPENDENCY_STATE_DIR": str(
                             maintenance.state_root(),
                         ),
                     },
@@ -1141,7 +1141,7 @@ def test_scoped_reader_custody_across_process_exit(tmp_path, monkeypatch):
     state = tmp_path / "state"
     monkeypatch.setattr(maintenance, "_STATE_ROOT", state)
     monkeypatch.setattr(maintenance, "_READER_SCOPE", "")
-    monkeypatch.setenv("QWENPAW_DEPENDENCY_STATE_DIR", str(state))
+    monkeypatch.setenv("AIARB_DEPENDENCY_STATE_DIR", str(state))
     scope = "a" * 64
     directory = maintenance.prepare_reader_scope([site], scope)[0]
     script = """
@@ -1154,7 +1154,7 @@ m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
 site = Path(sys.argv[1])
 scope = m.reader_scope()
-os.environ['QWENPAW_DEPENDENCY_READER_SCOPE'] = 'b' * 64
+os.environ['AIARB_DEPENDENCY_READER_SCOPE'] = 'b' * 64
 assert m.reader_scope() == scope
 with m.file_lock(m._gate(site)):
     with m.observation_readers([site]):
@@ -1163,7 +1163,7 @@ m.lease_environment([site])
 print('held', flush=True)
 sys.stdin.readline()
 """
-    env = dict(os.environ, QWENPAW_DEPENDENCY_READER_SCOPE=scope)
+    env = dict(os.environ, AIARB_DEPENDENCY_READER_SCOPE=scope)
     for crash in (False, True):
         with subprocess.Popen(
             [

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """File handling utilities for downloading and managing files.
 
 This module provides utilities for:

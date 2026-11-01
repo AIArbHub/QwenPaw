@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Behavioural tests for the MCP OAuth router flows.
 
 Covers the module-level helpers and the four endpoints of
@@ -126,7 +126,7 @@ def _clear_state_store() -> Any:
 @pytest.fixture(autouse=True)
 def _no_managed_callback(monkeypatch: pytest.MonkeyPatch) -> None:
     """Keep the Hub-injected callback header out of the way by default."""
-    monkeypatch.delenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", raising=False)
+    monkeypatch.delenv("AIARB_RUNTIME_INTERNAL_TOKEN", raising=False)
 
 
 @pytest.fixture
@@ -1232,7 +1232,7 @@ class TestOauthStartEndpoint:
         saved_card: DriverCard,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "tok")
+        monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "tok")
 
         response = client.post(
             "/api/mcp/oauth/start/k1",

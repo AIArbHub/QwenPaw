@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Case framework API — exposes 8 case analysis tools as REST endpoints.
 
 Endpoints:

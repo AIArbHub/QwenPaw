@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name
 """Workspace revoke, occupancy, and per-channel start/stop."""
 
@@ -647,7 +647,7 @@ async def channel_plugin(tmp_path, monkeypatch, fresh_registry):
 
     monkeypatch.setattr(
         builtins,
-        "_qwenpaw_projection_race_channel",
+        "_AIARB_projection_race_channel",
         BlockingChannel,
         raising=False,
     )
@@ -679,7 +679,7 @@ async def channel_plugin(tmp_path, monkeypatch, fresh_registry):
         "import builtins\n"
         "class Plugin:\n"
         "    def register(self, api):\n"
-        "        channel = builtins._qwenpaw_projection_race_channel\n"
+        "        channel = builtins._AIARB_projection_race_channel\n"
         "        api.register_channel(channel)\n"
         "plugin = Plugin()\n",
         encoding="utf-8",

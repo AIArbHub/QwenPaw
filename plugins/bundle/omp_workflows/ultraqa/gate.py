@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """UltraQA gate — 3-agent QA cycle with stop conditions."""
 
 from __future__ import annotations

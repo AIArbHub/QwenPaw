@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Exclusive runtime ownership and authenticated desktop discovery."""
 
 from __future__ import annotations

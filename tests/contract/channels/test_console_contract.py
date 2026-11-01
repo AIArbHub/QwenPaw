@@ -7,8 +7,8 @@ import json
 
 import pytest
 
-from AIARB.app.channels.renderer import ChannelDisplayConfig
-from AIARB.schemas import (
+from aiarb.app.channels.renderer import ChannelDisplayConfig
+from aiarb.schemas import (
     AudioContent,
     ContentType,
     Event,
@@ -44,7 +44,7 @@ class TestConsoleChannelContract(ChannelContractTest):
 
     def create_instance(self):
         """Provide a ConsoleChannel instance for contract testing."""
-        from AIARB.app.channels.console.channel import ConsoleChannel
+        from aiarb.app.channels.console.channel import ConsoleChannel
 
         return ConsoleChannel(
             process=reply,
@@ -58,8 +58,8 @@ class TestConsoleChannelContract(ChannelContractTest):
         )
 
     def test_default_config_and_policy(self):
-        from AIARB.app.channels.console.channel import ConsoleChannel
-        from AIARB.config.config import ConsoleConfig
+        from aiarb.app.channels.console.channel import ConsoleChannel
+        from aiarb.config.config import ConsoleConfig
 
         channel = ConsoleChannel.from_config(
             reply,

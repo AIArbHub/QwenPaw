@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Run registered stop handlers and return result.
 
 Decouples stop handler execution logic from the agent class.
@@ -12,7 +12,7 @@ from agentscope.message import Msg, TextBlock
 
 from ...constant import (
     LOOP_CONTINUATION_MESSAGE_TAG,
-    QWENPAW_MESSAGE_TAG_KEY,
+    AIARB_MESSAGE_TAG_KEY,
 )
 from .base import StopAction, StopHandlerResult
 
@@ -219,7 +219,7 @@ def check_pending_gates(  # pylint: disable=protected-access
                 content=[TextBlock(text=continuation.continuation_message)],
                 metadata=continuation.continuation_metadata
                 or {
-                    QWENPAW_MESSAGE_TAG_KEY: LOOP_CONTINUATION_MESSAGE_TAG,
+                    AIARB_MESSAGE_TAG_KEY: LOOP_CONTINUATION_MESSAGE_TAG,
                 },
             ),
         )

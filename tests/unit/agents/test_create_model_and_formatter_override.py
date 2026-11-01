@@ -21,15 +21,15 @@ try:
 except ImportError:
     GeminiChatFormatter = None
 
-from AIARB.agents import model_factory
-from AIARB.config import config as config_module
-from AIARB.config.config import ModelSlotConfig
-from AIARB.providers import fallback_chat_model
-from AIARB.providers import provider as provider_module
-from AIARB.providers.dashscope_provider import DashScopeProvider
-from AIARB.providers.provider_manager import ProviderManager
-from AIARB.providers.retry_chat_model import RetryChatModel
-from AIARB.token_usage import TokenRecordingModelWrapper
+from aiarb.agents import model_factory
+from aiarb.config import config as config_module
+from aiarb.config.config import ModelSlotConfig
+from aiarb.providers import fallback_chat_model
+from aiarb.providers import provider as provider_module
+from aiarb.providers.dashscope_provider import DashScopeProvider
+from aiarb.providers.provider_manager import ProviderManager
+from aiarb.providers.retry_chat_model import RetryChatModel
+from aiarb.token_usage import TokenRecordingModelWrapper
 
 
 _REAL_INSTALL_MODEL_FORMATTER = model_factory._install_model_formatter
@@ -829,7 +829,7 @@ async def test_image_memory_filters_fallbacks_and_fits_every_formatter(
 
     from PIL import Image
     from agentscope.message import Base64Source, DataBlock, UserMsg
-    from AIARB.providers.capping_formatter import _CappingOpenAIFormatter
+    from aiarb.providers.capping_formatter import _CappingOpenAIFormatter
 
     config = _patched_load_agent_config("agent-1")
     config.fallback_models = [

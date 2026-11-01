@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """HTTP-only Chrome extension installation and status routes."""
 # pylint: disable=relative-beyond-top-level
 

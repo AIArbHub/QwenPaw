@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Explicit SDK replies carried through the existing runtime envelope."""
 
 # Host adapters access private ownership state behind the public SDK.

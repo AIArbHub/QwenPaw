@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """ReMe-backed memory manager for agents.
 
 The public class and registry key keep the historical ``ReMeLight`` naming so

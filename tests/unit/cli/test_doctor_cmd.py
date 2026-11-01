@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for cli/doctor_cmd.py.
 
 Covers the small read-only helpers (classification, health probe, python
@@ -568,7 +568,7 @@ class TestCheckActiveLlm:
         )
         monkeypatch.setattr(
             dc,
-            "qwenpaw_local_llm_deep_notes",
+            "AIARB_local_llm_deep_notes",
             lambda: ["deep note"],
         )
         ok, detail, notes = _run_async(dc._check_active_llm(1.0, True))

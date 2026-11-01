@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Verify inherited process isolation using kernel state, not env flags."""
 
 from __future__ import annotations

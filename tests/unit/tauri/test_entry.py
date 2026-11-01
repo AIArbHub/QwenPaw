@@ -10,12 +10,12 @@ import types
 import click
 import pytest
 
-from AIARB.tauri import entry
-from AIARB.tauri.env import DESKTOP_CORS_ORIGINS_ENV
+from aiarb.tauri import entry
+from aiarb.tauri.env import DESKTOP_CORS_ORIGINS_ENV
 
 
 def test_install_desktop_runtime_preserves_existing_cors_values(monkeypatch):
-    monkeypatch.delitem(sys.modules, "AIARB.app._app", raising=False)
+    monkeypatch.delitem(sys.modules, "aiarb.app._app", raising=False)
     monkeypatch.setenv(
         DESKTOP_CORS_ORIGINS_ENV,
         "https://example.test,tauri://localhost",
@@ -30,7 +30,7 @@ def test_install_desktop_runtime_preserves_existing_cors_values(monkeypatch):
 
 
 def test_ensure_AIARB_app_not_loaded_rejects_late_cors(monkeypatch):
-    monkeypatch.setitem(sys.modules, "AIARB.app._app", object())
+    monkeypatch.setitem(sys.modules, "aiarb.app._app", object())
 
     with pytest.raises(RuntimeError, match="desktop CORS origins"):
         entry._ensure_AIARB_app_not_loaded()
@@ -38,7 +38,7 @@ def test_ensure_AIARB_app_not_loaded_rejects_late_cors(monkeypatch):
 
 def test_sync_loaded_AIARB_constant_cors_origins(monkeypatch):
     constant_module = types.SimpleNamespace(CORS_ORIGINS="")
-    monkeypatch.setitem(sys.modules, "AIARB.constant", constant_module)
+    monkeypatch.setitem(sys.modules, "aiarb.constant", constant_module)
     monkeypatch.setenv(DESKTOP_CORS_ORIGINS_ENV, "tauri://localhost")
 
     entry._sync_loaded_AIARB_constant_cors_origins()
@@ -197,9 +197,9 @@ def test_main_supports_frozen_entry_without_package_context(
         "_run_backend_server",
         lambda level, instance: calls.append(level),
     )
-    monkeypatch.setattr("AIARB.constant.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path)
     monkeypatch.setattr(
-        "AIARB.utils.platform.warn_unelevated_sandbox",
+        "aiarb.utils.platform.warn_unelevated_sandbox",
         lambda: calls.append("sandbox-check"),
     )
     monkeypatch.delenv("AIARB_LOG_LEVEL", raising=False)

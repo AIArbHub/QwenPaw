@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """UltraQAMode — QA cycle engine with 3-agent collaboration."""
 
 from __future__ import annotations

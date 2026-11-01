@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Revisioned model aliases, grants, and control-only credentials."""
 
 from __future__ import annotations

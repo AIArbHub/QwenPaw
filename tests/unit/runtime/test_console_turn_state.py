@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Regression coverage for damaged history image repair."""
 
 from unittest.mock import MagicMock
@@ -51,7 +51,7 @@ def test_repair_preserves_valid_remote_and_missing_images(tmp_path):
 
     assert message["content"][0]["type"] == "text"
     assert message["content"][1:] == original[1:]
-    assert message["metadata"]["qwenpaw_invalid_images"] == original[:1]
+    assert message["metadata"]["AIARB_invalid_images"] == original[:1]
     assert damaged.read_bytes() == b"not an image"
 
 
@@ -87,6 +87,6 @@ def test_windows_file_uri_reaches_image_validation(monkeypatch, url, expected):
     message = data["state"]["context"][0]
     assert message["content"][0]["type"] == "text"
     assert (
-        message["metadata"]["qwenpaw_invalid_images"][0]["source"]["url"]
+        message["metadata"]["AIARB_invalid_images"][0]["source"]["url"]
         == url
     )

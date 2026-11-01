@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Checkpoint application service: snapshot, timeline, GC, and reset."""
 
 # Synchronous Git helpers run through run_sync_io.

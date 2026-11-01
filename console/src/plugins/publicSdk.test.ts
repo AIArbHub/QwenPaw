@@ -5,12 +5,12 @@ import {
   getHost,
   tasks,
   type PawRequestOptions,
-} from "../../../src/qwenpaw/plugins/frontend/index.js";
+} from "../../../src/aiarb/plugins/frontend/index.js";
 
-const original = Object.getOwnPropertyDescriptor(window, "QwenPaw");
+const original = Object.getOwnPropertyDescriptor(window, "AIARB");
 afterEach(() => {
-  if (original) Object.defineProperty(window, "QwenPaw", original);
-  else Reflect.deleteProperty(window, "QwenPaw");
+  if (original) Object.defineProperty(window, "AIARB", original);
+  else Reflect.deleteProperty(window, "AIARB");
 });
 
 function hostWith(declaration: unknown) {
@@ -26,7 +26,7 @@ function hostWith(declaration: unknown) {
   };
   const factory = vi.fn(() => ({ api }));
   const host = { paw: { forApp: factory } };
-  Object.defineProperty(window, "QwenPaw", { configurable: true, value: host });
+  Object.defineProperty(window, "AIARB", { configurable: true, value: host });
   return { api, factory, host };
 }
 
@@ -38,7 +38,7 @@ const supported = {
 
 describe("published plugin SDK runtime", () => {
   it("requires an actual host and binds the requested app", () => {
-    Reflect.deleteProperty(window, "QwenPaw");
+    Reflect.deleteProperty(window, "AIARB");
     expect(() => getHost()).toThrow(/unavailable/);
     const { host, factory } = hostWith(supported);
     expect(getHost()).toBe(host);

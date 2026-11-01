@@ -13,8 +13,8 @@ import urllib.request
 
 import pytest
 
-from AIARB.cli import desktop_cmd, shutdown_cmd
-from AIARB.cli.desktop_cmd import _shutdown_backend_process
+from aiarb.cli import desktop_cmd, shutdown_cmd
+from aiarb.cli.desktop_cmd import _shutdown_backend_process
 
 
 class _Response(io.BytesIO):

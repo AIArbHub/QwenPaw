@@ -1,4 +1,4 @@
-﻿/**
+/**
  * DesktopOS.tsx — Plan B PoC entry point: a full-screen desktop shell that
  * reuses the existing routeRegistry components inside draggable windows.
  *

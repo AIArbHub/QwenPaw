@@ -2,7 +2,7 @@
  * hostExternals.compat.test.tsx — back-compat shim for legacy registerRoutes.
  *
  * Verifies that a call shaped like CloudPaw's existing one:
- *   window.AIArb.registerRoutes("cloudpaw", [{ path: "/a2a", ... }])
+ *   window.AIARB.registerRoutes("cloudpaw", [{ path: "/a2a", ... }])
  *
  * translates into both:
  *   - routeRegistry entry under id `legacy:cloudpaw:a2a`
@@ -17,7 +17,7 @@ import { auditStore } from "../audit";
 
 function freshInstall() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).AIArb = undefined;
+  (window as any).AIARB = undefined;
   menuRegistry.__resetForTests();
   routeRegistry.__resetForTests();
   auditStore.clear();
@@ -31,15 +31,15 @@ beforeEach(() => {
 });
 
 describe("legacy registerRoutes shim", () => {
-  it("attaches window.AIArb.{menu, route, slot, audit}", () => {
-    expect(typeof window.AIArb.menu?.add).toBe("function");
-    expect(typeof window.AIArb.route?.add).toBe("function");
-    expect(typeof window.AIArb.slot?.fill).toBe("function");
-    expect(typeof window.AIArb.audit?.overrides).toBe("function");
+  it("attaches window.AIARB.{menu, route, slot, audit}", () => {
+    expect(typeof window.AIARB.menu?.add).toBe("function");
+    expect(typeof window.AIARB.route?.add).toBe("function");
+    expect(typeof window.AIARB.slot?.fill).toBe("function");
+    expect(typeof window.AIARB.audit?.overrides).toBe("function");
   });
 
   it("translates CloudPaw-shape registerRoutes into menu+route", () => {
-    window.AIArb.registerRoutes!("cloudpaw", [
+    window.AIARB.registerRoutes!("cloudpaw", [
       {
         path: "/a2a",
         component: Comp,
@@ -65,10 +65,10 @@ describe("legacy registerRoutes shim", () => {
   });
 
   it("multiple legacy registers share the synthesized plugins-group", () => {
-    window.AIArb.registerRoutes!("p1", [
+    window.AIARB.registerRoutes!("p1", [
       { path: "/p1", component: Comp, label: "P1", icon: "1" },
     ]);
-    window.AIArb.registerRoutes!("p2", [
+    window.AIARB.registerRoutes!("p2", [
       { path: "/p2", component: Comp, label: "P2", icon: "2" },
     ]);
 
@@ -82,11 +82,11 @@ describe("legacy registerRoutes shim", () => {
     );
   });
 
-  it("new AIArb.menu.add coexists with legacy in plugins-group", () => {
-    window.AIArb.registerRoutes!("cloudpaw", [
+  it("new AIARB.menu.add coexists with legacy in plugins-group", () => {
+    window.AIARB.registerRoutes!("cloudpaw", [
       { path: "/a2a", component: Comp, label: "A2A", icon: "🔗" },
     ]);
-    window.AIArb.menu!.add("newPlugin", {
+    window.AIARB.menu!.add("newPlugin", {
       id: "newPlugin.foo",
       location: "primary.agentScoped",
       parentId: "core.agent-group",
@@ -107,7 +107,7 @@ describe("legacy registerRoutes shim", () => {
   it("legacy registerToolRender still writes to pluginSystem", async () => {
     const { pluginSystem } = await import("../../hostExternals");
     const RenderFC = () => null;
-    window.AIArb.registerToolRender!("p1", { my_tool: RenderFC });
+    window.AIARB.registerToolRender!("p1", { my_tool: RenderFC });
     expect(pluginSystem.getToolRenderConfig().my_tool).toBe(RenderFC);
   });
 });
@@ -127,11 +127,11 @@ describe("localized legacy route declarations", () => {
       value: "zh-CN",
     });
     await i18n.changeLanguage("en");
-    window.QwenPaw.registerRoutes!("locale-author", [
+    window.AIARB.registerRoutes!("locale-author", [
       {
         path: "/plugin/locale-author/workspace",
         component: Comp,
-        label: (locale) => (locale.startsWith("zh") ? "工作区" : "Workspace"),
+        label: (locale: string) => (locale.startsWith("zh") ? "工作区" : "Workspace"),
       },
     ]);
     const group = menuRegistry
@@ -189,12 +189,12 @@ describe("localized legacy route declarations", () => {
     const { render, screen, act } = await import("@testing-library/react");
     const { useTranslation } = await import("react-i18next");
     await i18n.changeLanguage("en");
-    window.QwenPaw.registerRoutes!("locale-author", [
+    window.AIARB.registerRoutes!("locale-author", [
       {
         path: "/plugin/locale-author/workspace",
         component: Comp,
         label: "Static menu",
-        title: (locale) =>
+        title: (locale: string) =>
           locale.startsWith("zh") ? "作者工作区" : "Author workspace",
       },
     ]);
@@ -217,12 +217,12 @@ describe("localized legacy route declarations", () => {
     const view = render(<Consumer />);
     try {
       expect(screen.getByRole("heading").textContent).toBe("Author workspace");
-      expect(document.title).toBe("Author workspace · QwenPaw");
+      expect(document.title).toBe("Author workspace · AIARB");
       await act(async () => {
         await i18n.changeLanguage("zh");
       });
       expect(screen.getByRole("heading").textContent).toBe("作者工作区");
-      expect(document.title).toBe("作者工作区 · QwenPaw");
+      expect(document.title).toBe("作者工作区 · AIARB");
     } finally {
       view.unmount();
       await i18n.changeLanguage("en");
@@ -235,7 +235,7 @@ describe("localized legacy route declarations", () => {
     const { getRouteTitle } = await import(
       "../../../layouts/MainLayout/routeTitle"
     );
-    window.QwenPaw.registerRoutes!("old-author", [
+    window.AIARB.registerRoutes!("old-author", [
       {
         path: "/plugin/old-author/audit-log",
         component: Comp,

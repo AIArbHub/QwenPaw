@@ -20,7 +20,7 @@ from agentscope.message import Msg, TextBlock
 from agentscope.message import ToolResultState
 from agentscope.tool import ToolChunk
 
-from AIARB.memory import (
+from aiarb.memory import (
     AutoMemorySearchOptions,
     BaseMemoryManager,
     MemoryBackendContext,

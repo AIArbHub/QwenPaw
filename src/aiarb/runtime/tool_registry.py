@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Per-workspace tool registry.
 
 Each builtin tool function carries a ``ToolDescriptor``

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """get_ctx — FastAPI dependency that creates PawAppContext per request.
 
 Usage in Router mode:

@@ -1,4 +1,4 @@
-﻿import type { CreatorApiError } from "@/contracts/creator";
+import type { CreatorApiError } from "@/contracts/creator";
 import i18n from "@/i18n";
 
 export const CREATOR_API_BASE = "/api/AIARB-creator";

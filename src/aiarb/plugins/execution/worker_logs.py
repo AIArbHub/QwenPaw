@@ -97,7 +97,7 @@ class _LogSink:
         return delivered
 
     def _consume(self) -> None:
-        logger = logging.getLogger("AIARB.plugins.worker")
+        logger = logging.getLogger("aiarb.plugins.worker")
         while not self.closed.is_set() or not self.queue.empty():
             try:
                 message, delivered = self.queue.get(timeout=0.05)

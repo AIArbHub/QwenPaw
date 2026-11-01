@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Managed environment commands update the runtime, never local files."""
 
 import httpx
@@ -10,10 +10,10 @@ from qwenpaw.cli import env_cmd, plugin_commands
 
 @pytest.fixture
 def managed(monkeypatch):
-    monkeypatch.setenv("QWENPAW_RUNTIME_ID", "user-runtime")
-    monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "internal")
-    monkeypatch.setenv("QWENPAW_RUNTIME_API_URL", "http://127.0.0.1:9001")
-    monkeypatch.setenv("QWENPAW_RUNTIME_PROVISIONER", "local")
+    monkeypatch.setenv("AIARB_RUNTIME_ID", "user-runtime")
+    monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "internal")
+    monkeypatch.setenv("AIARB_RUNTIME_API_URL", "http://127.0.0.1:9001")
+    monkeypatch.setenv("AIARB_RUNTIME_PROVISIONER", "local")
 
 
 @pytest.mark.usefixtures("managed")

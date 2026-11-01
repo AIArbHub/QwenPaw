@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,unused-argument,protected-access
 # pylint: disable=use-implicit-booleaness-not-comparison
 """Unit tests for the crash-safe swap helpers that are platform neutral.
@@ -33,7 +33,7 @@ from qwenpaw.backup._utils._mount_swap import (
     SwapPreparation,
 )
 
-_LOCK_ENV = "QWENPAW_RESTORE_LOCK_TIMEOUT_SECONDS"
+_LOCK_ENV = "AIARB_RESTORE_LOCK_TIMEOUT_SECONDS"
 
 
 # --------------------------------------------------------------------- #
@@ -213,7 +213,7 @@ def test_restore_process_lock_creates_and_releases_the_lock_file(
     import fcntl
 
     with mod.restore_process_lock():
-        lock_file = tmp_path / "working" / ".qwenpaw_restore.lock"
+        lock_file = tmp_path / "working" / ".AIARB_restore.lock"
         assert lock_file.exists()
         # Re-entering from another process handle must block, proving the
         # lock is really held for the duration of the body.

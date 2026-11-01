@@ -5,7 +5,7 @@
  */
 import { describe, it, expect, afterEach } from "vitest";
 import {
-  QWENPAW_CLIENT_MESSAGE_ID_KEY,
+  AIARB_CLIENT_MESSAGE_ID_KEY,
   createClientMessageId,
   attachClientMessageId,
 } from "./clientMessageId";
@@ -67,7 +67,7 @@ describe("attachClientMessageId", () => {
   it("stores the id under metadata using the reserved key", () => {
     const out = attachClientMessageId({ role: "user" }, "id-1");
     expect(out.metadata).toEqual({
-      [QWENPAW_CLIENT_MESSAGE_ID_KEY]: "id-1",
+      [AIARB_CLIENT_MESSAGE_ID_KEY]: "id-1",
     });
     // Original top-level fields survive
     expect(out.role).toBe("user");
@@ -78,7 +78,7 @@ describe("attachClientMessageId", () => {
       metadata: Record<string, unknown>;
     };
     expect(out.metadata.foo).toBe("bar");
-    expect(out.metadata[QWENPAW_CLIENT_MESSAGE_ID_KEY]).toBe("id-2");
+    expect(out.metadata[AIARB_CLIENT_MESSAGE_ID_KEY]).toBe("id-2");
   });
 
   it("overwrites a previous client message id", () => {
@@ -86,7 +86,7 @@ describe("attachClientMessageId", () => {
     const second = attachClientMessageId(first, "id-new");
     expect(
       (second.metadata as Record<string, unknown>)[
-        QWENPAW_CLIENT_MESSAGE_ID_KEY
+        AIARB_CLIENT_MESSAGE_ID_KEY
       ],
     ).toBe("id-new");
   });
@@ -94,7 +94,7 @@ describe("attachClientMessageId", () => {
   it("replaces non-object metadata instead of crashing", () => {
     const out = attachClientMessageId({ metadata: "garbage" }, "id-3");
     expect(out.metadata).toEqual({
-      [QWENPAW_CLIENT_MESSAGE_ID_KEY]: "id-3",
+      [AIARB_CLIENT_MESSAGE_ID_KEY]: "id-3",
     });
   });
 

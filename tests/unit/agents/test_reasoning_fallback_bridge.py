@@ -21,9 +21,9 @@ from agentscope.message import AssistantMsg, Msg
 from agentscope.model import ChatModelBase
 from agentscope.model._model_response import ChatResponse
 
-from AIARB.agents.react_agent import AIARBAgent
-from AIARB.loop.gates import StopAction
-from AIARB.providers.fallback_chat_model import FallbackChatModel
+from aiarb.agents.react_agent import AIARBAgent
+from aiarb.loop.gates import StopAction
+from aiarb.providers.fallback_chat_model import FallbackChatModel
 
 
 class _FakeModel(ChatModelBase):
@@ -97,7 +97,7 @@ async def test_reasoning_events_carry_fallback_metadata(
 
     monkeypatch.setattr(Agent, "_reasoning", fake_base_reasoning)
     monkeypatch.setattr(
-        "AIARB.loop.gates.runner.check_pending_gates",
+        "aiarb.loop.gates.runner.check_pending_gates",
         lambda _agent: None,
     )
 
@@ -143,7 +143,7 @@ async def test_reasoning_events_stay_clean_without_fallback(
 
     monkeypatch.setattr(Agent, "_reasoning", fake_base_reasoning)
     monkeypatch.setattr(
-        "AIARB.loop.gates.runner.check_pending_gates",
+        "aiarb.loop.gates.runner.check_pending_gates",
         lambda _agent: None,
     )
 

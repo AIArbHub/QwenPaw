@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Workspace service lifecycle and automatic snapshot scheduling."""
 
 from __future__ import annotations

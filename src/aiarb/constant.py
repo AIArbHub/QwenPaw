@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import os
 from pathlib import Path
 
@@ -201,6 +201,30 @@ BUILTIN_QA_AGENT_SKILL_NAMES: tuple[str, ...] = (
 # ``BUILTIN_QA_AGENT_ID`` profile is first created (see ``migration``), not
 # every startup, so users can re-enable this id if they want.
 LEGACY_QA_AGENT_ID = "CoPaw_QA_Agent_0.1beta1"
+
+# Builtin KB Curator agent — auto-created on first install to curate the
+# global shared knowledge base through the kb_curator pipeline. It is never
+# deleted nor disabled and is kept isolated from ordinary chats.
+BUILTIN_KB_CURATOR_AGENT_ID = "AIArb_KB_Curator_0.1"
+BUILTIN_KB_CURATOR_AGENT_NAME = "知识库整理器"
+# Skills seeded on first creation of the curator workspace only.
+BUILTIN_KB_CURATOR_SKILL_NAMES: tuple[str, ...] = (
+    "guidance",
+    "kb_arbitration",
+)
+
+# Builtin arbitration role agents (single agents) seeded on first install.
+# These are stable identifiers so the builtin mock-arbitration group chat can
+# reference them as members.  They carry only persona/skill files, never a
+# user's private memory or workspace files.
+BUILTIN_ARBITRATOR_AGENT_ID = "builtin_arbitrator"
+BUILTIN_CLAIMANT_AGENT_ID = "builtin_claimant"
+BUILTIN_RESPONDENT_AGENT_ID = "builtin_respondent"
+BUILTIN_SECRETARY_AGENT_ID = "builtin_secretary"
+# Builtin group-chat (host) agent that orchestrates the arbitration roles.
+BUILTIN_MOCK_ARBITRATION_AGENT_ID = "host_mock_arbitration"
+# Default group label applied to the builtin arbitration agents.
+BUILTIN_ARBITRATION_GROUP = "内置仲裁角色"
 
 TOKEN_USAGE_FILE = EnvVarLoader.get_str(
     "AIARB_TOKEN_USAGE_FILE",

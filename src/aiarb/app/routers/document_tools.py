@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Document tools API — LDIR intake pipeline + redaction.
 
 Exposes the A4 (LDIR document pipeline) and A5 (redaction module)

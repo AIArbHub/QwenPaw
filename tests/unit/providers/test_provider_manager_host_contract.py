@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Guard the declared host contract of ProviderManager's mixins.
 
 The discovery and persistence mixins operate on state and helpers

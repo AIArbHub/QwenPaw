@@ -10,12 +10,12 @@ from pathlib import Path
 
 import pytest
 
-from AIARB.providers import model_catalog
-from AIARB.providers.model_metadata import (
+from aiarb.providers import model_catalog
+from aiarb.providers.model_metadata import (
     model_metadata,
     provider_catalog_models,
 )
-from AIARB.providers.provider import ModelInfo
+from aiarb.providers.provider import ModelInfo
 
 
 def _write_catalog(

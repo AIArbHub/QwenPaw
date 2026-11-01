@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Complete-turn history buffering and deterministic sealed image batches."""
 
 from __future__ import annotations

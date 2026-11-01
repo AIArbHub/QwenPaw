@@ -196,7 +196,7 @@ def app_cmd(
         }
 
     uvicorn.run(
-        "AIARB.app._app:app",
+        "aiarb.app._app:app",
         host=host,
         port=port,
         reload=reload,

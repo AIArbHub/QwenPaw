@@ -11,16 +11,16 @@ from unittest.mock import patch
 
 import pytest
 
-from AIARB.agents.tools.delegate_external_agent import (
+from aiarb.agents.tools.delegate_external_agent import (
     delegate_external_agent,
 )
-from AIARB.agents.tools.file_io import append_file
-from AIARB.config.config import (
+from aiarb.agents.tools.file_io import append_file
+from aiarb.config.config import (
     ToolsConfig,
     _default_builtin_tools,
     _reset_builtin_tools_cache_for_tests,
 )
-from AIARB.governance.policy import (
+from aiarb.governance.policy import (
     DEFAULT_USER_RULES,
     GovernanceAction,
     GovernancePolicy,
@@ -29,7 +29,7 @@ from AIARB.governance.policy import (
     _auto_default_user_rules,
     get_default_user_rules,
 )
-from AIARB.governance.tool_registry import (
+from aiarb.governance.tool_registry import (
     DEFAULT_REGISTRY,
     GovernanceRegistrationConflict,
     ToolRegistry,
@@ -40,7 +40,7 @@ from AIARB.governance.tool_registry import (
     validate_tool_type,
     _collect_governance_gaps,
 )
-from AIARB.plugins.api import (
+from aiarb.plugins.api import (
     PluginApi,
     _TOOL_PLUGIN_OWNERS,
     _bridge_to_runtime,
@@ -49,9 +49,9 @@ from AIARB.plugins.api import (
     _unbridge_from_runtime,
     release_tool_ownership_for_plugin,
 )
-from AIARB.runtime.tool_registry import ToolRegistry as RuntimeToolRegistry
-from AIARB.plugins.registry import PluginRegistry
-from AIARB.runtime.tool_registry import ToolDescriptor, ToolGovernanceSpec
+from aiarb.runtime.tool_registry import ToolRegistry as RuntimeToolRegistry
+from aiarb.plugins.registry import PluginRegistry
+from aiarb.runtime.tool_registry import ToolDescriptor, ToolGovernanceSpec
 
 
 def _tc(tool_name: str, target: str = "") -> ToolCallSpec:
@@ -152,7 +152,7 @@ class TestBuiltinDescriptorGovernance:
             ),
         )
         with patch(
-            "AIARB.runtime.tool_registry.get_builtin_tool_funcs",
+            "aiarb.runtime.tool_registry.get_builtin_tool_funcs",
             return_value=[fn],
         ):
             gaps = _collect_governance_gaps(registry)
@@ -288,7 +288,7 @@ class TestLazyRegistryConcurrency:
         """Double-checked locking must yield one shared registry instance."""
         import time
 
-        from AIARB.governance import tool_registry as tr
+        from aiarb.governance import tool_registry as tr
 
         # pylint: disable=protected-access
         proxy = tr._LazyDefaultRegistry()
@@ -570,8 +570,8 @@ class TestRegisterToolRollback:
         failure_point,
         error,
     ):
-        from AIARB.agents import tools
-        from AIARB.plugins.workspace_projector import ProjectionError
+        from aiarb.agents import tools
+        from aiarb.plugins.workspace_projector import ProjectionError
 
         plugin_id = "__ut_rollback_fail__"
         tool_name = "__ut_rollback_tool__"
@@ -602,7 +602,7 @@ class TestRegisterToolRollback:
             hooks = preg.get_startup_hooks()
             assert len(hooks) == 1
             with patch(
-                f"AIARB.plugins.api.{failure_point}",
+                f"aiarb.plugins.api.{failure_point}",
                 side_effect=error,
             ), pytest.raises(ProjectionError, match=str(error)):
                 await hooks[0].callback()
@@ -657,12 +657,12 @@ class TestLoaderGovernanceLifecycle:
 
     @pytest.mark.asyncio
     async def test_unload_plugin_allows_metadata_change_reinstall(self):
-        from AIARB.plugins.architecture import (
+        from aiarb.plugins.architecture import (
             PluginEntryPoints,
             PluginManifest,
             PluginRecord,
         )
-        from AIARB.plugins.loader import PluginLoader
+        from aiarb.plugins.loader import PluginLoader
 
         plugin_id = "__ut_loader_hot__"
         tool_name = "__ut_loader_hot_tool__"
@@ -723,12 +723,12 @@ class TestLoaderGovernanceLifecycle:
     @pytest.mark.asyncio
     async def test_unload_clears_runtime_and_rebridge_replaces_func(self):
         """Successful unload must unbridge; rebridge must replace old func."""
-        from AIARB.plugins.architecture import (
+        from aiarb.plugins.architecture import (
             PluginEntryPoints,
             PluginManifest,
             PluginRecord,
         )
-        from AIARB.plugins.loader import PluginLoader
+        from aiarb.plugins.loader import PluginLoader
 
         plugin_id = "__ut_loader_runtime__"
         tool_name = "__ut_loader_runtime_tool__"
@@ -817,12 +817,12 @@ class TestLoaderGovernanceLifecycle:
 
     @pytest.mark.asyncio
     async def test_unload_allows_other_plugin_to_reuse_name(self):
-        from AIARB.plugins.architecture import (
+        from aiarb.plugins.architecture import (
             PluginEntryPoints,
             PluginManifest,
             PluginRecord,
         )
-        from AIARB.plugins.loader import PluginLoader
+        from aiarb.plugins.loader import PluginLoader
 
         plugin_a = "__ut_loader_a__"
         plugin_b = "__ut_loader_b__"
@@ -885,12 +885,12 @@ class TestLoaderGovernanceLifecycle:
         # pylint: disable=too-many-statements
         import sys
 
-        from AIARB.plugins.architecture import (
+        from aiarb.plugins.architecture import (
             PluginEntryPoints,
             PluginManifest,
             PluginRecord,
         )
-        from AIARB.plugins.loader import PluginLoader
+        from aiarb.plugins.loader import PluginLoader
 
         attacker = "__ut_loader_attacker__"
         victim = "__ut_loader_victim__"
@@ -916,7 +916,7 @@ class TestLoaderGovernanceLifecycle:
 
         old = PluginRegistry._instance
         PluginRegistry._instance = None
-        tools_module = sys.modules["AIARB.agents.tools"]
+        tools_module = sys.modules["aiarb.agents.tools"]
         had_foreign_attr = hasattr(tools_module, foreign_tool)
         try:
             preg = PluginRegistry()

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for startup terminal displays."""
 # pylint: disable=protected-access
 from io import StringIO

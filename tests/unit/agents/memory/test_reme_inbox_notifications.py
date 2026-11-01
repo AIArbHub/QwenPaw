@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Inbox notification policy for ReMe memory jobs."""
 
@@ -50,7 +50,7 @@ def _action_manager() -> ReMeLightMemoryManager:
         yield
 
     manager._reme_job_lease = lease
-    manager._update_qwenpaw_model = AsyncMock()
+    manager._update_AIARB_model = AsyncMock()
     return manager
 
 
@@ -94,7 +94,7 @@ async def test_auto_dream_preserves_notification_policy(
         "auto_dream",
         date="2026-10-23",
     )
-    manager._update_qwenpaw_model.assert_awaited_once()
+    manager._update_AIARB_model.assert_awaited_once()
     expected = notifications_enabled and (modified or not success)
     assert append_event.await_count == int(expected)
     if expected:

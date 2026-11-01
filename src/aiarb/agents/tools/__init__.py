@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Built-in tool functions for AIArb agents.
 
 Every tool function decorated with ``@tool_descriptor`` is automatically

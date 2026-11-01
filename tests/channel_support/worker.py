@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Small external component used by the real generic worker supervisor."""
 
 import asyncio
@@ -65,7 +65,7 @@ class Worker:
             "executable": sys.executable,
             "sdk": sdk,
             "source": __file__,
-            "dependency_state": os.environ["QWENPAW_DEPENDENCY_STATE_DIR"],
+            "dependency_state": os.environ["AIARB_DEPENDENCY_STATE_DIR"],
         }
 
     async def echo(self, params, _request):

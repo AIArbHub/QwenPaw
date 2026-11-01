@@ -1,4 +1,4 @@
-﻿import {
+import {
   BillingTag,
   CapabilityTags,
 } from "../../Settings/Models/components/modals/ModelCapabilityTags";

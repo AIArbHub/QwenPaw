@@ -11,7 +11,7 @@ import httpx
 import pytest
 import pytest_asyncio
 
-from AIARB.channel_protocol.models import SendParams
+from aiarb.channel_protocol.models import SendParams
 from tests.channel_support.driver import bind, module
 
 pytestmark = pytest.mark.asyncio
@@ -260,18 +260,18 @@ async def test_auth_admission_scans_off_loop_and_releases_claims(
     import sys
     from types import SimpleNamespace
 
-    from AIARB.app.channels import wechat_auth_custody as custody
-    from AIARB.app.channels.isolated_proxy import IsolatedChannelProxy
-    from AIARB.app.channels.manager import ChannelManager
-    from AIARB.config.config import (
+    from aiarb.app.channels import wechat_auth_custody as custody
+    from aiarb.app.channels.isolated_proxy import IsolatedChannelProxy
+    from aiarb.app.channels.manager import ChannelManager
+    from aiarb.config.config import (
         Config,
         AgentProfileConfig,
         AgentProfileRef,
         save_agent_config,
     )
-    from AIARB.config.utils import load_config, save_config
-    from AIARB.plugins.architecture import PluginManifest
-    from AIARB.plugins.channel_adapter import (
+    from aiarb.config.utils import load_config, save_config
+    from aiarb.plugins.architecture import PluginManifest
+    from aiarb.plugins.channel_adapter import (
         ChannelRuntimeSettings,
         describe_channel,
     )

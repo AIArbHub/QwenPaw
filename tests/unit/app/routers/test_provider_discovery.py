@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Route tests for provider model discovery."""
 
 from types import SimpleNamespace

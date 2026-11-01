@@ -12,7 +12,7 @@ from aiarb.agents.memory.prompts import build_memory_guidance_prompt
 from aiarb.agents.memory.reme_light_memory_manager import (
     ReMeLightMemoryManager,
 )
-from AIARB.config.config import ReMeLightMemoryConfig
+from aiarb.config.config import ReMeLightMemoryConfig
 
 
 @pytest.mark.asyncio

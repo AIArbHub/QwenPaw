@@ -91,7 +91,7 @@ def _check_environment_ready() -> (
     # 3. AIARB model configured?
     AIARB_model_ok = False
     try:
-        from AIARB.providers.provider_manager import ProviderManager
+        from aiarb.providers.provider_manager import ProviderManager
 
         pm = ProviderManager()
         active_slot = pm.get_active_model()
@@ -229,7 +229,7 @@ def setup_acp_auto_approve() -> None:
     Non-trusted runners keep the original suspend-and-wait flow intact.
     """
     try:
-        from AIARB.agents.acp.client import ACPHostedClient
+        from aiarb.agents.acp.client import ACPHostedClient
     except ImportError as exc:
         logger.error(
             "Cannot import ACPHostedClient; "
@@ -423,7 +423,7 @@ def _patch_build_toolkit() -> None:
         )
         return
     try:
-        from AIARB.runtime.builder import AgentBuilder
+        from aiarb.runtime.builder import AgentBuilder
     except ImportError as exc:
         logger.error(
             "Cannot import AgentBuilder; tool injection skipped: %s",
@@ -500,7 +500,7 @@ def _patch_build_prompt() -> None:
     readiness warning (if any) and append the CloudPaw base supplement.
     """
     try:
-        from AIARB.runtime.builder import AgentBuilder
+        from aiarb.runtime.builder import AgentBuilder
     except ImportError as exc:
         logger.error(
             "Cannot import AgentBuilder; prompt patch skipped: %s",
@@ -582,8 +582,8 @@ def _patch_mission_master_prompt() -> None:
     builder is called unchanged.
     """
     try:
-        from AIARB.modes.mission import prompts as mission_prompts
-        from AIARB.modes.mission.prompts import (
+        from aiarb.modes.mission import prompts as mission_prompts
+        from aiarb.modes.mission.prompts import (
             WORKER_PROMPT_TEMPLATE,
             _build_git_sections,
             build_master_prompt as _original_build_master_prompt,
@@ -694,7 +694,7 @@ def _patch_mission_master_prompt() -> None:
     mission_prompts.build_master_prompt = _patched_build_master_prompt
 
     try:
-        from AIARB.modes.mission import handler as mission_handler
+        from aiarb.modes.mission import handler as mission_handler
 
         mission_handler.build_master_prompt = _patched_build_master_prompt
     except (ImportError, AttributeError):

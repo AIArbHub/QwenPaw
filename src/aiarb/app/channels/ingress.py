@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Host-approved HTTP/WS forwarding over existing channel runtime custody."""
 
 from __future__ import annotations

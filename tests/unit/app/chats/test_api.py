@@ -8,9 +8,9 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastapi import HTTPException
 
-from AIARB.app.chats import api as chats_api
-from AIARB.app.chats.api import get_chat, get_chat_status, list_chats
-from AIARB.app.chats.models import ChatSpec
+from aiarb.app.chats import api as chats_api
+from aiarb.app.chats.api import get_chat, get_chat_status, list_chats
+from aiarb.app.chats.models import ChatSpec
 
 
 def _chat(chat_id: str, *, app_id: str | None = None) -> ChatSpec:
@@ -108,7 +108,7 @@ async def test_delete_chat_stops_a_live_run():
     for good, so ``get_global_status()['running_task_count']`` stays
     inflated while the chat list can no longer show that chat (#7991).
     """
-    from AIARB.app.task_tracker import TaskTracker
+    from aiarb.app.task_tracker import TaskTracker
 
     tracker = TaskTracker()
     release = asyncio.Event()

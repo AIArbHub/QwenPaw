@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=too-many-instance-attributes
 """Azure Bot Service channel: Bot Framework webhook + REST API."""
 

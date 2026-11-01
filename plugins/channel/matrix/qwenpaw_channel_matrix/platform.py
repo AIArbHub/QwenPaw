@@ -73,7 +73,7 @@ from aiarb.schemas import (
     VideoContent,
 )
 
-logger = logging.getLogger("AIARB.plugins.matrix")
+logger = logging.getLogger("aiarb.plugins.matrix")
 from ....app.channels.renderer import ChannelDisplayConfig
 from ....app.channels.base import BaseChannel
 from ....app.channels.utils import file_url_to_local_path
@@ -213,11 +213,11 @@ class HistoryEntry:
     media_parts: Optional[List[Any]] = None
 
 
-from AIARB.app.channels.utils import (  # noqa: E402
+from aiarb.app.channels.utils import (  # noqa: E402
     data_url_filename,
     parse_data_url_async,
 )  # noqa: E402
-from AIARB.utils.media_paths import local_media_path  # noqa: E402
+from aiarb.utils.media_paths import local_media_path  # noqa: E402
 from .errors import MatrixDeliveryError  # noqa: E402
 from .state import MatrixStateStore  # noqa: E402
 class MatrixChannel(BaseChannel):

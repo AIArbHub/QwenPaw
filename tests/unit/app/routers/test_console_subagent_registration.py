@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for Console subagent chat registration metadata."""
 
 from aiarb.app.routers.console import _chat_registration_fields

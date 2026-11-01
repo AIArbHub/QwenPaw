@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for per-agent model configuration."""
 from pathlib import Path
 
@@ -267,9 +267,9 @@ def test_agent_running_config_has_llm_retry_defaults(
 
 def test_agent_running_defaults_read_current_environment(monkeypatch) -> None:
     """Unset fields resolve through EnvVarLoader when the model is built."""
-    monkeypatch.setenv("QWENPAW_LLM_MAX_RETRIES", "7")
-    monkeypatch.setenv("QWENPAW_LLM_BACKOFF_BASE", "2.5")
-    monkeypatch.setenv("QWENPAW_LLM_BACKOFF_CAP", "12")
+    monkeypatch.setenv("AIARB_LLM_MAX_RETRIES", "7")
+    monkeypatch.setenv("AIARB_LLM_BACKOFF_BASE", "2.5")
+    monkeypatch.setenv("AIARB_LLM_BACKOFF_CAP", "12")
 
     running = AgentsRunningConfig()
 

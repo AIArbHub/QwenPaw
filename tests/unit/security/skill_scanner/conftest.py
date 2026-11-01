@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Shared fixtures for skill_scanner tests."""
 # pylint: disable=redefined-outer-name,unused-argument,protected-access
 from unittest.mock import MagicMock

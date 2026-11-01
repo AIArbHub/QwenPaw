@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for cli/doctor_checks.py read-only diagnostics.
 
 Every function under test is side-effect free (read-only checks for
@@ -318,7 +318,7 @@ class TestStartupExtraVolumeDiskNotes:
 
 class TestEnvironmentSummaryLines:
     def test_basic_lines(self, fake_working_dir, monkeypatch):
-        monkeypatch.delenv("QWENPAW_WORKING_DIR", raising=False)
+        monkeypatch.delenv("AIARB_WORKING_DIR", raising=False)
         monkeypatch.delenv("COPAW_WORKING_DIR", raising=False)
         monkeypatch.setattr(
             dc.shutil,
@@ -343,7 +343,7 @@ class TestEnvironmentSummaryLines:
             server_python_environment="venv-x",
         )
         assert any(
-            "qwenpaw_python_environment: venv-x" in line for line in lines
+            "AIARB_python_environment: venv-x" in line for line in lines
         )
 
     def test_server_note_fallback(self, fake_working_dir, monkeypatch):
@@ -356,7 +356,7 @@ class TestEnvironmentSummaryLines:
         assert any("no server" in line for line in lines)
 
     def test_env_var_qwenpaw(self, fake_working_dir, monkeypatch):
-        monkeypatch.setenv("QWENPAW_WORKING_DIR", "/custom/wd")
+        monkeypatch.setenv("AIARB_WORKING_DIR", "/custom/wd")
         monkeypatch.setattr(
             dc.shutil,
             "disk_usage",
@@ -364,7 +364,7 @@ class TestEnvironmentSummaryLines:
         )
         lines = dc.environment_summary_lines()
         assert any(
-            "QWENPAW_WORKING_DIR (env): /custom/wd" in line for line in lines
+            "AIARB_WORKING_DIR (env): /custom/wd" in line for line in lines
         )
 
     def test_old_sqlite_note(self, fake_working_dir, monkeypatch):
@@ -1425,7 +1425,7 @@ class TestActiveLlmLocalFailureHint:
         hint = dc.active_llm_local_failure_hint(provider, "lmstudio")
         assert "LM Studio" in hint
 
-    def test_qwenpaw_local(self):
+    def test_AIARB_local(self):
         hint = dc.active_llm_local_failure_hint(
             SimpleNamespace(),
             "qwenpaw-local",
@@ -1443,7 +1443,7 @@ class TestActiveLlmLocalFailureHint:
 
 
 # ---------------------------------------------------------------------------
-# qwenpaw_local_llm_deep_notes
+# AIARB_local_llm_deep_notes
 # ---------------------------------------------------------------------------
 
 
@@ -1476,7 +1476,7 @@ class TestQwenpawLocalLlmDeepNotes:
                 return _Lm()
 
         self._patch_manager(monkeypatch, _Mgr)
-        notes = dc.qwenpaw_local_llm_deep_notes()
+        notes = dc.AIARB_local_llm_deep_notes()
         assert any("binary: OK" in n for n in notes)
         assert any("running=True" in n for n in notes)
         assert any("transitioning" in n for n in notes)
@@ -1498,7 +1498,7 @@ class TestQwenpawLocalLlmDeepNotes:
                 return _Lm()
 
         self._patch_manager(monkeypatch, _Mgr)
-        notes = dc.qwenpaw_local_llm_deep_notes()
+        notes = dc.AIARB_local_llm_deep_notes()
         assert any("missing or not installed" in n for n in notes)
         assert any("server status failed" in n for n in notes)
 
@@ -1509,7 +1509,7 @@ class TestQwenpawLocalLlmDeepNotes:
                 raise RuntimeError("boom")
 
         self._patch_manager(monkeypatch, _Mgr)
-        notes = dc.qwenpaw_local_llm_deep_notes()
+        notes = dc.AIARB_local_llm_deep_notes()
         assert len(notes) == 1
         assert "LocalModelManager" in notes[0]
 
@@ -1527,7 +1527,7 @@ class TestQwenpawLocalLlmDeepNotes:
                 return _Lm()
 
         self._patch_manager(monkeypatch, _Mgr)
-        notes = dc.qwenpaw_local_llm_deep_notes()
+        notes = dc.AIARB_local_llm_deep_notes()
         assert any("install check failed" in n for n in notes)
 
 
@@ -1956,7 +1956,7 @@ class TestCheckEnabledAgentsModelConnections:
         monkeypatch.setattr(dc, "load_agent_config", lambda aid: agent_cfg)
         monkeypatch.setattr(
             dc,
-            "qwenpaw_local_llm_deep_notes",
+            "AIARB_local_llm_deep_notes",
             lambda: ["llama.cpp binary: OK"],
         )
         cfg = _make_config({"a": _profile_ref("a", "/x")})
@@ -1978,7 +1978,7 @@ class TestCheckEnabledAgentsModelConnections:
 
 class TestConsoleStaticDiagnosticNotes:
     def test_index_present_and_repo(self, tmp_path, monkeypatch):
-        monkeypatch.delenv("QWENPAW_CONSOLE_STATIC_DIR", raising=False)
+        monkeypatch.delenv("AIARB_CONSOLE_STATIC_DIR", raising=False)
         static = tmp_path / "static"
         static.mkdir()
         (static / "index.html").write_text("<html>")
@@ -1987,7 +1987,7 @@ class TestConsoleStaticDiagnosticNotes:
             lambda: str(static),
         )
         monkeypatch.setattr(
-            "qwenpaw.utils.console_static.find_qwenpaw_source_repo_root",
+            "qwenpaw.utils.console_static.find_AIARB_source_repo_root",
             lambda: tmp_path,
         )
         notes = dc.console_static_diagnostic_notes()
@@ -1997,7 +1997,7 @@ class TestConsoleStaticDiagnosticNotes:
         assert "npm on PATH:" in joined
 
     def test_index_missing_no_repo(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("QWENPAW_CONSOLE_STATIC_DIR", "/custom/static")
+        monkeypatch.setenv("AIARB_CONSOLE_STATIC_DIR", "/custom/static")
         static = tmp_path / "static"
         static.mkdir()
         monkeypatch.setattr(
@@ -2005,12 +2005,12 @@ class TestConsoleStaticDiagnosticNotes:
             lambda: str(static),
         )
         monkeypatch.setattr(
-            "qwenpaw.utils.console_static.find_qwenpaw_source_repo_root",
+            "qwenpaw.utils.console_static.find_AIARB_source_repo_root",
             lambda: None,
         )
         notes = dc.console_static_diagnostic_notes()
         joined = "\n".join(notes)
-        assert "QWENPAW_CONSOLE_STATIC_DIR" in joined
+        assert "AIARB_CONSOLE_STATIC_DIR" in joined
         assert "index.html missing" in joined
         assert "wheel installs" in joined
 

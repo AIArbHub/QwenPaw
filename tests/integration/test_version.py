@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Integrated tests for AIArb version."""
 from __future__ import annotations
 

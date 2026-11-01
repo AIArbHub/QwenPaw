@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Authorize browser reads against the runtime's actual route ownership."""
 
 from typing import Any

@@ -11,7 +11,7 @@ import sys
 
 import pytest
 
-from AIARB.tauri import sidecar_logging as tauri_logging
+from aiarb.tauri import sidecar_logging as tauri_logging
 
 
 def _patch_stdio(monkeypatch):
@@ -104,7 +104,7 @@ def test_sidecar_log_rotates_with_teed_output(monkeypatch, sidecar_env):
     tauri_logging.install_sidecar_logging(log_path)
     for i in range(200):
         print(f"filler line {i:04d} " + "x" * 40)
-        logging.getLogger("AIARB.tauri").info("record %d", i)
+        logging.getLogger("aiarb.tauri").info("record %d", i)
     print("after-rotation marker")
 
     backup = log_path.with_name("desktop.log.1")
@@ -153,13 +153,13 @@ _STARTUP_CRASH_SCRIPT = """
 import faulthandler, logging, sys
 from pathlib import Path
 import uvicorn
-from AIARB.tauri.sidecar_logging import install_sidecar_logging
+from aiarb.tauri.sidecar_logging import install_sidecar_logging
 
 install_sidecar_logging(Path(sys.argv[1]))
 # Same order as the desktop entry point: uvicorn.Config runs dictConfig,
 # which closes every logging handler created so far.
 uvicorn.Config(lambda scope, receive, send: None, log_level="info")
-logging.getLogger("AIARB.tauri").info("record after uvicorn config")
+logging.getLogger("aiarb.tauri").info("record after uvicorn config")
 print("stdout after uvicorn config", flush=True)
 faulthandler._sigsegv()
 """

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Channel handshake adapter over the public plugin process component."""
 
 from __future__ import annotations

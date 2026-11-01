@@ -17,7 +17,7 @@ from typing import Any
 import aiofiles
 import aiohttp
 
-from AIARB.app.channels.utils import file_url_to_local_path
+from aiarb.app.channels.utils import file_url_to_local_path
 from .codec import _run_in_thread
 
 logger = logging.getLogger(__name__)

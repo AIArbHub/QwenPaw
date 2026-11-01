@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for the mail access control API router."""
 
 # pylint: disable=redefined-outer-name,unused-argument

@@ -7,12 +7,12 @@ from __future__ import annotations
 
 import pytest
 
-import AIARB.providers.provider_manager as provider_manager_module
-from AIARB.config.config import ModelSlotConfig
-from AIARB.providers.mimo_provider import MiMoProvider
-from AIARB.providers.openai_provider import OpenAIProvider
-from AIARB.providers.provider import ModelInfo
-from AIARB.providers.provider_manager import (
+import aiarb.providers.provider_manager as provider_manager_module
+from aiarb.config.config import ModelSlotConfig
+from aiarb.providers.mimo_provider import MiMoProvider
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.provider import ModelInfo
+from aiarb.providers.provider_manager import (
     MIMO_MODELS,
     MIMO_TOKENPLAN_MODELS,
     PROVIDER_MIMO,
@@ -216,7 +216,7 @@ def test_mimo_provider_filters_non_chat_models(
 
     # The reuse of OpenAIProvider._is_non_chat_model must classify MiMo's
     # non-chat models as non-chat (token keywords include asr/tts).
-    from AIARB.providers.openai_provider import _is_non_chat_model
+    from aiarb.providers.openai_provider import _is_non_chat_model
 
     for mid in chat_ids:
         assert _is_non_chat_model(mid) is False, mid

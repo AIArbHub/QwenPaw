@@ -46,7 +46,7 @@ def _continue(directory, operation, *, preflight=False):
     command = operation.get("continuation_command")
     code = (
         "import asyncio,sys;sys.path.insert(0,sys.argv[1]);"
-        "from AIARB.plugins.dependency_upgrade import continue_operation;"
+        "from aiarb.plugins.dependency_upgrade import continue_operation;"
         "asyncio.run(continue_operation(sys.argv[2],preflight=sys.argv[3]=='1'))"
     )
     result = subprocess.run(

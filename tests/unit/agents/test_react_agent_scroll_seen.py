@@ -9,9 +9,9 @@ from agentscope.event import ModelCallEndEvent
 from agentscope.message import HintBlock, Msg, TextBlock
 from agentscope.model import FinishedReason
 
-from AIARB.agents.react_agent import AIARBAgent
-from AIARB.loop.gates import StopAction, StopHandlerResult
-from AIARB.providers.model_capability_cache import get_capability_cache
+from aiarb.agents.react_agent import AIARBAgent
+from aiarb.loop.gates import StopAction, StopHandlerResult
+from aiarb.providers.model_capability_cache import get_capability_cache
 
 
 _AUDIO_MODAL_ERROR = (

@@ -14,11 +14,11 @@ from types import SimpleNamespace
 import httpx
 import pytest
 
-from AIARB.hub.docker_images import DockerImagePullStore
-from AIARB.hub import docker_provisioner as docker_module
-from AIARB.hub.docker_provisioner import DockerRuntimeProvisioner
-from AIARB.hub.models import RuntimeState
-from AIARB.hub.provisioner import RuntimeProvisioner
+from aiarb.hub.docker_images import DockerImagePullStore
+from aiarb.hub import docker_provisioner as docker_module
+from aiarb.hub.docker_provisioner import DockerRuntimeProvisioner
+from aiarb.hub.models import RuntimeState
+from aiarb.hub.provisioner import RuntimeProvisioner
 from tests.unit.hub.factories import runtime_record
 
 _record = partial(runtime_record, provisioner="docker", port=0)
@@ -512,7 +512,7 @@ def test_model_probe_allows_legacy_images_but_rejects_auth_errors(
         ),
     )
     monkeypatch.setattr(
-        "AIARB.hub.provisioner.httpx.Client",
+        "aiarb.hub.provisioner.httpx.Client",
         lambda **kwargs: real_client(transport=transport, **kwargs),
     )
     credentials = {

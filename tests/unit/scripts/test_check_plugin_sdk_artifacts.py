@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """The exported author suite collects without repository test helpers."""
 
 import os
@@ -43,11 +43,11 @@ raise SystemExit(pytest.main([
     env = {
         key: value
         for key, value in os.environ.items()
-        if not key.startswith(("PYTHON", "QWENPAW_"))
+        if not key.startswith(("PYTHON", "AIARB_"))
     }
     env.update(
-        QWENPAW_WORKING_DIR=str(tmp_path / "working"),
-        QWENPAW_SECRET_DIR=str(tmp_path / "secrets"),
+        AIARB_WORKING_DIR=str(tmp_path / "working"),
+        AIARB_SECRET_DIR=str(tmp_path / "secrets"),
     )
     result = subprocess.run(
         [sys.executable, "-I", "-c", code, str(tmp_path / "author_tests")],

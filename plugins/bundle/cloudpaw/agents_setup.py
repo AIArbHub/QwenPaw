@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Agent registration and workspace initialization for CloudPaw plugin."""
 
 import json
@@ -130,7 +130,7 @@ def _inject_llm_env(env: dict[str, str]) -> None:
     """Inject LLM config for iac-code.
 
     For iac-code >= 0.1.2: write llm_source: aiarb to settings.yml
-    so iac-code reads config directly from AIArb.
+    so iac-code reads config directly from aiarb.
 
     For older versions: inject IAC_CODE_* environment variables.
     """

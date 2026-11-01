@@ -21,25 +21,25 @@ import tempfile
 import time
 import uuid
 
-from AIARB.channel_protocol.errors import (
+from aiarb.channel_protocol.errors import (
     RPC_LIFECYCLE_ERROR,
     RPC_RESPONSE_OPEN_FAILED,
     RpcError,
     ProtocolValidationError,
 )
-from AIARB.channel_protocol.host import (
+from aiarb.channel_protocol.host import (
     SharedEndpointAuthority,
     SharedEndpointService,
 )
-from AIARB.channel_protocol.rpc import JSONRPC_INTERNAL_ERROR
-from AIARB.channel_protocol.normalization import normalize_inbound_event
-from AIARB.channel_protocol.completed_text import project_completed_text
-from AIARB.channel_protocol.targets import encode_reply_target
-from AIARB.channel_protocol.response_policy import (
+from aiarb.channel_protocol.rpc import JSONRPC_INTERNAL_ERROR
+from aiarb.channel_protocol.normalization import normalize_inbound_event
+from aiarb.channel_protocol.completed_text import project_completed_text
+from aiarb.channel_protocol.targets import encode_reply_target
+from aiarb.channel_protocol.response_policy import (
     ResponsePolicy,
     SendFormatPolicy,
 )
-from AIARB.channel_protocol.models import (
+from aiarb.channel_protocol.models import (
     CONTENT_SOURCE_CAPABILITY,
     SEMANTIC_PARTS_CAPABILITY,
     RAW_COMPLETED_TEXT_CAPABILITY,
@@ -59,14 +59,14 @@ from AIARB.channel_protocol.models import (
     OutboundResult,
     RejectedEvent,
 )
-from AIARB.channel_protocol.shared import SharedChannelDescriptor
-from AIARB.schemas import Message, AgentRequest
-from AIARB.utils.io_utils import (
+from aiarb.channel_protocol.shared import SharedChannelDescriptor
+from aiarb.schemas import Message, AgentRequest
+from aiarb.utils.io_utils import (
     get_path_lock,
     run_async_to_completion,
     run_sync_io,
 )
-from AIARB.utils.outbound_media import update_outbound_media
+from aiarb.utils.outbound_media import update_outbound_media
 from .base import BaseChannel
 from .process_supervisor import ChannelCallUnknown, ChannelProcess, LaunchSpec
 from .renderer import ChannelDisplayConfig
@@ -954,7 +954,7 @@ class IsolatedChannelProxy(BaseChannel):
         approval_command = False
         source_request_id = ""
         if query.lstrip().startswith("/"):
-            from AIARB.runtime.commands.control import (
+            from aiarb.runtime.commands.control import (
                 _COMMAND_REGISTRY,
                 _extract_command_token,
                 ApprovalCommandHandler,
@@ -976,7 +976,7 @@ class IsolatedChannelProxy(BaseChannel):
                 ).strip()
                 if not user_id:
                     raise ValueError("APPROVAL_OPERATOR_UNAVAILABLE")
-                from AIARB.runtime.commands.control import parse_args
+                from aiarb.runtime.commands.control import parse_args
 
                 token = _extract_command_token(query)
                 args = parse_args(query.lstrip(), token)
@@ -1001,7 +1001,7 @@ class IsolatedChannelProxy(BaseChannel):
         request.channel_meta = meta
         request._channel_actor_unknown = actor_unknown
         if approval_command:
-            from AIARB._control_state import (
+            from aiarb._control_state import (
                 ControlRequestBinding,
                 ControlCommandState,
             )
@@ -2319,7 +2319,7 @@ class IsolatedChannelProxy(BaseChannel):
             )
 
     def _control_result(self, request, send_meta):
-        from AIARB._control_state import ControlCommandState
+        from aiarb._control_state import ControlCommandState
 
         if not isinstance(request, AgentRequest):
             return None

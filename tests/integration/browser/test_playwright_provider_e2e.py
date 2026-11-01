@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Real Chromium contracts for the Playwright control-link provider."""
 
 import pytest

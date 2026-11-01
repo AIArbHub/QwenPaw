@@ -1,5 +1,5 @@
-﻿[project]
-name = "AIARB"
+[project]
+name = "aiarb"
 dynamic = ["version"]
 description = "AIARB is a **personal assistant** that runs in your own environment. It talks to you over multiple channels (DingTalk, Feishu, QQ, Discord, iMessage, etc.) and runs scheduled tasks according to your configuration. **What it can do is driven by Skills — the possibilities are open-ended.** Built-in skills include cron, PDF/Office handling, news digest, file reading, and more; you can add custom skills. All data and tasks run on your machine; no third-party hosting."
 readme = "README.md"
@@ -70,20 +70,20 @@ Documentation = "https://AIARB.agentscope.io/docs/"
 Issues = "https://github.com/agentscope-ai/AIARB/issues"
 
 [tool.setuptools.dynamic]
-version = {attr = "AIARB.__version__.__version__"}
+version = {attr = "aiarb.__version__.__version__"}
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.package-dir]
-"AIARB" = "src/AIARB"
-"AIARBmail_mcp" = "packages/AIARBmail-mcp/src/AIARBmail_mcp"
-"AIARB.plugins.bundled.hub" = "plugins/hub"
+"aiarb" = "src/aiarb"
+"aiarbmail_mcp" = "packages/aiarbmail-mcp/src/aiarbmail_mcp"
+"aiarb.plugins.bundled.hub" = "plugins/hub"
 
 [tool.setuptools.package-data]
-"AIARB.plugins.bundled.hub" = ["*/plugin.json"]
-# Dockerfile copies console build output to src/AIARB/console/ (no dist subdir).
-"AIARB" = [
+"aiarb.plugins.bundled.hub" = ["*/plugin.json"]
+# Dockerfile copies console build output to src/aiarb/console/ (no dist subdir).
+"aiarb" = [
     "official_channels/*.json",
     "official_channels/*.zip",
     "console/**",
@@ -113,12 +113,12 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
-AIARB = "AIARB.cli.main:cli"
-copaw = "AIARB.cli.main:cli"
-AIARBmail-mcp = "AIARBmail_mcp.__main__:main"
+aiarb = "aiarb.cli.main:cli"
+copaw = "aiarb.cli.main:cli"
+aiarbmail-mcp = "aiarbmail_mcp.__main__:main"
 
 # Optional doctor plugins: callable (DoctorRunContext) -> list[str]
-# [project.entry-points."AIARB.doctor"]
+# [project.entry-points."aiarb.doctor"]
 # my_pkg = "my_pkg.doctor:doctor_notes"
 # Legacy group "copaw.doctor" is still loaded when present.
 
@@ -201,8 +201,8 @@ channels = [
     "wecom-aibot-python-sdk==1.0.2",
 ]
 full = [
-    "AIARB[channels]",
-    "AIARB[AIARB-data,hub,local,whisper,codex,qoder]",
+    "aiarb[channels]",
+    "aiarb[AIARB-data,hub,local,whisper,codex,qoder]",
 ]
 sip = [
     "pyVoIP>=1.6.0",
@@ -211,7 +211,7 @@ sip = [
     "audioop-lts; python_version >= '3.13'",
 ]
 sip-livekit = [
-    "AIARB[sip]",
+    "aiarb[sip]",
     "livekit>=1.0.0",
     "livekit-api>=0.6.0",
 ]
@@ -235,7 +235,7 @@ testpaths = [
 ]
 
 [tool.coverage.run]
-source = ["src/AIARB"]
+source = ["src/aiarb"]
 omit = [
     "*/tests/*",
     "*/test_*",

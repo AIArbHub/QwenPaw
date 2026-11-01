@@ -11,14 +11,14 @@ from agentscope.message import UserMsg
 import httpx
 import pytest
 
-import AIARB.providers.openai_provider as openai_provider_module
-from AIARB.providers.openai_provider import (
+import aiarb.providers.openai_provider as openai_provider_module
+from aiarb.providers.openai_provider import (
     KiloProvider,
     OpenCodeProvider,
     OpenAIProvider,
 )
-from AIARB.providers.provider import ModelInfo
-from AIARB.providers.thinking import ThinkingControl
+from aiarb.providers.provider import ModelInfo
+from aiarb.providers.thinking import ThinkingControl
 
 
 def _make_provider(is_custom: bool = False) -> OpenAIProvider:

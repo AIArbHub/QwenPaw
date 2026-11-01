@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Generic registry for registering and retrieving implementations."""
 
 from typing import Callable, Generic, Type, TypeVar

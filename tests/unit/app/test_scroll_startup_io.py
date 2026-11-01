@@ -1,5 +1,8 @@
-# -*- coding: utf-8 -*-
-"""Agent-owned migration cancellation and maintenance lifecycle coverage."""
+﻿# -*- coding: utf-8 -*-
+# pylint: disable=protected-access
+"""Regression tests for Scroll's startup-time synchronous I/O."""
+
+from __future__ import annotations
 
 import asyncio
 import threading

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument
 """Unit tests for the `uninstall` CLI command.
 
@@ -43,7 +43,7 @@ class TestRemovePathEntry:
         assert changed is False
         assert profile.read_text(encoding="utf-8") == original
 
-    def test_removes_the_qwenpaw_block(self, tmp_path):
+    def test_removes_the_AIARB_block(self, tmp_path):
         profile = tmp_path / "bashrc"
         profile.write_text(
             "export EDITOR=vim\n" + _PATH_BLOCK + "alias ll='ls -la'\n",

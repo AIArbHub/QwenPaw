@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Thin tool adapter for the host-managed Computer Use runtime."""
 
 # NOTE: no `from __future__ import annotations` here, deliberately. The tool

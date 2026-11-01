@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ from aiarb.utils.telemetry import (
 @pytest.fixture
 def telemetry_enabled(monkeypatch: pytest.MonkeyPatch) -> None:
     """Exercise normal telemetry behavior with mocked uploads only."""
-    monkeypatch.delenv("QWENPAW_TELEMETRY_DISABLED", raising=False)
+    monkeypatch.delenv("AIARB_TELEMETRY_DISABLED", raising=False)
 
 
 # ---------------------------------------------------------------------------

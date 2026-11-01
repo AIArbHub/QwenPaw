@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """rm protection bypass regression tests.
 
 Regression for #5090: rm protection must block root/home/absolute targets.

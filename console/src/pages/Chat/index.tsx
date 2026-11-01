@@ -1,4 +1,4 @@
-﻿import { ChatSessionActivation } from "./components/ChatSessionActivation";
+import { ChatSessionActivation } from "./components/ChatSessionActivation";
 import {
   ChatSessionTransition,
   ReadyChatWelcome,

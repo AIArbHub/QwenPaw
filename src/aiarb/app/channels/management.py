@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Owned, one-shot management of installed Channel sources."""
 
 from __future__ import annotations

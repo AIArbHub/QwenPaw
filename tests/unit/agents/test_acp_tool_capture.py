@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for AIArb envelope to ACP tool-call capture."""
 
 from __future__ import annotations

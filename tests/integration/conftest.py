@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Shared fixtures for integration tests.
 
 These fixtures start a real AIARB app subprocess with isolated workspace

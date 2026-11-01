@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for desktop_screenshot cancel cleanup."""
 # pylint: disable=protected-access
 

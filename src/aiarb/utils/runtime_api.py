@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Endpoint discovery and request authentication for Hub local runtimes."""
 
 from __future__ import annotations

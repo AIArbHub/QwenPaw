@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Console static serving enforces resolved filesystem containment."""
 from __future__ import annotations
 
@@ -22,10 +22,10 @@ def test_console_static_symlinks_stay_within_build(tmp_path):
     (console / "loop.svg").symlink_to("loop.svg")
     env = {
         **os.environ,
-        "QWENPAW_CONSOLE_STATIC_DIR": str(console),
-        "QWENPAW_WORKING_DIR": str(tmp_path / "work"),
-        "QWENPAW_SECRET_DIR": str(tmp_path / "secrets"),
-        "QWENPAW_TELEMETRY_DISABLED": "1",
+        "AIARB_CONSOLE_STATIC_DIR": str(console),
+        "AIARB_WORKING_DIR": str(tmp_path / "work"),
+        "AIARB_SECRET_DIR": str(tmp_path / "secrets"),
+        "AIARB_TELEMETRY_DISABLED": "1",
     }
     result = subprocess.run(
         [
@@ -39,7 +39,7 @@ def test_console_static_symlinks_stay_within_build(tmp_path):
                 endpoint = next(
                     route.endpoint for route in _app.app.routes
                     if getattr(route, "name", None)
-                    == "qwenpaw_console_spa_catchall"
+                    == "AIARB_console_spa_catchall"
                 )
                 root = Path(_app._CONSOLE_STATIC_DIR)
                 for name in ("logo.svg", "public-link.svg"):

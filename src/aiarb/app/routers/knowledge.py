@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Shared knowledge base management API.
 
 Endpoints let the console browse, search, preview, upload, rename, delete and

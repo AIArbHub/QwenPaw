@@ -30,7 +30,7 @@ from uuid import uuid4
 
 from .errors import LockTimeoutError, RuntimeFileValidationError
 
-logger = logging.getLogger("AIARB.creator.runtime_files.locking")
+logger = logging.getLogger("aiarb.creator.runtime_files.locking")
 
 # A Runtime lock protects only short, local filesystem transitions. Waiting
 # longer hides a leaked/nested lock instead of fixing it, so ten seconds stays

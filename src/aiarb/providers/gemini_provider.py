@@ -15,7 +15,7 @@ from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 from pydantic import Field
 
-from AIARB.providers.multimodal_prober import (
+from aiarb.providers.multimodal_prober import (
     ProbeResult,
     _PROBE_IMAGE_B64,
     _IMAGE_PROBE_PROMPT,
@@ -23,7 +23,7 @@ from AIARB.providers.multimodal_prober import (
     _is_media_keyword_error,
     evaluate_image_probe_answer,
 )
-from AIARB.providers.provider import (
+from aiarb.providers.provider import (
     ModelConnectionResult,
     ModelInfo,
     Provider,

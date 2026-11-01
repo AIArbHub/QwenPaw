@@ -10,11 +10,11 @@ from unittest.mock import AsyncMock
 from agentscope.model import OpenAIChatModel
 import pytest
 
-import AIARB.providers.openrouter_provider as openrouter_provider_module
-from AIARB.providers.openrouter_provider import OpenRouterProvider
-from AIARB.providers.provider import ModelInfo
-from AIARB.providers.provider_manager import ProviderManager
-from AIARB.providers.thinking import ThinkingControl
+import aiarb.providers.openrouter_provider as openrouter_provider_module
+from aiarb.providers.openrouter_provider import OpenRouterProvider
+from aiarb.providers.provider import ModelInfo
+from aiarb.providers.provider_manager import ProviderManager
+from aiarb.providers.thinking import ThinkingControl
 
 
 def _make_provider() -> OpenRouterProvider:

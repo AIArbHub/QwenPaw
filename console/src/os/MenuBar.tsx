@@ -1,4 +1,4 @@
-﻿/**
+/**
  * MenuBar.tsx — macOS-style top menu bar.
  *
  * Left: brand mark + current Space (agent) name + the focused app's title.

@@ -417,7 +417,7 @@ class ACPPermissionAdapter:
         *,
         command: str | None = None,
     ) -> bool:
-        from AIARB.security.tool_guard.safety_checks import (
+        from aiarb.security.tool_guard.safety_checks import (
             is_command_destructive,
             is_path_outside_boundary,
         )

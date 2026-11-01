@@ -52,7 +52,7 @@ def _read_state(directory: Path) -> dict:
     state = json.loads(state_path.read_text(encoding="utf-8"))
     if (
         not isinstance(state, dict)
-        or state.get("schema") != "AIARB.outbound-media.v1"
+        or state.get("schema") != "aiarb.outbound-media.v1"
     ):
         raise ValueError("Invalid outbound media schema")
     name = state["name"]
@@ -177,7 +177,7 @@ def _stage(path: Path, workspace: Path, created: list[Path]) -> Path:
                 write_json_atomic(
                     directory / ".state.json",
                     {
-                        "schema": "AIARB.outbound-media.v1",
+                        "schema": "aiarb.outbound-media.v1",
                         "name": name,
                         "expires_at": time.time() + OUTBOUND_MEDIA_TTL_SECONDS,
                         "pending": [],

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for the ephemeral ACP OpenAI-compatible provider."""
 
 # pylint: disable=protected-access

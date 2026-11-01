@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Internal lossless conversion of SDK values and AgentScope messages."""
 
 from copy import deepcopy

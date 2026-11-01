@@ -7,10 +7,10 @@ from unittest.mock import patch
 
 import pytest
 
-from AIARB.config.config import DoomLoopStageConfig
-from AIARB.loop.catalog import get_gate_catalog
-from AIARB.loop.gates.base import StopAction
-from AIARB.loop.gates.doom_loop import DoomLoopGate
+from aiarb.config.config import DoomLoopStageConfig
+from aiarb.loop.catalog import get_gate_catalog
+from aiarb.loop.gates.base import StopAction
+from aiarb.loop.gates.doom_loop import DoomLoopGate
 
 
 def _stage(after, action="stop", prompt="stop"):
@@ -61,7 +61,7 @@ async def test_catalog_stop_stage_uses_stage_prompt():
 @pytest.fixture(autouse=True)
 def _force_session_id():
     with patch(
-        "AIARB.loop.gates.loop_gate._session_id",
+        "aiarb.loop.gates.loop_gate._session_id",
         return_value="test-session",
     ):
         yield
@@ -159,7 +159,7 @@ async def test_session_isolation():
         ],
     )
     with patch(
-        "AIARB.loop.gates.loop_gate._session_id",
+        "aiarb.loop.gates.loop_gate._session_id",
         return_value="s1",
     ):
         g._ensure_state()
@@ -167,21 +167,21 @@ async def test_session_isolation():
         g.record("t", "h")
 
     with patch(
-        "AIARB.loop.gates.loop_gate._session_id",
+        "aiarb.loop.gates.loop_gate._session_id",
         return_value="s2",
     ):
         g._ensure_state()
         g.record("t", "h")
 
     with patch(
-        "AIARB.loop.gates.loop_gate._session_id",
+        "aiarb.loop.gates.loop_gate._session_id",
         return_value="s1",
     ):
         g.reset_turn()
         assert len(g._state().history) == 0
 
     with patch(
-        "AIARB.loop.gates.loop_gate._session_id",
+        "aiarb.loop.gates.loop_gate._session_id",
         return_value="s2",
     ):
         assert len(g._state().history) == 1

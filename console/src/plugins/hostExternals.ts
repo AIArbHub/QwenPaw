@@ -1,4 +1,4 @@
-﻿import {
+import {
   prepareBrowserSession,
   usesBrowserSession,
 } from "./pawapp-sdk/browserSession";
@@ -35,7 +35,7 @@ import type {
   HostSessionInfo,
   HostThemeMode,
   AIARBChatNamespace,
-} from "./types/AIARB";
+} from "./types/aiarb";
 import { pawSdkFactory } from "./pawapp-sdk";
 import type { PawSdkFactory } from "./pawapp-sdk/types";
 import {

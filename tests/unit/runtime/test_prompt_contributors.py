@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for runtime prompt contributors."""
 
 from types import SimpleNamespace

@@ -17,7 +17,7 @@ from aiarb.schemas import (
     VideoContent,
 )
 
-from AIARB.schemas import ContentType
+from aiarb.schemas import ContentType
 
 from .constants import (
     DINGTALK_SESSION_ID_SUFFIX_LEN,

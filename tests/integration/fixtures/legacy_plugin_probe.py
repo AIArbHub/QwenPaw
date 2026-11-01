@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Run real legacy-plugin lifecycle phases in separate host processes.
 
-Set QWENPAW_WORKING_DIR to synthetic data before starting Python. ``seed``
+Set AIARB_WORKING_DIR to synthetic data before starting Python. ``seed``
 supports the pre-lifecycle loader; the other phases exercise the candidate's
 production Loader/Lifecycle. Copy the seeded runtime before comparing builds.
 No network, model, service registry, or lifecycle is replaced by a fake.
@@ -48,7 +48,7 @@ class Plugin:
 
         async def legacy_contract_echo(text: str):
             directory = (
-                Path(os.environ["QWENPAW_WORKING_DIR"])
+                Path(os.environ["AIARB_WORKING_DIR"])
                 / "legacy-user-data"
             )
             directory.mkdir(parents=True, exist_ok=True)
@@ -86,7 +86,7 @@ plugin = Plugin()
 async def run(phase):
     # Keep this ownership/cleanup scenario and its assertions together.
     # pylint: disable=too-many-statements
-    working = Path(os.environ["QWENPAW_WORKING_DIR"]).resolve()
+    working = Path(os.environ["AIARB_WORKING_DIR"]).resolve()
     assert (
         working != Path.home() / ".qwenpaw"
     ), "Synthetic working directory required"
@@ -225,5 +225,5 @@ if __name__ == "__main__":
     )
     options = parser.parse_args()
     if options.working_dir is not None:
-        os.environ["QWENPAW_WORKING_DIR"] = str(options.working_dir.resolve())
+        os.environ["AIARB_WORKING_DIR"] = str(options.working_dir.resolve())
     asyncio.run(run(options.phase))

@@ -11,32 +11,32 @@ from types import SimpleNamespace
 
 import pytest
 
-import AIARB.providers.capability_baseline as capability_baseline_module
-import AIARB.providers.provider_manager as provider_manager_module
-import AIARB.providers.provider_persistence as provider_persistence_module
-from AIARB.config.config import ModelSlotConfig
-from AIARB.exceptions import ModelNotFoundException, ProviderError
-from AIARB.local_models.llamacpp import LlamaCppServerSetupResult
-from AIARB.providers.anthropic_provider import AnthropicProvider
-from AIARB.providers.gemini_provider import GeminiProvider
-from AIARB.providers.capping_formatter import (
+import aiarb.providers.capability_baseline as capability_baseline_module
+import aiarb.providers.provider_manager as provider_manager_module
+import aiarb.providers.provider_persistence as provider_persistence_module
+from aiarb.config.config import ModelSlotConfig
+from aiarb.exceptions import ModelNotFoundException, ProviderError
+from aiarb.local_models.llamacpp import LlamaCppServerSetupResult
+from aiarb.providers.anthropic_provider import AnthropicProvider
+from aiarb.providers.gemini_provider import GeminiProvider
+from aiarb.providers.capping_formatter import (
     _CappingAnthropicFormatter,
     _CappingGeminiFormatter,
     _CappingOpenAIFormatter,
 )
-from AIARB.providers.context_windows import DEFAULT_CONTEXT_WINDOW
-from AIARB.providers.openai_provider import (
+from aiarb.providers.context_windows import DEFAULT_CONTEXT_WINDOW
+from aiarb.providers.openai_provider import (
     OpenCodeProvider,
     OpenAIProvider,
 )
-from AIARB.providers.openai_response_provider import OpenAIResponseProvider
-from AIARB.providers.openrouter_provider import OpenRouterProvider
-from AIARB.providers.provider import (
+from aiarb.providers.openai_response_provider import OpenAIResponseProvider
+from aiarb.providers.openrouter_provider import OpenRouterProvider
+from aiarb.providers.provider import (
     ModelConnectionResult,
     ModelInfo,
     ProviderInfo,
 )
-from AIARB.providers.provider_manager import ProviderManager
+from aiarb.providers.provider_manager import ProviderManager
 
 
 def _install_v210_provider_fixture(
@@ -4189,7 +4189,7 @@ async def test_activate_model_clears_rejects_media_for_selected_model(
     monkeypatch,
 ) -> None:
     """Re-selecting a model drops its stale rejects_media entry."""
-    from AIARB.providers.model_capability_cache import (
+    from aiarb.providers.model_capability_cache import (
         ModelCapabilityCache,
         get_capability_cache,
     )
@@ -4224,7 +4224,7 @@ async def test_activate_model_preserves_other_models_and_capabilities(
     monkeypatch,
 ) -> None:
     """Activating one model must not evict capabilities of other models."""
-    from AIARB.providers.model_capability_cache import (
+    from aiarb.providers.model_capability_cache import (
         ModelCapabilityCache,
         get_capability_cache,
     )

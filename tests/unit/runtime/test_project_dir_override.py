@@ -10,9 +10,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from AIARB.agents.acp.meta import ACP_PROJECT_DIR_META_KEY
-from AIARB.config.config import AgentProfileConfig
-from AIARB.runtime.builder import AgentBuilder
+from aiarb.agents.acp.meta import ACP_PROJECT_DIR_META_KEY
+from aiarb.config.config import AgentProfileConfig
+from aiarb.runtime.builder import AgentBuilder
 
 
 def test_session_project_override_uses_canonical_request_key(tmp_path):

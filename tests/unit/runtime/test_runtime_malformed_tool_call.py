@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Malformed tool_call death-loop regression tests.
 
 Regression for #5717: malformed tool_call must not death-loop.

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for restore target preflight checks."""
 # pylint: disable=protected-access
 from __future__ import annotations

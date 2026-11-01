@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unnecessary-lambda,unused-argument  # noqa: E501
 """Unit tests for plugins/loader.py helper functions.
 
@@ -30,21 +30,21 @@ def working_dir(tmp_path, monkeypatch):
 
 class TestDesktopPython:
     def test_unset_returns_none(self, monkeypatch):
-        monkeypatch.delenv("QWENPAW_DESKTOP_PY_RUNTIME", raising=False)
+        monkeypatch.delenv("AIARB_DESKTOP_PY_RUNTIME", raising=False)
         assert pl._desktop_python() is None
 
     def test_blank_returns_none(self, monkeypatch):
-        monkeypatch.setenv("QWENPAW_DESKTOP_PY_RUNTIME", "   ")
+        monkeypatch.setenv("AIARB_DESKTOP_PY_RUNTIME", "   ")
         assert pl._desktop_python() is None
 
     def test_missing_file_returns_none(self, monkeypatch):
-        monkeypatch.setenv("QWENPAW_DESKTOP_PY_RUNTIME", "/no/such/python")
+        monkeypatch.setenv("AIARB_DESKTOP_PY_RUNTIME", "/no/such/python")
         assert pl._desktop_python() is None
 
     def test_existing_file_returned(self, tmp_path, monkeypatch):
         py = tmp_path / "python"
         py.write_text("")
-        monkeypatch.setenv("QWENPAW_DESKTOP_PY_RUNTIME", str(py))
+        monkeypatch.setenv("AIARB_DESKTOP_PY_RUNTIME", str(py))
         assert pl._desktop_python() == str(py)
 
 
@@ -168,7 +168,7 @@ class TestHubPluginLifecycle:
         source = builtin.get_builtin_hub_plugins_dir()
         loader = pl.PluginLoader([])
         manifest = loader._load_manifest(source / plugin_id / "plugin.json")
-        assert manifest.qwenpaw_version.min == "2.2.2"
+        assert manifest.AIARB_version.min == "2.2.2"
         assert loader._check_version_compatibility(manifest)[0] is compatible
         assert (
             _is_entry_compatible(
@@ -176,7 +176,7 @@ class TestHubPluginLifecycle:
                     "plugin_id": plugin_id,
                     "version": manifest.version,
                     "platform": "hub",
-                    "qwenpaw_version": manifest.qwenpaw_version.model_dump(
+                    "AIARB_version": manifest.AIARB_version.model_dump(
                         exclude_none=True,
                     ),
                 },
@@ -191,7 +191,7 @@ class TestHubPluginLifecycle:
                     "plugin_id": "existing-tool",
                     "version": "1.0.0",
                     "kind": "tool",
-                    "qwenpaw_version": {"min": "2.2.2"},
+                    "AIARB_version": {"min": "2.2.2"},
                 },
             )
             is compatible

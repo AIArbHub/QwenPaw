@@ -472,7 +472,7 @@ class DockerRuntimeProvisioner(RuntimeProvisioner):
                     name,
                     driver="bridge",
                     options={"com.docker.network.bridge.enable_icc": "false"},
-                    labels={"AIARB.hub.instance": self._instance_id},
+                    labels={"aiarb.hub.instance": self._instance_id},
                 )
             if (
                 network.attrs.get("Options", {}).get(

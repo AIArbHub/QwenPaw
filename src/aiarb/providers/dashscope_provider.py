@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """DashScope provider using agentscope 2.0 native ``DashScopeChatModel``.
 
 Most surface area (connection check, model listing, multimodal probe) is

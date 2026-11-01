@@ -10,9 +10,9 @@ import httpx
 import pytest
 from click.testing import CliRunner
 
-from AIARB.__version__ import __version__
-from AIARB.cli.main import cli
-from AIARB.cli.update_cmd import (
+from aiarb.__version__ import __version__
+from aiarb.cli.main import cli
+from aiarb.cli.update_cmd import (
     InstallInfo,
     RunningServiceInfo,
     _build_upgrade_command,
@@ -82,7 +82,7 @@ def test_build_upgrade_command_adds_prerelease_flag_for_uv_only_when_requested(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "AIARB.cli.update_cmd.shutil.which",
+        "aiarb.cli.update_cmd.shutil.which",
         lambda name: "/usr/local/bin/uv" if name == "uv" else None,
     )
     info = _install_info(installer="uv")
@@ -170,7 +170,7 @@ def test_detect_installation(
     expected_source_type: str,
     expected_source_url: str | None,
 ) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     class _FakeDistribution:
         def read_text(self, name: str) -> str | None:
@@ -211,7 +211,7 @@ def test_detect_installation(
 
 
 def test_update_reports_up_to_date(monkeypatch) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
 
@@ -278,7 +278,7 @@ def test_probe_service_returns_not_running_on_http_error(monkeypatch) -> None:
 
 
 def test_detect_running_service_handles_wildcard_host(monkeypatch) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     monkeypatch.setattr(update_cmd_module, "read_last_api", lambda: None)
     monkeypatch.setattr(
@@ -304,7 +304,7 @@ def test_detect_running_service_handles_wildcard_host(monkeypatch) -> None:
 def test_detect_running_service_falls_back_to_process_ports(
     monkeypatch,
 ) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     monkeypatch.setattr(update_cmd_module, "read_last_api", lambda: None)
     monkeypatch.setattr(
@@ -328,7 +328,7 @@ def test_detect_running_service_falls_back_to_process_ports(
 
 
 def test_update_blocks_running_service(monkeypatch) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
 
@@ -369,7 +369,7 @@ def test_update_blocks_running_service(monkeypatch) -> None:
 
 
 def test_update_can_cancel_forced_shutdown(monkeypatch) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
 
@@ -411,7 +411,7 @@ def test_update_can_force_shutdown_running_service(
     monkeypatch,
     tmp_path: Path,
 ) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
     spawned: dict[str, object] = {}
@@ -491,7 +491,7 @@ def test_update_can_force_shutdown_running_service(
 
 
 def test_update_can_cancel_non_pypi_override(monkeypatch) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info(source_type="editable")
 
@@ -524,7 +524,7 @@ def test_update_can_override_non_pypi_install_with_yes(
     monkeypatch,
     tmp_path: Path,
 ) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     spawned: dict[str, object] = {}
     install_info = _install_info(source_type="editable")
@@ -580,7 +580,7 @@ def test_update_can_override_non_pypi_install_with_yes(
 
 
 def test_update_spawns_worker(monkeypatch, tmp_path: Path) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     spawned: dict[str, object] = {}
     install_info = _install_info()
@@ -647,7 +647,7 @@ def test_update_spawns_worker(monkeypatch, tmp_path: Path) -> None:
 def test_update_prompts_when_version_is_not_comparable(
     monkeypatch,
 ) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
 
@@ -679,7 +679,7 @@ def test_update_can_continue_when_version_is_not_comparable(
     monkeypatch,
     tmp_path: Path,
 ) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     spawned: dict[str, object] = {}
     install_info = _install_info()
@@ -734,7 +734,7 @@ def test_update_can_continue_when_version_is_not_comparable(
 
 
 def test_update_returns_worker_exit_code(monkeypatch, tmp_path: Path) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
 
@@ -771,7 +771,7 @@ def test_update_detaches_worker_on_windows(
     monkeypatch,
     tmp_path: Path,
 ) -> None:
-    from AIARB.cli import update_cmd as update_cmd_module
+    from aiarb.cli import update_cmd as update_cmd_module
 
     install_info = _install_info()
     spawned: dict[str, object] = {}
@@ -839,7 +839,7 @@ def test_update_worker_waits_for_launcher_exit(
 
     waited: list[tuple[int | None, float]] = []
     monkeypatch.setattr(
-        "AIARB.cli.update_cmd._wait_for_process_exit",
+        "aiarb.cli.update_cmd._wait_for_process_exit",
         lambda pid, timeout=15.0: waited.append((pid, timeout)),
     )
 
@@ -863,7 +863,7 @@ def test_run_update_worker_detached_spawns_without_capture(
         return object()
 
     monkeypatch.setattr(
-        "AIARB.cli.update_cmd._spawn_update_worker",
+        "aiarb.cli.update_cmd._spawn_update_worker",
         _fake_spawn,
     )
 
@@ -982,8 +982,8 @@ def test_update_worker_rejects_unsafe_installer(
     def unexpected(*_args, **_kwargs):
         pytest.fail("Installer must not start")
 
-    monkeypatch.setattr(f"AIARB.cli.update_cmd.{guard}", reject)
-    monkeypatch.setattr("AIARB.cli.update_cmd.subprocess.Popen", unexpected)
+    monkeypatch.setattr(f"aiarb.cli.update_cmd.{guard}", reject)
+    monkeypatch.setattr("aiarb.cli.update_cmd.subprocess.Popen", unexpected)
     assert run_update_worker(plan_path) == 1
     assert not plan_path.exists()
     assert "Unsafe installer" in capsys.readouterr().out
@@ -999,12 +999,12 @@ def test_update_worker_rejects_missing_pip_before_starting(
         plan_path,
         command=["python", "-m", "pip", "install", "AIARB"],
     )
-    monkeypatch.setattr("AIARB.cli.update_cmd.require_pip", lambda _: False)
+    monkeypatch.setattr("aiarb.cli.update_cmd.require_pip", lambda _: False)
 
     def unexpected(*_args, **_kwargs):
         pytest.fail("Missing pip must not start an update")
 
-    monkeypatch.setattr("AIARB.cli.update_cmd.subprocess.Popen", unexpected)
+    monkeypatch.setattr("aiarb.cli.update_cmd.subprocess.Popen", unexpected)
     assert run_update_worker(plan_path) == 1
     assert not plan_path.exists()
     assert "pip is missing" in capsys.readouterr().out
@@ -1045,9 +1045,9 @@ def test_update_worker_preflights_the_entire_command_chain(
     def unexpected(*_args, **_kwargs):
         pytest.fail("All commands must pass preflight before the first starts")
 
-    monkeypatch.setattr("AIARB.cli.update_cmd.require_pip", check_pip)
-    monkeypatch.setattr("AIARB.cli.update_cmd.require_uv", check_uv)
-    monkeypatch.setattr("AIARB.cli.update_cmd.subprocess.Popen", unexpected)
+    monkeypatch.setattr("aiarb.cli.update_cmd.require_pip", check_pip)
+    monkeypatch.setattr("aiarb.cli.update_cmd.require_uv", check_uv)
+    monkeypatch.setattr("aiarb.cli.update_cmd.subprocess.Popen", unexpected)
     assert run_update_worker(plan_path) == 1
     assert checked == ["host-python", prepare[0]]
     assert not plan_path.exists()

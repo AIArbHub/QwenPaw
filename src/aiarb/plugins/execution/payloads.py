@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Private per-run files for complete logical JSON messages, not locators."""
 
 from __future__ import annotations

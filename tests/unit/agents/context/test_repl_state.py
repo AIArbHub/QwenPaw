@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name
 """recall_history_python's final ToolChunk must reflect the subprocess exit.
 

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for Driver capability-id encoding/decoding contracts."""
 from __future__ import annotations
 

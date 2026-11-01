@@ -13,12 +13,12 @@ from pathlib import Path
 
 import pytest
 
-from AIARB.hub.local_provisioner import (
+from aiarb.hub.local_provisioner import (
     LocalProcessRuntimeProvisioner,
     allocate_loopback_port,
 )
-from AIARB.hub.models import RuntimeRecord, RuntimeState
-from AIARB.hub.process_isolation import (
+from aiarb.hub.models import RuntimeRecord, RuntimeState
+from aiarb.hub.process_isolation import (
     IsolatedLaunch,
     LinuxBubblewrapIsolator,
     MacOSSeatbeltIsolator,
@@ -423,7 +423,7 @@ def test_windows_runtime_uses_outbound_reverse_tunnel(
     isolator = _WindowsRecordingIsolator()
     provisioner = LocalProcessRuntimeProvisioner(isolator=isolator)
     monkeypatch.setattr(
-        "AIARB.hub.local_provisioner.WindowsReverseTunnelBroker",
+        "aiarb.hub.local_provisioner.WindowsReverseTunnelBroker",
         _TunnelBroker,
     )
     monkeypatch.setattr(provisioner, "_wait_until_ready", lambda *_: None)
@@ -436,7 +436,7 @@ def test_windows_runtime_uses_outbound_reverse_tunnel(
     command = isolator.command
     separator = command.index("--")
     assert command[command.index("-m") + 1] == (
-        "AIARB.hub.windows_runtime_bridge"
+        "aiarb.hub.windows_runtime_bridge"
     )
     assert command[command.index("--control-port") + 1] == "9100"
     assert command[command.index("--token") + 1] == "tunnel-token"
@@ -536,11 +536,11 @@ def test_runtime_parent_thread_survives_request_worker(
         return _Process()
 
     monkeypatch.setattr(
-        "AIARB.hub.local_provisioner.subprocess.Popen",
+        "aiarb.hub.local_provisioner.subprocess.Popen",
         popen,
     )
     monkeypatch.setattr(
-        "AIARB.hub.local_provisioner.os.killpg",
+        "aiarb.hub.local_provisioner.os.killpg",
         lambda *_: None,
         raising=False,
     )
@@ -569,8 +569,8 @@ def test_runtime_parent_thread_survives_request_worker(
 @pytest.mark.skipif(sys.platform != "darwin", reason="Requires Seatbelt")
 def test_macos_sandbox_cli_can_reach_only_its_runtime(tmp_path, monkeypatch):
     """Run the actual CLI inside its server's native sandbox."""
-    from AIARB.plugins import dependency_maintenance as maintenance
-    from AIARB.plugins.channel_bootstrap import plugin_runtime_site
+    from aiarb.plugins import dependency_maintenance as maintenance
+    from aiarb.plugins.channel_bootstrap import plugin_runtime_site
 
     state = tmp_path / "dependency-state"
     monkeypatch.setattr(maintenance, "_STATE_ROOT", state)
@@ -580,7 +580,7 @@ def test_macos_sandbox_cli_can_reach_only_its_runtime(tmp_path, monkeypatch):
         next(path for path in sys.path if Path(path).name == "site-packages"),
     )
     monkeypatch.setattr(
-        "AIARB.plugins.execution.environment.shared_dependency_paths",
+        "aiarb.plugins.execution.environment.shared_dependency_paths",
         lambda: (shared, reader_site),
     )
     foreign_scope = "f" * 64
@@ -622,7 +622,7 @@ def test_macos_sandbox_cli_can_reach_only_its_runtime(tmp_path, monkeypatch):
             import socket
             import os
             from pathlib import Path
-            from AIARB.plugins import dependency_maintenance as maintenance
+            from aiarb.plugins import dependency_maintenance as maintenance
             assert maintenance.state_root() == Path({str(state)!r})
             scope = maintenance.reader_scope()
             assert len(scope) == 64
@@ -664,8 +664,8 @@ def test_macos_sandbox_cli_can_reach_only_its_runtime(tmp_path, monkeypatch):
             with maintenance.file_lock(maintenance._gate(overlay)):
                 maintenance.marker(overlay).write_text("private")
                 maintenance.marker(overlay).unlink()
-            from AIARB.agents.tools.shell import _execute_in_sandbox
-            from AIARB.sandbox import SandboxConfig, SandboxMode
+            from aiarb.agents.tools.shell import _execute_in_sandbox
+            from aiarb.sandbox import SandboxConfig, SandboxMode
             from http.server import BaseHTTPRequestHandler
             from socketserver import TCPServer
             from threading import Thread
@@ -746,9 +746,9 @@ def test_linux_runtime_filesystem_is_shared_and_persistent(
         import asyncio
         import os
         from pathlib import Path
-        from AIARB.agents.tools.file_io import write_file
-        from AIARB.agents.tools.shell import _execute_in_sandbox
-        from AIARB.sandbox import SandboxConfig, SandboxMode
+        from aiarb.agents.tools.file_io import write_file
+        from aiarb.agents.tools.shell import _execute_in_sandbox
+        from aiarb.sandbox import SandboxConfig, SandboxMode
 
         assert Path.cwd() == Path('{workspace}')
         assert Path.home() == Path('{workspace}')

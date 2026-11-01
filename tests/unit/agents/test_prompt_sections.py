@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for PromptBuilder and plugin prompt section registration."""
 from __future__ import annotations
 

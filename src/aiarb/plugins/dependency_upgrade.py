@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Explicit, durable upgrades for the shared plugin dependency environment."""
 
 from __future__ import annotations

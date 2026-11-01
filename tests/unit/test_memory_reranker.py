@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-argument,redefined-outer-name
 """Unit tests for ReMe memory reranker (over-fetch + rerank + cap).

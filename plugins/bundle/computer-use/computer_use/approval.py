@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Translate native App approval requests into the Core approval service."""
 
 from __future__ import annotations

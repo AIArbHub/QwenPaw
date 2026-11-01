@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """AgentScope embedding model construction and connectivity checks."""
 
 from __future__ import annotations

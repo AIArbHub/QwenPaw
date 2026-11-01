@@ -17,26 +17,26 @@ import pytest
 from agentscope.message import Msg, TextBlock, ToolResultBlock, ToolResultState
 from agentscope.tool import ToolChunk, ToolResponse
 
-from AIARB.agents.middlewares import (  # noqa: E402
+from aiarb.agents.middlewares import (  # noqa: E402
     ToolResultPruningMiddleware,
 )
-from AIARB.agents.tools.utils import (  # noqa: E402
+from aiarb.agents.tools.utils import (  # noqa: E402
     build_truncation_metadata,
     MAX_TRUNCATION_NOTICE_BYTES,
     ToolResultPruner,
     truncate_text_output,
     TRUNCATION_METADATA_KEY,
 )
-from AIARB.config.config import (  # noqa: E402
+from aiarb.config.config import (  # noqa: E402
     ContextCompactConfig,
     LightContextConfig,
     ScrollContextConfig,
     ToolResultPruningConfig,
 )
-from AIARB.constant import TRUNCATION_NOTICE_MARKER  # noqa: E402
-from AIARB.runtime.builder import AgentBuilder  # noqa: E402
-from AIARB.agents.react_agent import AIARBAgent  # noqa: E402
-from AIARB.tool_calls import (  # noqa: E402
+from aiarb.constant import TRUNCATION_NOTICE_MARKER  # noqa: E402
+from aiarb.runtime.builder import AgentBuilder  # noqa: E402
+from aiarb.agents.react_agent import AIARBAgent  # noqa: E402
+from aiarb.tool_calls import (  # noqa: E402
     COORDINATOR_OWNED_EXEC_TIMEOUT_SECS,
     ToolCoordinator,
     ToolCoordinatorMiddleware,
@@ -302,7 +302,7 @@ async def test_tool_response_write_failure_fails_open(
         raise OSError("disk full")
 
     monkeypatch.setattr(
-        "AIARB.agents.tools.utils.save_text_output",
+        "aiarb.agents.tools.utils.save_text_output",
         fail_save,
     )
 
@@ -839,10 +839,10 @@ def test_explicit_legacy_scroll_tool_cap_warns_once_and_is_not_saved(
     caplog,
     monkeypatch,
 ):
-    import AIARB.config.config as config_module
+    import aiarb.config.config as config_module
 
     monkeypatch.setattr(config_module, "_legacy_scroll_tool_cap_warned", False)
-    with caplog.at_level(logging.WARNING, logger="AIARB.config.config"):
+    with caplog.at_level(logging.WARNING, logger="aiarb.config.config"):
         config = LightContextConfig(
             strategy="scroll",
             scroll_config={"tool_output_token_cap": 1200},
@@ -860,7 +860,7 @@ def test_explicit_legacy_scroll_tool_cap_warns_once_and_is_not_saved(
 
 
 def test_default_legacy_scroll_tool_cap_does_not_warn(caplog):
-    with caplog.at_level(logging.WARNING, logger="AIARB.config.config"):
+    with caplog.at_level(logging.WARNING, logger="aiarb.config.config"):
         LightContextConfig(strategy="scroll")
 
     assert "tool_output_token_cap is deprecated and ignored" not in caplog.text

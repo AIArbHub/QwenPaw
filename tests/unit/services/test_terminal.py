@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Exercise real PTYs as well as terminal ownership and bounded replay."""
 # pylint: disable=protected-access
 
@@ -93,7 +93,7 @@ async def test_real_pty_cwd_unicode_resize_interrupt_and_cleanup(
     monkeypatch,
 ):
     monkeypatch.setenv("SHELL", "/bin/sh")
-    monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "test-only-secret")
+    monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "test-only-secret")
     cwd = tmp_path / "目录 with spaces"
     cwd.mkdir()
     manager = terminal.TerminalManager()
@@ -114,7 +114,7 @@ async def test_real_pty_cwd_unicode_resize_interrupt_and_cleanup(
             "print('UTF=' + chr(20320) + chr(22909)); "
             "os.write(1, b'\\xff\\n'); "
             "print('SIZE=' + str(os.get_terminal_size())); "
-            "print('SECRET=' + str('QWENPAW_RUNTIME_INTERNAL_TOKEN' "
+            "print('SECRET=' + str('AIARB_RUNTIME_INTERNAL_TOKEN' "
             "in os.environ))"
         )
         command = f"{shlex.quote(sys.executable)} -c {shlex.quote(script)}\r"

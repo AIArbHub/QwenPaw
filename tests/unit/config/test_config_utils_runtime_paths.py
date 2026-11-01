@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument
 # pylint: disable=use-implicit-booleaness-not-comparison
 # ^ C1803 kept on purpose: ``== []`` / ``== {}`` is an *equality* assertion
@@ -22,7 +22,7 @@ only adds the parts those tests leave out:
   failure);
 * ``load_config``/``save_config`` behaviour when ``stat`` fails;
 * legacy heartbeat / last-dispatch / last-api fallbacks;
-* ``is_qwenpaw_running`` socket probing;
+* ``is_AIARB_running`` socket probing;
 * ``sanitize_mcp_clients`` in-place pruning.
 
 🔴 Isolation note (measured, not assumed): ``qwenpaw.agents.tools`` calls
@@ -1129,7 +1129,7 @@ class TestLoadAndValidateRepairLadder:
         tmp_path,
         monkeypatch,
     ):
-        """``~/.copaw``-era paths must follow QWENPAW_WORKING_DIR."""
+        """``~/.copaw``-era paths must follow AIARB_WORKING_DIR."""
         wd = tmp_path / "wd"
         wd.mkdir()
         monkeypatch.setattr(cu, "WORKING_DIR", wd)
@@ -1536,7 +1536,7 @@ class TestRuntimeFilePaths:
 
 
 # ---------------------------------------------------------------------------
-# is_qwenpaw_running
+# is_AIARB_running
 # ---------------------------------------------------------------------------
 
 
@@ -1578,27 +1578,27 @@ class TestIsQwenpawRunning:
     def test_no_api_address_means_not_running(self, monkeypatch, fake_socket):
         monkeypatch.setattr(cu, "read_last_api", lambda: None)
 
-        assert cu.is_qwenpaw_running() is False
+        assert cu.is_AIARB_running() is False
         assert fake_socket.created == []
 
     def test_successful_connect(self, monkeypatch, fake_socket):
         monkeypatch.setattr(cu, "read_last_api", lambda: ("127.0.0.1", 8000))
         fake_socket.results = [0]
 
-        assert cu.is_qwenpaw_running() is True
+        assert cu.is_AIARB_running() is True
         assert fake_socket.probed == ("127.0.0.1", 8000)
 
     def test_refused_connect(self, monkeypatch, fake_socket):
         monkeypatch.setattr(cu, "read_last_api", lambda: ("127.0.0.1", 8000))
         fake_socket.results = [getattr(socket, "ECONNREFUSED", 111)]
 
-        assert cu.is_qwenpaw_running() is False
+        assert cu.is_AIARB_running() is False
 
     def test_socket_exception_is_swallowed(self, monkeypatch, fake_socket):
         monkeypatch.setattr(cu, "read_last_api", lambda: ("127.0.0.1", 8000))
         fake_socket.raised = OSError("network unreachable")
 
-        assert cu.is_qwenpaw_running() is False
+        assert cu.is_AIARB_running() is False
 
     def test_read_failure_is_swallowed(self, monkeypatch, fake_socket):
         def boom():
@@ -1606,7 +1606,7 @@ class TestIsQwenpawRunning:
 
         monkeypatch.setattr(cu, "read_last_api", boom)
 
-        assert cu.is_qwenpaw_running() is False
+        assert cu.is_AIARB_running() is False
 
     def test_socket_construction_failure_is_swallowed(
         self,
@@ -1620,7 +1620,7 @@ class TestIsQwenpawRunning:
 
         monkeypatch.setattr(cu.socket, "socket", deny)
 
-        assert cu.is_qwenpaw_running() is False
+        assert cu.is_AIARB_running() is False
 
 
 # ---------------------------------------------------------------------------

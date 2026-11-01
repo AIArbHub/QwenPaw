@@ -353,7 +353,7 @@ def main() -> int:
 
     def runtime():
         runtime_class = importlib.import_module(
-            "AIARB.channel_protocol.shared_worker",
+            "aiarb.channel_protocol.shared_worker",
         ).ChannelRuntime
         return runtime_class()
 

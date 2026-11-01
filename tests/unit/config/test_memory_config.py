@@ -4,7 +4,7 @@
 import pytest
 from pydantic import ValidationError
 
-from AIARB.config.config import (
+from aiarb.config.config import (
     AgentsRunningConfig,
     EmbeddingModelConfig,
     ReMeLightMemoryConfig,

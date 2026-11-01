@@ -1,4 +1,4 @@
-﻿import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 const STORAGE_KEY = "AIARB_collapsed_chat_groups_v4";
 const LEGACY_STORAGE_KEY = "AIARB_collapsed_chat_groups_v3";

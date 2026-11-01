@@ -9,8 +9,8 @@ import aiohttp
 import pytest
 import pytest_asyncio
 from dingtalk_stream import CallbackMessage
-from AIARB.channel_protocol.models import ResponseFinishParams, SendParams
-from AIARB.channel_protocol.response_receipts import receipt_key
+from aiarb.channel_protocol.models import ResponseFinishParams, SendParams
+from aiarb.channel_protocol.response_receipts import receipt_key
 from tests.channel_support.driver import bind, module
 
 pytestmark = pytest.mark.asyncio

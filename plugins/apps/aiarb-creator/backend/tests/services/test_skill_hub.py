@@ -56,7 +56,7 @@ def test_missing_host_hub_becomes_a_clean_refusal(monkeypatch) -> None:
     renamed or dropped private helper would look at request time.
     """
 
-    monkeypatch.setitem(sys.modules, "AIARB.agents.skill_system.hub", None)
+    monkeypatch.setitem(sys.modules, "aiarb.agents.skill_system.hub", None)
     with pytest.raises(skill_hub.SkillHubUnavailable):
         asyncio.run(
             skill_hub.fetch_skill_bundle(

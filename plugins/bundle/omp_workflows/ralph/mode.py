@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """RalphMode — PRD-driven continuous implementation loop."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import asyncio
 from aiarb.browser.errors import BrowserError, ErrorCategory
 

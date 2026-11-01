@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for aiarb.app.channels.console.channel.ConsoleChannel.
 
 Focuses on the *local* ConsoleChannel helpers (start/stop/send, session

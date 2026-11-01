@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """MQTT Channel for IoT devices and robots"""
 from __future__ import annotations
 

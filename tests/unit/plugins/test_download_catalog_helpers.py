@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name
 # pylint: disable=use-implicit-booleaness-not-comparison
 """Unit tests for the plugin-catalog fetch/normalisation helpers.
@@ -434,7 +434,7 @@ def test_catalog_drops_malformed_and_foreign_entries() -> None:
                 "id": "future",
                 "version": "1.0.0",
                 "url": "/plugins/future.zip",
-                "qwenpaw_version": {"min": "99.0.0"},
+                "AIARB_version": {"min": "99.0.0"},
             },
             # kept
             "ok": {

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Default TUI transport: drive ``aiarb acp`` over ACP/stdio.
 
 The transport spawns ``aiarb acp`` as a subprocess and connects an ACP

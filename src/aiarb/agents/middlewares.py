@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Native AgentScope 2.0 middleware implementations for AIARB.
 
 Most per-request setup (ContextVars,

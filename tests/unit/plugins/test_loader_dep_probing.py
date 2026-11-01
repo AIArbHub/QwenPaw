@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for PluginLoader dependency probing and installer security.
 
 Covers the static helpers that decide whether a requirement is already
@@ -974,10 +974,10 @@ def controlled_import_snapshot(monkeypatch):
 
     snapshot = transaction._module_snapshot
     names = {
-        "_qwenpaw_stale_dependency_test",
-        "_qwenpaw_other_import",
-        "_qwenpaw_added_import",
-        "_qwenpaw_supplemental_import",
+        "_AIARB_stale_dependency_test",
+        "_AIARB_other_import",
+        "_AIARB_added_import",
+        "_AIARB_supplemental_import",
     }
     monkeypatch.setattr(
         transaction,
@@ -1333,8 +1333,13 @@ async def test_host_dependency_boundaries_keep_preexisting_and_removed_imports(
     token = usage.declare(
         DependencyDeclaration("host-history", "source", (), None),
     )
-    names = (
-        ["before", "during", "teardown"]
+    names = [
+        "_AIARB_before_register",
+        "_AIARB_in_register",
+        "_AIARB_in_teardown",
+    ]
+    rows = (
+        [(name, f"{name}.py") for name in names]
         if layout == "ordinary"
         else ["shared_ns.actual", "plainowner"]
     )
@@ -1387,12 +1392,32 @@ async def test_host_dependency_boundaries_keep_preexisting_and_removed_imports(
         usage,
         token,
     )
-    if layout not in {"ordinary", "zip"}:
-        namespace = ModuleType("shared_ns")
-        namespace.__path__ = [str(site / "shared_ns")]
-        monkeypatch.setitem(sys.modules, "shared_ns", namespace)
-        names.append("shared_ns")
-        await backend.PythonBackend.observe_host_dependencies(
+    for added in events:
+        for name in added:
+            module = ModuleType(name)
+            module.__file__ = str(site / (name.replace(".", "/") + ".py"))
+            monkeypatch.setitem(sys.modules, name, module)
+        await PythonBackend.observe_host_dependencies(
+            description,
+            usage,
+            token,
+        )
+        if layout != "ordinary" or added == (names[1],):
+            for name in names[:2] if layout == "ordinary" else added:
+                monkeypatch.delitem(sys.modules, name)
+            await PythonBackend.observe_host_dependencies(
+                description,
+                usage,
+                token,
+            )
+    if layout == "ordinary":
+        own = description.source_path / "main.py"
+        own.parent.mkdir()
+        own.touch()
+        module = ModuleType("_AIARB_own_source")
+        module.__file__ = str(own)
+        monkeypatch.setitem(sys.modules, module.__name__, module)
+        await PythonBackend.observe_host_dependencies(
             description,
             usage,
             token,
@@ -1437,20 +1462,129 @@ async def test_host_dependency_boundaries_keep_preexisting_and_removed_imports(
         from dataclasses import replace
         import os
 
-        namespace = next(fact for fact in initial if fact.namespace)
-        with monkeypatch.context() as patch:
-            patch.setattr(
-                os.path,
-                "normcase",
-                lambda value: str(value).lower(),
-            )
-            assert host_module_affected(
-                {"metadata_path": str(info)},
-                (replace(namespace, name="SHARED_NS"),),
-            )
-    old_witness = initial[0].file_witness
-    Path(initial[0].file_witness[0][0]).write_text("VALUE = 2\n")
-    assert usage.host_modules()[0].file_witness == old_witness
+        monkeypatch.delitem(sys.modules, "_AIARB_own_source")
+        state = backend._host_dependency_state
+
+        def owned_state():
+            paths, loaded = state()
+            return paths, tuple(row for row in loaded if row[0] in names)
+
+        monkeypatch.setattr(backend, "_host_dependency_state", owned_state)
+        observe, full_calls = backend._observe_host_dependencies, []
+
+        def counted_observe(*args, **kwargs):
+            if kwargs.get("_snapshot") is None:
+                full_calls.append(args)
+            return observe(*args, **kwargs)
+
+        monkeypatch.setattr(
+            backend,
+            "_observe_host_dependencies",
+            counted_observe,
+        )
+        other_token, other_hosts = await observe_source(
+            tmp_path / "other-plugin",
+            "other-source",
+        )
+        other_host = other_hosts[0]
+        remaining = names[-1].replace("_", "-")
+        assert set(other_host.snapshot.distributions) == {remaining}
+        assert other_host.snapshot.distributions[remaining]["version"] == "1.0"
+        assert full_calls == []
+        future.mkdir()
+        _, other_hosts = await observe_source(
+            tmp_path / "other-plugin",
+            "other-source",
+            other_token,
+        )
+        other_host = other_hosts[0]
+        assert other_host.snapshot is not None
+        assert other_host.environment is not None
+        assert other_host.snapshot.distributions[remaining]["version"] == "1.0"
+        from qwenpaw.plugins.execution.dependencies import (
+            canonical_environment_path,
+        )
+
+        assert (
+            str(canonical_environment_path(future))
+            in other_host.snapshot.sites
+        )
+        future.rmdir()
+        _, other_hosts = await observe_source(
+            tmp_path / "other-plugin",
+            "other-source",
+            other_token,
+        )
+        assert other_hosts[0].environment is not None
+        assert (
+            other_hosts[0].snapshot.distributions[remaining]["version"]
+            == "1.0"
+        )
+        assert (
+            str(canonical_environment_path(future))
+            in other_hosts[0].snapshot.sites
+        )
+        # The same module object moving to another file must establish fresh
+        # ownership; neither module count nor an existing row proves its owner.
+        metadata = site / f"{names[0]}-1.0.dist-info" / "METADATA"
+        stamp = metadata.stat()
+        metadata.write_text(f"Name: {names[0]}\nVersion: 2.0\n")
+        os.utime(metadata, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+        sys.modules[names[-1]].__file__ = str(site / f"{names[0]}.py")
+        _, other_hosts = await observe_source(
+            tmp_path / "other-plugin",
+            "other-source",
+            other_token,
+        )
+        other_host = other_hosts[0]
+        assert set(other_host.snapshot.distributions) == {
+            remaining,
+            names[0].replace("_", "-"),
+        }
+        assert other_host.snapshot.distributions[remaining]["version"] == "1.0"
+        assert (
+            other_host.snapshot.distributions[names[0].replace("_", "-")][
+                "version"
+            ]
+            == "2.0"
+        )
+        assert set(host.snapshot.distributions) == expected
+        assert all(
+            row["version"] == "1.0"
+            for row in host.snapshot.distributions.values()
+        )
+        _, excluded_hosts = await observe_source(site, "excluded-source")
+        assert excluded_hosts == []
+    elif layout == "namespace_alias":
+        from qwenpaw.plugins import python_backend as backend
+
+        unclaimed = site / "unclaimed.py"
+        unclaimed.write_text("VALUE = 1\n")
+        module = ModuleType("unclaimed")
+        module.__file__ = str(unclaimed)
+        monkeypatch.setitem(sys.modules, module.__name__, module)
+        state = backend._host_dependency_state
+
+        def unclaimed_state():
+            paths, loaded = state()
+            return paths, tuple(row for row in loaded if row[0] == "unclaimed")
+
+        monkeypatch.setattr(backend, "_host_dependency_state", unclaimed_state)
+        for revision in ("unclaimed-before", "unclaimed-after"):
+            if revision == "unclaimed-after":
+                info = site / "claimed-1.0.dist-info"
+                info.mkdir()
+                (info / "METADATA").write_text("Name: claimed\nVersion: 1.0\n")
+                (info / "RECORD").write_text("unclaimed.py,,\n")
+            _, histories = await observe_source(tmp_path / revision, revision)
+            if revision == "unclaimed-before":
+                assert histories == []
+            else:
+                assert set(histories[0].snapshot.distributions) == {"claimed"}
+                assert (
+                    histories[0].snapshot.distributions["claimed"]["version"]
+                    == "1.0"
+                )
 
 
 @pytest.mark.asyncio
@@ -1788,7 +1922,7 @@ async def test_dependency_import_resolution_rejects_changed_module(
     from qwenpaw.plugins import dependency_transaction as transaction
     from qwenpaw.utils import io_utils
 
-    name, unrelated = "_qwenpaw_stale_dependency_test", "_qwenpaw_other_import"
+    name, unrelated = "_AIARB_stale_dependency_test", "_AIARB_other_import"
     source, other = tmp_path / "sdk.py", tmp_path / "other.py"
     if change != "missing":
         source.touch()
@@ -1828,7 +1962,7 @@ async def test_dependency_import_resolution_rejects_changed_module(
         if change == "order":
             sys.modules[name] = sys.modules.pop(name)
         elif change in {"no_file", "empty_no_file", "unrelated_addition"}:
-            added = ModuleType("_qwenpaw_added_import")
+            added = ModuleType("_AIARB_added_import")
             if change == "unrelated_addition":
                 added.__file__ = str(other)
             monkeypatch.setitem(sys.modules, added.__name__, added)
@@ -1889,7 +2023,7 @@ async def test_dependency_import_resolution_checks_supplemental_changes(
 
     def change_module(release):
         if passes <= 2 or change == "continuous":
-            module = ModuleType("_qwenpaw_supplemental_import")
+            module = ModuleType("_AIARB_supplemental_import")
             module.__file__ = str(
                 (
                     source
@@ -1941,7 +2075,7 @@ async def test_async_dependency_targets_reject_changed_host_paths(
     runtime = ChannelRuntimeSettings(
         python_executable=sys.executable,
         support_root=tmp_path,
-        qwenpaw_version="test",
+        AIARB_version="test",
         selected_channels=None,
         dependency_paths=(tmp_path / "site",),
     )
@@ -1989,7 +2123,7 @@ async def test_frozen_dependency_path_preparation_and_loop_publication(
     old = bucket / "bundle-old" / "site"
     paths = [str(old), str(bucket / "site"), str(tmp_path / "host")]
     monkeypatch.setattr(sys, "path", paths[:])
-    monkeypatch.setenv("QWENPAW_PLUGIN_SITE", "before")
+    monkeypatch.setenv("AIARB_PLUGIN_SITE", "before")
     monkeypatch.setattr(loader_mod, "_is_frozen", lambda: True)
     monkeypatch.setattr(loader_mod, "_plugin_runtime_dir", lambda: root)
     loader = loader_mod.PluginLoader([tmp_path])
@@ -2004,7 +2138,7 @@ async def test_frozen_dependency_path_preparation_and_loop_publication(
         assert tuple(snapshot) == tuple(paths)
         result = prepare(site, snapshot)
         assert sys.path == paths
-        assert os.environ["QWENPAW_PLUGIN_SITE"] == "before"
+        assert os.environ["AIARB_PLUGIN_SITE"] == "before"
         started.set()
         assert release.wait(3)
         return result
@@ -2029,12 +2163,12 @@ async def test_frozen_dependency_path_preparation_and_loop_publication(
         with pytest.raises(RuntimeError, match="IDENTITY_CHANGED"):
             await asyncio.wait_for(pending, 5)
         assert not publications
-        assert os.environ["QWENPAW_PLUGIN_SITE"] == "before"
+        assert os.environ["AIARB_PLUGIN_SITE"] == "before"
     else:
         await asyncio.wait_for(pending, 5)
         assert len(publications) == 1
         assert sys.path == [str(target), str(tmp_path / "host")]
-        assert os.environ["QWENPAW_PLUGIN_SITE"] == str(target)
+        assert os.environ["AIARB_PLUGIN_SITE"] == str(target)
 
 
 @pytest.mark.asyncio
@@ -2060,7 +2194,7 @@ async def test_load_waits_for_dependency_writer(
 
     site = bounded_dependency_environment
     monkeypatch.syspath_prepend(str(site))
-    monkeypatch.setenv("QWENPAW_WORKING_DIR", str(tmp_path / "work"))
+    monkeypatch.setenv("AIARB_WORKING_DIR", str(tmp_path / "work"))
     source = tmp_path / "plugins" / "publication-probe"
     source.mkdir(parents=True)
     (source / "plugin.json").write_text(

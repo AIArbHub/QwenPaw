@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tauri sidecar environment variable helpers.
 
 Keep this dependency-light: the Tauri entry imports it before AIARB.constant

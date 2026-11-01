@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Computer Use tool plugin entry point.
 
 Provides the ``computer_use`` desktop-automation tool, its governance

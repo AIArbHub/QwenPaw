@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Regression tests for approval decisions racing with their consumers."""
 # pylint: disable=protected-access
 
@@ -91,7 +91,7 @@ async def test_fast_decision_reaches_governance_tool(
         governor=governor,
         tc_spec=ToolCallSpec(
             tool_name=f"Bash",
-            target=f"printf QWENPAW_8105",
+            target=f"printf AIARB_8105",
             agent_id=f"agent-8105",
             session_id=f"session-8105",
         ),

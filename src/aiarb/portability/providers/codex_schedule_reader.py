@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Bounded, read-only readers for Codex automation source stores."""
 
 from __future__ import annotations

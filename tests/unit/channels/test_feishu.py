@@ -9,7 +9,7 @@ from types import SimpleNamespace as NS
 import httpx
 import pytest
 import pytest_asyncio
-from AIARB.channel_protocol.models import SendParams
+from aiarb.channel_protocol.models import SendParams
 from tests.channel_support.driver import bind, module
 
 pytestmark = pytest.mark.asyncio

@@ -8,13 +8,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from AIARB.hub import database as database_module
-from AIARB.hub.database import (
+from aiarb.hub import database as database_module
+from aiarb.hub.database import (
     HubExtensionStore,
     connect_hub_database,
     initialize_hub_database,
 )
-from AIARB.hub.registry import RuntimeRegistry
+from aiarb.hub.registry import RuntimeRegistry
 from tests.unit.hub.factories import runtime_record
 
 
@@ -107,7 +107,7 @@ def test_extension_documents_update_without_changing_core_tables(
     first_revision = store.put(
         resource_type="runtime",
         resource_id="runtime-a",
-        namespace="AIARB.monitoring",
+        namespace="aiarb.monitoring",
         key="prometheus",
         value={"enabled": True},
         schema_version=1,
@@ -115,7 +115,7 @@ def test_extension_documents_update_without_changing_core_tables(
     second_revision = store.put(
         resource_type="runtime",
         resource_id="runtime-a",
-        namespace="AIARB.monitoring",
+        namespace="aiarb.monitoring",
         key="prometheus",
         value={"enabled": True, "path": "/metrics"},
         schema_version=2,
@@ -126,7 +126,7 @@ def test_extension_documents_update_without_changing_core_tables(
     loaded = store.get(
         resource_type="runtime",
         resource_id="runtime-a",
-        namespace="AIARB.monitoring",
+        namespace="aiarb.monitoring",
         key="prometheus",
     )
     assert loaded is not None

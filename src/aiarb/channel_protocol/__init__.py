@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Pure value models for the AIARB Channel protocol."""
 
 from .canonical import canonical_json, domain_sha256, parse_json_value

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Local runtimes never invoke dependency package managers."""
 
 # pylint: disable=protected-access
@@ -10,7 +10,7 @@ from qwenpaw.plugins.loader import PluginLoader
 
 
 def test_local_runtime_rejects_dependency_installation(tmp_path, monkeypatch):
-    monkeypatch.setenv("QWENPAW_RUNTIME_PROVISIONER", "local")
+    monkeypatch.setenv("AIARB_RUNTIME_PROVISIONER", "local")
     loader = PluginLoader([tmp_path])
     installer = Mock()
     monkeypatch.setattr(

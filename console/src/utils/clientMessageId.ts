@@ -7,8 +7,8 @@ export function extractClientMessageId(metadata: unknown): string | undefined {
   const original = record.metadata;
   const candidate =
     original && typeof original === "object"
-      ? (original as Record<string, unknown>)[QWENPAW_CLIENT_MESSAGE_ID_KEY]
-      : record[QWENPAW_CLIENT_MESSAGE_ID_KEY];
+      ? (original as Record<string, unknown>)[AIARB_CLIENT_MESSAGE_ID_KEY]
+      : record[AIARB_CLIENT_MESSAGE_ID_KEY];
   return typeof candidate === "string" ? candidate : undefined;
 }
 

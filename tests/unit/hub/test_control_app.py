@@ -25,31 +25,31 @@ from starlette.requests import ClientDisconnect
 from starlette.websockets import WebSocketDisconnect
 from websockets.sync.server import ServerConnection, serve
 
-from AIARB.__version__ import __version__
-from AIARB.hub.auth import HubAuthService, HubUser
-from AIARB.app.routers import files
-from AIARB.hub.config import (
+from aiarb.__version__ import __version__
+from aiarb.hub.auth import HubAuthService, HubUser
+from aiarb.app.routers import files
+from aiarb.hub.config import (
     AccessSecurityConfig,
     ControlPlaneConfig,
     HubConfig,
     RateLimitConfig,
     RuntimeProxyConfig,
 )
-from AIARB.hub.control_app import create_hub_app, run_hub_app
-from AIARB.hub.credentials import TenantCredentialVault
-from AIARB.hub.invitations import InvitationError, InvitationService
-from AIARB.hub.model_service.api_models import ConnectionBody
-from AIARB.hub.model_service.gateway import ModelGateway
-from AIARB.hub.model_service.listener import ModelListener
-from AIARB.hub.model_service.storage import GovernanceStore
-from AIARB.hub.provisioner import (
+from aiarb.hub.control_app import create_hub_app, run_hub_app
+from aiarb.hub.credentials import TenantCredentialVault
+from aiarb.hub.invitations import InvitationError, InvitationService
+from aiarb.hub.model_service.api_models import ConnectionBody
+from aiarb.hub.model_service.gateway import ModelGateway
+from aiarb.hub.model_service.listener import ModelListener
+from aiarb.hub.model_service.storage import GovernanceStore
+from aiarb.hub.provisioner import (
     RuntimeModelNetwork,
     RuntimeProvisioner,
     RuntimeProvisionerAvailability,
 )
-from AIARB.hub.models import RuntimeRecord, RuntimeState
-from AIARB.hub.registry import RuntimeRegistry
-from AIARB.hub.service import RuntimeService
+from aiarb.hub.models import RuntimeRecord, RuntimeState
+from aiarb.hub.registry import RuntimeRegistry
+from aiarb.hub.service import RuntimeService
 
 
 class _FakeProvisioner(RuntimeProvisioner):
@@ -470,8 +470,8 @@ def test_public_bind_starts_after_admin_initialization(
     )
 
     with (
-        patch("AIARB.hub.control_app.create_hub_app") as create_app,
-        patch("AIARB.hub.control_app.uvicorn.run") as uvicorn_run,
+        patch("aiarb.hub.control_app.create_hub_app") as create_app,
+        patch("aiarb.hub.control_app.uvicorn.run") as uvicorn_run,
     ):
         run_hub_app(
             host="::",
@@ -1267,7 +1267,7 @@ def test_proxy_closes_upstream_client_when_request_disconnects(
     with _client(tmp_path) as client:
         token = _register(client, "owner")
         with patch(
-            "AIARB.hub.control_app.httpx.AsyncClient",
+            "aiarb.hub.control_app.httpx.AsyncClient",
             return_value=upstream_client,
         ):
             response = client.post(
@@ -2068,7 +2068,7 @@ def test_hub_native_provider_dispatch_and_settlement(admin_client, protocol):
 
 def test_pawapp_cleanup_cors_uses_explicit_origins(tmp_path):
     origin = "http://localhost:5173"
-    with patch("AIARB.hub.control_app.CORS_ORIGINS", origin):
+    with patch("aiarb.hub.control_app.CORS_ORIGINS", origin):
         with _client(tmp_path) as client:
             headers = {
                 "Origin": origin,

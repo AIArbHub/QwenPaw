@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for the DashScope provider's oversized-media capping formatter.
 
 agentscope's base DashScope formatter reads every local ``file://`` media

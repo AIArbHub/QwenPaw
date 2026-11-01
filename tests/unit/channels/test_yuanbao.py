@@ -11,7 +11,7 @@ from pathlib import Path
 from aiohttp import web, WSMsgType
 from google.protobuf import json_format
 import pytest
-from AIARB.utils.media_paths import file_url_to_path
+from aiarb.utils.media_paths import file_url_to_path
 from tests.channel_support.driver import bind, module
 from tests.channel_support.protocol import eventually, finish, send
 

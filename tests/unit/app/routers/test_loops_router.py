@@ -10,22 +10,22 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from AIARB.app.routers.loops import router
-from AIARB.app.agent_context import get_current_session_id
-from AIARB.config.config import (
+from aiarb.app.routers.loops import router
+from aiarb.app.agent_context import get_current_session_id
+from aiarb.config.config import (
     CustomLoopModeConfig,
     GateInstanceConfig,
     LoopConfig,
 )
-from AIARB.app.workspace.workspace_plugins import WorkspacePlugins
-from AIARB.modes.base import AgentMode
-from AIARB.modes.default import DefaultMode as BuiltinDefaultMode
-from AIARB.runtime.slash_command_registry import CommandSpec
-from AIARB.modes.custom_loop.mode import (
+from aiarb.app.workspace.workspace_plugins import WorkspacePlugins
+from aiarb.modes.base import AgentMode
+from aiarb.modes.default import DefaultMode as BuiltinDefaultMode
+from aiarb.runtime.slash_command_registry import CommandSpec
+from aiarb.modes.custom_loop.mode import (
     DeclarativeLoopMode,
     LoopModeActivationStore,
 )
-from AIARB.modes.mission import MissionMode
+from aiarb.modes.mission import MissionMode
 
 
 def _mode(mode_id: str = "quality") -> CustomLoopModeConfig:
@@ -63,11 +63,11 @@ def client(workspace: SimpleNamespace):
     app.include_router(router, prefix="/api")
     with (
         patch(
-            "AIARB.app.routers.loops.get_agent_for_request",
+            "aiarb.app.routers.loops.get_agent_for_request",
             new=AsyncMock(return_value=workspace),
         ),
-        patch("AIARB.app.routers.loops.save_agent_config") as save,
-        patch("AIARB.app.routers.loops.schedule_agent_reload") as reload,
+        patch("aiarb.app.routers.loops.save_agent_config") as save,
+        patch("aiarb.app.routers.loops.schedule_agent_reload") as reload,
     ):
         yield TestClient(app), save, reload
 
@@ -372,8 +372,8 @@ def test_create_rejects_unicode_casefold_name(client, workspace) -> None:
 def test_loop_catalog_lists_advisor_mode(client, workspace) -> None:
     """Advisor Mode is selectable from the composer like /goal once it is
     switched on for the agent."""
-    from AIARB.config.config import AgentProfileConfig
-    from AIARB.modes.advisor import AdvisorMode
+    from aiarb.config.config import AgentProfileConfig
+    from aiarb.modes.advisor import AdvisorMode
 
     cfg = AgentProfileConfig(id="default", name="Agent")
     cfg.running = workspace.config.running
@@ -398,8 +398,8 @@ def test_loop_catalog_hides_modes_switched_off_for_the_agent(
 ) -> None:
     """Advisor is offered in the composer only once it is switched on for
     the agent."""
-    from AIARB.config.config import AgentProfileConfig
-    from AIARB.modes.advisor import AdvisorMode
+    from aiarb.config.config import AgentProfileConfig
+    from aiarb.modes.advisor import AdvisorMode
 
     cfg = AgentProfileConfig(id="default", name="Agent")
     cfg.running = workspace.config.running

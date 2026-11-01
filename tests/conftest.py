@@ -20,7 +20,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from AIARB.providers import provider_manager as _provider_manager_module
+from aiarb.providers import provider_manager as _provider_manager_module
 
 # Fixture data is loaded explicitly by tests, never collected as a suite.
 collect_ignore = ["fixtures"]

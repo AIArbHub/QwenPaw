@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Cross-platform end-to-end coverage for a Hub-managed Local runtime."""
 
 from __future__ import annotations

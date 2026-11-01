@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Retiring a Computer Use turn when the request that opened it finishes.
 
 The host mints a fresh turn id for every request, in a request-setup hook. This

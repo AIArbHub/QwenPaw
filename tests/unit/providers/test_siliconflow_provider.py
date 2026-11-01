@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,unused-argument,protected-access
 """Tests for the SiliconFlow built-in providers."""
 

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """ACP session project context metadata."""
 
 from __future__ import annotations

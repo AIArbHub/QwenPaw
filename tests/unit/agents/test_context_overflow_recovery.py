@@ -24,26 +24,26 @@ from agentscope.state import AgentState
 from google.genai import errors as genai_errors
 from PIL import Image
 
-from AIARB.agents import prompt
-from AIARB.agents.context.visual_compression.runtime.middleware import (
+from aiarb.agents import prompt
+from aiarb.agents.context.visual_compression.runtime.middleware import (
     VisualCompressionMiddleware,
 )
-from AIARB.agents.model_factory import (
+from aiarb.agents.model_factory import (
     _count_wire_media_blocks,
     _create_file_block_support_formatter,
 )
-from AIARB.agents.react_agent import AIARBAgent
-from AIARB.agents.utils.message_request_normalizer import (
+from aiarb.agents.react_agent import AIARBAgent
+from aiarb.agents.utils.message_request_normalizer import (
     mark_media_omitted_after_overflow,
 )
-from AIARB.providers.capping_formatter import (
+from aiarb.providers.capping_formatter import (
     _CappingAnthropicFormatter,
     _CappingDashScopeFormatter,
     _CappingGeminiFormatter,
     _CappingOpenAIFormatter,
     _CappingOpenAIResponseFormatter,
 )
-from AIARB.providers.error_utils import is_request_body_too_large
+from aiarb.providers.error_utils import is_request_body_too_large
 
 
 class _ContextOverflowError(Exception):

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Local ChatGPT registration, encrypted sessions, and token renewal."""
 
 from __future__ import annotations

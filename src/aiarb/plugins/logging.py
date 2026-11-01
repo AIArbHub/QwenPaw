@@ -44,7 +44,7 @@ class PluginLogger:
             for name in ("app_id", "user_id", "channel", "channel_name"):
                 if hasattr(context, name):
                     identity[name] = getattr(context, name)
-        logging.getLogger(f"AIARB.plugins.author.{plugin.plugin_id}").log(
+        logging.getLogger(f"aiarb.plugins.author.{plugin.plugin_id}").log(
             level,
             message,
             exc_info=exception,

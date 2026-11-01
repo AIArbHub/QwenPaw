@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Minimal ACP agent subprocess used by the fault-injection tests.
 
-The scenario is selected with ``QWENPAW_FAULT_SCENARIO``.  The module
+The scenario is selected with ``AIARB_FAULT_SCENARIO``.  The module
 patches only the workspace boundary so the real ACP server, prompt loop
 and process shutdown path are exercised.
 """
@@ -21,7 +21,7 @@ import openai
 from qwenpaw.agents.acp import server
 from qwenpaw.providers.retry_chat_model import StreamIdleTimeoutError
 
-_SCENARIO = os.environ[f"QWENPAW_FAULT_SCENARIO"]
+_SCENARIO = os.environ[f"AIARB_FAULT_SCENARIO"]
 
 
 def _provider_error(message: str) -> openai.BadRequestError:
@@ -83,7 +83,7 @@ async def _sync_session_mcp(self, session_id, mcp_servers):
 
 
 async def _shutdown_workspace(self):
-    marker = os.environ.get("QWENPAW_FAULT_MARKER")
+    marker = os.environ.get("AIARB_FAULT_MARKER")
     if marker:
         pathlib.Path(marker).write_text("shutdown", encoding="utf-8")
 
@@ -98,6 +98,6 @@ server.QwenPawACPAgent._shutdown_workspace = _shutdown_workspace
 
 if __name__ == "__main__":
     try:
-        asyncio.run(server.run_qwenpaw_agent())
+        asyncio.run(server.run_AIARB_agent())
     finally:
         server.silence_stdout()

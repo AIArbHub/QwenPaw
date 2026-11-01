@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Real Chromium session-context isolation through the subprocess plane."""
 
 import pytest

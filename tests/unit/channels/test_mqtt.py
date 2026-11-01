@@ -6,9 +6,9 @@ from types import SimpleNamespace as NS
 
 import pytest
 from tests.channel_support.driver import bind, module
-from AIARB.channel_protocol import shared_response_driver
-from AIARB.channel_protocol.response_lifecycle import ResponseStateError
-from AIARB.channel_protocol.response_receipts import receipt_key
+from aiarb.channel_protocol import shared_response_driver
+from aiarb.channel_protocol.response_lifecycle import ResponseStateError
+from aiarb.channel_protocol.response_receipts import receipt_key
 from tests.channel_support.protocol import eventually, finish, open_route, send
 
 

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Runtime hooks for built-in conversation checkpoints."""
 
 from __future__ import annotations

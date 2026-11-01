@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for fork worktree path + integration helpers."""
 
 from __future__ import annotations

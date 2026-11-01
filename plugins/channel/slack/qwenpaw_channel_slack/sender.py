@@ -32,7 +32,7 @@ from .constants import (
 )
 from .format import chunk_slack_text, markdown_to_slack_mrkdwn
 from .utils import SlackDeliveryError, is_slack_host, with_retry
-from AIARB.app.channels.utils import materialize_data_url
+from aiarb.app.channels.utils import materialize_data_url
 
 if TYPE_CHECKING:
     from slack_sdk.web.async_client import AsyncWebClient

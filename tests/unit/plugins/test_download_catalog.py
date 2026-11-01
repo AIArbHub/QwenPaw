@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 import pytest
 
-from AIARB.plugins.download_catalog import (
+from aiarb.plugins.download_catalog import (
     _build_remote_plugin_catalog as build_plugin_catalog,
     _is_entry_compatible,
 )
@@ -28,7 +28,7 @@ def test_main_catalog_transport_failure_returns_fallback(
     failure: Exception,
 ) -> None:
     with patch(
-        "AIARB.plugins.download_catalog._fetch_json",
+        "aiarb.plugins.download_catalog._fetch_json",
         side_effect=failure,
     ):
         result = build_plugin_catalog()
@@ -49,7 +49,7 @@ def test_plugins_catalog_transport_failure_returns_fallback(
 ) -> None:
     main_index = {"products": {"plugins": {"index_url": "/plugins.json"}}}
     with patch(
-        "AIARB.plugins.download_catalog._fetch_json",
+        "aiarb.plugins.download_catalog._fetch_json",
         side_effect=[main_index, failure],
     ):
         result = build_plugin_catalog()
@@ -76,11 +76,11 @@ def test_build_plugin_catalog_returns_normalized_plugins() -> None:
     }
     with (
         patch(
-            "AIARB.plugins.download_catalog._fetch_json",
+            "aiarb.plugins.download_catalog._fetch_json",
             side_effect=[main_index, plugins_index],
         ),
         patch(
-            "AIARB.plugins.download_catalog._installed_plugin_ids",
+            "aiarb.plugins.download_catalog._installed_plugin_ids",
             return_value={},
         ),
     ):
@@ -112,17 +112,17 @@ def test_build_plugin_catalog_returns_normalized_plugins() -> None:
 
 
 def test_bundled_hubs_remain_installable_when_cdn_is_unavailable() -> None:
-    from AIARB.plugins.download_catalog import (
+    from aiarb.plugins.download_catalog import (
         build_plugin_catalog as catalog,
     )
 
     with (
         patch(
-            "AIARB.plugins.download_catalog._fetch_json",
+            "aiarb.plugins.download_catalog._fetch_json",
             side_effect=ConnectionResetError("offline"),
         ),
         patch(
-            "AIARB.plugins.download_catalog._installed_plugin_ids",
+            "aiarb.plugins.download_catalog._installed_plugin_ids",
             return_value={"AIARB-hub": "0.9.0"},
         ),
     ):
@@ -148,8 +148,8 @@ def test_bundled_hubs_replace_same_cdn_version_and_keep_remote_updates(
     tmp_path,
     monkeypatch,
 ):
-    from AIARB.market.builtin import get_builtin_hub_plugins_dir
-    from AIARB.plugins.download_catalog import (
+    from aiarb.market.builtin import get_builtin_hub_plugins_dir
+    from aiarb.plugins.download_catalog import (
         build_plugin_catalog as catalog,
     )
 
@@ -161,7 +161,7 @@ def test_bundled_hubs_replace_same_cdn_version_and_keep_remote_updates(
         json.dumps({"id": "bundled-tool", "version": "1.0.0", "type": "tool"}),
     )
     monkeypatch.setattr(
-        "AIARB.plugins.download_catalog.__file__",
+        "aiarb.plugins.download_catalog.__file__",
         str(tmp_path / "download_catalog.py"),
     )
     versions = ("1.0.0", "1.1.0")
@@ -178,14 +178,14 @@ def test_bundled_hubs_replace_same_cdn_version_and_keep_remote_updates(
     }
     with (
         patch(
-            "AIARB.plugins.download_catalog._fetch_json",
+            "aiarb.plugins.download_catalog._fetch_json",
             side_effect=[
                 {"products": {"plugins": {"index_url": "/plugins.json"}}},
                 {"files": files},
             ],
         ),
         patch(
-            "AIARB.plugins.download_catalog._installed_plugin_ids",
+            "aiarb.plugins.download_catalog._installed_plugin_ids",
             return_value={"AIARB-hub": "1.0.0"},
         ),
     ):

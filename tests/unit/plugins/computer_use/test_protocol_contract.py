@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """The method vocabulary has to mean the same thing on both sides of the wire.
 
 The adapter and the native helper are written in different languages and share

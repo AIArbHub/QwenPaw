@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Validate terminal boundary, directory resolution and payload contracts."""
 
 import threading
@@ -120,7 +120,7 @@ def test_terminal_auth_gate_covers_every_operation(
 def test_hub_token_does_not_bypass_disabled_switch(client, monkeypatch):
     http, manager = client
     monkeypatch.setattr(terminal, "is_auth_enabled", lambda: False)
-    monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "boundary")
+    monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "boundary")
     assert (
         http.post(
             f"/api/terminals/{uuid4()}",
@@ -135,7 +135,7 @@ def test_hub_token_does_not_bypass_disabled_switch(client, monkeypatch):
 def test_hub_authentication_with_enabled_switch(client, monkeypatch):
     http, manager = client
     monkeypatch.setattr(terminal, "has_registered_users", lambda: False)
-    monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "boundary")
+    monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "boundary")
     http.headers.pop("Authorization")
     assert (
         http.post(
@@ -163,7 +163,7 @@ def test_runtime_token_comparison(expected, supplied, matches):
 
 def test_non_ascii_runtime_token_is_not_trusted(client, monkeypatch):
     http, manager = client
-    monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "boundary")
+    monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "boundary")
     http.headers.pop("Authorization")
     response = http.post(
         f"/api/terminals/{uuid4()}",
@@ -175,7 +175,7 @@ def test_non_ascii_runtime_token_is_not_trusted(client, monkeypatch):
 
 @pytest.mark.parametrize("protocol", ["http", "websocket"])
 async def test_boundary_rejects_non_ascii_runtime_token(monkeypatch, protocol):
-    monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "boundary")
+    monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "boundary")
     downstream = AsyncMock()
     send = AsyncMock()
     await RuntimeBoundaryMiddleware(downstream)(
@@ -211,7 +211,7 @@ def test_managed_runtime_origin_requires_real_boundary_token(
     monkeypatch,
 ):
     http, manager = client
-    monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "test-token")
+    monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "test-token")
     path = f"/api/terminals/{uuid4()}"
     headers = {
         "Origin": "https://hub.example.test",
@@ -282,7 +282,7 @@ async def test_direct_bearer_verification_runs_off_event_loop(monkeypatch):
     )
 
     monkeypatch.setattr(terminal, "is_auth_enabled", lambda: True)
-    monkeypatch.delenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", raising=False)
+    monkeypatch.delenv("AIARB_RUNTIME_INTERNAL_TOKEN", raising=False)
     monkeypatch.setattr(
         terminal,
         "verify_bearer_user",

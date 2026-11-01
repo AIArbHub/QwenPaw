@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for persisted environment overrides."""
 # pylint: disable=protected-access,redefined-outer-name
 
@@ -86,9 +86,9 @@ def test_missing_store_stays_sparse(isolated_store) -> None:
         "CONDA_PREFIX",
         "BASH_ENV",
         "LD_PRELOAD",
-        "QWENPAW_HUB_MODEL_TOKEN",
+        "AIARB_HUB_MODEL_TOKEN",
         "HOME",
-        "QWENPAW_DEPENDENCY_STATE_DIR",
+        "AIARB_DEPENDENCY_STATE_DIR",
     ],
 )
 def test_managed_runtime_rejects_persisted_control_overrides(
@@ -96,15 +96,15 @@ def test_managed_runtime_rejects_persisted_control_overrides(
     monkeypatch,
     key,
 ):
-    monkeypatch.setenv("QWENPAW_RUNTIME_ID", "user-a")
+    monkeypatch.setenv("AIARB_RUNTIME_ID", "user-a")
     with pytest.raises(ValueError, match="managed"):
         store.update_env_vars({key: "injected"})
     isolated_store.write_text(json.dumps({key: "enc:injected"}))
     before = store.os.environ.get(key)
     store.load_envs_into_environ()
     assert store.os.environ.get(key) == before
-    if key == "QWENPAW_DEPENDENCY_STATE_DIR":
-        monkeypatch.delenv("QWENPAW_RUNTIME_ID")
+    if key == "AIARB_DEPENDENCY_STATE_DIR":
+        monkeypatch.delenv("AIARB_RUNTIME_ID")
         with pytest.raises(ValueError, match="managed"):
             store.update_env_vars({key: "changed"})
         store._apply_to_environ({key: "injected"})
@@ -123,7 +123,7 @@ def test_managed_runtime_does_not_migrate_shared_envs(tmp_path, monkeypatch):
     shared = tmp_path / "shared-envs.json"
     shared.write_text('{"HOST_ONLY": "host"}', encoding="utf-8")
     target = tmp_path / "user" / "envs.json"
-    monkeypatch.setenv("QWENPAW_RUNTIME_ID", "user-runtime")
+    monkeypatch.setenv("AIARB_RUNTIME_ID", "user-runtime")
     monkeypatch.setattr(store, "_LEGACY_ENVS_JSON_CANDIDATES", (shared,))
     assert store.load_envs(target) == {}
     assert not target.exists()

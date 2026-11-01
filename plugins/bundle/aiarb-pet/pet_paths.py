@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Resolve AIArb working dir and list installed pet packages."""
 
 from __future__ import annotations

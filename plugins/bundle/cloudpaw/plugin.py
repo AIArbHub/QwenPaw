@@ -55,7 +55,7 @@ def _install_plugin_skills() -> None:
     from .constants import PLUGIN_DIR, _PLUGIN_SKILLS
 
     try:
-        from AIARB.agents.skill_system import (
+        from aiarb.agents.skill_system import (
             get_skill_pool_dir,
             ensure_skill_pool_initialized,
         )
@@ -143,9 +143,9 @@ def _ensure_default_env_vars() -> None:
     - If absent from both → create a blank placeholder.
     """
     try:
-        from AIARB.envs import load_envs, save_envs
+        from aiarb.envs import load_envs, save_envs
     except ImportError:
-        logger.warning("Cannot import AIARB.envs; env provisioning skipped")
+        logger.warning("Cannot import aiarb.envs; env provisioning skipped")
         return
 
     envs = load_envs()

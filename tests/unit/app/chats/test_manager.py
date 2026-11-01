@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for ``aiarb.app.chats.manager.ChatManager``.
 
 Uses the real :class:`JsonChatRepository` backed by ``tmp_path`` so the

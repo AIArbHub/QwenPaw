@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-argument,unused-variable,use-implicit-booleaness-not-comparison  # noqa: E501
 """Unit tests for skills hub helpers (qwenpaw.agents.skill_system.hub).
 
@@ -33,7 +33,7 @@ class TestEnvConfigReaders:
         [("", 300.0), ("60", 60.0), ("-5", 0.0), ("junk", 300.0)],
     )
     def test_github_cache_ttl(self, monkeypatch, env_value, expected):
-        monkeypatch.setenv("QWENPAW_GITHUB_CACHE_TTL", env_value)
+        monkeypatch.setenv("AIARB_GITHUB_CACHE_TTL", env_value)
         assert hub._github_cache_ttl() == expected
 
     @pytest.mark.parametrize(
@@ -41,7 +41,7 @@ class TestEnvConfigReaders:
         [("", 30.0), ("5", 5.0), ("1", 3.0), ("junk", 30.0)],
     )
     def test_http_timeout(self, monkeypatch, env_value, expected):
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_TIMEOUT", env_value)
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_TIMEOUT", env_value)
         assert hub._hub_http_timeout() == expected
 
     @pytest.mark.parametrize(
@@ -49,32 +49,32 @@ class TestEnvConfigReaders:
         [("", 3), ("5", 5), ("-2", 0), ("junk", 3)],
     )
     def test_http_retries(self, monkeypatch, env_value, expected):
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", env_value)
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_RETRIES", env_value)
         assert hub._hub_http_retries() == expected
 
     def test_backoff_base_and_cap_defaults(self, monkeypatch):
         monkeypatch.delenv(
-            "QWENPAW_SKILLS_HUB_HTTP_BACKOFF_BASE",
+            "AIARB_SKILLS_HUB_HTTP_BACKOFF_BASE",
             raising=False,
         )
         monkeypatch.delenv(
-            "QWENPAW_SKILLS_HUB_HTTP_BACKOFF_CAP",
+            "AIARB_SKILLS_HUB_HTTP_BACKOFF_CAP",
             raising=False,
         )
         assert hub._hub_http_backoff_base() == 0.8
         assert hub._hub_http_backoff_cap() == 6.0
 
     def test_backoff_base_junk_falls_back(self, monkeypatch):
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_BASE", "junk")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_BASE", "junk")
         assert hub._hub_http_backoff_base() == 0.8
 
     def test_backoff_cap_junk_falls_back(self, monkeypatch):
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_CAP", "junk")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_CAP", "junk")
         assert hub._hub_http_backoff_cap() == 6.0
 
     def test_backoff_seconds_exponential_then_capped(self, monkeypatch):
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_BASE", "1")
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_CAP", "4")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_BASE", "1")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_CAP", "4")
         assert hub._compute_backoff_seconds(0) == 1.0
         assert hub._compute_backoff_seconds(1) == 1.0
         assert hub._compute_backoff_seconds(2) == 2.0
@@ -89,14 +89,14 @@ class TestEnvConfigReaders:
 
 class TestUrlBuilders:
     def test_hub_base_url_default(self, monkeypatch):
-        monkeypatch.delenv("QWENPAW_SKILLS_HUB_BASE_URL", raising=False)
+        monkeypatch.delenv("AIARB_SKILLS_HUB_BASE_URL", raising=False)
         assert hub._hub_base_url() == "https://clawhub.ai"
 
     def test_hub_paths_defaults(self, monkeypatch):
-        monkeypatch.delenv("QWENPAW_SKILLS_HUB_SEARCH_PATH", raising=False)
-        monkeypatch.delenv("QWENPAW_SKILLS_HUB_VERSION_PATH", raising=False)
-        monkeypatch.delenv("QWENPAW_SKILLS_HUB_DETAIL_PATH", raising=False)
-        monkeypatch.delenv("QWENPAW_SKILLS_HUB_FILE_PATH", raising=False)
+        monkeypatch.delenv("AIARB_SKILLS_HUB_SEARCH_PATH", raising=False)
+        monkeypatch.delenv("AIARB_SKILLS_HUB_VERSION_PATH", raising=False)
+        monkeypatch.delenv("AIARB_SKILLS_HUB_DETAIL_PATH", raising=False)
+        monkeypatch.delenv("AIARB_SKILLS_HUB_FILE_PATH", raising=False)
         assert hub._hub_search_path() == "/api/v1/search"
         assert "{slug}" in hub._hub_version_path()
         assert "{slug}" in hub._hub_detail_path()
@@ -647,7 +647,7 @@ class TestExtractQwenpawSpec:
             "https://platform.agentscope.io/skills/"
             "12345678-1234-1234-1234-123456789abc"
         )
-        assert hub._extract_qwenpaw_skill_spec(url) == (
+        assert hub._extract_AIARB_skill_spec(url) == (
             "",
             "12345678-1234-1234-1234-123456789abc",
             "",
@@ -658,7 +658,7 @@ class TestExtractQwenpawSpec:
             "https://platform.agentscope.io/"
             "skills/@team/skill/archive/zip/2.0.zip"
         )
-        assert hub._extract_qwenpaw_skill_spec(url) == (
+        assert hub._extract_AIARB_skill_spec(url) == (
             "@team",
             "skill",
             "2.0",
@@ -674,7 +674,7 @@ class TestExtractQwenpawSpec:
         ],
     )
     def test_invalid(self, url):
-        assert hub._extract_qwenpaw_skill_spec(url) is None
+        assert hub._extract_AIARB_skill_spec(url) is None
 
 
 class TestExtractAliyunSpec:

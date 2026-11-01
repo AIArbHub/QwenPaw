@@ -27,7 +27,7 @@ pytest.importorskip(
     reason="langfuse SDK required for observability tests",
 )
 
-from AIARB.observability import langfuse as lf
+from aiarb.observability import langfuse as lf
 
 # ---------------------------------------------------------------------------
 # Shared fakes
@@ -98,7 +98,7 @@ def reset_langfuse_context(monkeypatch):
 
 
 def _make_hook_context(**overrides) -> Any:
-    from AIARB.runtime.hooks import HookContext
+    from aiarb.runtime.hooks import HookContext
 
     defaults = {
         "request": SimpleNamespace(user_id="u1", channel="test"),
@@ -131,7 +131,7 @@ class TestLangfuseTraceHook:
 
     async def test_skips_when_langfuse_disabled(self, monkeypatch):
         """Hook returns immediately when Langfuse is not enabled."""
-        from AIARB.hooks.observability.langfuse_hook import LangfuseTraceHook
+        from aiarb.hooks.observability.langfuse_hook import LangfuseTraceHook
 
         monkeypatch.setattr(lf, "is_langfuse_enabled", lambda: False)
         hook = LangfuseTraceHook()
@@ -144,7 +144,7 @@ class TestLangfuseTraceHook:
 
     async def test_opens_trace_scope_when_enabled(self, monkeypatch):
         """Hook opens a Langfuse trace scope and stores it in ctx.extras."""
-        from AIARB.hooks.observability.langfuse_hook import (
+        from aiarb.hooks.observability.langfuse_hook import (
             LangfuseTraceHook,
             _LANGFUSE_SCOPE_KEY,
         )
@@ -160,12 +160,12 @@ class TestLangfuseTraceHook:
 
         assert _LANGFUSE_SCOPE_KEY in ctx.extras
         assert lf.get_current_trace() is not None
-        assert lf.get_current_trace().name == "AIARB.agent.react_loop"
+        assert lf.get_current_trace().name == "aiarb.agent.react_loop"
         assert len(client.started) == 1
 
     async def test_handles_scope_open_failure(self, monkeypatch, caplog):
         """Hook swallows exceptions from scope.__aenter__ gracefully."""
-        from AIARB.hooks.observability.langfuse_hook import (
+        from aiarb.hooks.observability.langfuse_hook import (
             LangfuseTraceHook,
             _LANGFUSE_SCOPE_KEY,
         )
@@ -195,7 +195,7 @@ class TestLangfuseTraceHook:
         """
         import re
 
-        from AIARB.hooks.observability.langfuse_hook import LangfuseTraceHook
+        from aiarb.hooks.observability.langfuse_hook import LangfuseTraceHook
 
         client = FakeClient()
         monkeypatch.setattr(lf, "is_langfuse_enabled", lambda: True)
@@ -221,7 +221,7 @@ class TestLangfuseTraceCleanupHook:
 
     async def test_noop_when_no_scope_in_extras(self):
         """Cleanup does nothing when no scope was stored."""
-        from AIARB.hooks.observability.langfuse_hook import (
+        from aiarb.hooks.observability.langfuse_hook import (
             LangfuseTraceCleanupHook,
         )
 
@@ -234,7 +234,7 @@ class TestLangfuseTraceCleanupHook:
 
     async def test_closes_scope_on_success(self, monkeypatch):
         """Cleanup calls __aexit__ with None args on success."""
-        from AIARB.hooks.observability.langfuse_hook import (
+        from aiarb.hooks.observability.langfuse_hook import (
             LangfuseTraceCleanupHook,
             LangfuseTraceHook,
             _LANGFUSE_SCOPE_KEY,
@@ -260,7 +260,7 @@ class TestLangfuseTraceCleanupHook:
 
     async def test_closes_scope_on_error(self, monkeypatch):
         """Cleanup passes exception info to __aexit__."""
-        from AIARB.hooks.observability.langfuse_hook import (
+        from aiarb.hooks.observability.langfuse_hook import (
             LangfuseTraceCleanupHook,
             LangfuseTraceHook,
             _LANGFUSE_SCOPE_KEY,
@@ -303,7 +303,7 @@ class TestOpenAIChatModelCompatLangfuseInjection:
             captured_kwargs.update(kwargs)
             return SimpleNamespace(content=[])
 
-        from AIARB.providers.openai_chat_model_compat import (
+        from aiarb.providers.openai_chat_model_compat import (
             OpenAIChatModelCompat,
         )
 
@@ -335,7 +335,7 @@ class TestOpenAIChatModelCompatLangfuseInjection:
             captured_kwargs.update(kwargs)
             return SimpleNamespace(content=[])
 
-        from AIARB.providers.openai_chat_model_compat import (
+        from aiarb.providers.openai_chat_model_compat import (
             OpenAIChatModelCompat,
         )
 
@@ -369,7 +369,7 @@ class TestOpenAIChatModelCompatLangfuseInjection:
             captured_kwargs.update(kwargs)
             return SimpleNamespace(content=[])
 
-        from AIARB.providers.openai_chat_model_compat import (
+        from aiarb.providers.openai_chat_model_compat import (
             OpenAIChatModelCompat,
         )
 
