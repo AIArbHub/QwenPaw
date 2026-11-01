@@ -1,4 +1,4 @@
-import type { ChatSubmitInput, Disposable } from "../types/qwenpaw";
+import type { ChatSubmitInput, Disposable } from "../types/aiarb";
 import i18n from "../../i18n";
 
 type SubmitHandler = (input: ChatSubmitInput) => void | Promise<void>;

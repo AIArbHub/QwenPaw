@@ -1,4 +1,4 @@
-/**
+﻿/**
  * registry/types.ts — public shapes for the AIARB plugin extension registries.
  *
  * Three console-wide concepts:

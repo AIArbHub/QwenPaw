@@ -1,11 +1,11 @@
-/**
+﻿/**
  * moduleRegistry.ts
  *
  * Runtime module registry for plugin system monkey-patching
  *
  * How it works:
  * 1. Host app calls moduleRegistry.register() at startup to register all @patchable modules
- * 2. Plugins access and modify module exports via window.AIArb.modules
+ * 2. Plugins access and modify module exports via window.AIARB.modules
  * 3. Host code accesses modules via moduleRegistry.get/call to ensure using plugin-modified versions
  */
 
@@ -121,7 +121,7 @@ class ModuleRegistryImpl implements ModuleRegistry {
   }
 
   /**
-   * Get all modules (for window.AIArb.modules)
+   * Get all modules (for window.AIARB.modules)
    */
   getAllModules(): Record<string, Record<string, unknown>> {
     const result: Record<string, Record<string, unknown>> = {};
@@ -134,15 +134,15 @@ class ModuleRegistryImpl implements ModuleRegistry {
 
 export const moduleRegistry = new ModuleRegistryImpl();
 
-// Expose to window.AIArb.modules (for plugin use)
+// Expose to window.AIARB.modules (for plugin use)
 // Set during initialization
 if (typeof window !== "undefined") {
-  if (!window.AIArb) {
-    (window as any).AIArb = {};
+  if (!window.AIARB) {
+    (window as any).AIARB = {};
   }
 
   // Use Proxy for dynamic access, ensuring plugins always get latest module state
-  Object.defineProperty(window.AIArb, "modules", {
+  Object.defineProperty(window.AIARB, "modules", {
     get() {
       return (moduleRegistry as any).getAllModules();
     },

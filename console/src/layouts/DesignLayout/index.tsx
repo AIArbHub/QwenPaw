@@ -17,7 +17,6 @@ import {
   ChevronRight,
   Search,
   Users2,
-  Plus,
   Info,
   Sparkles,
   Zap,
@@ -81,7 +80,7 @@ import {
   stripHostMeta,
 } from "../../utils/hostAgent";
 import styles from "./designLayout.module.less";
-import { AgentDetailDrawer } from "../../pages/Settings/Agents/components";
+import { AgentDetailDrawer } from "../../pages/Settings/Agents/components/AgentDetailDrawer";
 // 已隐藏：多标签页栏和实验性工作台 — A1 架构已采纳。
 // 如需恢复，取消下方导入注释。
 // import ChatTabsBar from "../../components/ChatTabsBar";
@@ -748,7 +747,7 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
             chats = await chatApi.listChats({
               archived: false,
               include_app_owned: false,
-              agent_id: agent.id,
+              agentId: agent.id,
             });
           } catch {
             continue;

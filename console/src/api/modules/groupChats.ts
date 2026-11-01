@@ -1,5 +1,4 @@
 import { request } from "../request";
-import { buildAuthHeaders } from "../authHeaders";
 
 /** Response from GET /api/console/group-chats */
 export interface GroupChatMemberInfo {

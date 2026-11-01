@@ -1,4 +1,4 @@
-import InlineHelp from "@/components/InlineHelp";
+﻿import InlineHelp from "@/components/InlineHelp";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -177,7 +177,7 @@ export default function ImportPage() {
         <Alert
           type="info"
           showIcon
-          message={t("portabilityImport.qwenpawOnly")}
+          message={t("portabilityImport.AIARBOnly")}
         />
       ) : (
         <Spin />

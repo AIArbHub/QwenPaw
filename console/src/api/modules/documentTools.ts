@@ -270,10 +270,10 @@ export const documentToolsApi = {
       policy?: string;
       entityTypes?: string[];
       strengthLevel?: string;
+      onProgress?: (event: BatchSSEEvent) => void;
+      onDone?: (summary: BatchRedactResult) => void;
+      onError?: (error: string) => void;
     },
-    onProgress?: (event: BatchSSEEvent) => void,
-    onDone?: (summary: BatchRedactResult) => void,
-    onError?: (error: string) => void,
   ) => {
     const form = new FormData();
     for (const f of files) form.append("files", f);
@@ -353,7 +353,7 @@ export const documentToolsApi = {
       }>;
     }>("/document-tools/redact/agent-enhanced", {
       method: "POST",
-      body: options,
+      body: JSON.stringify(options),
       // Agent enhanced mode involves LLM call — use longer timeout (2 min)
       timeout: 120000,
     }),

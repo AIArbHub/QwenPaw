@@ -1,5 +1,5 @@
-/**
- * hostSdk/hooks.ts — React hooks exposed on `window.AIArb.host.*`.
+﻿/**
+ * hostSdk/hooks.ts — React hooks exposed on `window.AIARB.host.*`.
  *
  * These are thin wrappers over existing host contexts. Plugin components
  * call them while rendering INSIDE the host React tree, so all underlying

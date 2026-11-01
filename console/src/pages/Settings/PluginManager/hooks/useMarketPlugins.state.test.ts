@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -116,7 +116,7 @@ describe("useMarketPlugins version probe", () => {
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.qwenpawVersion).toBeNull();
+    expect(result.current.aiarbVersion).toBeNull();
     expect(errorSpy).toHaveBeenCalled();
   });
 
@@ -136,7 +136,7 @@ describe("useMarketPlugins version probe", () => {
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.qwenpawVersion).toBeNull();
+    expect(result.current.aiarbVersion).toBeNull();
     expect(errorSpy).not.toHaveBeenCalled();
   });
 
@@ -152,7 +152,7 @@ describe("useMarketPlugins version probe", () => {
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.qwenpawVersion).toBeNull();
+    expect(result.current.aiarbVersion).toBeNull();
     expect(errorSpy).toHaveBeenCalledWith(
       "[useMarketPlugins] failed to fetch version:",
       expect.any(Error),
@@ -167,7 +167,7 @@ describe("useMarketPlugins version probe", () => {
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.qwenpawVersion).toBeNull();
+    expect(result.current.aiarbVersion).toBeNull();
   });
 
   it("keeps the version null when the version field is not a string", async () => {
@@ -178,7 +178,7 @@ describe("useMarketPlugins version probe", () => {
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.qwenpawVersion).toBeNull();
+    expect(result.current.aiarbVersion).toBeNull();
   });
 
   it("exposes the reported version for compatibility checks", async () => {
@@ -188,7 +188,7 @@ describe("useMarketPlugins version probe", () => {
       useMarketPlugins({ onInstalled: vi.fn() }),
     );
 
-    await waitFor(() => expect(result.current.qwenpawVersion).toBe("3.1.0"));
+    await waitFor(() => expect(result.current.aiarbVersion).toBe("3.1.0"));
   });
 });
 
@@ -468,7 +468,7 @@ describe("useMarketPlugins load-more gating", () => {
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.qwenpawVersion).toBeNull();
+    expect(result.current.aiarbVersion).toBeNull();
     expect(errorSpy).toHaveBeenCalled();
   });
 
@@ -551,15 +551,15 @@ describe("useMarketPlugins compatibility helper", () => {
       useMarketPlugins({ onInstalled: vi.fn() }),
     );
 
-    await waitFor(() => expect(result.current.qwenpawVersion).toBe("2.4.1"));
+    await waitFor(() => expect(result.current.aiarbVersion).toBe("2.4.1"));
     expect(
       result.current.isCompatible(
-        makeEntry("ok", { qwenpaw_compat_labels: ["2.x"] }),
+        makeEntry("ok", { aiarb_compat_labels: ["2.x"] }),
       ),
     ).toBe(true);
     expect(
       result.current.isCompatible(
-        makeEntry("no", { qwenpaw_compat_labels: ["1.x"] }),
+        makeEntry("no", { aiarb_compat_labels: ["1.x"] }),
       ),
     ).toBe(false);
   });
@@ -571,11 +571,11 @@ describe("useMarketPlugins compatibility helper", () => {
       useMarketPlugins({ onInstalled: vi.fn() }),
     );
 
-    await waitFor(() => expect(result.current.qwenpawVersion).toBe("2.4.1"));
+    await waitFor(() => expect(result.current.aiarbVersion).toBe("2.4.1"));
     expect(result.current.isCompatible(makeEntry("plain"))).toBe(true);
     expect(
       result.current.isCompatible(
-        makeEntry("empty", { qwenpaw_compat_labels: [] }),
+        makeEntry("empty", { aiarb_compat_labels: [] }),
       ),
     ).toBe(true);
   });
@@ -588,10 +588,10 @@ describe("useMarketPlugins compatibility helper", () => {
       useMarketPlugins({ onInstalled: vi.fn() }),
     );
 
-    await waitFor(() => expect(result.current.qwenpawVersion).toBeNull());
+    await waitFor(() => expect(result.current.aiarbVersion).toBeNull());
     expect(
       result.current.isCompatible(
-        makeEntry("any", { qwenpaw_compat_labels: ["9.x"] }),
+        makeEntry("any", { aiarb_compat_labels: ["9.x"] }),
       ),
     ).toBe(true);
   });

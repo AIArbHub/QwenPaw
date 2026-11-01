@@ -1,4 +1,4 @@
-/**
+﻿/**
  * pawapp-sdk/host.ts — Host capability wrappers for PawApps.
  *
  * Provides `paw.chat()`, `paw.storage`, `paw.toast()`, `paw.notify()`
@@ -85,10 +85,10 @@ export async function chat(
 ): Promise<string> {
   // Use unified route: /{appId}/... -> /api/{appId}/... via hostFetch
   const agentId =
-    options.agentId ?? window.AIArb.host?.getSelectedAgentId?.() ?? "default";
+    options.agentId ?? window.AIARB.host?.getSelectedAgentId?.() ?? "default";
   const sessionId =
     options.sessionId === undefined
-      ? window.AIArb.host?.getCurrentSessionId?.() ?? undefined
+      ? window.AIARB.host?.getCurrentSessionId?.() ?? undefined
       : options.sessionId ?? undefined;
   const query = new URLSearchParams({ agent_id: agentId }).toString();
   const res = await hostFetch(`/${getAppId()}/chat?${query}`, {
@@ -111,10 +111,10 @@ export async function chat(
 
 function chatRouteOptions(options: PawChatOptions) {
   const agentId =
-    options.agentId ?? window.AIArb.host?.getSelectedAgentId?.() ?? "default";
+    options.agentId ?? window.AIARB.host?.getSelectedAgentId?.() ?? "default";
   const sessionId =
     options.sessionId === undefined
-      ? window.AIArb.host?.getCurrentSessionId?.() ?? undefined
+      ? window.AIARB.host?.getCurrentSessionId?.() ?? undefined
       : options.sessionId ?? undefined;
   return { agentId, sessionId };
 }
@@ -189,7 +189,7 @@ export function getChatHistory(
 
 function chatSessionAgentId(options: PawChatSessionScope = {}): string {
   return (
-    options.agentId ?? window.AIArb.host?.getSelectedAgentId?.() ?? "default"
+    options.agentId ?? window.AIARB.host?.getSelectedAgentId?.() ?? "default"
   );
 }
 
@@ -319,7 +319,7 @@ export async function toast(
 ): Promise<void> {
   // Use AIArb host notification if available (same-origin)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const aiarb = (window as any).AIArb as
+  const aiarb = (window as any).AIARB as
     | Record<string, unknown>
     | undefined;
   if (aiarb?.host) {
@@ -396,11 +396,11 @@ export function createHostNamespace(
     chatSessions: createChatSessionsApi(api),
     storage: scopedStorage,
     getSelectedAgentId: () =>
-      window.AIArb.host?.getSelectedAgentId?.() ?? "default",
+      window.AIARB.host?.getSelectedAgentId?.() ?? "default",
     getCurrentSessionId: () =>
-      window.AIArb.host?.getCurrentSessionId?.() ?? null,
+      window.AIARB.host?.getCurrentSessionId?.() ?? null,
     async toast(message, kind = "info") {
-      const host = window.AIArb.host as {
+      const host = window.AIARB.host as {
         toast?: (m: string, k: string) => void;
       };
       if (host?.toast) {
@@ -423,9 +423,9 @@ export const hostNamespace = {
   chatSessions,
   storage,
   getSelectedAgentId: () =>
-    window.AIArb.host?.getSelectedAgentId?.() ?? "default",
+    window.AIARB.host?.getSelectedAgentId?.() ?? "default",
   getCurrentSessionId: () =>
-    window.AIArb.host?.getCurrentSessionId?.() ?? null,
+    window.AIARB.host?.getCurrentSessionId?.() ?? null,
   toast,
   notify,
 };

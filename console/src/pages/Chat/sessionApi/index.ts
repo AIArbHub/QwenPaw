@@ -1975,6 +1975,15 @@ class SessionApi implements IAgentScopeRuntimeWebUISessionAPI {
   }
 }
 
+/**
+ * Factory for creating independent SessionApi instances.
+ * Used by experimental multi-instance chat workspace where each tab
+ * needs its own SessionApi with isolated session list and ownership.
+ */
+export function createSessionApi(): SessionApi {
+  return new SessionApi();
+}
+
 const sessionApi = new SessionApi();
 
 // Ownership follows the selected agent from the agent store. Claiming here —

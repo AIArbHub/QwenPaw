@@ -2,6 +2,7 @@ import { request } from "../request";
 import { getApiUrl } from "../config";
 import { buildAuthHeaders } from "../authHeaders";
 import { useCodeFileCacheStore } from "../../stores/codeFileCacheStore";
+import { downloadFileFromUrl } from "../../utils/downloadFileFromUrl";
 import type {
   MdFileInfo,
   MdFileContent,
@@ -13,6 +14,12 @@ import type {
   FileMetadata,
   WorkspaceRoot,
 } from "../../features/files-workspace/types";
+
+/** Generate a fallback filename for workspace downloads. */
+function generateFallbackFilename(): string {
+  const ts = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  return `workspace-${ts}.zip`;
+}
 
 function encodePath(path: string): string {
   return path.split("/").map(encodeURIComponent).join("/");

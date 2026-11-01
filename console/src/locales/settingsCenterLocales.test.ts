@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 
 import en from "./en.json";
 import id from "./id.json";
@@ -47,7 +47,7 @@ describe("Settings Center copy", () => {
         getKeyPaths(en.settingsCenter).sort(),
       );
       expect(messages.nav.moreSettings).toBeTruthy();
-      expect(messages.portabilityImport.qwenpawOnly).toBeTruthy();
+      expect(messages.portabilityImport.AIARBOnly).toBeTruthy();
       expect(messages.sidebar.more).toBeTruthy();
       expect(messages.chat.newTask).toBeTruthy();
       expect(Object.keys(messages.sidebar.quickMenu).sort()).toEqual(

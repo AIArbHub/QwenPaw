@@ -17,7 +17,6 @@ import { SearchOutlined } from "@ant-design/icons";
 import { useAgentStore } from "../../stores/agentStore";
 import { chatApi } from "../../api/modules/chat";
 import { resolveAgentDisplayName } from "../../utils/hostAgent";
-import type { ChatSpec } from "../../api/types";
 
 export interface AggChat {
   chatId: string;
@@ -53,7 +52,7 @@ export default function CrossAgentSessionPicker({
       for (const a of agents) {
         try {
           const list = await chatApi.listChats({
-            agent_id: a.id,
+            agentId: a.id,
             archived: false,
             include_app_owned: false,
           });

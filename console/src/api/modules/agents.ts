@@ -189,4 +189,41 @@ export const agentsApi = {
         body: JSON.stringify({ pinned }),
       },
     ),
+
+  setAgentGroup: (agentId: string, group: string) =>
+    request<{ success: boolean; agent_id: string; group: string }>(
+      `/agents/${agentId}/group`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ group }),
+      },
+    ),
+
+  uploadAvatar: (agentId: string, file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return request<{ url: string; agent_id: string }>(
+      `/agents/${agentId}/avatar`,
+      {
+        method: "POST",
+        body: form,
+      },
+    );
+  },
+
+  deleteAvatar: (agentId: string) =>
+    request<{ success: boolean; agent_id: string }>(
+      `/agents/${agentId}/avatar`,
+      {
+        method: "DELETE",
+      },
+    ),
+
+  migrateWorkspace: (agentId: string) =>
+    request<{ success: boolean; agent_id: string; migrated: boolean }>(
+      `/agents/${agentId}/migrate-workspace`,
+      {
+        method: "POST",
+      },
+    ),
 };

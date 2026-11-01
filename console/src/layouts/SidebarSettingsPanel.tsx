@@ -75,8 +75,8 @@ const LANGUAGES = LANGUAGE_LIST.map(({ key, label }) => ({
 interface SidebarSettingsPanelProps {
   version?: string;
   onClose?: () => void;
-  onOpenDesktopMode: () => void;
-  onOpenSettings: () => void;
+  onOpenDesktopMode?: () => void;
+  onOpenSettings?: () => void;
   authEnabled?: boolean;
   onOpenAccount?: () => void;
   onLogout?: () => void;

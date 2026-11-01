@@ -1,4 +1,4 @@
-/**
+﻿/**
  * hostExternals.compat.test.tsx — back-compat shim for legacy registerRoutes.
  *
  * Verifies that a call shaped like CloudPaw's existing one:

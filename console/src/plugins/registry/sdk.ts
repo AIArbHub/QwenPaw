@@ -1,8 +1,8 @@
-/**
+﻿﻿/**
  * registry/sdk.ts — public plugin API factory.
  *
  * `buildPluginSdk()` returns an object suitable for attaching to
- * `window.AIArb.{menu, route, slot, audit}`. All plugin-facing methods take
+ * `window.AIARB.{menu, route, slot, audit}`. All plugin-facing methods take
  * `pluginId` as their first argument (mirrors existing
  * `registerRoutes("cloudpaw", …)` style — no async "currentPlugin" magic).
  *
@@ -26,14 +26,14 @@ import { auditStore } from "./audit";
 // Plugin-facing namespaces
 // ─────────────────────────────────────────────────────────────────────────────
 
-export interface AIArbMenuNamespace {
+export interface AIARBMenuNamespace {
   add(pluginId: string, item: MenuItem | MenuItem[]): Disposable;
   replace(pluginId: string, targetId: string, item: MenuItem): Disposable;
   remove(targetId: string): void;
   snapshot(location?: Parameters<typeof menuRegistry.snapshot>[0]): MenuItem[];
 }
 
-export interface AIArbRouteNamespace {
+export interface AIARBRouteNamespace {
   add(pluginId: string, route: Route | Route[]): Disposable;
   replace(
     pluginId: string,
@@ -45,7 +45,7 @@ export interface AIArbRouteNamespace {
   remove(targetId: string): void;
 }
 
-export interface AIArbSlotNamespace {
+export interface AIARBSlotNamespace {
   fill(
     pluginId: string,
     name: SlotName,
@@ -61,7 +61,7 @@ export interface AIArbSlotNamespace {
   snapshot(): SlotInfo[];
 }
 
-export interface AIArbAuditNamespace {
+export interface AIARBAuditNamespace {
   overrides(): OverrideRecord[];
 }
 
@@ -79,7 +79,7 @@ function asArray<T>(x: T | T[]): T[] {
 // Factories
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function buildMenuNamespace(): AIArbMenuNamespace {
+export function buildMenuNamespace(): AIARBMenuNamespace {
   return {
     add: (pluginId, item) => {
       const items = asArray(item);
@@ -93,7 +93,7 @@ export function buildMenuNamespace(): AIArbMenuNamespace {
   };
 }
 
-export function buildRouteNamespace(): AIArbRouteNamespace {
+export function buildRouteNamespace(): AIARBRouteNamespace {
   return {
     add: (pluginId, route) => {
       const routes = asArray(route);
@@ -108,7 +108,7 @@ export function buildRouteNamespace(): AIArbRouteNamespace {
   };
 }
 
-export function buildSlotNamespace(): AIArbSlotNamespace {
+export function buildSlotNamespace(): AIARBSlotNamespace {
   return {
     fill: (pluginId, name, render, opts) =>
       slotRegistry.fill(pluginId, name, render, opts),
@@ -118,7 +118,7 @@ export function buildSlotNamespace(): AIArbSlotNamespace {
   };
 }
 
-export function buildAuditNamespace(): AIArbAuditNamespace {
+export function buildAuditNamespace(): AIARBAuditNamespace {
   return {
     overrides: () => auditStore.overrides(),
   };

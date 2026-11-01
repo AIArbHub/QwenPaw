@@ -1,5 +1,5 @@
-/**
- * install.test.ts — validates the public window.AIArb.chat API surface.
+﻿/**
+ * install.test.ts — validates the public window.AIARB.chat API surface.
  *
  * Focuses on the sugar/wiring layer in install.ts; the underlying registry
  * mechanics (LIFO, audit, disposeAll) are covered by chatExtensions.test.ts.
@@ -13,19 +13,19 @@ import { auditStore } from "../registry/audit";
 import type { ThemeTokenOverrides } from "../registry/types";
 
 beforeEach(() => {
-  // Reset the window.AIArb namespace before each test so installHostSdk
+  // Reset the window.AIARB namespace before each test so installHostSdk
   // attaches fresh references.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).AIArb = undefined;
+  (window as any).AIARB = undefined;
   installHostExternals();
   installHostSdk();
   chatExtensions.__resetForTests();
   auditStore.clear();
 });
 
-describe("window.AIArb.chat.welcome", () => {
+describe("window.AIARB.chat.welcome", () => {
   it("set(partial) writes multiple scalar fields", () => {
-    window.AIArb.chat!.welcome.set("p1", {
+    window.AIARB.chat!.welcome.set("p1", {
       greeting: "Hi",
       avatar: "/a.png",
     });
@@ -36,7 +36,7 @@ describe("window.AIArb.chat.welcome", () => {
   });
 
   it("set() returns a Disposable that reverts every field it wrote", () => {
-    const d = window.AIArb.chat!.welcome.set("p1", {
+    const d = window.AIARB.chat!.welcome.set("p1", {
       greeting: "Hi",
       avatar: "/a.png",
     });
@@ -47,15 +47,15 @@ describe("window.AIArb.chat.welcome", () => {
   });
 
   it("set() from different plugins on different fields coexist (no overwrite)", () => {
-    window.AIArb.chat!.welcome.set("p1", { greeting: "P1 hi" });
-    window.AIArb.chat!.welcome.set("p2", { avatar: "/p2.png" });
+    window.AIARB.chat!.welcome.set("p1", { greeting: "P1 hi" });
+    window.AIARB.chat!.welcome.set("p2", { avatar: "/p2.png" });
     const snap = chatExtensions.getScalarSnapshot();
     expect(snap["welcome.greeting"]?.pluginId).toBe("p1");
     expect(snap["welcome.avatar"]?.pluginId).toBe("p2");
   });
 
   it("render(node) writes a welcome.render scalar", () => {
-    window.AIArb.chat!.welcome.render("p1", "<plain node>");
+    window.AIARB.chat!.welcome.render("p1", "<plain node>");
     const entry = chatExtensions.getScalarSnapshot()["welcome.render"];
     expect(entry?.pluginId).toBe("p1");
     expect(typeof entry?.value).toBe("function");
@@ -63,16 +63,16 @@ describe("window.AIArb.chat.welcome", () => {
 
   it("render(fn) keeps the fn as-is", () => {
     const fn = () => null as never;
-    window.AIArb.chat!.welcome.render("p1", fn);
+    window.AIARB.chat!.welcome.render("p1", fn);
     expect(chatExtensions.getScalarSnapshot()["welcome.render"]?.value).toBe(
       fn,
     );
   });
 });
 
-describe("window.AIArb.chat.leftHeader", () => {
+describe("window.AIARB.chat.leftHeader", () => {
   it("set(partial) writes header.leftLogo / header.leftTitle", () => {
-    window.AIArb.chat!.leftHeader.set("p1", {
+    window.AIARB.chat!.leftHeader.set("p1", {
       title: "MyApp",
       logo: "/logo.png",
     });
@@ -82,16 +82,16 @@ describe("window.AIArb.chat.leftHeader", () => {
   });
 
   it("render(node) writes header.leftHeader.render scalar", () => {
-    window.AIArb.chat!.leftHeader.render("p1", "<custom>");
+    window.AIARB.chat!.leftHeader.render("p1", "<custom>");
     expect(
       chatExtensions.getScalarSnapshot()["header.leftHeader.render"]?.value,
     ).toBe("<custom>");
   });
 });
 
-describe("window.AIArb.chat.theme / sender", () => {
+describe("window.AIARB.chat.theme / sender", () => {
   it("theme.set(partial) writes theme.colorPrimary", () => {
-    window.AIArb.chat!.theme.set("p1", { colorPrimary: "#123456" });
+    window.AIARB.chat!.theme.set("p1", { colorPrimary: "#123456" });
     expect(
       chatExtensions.getScalarSnapshot()["theme.colorPrimary"]?.value,
     ).toBe("#123456");
@@ -166,7 +166,7 @@ describe("window.AIArb.chat.theme / sender", () => {
   });
 
   it("sender.set(partial) writes placeholder and disclaimer", () => {
-    window.AIArb.chat!.sender.set("p1", {
+    window.AIARB.chat!.sender.set("p1", {
       placeholder: "Ask anything",
       disclaimer: "Beta",
     });
@@ -176,24 +176,24 @@ describe("window.AIArb.chat.theme / sender", () => {
   });
 
   it("sender.addPrefix appends to sender.prefix list", () => {
-    window.AIArb.chat!.sender.addPrefix("p1", "<icon>");
+    window.AIARB.chat!.sender.addPrefix("p1", "<icon>");
     const list = chatExtensions.getListSnapshot()["sender.prefix"];
     expect(list).toHaveLength(1);
     expect(list[0].pluginId).toBe("p1");
   });
 });
 
-describe("window.AIArb.chat.rightHeader / actions", () => {
+describe("window.AIARB.chat.rightHeader / actions", () => {
   it("rightHeader.add appends, never replaces", () => {
-    window.AIArb.chat!.rightHeader.add("p1", "btn1", { order: 200 });
-    window.AIArb.chat!.rightHeader.add("p2", "btn2", { order: 300 });
+    window.AIARB.chat!.rightHeader.add("p1", "btn1", { order: 200 });
+    window.AIARB.chat!.rightHeader.add("p2", "btn2", { order: 300 });
     const list = chatExtensions.getListSnapshot()["header.rightHeader"];
     expect(list.map((e) => e.pluginId)).toEqual(["p1", "p2"]);
   });
 
   it("actions.add and requestActions.add are separate lists", () => {
-    window.AIArb.chat!.actions.add("p1", { id: "a1", onClick: () => {} });
-    window.AIArb.chat!.requestActions.add("p1", {
+    window.AIARB.chat!.actions.add("p1", { id: "a1", onClick: () => {} });
+    window.AIARB.chat!.requestActions.add("p1", {
       id: "r1",
       onClick: () => {},
     });
@@ -203,14 +203,14 @@ describe("window.AIArb.chat.rightHeader / actions", () => {
   });
 });
 
-describe("window.AIArb.chat.requestPayload", () => {
+describe("window.AIARB.chat.requestPayload", () => {
   it("add writes a request payload transform list entry", () => {
     const transform = ({ payload }: { payload: Record<string, unknown> }) => ({
       ...payload,
       request_context: { source: "test" },
     });
 
-    window.AIArb.chat!.requestPayload.add("p1", transform, {
+    window.AIARB.chat!.requestPayload.add("p1", transform, {
       id: "p1.payload",
       order: 25,
     });
@@ -224,32 +224,32 @@ describe("window.AIArb.chat.requestPayload", () => {
   });
 });
 
-describe("window.AIArb.host.* hooks attached", () => {
+describe("window.AIARB.host.* hooks attached", () => {
   it("attaches the four hooks + fetch + imperative getters", () => {
-    expect(typeof window.AIArb.host.useTheme).toBe("function");
-    expect(typeof window.AIArb.host.useLocale).toBe("function");
-    expect(typeof window.AIArb.host.useSelectedAgent).toBe("function");
-    expect(typeof window.AIArb.host.useCurrentSession).toBe("function");
-    expect(typeof window.AIArb.host.getSelectedAgentId).toBe("function");
-    expect(typeof window.AIArb.host.getCurrentSessionId).toBe("function");
-    expect(typeof window.AIArb.host.fetch).toBe("function");
+    expect(typeof window.AIARB.host.useTheme).toBe("function");
+    expect(typeof window.AIARB.host.useLocale).toBe("function");
+    expect(typeof window.AIARB.host.useSelectedAgent).toBe("function");
+    expect(typeof window.AIARB.host.useCurrentSession).toBe("function");
+    expect(typeof window.AIARB.host.getSelectedAgentId).toBe("function");
+    expect(typeof window.AIARB.host.getCurrentSessionId).toBe("function");
+    expect(typeof window.AIARB.host.fetch).toBe("function");
   });
 });
 
-describe("window.AIArb.audit", () => {
+describe("window.AIARB.audit", () => {
   it("overrides() returns the audit ring buffer", () => {
-    window.AIArb.chat!.welcome.set("p1", { greeting: "Hi" });
-    const records = window.AIArb.audit!.overrides();
+    window.AIARB.chat!.welcome.set("p1", { greeting: "Hi" });
+    const records = window.AIARB.audit!.overrides();
     expect(records.length).toBeGreaterThan(0);
     expect(records.some((r) => r.field === "welcome.greeting")).toBe(true);
   });
 });
 
-describe("window.AIArb.chat.request / response", () => {
+describe("window.AIARB.chat.request / response", () => {
   it("request.render writes a request.render scalar", () => {
     const fn = ({ fallback }: { fallback: () => React.ReactElement }) =>
       fallback();
-    window.AIArb.chat!.request.render("p1", fn);
+    window.AIARB.chat!.request.render("p1", fn);
     expect(chatExtensions.getScalarSnapshot()["request.render"]?.value).toBe(
       fn,
     );
@@ -258,14 +258,14 @@ describe("window.AIArb.chat.request / response", () => {
   it("response.render writes a response.render scalar", () => {
     const fn = ({ fallback }: { fallback: () => React.ReactElement }) =>
       fallback();
-    window.AIArb.chat!.response.render("p1", fn);
+    window.AIARB.chat!.response.render("p1", fn);
     expect(chatExtensions.getScalarSnapshot()["response.render"]?.value).toBe(
       fn,
     );
   });
 
   it("response.set writes the assistant identity through welcome avatar/nick", () => {
-    window.AIArb.chat!.response.set("p1", {
+    window.AIARB.chat!.response.set("p1", {
       avatar: "/bot.png",
       nick: "My Bot",
     });
@@ -278,8 +278,8 @@ describe("window.AIArb.chat.request / response", () => {
   it("request.prepend / append append to their respective lists", () => {
     const r1 = () => null;
     const r2 = () => null;
-    window.AIArb.chat!.request.prepend("p1", r1, { id: "p1.pre" });
-    window.AIArb.chat!.request.append("p1", r2, { id: "p1.post" });
+    window.AIARB.chat!.request.prepend("p1", r1, { id: "p1.pre" });
+    window.AIARB.chat!.request.append("p1", r2, { id: "p1.post" });
 
     const snap = chatExtensions.getListSnapshot();
     expect(snap["request.prepend"].map((e) => e.item.id)).toEqual(["p1.pre"]);
@@ -287,8 +287,8 @@ describe("window.AIArb.chat.request / response", () => {
   });
 
   it("response.prepend / append from multiple plugins coexist", () => {
-    window.AIArb.chat!.response.prepend("p1", () => null, { id: "a" });
-    window.AIArb.chat!.response.prepend("p2", () => null, { id: "b" });
+    window.AIARB.chat!.response.prepend("p1", () => null, { id: "a" });
+    window.AIARB.chat!.response.prepend("p2", () => null, { id: "b" });
     expect(
       chatExtensions
         .getListSnapshot()["response.prepend"].map((e) => e.pluginId),
@@ -296,7 +296,7 @@ describe("window.AIArb.chat.request / response", () => {
   });
 
   it("returned Disposables actually clean up the slots", () => {
-    const d = window.AIArb.chat!.request.prepend("p1", () => null, {
+    const d = window.AIARB.chat!.request.prepend("p1", () => null, {
       id: "x",
     });
     expect(chatExtensions.getListSnapshot()["request.prepend"]).toHaveLength(1);
@@ -305,10 +305,10 @@ describe("window.AIArb.chat.request / response", () => {
   });
 });
 
-describe("window.AIArb.chat.approval", () => {
+describe("window.AIARB.chat.approval", () => {
   it("registers and disposes a renderer by source type", () => {
     const RenderFC = () => null;
-    const disposable = window.AIArb.chat!.approval.render(
+    const disposable = window.AIARB.chat!.approval.render(
       "p1",
       "plugin_approval",
       RenderFC,
@@ -327,17 +327,17 @@ describe("window.AIArb.chat.approval", () => {
 
 describe("disposeAll", () => {
   it("clears every registration from the named plugin", () => {
-    window.AIArb.chat!.welcome.set("p1", { greeting: "Hi", avatar: "/x" });
-    window.AIArb.chat!.actions.add("p1", {
+    window.AIARB.chat!.welcome.set("p1", { greeting: "Hi", avatar: "/x" });
+    window.AIARB.chat!.actions.add("p1", {
       id: "p1.a",
       onClick: () => {},
     });
-    window.AIArb.chat!.actions.add("p2", {
+    window.AIARB.chat!.actions.add("p2", {
       id: "p2.a",
       onClick: () => {},
     });
 
-    window.AIArb.chat!.disposeAll("p1");
+    window.AIARB.chat!.disposeAll("p1");
 
     const snap = chatExtensions.getScalarSnapshot();
     expect(snap["welcome.greeting"]).toBeUndefined();
