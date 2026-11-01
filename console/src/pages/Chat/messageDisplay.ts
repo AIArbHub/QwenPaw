@@ -199,3 +199,52 @@ export function groupResponseMessages(
   flushCollapsedRun();
   return blocks;
 }
+
+// ---------------------------------------------------------------------------
+// Group-chat member helpers (M3 native runtime support)
+// ---------------------------------------------------------------------------
+
+/** Check if a message is a group-chat member reply (has group_member metadata). */
+export function isMemberReplyMessage(message: IAgentScopeRuntimeMessage): boolean {
+  const meta = (message as unknown as Record<string, unknown>).metadata as
+    | Record<string, unknown>
+    | undefined;
+  return Boolean(meta?.group_member);
+}
+
+/** Extract the member agent ID from a member reply message. */
+export function getMemberAgentId(
+  message: IAgentScopeRuntimeMessage,
+): string | null {
+  if (!isMemberReplyMessage(message)) return null;
+  const meta = (message as unknown as Record<string, unknown>).metadata as
+    | Record<string, unknown>
+    | undefined;
+  return (meta?.group_member as string) ?? null;
+}
+
+/** Extract the member display name from a member reply message. */
+export function getMemberName(
+  message: IAgentScopeRuntimeMessage,
+): string | null {
+  if (!isMemberReplyMessage(message)) return null;
+  const meta = (message as unknown as Record<string, unknown>).metadata as
+    | Record<string, unknown>
+    | undefined;
+  return (meta?.group_member_name as string) ?? null;
+}
+
+/** Extract the plain-text reply content from a member reply message. */
+export function getMemberReplyText(
+  message: IAgentScopeRuntimeMessage,
+): string | null {
+  if (!isMemberReplyMessage(message)) return null;
+  const content = message.content;
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) return null;
+  return (content as Array<{ type: string; text?: string }>)
+    .filter((c) => c.type === "text")
+    .map((c) => c.text || "")
+    .filter(Boolean)
+    .join("\n");
+}

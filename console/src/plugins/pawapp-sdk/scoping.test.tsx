@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -77,8 +77,8 @@ describe("app-scoped PawApp SDK", () => {
   });
 
   it("routes chat through the selected host agent and session", async () => {
-    window.AIArb.host.getSelectedAgentId = () => "analyst";
-    window.AIArb.host.getCurrentSessionId = () => "session-7";
+    window.AIARB.host.getSelectedAgentId = () => "analyst";
+    window.AIARB.host.getCurrentSessionId = () => "session-7";
     mockedFetch.mockResolvedValue(
       new Response(JSON.stringify({ text: "done" }), {
         headers: { "content-type": "application/json" },

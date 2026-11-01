@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { requiresAIArbModel, supportsAgentAttachments } from "./agentBackend";
+import { requiresAIARBModel, supportsAgentAttachments } from "./agentBackend";
 
-describe("requiresAIArbModel", () => {
-  it("requires a configured model for native AIArb agents", () => {
-    expect(requiresAIArbModel("aiarb")).toBe(true);
+describe("requiresAIARBModel", () => {
+  it("requires a configured model for native AIARB agents", () => {
+    expect(requiresAIARBModel("aiarb")).toBe(true);
   });
 
-  it("does not inspect AIArb models for Codex agents", () => {
-    expect(requiresAIArbModel("codex")).toBe(false);
+  it("does not inspect AIARB models for Codex agents", () => {
+    expect(requiresAIARBModel("codex")).toBe(false);
   });
 });
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+﻿import React, { useEffect, useRef } from "react";
 import { routeRegistry } from "../registry/store";
 import type {
   PawChatUiNamespace,
@@ -26,10 +26,10 @@ function mountedComponent(
 }
 
 function requireChat() {
-  if (!window.AIArb.chat) {
+  if (!window.AIARB.chat) {
     throw new Error("PawApp chat UI capabilities are unavailable");
   }
-  return window.AIArb.chat;
+  return window.AIARB.chat;
 }
 
 type AppIdProvider = string | (() => string);

@@ -318,7 +318,7 @@ export function AppMarket({
         content: tRef.current("pluginManager.compatWarningContent", {
           defaultValue:
             "This plugin is labeled for AIARB {{labels}}. Your AIARB version is {{version}}. Installing it may cause errors. Are you sure you want to continue?",
-          labels: entry.AIARB_compat_labels?.join(", ") ?? "unknown",
+          labels: entry.aiarb_compat_labels?.join(", ") ?? "unknown",
           version: AIARBVersion ?? "unknown",
         }),
         okText: tRef.current(

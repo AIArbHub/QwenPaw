@@ -1,9 +1,9 @@
-/**
+﻿/**
  * registry/audit.ts — single override log shared by all AIArb registries
  * (console-wide menu/route/slot + chat extensions).
  *
  * Ring buffer (default 500 entries). Plugin authors can read via
- * `window.AIArb.audit.overrides()` for debugging / change attribution.
+ * `window.AIARB.audit.overrides()` for debugging / change attribution.
  *
  * OverrideRecord carries two interchangeable id fields:
  *   - `targetId` — preferred by console-wide registries (menuId / routeId / slotName)

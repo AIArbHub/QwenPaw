@@ -1,4 +1,4 @@
-import {
+﻿import {
   act,
   fireEvent,
   render,
@@ -95,7 +95,7 @@ describe("ImportPage", () => {
       useAgentStore.setState({ selectedAgent: backend });
       renderPage();
       expect(useImportJob).not.toHaveBeenCalled();
-      expect(screen.getByText("portabilityImport.qwenpawOnly")).toBeVisible();
+      expect(screen.getByText("portabilityImport.AIARBOnly")).toBeVisible();
 
       act(() => useAgentStore.setState({ selectedAgent: "agent" }));
       expect(actions.detect).toHaveBeenCalled();
@@ -103,7 +103,7 @@ describe("ImportPage", () => {
 
       act(() => useAgentStore.setState({ selectedAgent: backend }));
       expect(useImportJob).toHaveBeenCalledTimes(calls);
-      expect(screen.getByText("portabilityImport.qwenpawOnly")).toBeVisible();
+      expect(screen.getByText("portabilityImport.AIARBOnly")).toBeVisible();
       expect(screen.queryByRole("button")).toBeNull();
     },
   );

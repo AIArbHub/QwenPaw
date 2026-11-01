@@ -1,4 +1,4 @@
-/**
+﻿/**
  * hostSdk/install.ts — attach `window.AIARB.chat`, `window.AIARB.host.*`
  * (hooks + fetch), and `window.AIARB.audit` to the global namespace.
  *

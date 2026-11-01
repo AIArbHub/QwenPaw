@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Unit tests for the market plugin compatibility check.
  *
  * What this file pins:
@@ -33,7 +33,7 @@ const entry = (
     view_count: 4,
     details_url: null,
     locales: {},
-    qwenpaw_compat_labels: labels,
+    aiarb_compat_labels: labels,
     ...overrides,
   }) as MarketPluginEntry;
 

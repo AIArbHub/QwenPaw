@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import {
   act,
   cleanup,
@@ -9,7 +9,7 @@ import {
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AssistantMarkdown } from "./AssistantMarkdown";
 import { chatExtensions } from "../../plugins/registry/chatExtensions";
-import type { ChatCodeBlockProps } from "../../plugins/types/qwenpaw";
+import type { ChatCodeBlockProps } from "../../plugins/types/aiarb";
 
 vi.mock("@agentscope-ai/design", async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
