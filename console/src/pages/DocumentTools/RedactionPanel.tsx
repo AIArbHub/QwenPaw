@@ -352,70 +352,52 @@ export default function RedactionPanel() {
         // 批量
         await documentToolsApi.batchRedact(
           files,
-          { policy, strengthLevel },
-          (event: any) => {
-            if (event.type === "result") {
-              setBatchResults((prev) => {
-                const existing = prev.findIndex((r: any) => r.file === event.file);
-                const entry: BatchFileResult = {
-                  file: event.file || "",
-                  success: event.success,
-                  entity_count: event.entity_count,
-                  output_file: event.output_file,
-                  mapping_file: event.mapping_file,
-                  error: event.error,
-                };
-                if (existing >= 0) {
-                  const updated = [...prev];
-                  updated[existing] = entry;
-                  return updated;
-                }
-                return [...prev, entry];
+          {
+            policy,
+            strengthLevel,
+            onProgress: (event: any) => {
+              if (event.type === "result") {
+                setBatchResults((prev) => {
+                  const existing = prev.findIndex((r: any) => r.file === event.file);
+                  const entry: BatchFileResult = {
+                    file: event.file || "",
+                    success: event.success,
+                    entity_count: event.entity_count,
+                    output_file: event.output_file,
+                    mapping_file: event.mapping_file,
+                    error: event.error,
+                  };
+                  if (existing >= 0) {
+                    const updated = [...prev];
+                    updated[existing] = entry;
+                    return updated;
+                  }
+                  return [...prev, entry];
+                });
+              }
+            },
+            onDone: (summary: any) => {
+              setBatchResult(summary);
+              if (summary.results) {
+                setBatchResults(summary.results.map((r: any) => ({
+                  file: r.file || "",
+                  success: r.success,
+                  entity_count: r.entity_count,
+                  output_file: r.output_file,
+                  mapping_file: r.mapping_file,
+                  error: r.error,
+                })));
+              }
+              setNotice({
+                tone: summary.fail_count > 0 ? "warning" : "success",
+                text: t("documentTools.redaction.batchComplete", "批量脱敏完成：成功 {success}/{total} 个文件，共发现 {count} 个实体")
+                  .replace("{success}", String(summary.success_count))
+                  .replace("{total}", String(summary.total_files))
+                  .replace("{count}", String(summary.total_entity_count)),
               });
-            }
+            },
+            onError: (err: string) => setNotice({ tone: "error", text: err }),
           },
-          (summary: any) => {
-            setBatchResult(summary);
-            if (summary.results) {
-              setBatchResults(summary.results.map((r: any) => ({
-                file: r.file || "",
-                success: r.success,
-                entity_count: r.entity_count,
-                output_file: r.output_file,
-                mapping_file: r.mapping_file,
-                error: r.error,
-              })));
-            }
-            setNotice({
-              tone: summary.fail_count > 0 ? "warning" : "success",
-              text: t("documentTools.redaction.batchComplete", "批量脱敏完成：成功 {success}/{total} 个文件，共发现 {count} 个实体")
-                .replace("{success}", String(summary.success_count))
-                .replace("{total}", String(summary.total_files))
-                .replace("{count}", String(summary.total_entity_count)),
-            });
-          },
-          (summary: any) => {
-            setBatchResult(summary);
-            if (summary.results) {
-              setBatchResults(summary.results.map((r: any) => ({
-                file: r.file || "",
-                success: r.success,
-                entity_count: r.entity_count,
-                output_file: r.output_file,
-                mapping_file: r.mapping_file,
-                error: r.error,
-              })));
-            }
-            setNotice({
-              tone: summary.fail_count > 0 ? "warning" : "success",
-              text: t("documentTools.redaction.batchComplete", "批量脱敏完成：成功 {success}/{total} 个文件，共发现 {count} 个实体")
-                .replace("{success}", String(summary.success_count))
-                .replace("{total}", String(summary.total_files))
-                .replace("{count}", String(summary.total_entity_count)),
-            });
-            addToHistory("batch", `${files.length} files`, summary.total_entity_count || 0, redactionMode);
-          },
-          (err: string) => setNotice({ tone: "error", text: err }),
         );
       }
     } catch (err: any) {
@@ -866,13 +848,13 @@ export default function RedactionPanel() {
               />
             </Col>
           </Row>
-          <RedactionResult result={result} t={t} />
+          <RedactionResult result={result} t={(key, dv) => t(key, dv ?? "") as string} />
         </div>
       )}
 
       {showFileResult && (
         <div>
-          <RedactionResult result={result!} t={t} />
+          <RedactionResult result={result!} t={(key, dv) => t(key, dv ?? "") as string} />
         </div>
       )}
 
@@ -1210,7 +1192,7 @@ function RedactionResult({
                   size="small"
                   pagination={false}
                   dataSource={(result as any).agent_suggestions}
-                  rowKey={(_: any, i: number) => `suggestion-${i}`}
+                  rowKey={(_: any, i?: number) => `suggestion-${i}`}
                   columns={[
                     { title: t("documentTools.redaction.original", "原文"), dataIndex: "original", width: 180, ellipsis: true },
                     { title: t("documentTools.redaction.type", "类型"), dataIndex: "entity_type", width: 120, render: (v: string) => <Tag color="orange">{v}</Tag> },

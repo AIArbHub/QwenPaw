@@ -382,7 +382,7 @@ export default function SidebarSettingsPanel({
       <button
         type="button"
         className={styles.menuItem}
-        onClick={() => finishAction(onOpenDesktopMode)}
+        onClick={() => finishAction(onOpenDesktopMode ?? (() => {}))}
       >
         <Monitor size={16} />
         <span>{t("sidebar.settings.desktopMode", "Desktop mode")}</span>
@@ -439,7 +439,7 @@ export default function SidebarSettingsPanel({
       <button
         type="button"
         className={styles.menuItem}
-        onClick={() => finishAction(onOpenSettings)}
+        onClick={() => finishAction(onOpenSettings ?? (() => {}))}
       >
         <Settings size={16} />
         <span>{t("sidebar.quickMenu.settings", "Settings")}</span>

@@ -246,8 +246,8 @@ export const workspaceApi = {
     return response.json();
   },
 
-  listFiles: () =>
-    request<MdFileInfo[]>("/workspace/files").then((files) =>
+  listFiles: (agentId?: string) =>
+    request<MdFileInfo[]>(agentId ? `/workspace/files?agent_id=${encodeURIComponent(agentId)}` : "/workspace/files").then((files) =>
       files.map((file) => ({
         ...file,
         updated_at: new Date(file.modified_time).getTime(),
@@ -313,8 +313,8 @@ export const workspaceApi = {
 
     return await response.json();
   },
-  listMemoryFiles: (section: MemorySection) =>
-    request<MdFileInfo[]>(workspaceQuery("/workspace/memory", { section })),
+  listMemoryFiles: (section: MemorySection, agentId?: string) =>
+    request<MdFileInfo[]>(workspaceQuery("/workspace/memory", { section, agent_id: agentId })),
 
   loadMemoryFile: (memoryPath: string, section: MemorySection) =>
     request<MdFileContent>(
@@ -365,11 +365,11 @@ export const workspaceApi = {
     ),
 
   // System prompt files management
-  getSystemPromptFiles: () =>
-    request<string[]>("/workspace/system-prompt-files"),
+  getSystemPromptFiles: (agentId?: string) =>
+    request<string[]>(agentId ? `/workspace/system-prompt-files?agent_id=${encodeURIComponent(agentId)}` : "/workspace/system-prompt-files"),
 
-  setSystemPromptFiles: (files: string[]) =>
-    request<string[]>("/workspace/system-prompt-files", {
+  setSystemPromptFiles: (files: string[], agentId?: string) =>
+    request<string[]>(agentId ? `/workspace/system-prompt-files?agent_id=${encodeURIComponent(agentId)}` : "/workspace/system-prompt-files", {
       method: "PUT",
       body: JSON.stringify(files),
     }),

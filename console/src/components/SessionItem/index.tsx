@@ -36,6 +36,8 @@ export interface SessionItemProps {
   // -- Data --
   sessionId: string;
   name: string;
+  variant?: string;
+  time?: string;
   updatedAt?: string | null;
   channelKey?: string;
   channelLabel?: string;
@@ -44,7 +46,7 @@ export interface SessionItemProps {
   unseenResult?: boolean;
   archived?: boolean;
   pinned?: boolean;
-  source?: "chat" | "cron" | "subagent";
+  source?: "chat" | "cron" | "subagent" | string;
   groupId?: string | null;
   groups?: ChatGroup[];
 
@@ -53,6 +55,8 @@ export interface SessionItemProps {
   disabled?: boolean;
   editing?: boolean;
   editValue?: string;
+  selecting?: boolean;
+  selected?: boolean;
 
   // -- Events --
   onClick?: (sessionId: string) => void;
@@ -64,6 +68,7 @@ export interface SessionItemProps {
   onEditChange?: (value: string) => void;
   onEditSubmit?: () => void;
   onEditCancel?: () => void;
+  onToggleSelect?: (sessionId: string) => void;
 }
 
 const SessionItem: React.FC<SessionItemProps> = ({

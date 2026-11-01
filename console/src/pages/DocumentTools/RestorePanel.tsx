@@ -14,7 +14,6 @@ import {
   Upload,
   Statistic,
   Empty,
-  Descriptions,
 } from "antd";
 import {
   UndoOutlined,

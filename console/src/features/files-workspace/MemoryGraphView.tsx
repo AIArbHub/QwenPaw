@@ -199,7 +199,7 @@ function graphBelowRoot(
 
 function toGraphModel(
   snapshot: MemoryGraphSnapshot,
-  root: MemoryGraphRoot,
+  root: MemoryGraphRoot | string,
 ): GraphModel {
   const degree = new Map(snapshot.nodes.map((node) => [node.id, 0]));
   snapshot.edges.forEach((edge) => {

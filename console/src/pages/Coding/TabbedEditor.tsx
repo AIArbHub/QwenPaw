@@ -78,6 +78,7 @@ interface TabbedEditorProps {
   onMemoryTagClick?: (tag: string) => void;
   onLoadFile?: (path: string) => Promise<string>;
   onSaveFile?: (path: string, content: string) => Promise<void>;
+  onSaveBinary?: (path: string, data: ArrayBuffer | Blob) => Promise<void>;
   onDownloadFile?: (path: string) => Promise<void>;
   chatId?: string;
   projectDirOverride?: string;

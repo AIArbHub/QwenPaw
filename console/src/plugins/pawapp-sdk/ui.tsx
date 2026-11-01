@@ -41,43 +41,43 @@ function resolveAppId(provider: AppIdProvider): string {
 function createChatUiNamespace(provider: AppIdProvider): PawChatUiNamespace {
   return {
     theme: {
-      set: (partial) =>
+      set: (partial: Record<string, unknown>) =>
         requireChat().theme.set(resolveAppId(provider), partial),
     },
     welcome: {
-      set: (partial) =>
+      set: (partial: Record<string, unknown>) =>
         requireChat().welcome.set(resolveAppId(provider), partial),
-      render: (value) =>
+      render: (value: unknown) =>
         requireChat().welcome.render(resolveAppId(provider), value),
     },
     leftHeader: {
-      set: (partial) =>
+      set: (partial: Record<string, unknown>) =>
         requireChat().leftHeader.set(resolveAppId(provider), partial),
-      render: (node) =>
+      render: (node: React.ReactNode) =>
         requireChat().leftHeader.render(resolveAppId(provider), node),
     },
     rightHeader: {
-      add: (node, opts) =>
+      add: (node: React.ReactNode, opts?: { id?: string; order?: number }) =>
         requireChat().rightHeader.add(resolveAppId(provider), node, opts),
     },
     sender: {
-      set: (partial) =>
+      set: (partial: Record<string, unknown>) =>
         requireChat().sender.set(resolveAppId(provider), partial),
-      addPrefix: (node, opts) =>
+      addPrefix: (node: React.ReactNode, opts?: { id?: string; order?: number }) =>
         requireChat().sender.addPrefix(resolveAppId(provider), node, opts),
-      addSuggestion: (item) =>
+      addSuggestion: (item: { id?: string; items: unknown[] }) =>
         requireChat().sender.addSuggestion(resolveAppId(provider), item),
     },
     actions: {
-      add: (action) =>
+      add: (action: unknown) =>
         requireChat().actions.add(resolveAppId(provider), action),
     },
     requestActions: {
-      add: (action) =>
+      add: (action: unknown) =>
         requireChat().requestActions.add(resolveAppId(provider), action),
     },
     requestPayload: {
-      add: (transform, opts) =>
+      add: (transform: unknown, opts?: { id?: string; order?: number }) =>
         requireChat().requestPayload.add(
           resolveAppId(provider),
           transform,
@@ -85,28 +85,28 @@ function createChatUiNamespace(provider: AppIdProvider): PawChatUiNamespace {
         ),
     },
     request: {
-      render: (render) =>
+      render: (render: unknown) =>
         requireChat().request.render(resolveAppId(provider), render),
-      prepend: (render, opts) =>
+      prepend: (render: unknown, opts?: { id?: string; order?: number }) =>
         requireChat().request.prepend(resolveAppId(provider), render, opts),
-      append: (render, opts) =>
+      append: (render: unknown, opts?: { id?: string; order?: number }) =>
         requireChat().request.append(resolveAppId(provider), render, opts),
     },
     response: {
-      set: (partial) =>
+      set: (partial: Record<string, unknown>) =>
         requireChat().response.set(resolveAppId(provider), partial),
-      render: (render) =>
+      render: (render: unknown) =>
         requireChat().response.render(resolveAppId(provider), render),
-      prepend: (render, opts) =>
+      prepend: (render: unknown, opts?: { id?: string; order?: number }) =>
         requireChat().response.prepend(resolveAppId(provider), render, opts),
-      append: (render, opts) =>
+      append: (render: unknown, opts?: { id?: string; order?: number }) =>
         requireChat().response.append(resolveAppId(provider), render, opts),
     },
-    toolRender: (toolName, render) =>
+    toolRender: (toolName: string, render: unknown) =>
       requireChat().toolRender(resolveAppId(provider), toolName, render),
-    approvalRender: (sourceType, render) =>
+    approvalRender: (sourceType: string, render: unknown) =>
       requireChat().approval.render(resolveAppId(provider), sourceType, render),
-    card: (cardName, render) =>
+    card: (cardName: string, render: unknown) =>
       requireChat().card(resolveAppId(provider), cardName, render),
     disposeAll: () => requireChat().disposeAll(resolveAppId(provider)),
   };
@@ -114,7 +114,7 @@ function createChatUiNamespace(provider: AppIdProvider): PawChatUiNamespace {
 
 export function createUiNamespace(provider: AppIdProvider): PawUiNamespace {
   return {
-    registerPage(registration): PawDisposable {
+    registerPage(registration: PawPageRegistration): PawDisposable {
       const appId = normalizeAppId(resolveAppId(provider));
       if (!!registration.component === !!registration.mount) {
         throw new Error(
@@ -135,6 +135,29 @@ export function createUiNamespace(provider: AppIdProvider): PawUiNamespace {
         component: Component,
       });
     },
+    registerToolCard(): void {},
+    registerSourceCard(): void {},
+    registerResponseItem(): void {},
+    appendResponseItem(): PawDisposable {
+      return { dispose() {} };
+    },
+    appendResponseHtml(): PawDisposable {
+      return { dispose() {} };
+    },
+    prependResponseItem(): PawDisposable {
+      return { dispose() {} };
+    },
+    appendUserMessage(): PawDisposable {
+      return { dispose() {} };
+    },
+    registerAction(): void {},
+    registerActionWith(): void {},
+    registerTransform(): void {},
+    registerToolResult(): void {},
+    registerSidebarNode(): void {},
+    setValue(): void {},
+    setMetadata(): void {},
+    update(): void {},
     chat: createChatUiNamespace(provider),
   };
 }

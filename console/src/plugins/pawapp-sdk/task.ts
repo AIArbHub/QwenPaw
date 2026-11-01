@@ -204,14 +204,31 @@ function createPawTaskWithScope(
       listeners.get(event)!.add(handler);
       return handle;
     },
+    once(event, handler) {
+      const wrapper: PawTaskEventHandler = (data) => {
+        handler(data);
+        listeners.get(event)?.delete(wrapper);
+      };
+      return handle.on(event, wrapper);
+    },
     off(event, handler) {
-      listeners.get(event)?.delete(handler);
+      if (handler) {
+        listeners.get(event)?.delete(handler);
+      } else {
+        listeners.delete(event);
+      }
       return handle;
+    },
+    abort() {
+      handle.cancel();
     },
     cancel() {
       if (!finalize("reject", new Error("Task cancelled"))) return;
       abortController.abort();
       void finalizeReaderOnce();
+    },
+    get id() {
+      return taskId;
     },
     get result() {
       return resultPromise;

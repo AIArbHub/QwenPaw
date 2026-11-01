@@ -17,8 +17,8 @@ interface SkillsToolbarProps {
   allTags: string[];
   filterOpen: boolean;
   onFilterOpenChange: (open: boolean) => void;
-  viewMode: "card" | "list";
-  onViewModeChange: (mode: "card" | "list") => void;
+  viewMode: "card" | "list" | "group";
+  onViewModeChange: (mode: "card" | "list" | "group") => void;
 }
 
 export function SkillsToolbar({
