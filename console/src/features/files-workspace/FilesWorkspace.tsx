@@ -40,6 +40,9 @@ import styles from "./FilesWorkspace.module.less";
 interface FilesWorkspaceProps {
   initialTarget?: FileTarget;
   initialMemoryTag?: string;
+  initialSource?: string;
+  hideSourceTabs?: boolean;
+  knowledgeGroups?: unknown[];
   scope: FilesWorkspaceScope;
 }
 
@@ -815,7 +818,7 @@ export default function FilesWorkspace({
                 await workspaceApi.saveDailyMemory(sourcePath, content);
               }
             }}
-            onSaveBinary={async (path, data) => {
+            onSaveBinary={async (path: string, data: ArrayBuffer | Blob) => {
               const tab = tabsRef.current.find((item) => item.path === path);
               const displayPath = tab?.displayPath ?? path;
               const fileName = displayPath.split("/").pop() ?? displayPath;

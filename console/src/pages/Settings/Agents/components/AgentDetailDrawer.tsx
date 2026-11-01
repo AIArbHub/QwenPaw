@@ -324,7 +324,7 @@ export function AgentDetailDrawer({
     setUploadingAvatar(true);
     try {
       const result = await agentsApi.uploadAvatar(agent.id, file);
-      setAvatarUrl(result.avatar);
+      setAvatarUrl(result.url);
       message.success(t("agent.avatarUploadSuccess"));
     } catch (error: unknown) {
       message.error(

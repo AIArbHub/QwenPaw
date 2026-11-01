@@ -228,7 +228,7 @@ function SkillsPage() {
           filterOpen={filterOpen}
           onFilterOpenChange={setFilterOpen}
           viewMode={viewMode}
-          onViewModeChange={setViewMode}
+          onViewModeChange={(m) => setViewMode(m as "list" | "card")}
         />
       )}
 

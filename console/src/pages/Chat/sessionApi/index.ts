@@ -1980,8 +1980,16 @@ class SessionApi implements IAgentScopeRuntimeWebUISessionAPI {
  * Used by experimental multi-instance chat workspace where each tab
  * needs its own SessionApi with isolated session list and ownership.
  */
-export function createSessionApi(): SessionApi {
-  return new SessionApi();
+export function createSessionApi(agentId?: string): SessionApi {
+  const api = new SessionApi();
+  if (agentId) {
+    try {
+      api.setActiveAgent(agentId);
+    } catch {
+      // setActiveAgent may not be available in all contexts; safe to ignore
+    }
+  }
+  return api;
 }
 
 const sessionApi = new SessionApi();

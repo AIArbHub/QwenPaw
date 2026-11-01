@@ -89,6 +89,7 @@ export interface RestoreResult {
   restored_text: string;
   replacements: { redacted: string; original: string }[];
   unmatched: string[];
+  error?: string;
 }
 
 export interface EntityTypeEntry {

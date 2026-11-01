@@ -43,7 +43,6 @@ import {
   useChatWorkspaceStore,
   type WorkspaceTab,
 } from "./chatWorkspaceStore";
-import CrossAgentSessionPicker from "../../components/CrossAgentSessionPicker";
 import styles from "./ChatMultiInstance.module.less";
 
 export default function ChatMultiInstance() {
@@ -158,7 +157,7 @@ export default function ChatMultiInstance() {
               {isActive && (
                 <div className={styles.panelInner}>
                   <ChatScopeProvider value={scope}>
-                    <ChatPage chatId={tab.chatId} agentId={tab.agentId} />
+                    <ChatPage />
                   </ChatScopeProvider>
                 </div>
               )}

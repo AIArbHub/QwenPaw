@@ -6,9 +6,9 @@ import styles from "./SessionDateHeader.module.less";
 interface SessionDateHeaderProps {
   dateGroup: ChatDateGroup;
   label: string;
-  count: number;
+  count?: number;
   collapsed?: boolean;
-  onToggle: () => void;
+  onToggle?: () => void;
 }
 
 /**
@@ -34,7 +34,7 @@ export default function SessionDateHeader({
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          onToggle();
+          onToggle?.();
         }
       }}
     >

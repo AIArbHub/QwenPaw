@@ -384,7 +384,6 @@ export default function MemoryPage() {
   const isGroupKey = (key: string): boolean =>
     key === "daily" || key === "digest" || key === "overview" || key.startsWith("daily-");
 
-  const isWorkingKey = (key: string): boolean => key.startsWith("working:");
 
   return (
     <section className={styles.page} aria-label={t("nav.memory", "记忆中心")}>
@@ -528,7 +527,7 @@ export default function MemoryPage() {
                   treeData={treeData}
                   expandedKeys={expandedKeys}
                   onExpand={(keys: React.Key[]) => setExpandedKeys(keys as string[])}
-                  onSelect={(keys, info) => {
+                  onSelect={(keys, _info) => {
                     const key = keys[0] as string;
                     if (!key || isGroupKey(key)) return;
                     // Find the node from treeData

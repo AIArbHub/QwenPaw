@@ -11,10 +11,15 @@ import { BookOpen, Database } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAgentStore } from "../../stores/agentStore";
 import FilesWorkspace from "../../features/files-workspace/FilesWorkspace";
-import type { KnowledgeLibraryGroup } from "../../features/files-workspace/FilesNavigator";
 import workspaceStyles from "../../features/files-workspace/FilesWorkspace.module.less";
 import { knowledgeApi, type KnowledgeSearchHit } from "../../api/modules/knowledge";
 import type { FileTarget } from "../../features/files-workspace/types";
+
+interface KnowledgeLibraryGroup {
+  key: string;
+  name: string;
+  agentId?: string;
+}
 import CuratorPanel from "./CuratorPanel";
 import styles from "./index.module.less";
 

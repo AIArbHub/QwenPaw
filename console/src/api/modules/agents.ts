@@ -219,11 +219,12 @@ export const agentsApi = {
       },
     ),
 
-  migrateWorkspace: (agentId: string) =>
+  migrateWorkspace: (agentId: string, options?: { new_workspace_dir?: string; migrate_files?: boolean }) =>
     request<{ success: boolean; agent_id: string; migrated: boolean }>(
       `/agents/${agentId}/migrate-workspace`,
       {
         method: "POST",
+        body: options ? JSON.stringify(options) : undefined,
       },
     ),
 };

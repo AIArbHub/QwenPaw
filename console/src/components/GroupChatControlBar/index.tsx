@@ -161,7 +161,7 @@ export default function GroupChatControlBar({
           <span style={{ fontSize: 12, fontWeight: 500 }}>
             {m.name || m.agent_id}
           </span>
-          <ControllerTag controller={m.controller} t={t} />
+          <ControllerTag controller={m.controller} t={(key, fb) => t(key, fb ?? "") as string} />
           {m.human_pending && (
             <Tooltip title={t("chat.groupChat.waitingForHuman", "等待您发言…")}>
               <span style={{ fontSize: 11, color: "#fa8c16" }}>⏳</span>

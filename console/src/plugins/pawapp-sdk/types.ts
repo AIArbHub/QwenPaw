@@ -6,6 +6,8 @@
  * are now inlined here to keep the SDK self-contained after the rename.
  */
 
+import type React from "react";
+
 // ---------------------------------------------------------------------------
 // Disposable
 // ---------------------------------------------------------------------------
@@ -96,14 +98,17 @@ export interface PawApiNamespace {
 // ---------------------------------------------------------------------------
 
 export type PawTaskEventHandler<T = unknown> = (data: T) => void;
+export type PawTaskEvents = Record<string, Set<PawTaskEventHandler>>;
 
 export interface PawTaskHandle {
   readonly id: string;
+  readonly taskId: string;
   readonly result: Promise<unknown>;
   on(event: string, handler: PawTaskEventHandler): PawTaskHandle;
   once(event: string, handler: PawTaskEventHandler): PawTaskHandle;
   off(event: string, handler?: PawTaskEventHandler): PawTaskHandle;
   abort(reason?: string): void;
+  cancel(reason?: string): void;
 }
 
 // ---------------------------------------------------------------------------
@@ -213,13 +218,16 @@ export interface PawHostNamespace {
 export interface PawPageRegistration {
   id: string;
   title?: string;
+  label?: string;
   icon?: React.ComponentType<{ size?: number }>;
   mount?: (el: HTMLDivElement) => PawDisposable | (() => void);
   route?: string;
+  path?: string;
+  component?: React.ComponentType;
 }
 
 export interface PawUiNamespace {
-  registerPage(registration: PawPageRegistration): void;
+  registerPage(registration: PawPageRegistration): PawDisposable;
   registerToolCard(
     cardName: string,
     render: (data: unknown) => React.ReactNode,
@@ -273,10 +281,25 @@ export interface PawUiNamespace {
   setValue(partial: Record<string, unknown>): void;
   setMetadata(partial: Record<string, unknown>): void;
   update(value: unknown): void;
+  theme?: { set(partial: Record<string, unknown>): void };
+  chat?: PawChatUiNamespace;
 }
 
-export interface PawChatUiNamespace extends PawUiNamespace {
-  /** Extend with chat-specific methods if needed. */
+export interface PawChatUiNamespace {
+  theme: { set(partial: Record<string, unknown>): void };
+  welcome: { set(partial: Record<string, unknown>): void; render(value: unknown): void };
+  leftHeader: { set(partial: Record<string, unknown>): void; render(node: React.ReactNode): void };
+  rightHeader: { add(node: React.ReactNode, opts?: { id?: string; order?: number }): void };
+  sender: { set(partial: Record<string, unknown>): void; addPrefix(node: React.ReactNode, opts?: { id?: string; order?: number }): void; addSuggestion(item: { id?: string; items: unknown[] }): void };
+  actions: { add(action: unknown): void };
+  requestActions: { add(action: unknown): void };
+  requestPayload: { add(transform: unknown, opts?: { id?: string; order?: number }): void };
+  request: { render(render: unknown): void; prepend(render: unknown, opts?: { id?: string; order?: number }): void; append(render: unknown, opts?: { id?: string; order?: number }): void };
+  response: { set(partial: Record<string, unknown>): void; render(render: unknown): void; prepend(render: unknown, opts?: { id?: string; order?: number }): void; append(render: unknown, opts?: { id?: string; order?: number }): void };
+  toolRender(toolName: string, render: unknown): void;
+  approvalRender(sourceType: string, render: unknown): void;
+  card(cardName: string, render: unknown): void;
+  disposeAll(): void;
 }
 
 // ---------------------------------------------------------------------------
@@ -287,13 +310,15 @@ export type PawDependencyStatus =
   | "healthy"
   | "degraded"
   | "down"
-  | "unknown";
+  | "unknown"
+  | string;
 
 export type PawDependencyAction =
   | "restart"
   | "rollback"
   | "scale_up"
-  | "scale_down";
+  | "scale_down"
+  | string;
 
 export interface PawDependencyHealthState {
   healthy: boolean;
@@ -310,24 +335,46 @@ export interface PawDependencyLifecycleState {
 export type PawDependencyOwnership =
   | "owned"
   | "shared"
-  | "external";
+  | "external"
+  | string;
 
 export interface PawDependencySnapshot {
   id: string;
   name: string;
+  displayName?: string;
   status: PawDependencyStatus;
   health?: PawDependencyHealthState;
   lifecycle?: PawDependencyLifecycleState;
   ownership?: PawDependencyOwnership;
   version?: string;
+  schema_version?: string;
+  required?: boolean;
+  error_code?: string | null;
+  message?: string;
+  remediation?: string | null;
+  capabilities?: string[];
+  actions?: string[];
+  last_checked_at?: string;
+  latency_ms?: number;
+  [key: string]: unknown;
 }
 
 export type PawCapabilityStatus = "enabled" | "disabled" | "unavailable";
 
+export interface PawDependencyActionOptions {
+  force?: boolean;
+  intervalMs?: number;
+  idempotencyKey?: string;
+  [key: string]: unknown;
+}
+
 export interface PawDependenciesNamespace {
   list(force?: boolean): Promise<PawDependencySnapshot[]>;
-  restart(dependencyId: string, action: PawDependencyAction, options?: { force?: boolean; intervalMs?: number }): Promise<PawDependencySnapshot>;
-  subscribe(listener: (snapshot: PawDependencySnapshot) => void): PawDisposable;
+  get(dependencyId: string, force?: boolean): Promise<PawDependencySnapshot>;
+  check(dependencyId: string): Promise<PawDependencySnapshot>;
+  action(dependencyId: string, action: PawDependencyAction, options?: PawDependencyActionOptions): Promise<PawDependencySnapshot>;
+  restart(dependencyId: string, action: PawDependencyAction, options?: PawDependencyActionOptions): Promise<PawDependencySnapshot>;
+  subscribe(listener: (snapshot: PawDependencySnapshot) => void, options?: { intervalMs?: number; force?: boolean }): PawDisposable;
 }
 
 // ---------------------------------------------------------------------------
@@ -335,10 +382,18 @@ export interface PawDependenciesNamespace {
 // ---------------------------------------------------------------------------
 
 export interface PawSdk {
+  appId: string;
   api: PawApiNamespace;
   host: PawHostNamespace;
   ui: PawUiNamespace;
   dependencies: PawDependenciesNamespace;
+  chat(message: string, options?: PawChatOptions): Promise<string>;
+  chatStream(message: string, options?: PawChatOptions): AsyncGenerator<PawChatStreamEvent>;
+  getChatHistory(options?: PawChatOptions): Promise<PawChatHistory>;
+  chatSessions: PawChatSessionsApi;
+  storage: PawStorageApi;
+  toast(message: string, kind?: "info" | "success" | "warning" | "error"): Promise<void>;
+  notify(title: string, body?: string): Promise<void>;
 }
 
 export interface PawSdkFactory {
