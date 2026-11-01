@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Transactional restore orchestration for checkpoints."""
 
 from __future__ import annotations

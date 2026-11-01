@@ -17,7 +17,7 @@ from fastapi import APIRouter, Body, HTTPException, Query, Request
 from fastapi import Path as PathParam
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-from AIARB.exceptions import (
+from aiarb.exceptions import (
     AppBaseException,
 )
 
@@ -91,7 +91,7 @@ _PROTECTED_AGENT_IDS = frozenset(
 @router.get("/memory/backends")
 async def list_memory_backends() -> list[dict[str, Any]]:
     """Describe memory backends registered by core and preloaded plugins."""
-    from AIARB.memory import memory_registry
+    from aiarb.memory import memory_registry
 
     return memory_registry.describe()
 

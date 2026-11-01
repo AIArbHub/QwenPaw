@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Unit tests for OneBot v11 channel."""
 from __future__ import annotations

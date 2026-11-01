@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Restore coverage for conversation, memory, and workspace files."""
 
 # pylint: disable=protected-access

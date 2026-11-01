@@ -1655,7 +1655,7 @@ def _mask_memory_backend_secrets(
     running: AgentsRunningConfig,
 ) -> AgentsRunningConfig:
     """Return a detached API-safe config with plugin secrets masked."""
-    from AIARB.memory import memory_registry
+    from aiarb.memory import memory_registry
 
     masked = running.model_copy(deep=True)
     for backend_id, values in list(masked.memory_backend_configs.items()):
@@ -1865,7 +1865,7 @@ async def put_agents_running_config(
     workspace_dir = getattr(workspace, "workspace_dir", ".")
     config_path = Path(workspace_dir) / "agent.json"
     async with get_path_lock(config_path):
-        from AIARB.memory import (
+        from aiarb.memory import (
             MemoryBackendUnavailableError,
             memory_registry,
         )

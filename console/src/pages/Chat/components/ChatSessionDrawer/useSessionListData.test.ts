@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Regression tests for cross-agent ownership in the shared session-list CRUD
  * handlers: a delete started under agent A must not mutate the view after the
  * user switches to agent B, while same-agent CRUD keeps working.

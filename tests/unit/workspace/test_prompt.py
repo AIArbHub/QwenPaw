@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for agent identity in system prompt."""
 import tempfile
 from pathlib import Path

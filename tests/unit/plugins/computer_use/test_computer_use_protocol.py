@@ -38,7 +38,7 @@ from aiarb.app.computer_use import (
     HostRuntimeProvider,
     set_current_computer_use_turn_id,
 )
-from AIARB.app.computer_use import runtime as runtime_module
+from aiarb.app.computer_use import runtime as runtime_module
 from tests.unit.plugins.timing import WAIT_TIMEOUT
 from aiarb.app.computer_use import runtime as runtime_module
 

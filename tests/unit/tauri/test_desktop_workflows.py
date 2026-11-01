@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Regression tests for desktop packaging workflows."""
 
 import json
@@ -163,9 +163,9 @@ def test_shared_daemon_keeps_channel_runtime_environment() -> None:
         assert "command.envs(crate::runtime_env::collect(app))" in factory
     assert "crate::channel_runtime::backend_environment(app)" in collector
     for key in (
-        "QWENPAW_CHANNEL_RUNTIME_MANIFEST",
-        "QWENPAW_CHANNEL_SUPPORT_ROOT",
-        "QWENPAW_CHANNEL_DEPENDENCY_PATHS",
+        "AIARB_CHANNEL_RUNTIME_MANIFEST",
+        "AIARB_CHANNEL_SUPPORT_ROOT",
+        "AIARB_CHANNEL_DEPENDENCY_PATHS",
     ):
         assert f'"{key}"' in channels
 

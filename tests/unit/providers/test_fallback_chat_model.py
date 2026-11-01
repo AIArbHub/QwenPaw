@@ -21,27 +21,27 @@ from agentscope.model import ChatModelBase
 from agentscope.model._model_response import ChatResponse, StructuredResponse
 from agentscope.model._model_usage import ChatUsage
 
-from AIARB.agents import model_factory
-from AIARB.config.config import ModelSlotConfig
-from AIARB.providers.capping_formatter import (
+from aiarb.agents import model_factory
+from aiarb.config.config import ModelSlotConfig
+from aiarb.providers.capping_formatter import (
     _CappingAnthropicFormatter,
     _CappingOpenAIFormatter,
 )
-from AIARB.providers.fallback_chat_model import (
+from aiarb.providers.fallback_chat_model import (
     FallbackChatModel,
     install_fallback_notice_sink,
 )
-from AIARB.providers.model_selection import (
+from aiarb.providers.model_selection import (
     current_model_slot,
     runtime_model_context,
 )
-from AIARB.providers.rate_limiter import _limiters
-from AIARB.providers.retry_chat_model import (
+from aiarb.providers.rate_limiter import _limiters
+from aiarb.providers.retry_chat_model import (
     RateLimitConfig,
     RetryChatModel,
     RetryConfig,
 )
-from AIARB.token_usage.model_wrapper import TokenRecordingModelWrapper
+from aiarb.token_usage.model_wrapper import TokenRecordingModelWrapper
 
 
 class FakeModel(ChatModelBase):
@@ -561,7 +561,7 @@ async def test_usage_and_model_key_follow_actual_fallback(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "AIARB.app.agent_context.get_current_session_id",
+        "aiarb.app.agent_context.get_current_session_id",
         lambda: "fallback-session",
     )
     primary = FakeModel("primary", HttpError(503))

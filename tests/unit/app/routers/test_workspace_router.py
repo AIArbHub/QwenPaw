@@ -12,7 +12,7 @@ import pytest
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from AIARB.app.routers.workspace import (
+from aiarb.app.routers.workspace import (
     _ConfigRollbackConflict,
     _conditionally_restore_config_changes,
     _mask_memory_backend_secrets,
@@ -20,9 +20,9 @@ from AIARB.app.routers.workspace import (
     put_agent_language,
     put_agents_running_config,
 )
-from AIARB.config import AgentsRunningConfig
-from AIARB.config.config import AgentProfileConfig
-from AIARB.memory import memory_registry
+from aiarb.config import AgentsRunningConfig
+from aiarb.config.config import AgentProfileConfig
+from aiarb.memory import memory_registry
 
 
 class _RemoteMemoryConfig(BaseModel):
@@ -71,20 +71,20 @@ async def test_language_change_schedules_agent_reload(tmp_path):
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.load_agent_config",
+            "aiarb.app.routers.workspace.load_agent_config",
             return_value=agent_config,
         ),
-        patch("AIARB.app.routers.workspace.save_agent_config"),
+        patch("aiarb.app.routers.workspace.save_agent_config"),
         patch(
-            "AIARB.app.routers.workspace.copy_workspace_md_files",
+            "aiarb.app.routers.workspace.copy_workspace_md_files",
             return_value=["AGENTS.md"],
         ),
         patch(
-            "AIARB.app.routers.workspace.schedule_agent_reload",
+            "aiarb.app.routers.workspace.schedule_agent_reload",
         ) as schedule_reload,
     ):
         response = await put_agent_language(request, {"language": "zh"})
@@ -187,14 +187,14 @@ async def test_save_preserves_unavailable_backend_config_server_side(tmp_path):
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             _config_transaction(agent_config),
         ),
-        patch("AIARB.app.routers.workspace.schedule_agent_reload"),
+        patch("aiarb.app.routers.workspace.schedule_agent_reload"),
     ):
         response = await put_agents_running_config(submitted, MagicMock())
 
@@ -219,14 +219,14 @@ async def test_save_does_not_create_config_for_core_memory_backend(tmp_path):
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             _config_transaction(agent_config),
         ),
-        patch("AIARB.app.routers.workspace.schedule_agent_reload"),
+        patch("aiarb.app.routers.workspace.schedule_agent_reload"),
     ):
         response = await put_agents_running_config(submitted, MagicMock())
 
@@ -271,14 +271,14 @@ async def test_save_preserves_masked_secret_and_returns_only_mask(tmp_path):
     try:
         with (
             patch(
-                "AIARB.app.routers.workspace.get_agent_for_request",
+                "aiarb.app.routers.workspace.get_agent_for_request",
                 AsyncMock(return_value=workspace),
             ),
             patch(
-                "AIARB.app.routers.workspace.update_agent_config_async",
+                "aiarb.app.routers.workspace.update_agent_config_async",
                 _config_transaction(agent_config),
             ),
-            patch("AIARB.app.routers.workspace.schedule_agent_reload"),
+            patch("aiarb.app.routers.workspace.schedule_agent_reload"),
         ):
             response = await put_agents_running_config(submitted, MagicMock())
 
@@ -313,15 +313,15 @@ async def test_backend_switch_to_remelight_skips_old_manager_embedding_update(
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             transaction,
         ),
         patch(
-            "AIARB.app.routers.workspace.schedule_agent_reload",
+            "aiarb.app.routers.workspace.schedule_agent_reload",
         ) as schedule_reload,
     ):
         response = await put_agents_running_config(new_running, MagicMock())
@@ -360,15 +360,15 @@ async def test_backend_only_switch_persists_and_schedules_reload(
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             _config_transaction(agent_config),
         ),
         patch(
-            "AIARB.app.routers.workspace.schedule_agent_reload",
+            "aiarb.app.routers.workspace.schedule_agent_reload",
         ) as schedule_reload,
     ):
         response = await put_agents_running_config(new_running, MagicMock())
@@ -422,15 +422,15 @@ async def test_plugin_backend_selection_blocks_unload_until_reload_handoff(
     try:
         with (
             patch(
-                "AIARB.app.routers.workspace.get_agent_for_request",
+                "aiarb.app.routers.workspace.get_agent_for_request",
                 AsyncMock(return_value=workspace),
             ),
             patch(
-                "AIARB.app.routers.workspace.update_agent_config_async",
+                "aiarb.app.routers.workspace.update_agent_config_async",
                 side_effect=update_config,
             ),
             patch(
-                "AIARB.app.routers.workspace.schedule_agent_reload",
+                "aiarb.app.routers.workspace.schedule_agent_reload",
                 side_effect=schedule_reload,
             ),
         ):
@@ -498,15 +498,15 @@ async def test_failed_plugin_backend_reload_rolls_back_and_restores_runtime(
     try:
         with (
             patch(
-                "AIARB.app.routers.workspace.get_agent_for_request",
+                "aiarb.app.routers.workspace.get_agent_for_request",
                 AsyncMock(return_value=workspace),
             ),
             patch(
-                "AIARB.app.routers.workspace.update_agent_config_async",
+                "aiarb.app.routers.workspace.update_agent_config_async",
                 _config_transaction(agent_config),
             ),
             patch(
-                "AIARB.app.routers.workspace.schedule_agent_reload",
+                "aiarb.app.routers.workspace.schedule_agent_reload",
                 side_effect=schedule_reload,
             ),
         ):
@@ -543,15 +543,15 @@ async def test_remelight_switch_skips_embedding_hot_update() -> None:
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             _config_transaction(agent_config),
         ),
         patch(
-            "AIARB.app.routers.workspace.schedule_agent_reload",
+            "aiarb.app.routers.workspace.schedule_agent_reload",
         ) as schedule_reload,
     ):
         response = await put_agents_running_config(new_running, MagicMock())
@@ -621,15 +621,15 @@ async def test_running_config_persists_before_embedding_hot_update() -> None:
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             _config_transaction(agent_config, events=events),
         ),
         patch(
-            "AIARB.app.routers.workspace.schedule_agent_reload",
+            "aiarb.app.routers.workspace.schedule_agent_reload",
         ) as schedule_reload,
     ):
         response = await put_agents_running_config(
@@ -687,15 +687,15 @@ async def test_save_cancel_after_persist_completes_runtime() -> None:
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             side_effect=update_config,
         ),
         patch(
-            "AIARB.app.routers.workspace.schedule_agent_reload",
+            "aiarb.app.routers.workspace.schedule_agent_reload",
         ) as schedule_reload,
         pytest.raises(asyncio.CancelledError),
     ):
@@ -733,14 +733,14 @@ async def test_api_key_change_does_not_require_reindex() -> None:
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             _config_transaction(agent_config),
         ),
-        patch("AIARB.app.routers.workspace.schedule_agent_reload"),
+        patch("aiarb.app.routers.workspace.schedule_agent_reload"),
     ):
         response = await put_agents_running_config(new_running, MagicMock())
 
@@ -774,14 +774,14 @@ async def test_restoring_indexed_config_clears_reindex_requirement() -> None:
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             _config_transaction(agent_config),
         ),
-        patch("AIARB.app.routers.workspace.schedule_agent_reload"),
+        patch("aiarb.app.routers.workspace.schedule_agent_reload"),
     ):
         response = await put_agents_running_config(
             restored_running,
@@ -812,18 +812,18 @@ async def test_running_config_save_failure_does_not_touch_runtime() -> None:
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             _config_transaction(
                 agent_config,
                 error=OSError("disk full"),
             ),
         ),
         patch(
-            "AIARB.app.routers.workspace.schedule_agent_reload",
+            "aiarb.app.routers.workspace.schedule_agent_reload",
         ) as schedule_reload,
     ):
         with pytest.raises(OSError, match="disk full"):
@@ -868,15 +868,15 @@ async def test_hot_update_exception_rolls_back_before_reload() -> None:
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             _config_transaction(agent_config, events=events),
         ),
         patch(
-            "AIARB.app.routers.workspace.schedule_agent_reload",
+            "aiarb.app.routers.workspace.schedule_agent_reload",
             side_effect=schedule_reload,
         ),
         pytest.raises(HTTPException) as exc_info,
@@ -907,11 +907,11 @@ async def test_embedding_update_is_rejected_while_reindexing() -> None:
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             transaction,
         ),
     ):
@@ -953,15 +953,15 @@ async def test_failed_runtime_update_rolls_back_and_returns_503() -> None:
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             _config_transaction(agent_config, events=events),
         ),
         patch(
-            "AIARB.app.routers.workspace.schedule_agent_reload",
+            "aiarb.app.routers.workspace.schedule_agent_reload",
         ) as schedule_reload,
     ):
         with pytest.raises(HTTPException) as exc_info:
@@ -1008,14 +1008,14 @@ async def test_failed_runtime_update_preserves_concurrent_change() -> None:
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             side_effect=update_config,
         ),
-        patch("AIARB.app.routers.workspace.schedule_agent_reload"),
+        patch("aiarb.app.routers.workspace.schedule_agent_reload"),
     ):
         with pytest.raises(HTTPException) as exc_info:
             await put_agents_running_config(new_running, MagicMock())
@@ -1056,14 +1056,14 @@ async def test_failed_runtime_update_reports_rollback_conflict() -> None:
 
     with (
         patch(
-            "AIARB.app.routers.workspace.get_agent_for_request",
+            "aiarb.app.routers.workspace.get_agent_for_request",
             AsyncMock(return_value=workspace),
         ),
         patch(
-            "AIARB.app.routers.workspace.update_agent_config_async",
+            "aiarb.app.routers.workspace.update_agent_config_async",
             side_effect=update_config,
         ),
-        patch("AIARB.app.routers.workspace.schedule_agent_reload"),
+        patch("aiarb.app.routers.workspace.schedule_agent_reload"),
     ):
         with pytest.raises(HTTPException) as exc_info:
             await put_agents_running_config(new_running, MagicMock())

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Codex Migration Provider with app-server and rollout JSONL recovery."""
 
 from __future__ import annotations

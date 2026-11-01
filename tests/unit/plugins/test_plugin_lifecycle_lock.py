@@ -9,25 +9,25 @@ from pathlib import Path
 
 import pytest
 
-from AIARB.governance.tool_registry import (
+from aiarb.governance.tool_registry import (
     DEFAULT_REGISTRY,
     register_tool_governance,
 )
-from AIARB.plugins.api import (
+from aiarb.plugins.api import (
     _TOOL_PLUGIN_OWNERS,
     release_tool_ownership_for_plugin,
 )
-from AIARB.plugins.architecture import (
+from aiarb.plugins.architecture import (
     PluginEntryPoints,
     PluginManifest,
     PluginRecord,
 )
-from AIARB.plugins.loader import (
+from aiarb.plugins.loader import (
     PluginLoader,
     _norm_realpath,
     resolved_plugin_manifest_path,
 )
-from AIARB.plugins.registry import PluginRegistry
+from aiarb.plugins.registry import PluginRegistry
 
 
 def test_norm_realpath_applies_normcase(tmp_path: Path):

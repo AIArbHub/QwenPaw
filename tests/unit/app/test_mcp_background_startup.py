@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,wrong-import-position,no-name-in-module
 """Tests for non-blocking MCP startup."""
 

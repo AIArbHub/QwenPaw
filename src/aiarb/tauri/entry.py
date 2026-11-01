@@ -12,13 +12,13 @@ from collections.abc import Sequence
 
 import click
 
-from AIARB.tauri.backend_guard import BackendInstance
-from AIARB.tauri.env import (
+from aiarb.tauri.backend_guard import BackendInstance
+from aiarb.tauri.env import (
     DESKTOP_APP_ENV,
     DESKTOP_CORS_ORIGINS_ENV,
     ensure_desktop_cors_origins,
 )
-from AIARB.tauri.sidecar_logging import install_sidecar_logging
+from aiarb.tauri.sidecar_logging import install_sidecar_logging
 
 logger = logging.getLogger(__name__)
 
@@ -191,14 +191,14 @@ def _install_subprocess_guard() -> None:
 
 
 def _ensure_AIARB_app_not_loaded() -> None:
-    if "AIARB.app._app" in sys.modules:
+    if "aiarb.app._app" in sys.modules:
         raise RuntimeError(
             "AIARB app imported before desktop CORS origins were set",
         )
 
 
 def _sync_loaded_AIARB_constant_cors_origins() -> None:
-    constant_module = sys.modules.get("AIARB.constant")
+    constant_module = sys.modules.get("aiarb.constant")
     if constant_module is not None:
         constant_module.CORS_ORIGINS = os.environ.get(
             DESKTOP_CORS_ORIGINS_ENV,
@@ -245,11 +245,11 @@ def _install_certifi_env() -> None:
 def _install_desktop_runtime() -> None:
     os.environ.setdefault(DESKTOP_APP_ENV, "1")
     # Must run before importing the FastAPI app: it applies CORS middleware
-    # from AIARB.constant.CORS_ORIGINS at import time.
+    # from aiarb.constant.CORS_ORIGINS at import time.
     _ensure_AIARB_app_not_loaded()
     ensure_desktop_cors_origins()
     _sync_loaded_AIARB_constant_cors_origins()
-    from AIARB.browser.runtime.managed_playwright import (
+    from aiarb.browser.runtime.managed_playwright import (
         configure_desktop_playwright_cache,
     )
 
@@ -285,16 +285,16 @@ def _run_backend_server(
 ) -> None:
     import uvicorn
 
-    from AIARB.browser.control_link.chrome.protocol import (
+    from aiarb.browser.control_link.chrome.protocol import (
         NM_MAX_INBOUND_BYTES,
     )
-    from AIARB.config.utils import write_last_api
-    from AIARB.constant import LOG_LEVEL_ENV, WORKING_DIR
-    from AIARB.utils.logging import (
+    from aiarb.config.utils import write_last_api
+    from aiarb.constant import LOG_LEVEL_ENV, WORKING_DIR
+    from aiarb.utils.logging import (
         SuppressPathAccessLogFilter,
         setup_logger,
     )
-    from AIARB.utils.port import get_stable_port, write_port_file
+    from aiarb.utils.port import get_stable_port, write_port_file
 
     host = "127.0.0.1"
     normalized_log_level = log_level.lower()
@@ -313,7 +313,7 @@ def _run_backend_server(
     setup_logger(normalized_log_level)
 
     if normalized_log_level in ("debug", "trace"):
-        from AIARB.cli.main import log_init_timings
+        from aiarb.cli.main import log_init_timings
 
         log_init_timings()
 
@@ -328,7 +328,7 @@ def _run_backend_server(
 
     # Import the app instance (instead of the import string) so the desktop
     # shutdown endpoint can reach the uvicorn server via app.state.
-    from AIARB.app._app import app as fastapi_app
+    from aiarb.app._app import app as fastapi_app
 
     config = uvicorn.Config(
         fastapi_app,
@@ -353,7 +353,7 @@ def _run_backend_server(
 
     try:
         port = _socket_port(backend_socket)
-        from AIARB.app.server_context import set_server_port
+        from aiarb.app.server_context import set_server_port
 
         set_server_port(port, app=fastapi_app)
         write_port_file(port_file, port)
@@ -387,7 +387,7 @@ def main() -> None:
     if sys.argv[1:2] == ["--internal-dependency-continue"]:
         if len(sys.argv) != 4:
             raise RuntimeError("DEPENDENCY_APPROVAL_REQUIRED")
-        from AIARB.plugins.dependency_upgrade import run_native_continuation
+        from aiarb.plugins.dependency_upgrade import run_native_continuation
 
         run_native_continuation(sys.argv[2], sys.argv[3])
         return
@@ -398,7 +398,7 @@ def main() -> None:
     _install_subprocess_guard()
     _install_desktop_runtime()
 
-    from AIARB.constant import WORKING_DIR
+    from aiarb.constant import WORKING_DIR
 
     os.environ["AIARB_RUNTIME_MODE"] = "shared"
     with BackendInstance(WORKING_DIR, "shared") as instance:
@@ -408,7 +408,7 @@ def main() -> None:
 def _run_initialized_backend(
     instance: BackendInstance,
 ) -> None:
-    from AIARB.constant import LOG_LEVEL_ENV, WORKING_DIR
+    from aiarb.constant import LOG_LEVEL_ENV, WORKING_DIR
 
     install_sidecar_logging(WORKING_DIR / "desktop.log")
     _install_certifi_env()
@@ -416,7 +416,7 @@ def _run_initialized_backend(
     # Auto-initialize if no config exists
     config_path = WORKING_DIR / "config.json"
     if not config_path.exists():
-        from AIARB.cli.init_cmd import init_cmd
+        from aiarb.cli.init_cmd import init_cmd
 
         _run_click_command(
             init_cmd,
@@ -426,7 +426,7 @@ def _run_initialized_backend(
 
     # On Windows without admin, warn that sandbox runs in unelevated mode
     # with limited isolation (mirrors the same guard in cli/app_cmd.py).
-    from AIARB.utils.platform import warn_unelevated_sandbox
+    from aiarb.utils.platform import warn_unelevated_sandbox
 
     warn_unelevated_sandbox()
 

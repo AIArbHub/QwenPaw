@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument
 """Exercise ReMe proposals against host archives and atomic commits."""
 
@@ -539,7 +539,7 @@ async def test_native_dispatch_preserves_manual_compact(
 async def test_synthetic_continuation_does_not_expose_active_turn(model):
     from qwenpaw.constant import (
         LOOP_CONTINUATION_MESSAGE_TAG,
-        QWENPAW_MESSAGE_TAG_KEY,
+        AIARB_MESSAGE_TAG_KEY,
     )
 
     agent = make_agent()
@@ -549,7 +549,7 @@ async def test_synthetic_continuation_does_not_expose_active_turn(model):
             name="user",
             role="user",
             content=[TextBlock(text="Continue")],
-            metadata={QWENPAW_MESSAGE_TAG_KEY: LOOP_CONTINUATION_MESSAGE_TAG},
+            metadata={AIARB_MESSAGE_TAG_KEY: LOOP_CONTINUATION_MESSAGE_TAG},
         ),
     )
     compactor = DecisionCompactor()

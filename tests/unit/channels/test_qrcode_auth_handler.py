@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for Feishu and DingTalk QR Code Auth Handlers."""
 # pylint: disable=redefined-outer-name,protected-access
 from __future__ import annotations

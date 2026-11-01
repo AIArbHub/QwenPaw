@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Runtime paths, process state, and small JSON helpers."""
 
 from __future__ import annotations

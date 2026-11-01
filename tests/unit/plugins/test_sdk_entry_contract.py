@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Opt-in SDK dispatch and pre-import compatibility contracts."""
 
 import json
@@ -24,7 +24,7 @@ def write_plugin(root, source, **manifest_fields):
 @pytest.fixture(name="loader")
 def plugin_loader(tmp_path, monkeypatch, fresh_registry):
     work = tmp_path / "work"
-    monkeypatch.setenv("QWENPAW_WORKING_DIR", str(work))
+    monkeypatch.setenv("AIARB_WORKING_DIR", str(work))
     monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", work)
     monkeypatch.setattr("qwenpaw.config.utils.WORKING_DIR", work)
     result = PluginLoader(plugin_dirs=[tmp_path / "plugins"])
@@ -37,7 +37,7 @@ def plugin_loader(tmp_path, monkeypatch, fresh_registry):
     [
         {},
         {"min_version": "0.1.0", "max_version": "0.2.0"},
-        {"qwenpaw_version": {"min": "0.1.0", "max": "0.2.0"}},
+        {"AIARB_version": {"min": "0.1.0", "max": "0.2.0"}},
     ],
 )
 async def test_undeclared_plugin_keeps_original_api_and_version_policy(

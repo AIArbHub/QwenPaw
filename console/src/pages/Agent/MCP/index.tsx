@@ -1,4 +1,4 @@
-﻿import { Cascade } from "@/components/interaction/Cascade";
+import { Cascade } from "@/components/interaction/Cascade";
 import { SharedModal as Modal } from "@/components/interaction/SharedModal";
 import { useState, useCallback, useLayoutEffect, useRef } from "react";
 import { Button, Empty, Input, Select } from "@agentscope-ai/design";

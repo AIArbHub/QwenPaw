@@ -12,7 +12,7 @@ import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from AIARB.app.routers.settings import _VALID_LANGUAGES, router
+from aiarb.app.routers.settings import _VALID_LANGUAGES, router
 from aiarb.app.routers.settings import router
 
 app = FastAPI()

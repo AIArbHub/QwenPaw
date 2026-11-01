@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for ToolCoordinator completion and offload lifecycle."""
 
 from __future__ import annotations

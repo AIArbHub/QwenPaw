@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for the module-level app helpers in ``qwenpaw/app/_app.py``.
 
 ``test_scroll_startup_io.py`` pins the worker-thread offload of the scroll
@@ -35,7 +35,7 @@ from qwenpaw.tauri.backend_guard import BackendInstance
 
 app_module = importlib.import_module("qwenpaw.app._app")
 
-CONSOLE_STATIC_ENV = "QWENPAW_CONSOLE_STATIC_DIR"
+CONSOLE_STATIC_ENV = "AIARB_CONSOLE_STATIC_DIR"
 
 
 def _state(**attrs: Any):
@@ -428,10 +428,10 @@ def test_version_endpoint_does_not_leak_the_environment(
 
 @pytest.fixture()
 def runtime_request(tmp_path, monkeypatch):
-    monkeypatch.delenv("QWENPAW_RUNTIME_ID", raising=False)
-    monkeypatch.setenv("QWENPAW_RUNTIME_MODE", "shared")
+    monkeypatch.delenv("AIARB_RUNTIME_ID", raising=False)
+    monkeypatch.setenv("AIARB_RUNTIME_MODE", "shared")
     with BackendInstance(tmp_path, "shared") as instance:
-        monkeypatch.setenv("QWENPAW_RUNTIME_CONTROL_TOKEN", instance.token)
+        monkeypatch.setenv("AIARB_RUNTIME_CONTROL_TOKEN", instance.token)
         server = SimpleNamespace(should_exit=False)
         state = SimpleNamespace(
             uvicorn_server=server,
@@ -447,7 +447,7 @@ def test_control_routes_reject_non_shared_modes(
     monkeypatch,
     mode,
 ):
-    monkeypatch.setenv("QWENPAW_RUNTIME_MODE", mode)
+    monkeypatch.setenv("AIARB_RUNTIME_MODE", mode)
     with pytest.raises(HTTPException) as error:
         runtime_router.authenticate(
             runtime_request,
@@ -464,7 +464,7 @@ def test_control_routes_require_instance_secret(runtime_request, token):
 
 
 def test_control_routes_reject_hub_identity(runtime_request, monkeypatch):
-    monkeypatch.setenv("QWENPAW_RUNTIME_ID", "tenant")
+    monkeypatch.setenv("AIARB_RUNTIME_ID", "tenant")
     with pytest.raises(HTTPException) as error:
         runtime_router.authenticate(
             runtime_request,

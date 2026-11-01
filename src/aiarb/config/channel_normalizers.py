@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Fixed, SDK-free configuration normalizers shared by models and schemas.
 
 The marker selects a host-defined pure function, never plugin Python code.

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Configuration migration utilities for multi-agent support.
 
 Handles migration from legacy single-agent config to new multi-agent structure.
@@ -785,7 +785,7 @@ def ensure_qa_agent_exists() -> None:
 
 
 def _merge_legacy_qa_agent(config) -> bool:
-    """Merge the legacy ``QwenPaw_QA_Agent_0.2`` profile into the canonical id.
+    """Merge the legacy ``AIARB_QA_Agent_0.2`` profile into the canonical id.
 
     Older releases persisted the builtin QA agent under a ``QwenPaw`` prefix.
     ``ensure_qa_agent_exists`` keys off the canonical ``AIArb`` id, so a config

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Thinking Log Middleware Demo Plugin.
 
 Demonstrates `on_reasoning` middleware that captures and prints the

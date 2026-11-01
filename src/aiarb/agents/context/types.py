@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Shared data types for the context-management package."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-DECISION_COMPACTED = "qwenpaw_decision_compacted"
+DECISION_COMPACTED = "AIARB_decision_compacted"
 
 
 @dataclass(frozen=True)

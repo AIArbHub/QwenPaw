@@ -6,15 +6,15 @@ import sys
 import pytest
 import yaml
 
-from AIARB.app.mail import driver_config
-from AIARB.config.config import AgentMailConfig, AgentMailCredential
+from aiarb.app.mail import driver_config
+from aiarb.config.config import AgentMailConfig, AgentMailCredential
 
 
 @pytest.mark.parametrize(
     ("backend_name", "cli_name"),
     [
         ("AIARB-backend", "AIARB"),
-        ("AIARB-backend.exe", "AIARB.exe"),
+        ("AIARB-backend.exe", "aiarb.exe"),
     ],
 )
 def test_driver_card_uses_bundled_cli_when_frozen(

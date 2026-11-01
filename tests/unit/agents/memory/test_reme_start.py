@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Focused tests for the embedded ReMe startup lifecycle."""
 
@@ -21,13 +21,13 @@ async def test_start_without_active_model_keeps_provider_free_reme() -> None:
     manager = ReMeLightMemoryManager.__new__(ReMeLightMemoryManager)
     manager.agent_id = "default"
     manager._reme = reme
-    manager._update_qwenpaw_model = AsyncMock(
+    manager._update_AIARB_model = AsyncMock(
         side_effect=ProviderError("No active model configured."),
     )
 
     await manager.start()
 
-    manager._update_qwenpaw_model.assert_awaited_once_with()
+    manager._update_AIARB_model.assert_awaited_once_with()
     reme.start.assert_awaited_once_with()
 
 
@@ -38,7 +38,7 @@ async def test_start_propagates_unexpected_model_injection_failure() -> None:
     manager = ReMeLightMemoryManager.__new__(ReMeLightMemoryManager)
     manager.agent_id = "default"
     manager._reme = reme
-    manager._update_qwenpaw_model = AsyncMock(
+    manager._update_AIARB_model = AsyncMock(
         side_effect=RuntimeError("unexpected injection failure"),
     )
 

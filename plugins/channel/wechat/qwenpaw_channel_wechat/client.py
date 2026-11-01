@@ -29,7 +29,7 @@ from .utils import (
     aes_ecb_encrypt,
     make_headers,
 )
-from AIARB.exceptions import ChannelError
+from aiarb.exceptions import ChannelError
 
 logger = logging.getLogger(__name__)
 

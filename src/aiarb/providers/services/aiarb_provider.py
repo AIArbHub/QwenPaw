@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """AIARB service capabilities and request policy."""
 
 from typing import ClassVar

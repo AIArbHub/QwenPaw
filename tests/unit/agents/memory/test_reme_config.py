@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for embedded ReMe configuration mapping."""
 
 from aiarb.agents.memory.reme_config import get_reme_app_config

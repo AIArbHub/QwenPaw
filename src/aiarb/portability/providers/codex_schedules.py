@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Read Codex TOML/SQLite automations without mutating or executing them."""
 
 from __future__ import annotations

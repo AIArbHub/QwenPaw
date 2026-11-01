@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Playwright ControlLink multiplexer for raw browser mechanism facts."""
 
 # pylint: disable=protected-access,unused-argument,unused-import

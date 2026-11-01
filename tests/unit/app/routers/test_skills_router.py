@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for ``aiarb.app.routers.skills``.
 
 Per the issue acceptance criteria the focus is on:

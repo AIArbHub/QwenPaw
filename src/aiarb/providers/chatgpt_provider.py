@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Account-scoped ChatGPT plan models on the public Responses endpoint."""
 
 from __future__ import annotations

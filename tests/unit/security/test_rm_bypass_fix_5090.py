@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Focused regression test for #5090: rm -rf ${HOME} bypass.
 
 The root cause: ``_RM_ESCAPE_PATTERNS`` applied a ``${VAR}`` blanking

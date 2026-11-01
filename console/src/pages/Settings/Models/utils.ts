@@ -1,4 +1,4 @@
-﻿import type { ProviderInfo } from "../../../api/types/provider";
+import type { ProviderInfo } from "../../../api/types/provider";
 
 /** Determine if a provider has valid credentials configured. */
 export function getIsConfigured(provider: ProviderInfo): boolean {

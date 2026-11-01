@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for ADBPG memory manager behavior."""
 # pylint: disable=protected-access
 

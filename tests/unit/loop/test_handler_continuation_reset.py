@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for StopHandler peer-gate reset on continuation."""
 from __future__ import annotations
 

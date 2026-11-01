@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Both dependency declarations participate in real plugin transactions."""
 
 # pylint: disable=protected-access
@@ -282,16 +282,16 @@ asyncio.run(main())
     env = {
         key: value
         for key, value in os.environ.items()
-        if not key.startswith(("QWENPAW_", "PYTHON"))
+        if not key.startswith(("AIARB_", "PYTHON"))
         and not any(
             part in key.upper()
             for part in ("TOKEN", "SECRET", "PASSWORD", "API_KEY")
         )
     }
     env.update(
-        QWENPAW_DEPENDENCY_STATE_DIR=str(tmp_path / "dependency-state"),
-        QWENPAW_WORKING_DIR=str(tmp_path / "bootstrap"),
-        QWENPAW_SECRET_DIR=str(tmp_path / "secrets"),
+        AIARB_DEPENDENCY_STATE_DIR=str(tmp_path / "dependency-state"),
+        AIARB_WORKING_DIR=str(tmp_path / "bootstrap"),
+        AIARB_SECRET_DIR=str(tmp_path / "secrets"),
         PIP_NO_INDEX="1",
         UV_NO_INDEX="1",
         PIP_FIND_LINKS=str(wheels),

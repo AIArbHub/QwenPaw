@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=unused-argument
 """Tests for the shared chat-model response helpers."""
 from types import SimpleNamespace

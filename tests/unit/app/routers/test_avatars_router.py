@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Avatar routes follow the Console middleware's authentication policy."""
 
 from types import SimpleNamespace
@@ -13,7 +13,7 @@ from qwenpaw.app.routers import avatars
 
 @pytest.fixture(name="avatar_client")
 def make_avatar_client(monkeypatch, tmp_path):
-    monkeypatch.setenv("QWENPAW_AUTH_ENABLED", "true")
+    monkeypatch.setenv("AIARB_AUTH_ENABLED", "true")
     monkeypatch.setattr(auth, "has_registered_users", lambda: True)
     monkeypatch.setattr(
         auth,
@@ -73,7 +73,7 @@ def test_avatar_auth_for_reads_and_writes(
 def test_avatar_auth_exemptions(avatar_client, monkeypatch, mode):
     client, config = avatar_client
     if mode == "disabled":
-        monkeypatch.setenv("QWENPAW_AUTH_ENABLED", "false")
+        monkeypatch.setenv("AIARB_AUTH_ENABLED", "false")
     elif mode == "unregistered":
         monkeypatch.setattr(auth, "has_registered_users", lambda: False)
     else:

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Safe conversion of external automations to AIARB cron jobs."""
 
 from __future__ import annotations

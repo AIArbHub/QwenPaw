@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Regression tests for legacy session message compatibility shims."""
 
 from __future__ import annotations

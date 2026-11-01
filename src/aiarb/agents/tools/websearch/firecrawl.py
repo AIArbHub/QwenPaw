@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # flake8: noqa: E501
 # pylint: disable=line-too-long
 """Firecrawl search backend (https://docs.firecrawl.dev/api-reference/endpoint/search)."""

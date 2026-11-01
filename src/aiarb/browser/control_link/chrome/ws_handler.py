@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Core Native Messaging WebSocket route for Chrome control links."""
 
 # pylint: disable=too-many-branches,too-many-statements

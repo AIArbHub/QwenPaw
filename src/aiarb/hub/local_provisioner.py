@@ -186,7 +186,7 @@ class LocalProcessRuntimeProvisioner(RuntimeProvisioner):
                 python,
                 "-P",
                 "-m",
-                "AIARB.hub.windows_runtime_bridge",
+                "aiarb.hub.windows_runtime_bridge",
                 "--control-port",
                 str(tunnel.control_port),
                 "--token",
@@ -387,7 +387,7 @@ class LocalProcessRuntimeProvisioner(RuntimeProvisioner):
         )
         source_root = Path(__file__).resolve().parents[2]
         source_paths = [str(source_root)]
-        mail_source = source_root.parent / "packages/AIARBmail-mcp/src"
+        mail_source = source_root.parent / "packages/aiarbmail-mcp/src"
         if mail_source.is_dir():
             source_paths.append(str(mail_source))
         environment["PYTHONPATH"] = os.pathsep.join(source_paths)

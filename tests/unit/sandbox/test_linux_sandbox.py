@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=unused-argument
 """Unit tests for Linux Landlock sandbox and probe_sandbox_support."""
 

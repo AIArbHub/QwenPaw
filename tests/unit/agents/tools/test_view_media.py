@@ -28,10 +28,10 @@ from agentscope.message import (
 )
 from PIL import Image
 
-from AIARB.agents.tools import view_media
-from AIARB.agents.utils import image_freezing
-from AIARB.agents.utils.image_freezing import freeze_image_bytes
-from AIARB.agents.tools.view_media import (
+from aiarb.agents.tools import view_media
+from aiarb.agents.utils import image_freezing
+from aiarb.agents.utils.image_freezing import freeze_image_bytes
+from aiarb.agents.tools.view_media import (
     _IMAGE_EXTENSIONS,
     _VIDEO_EXTENSIONS,
     _check_multimodal_support,
@@ -44,11 +44,11 @@ from AIARB.agents.tools.view_media import (
     view_image,
     view_video,
 )
-from AIARB.providers.capping_formatter import (
+from aiarb.providers.capping_formatter import (
     MAX_INLINE_MEDIA_BYTES,
     _CappingOpenAIFormatter,
 )
-from AIARB.agents import model_factory
+from aiarb.agents import model_factory
 
 
 # ---------------------------------------------------------------------------
@@ -189,12 +189,12 @@ class TestValidateMediaPath:
 class TestCheckMultimodalSupport:
     """Tests for _check_multimodal_support."""
 
-    @patch("AIARB.agents.prompt._get_active_model_info", create=True)
+    @patch("aiarb.agents.prompt._get_active_model_info", create=True)
     def test_no_model_info_returns_true(self, mock_info):
         mock_info.return_value = (None, None)
         assert _check_multimodal_support("image") is True
 
-    @patch("AIARB.agents.prompt._get_active_model_info", create=True)
+    @patch("aiarb.agents.prompt._get_active_model_info", create=True)
     def test_supports_image_true(self, mock_info):
         model_info = MagicMock()
         model_info.supports_image = True
@@ -202,7 +202,7 @@ class TestCheckMultimodalSupport:
         mock_info.return_value = (model_info, None)
         assert _check_multimodal_support("image") is True
 
-    @patch("AIARB.agents.prompt._get_active_model_info", create=True)
+    @patch("aiarb.agents.prompt._get_active_model_info", create=True)
     def test_supports_multimodal_true(self, mock_info):
         model_info = MagicMock()
         model_info.supports_image = False
@@ -210,7 +210,7 @@ class TestCheckMultimodalSupport:
         mock_info.return_value = (model_info, None)
         assert _check_multimodal_support("image") is True
 
-    @patch("AIARB.agents.prompt._get_active_model_info", create=True)
+    @patch("aiarb.agents.prompt._get_active_model_info", create=True)
     def test_video_requires_explicit_support(self, mock_info):
         model_info = MagicMock()
         model_info.supports_video = False
@@ -218,7 +218,7 @@ class TestCheckMultimodalSupport:
         mock_info.return_value = (model_info, None)
         assert _check_multimodal_support("video") is False
 
-    @patch("AIARB.agents.prompt._get_active_model_info", create=True)
+    @patch("aiarb.agents.prompt._get_active_model_info", create=True)
     def test_exception_returns_true(self, mock_info):
         mock_info.side_effect = ImportError("no module")
         assert _check_multimodal_support("image") is True
@@ -233,7 +233,7 @@ class TestGetMultimodalFallbackHint:
     """Tests for _get_multimodal_fallback_hint."""
 
     @patch(
-        "AIARB.agents.prompt.get_active_model_multimodal_raw",
+        "aiarb.agents.prompt.get_active_model_multimodal_raw",
         create=True,
     )
     def test_when_raw_is_none(self, mock_raw):
@@ -242,7 +242,7 @@ class TestGetMultimodalFallbackHint:
         assert "no multimodal capability was detected" in hint
 
     @patch(
-        "AIARB.agents.prompt.get_active_model_multimodal_raw",
+        "aiarb.agents.prompt.get_active_model_multimodal_raw",
         create=True,
     )
     def test_when_raw_is_false(self, mock_raw):
@@ -251,7 +251,7 @@ class TestGetMultimodalFallbackHint:
         assert "multimodal" in hint.lower()
 
     @patch(
-        "AIARB.agents.prompt.get_active_model_multimodal_raw",
+        "aiarb.agents.prompt.get_active_model_multimodal_raw",
         create=True,
     )
     def test_when_raw_is_true(self, mock_raw):
@@ -260,7 +260,7 @@ class TestGetMultimodalFallbackHint:
         assert "multimodal" in hint.lower()
 
     @patch(
-        "AIARB.agents.prompt.get_active_model_multimodal_raw",
+        "aiarb.agents.prompt.get_active_model_multimodal_raw",
         create=True,
     )
     def test_exception_returns_none_hint(self, mock_raw):
@@ -279,10 +279,10 @@ class TestViewImage:
 
     @pytest.mark.asyncio
     @patch(
-        "AIARB.agents.tools.view_media._download_remote_image",
+        "aiarb.agents.tools.view_media._download_remote_image",
         new_callable=AsyncMock,
     )
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_url_image(self, mock_support, mock_download):
         mock_support.return_value = True
         image_bytes = BytesIO()
@@ -323,10 +323,10 @@ class TestViewImage:
 
     @pytest.mark.asyncio
     @patch(
-        "AIARB.agents.tools.view_media._download_remote_image",
+        "aiarb.agents.tools.view_media._download_remote_image",
         new_callable=AsyncMock,
     )
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_oversized_url_image_is_staged_for_compression(
         self,
         mock_support,
@@ -378,10 +378,10 @@ class TestViewImage:
 
     @pytest.mark.asyncio
     @patch(
-        "AIARB.agents.tools.view_media._download_remote_image",
+        "aiarb.agents.tools.view_media._download_remote_image",
         new_callable=AsyncMock,
     )
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_invalid_oversized_url_image_is_not_staged(
         self,
         mock_support,
@@ -406,10 +406,10 @@ class TestViewImage:
 
     @pytest.mark.asyncio
     @patch(
-        "AIARB.agents.tools.view_media._download_remote_image",
+        "aiarb.agents.tools.view_media._download_remote_image",
         new_callable=AsyncMock,
     )
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_url_download_failure_is_text_only(
         self,
         mock_support,
@@ -438,10 +438,10 @@ class TestViewImage:
 
     @pytest.mark.asyncio
     @patch(
-        "AIARB.agents.tools.view_media._download_remote_image",
+        "aiarb.agents.tools.view_media._download_remote_image",
         new_callable=AsyncMock,
     )
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_url_invalid_image_is_text_only(
         self,
         mock_support,
@@ -457,14 +457,14 @@ class TestViewImage:
         assert "not a valid image" in result.content[0].text
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_invalid_url_extension(self, mock_support):
         mock_support.return_value = True
         result = await view_image("https://example.com/doc.pdf")
         assert "image" in result.content[0].text.lower()
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_local_image_file(self, mock_support, tmp_path):
         mock_support.return_value = True
         img = tmp_path / "photo.png"
@@ -484,7 +484,7 @@ class TestViewImage:
         ("suffix", "image_format"),
         [(".bmp", "BMP"), (".tiff", "TIFF")],
     )
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_local_image_converts_to_png(
         self,
         mock_support,
@@ -511,7 +511,7 @@ class TestViewImage:
             assert converted.format == "PNG"
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_tiff_with_jpeg_suffix_converts_to_png(
         self,
         mock_support,
@@ -535,7 +535,7 @@ class TestViewImage:
             assert converted.format == "PNG"
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_local_image_uses_detected_mime(
         self,
         mock_support,
@@ -553,7 +553,7 @@ class TestViewImage:
         assert image_block.source.media_type == "image/png"
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_invalid_local_image_returns_error(
         self,
         mock_support,
@@ -569,7 +569,7 @@ class TestViewImage:
         assert "not a valid image" in result.content[0].text
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_oversized_local_image_is_rejected_before_decode(
         self,
         mock_support,
@@ -586,7 +586,7 @@ class TestViewImage:
         assert str(MAX_INLINE_MEDIA_BYTES) in result.content[0].text
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_converted_png_must_fit_image_limit(
         self,
         mock_support,
@@ -623,7 +623,7 @@ class TestViewImage:
         assert "exceeds" in result.content[0].text
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_overwritten_path_preserves_each_version(
         self,
         mock_support,
@@ -648,19 +648,19 @@ class TestViewImage:
         assert second_block.source.data != first_data
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_nonexistent_local_file(self, mock_support):
         mock_support.return_value = True
         result = await view_image("/nonexistent/image.png")
         assert "does not exist" in result.content[0].text
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._probe_multimodal_if_needed")
+    @patch("aiarb.agents.tools.view_media._probe_multimodal_if_needed")
     @patch(
-        "AIARB.agents.tools.view_media._download_remote_image",
+        "aiarb.agents.tools.view_media._download_remote_image",
         new_callable=AsyncMock,
     )
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_fallback_hint_included(
         self,
         mock_support,
@@ -1113,7 +1113,7 @@ class TestViewVideo:
     """Tests for view_video."""
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_url_video(self, mock_support):
         mock_support.return_value = True
         result = await view_video("https://example.com/clip.mp4")
@@ -1121,14 +1121,14 @@ class TestViewVideo:
         assert "data" in types
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_invalid_url_extension(self, mock_support):
         mock_support.return_value = True
         result = await view_video("https://example.com/doc.pdf")
         assert "video" in result.content[0].text.lower()
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_local_video_file(self, mock_support, tmp_path):
         mock_support.return_value = True
         vid = tmp_path / "clip.mp4"
@@ -1138,7 +1138,7 @@ class TestViewVideo:
         assert "data" in types
 
     @pytest.mark.asyncio
-    @patch("AIARB.agents.tools.view_media._check_multimodal_support")
+    @patch("aiarb.agents.tools.view_media._check_multimodal_support")
     async def test_nonexistent_local_file(self, mock_support):
         mock_support.return_value = True
         result = await view_video("/nonexistent/vid.mp4")
@@ -1170,9 +1170,9 @@ class TestViewAudio:
 
         mock_cfg = _make_native_config()
         with (
-            patch("AIARB.config.load_config", return_value=mock_cfg),
+            patch("aiarb.config.load_config", return_value=mock_cfg),
             patch(
-                "AIARB.agents.tools.view_media.run_sync_io",
+                "aiarb.agents.tools.view_media.run_sync_io",
                 new_callable=AsyncMock,
                 return_value=None,
             ),
@@ -1195,9 +1195,9 @@ class TestViewAudio:
 
         mock_cfg = _make_native_config()
         with (
-            patch("AIARB.config.load_config", return_value=mock_cfg),
+            patch("aiarb.config.load_config", return_value=mock_cfg),
             patch(
-                "AIARB.agents.tools.view_media.run_sync_io",
+                "aiarb.agents.tools.view_media.run_sync_io",
                 new_callable=AsyncMock,
                 return_value=str(converted_wav),
             ),
@@ -1221,9 +1221,9 @@ class TestViewAudio:
 
         mock_cfg = _make_native_config()
         with (
-            patch("AIARB.config.load_config", return_value=mock_cfg),
+            patch("aiarb.config.load_config", return_value=mock_cfg),
             patch(
-                "AIARB.agents.tools.view_media.run_sync_io",
+                "aiarb.agents.tools.view_media.run_sync_io",
                 new_callable=AsyncMock,
                 return_value=None,
             ),
@@ -1247,9 +1247,9 @@ class TestViewAudio:
 
         mock_cfg = _make_native_config()
         with (
-            patch("AIARB.config.load_config", return_value=mock_cfg),
+            patch("aiarb.config.load_config", return_value=mock_cfg),
             patch(
-                "AIARB.agents.tools.view_media.run_sync_io",
+                "aiarb.agents.tools.view_media.run_sync_io",
                 new_callable=AsyncMock,
                 side_effect=RuntimeError("ffmpeg crashed"),
             ),

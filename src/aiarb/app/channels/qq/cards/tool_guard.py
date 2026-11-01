@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """QQ tool-guard approval card (keyboard buttons).
 

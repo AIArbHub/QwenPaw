@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access,unused-argument
 """Tests for file_guardian path-sensitive file guard.
 

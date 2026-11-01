@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Whether Computer Use reports itself usable, and on what grounds.
 
 The desktop shell offers a control endpoint on every platform it runs on, but
@@ -25,7 +25,7 @@ _CONTROL_ENV = {
 @pytest.fixture(autouse=True)
 def _reachable_host(monkeypatch: pytest.MonkeyPatch):
     """Present a reachable desktop host, so only the platform varies."""
-    monkeypatch.delenv("QWENPAW_RUNTIME_MODE", raising=False)
+    monkeypatch.delenv("AIARB_RUNTIME_MODE", raising=False)
     monkeypatch.setattr(HostRuntimeProvider, "_hosts", {})
     monkeypatch.setattr(HostRuntimeProvider, "_control", None)
     for name, value in _CONTROL_ENV.items():
@@ -76,7 +76,7 @@ def test_a_supported_platform_without_a_host_is_not_available(
 
 
 def test_shared_host_switches_when_owning_client_disconnects(monkeypatch):
-    monkeypatch.setenv("QWENPAW_RUNTIME_MODE", "shared")
+    monkeypatch.setenv("AIARB_RUNTIME_MODE", "shared")
     monkeypatch.setattr(runtime_module.sys, "platform", "darwin")
     assert not HostRuntimeProvider.status().host_reachable
     HostRuntimeProvider.register_host("first", 12345, "first-token")

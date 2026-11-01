@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for agent config persistence on shared filesystems."""
 
 # pylint: disable=protected-access

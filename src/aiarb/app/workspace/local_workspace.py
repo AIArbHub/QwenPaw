@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """AIARBLocalWorkspace — routes tool management to ToolRegistry.
 
 Subclasses AgentScope's :class:`LocalWorkspace` so that

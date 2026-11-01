@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Reusable safety check primitives.
 
 Called by ACP permissions, ToolGuard guardians, and other security layers

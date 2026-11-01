@@ -22,7 +22,7 @@ def cleanup_logging(log_progress: bool):
     loggers = [
         value
         for name, value in list(logging.Logger.manager.loggerDict.items())
-        if name.startswith("AIARB.sandbox.")
+        if name.startswith("aiarb.sandbox.")
         and isinstance(value, logging.Logger)
     ]
     log_filter = _CleanupFilter()

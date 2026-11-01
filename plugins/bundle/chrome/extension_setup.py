@@ -15,12 +15,12 @@ import webbrowser
 from ipaddress import ip_address
 from pathlib import Path
 
-from AIARB.config.utils import read_last_api
-from AIARB.utils.io_utils import write_json_atomic
+from aiarb.config.utils import read_last_api
+from aiarb.utils.io_utils import write_json_atomic
 
 try:
     # Cross-track contract (lands with unified browser, PR #6276).
-    from AIARB.browser.control_link.chrome.protocol import (
+    from aiarb.browser.control_link.chrome.protocol import (
         NM_HOST_BASENAME,
         NM_HOST_WIN_SUFFIX,
     )

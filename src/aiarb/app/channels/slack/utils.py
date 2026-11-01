@@ -13,7 +13,7 @@ import os
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 
-from AIARB.channel_protocol.outbound_budget import (
+from aiarb.channel_protocol.outbound_budget import (
     await_send,
     retry_delay_fits,
 )

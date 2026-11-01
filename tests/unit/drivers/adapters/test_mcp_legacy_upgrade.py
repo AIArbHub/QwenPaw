@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for legacy MCP credential upgrade (self-heal of #6029 bad cards).
 
 Cards migrated *before* the #6029 fix stored ``${VAR}`` header values as

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Metadata and validation for environment settings exposed by Console."""
 
 from __future__ import annotations

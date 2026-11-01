@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Integration coverage for QwenPaw's pinned ReMe embedding contract."""
 
@@ -43,7 +43,7 @@ async def test_vector_space_gate_uses_real_reme_without_blocking_loop(
     assert _load_validated_reme_app() is ReMe
     monkeypatch.chdir(tmp_path)
     file_store = LocalFileStore(
-        name="qwenpaw_embedding_contract",
+        name="AIARB_embedding_contract",
         embedding_store="",
     )
     await file_store.start()
@@ -114,7 +114,7 @@ async def test_disabled_embedding_reindex_preserves_real_reme_vectors(
     assert _load_validated_reme_app() is ReMe
     monkeypatch.chdir(tmp_path)
     file_store = LocalFileStore(
-        name="qwenpaw_disabled_embedding_reindex",
+        name="AIARB_disabled_embedding_reindex",
         embedding_store="",
     )
     await file_store.start()

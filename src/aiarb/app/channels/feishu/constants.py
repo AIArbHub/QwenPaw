@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Feishu channel constants."""
 
 # Token cache: refresh 1 min before expire

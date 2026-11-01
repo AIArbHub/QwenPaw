@@ -59,7 +59,7 @@ def _provider_plugin_zip(plugin_id: str) -> bytes:
     """Plugin that registers a custom provider via OpenAIProvider."""
     backend = (
         "# -*- coding: utf-8 -*-\n"
-        "from AIARB.providers.openai_provider import OpenAIProvider\n"
+        "from aiarb.providers.openai_provider import OpenAIProvider\n"
         "\n"
         "\n"
         "class _MockProviderPlugin:\n"
@@ -144,7 +144,7 @@ def _command_plugin_zip(plugin_id: str) -> bytes:
     """Plugin that registers a /slash control command."""
     backend = (
         "# -*- coding: utf-8 -*-\n"
-        "from AIARB.runtime.commands.control.base import (\n"
+        "from aiarb.runtime.commands.control.base import (\n"
         "    BaseControlCommandHandler,\n"
         ")\n"
         "\n"

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Hub is an optional provider, never a personal-model proxy."""
 
 # pylint: disable=protected-access
@@ -21,7 +21,7 @@ from qwenpaw.runtime.builder import AgentBuilder
 
 
 def test_hub_does_not_choose_a_model_without_user_selection(monkeypatch):
-    monkeypatch.setenv(f"QWENPAW_HUB_MODEL_TOKEN", f"token")
+    monkeypatch.setenv(f"AIARB_HUB_MODEL_TOKEN", f"token")
     with patch(f"qwenpaw.providers.hub_managed.directory") as directory:
         assert (
             ProviderManager.get_active_model(
@@ -36,7 +36,7 @@ def test_hub_does_not_choose_a_model_without_user_selection(monkeypatch):
 
 
 def test_personal_model_uses_personal_provider_in_hub(monkeypatch):
-    monkeypatch.setenv(f"QWENPAW_HUB_MODEL_TOKEN", f"token")
+    monkeypatch.setenv(f"AIARB_HUB_MODEL_TOKEN", f"token")
     selected = ModelSlotConfig(provider_id=f"kilo", model=f"qwen")
     provider = Mock(id=f"kilo", enabled=True)
     provider.get_model_info.return_value = SimpleNamespace(name=f"Qwen 27B")
@@ -151,7 +151,7 @@ def test_global_and_explicit_models_apply_identical_thinking(
     budget,
     expected,
 ):
-    monkeypatch.delenv(f"QWENPAW_HUB_MODEL_TOKEN", raising=False)
+    monkeypatch.delenv(f"AIARB_HUB_MODEL_TOKEN", raising=False)
     provider = (
         PROVIDER_ANTHROPIC if budget else PROVIDER_OPENAI
     ).configuration_snapshot()

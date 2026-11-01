@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Authenticated terminal control over the existing HTTP/Hub boundary."""
 
 import asyncio

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Extensible hooks for `aiarb doctor`
 (entry points + programmatic registration).
 

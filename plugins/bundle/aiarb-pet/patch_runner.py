@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Wrap ``Workspace.stream_query`` to emit pet lifecycle events.
 

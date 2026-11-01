@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for QwenPawAgent media classification, stripping, and retry.
 
 Covers _is_media_block (dict/object/data-block detection) and
@@ -172,10 +172,10 @@ def _dump_context(context: list[Msg]) -> list[dict]:
 def _formatter(wire_media_count: int = 1) -> SimpleNamespace:
     """Build the formatter state used by media fallback tests."""
     return SimpleNamespace(
-        _qwenpaw_last_wire_media_count=wire_media_count,
-        _qwenpaw_last_wire_audio_count=0,
-        _qwenpaw_force_strip_media=False,
-        _qwenpaw_force_strip_audio=False,
+        _AIARB_last_wire_media_count=wire_media_count,
+        _AIARB_last_wire_audio_count=0,
+        _AIARB_force_strip_media=False,
+        _AIARB_force_strip_audio=False,
     )
 
 
@@ -408,8 +408,8 @@ async def test_payload_rejection_uses_request_only_retry(
         calls += 1
         if calls == 1:
             raise RuntimeError(_DEEPSEEK_UNSUPPORTED_IMAGE_ERROR)
-        assert agent.formatter._qwenpaw_force_strip_media is True
-        assert agent.formatter._qwenpaw_force_strip_audio is False
+        assert agent.formatter._AIARB_force_strip_media is True
+        assert agent.formatter._AIARB_force_strip_audio is False
         assert agent.state.context is original_context
         assert _dump_context(agent.state.context) == original_dump
         yield Msg(
@@ -435,7 +435,7 @@ async def test_payload_rejection_uses_request_only_retry(
             )
             is False
         )
-        assert agent.formatter._qwenpaw_force_strip_media is False
+        assert agent.formatter._AIARB_force_strip_media is False
     finally:
         cache.clear()
 
@@ -468,7 +468,7 @@ async def test_failed_payload_retry_preserves_context(monkeypatch) -> None:
     assert calls == 2
     assert agent.state.context is original_context
     assert _dump_context(agent.state.context) == original_dump
-    assert agent.formatter._qwenpaw_force_strip_media is False
+    assert agent.formatter._AIARB_force_strip_media is False
 
 
 @pytest.mark.asyncio
@@ -661,7 +661,7 @@ def _assert_recovery(session, video_counts, learned):
     assert {
         kind: getattr(
             session.agent.formatter,
-            f"_qwenpaw_force_strip_{kind}",
+            f"_AIARB_force_strip_{kind}",
             False,
         )
         for kind in ("video", "audio", "media")
@@ -725,7 +725,7 @@ async def test_mixed_media_rejection_uses_media_free_retry(
     assert {
         kind: getattr(
             session.agent.formatter,
-            f"_qwenpaw_force_strip_{kind}",
+            f"_AIARB_force_strip_{kind}",
             False,
         )
         for kind in ("video", "audio", "media")
@@ -788,7 +788,7 @@ async def test_cached_audio_and_video_flags_clear_after_unrelated_failure(
         if part.get("type") in ("image_url", "input_audio", "video_url")
     ] == session.other_media[:1]
     assert {
-        kind: getattr(session.agent.formatter, f"_qwenpaw_force_strip_{kind}")
+        kind: getattr(session.agent.formatter, f"_AIARB_force_strip_{kind}")
         for kind in ("video", "audio")
     } == {"video": False, "audio": False}
 

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """The ACP server surfaces files an agent sends (``send_file_to_user``) as a
 ``resource_link`` tool-call content block, so clients (e.g. the paw TUI) can
 offer a clickable link instead of a raw dict repr."""

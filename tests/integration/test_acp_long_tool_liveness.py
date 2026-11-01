@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """ACP streaming regressions and real stdio shutdown checks."""
 
 # pylint: disable=protected-access,unreachable,unused-argument
@@ -385,9 +385,9 @@ def _driver_env(scenario: str, tmp_dir: pathlib.Path) -> dict[str, str]:
         )
         if part
     )
-    env["QWENPAW_FAULT_SCENARIO"] = scenario
-    env["QWENPAW_WORKING_DIR"] = str(tmp_dir / "qwenpaw-state")
-    env["QWENPAW_SECRET_DIR"] = str(tmp_dir / "qwenpaw-secrets")
+    env["AIARB_FAULT_SCENARIO"] = scenario
+    env["AIARB_WORKING_DIR"] = str(tmp_dir / "qwenpaw-state")
+    env["AIARB_SECRET_DIR"] = str(tmp_dir / "qwenpaw-secrets")
     return env
 
 
@@ -420,7 +420,7 @@ async def test_subprocess_active_pipe_close_exits_cleanly(
 
     marker = tmp_path / "shutdown.marker"
     env = _driver_env("hang", tmp_path)
-    env["QWENPAW_FAULT_MARKER"] = str(marker)
+    env["AIARB_FAULT_MARKER"] = str(marker)
     client = _SubprocessClient()
     process = await asyncio.create_subprocess_exec(
         sys.executable,

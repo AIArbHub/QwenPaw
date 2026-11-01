@@ -71,7 +71,7 @@ from acp.schema import (
     ToolCallUpdate,
     UsageUpdate,
 )
-from AIARB.schemas import (
+from aiarb.schemas import (
     AgentRequest,
     Message,
     MessageType,
@@ -109,15 +109,15 @@ from .session_mcp import (
 
 logger = logging.getLogger(__name__)
 
-ACP_ERROR_META_KEY = "AIARB.error"
-ACP_AGENT_META_KEY = "AIARB.agent"
-_ACP_RUNTIME_MODEL_SLOT_KEY = "AIARB.runtime_model_slot"
+ACP_ERROR_META_KEY = "aiarb.error"
+ACP_AGENT_META_KEY = "aiarb.agent"
+_ACP_RUNTIME_MODEL_SLOT_KEY = "aiarb.runtime_model_slot"
 
 _GENERIC_PROMPT_ERROR = (
     "AIARB failed to process the request. Check server logs for details."
 )
 _ACP_KEEPALIVE_SECONDS = 20.0
-ACP_KEEPALIVE_META_KEY = "AIARB.keepalive"
+ACP_KEEPALIVE_META_KEY = "aiarb.keepalive"
 
 
 class ACPClientDisconnected(ConnectionError):

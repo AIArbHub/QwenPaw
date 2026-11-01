@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Resolve conversation model and thinking without mutating agent defaults."""
 
 from ..config.config import ModelSlotConfig, load_agent_config

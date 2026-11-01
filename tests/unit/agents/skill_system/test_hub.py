@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for agents/skill_system/hub.py pure logic & mocked I/O.
 
 Coverage-driven backfill: hub.py sat at ~14% coverage. These tests
@@ -76,62 +76,62 @@ SKILL_MD = "---\nname: demo-skill\n---\n# Demo\nbody"
 
 class TestEnvConfig:
     def test_github_cache_ttl_default(self, monkeypatch):
-        monkeypatch.delenv("QWENPAW_GITHUB_CACHE_TTL", raising=False)
+        monkeypatch.delenv("AIARB_GITHUB_CACHE_TTL", raising=False)
         assert hub._github_cache_ttl() == 300.0
 
     def test_github_cache_ttl_custom(self, monkeypatch):
-        monkeypatch.setenv("QWENPAW_GITHUB_CACHE_TTL", "10")
+        monkeypatch.setenv("AIARB_GITHUB_CACHE_TTL", "10")
         assert hub._github_cache_ttl() == 10.0
 
     def test_github_cache_ttl_negative_clamped(self, monkeypatch):
-        monkeypatch.setenv("QWENPAW_GITHUB_CACHE_TTL", "-5")
+        monkeypatch.setenv("AIARB_GITHUB_CACHE_TTL", "-5")
         assert hub._github_cache_ttl() == 0.0
 
     def test_github_cache_ttl_invalid(self, monkeypatch):
-        monkeypatch.setenv("QWENPAW_GITHUB_CACHE_TTL", "abc")
+        monkeypatch.setenv("AIARB_GITHUB_CACHE_TTL", "abc")
         assert hub._github_cache_ttl() == 300.0
 
     def test_http_timeout_default_and_min(self, monkeypatch):
-        monkeypatch.delenv("QWENPAW_SKILLS_HUB_HTTP_TIMEOUT", raising=False)
+        monkeypatch.delenv("AIARB_SKILLS_HUB_HTTP_TIMEOUT", raising=False)
         assert hub._hub_http_timeout() == 30.0
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_TIMEOUT", "1")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_TIMEOUT", "1")
         assert hub._hub_http_timeout() == 3.0
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_TIMEOUT", "bad")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_TIMEOUT", "bad")
         assert hub._hub_http_timeout() == 30.0
 
     def test_http_retries(self, monkeypatch):
-        monkeypatch.delenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", raising=False)
+        monkeypatch.delenv("AIARB_SKILLS_HUB_HTTP_RETRIES", raising=False)
         assert hub._hub_http_retries() == 3
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", "0")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_RETRIES", "0")
         assert hub._hub_http_retries() == 0
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", "x")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_RETRIES", "x")
         assert hub._hub_http_retries() == 3
 
     def test_backoff_base_and_cap(self, monkeypatch):
         monkeypatch.delenv(
-            "QWENPAW_SKILLS_HUB_HTTP_BACKOFF_BASE",
+            "AIARB_SKILLS_HUB_HTTP_BACKOFF_BASE",
             raising=False,
         )
         monkeypatch.delenv(
-            "QWENPAW_SKILLS_HUB_HTTP_BACKOFF_CAP",
+            "AIARB_SKILLS_HUB_HTTP_BACKOFF_CAP",
             raising=False,
         )
         assert hub._hub_http_backoff_base() == 0.8
         assert hub._hub_http_backoff_cap() == 6.0
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_BASE", "0.05")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_BASE", "0.05")
         assert hub._hub_http_backoff_base() == 0.1  # clamped
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_BASE", "2")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_BASE", "2")
         assert hub._hub_http_backoff_base() == 2.0
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_BASE", "bad")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_BASE", "bad")
         assert hub._hub_http_backoff_base() == 0.8
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_CAP", "0.1")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_CAP", "0.1")
         assert hub._hub_http_backoff_cap() == 0.5  # clamped
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_CAP", "bad")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_CAP", "bad")
         assert hub._hub_http_backoff_cap() == 6.0
 
     def test_compute_backoff_seconds(self, monkeypatch):
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_BASE", "1")
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_CAP", "10")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_BASE", "1")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_CAP", "10")
         assert hub._compute_backoff_seconds(1) == 1.0
         assert hub._compute_backoff_seconds(2) == 2.0
         assert hub._compute_backoff_seconds(3) == 4.0
@@ -139,13 +139,13 @@ class TestEnvConfig:
         assert hub._compute_backoff_seconds(0) == 1.0  # attempt clamped >=0
 
     def test_hub_url_builders(self, monkeypatch):
-        monkeypatch.delenv("QWENPAW_SKILLS_HUB_BASE_URL", raising=False)
+        monkeypatch.delenv("AIARB_SKILLS_HUB_BASE_URL", raising=False)
         assert hub._hub_base_url() == "https://clawhub.ai"
         assert hub._hub_search_path() == "/api/v1/search"
         assert "{slug}" in hub._hub_version_path()
         assert "{slug}" in hub._hub_detail_path()
         assert "{slug}" in hub._hub_file_path()
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_BASE_URL", "http://h/")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_BASE_URL", "http://h/")
         assert hub._hub_base_url() == "http://h/"
 
     def test_join_url(self):
@@ -530,7 +530,7 @@ class TestHttpFetch:
 
     def test_truncated_response(self, no_sleep, monkeypatch):
         # RemoteProtocolError is retryable; exhaust retries with one response.
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", "0")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_RETRIES", "0")
         client = _FakeClient(
             [_FakeResponse(200, b"abc", {"Content-Length": "10"})],
         )
@@ -607,7 +607,7 @@ class TestHttpFetch:
             self._fetch(client, url="https://api.github.com/repos/x/y")
 
     def test_429_after_retries_with_github_hint(self, no_sleep, monkeypatch):
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", "1")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_RETRIES", "1")
         client = _FakeClient(
             [_FakeResponse(429, b"slow down"), _FakeResponse(429, b"again")],
         )
@@ -616,20 +616,20 @@ class TestHttpFetch:
         assert "GITHUB_TOKEN" in str(exc.value)
 
     def test_429_non_github_no_hint(self, no_sleep, monkeypatch):
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", "0")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_RETRIES", "0")
         client = _FakeClient([_FakeResponse(429, b"slow")])
         with pytest.raises(SkillsError, match="429") as exc:
             self._fetch(client, url="https://example.com/x")
         assert "GITHUB_TOKEN" not in str(exc.value)
 
     def test_5xx_after_retries(self, no_sleep, monkeypatch):
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", "0")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_RETRIES", "0")
         client = _FakeClient([_FakeResponse(500, b"boom")])
         with pytest.raises(SkillsError, match="500"):
             self._fetch(client)
 
     def test_retryable_then_success(self, no_sleep, monkeypatch):
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", "1")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_RETRIES", "1")
         client = _FakeClient(
             [
                 _FakeResponse(503, b"unavailable"),
@@ -640,7 +640,7 @@ class TestHttpFetch:
         assert client.calls == 2
 
     def test_transport_error_retried(self, no_sleep, monkeypatch):
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", "1")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_RETRIES", "1")
         client = _FakeClient(
             [
                 httpx.ConnectError("conn refused"),
@@ -650,7 +650,7 @@ class TestHttpFetch:
         assert self._fetch(client) == b"ok"
 
     def test_transport_error_exhausted(self, no_sleep, monkeypatch):
-        monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", "0")
+        monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_RETRIES", "0")
         client = _FakeClient([httpx.ConnectError("conn refused")])
         with pytest.raises(httpx.ConnectError):
             self._fetch(client)
@@ -1174,37 +1174,37 @@ class TestUrlParsers:
             is None
         )
 
-    def test_qwenpaw_spec(self):
+    def test_AIARB_spec(self):
         uuid = "12345678-1234-1234-1234-123456789abc"
-        assert hub._extract_qwenpaw_skill_spec(
+        assert hub._extract_AIARB_skill_spec(
             f"https://platform.agentscope.io/skills/{uuid}",
         ) == ("", uuid, "")
-        assert hub._extract_qwenpaw_skill_spec(
+        assert hub._extract_AIARB_skill_spec(
             "https://platform.agentscope.io/skills/@owner/name",
         ) == ("@owner", "name", "")
-        assert hub._extract_qwenpaw_skill_spec(
+        assert hub._extract_AIARB_skill_spec(
             "https://platform.agentscope.io/skills/o/n/archive/zip/v2.zip",
         ) == ("o", "n", "v2")
         assert (
-            hub._extract_qwenpaw_skill_spec(
+            hub._extract_AIARB_skill_spec(
                 "https://platform.agentscope.io/skills/onlyone",
             )
             is None
         )
         assert (
-            hub._extract_qwenpaw_skill_spec(
+            hub._extract_AIARB_skill_spec(
                 "https://platform.agentscope.io/other/x",
             )
             is None
         )
         assert (
-            hub._extract_qwenpaw_skill_spec(
+            hub._extract_AIARB_skill_spec(
                 "https://platform.agentscope.io/skills//n",
             )
             is None
         )
         assert (
-            hub._extract_qwenpaw_skill_spec("https://other.io/skills/x")
+            hub._extract_AIARB_skill_spec("https://other.io/skills/x")
             is None
         )
 
@@ -1648,35 +1648,35 @@ class TestModelscopeArchiveToBundle:
 class TestQwenpawDetailArchiveToBundle:
     def test_flat_zip(self):
         payload = _make_zip({"SKILL.md": SKILL_MD, "references/r.md": "r"})
-        bundle = hub._qwenpaw_detail_archive_to_bundle(payload, "fb")
+        bundle = hub._AIARB_detail_archive_to_bundle(payload, "fb")
         assert bundle["name"] == "demo-skill"
         assert bundle["files"]["references/r.md"] == "r"
 
     def test_bad_zip(self):
         with pytest.raises(SkillsError, match="not a valid zip"):
-            hub._qwenpaw_detail_archive_to_bundle(b"junk", "f")
+            hub._AIARB_detail_archive_to_bundle(b"junk", "f")
 
     def test_missing_skill_md(self):
         payload = _make_zip({"other.md": "x"})
         with pytest.raises(SkillsError, match="missing SKILL.md"):
-            hub._qwenpaw_detail_archive_to_bundle(payload, "f")
+            hub._AIARB_detail_archive_to_bundle(payload, "f")
 
     def test_fallback_name(self):
         payload = _make_zip({"SKILL.md": "# plain"})
-        bundle = hub._qwenpaw_detail_archive_to_bundle(payload, "fb-name")
+        bundle = hub._AIARB_detail_archive_to_bundle(payload, "fb-name")
         assert bundle["name"] == "fb-name"
 
     def test_too_many(self, monkeypatch):
         monkeypatch.setattr(hub, "SKILL_PACKAGE_MAX_ENTRIES", 0)
         payload = _make_zip({"SKILL.md": SKILL_MD})
         with pytest.raises(SkillsError, match="too many files"):
-            hub._qwenpaw_detail_archive_to_bundle(payload, "f")
+            hub._AIARB_detail_archive_to_bundle(payload, "f")
 
     def test_too_large(self, monkeypatch):
         monkeypatch.setattr(hub, "SKILL_PACKAGE_MAX_BYTES", 1)
         payload = _make_zip({"SKILL.md": SKILL_MD})
         with pytest.raises(SkillsError, match="too large"):
-            hub._qwenpaw_detail_archive_to_bundle(payload, "f")
+            hub._AIARB_detail_archive_to_bundle(payload, "f")
 
 
 class TestAliyunResponseToBundle:
@@ -2030,7 +2030,7 @@ class TestFetchBundleModelscope:
 class TestFetchBundleQwenpaw:
     def test_invalid_url(self):
         with pytest.raises(ConfigurationException):
-            _run(hub._fetch_bundle_from_qwenpaw_url("https://x.com/", ""))
+            _run(hub._fetch_bundle_from_AIARB_url("https://x.com/", ""))
 
     def test_owner_path_uses_modelscope_converter(self, monkeypatch):
         payload = _make_zip({"wrap/SKILL.md": SKILL_MD})
@@ -2042,7 +2042,7 @@ class TestFetchBundleQwenpaw:
 
         monkeypatch.setattr(hub, "_http_bytes_get", _bytes)
         bundle, _ = _run(
-            hub._fetch_bundle_from_qwenpaw_url(
+            hub._fetch_bundle_from_AIARB_url(
                 "https://platform.agentscope.io/skills/@owner/name",
                 "",
             ),
@@ -2061,7 +2061,7 @@ class TestFetchBundleQwenpaw:
 
         monkeypatch.setattr(hub, "_http_bytes_get", _bytes)
         bundle, _ = _run(
-            hub._fetch_bundle_from_qwenpaw_url(
+            hub._fetch_bundle_from_AIARB_url(
                 f"https://platform.agentscope.io/skills/{uuid}",
                 "",
             ),
@@ -2079,7 +2079,7 @@ class TestFetchBundleQwenpaw:
 
         monkeypatch.setattr(hub, "_http_bytes_get", _bytes)
         _run(
-            hub._fetch_bundle_from_qwenpaw_url(
+            hub._fetch_bundle_from_AIARB_url(
                 "https://platform.agentscope.io/skills/o/n",
                 "v5",
             ),
@@ -2097,7 +2097,7 @@ class TestFetchBundleQwenpaw:
         monkeypatch.setattr(hub, "_http_bytes_get", _bytes)
         with pytest.raises(SkillsError, match="download failed"):
             _run(
-                hub._fetch_bundle_from_qwenpaw_url(
+                hub._fetch_bundle_from_AIARB_url(
                     "https://platform.agentscope.io/skills/o/n",
                     "",
                 ),

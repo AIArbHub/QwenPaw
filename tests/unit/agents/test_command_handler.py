@@ -9,15 +9,15 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from agentscope.message import HintBlock, Msg, TextBlock
 
-from AIARB.agents.command_handler import (
+from aiarb.agents.command_handler import (
     _MAX_REME_METADATA_CHARS,
     _MAX_REME_OUTPUT_CHARS,
     _REME_CHAT_SAFE_ACTIONS,
     CommandHandler,
 )
-from AIARB.agents.memory.dummy import NoopMemoryManager
-from AIARB.agents.middlewares import auto_memory_turn_state
-from AIARB.runtime.envelope import Envelope
+from aiarb.agents.memory.dummy import NoopMemoryManager
+from aiarb.agents.middlewares import auto_memory_turn_state
+from aiarb.runtime.envelope import Envelope
 
 
 class _ActionMemoryManager:
@@ -79,7 +79,7 @@ async def test_agent_config_load_runs_in_worker_thread(monkeypatch) -> None:
         return SimpleNamespace()
 
     monkeypatch.setattr(
-        "AIARB.agents.command_handler.load_agent_config",
+        "aiarb.agents.command_handler.load_agent_config",
         load_config,
     )
     handler = CommandHandler(
@@ -983,7 +983,7 @@ async def test_compact_uses_manual_force_context_config() -> None:
     """Under scroll, manual /compact clones the live agent's context_config,
     dropping the auto trigger but leaving the reserve tail untouched so it
     matches the same recent-tail budget as auto compaction."""
-    from AIARB.agents.command_handler import _FORCE_TRIGGER_RATIO
+    from aiarb.agents.command_handler import _FORCE_TRIGGER_RATIO
 
     captured = {}
 
@@ -1090,7 +1090,7 @@ async def test_compact_under_native_keeps_configured_reserve() -> None:
     reserve: native compaction is lossy (the non-reserved middle is summarized
     away), so it keeps the agent's configured reserve_ratio for the same
     recent-tail continuity as auto compaction."""
-    from AIARB.agents.command_handler import _FORCE_TRIGGER_RATIO
+    from aiarb.agents.command_handler import _FORCE_TRIGGER_RATIO
 
     captured = {}
 
@@ -1149,7 +1149,7 @@ async def test_compact_forwards_one_shot_redacted_instruction(
 
     with caplog.at_level(
         logging.INFO,
-        logger="AIARB.agents.command_handler",
+        logger="aiarb.agents.command_handler",
     ):
         await handler.handle_command(
             "/compact prioritize failures sk-ctx15fake9876543210ab",

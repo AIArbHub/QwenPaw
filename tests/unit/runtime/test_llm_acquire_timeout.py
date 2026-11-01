@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """LLM acquire timeout regression tests.
 
 Regression for #5411: LLM acquire timeout must not leave the agent hung.

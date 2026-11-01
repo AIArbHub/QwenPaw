@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for DriverCard contract validation and credential coercion."""
 from __future__ import annotations
 

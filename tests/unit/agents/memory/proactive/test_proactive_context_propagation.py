@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Regression test for the proactive background-task ContextVar propagation
 fix (websearch-console-config-plan.md, section 2.7).
 

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Adapters and one-time local provisioning for the bundled Hub plugins."""
 
 import json

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """OpenAI chat model compatibility wrappers."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unix domain socket transport for the host-managed Computer Use helper.
 
 This mirrors :class:`WindowsPipeTransport` on macOS. The wire protocol,

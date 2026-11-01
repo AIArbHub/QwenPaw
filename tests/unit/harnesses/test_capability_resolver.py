@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for shared third-party Harness capability resolution."""
 
 from __future__ import annotations

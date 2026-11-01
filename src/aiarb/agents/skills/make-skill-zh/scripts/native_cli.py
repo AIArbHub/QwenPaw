@@ -1,4 +1,4 @@
-﻿"""Use the installed AIARB CLI without importing its Python package."""
+"""Use the installed AIARB CLI without importing its Python package."""
 
 from __future__ import annotations
 

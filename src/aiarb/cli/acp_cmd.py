@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """``AIARB acp`` — run AIARB as an ACP agent over stdio."""
 from __future__ import annotations
 

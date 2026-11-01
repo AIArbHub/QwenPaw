@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Persisted scan/apply jobs for the Console import workflow."""
 
 from __future__ import annotations

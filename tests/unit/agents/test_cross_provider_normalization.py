@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Integration tests for cross-provider message normalization.
 
 Simulates a conversation that starts on one provider and is then formatted

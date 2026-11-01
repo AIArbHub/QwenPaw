@@ -7,7 +7,7 @@ import threading
 import pytest
 import pytest_asyncio
 from websockets.sync.server import serve
-from AIARB.channel_protocol.models import SendParams
+from aiarb.channel_protocol.models import SendParams
 from tests.channel_support.driver import bind, module
 
 

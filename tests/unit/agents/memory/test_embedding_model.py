@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for AgentScope embedding model construction and probing."""
 
 from types import SimpleNamespace

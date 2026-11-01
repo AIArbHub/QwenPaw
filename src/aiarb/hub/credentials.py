@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tenant-scoped encrypted credential vault for AIARB Hub."""
 
 from __future__ import annotations

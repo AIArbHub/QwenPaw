@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Translate a staged Codex content bundle into a AIARB plugin."""
 
 from __future__ import annotations

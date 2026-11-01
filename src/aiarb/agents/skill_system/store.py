@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Local skill storage, manifest, metadata, and filesystem helpers."""
 
 from __future__ import annotations

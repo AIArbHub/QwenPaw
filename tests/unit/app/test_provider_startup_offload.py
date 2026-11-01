@@ -9,8 +9,8 @@ from unittest.mock import AsyncMock
 import pytest
 from fastapi import FastAPI
 
-import AIARB.backup._utils.safe_swap as safe_swap_module
-from AIARB.app import _app as app_module_for_source
+import aiarb.backup._utils.safe_swap as safe_swap_module
+from aiarb.app import _app as app_module_for_source
 import aiarb.backup._utils.safe_swap as safe_swap_module
 
 

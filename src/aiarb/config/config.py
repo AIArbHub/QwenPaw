@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import hashlib
@@ -1849,7 +1849,7 @@ class AgentsRunningConfig(BaseModel):
 
     llm_retry_enabled: bool = Field(
         default_factory=lambda: EnvVarLoader.get_int(
-            "QWENPAW_LLM_MAX_RETRIES",
+            "AIARB_LLM_MAX_RETRIES",
             3,
             min_value=0,
         )
@@ -1859,7 +1859,7 @@ class AgentsRunningConfig(BaseModel):
 
     llm_max_retries: int = Field(
         default_factory=lambda: EnvVarLoader.get_int(
-            "QWENPAW_LLM_MAX_RETRIES",
+            "AIARB_LLM_MAX_RETRIES",
             3,
             min_value=1,
         ),
@@ -1869,7 +1869,7 @@ class AgentsRunningConfig(BaseModel):
 
     llm_backoff_base: float = Field(
         default_factory=lambda: EnvVarLoader.get_float(
-            "QWENPAW_LLM_BACKOFF_BASE",
+            "AIARB_LLM_BACKOFF_BASE",
             1.0,
             min_value=0.1,
         ),
@@ -1879,7 +1879,7 @@ class AgentsRunningConfig(BaseModel):
 
     llm_backoff_cap: float = Field(
         default_factory=lambda: EnvVarLoader.get_float(
-            "QWENPAW_LLM_BACKOFF_CAP",
+            "AIARB_LLM_BACKOFF_CAP",
             10.0,
             min_value=0.5,
         ),
@@ -1892,7 +1892,7 @@ class AgentsRunningConfig(BaseModel):
 
     llm_max_concurrent: int = Field(
         default_factory=lambda: EnvVarLoader.get_int(
-            "QWENPAW_LLM_MAX_CONCURRENT",
+            "AIARB_LLM_MAX_CONCURRENT",
             10,
             min_value=1,
         ),
@@ -1905,7 +1905,7 @@ class AgentsRunningConfig(BaseModel):
 
     llm_max_qpm: int = Field(
         default_factory=lambda: EnvVarLoader.get_int(
-            "QWENPAW_LLM_MAX_QPM",
+            "AIARB_LLM_MAX_QPM",
             600,
             min_value=0,
         ),
@@ -1919,7 +1919,7 @@ class AgentsRunningConfig(BaseModel):
 
     llm_rate_limit_pause: float = Field(
         default_factory=lambda: EnvVarLoader.get_float(
-            "QWENPAW_LLM_RATE_LIMIT_PAUSE",
+            "AIARB_LLM_RATE_LIMIT_PAUSE",
             5.0,
             min_value=1.0,
         ),
@@ -1932,7 +1932,7 @@ class AgentsRunningConfig(BaseModel):
 
     llm_rate_limit_jitter: float = Field(
         default_factory=lambda: EnvVarLoader.get_float(
-            "QWENPAW_LLM_RATE_LIMIT_JITTER",
+            "AIARB_LLM_RATE_LIMIT_JITTER",
             1.0,
             min_value=0.0,
         ),
@@ -1945,7 +1945,7 @@ class AgentsRunningConfig(BaseModel):
 
     llm_acquire_timeout: float = Field(
         default_factory=lambda: EnvVarLoader.get_float(
-            "QWENPAW_LLM_ACQUIRE_TIMEOUT",
+            "AIARB_LLM_ACQUIRE_TIMEOUT",
             300.0,
             min_value=10.0,
         ),

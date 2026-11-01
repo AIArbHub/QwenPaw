@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for Driver credential binding resolution (bindings.py)."""
 
 from __future__ import annotations

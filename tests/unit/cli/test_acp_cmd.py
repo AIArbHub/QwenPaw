@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for the ``aiarb acp`` CLI command."""
 from __future__ import annotations
 

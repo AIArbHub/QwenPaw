@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """ReMe proposals with host-owned models, archives, and atomic commit."""
 # pylint: disable=protected-access
 

@@ -103,7 +103,7 @@ def _configure(
     lease_spec.loader.exec_module(custody)
     custody.state_root()
     # Reuse this context if trusted support imports the module later.
-    sys.modules["AIARB.plugins.dependency_maintenance"] = custody
+    sys.modules["aiarb.plugins.dependency_maintenance"] = custody
     custody.lease_environment(
         (*dependencies, *custody.host_sites()),
         parent_pid=int(sys.argv[1])
@@ -115,10 +115,10 @@ def _configure(
     package.__package__ = "AIARB"
     package.__path__ = [str(support / "AIARB")]
     sys.modules["AIARB"] = package
-    plugins = types.ModuleType("AIARB.plugins")
-    plugins.__package__ = "AIARB.plugins"
+    plugins = types.ModuleType("aiarb.plugins")
+    plugins.__package__ = "aiarb.plugins"
     plugins.__path__ = [str(support / "AIARB/plugins")]
-    sys.modules["AIARB.plugins"] = plugins
+    sys.modules["aiarb.plugins"] = plugins
     # Direct path assignment never executes additional .pth files.
     boot._clean_environment(())
     private_env = boot.validate_private_environment(
@@ -406,10 +406,10 @@ def main(
                 platform.uname()
                 _guard_inspection(boot)
             _configure(boot, packet, protected_namespaces)
-            from AIARB.plugins.execution.runtime import Runtime
+            from aiarb.plugins.execution.runtime import Runtime
 
             run_component = importlib.import_module(
-                "AIARB.plugins.execution.worker",
+                "aiarb.plugins.execution.worker",
             ).run
 
             runtime = (

@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path, PurePosixPath
 from typing import Any
 
-SCHEMA = "AIARB.make-skill-plan.v2"
+SCHEMA = "aiarb.make-skill-plan.v2"
 # Read legacy random IDs as well as Skill-named creation timestamps.
 ARTIFACT_ID_PATTERN = re.compile(
     r"(?:[a-z0-9]+(?:-[a-z0-9]+)*-"

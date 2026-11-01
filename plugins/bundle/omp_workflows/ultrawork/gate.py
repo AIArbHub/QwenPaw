@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Ultrawork gate — two-phase working/done gate."""
 
 from __future__ import annotations

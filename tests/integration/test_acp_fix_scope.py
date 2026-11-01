@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Scope guards for the selective ACP failure normalization.
 
 These tests pin the boundary of the fix: only content-safety refusals and
@@ -240,7 +240,7 @@ async def test_entry_point_reraises_unrelated_errors(monkeypatch, exc):
     monkeypatch.setattr(acp_server, "run_agent", _fail)
 
     with pytest.raises(type(exc)):
-        await acp_server.run_qwenpaw_agent()
+        await acp_server.run_AIARB_agent()
     assert calls == ["shutdown"]
 
 
@@ -268,7 +268,7 @@ async def test_entry_point_swallows_verified_disconnect(monkeypatch):
     )
     monkeypatch.setattr(acp_server, "run_agent", _fail)
 
-    await acp_server.run_qwenpaw_agent()
+    await acp_server.run_AIARB_agent()
     assert calls == ["shutdown"]
 
 

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Crash marker for import plans.
 
 Stores write atomically, so recovery only resets an interrupted plan and never

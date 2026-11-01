@@ -10,8 +10,8 @@ from unittest.mock import patch
 
 import pytest
 
-from AIARB.hub.auth import HubAuthService, HubDatabaseBusyError
-from AIARB.hub.credentials import TenantCredentialVault
+from aiarb.hub.auth import HubAuthService, HubDatabaseBusyError
+from aiarb.hub.credentials import TenantCredentialVault
 
 
 def _auth_service(tmp_path: Path) -> HubAuthService:

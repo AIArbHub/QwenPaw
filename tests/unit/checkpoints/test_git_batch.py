@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Protocol and lifecycle tests for the scoped Git blob batch reader."""
 
 from __future__ import annotations

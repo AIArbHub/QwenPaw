@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Sandbox configuration, capability probing, and factory.
 
 This is the entry point of the :mod:`aiarb.sandbox` package: it defines
@@ -651,10 +651,10 @@ def _probe_linux_bubblewrap() -> SandboxCapability:
 def _inherits_runtime_boundary() -> bool:
     """Identify descendants of a Hub-launched, isolated Local runtime."""
     return bool(
-        os.environ.get("QWENPAW_RUNTIME_PROVISIONER") == "local"
-        and os.environ.get("QWENPAW_RUNTIME_ID")
-        and os.environ.get("QWENPAW_RUNTIME_INTERNAL_TOKEN")
-        and has_runtime_boundary(os.environ["QWENPAW_RUNTIME_ID"]),
+        os.environ.get("AIARB_RUNTIME_PROVISIONER") == "local"
+        and os.environ.get("AIARB_RUNTIME_ID")
+        and os.environ.get("AIARB_RUNTIME_INTERNAL_TOKEN")
+        and has_runtime_boundary(os.environ["AIARB_RUNTIME_ID"]),
     )
 
 

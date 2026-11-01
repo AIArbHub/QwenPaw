@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Integration tests for plugin install / upload / uninstall lifecycle.
 
 Covers both ingest paths (POST /install with a local source path,

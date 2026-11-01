@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Regression: concurrent credential writes must not lose entries.
 
 Review #7081 Issue 1: a fresh ``AsyncCredentialStore`` per call site meant

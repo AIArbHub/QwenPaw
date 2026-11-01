@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Secret-free AIARBmail DriverCard generation."""
 
 from __future__ import annotations
@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from AIARBmail_mcp.providers import ENTERPRISE_PROVIDERS
+from aiarbmail_mcp.providers import ENTERPRISE_PROVIDERS
 
 from ...config.config import (
     AGENT_MAIL_CREDENTIAL_REF,
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 # Compatibility alias used by the agent router for provider validation.
 ENTERPRISE_MAIL_PROVIDERS = ENTERPRISE_PROVIDERS
 
-_MAIL_MCP_MODULE_ARGS = ["-m", "AIARBmail_mcp"]
+_MAIL_MCP_MODULE_ARGS = ["-m", "aiarbmail_mcp"]
 _INTERNAL_MAIL_MCP_ARGS = ["--internal-mail-mcp"]
 
 
@@ -49,7 +49,7 @@ def is_managed_AIARBmail_card(path: Path) -> bool:
     endpoint = raw.get("endpoint")
     return bool(
         isinstance(endpoint, dict)
-        and endpoint.get("args") == ["-m", "AIARBmail_mcp"],
+        and endpoint.get("args") == ["-m", "aiarbmail_mcp"],
     )
 
 
@@ -63,7 +63,7 @@ def resolve_AIARBmail_endpoint() -> tuple[str, list[str]]:
         cli_executable = executable.with_name(f"AIARB{executable.suffix}")
         return str(cli_executable), list(_INTERNAL_MAIL_MCP_ARGS)
     try:
-        if importlib.util.find_spec("AIARBmail_mcp") is not None:
+        if importlib.util.find_spec("aiarbmail_mcp") is not None:
             return sys.executable, list(_MAIL_MCP_MODULE_ARGS)
     except (ImportError, ValueError):
         pass

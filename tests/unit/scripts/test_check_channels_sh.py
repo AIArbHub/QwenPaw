@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Changed-file planning against the Console and official plugin layout."""
 
 from __future__ import annotations
@@ -138,7 +138,7 @@ def _pytest_paths(tmp_path: Path) -> list[list[str]]:
 @pytest.mark.parametrize(
     "changed_path",
     [
-        "plugins/channel/discord/qwenpaw_channel_discord/driver.py",
+        "plugins/channel/discord/AIARB_channel_discord/driver.py",
         "plugins/channel/discord/channel.json",
         "plugins/channel/discord/requirements.txt",
         "tests/unit/channels/test_discord.py",

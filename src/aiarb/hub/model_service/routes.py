@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Composable governance routes with separate member and runtime identities."""
 
 from __future__ import annotations

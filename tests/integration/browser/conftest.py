@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Isolated Chromium fixtures for Unified Browser integration contracts."""
 
 # pylint: disable=protected-access,wrong-import-position

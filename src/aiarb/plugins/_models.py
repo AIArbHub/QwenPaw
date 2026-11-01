@@ -273,12 +273,12 @@ class ModelLease:
             ("hub_managed", "ManagedProvider"),
         }
         known = any(
-            method.__module__ == f"AIARB.providers.{module}"
+            method.__module__ == f"aiarb.providers.{module}"
             and method.__qualname__ == f"{owner}.get_chat_model_instance"
             for module, owner in supported
         )
         sdk = (
-            method.__module__ == "AIARB.plugins._providers"
+            method.__module__ == "aiarb.plugins._providers"
             and method.__qualname__
             == "register.<locals>.Adapter.get_chat_model_instance"
         )
@@ -309,7 +309,7 @@ class ModelLease:
             if isinstance(model, TokenRecordingModelWrapper):
                 visit(model._model)
                 return
-            if type(model).__module__ == "AIARB.plugins._providers":
+            if type(model).__module__ == "aiarb.plugins._providers":
                 # SDK providers already own their clients/scopes and producers.
                 return
             supported = (

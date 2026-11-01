@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Pure helpers shared by the provider import transaction."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Bounded, runtime-owned interactive terminals independent of HTTP clients."""
 
 import asyncio

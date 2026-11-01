@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-import
 """Unit tests for cli/channels_cmd.py helper functions.
 
@@ -32,13 +32,13 @@ def isolated_channel_catalog(monkeypatch, tmp_path):
         "get_plugins_dir",
         lambda: tmp_path / "plugins",
     )
-    monkeypatch.delenv("QWENPAW_ENABLED_CHANNELS", raising=False)
-    monkeypatch.delenv("QWENPAW_DISABLED_CHANNELS", raising=False)
+    monkeypatch.delenv("AIARB_ENABLED_CHANNELS", raising=False)
+    monkeypatch.delenv("AIARB_DISABLED_CHANNELS", raising=False)
 
     def guarded_module(fullname):
         root = fullname.partition(".")[0]
         return root in {"telegram", "paho"} or root.startswith(
-            "qwenpaw_channel_",
+            "AIARB_channel_",
         )
 
     for name in tuple(sys.modules):

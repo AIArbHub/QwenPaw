@@ -13,18 +13,18 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-import AIARB.app.multi_agent_manager as multi_agent_manager_module
-import AIARB.constant as constants
-from AIARB.app.agent_startup import AgentStartupStatus
-from AIARB.app.multi_agent_manager import MultiAgentManager
-from AIARB.app.task_tracker import REPLAY_END_SSE, TaskTracker
-from AIARB.app.workspace import Workspace
-from AIARB.agents.memory.dummy import NoopMemoryManager
-from AIARB.agents.memory.reme_light_memory_manager import (
+import aiarb.app.multi_agent_manager as multi_agent_manager_module
+import aiarb.constant as constants
+from aiarb.app.agent_startup import AgentStartupStatus
+from aiarb.app.multi_agent_manager import MultiAgentManager
+from aiarb.app.task_tracker import REPLAY_END_SSE, TaskTracker
+from aiarb.app.workspace import Workspace
+from aiarb.agents.memory.dummy import NoopMemoryManager
+from aiarb.agents.memory.reme_light_memory_manager import (
     ReMeLightMemoryManager,
 )
-from AIARB.constant import BUILTIN_QA_AGENT_ID
-from AIARB.memory import MemoryBackendContext, memory_registry
+from aiarb.constant import BUILTIN_QA_AGENT_ID
+from aiarb.memory import MemoryBackendContext, memory_registry
 
 
 class _RemoteMemoryManager:
@@ -294,7 +294,7 @@ async def test_reload_marks_rejected_reusable_service_for_cleanup(
     manager = MultiAgentManager()
     config = _config("agent-1")
     monkeypatch.setattr(
-        "AIARB.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: config,
     )
     memory_manager = object()
@@ -324,7 +324,7 @@ async def test_reload_reuses_tracker_for_active_stream_reconnect(
     manager = MultiAgentManager()
     config = _config("agent-1")
     monkeypatch.setattr(
-        "AIARB.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: config,
     )
     old_workspace = _ReloadWorkspace("agent-1")
@@ -442,7 +442,7 @@ def _read_custom_startup_concurrency(
         env[constants.CUSTOM_AGENT_STARTUP_CONCURRENCY_ENV] = value
 
     code = (
-        "from AIARB.constant import "
+        "from aiarb.constant import "
         "CUSTOM_AGENT_STARTUP_CONCURRENCY; "
         "print(CUSTOM_AGENT_STARTUP_CONCURRENCY)"
     )
@@ -464,7 +464,7 @@ async def test_disabled_agent_is_not_started_or_mutated(monkeypatch) -> None:
     config = _config("default", "disabled")
     config.agents.profiles["disabled"].enabled = False
     monkeypatch.setattr(
-        "AIARB.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: config,
     )
     manager.get_agent = AsyncMock(return_value=SimpleNamespace())
@@ -501,7 +501,7 @@ async def test_core_agents_overlap_before_custom_agents(
     manager = MultiAgentManager()
     config = _config("default", BUILTIN_QA_AGENT_ID, "custom")
     monkeypatch.setattr(
-        "AIARB.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: config,
     )
 
@@ -547,7 +547,7 @@ async def test_core_ready_waits_for_enabled_qa(monkeypatch) -> None:
     manager = MultiAgentManager()
     config = _config("default", BUILTIN_QA_AGENT_ID)
     monkeypatch.setattr(
-        "AIARB.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: config,
     )
     default_done = asyncio.Event()
@@ -584,7 +584,7 @@ async def test_core_ready_does_not_wait_for_disabled_qa(monkeypatch) -> None:
     config = _config("default", BUILTIN_QA_AGENT_ID)
     config.agents.profiles[BUILTIN_QA_AGENT_ID].enabled = False
     monkeypatch.setattr(
-        "AIARB.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: config,
     )
     manager.get_agent = AsyncMock(return_value=SimpleNamespace())
@@ -607,7 +607,7 @@ async def test_startup_preserves_loaded_agent_status_during_core_phase(
     manager = MultiAgentManager()
     config = _config("default", "custom")
     monkeypatch.setattr(
-        "AIARB.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: config,
     )
     manager.agents["custom"] = SimpleNamespace()
@@ -641,7 +641,7 @@ async def test_custom_agent_startup_respects_concurrency(
     custom_ids = [f"custom-{index}" for index in range(6)]
     config = _config("default", BUILTIN_QA_AGENT_ID, *custom_ids)
     monkeypatch.setattr(
-        "AIARB.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: config,
     )
     monkeypatch.setenv(
@@ -692,7 +692,7 @@ async def test_runtime_startups_share_concurrency_and_pending_state(
     manager = MultiAgentManager()
     config = _config("alpha", "beta")
     monkeypatch.setattr(
-        "AIARB.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: config,
     )
     alpha_started = asyncio.Event()
@@ -731,7 +731,7 @@ async def test_startup_display_skips_empty_custom_phase(monkeypatch) -> None:
     manager = MultiAgentManager()
     config = _config("default", BUILTIN_QA_AGENT_ID)
     monkeypatch.setattr(
-        "AIARB.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: config,
     )
     manager.get_agent = AsyncMock(return_value=SimpleNamespace())
@@ -752,7 +752,7 @@ async def test_default_failure_skips_custom_agent_phase(monkeypatch) -> None:
     manager = MultiAgentManager()
     config = _config("default", "custom")
     monkeypatch.setattr(
-        "AIARB.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: config,
     )
 
@@ -792,7 +792,7 @@ async def test_get_agent_updates_runtime_status(monkeypatch) -> None:
     manager = MultiAgentManager()
     config = _config("custom")
     monkeypatch.setattr(
-        "AIARB.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: config,
     )
     started = asyncio.Event()
@@ -822,7 +822,7 @@ async def test_cancelled_start_cleans_pending_state(monkeypatch) -> None:
     manager = MultiAgentManager()
     config = _config("custom")
     monkeypatch.setattr(
-        "AIARB.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: config,
     )
     started = asyncio.Event()

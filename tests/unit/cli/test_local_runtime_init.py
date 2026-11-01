@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Local Hub initialization preserves existing user settings."""
 
 from types import SimpleNamespace
@@ -66,8 +66,8 @@ def test_local_initialization_runs_once(tmp_path, monkeypatch, existing):
 
 @pytest.mark.parametrize("provisioner", ["local", "docker", ""])
 def test_app_initializes_only_local_hub_runtime(monkeypatch, provisioner):
-    monkeypatch.setenv("QWENPAW_RUNTIME_PROVISIONER", provisioner)
-    monkeypatch.setenv("QWENPAW_RUNTIME_ID", "test-runtime")
+    monkeypatch.setenv("AIARB_RUNTIME_PROVISIONER", provisioner)
+    monkeypatch.setenv("AIARB_RUNTIME_ID", "test-runtime")
     initialize = Mock()
     # app_cmd imports this lazily at call time, so patch it at its source
     # module instead of the app_cmd namespace.

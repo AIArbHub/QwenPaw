@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Session reasoning persists independently from agent and workspace state."""
 
 import asyncio
@@ -554,8 +554,8 @@ async def test_session_routes_use_selected_model_constraints(tmp_path):
 @pytest.mark.asyncio
 async def test_hub_view_separates_display_name_from_routing_id(monkeypatch):
     model_id = f"ddfc504d910c40d5afb25250933df0000"
-    monkeypatch.setenv(f"QWENPAW_HUB_MODEL_URL", f"https://hub.example")
-    monkeypatch.setenv(f"QWENPAW_HUB_MODEL_TOKEN", f"test-token")
+    monkeypatch.setenv(f"AIARB_HUB_MODEL_URL", f"https://hub.example")
+    monkeypatch.setenv(f"AIARB_HUB_MODEL_TOKEN", f"test-token")
     catalog = {
         f"default_model_id": model_id,
         f"models": [
@@ -598,7 +598,7 @@ async def test_hub_personal_session_selection_and_reasoning(
     tmp_path,
     monkeypatch,
 ):
-    monkeypatch.setenv(f"QWENPAW_HUB_MODEL_TOKEN", f"test-token")
+    monkeypatch.setenv(f"AIARB_HUB_MODEL_TOKEN", f"test-token")
     config = AgentProfileConfig(
         id=f"agent",
         name=f"Agent",
@@ -663,7 +663,7 @@ async def test_invalid_personal_selection_is_not_persisted(
     tmp_path,
     monkeypatch,
 ):
-    monkeypatch.setenv(f"QWENPAW_HUB_MODEL_TOKEN", f"token")
+    monkeypatch.setenv(f"AIARB_HUB_MODEL_TOKEN", f"token")
     config = AgentProfileConfig(id=f"agent", name=f"Agent")
     manager = ChatManager(repo=JsonChatRepository(tmp_path / f"chats.json"))
     chat = await manager.create_chat(ChatSpec(session_id=f"s", user_id=f"u"))

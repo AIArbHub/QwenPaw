@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 # ChannelManager is the framework owner of BaseChannel and must call
 # _is_native_payload and _consume_one_request as part of the contract.
@@ -409,7 +409,7 @@ def instantiate_channel(
                 runtime_config,
                 python_executable=settings.python_executable,
                 support_root=settings.support_root,
-                qwenpaw_version=settings.qwenpaw_version,
+                AIARB_version=settings.AIARB_version,
                 dependency_paths=settings.dependency_paths,
                 runtime_identity=settings.runtime_identity,
                 instance_id=instance_id,

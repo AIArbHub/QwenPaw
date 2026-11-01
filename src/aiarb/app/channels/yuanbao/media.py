@@ -24,7 +24,7 @@ from urllib.parse import parse_qs, quote, urlparse
 
 import aiohttp
 
-from AIARB.app.channels.utils import (
+from aiarb.app.channels.utils import (
     file_url_to_local_path,
     parse_data_url_async,
 )

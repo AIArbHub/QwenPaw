@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Shared runtime connections, independent of user login sessions."""
 
 import asyncio

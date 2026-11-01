@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for aiarb.app.channels.access_control."""
 
 from __future__ import annotations

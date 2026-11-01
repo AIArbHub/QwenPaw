@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Opt-in public context and internal bridge to the existing PluginApi."""
 
 from __future__ import annotations

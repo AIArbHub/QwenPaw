@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Auto-generated CLI subcommands from ``@api_action``.
 
 ``auto_group`` is a :class:`_LazyAutoGroup` registered lazily in

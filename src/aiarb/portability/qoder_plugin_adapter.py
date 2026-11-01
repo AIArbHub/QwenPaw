@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Constrained translation for user-authored Qoder Skill-only plugins."""
 
 from __future__ import annotations

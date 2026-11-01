@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Native, side-effect-free tests invoked by the compatibility Agent."""
 
 from __future__ import annotations

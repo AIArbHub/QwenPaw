@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Versioned model catalog loading and atomic OTA updates."""
 
 from __future__ import annotations
@@ -532,7 +532,7 @@ def catalog_documents(
 
 METADATA_CACHE_PATH = CATALOG_CACHE_DIR / f"model_info.remote.json"
 METADATA_URL = f"https://models.dev/api.json"
-METADATA_ENABLED_ENV = f"QWENPAW_MODEL_METADATA_ENABLED"
+METADATA_ENABLED_ENV = f"AIARB_MODEL_METADATA_ENABLED"
 METADATA_REFRESH_INTERVAL = 24 * 60 * 60
 
 

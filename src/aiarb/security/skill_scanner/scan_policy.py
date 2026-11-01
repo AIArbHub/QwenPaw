@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Scan policy: org-customisable allowlists and rule scoping.
 
 Every organisation has a different security bar.  A ``ScanPolicy``

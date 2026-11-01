@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Sidecar availability must not remove a PawApp's diagnostic routes."""
 
 import asyncio
@@ -48,7 +48,7 @@ def _fixture_plugin(tmp_path, registry, declaration):
     app.include_router(pawapps_router, prefix="/api")
     registry.set_plugin_http_app(app)
 
-    @app.get("/{path:path}", name="qwenpaw_console_spa_catchall")
+    @app.get("/{path:path}", name="AIARB_console_spa_catchall")
     def fallback(path: str):
         return {"path": path}
 

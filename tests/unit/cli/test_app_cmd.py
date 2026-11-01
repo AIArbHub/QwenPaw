@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for app-process signal setup."""
 
 import os
@@ -29,12 +29,12 @@ def test_server_setup_keeps_runtime_mode_and_channel_host_port(
     from qwenpaw.cli import app_cmd
     from qwenpaw.app.server_context import HOST_PORT_ENV
 
-    monkeypatch.setenv("QWENPAW_RUNTIME_MODE", "shared")
+    monkeypatch.setenv("AIARB_RUNTIME_MODE", "shared")
     monkeypatch.setenv(HOST_PORT_ENV, "1111")
     if runtime_id is None:
-        monkeypatch.delenv("QWENPAW_RUNTIME_ID", raising=False)
+        monkeypatch.delenv("AIARB_RUNTIME_ID", raising=False)
     else:
-        monkeypatch.setenv("QWENPAW_RUNTIME_ID", runtime_id)
+        monkeypatch.setenv("AIARB_RUNTIME_ID", runtime_id)
     addresses = []
     monkeypatch.setattr(
         app_cmd,
@@ -46,7 +46,7 @@ def test_server_setup_keeps_runtime_mode_and_channel_host_port(
 
     app_cmd.configure_server_process("0.0.0.0", 8765, "info", ())
 
-    assert os.environ["QWENPAW_RUNTIME_MODE"] == expected_mode
+    assert os.environ["AIARB_RUNTIME_MODE"] == expected_mode
     assert os.environ[HOST_PORT_ENV] == "8765"
     assert addresses == [("127.0.0.1", 8765)]
 

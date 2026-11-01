@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Built-in provider catalog and default model definitions."""
 
 from typing import List
@@ -30,7 +30,7 @@ from .services.volcengine import VolcengineProvider
 from .services.aliyun import AliyunPlanProvider
 from .services.minimax import MiniMaxProvider
 from .services.azure import AzureOpenAIProvider
-from .services.AIARB import AIARBProvider
+from .services.aiarb_provider import AIARBProvider
 from .services.mimo_plan import MiMoPlanProvider
 from .provider_discovery_policy import apply_discovery_policy
 

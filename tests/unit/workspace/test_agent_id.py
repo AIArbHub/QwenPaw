@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for agent ID generation, sanitization, and validation."""
 import pytest
 

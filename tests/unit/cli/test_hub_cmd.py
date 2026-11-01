@@ -8,13 +8,13 @@ from unittest.mock import patch
 import pytest
 from click.testing import CliRunner
 
-from AIARB.cli.app_cmd import app_cmd
-from AIARB.cli.hub_cmd import hub_cmd
-from AIARB.cli.main import cli
+from aiarb.cli.app_cmd import app_cmd
+from aiarb.cli.hub_cmd import hub_cmd
+from aiarb.cli.main import cli
 
 
 def test_hub_dispatches_to_control_plane() -> None:
-    with patch("AIARB.hub.control_app.run_hub_app") as run_hub:
+    with patch("aiarb.hub.control_app.run_hub_app") as run_hub:
         result = CliRunner().invoke(
             hub_cmd,
             ["--host", "127.0.0.1", "--port", "9090"],
@@ -33,7 +33,7 @@ def test_hub_dispatches_to_control_plane() -> None:
 def test_hub_passes_config_path(tmp_path) -> None:
     config_path = tmp_path / "hub.yaml"
     config_path.write_text("version: 1", encoding="utf-8")
-    with patch("AIARB.hub.control_app.run_hub_app") as run_hub:
+    with patch("aiarb.hub.control_app.run_hub_app") as run_hub:
         result = CliRunner().invoke(
             hub_cmd,
             ["--config", str(config_path)],
@@ -52,7 +52,7 @@ def test_hub_requires_force_public_for_non_loopback(host: str) -> None:
 
 
 def test_hub_forwards_force_public() -> None:
-    with patch("AIARB.hub.control_app.run_hub_app") as run_hub:
+    with patch("aiarb.hub.control_app.run_hub_app") as run_hub:
         result = CliRunner().invoke(
             hub_cmd,
             ["--host", "::", "--force-public"],
@@ -65,9 +65,9 @@ def test_hub_forwards_force_public() -> None:
 
 def test_hub_initializes_admin_without_starting_server() -> None:
     with (
-        patch("AIARB.hub.bootstrap.ensure_admin_initialization_available"),
+        patch("aiarb.hub.bootstrap.ensure_admin_initialization_available"),
         patch(
-            "AIARB.hub.bootstrap.initialize_hub_admin",
+            "aiarb.hub.bootstrap.initialize_hub_admin",
         ) as initialize_admin,
     ):
         initialize_admin.return_value.username = "owner"
@@ -86,18 +86,18 @@ def test_hub_initialization_does_not_load_runtime_provisioners(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     provisioner_modules = (
-        "AIARB.hub.provisioner",
-        "AIARB.hub.local_provisioner",
-        "AIARB.hub.docker_provisioner",
-        "AIARB.hub.docker_images",
+        "aiarb.hub.provisioner",
+        "aiarb.hub.local_provisioner",
+        "aiarb.hub.docker_provisioner",
+        "aiarb.hub.docker_images",
     )
     for module_name in provisioner_modules:
         monkeypatch.delitem(sys.modules, module_name, raising=False)
 
     with (
-        patch("AIARB.hub.bootstrap.ensure_admin_initialization_available"),
+        patch("aiarb.hub.bootstrap.ensure_admin_initialization_available"),
         patch(
-            "AIARB.hub.bootstrap.initialize_hub_admin",
+            "aiarb.hub.bootstrap.initialize_hub_admin",
         ) as initialize_admin,
     ):
         initialize_admin.return_value.username = "owner"
@@ -114,11 +114,11 @@ def test_hub_initialization_does_not_load_runtime_provisioners(
 def test_hub_reports_existing_admin_during_initialization() -> None:
     with (
         patch(
-            "AIARB.hub.bootstrap.ensure_admin_initialization_available",
+            "aiarb.hub.bootstrap.ensure_admin_initialization_available",
             side_effect=PermissionError("Hub is already initialized."),
         ),
         patch(
-            "AIARB.hub.bootstrap.initialize_hub_admin",
+            "aiarb.hub.bootstrap.initialize_hub_admin",
         ) as initialize_admin,
     ):
         result = CliRunner().invoke(
@@ -163,15 +163,15 @@ def test_hub_starts_local_without_docker_dependency(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     for module_name in (
-        "AIARB.hub.control_app",
-        "AIARB.hub.docker_images",
-        "AIARB.hub.docker_provisioner",
+        "aiarb.hub.control_app",
+        "aiarb.hub.docker_images",
+        "aiarb.hub.docker_provisioner",
     ):
         monkeypatch.delitem(sys.modules, module_name, raising=False)
     monkeypatch.setitem(sys.modules, "docker", None)
     monkeypatch.setenv("AIARB_HUB_DIR", str(tmp_path))
 
-    with patch("AIARB.hub.control_app.uvicorn.run") as uvicorn_run:
+    with patch("aiarb.hub.control_app.uvicorn.run") as uvicorn_run:
         result = CliRunner().invoke(hub_cmd, [])
 
     assert result.exit_code == 0

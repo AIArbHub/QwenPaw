@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Ensure ToolGuard engine.guard is offloaded off the event loop."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for model_factory message normalization integration."""
 
 # pylint: disable=protected-access,redefined-outer-name,mixed-line-endings
@@ -95,16 +95,16 @@ async def test_video_strip_runs_before_local_media_preparation(
     )()
     first = await formatter.format(messages)
     assert model_factory._count_wire_video_blocks(first) == 1
-    assert formatter._qwenpaw_last_wire_video_count == 1
+    assert formatter._AIARB_last_wire_video_count == 1
 
     def unexpected_read(*_args, **_kwargs):
         pytest.fail("Filtered video must not be read or encoded")
 
     monkeypatch.setattr(model_factory, "_read_local_media", unexpected_read)
-    formatter._qwenpaw_force_strip_video = True
+    formatter._AIARB_force_strip_video = True
     second = await formatter.format(messages)
     assert model_factory._count_wire_video_blocks(second) == 0
-    assert formatter._qwenpaw_last_wire_video_count == 0
+    assert formatter._AIARB_last_wire_video_count == 0
     assert "keep this" in json.dumps(second)
     assert [msg.model_dump() for msg in messages] == before
 
@@ -313,7 +313,7 @@ async def test_request_time_image_resize_preserves_original(
         "_supports_multimodal_for_current_model",
         lambda: True,
     )
-    monkeypatch.setenv("QWENPAW_MAX_IMAGE_PIXELS", "1250")
+    monkeypatch.setenv("AIARB_MAX_IMAGE_PIXELS", "1250")
     formatter_class = model_factory._create_file_block_support_formatter(
         _CappingOpenAIFormatter,
     )
@@ -337,7 +337,7 @@ async def test_request_time_image_resize_preserves_original(
 async def test_resize_failure_preserves_media_dedup_context(
     monkeypatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_MAX_IMAGE_PIXELS", "invalid")
+    monkeypatch.setenv("AIARB_MAX_IMAGE_PIXELS", "invalid")
     formatter_class = model_factory._create_file_block_support_formatter(
         _CappingOpenAIFormatter,
     )
@@ -355,7 +355,7 @@ async def test_resize_failure_preserves_media_dedup_context(
     try:
         with pytest.raises(
             ValueError,
-            match="QWENPAW_MAX_IMAGE_PIXELS must be zero or a positive",
+            match="AIARB_MAX_IMAGE_PIXELS must be zero or a positive",
         ):
             await formatter.format([msg])
 
@@ -370,7 +370,7 @@ async def test_resize_failure_preserves_media_dedup_context(
 async def test_memory_image_preview_fits_cap_without_modifying_original(
     monkeypatch,
 ):
-    monkeypatch.delenv("QWENPAW_MAX_IMAGE_PIXELS", raising=False)
+    monkeypatch.delenv("AIARB_MAX_IMAGE_PIXELS", raising=False)
     formatter_class = model_factory._create_file_block_support_formatter(
         _CappingOpenAIFormatter,
     )
@@ -410,7 +410,7 @@ async def test_memory_url_images_fit_inline_cap(
     base_formatter,
 ):
     """Fit downloaded/local originals before capping, for every image API."""
-    monkeypatch.delenv("QWENPAW_MAX_IMAGE_PIXELS", raising=False)
+    monkeypatch.delenv("AIARB_MAX_IMAGE_PIXELS", raising=False)
     original_bytes = _png_bytes((1000, 1000), compress_level=0)
     _mock_remote_media(monkeypatch, original_bytes)
     if source == "file":
@@ -434,7 +434,7 @@ async def test_memory_url_images_fit_inline_cap(
     wire = await formatter.format([message])
 
     assert len(original_bytes) > formatter.max_bytes
-    assert formatter._qwenpaw_last_wire_media_count == 1
+    assert formatter._AIARB_last_wire_media_count == 1
     assert "omitted" not in json.dumps(wire)
     assert message.model_dump(mode="json") == original
     if source == "file":
@@ -483,7 +483,7 @@ async def test_memory_url_images_fail_explicitly_when_unusable(
 async def test_request_time_image_resize_preserves_original(
     monkeypatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_MAX_IMAGE_PIXELS", "1250")
+    monkeypatch.setenv("AIARB_MAX_IMAGE_PIXELS", "1250")
     formatter_class = model_factory._create_file_block_support_formatter(
         _CappingOpenAIFormatter,
     )
@@ -507,7 +507,7 @@ async def test_request_time_image_resize_preserves_original(
 async def test_request_time_image_resize_applies_exif_orientation(
     monkeypatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_MAX_IMAGE_PIXELS", "2400")
+    monkeypatch.setenv("AIARB_MAX_IMAGE_PIXELS", "2400")
     formatter_class = model_factory._create_file_block_support_formatter(
         _CappingOpenAIFormatter,
     )
@@ -546,7 +546,7 @@ async def test_request_time_image_resize_applies_exif_orientation(
 async def test_resize_failure_preserves_media_dedup_context(
     monkeypatch,
 ) -> None:
-    monkeypatch.setenv("QWENPAW_MAX_IMAGE_PIXELS", "invalid")
+    monkeypatch.setenv("AIARB_MAX_IMAGE_PIXELS", "invalid")
     formatter_class = model_factory._create_file_block_support_formatter(
         _CappingOpenAIFormatter,
     )
@@ -564,7 +564,7 @@ async def test_resize_failure_preserves_media_dedup_context(
     try:
         with pytest.raises(
             ValueError,
-            match="QWENPAW_MAX_IMAGE_PIXELS must be zero or a positive",
+            match="AIARB_MAX_IMAGE_PIXELS must be zero or a positive",
         ):
             await formatter.format([msg])
 
@@ -791,7 +791,7 @@ async def test_openai_formatter_omits_thinking_without_mutation() -> None:
     formatter = formatter_class(relay_reasoning_content=True)
     old_thought = ThinkingBlock(thinking="old reasoning")
     new_thought = ThinkingBlock(thinking="new reasoning")
-    formatter._qwenpaw_omit_thinking_ids = {old_thought.id}
+    formatter._AIARB_omit_thinking_ids = {old_thought.id}
     msg = Msg(
         name="assistant",
         role="assistant",
@@ -864,7 +864,7 @@ async def test_deepseek_formatter_preserves_exact_reasoning(
     assert assistant_messages[0]["reasoning_content"] == (
         "must be replayed exactly"
     )
-    assert formatter._qwenpaw_omit_thinking_ids == set()
+    assert formatter._AIARB_omit_thinking_ids == set()
     assert thought.thinking == "must be replayed exactly"
 
 
@@ -878,7 +878,7 @@ async def test_required_reasoning_rejects_thinking_omission() -> None:
     thought = ThinkingBlock(thinking="must remain available")
 
     assert formatter.set_thinking_omit_ids({thought.id}) is True
-    formatter._qwenpaw_require_reasoning_content = True
+    formatter._AIARB_require_reasoning_content = True
     assert formatter.set_thinking_omit_ids({thought.id}) is False
 
     formatted = await formatter.format(
@@ -892,7 +892,7 @@ async def test_required_reasoning_rejects_thinking_omission() -> None:
     )
 
     assert formatted[0]["reasoning_content"] == "must remain available"
-    assert formatter._qwenpaw_omit_thinking_ids == set()
+    assert formatter._AIARB_omit_thinking_ids == set()
 
 
 @pytest.mark.asyncio
@@ -908,7 +908,7 @@ async def test_anthropic_formatter_preserves_native_thinking() -> None:
         thinking="native reasoning",
         signature="signature-abc",
     )
-    formatter._qwenpaw_omit_thinking_ids = {thought.id}
+    formatter._AIARB_omit_thinking_ids = {thought.id}
     msg = Msg(
         name="assistant",
         role="assistant",

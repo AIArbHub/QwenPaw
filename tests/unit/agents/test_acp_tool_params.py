@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tool-call arguments stream in, so the first sighting of a call often
 carries empty input. The ACP server must emit the populated ``raw_input``
 once it arrives (as a follow-up update) rather than pinning the empty

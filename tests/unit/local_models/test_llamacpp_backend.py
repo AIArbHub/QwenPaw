@@ -15,19 +15,19 @@ from typing import Any, cast
 import httpx
 import pytest
 
-import AIARB.local_models.llamacpp as downloader_module
-from AIARB.constant import DEFAULT_LOCAL_PROVIDER_DIR
-from AIARB.providers.model_info import ModelInfo
-from AIARB.local_models.download_manager import (
+import aiarb.local_models.llamacpp as downloader_module
+from aiarb.constant import DEFAULT_LOCAL_PROVIDER_DIR
+from aiarb.providers.model_info import ModelInfo
+from aiarb.local_models.download_manager import (
     DownloadTaskResult,
     DownloadTaskStatus,
 )
-from AIARB.utils.command_runner import (
+from aiarb.utils.command_runner import (
     CommandExecutionError,
     CommandResult,
     ShutdownResult,
 )
-from AIARB.local_models.llamacpp import LlamaCppBackend
+from aiarb.local_models.llamacpp import LlamaCppBackend
 
 
 class _FakeServerProcess:

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Regression tests for bounded SIP channel state."""
 # pylint: disable=missing-function-docstring,protected-access
 from __future__ import annotations

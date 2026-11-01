@@ -11,7 +11,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, List, Union
 
-from AIARB.schemas import (
+from aiarb.schemas import (
     AudioContent,
     ContentType,
     FileContent,
@@ -191,8 +191,8 @@ class MessageRenderer:
         *,
         semantic: bool,
     ) -> List[SemanticContentPart]:
-        from AIARB.agents.context.scroll.serialize import strip_headline
-        from AIARB.schemas import MessageType
+        from aiarb.agents.context.scroll.serialize import strip_headline
+        from aiarb.schemas import MessageType
 
         msg_type = getattr(message, "type", None)
         content = getattr(message, "content", None) or []

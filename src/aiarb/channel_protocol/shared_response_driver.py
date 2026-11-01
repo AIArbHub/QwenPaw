@@ -11,13 +11,13 @@ import hashlib
 import json
 import uuid
 
-from AIARB.channel_protocol.errors import (
+from aiarb.channel_protocol.errors import (
     RPC_LIFECYCLE_ERROR,
     RPC_RESPONSE_OPEN_FAILED,
     RpcError,
     RpcTimeoutError,
 )
-from AIARB.channel_protocol.models import (
+from aiarb.channel_protocol.models import (
     send_source_capability,
     RAW_COMPLETED_TEXT_CAPABILITY,
     UNKNOWN_ACTOR_CAPABILITY,
@@ -31,15 +31,15 @@ from AIARB.channel_protocol.models import (
     ResponseFinishResult,
     ResponsePrepareOperation,
 )
-from AIARB.channel_protocol.response_receipts import receipt_key
-from AIARB.channel_protocol.outbound_budget import (
+from aiarb.channel_protocol.response_receipts import receipt_key
+from aiarb.channel_protocol.outbound_budget import (
     DEFAULT_SEND_TIMEOUT,
     await_send,
     send_budget,
 )
-from AIARB.channel_protocol.response_policy import ResponsePolicy
-from AIARB.channel_protocol.reliability import RetryPolicy, events_for_retry
-from AIARB.channel_protocol.response_lifecycle import (
+from aiarb.channel_protocol.response_policy import ResponsePolicy
+from aiarb.channel_protocol.reliability import RetryPolicy, events_for_retry
+from aiarb.channel_protocol.response_lifecycle import (
     ResponseCleanupState,
     ResponseResourceRef,
     ResponseRouteAggregate,
@@ -663,7 +663,7 @@ class SharedResponseDriver:
                     and not uncertain
                     and event.event_id in ack.duplicate_event_ids
                 ):
-                    from AIARB.channel_protocol.models import ResponseOutcome
+                    from aiarb.channel_protocol.models import ResponseOutcome
 
                     async with self._lock(event.response_handle):
                         snapshot = self._routes.begin_finish(
@@ -696,7 +696,7 @@ class SharedResponseDriver:
                 if exhausted:
                     await self._diagnostic("HOST_ADMISSION_EXHAUSTED")
                 if created and not uncertain:
-                    from AIARB.channel_protocol.models import ResponseOutcome
+                    from aiarb.channel_protocol.models import ResponseOutcome
 
                     async with self._lock(event.response_handle):
                         snapshot = self._routes.begin_finish(

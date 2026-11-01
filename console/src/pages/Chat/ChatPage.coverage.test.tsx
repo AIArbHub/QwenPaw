@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ChatPage coverage tests
  *
  * Goal: cover as many statements in Chat/index.tsx as possible.

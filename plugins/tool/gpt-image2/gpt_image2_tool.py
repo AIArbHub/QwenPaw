@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=too-many-return-statements,too-many-branches
 """GPT Image 2 image generation tool."""
 

@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Literal, Type
 from agentscope.model import ChatModelBase
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
-from AIARB.exceptions import ModelNotFoundException, ProviderError
+from aiarb.exceptions import ModelNotFoundException, ProviderError
 
 from ..config.config import ModelType
 from ..utils.io_utils import run_sync_io

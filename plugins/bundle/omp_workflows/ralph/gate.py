@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Ralph gate — PRD-driven continuous loop with reviewer + deslop."""
 
 from __future__ import annotations

@@ -43,7 +43,7 @@ for _mod_name in _AGENTSCOPE_STUBS:
 @pytest.fixture()
 def fresh_registry():
     """Create a fresh PluginRegistry (bypass singleton)."""
-    from AIARB.plugins.registry import PluginRegistry
+    from aiarb.plugins.registry import PluginRegistry
 
     old_instance = PluginRegistry._instance
     PluginRegistry._instance = None
@@ -55,7 +55,7 @@ def fresh_registry():
 @pytest.fixture()
 def loader(fresh_registry, tmp_path):
     """Create a PluginLoader wired to the fresh registry."""
-    from AIARB.plugins.loader import PluginLoader
+    from aiarb.plugins.loader import PluginLoader
 
     ldr = PluginLoader(plugin_dirs=[tmp_path])
     ldr.registry = fresh_registry
@@ -106,8 +106,8 @@ def _write_manifest(
 
 
 async def _load(loader, plugin_dir: Path, backend_entry: str = "plugin.py"):
-    from AIARB.plugins.architecture import PluginManifest
-    from AIARB.plugins.loader import _manifest_as_dict
+    from aiarb.plugins.architecture import PluginManifest
+    from aiarb.plugins.loader import _manifest_as_dict
 
     manifest = PluginManifest.from_dict(
         json.loads((plugin_dir / "plugin.json").read_text(encoding="utf-8")),
@@ -185,8 +185,8 @@ def test_cache_refresh_failure_preserves_other_operations(
     caplog,
     operation,
 ):
-    from AIARB.plugins.loader import _publish_plugin_site_path
-    from AIARB.plugins.module_isolation import clear_plugin_bytecode
+    from aiarb.plugins.loader import _publish_plugin_site_path
+    from aiarb.plugins.module_isolation import clear_plugin_bytecode
 
     def fail_refresh():
         raise TypeError("incompatible cache hook")
@@ -766,7 +766,7 @@ class TestBareImportNamespaceIsolation:
         tmp_path,
     ):
         """A failed load must remove the plugin's import redirection."""
-        from AIARB.plugins.module_isolation import get_namespace_finder
+        from aiarb.plugins.module_isolation import get_namespace_finder
 
         plugin_dir = tmp_path / "fail-ns"
         plugin_dir.mkdir()
@@ -918,7 +918,7 @@ class TestFallthroughIsolation:
         monkeypatch,
     ):
         """Load-end cleanup must not normalize every preloaded module."""
-        from AIARB.plugins import module_isolation
+        from aiarb.plugins import module_isolation
 
         plugin_dir = tmp_path / "incremental-sweep"
         _write_manifest(plugin_dir)
@@ -950,7 +950,7 @@ class TestFallthroughIsolation:
 
     def test_incremental_sweep_restores_replaced_binding(self, tmp_path):
         """A plugin-local replacement must not erase an older binding."""
-        from AIARB.plugins.module_isolation import sweep_bare_tree_modules
+        from aiarb.plugins.module_isolation import sweep_bare_tree_modules
 
         plugin_dir = tmp_path / "restore-binding"
         plugin_dir.mkdir()

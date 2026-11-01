@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Host-owned static Channel definitions; no executable plugin discovery."""
 
 from __future__ import annotations

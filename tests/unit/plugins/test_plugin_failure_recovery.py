@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument
 """Plugin failure recovery and workspace replacement regressions."""
 
@@ -153,7 +153,7 @@ async def test_boot_activation_finishes_before_unload(
     }
     monkeypatch.setattr(
         builtins,
-        "_qwenpaw_boot_activation_state",
+        "_AIARB_boot_activation_state",
         state,
         raising=False,
     )
@@ -169,7 +169,7 @@ async def test_boot_activation_finishes_before_unload(
     )
     (root / "main.py").write_text(
         "import builtins\n"
-        "state = builtins._qwenpaw_boot_activation_state\n"
+        "state = builtins._AIARB_boot_activation_state\n"
         "class Plugin:\n"
         "    def register(self, api):\n"
         "        async def start():\n"
@@ -227,7 +227,7 @@ async def test_partial_effect_setup_is_cleaned_or_retained_for_retry(
     }
     monkeypatch.setattr(
         builtins,
-        "_qwenpaw_effect_test_state",
+        "_AIARB_effect_test_state",
         state,
         raising=False,
     )
@@ -254,7 +254,7 @@ async def test_partial_effect_setup_is_cleaned_or_retained_for_retry(
     )
     (root / "main.py").write_text(
         "import builtins\n"
-        "state = builtins._qwenpaw_effect_test_state\n"
+        "state = builtins._AIARB_effect_test_state\n"
         "class Plugin:\n"
         "    def register(self, api):\n"
         "        def setup():\n"
@@ -417,7 +417,7 @@ async def test_async_escape_rollback_awaits_on_owner_loop_and_keeps_retry(
     }
     monkeypatch.setattr(
         builtins,
-        "_qwenpaw_async_escape_state",
+        "_AIARB_async_escape_state",
         state,
         raising=False,
     )
@@ -437,7 +437,7 @@ async def test_async_escape_rollback_awaits_on_owner_loop_and_keeps_retry(
         "import asyncio, builtins\n"
         "from pathlib import Path\n"
         "async def cleanup():\n"
-        "    state = builtins._qwenpaw_async_escape_state\n"
+        "    state = builtins._AIARB_async_escape_state\n"
         "    assert asyncio.get_running_loop() is state['loop']\n"
         "    state['calls'] += 1\n"
         "    ready = state['loop'].create_future()\n"

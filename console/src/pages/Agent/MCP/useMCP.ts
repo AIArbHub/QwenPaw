@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAppMessage } from "../../../hooks/useAppMessage";
 import api from "../../../api";
 import type { MCPAccessPolicy, MCPClientInfo } from "../../../api/types";

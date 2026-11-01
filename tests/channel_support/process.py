@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Test-free construction and observation of real isolated plugin workers."""
 
 import asyncio
@@ -145,11 +145,11 @@ def runtime_layout(directory, monkeypatch):
         ),
     )
     for name, value in {
-        "QWENPAW_TAURI_RESOURCE_DIR": root,
-        "QWENPAW_CHANNEL_RUNTIME_MANIFEST": manifest,
-        "QWENPAW_DESKTOP_PY_RUNTIME": executable.resolve(),
-        "QWENPAW_CHANNEL_SUPPORT_ROOT": support,
-        "QWENPAW_CHANNEL_DEPENDENCY_PATHS": json.dumps([str(site)]),
+        "AIARB_TAURI_RESOURCE_DIR": root,
+        "AIARB_CHANNEL_RUNTIME_MANIFEST": manifest,
+        "AIARB_DESKTOP_PY_RUNTIME": executable.resolve(),
+        "AIARB_CHANNEL_SUPPORT_ROOT": support,
+        "AIARB_CHANNEL_DEPENDENCY_PATHS": json.dumps([str(site)]),
     }.items():
         monkeypatch.setenv(name, str(value))
     monkeypatch.setattr(sys, "frozen", True, raising=False)

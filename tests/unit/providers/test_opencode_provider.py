@@ -4,20 +4,20 @@
 
 import pytest
 
-from AIARB.providers.provider_catalog import (
+from aiarb.providers.provider_catalog import (
     KILO_MODELS,
 )
-from AIARB.providers.provider_manager import (
+from aiarb.providers.provider_manager import (
     OPENCODE_MODELS,
     PROVIDER_OPENCODE,
     ProviderManager,
 )
-from AIARB.providers.adapters.request_context import (
+from aiarb.providers.adapters.request_context import (
     model_session,
     session_header,
 )
-from AIARB.providers.anthropic_provider import AnthropicProvider
-from AIARB.providers.openai_provider import OpenAIProvider
+from aiarb.providers.anthropic_provider import AnthropicProvider
+from aiarb.providers.openai_provider import OpenAIProvider
 
 
 class TestOpenCodeProvider:

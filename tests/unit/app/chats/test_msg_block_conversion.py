@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Cover the block-conversion paths of agentscope_msg_to_message.
 
 ``tests/unit/app/chats/test_utils.py`` drives the transcript-filtering
@@ -44,7 +44,7 @@ from qwenpaw.app.chats.utils import (
     agentscope_msg_to_message,
     build_env_context,
 )
-from qwenpaw.constant import QWENPAW_USER_CONTENT_KEY
+from qwenpaw.constant import AIARB_USER_CONTENT_KEY
 from qwenpaw.exceptions import AgentRuntimeErrorException
 from qwenpaw.schemas import ContentType, MessageType
 
@@ -565,7 +565,7 @@ def test_original_user_content_replaces_rendered_text() -> None:
         [{"type": "text", "text": "rendered"}],
         role="user",
         metadata={
-            QWENPAW_USER_CONTENT_KEY: [{"type": "text", "text": "orig"}],
+            AIARB_USER_CONTENT_KEY: [{"type": "text", "text": "orig"}],
         },
     )
     out = _convert(msg)
@@ -577,7 +577,7 @@ def test_original_user_content_drops_empty_text_parts() -> None:
     msg = _msg(
         [{"type": "text", "text": "rendered"}],
         role="user",
-        metadata={QWENPAW_USER_CONTENT_KEY: [{"type": "text", "text": ""}]},
+        metadata={AIARB_USER_CONTENT_KEY: [{"type": "text", "text": ""}]},
     )
     out = _convert(msg)
     assert _contents(out[0]) == []
@@ -587,7 +587,7 @@ def test_invalid_original_user_content_falls_back_to_normal_path() -> None:
     msg = _msg(
         [{"type": "text", "text": "kept"}],
         role="user",
-        metadata={QWENPAW_USER_CONTENT_KEY: [{"type": "not_a_real_type"}]},
+        metadata={AIARB_USER_CONTENT_KEY: [{"type": "not_a_real_type"}]},
     )
     out = _convert(msg)
     # ValidationError is swallowed -> the ordinary text block is rendered
@@ -599,7 +599,7 @@ def test_non_list_original_user_content_is_ignored(content) -> None:
     msg = _msg(
         [{"type": "text", "text": "kept"}],
         role="user",
-        metadata={QWENPAW_USER_CONTENT_KEY: content},
+        metadata={AIARB_USER_CONTENT_KEY: content},
     )
     out = _convert(msg)
     assert [c["text"] for c in _contents(out[0])] == ["kept"]
@@ -609,7 +609,7 @@ def test_original_user_content_ignored_for_assistant() -> None:
     msg = _msg(
         [{"type": "text", "text": "rendered"}],
         metadata={
-            QWENPAW_USER_CONTENT_KEY: [{"type": "text", "text": "orig"}],
+            AIARB_USER_CONTENT_KEY: [{"type": "text", "text": "orig"}],
         },
     )
     out = _convert(msg)
@@ -621,13 +621,13 @@ def test_user_content_key_is_hidden_from_metadata() -> None:
         [{"type": "text", "text": "t"}],
         role="user",
         metadata={
-            QWENPAW_USER_CONTENT_KEY: [{"type": "text", "text": "o"}],
+            AIARB_USER_CONTENT_KEY: [{"type": "text", "text": "o"}],
             "keep": 1,
         },
     )
     out = _convert(msg)
     meta = out[0].metadata["metadata"]
-    assert QWENPAW_USER_CONTENT_KEY not in meta
+    assert AIARB_USER_CONTENT_KEY not in meta
     assert meta["keep"] == 1
 
 

@@ -4,9 +4,9 @@
 import asyncio
 from collections import defaultdict
 
-from AIARB.plugins import PluginContext
-from AIARB.plugins.messages import Message, ContentBlock
-from AIARB.plugins.tools import ToolContext, ToolResult, ToolSpec
+from aiarb.plugins import PluginContext
+from aiarb.plugins.messages import Message, ContentBlock
+from aiarb.plugins.tools import ToolContext, ToolResult, ToolSpec
 
 
 class Plugin:

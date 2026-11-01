@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument,unused-import  # noqa: E501
 """Pure-logic unit tests for skill_system/registry.py helpers.
 
@@ -33,11 +33,11 @@ def clean_caches(monkeypatch):
     snapshot = {
         key: os.environ.get(key)
         for key in list(os.environ)
-        if key.startswith("QWENPAW_SKILL_CONFIG_")
+        if key.startswith("AIARB_SKILL_CONFIG_")
     }
     yield
     for key in list(os.environ):
-        if key.startswith("QWENPAW_SKILL_CONFIG_"):
+        if key.startswith("AIARB_SKILL_CONFIG_"):
             prior = snapshot.get(key)
             if prior is None:
                 os.environ.pop(key, None)
@@ -238,19 +238,19 @@ class TestSkillEnvVarName:
     def test_simple_name(self):
         assert (
             skill_registry._skill_config_env_var_name("browser")
-            == "QWENPAW_SKILL_CONFIG_BROWSER"
+            == "AIARB_SKILL_CONFIG_BROWSER"
         )
 
     def test_non_alnum_becomes_underscore(self):
         assert (
             skill_registry._skill_config_env_var_name("my-skill")
-            == "QWENPAW_SKILL_CONFIG_MY_SKILL"
+            == "AIARB_SKILL_CONFIG_MY_SKILL"
         )
 
     def test_empty_name_fallback(self):
         assert (
             skill_registry._skill_config_env_var_name("")
-            == "QWENPAW_SKILL_CONFIG_DEFAULT"
+            == "AIARB_SKILL_CONFIG_DEFAULT"
         )
 
     def test_stringify_values(self):
@@ -270,7 +270,7 @@ class TestBuildSkillConfigEnvOverrides:
         )
         assert overrides["API_KEY"] == "abc"
         assert "extra" not in overrides
-        full = json.loads(overrides["QWENPAW_SKILL_CONFIG_DEMO"])
+        full = json.loads(overrides["AIARB_SKILL_CONFIG_DEMO"])
         assert full == {"API_KEY": "abc", "extra": 1}
 
     def test_missing_required_value_skipped(self):
@@ -295,7 +295,7 @@ class TestBuildSkillConfigEnvOverrides:
             {"k": "v"},
             ["  ", ""],
         )
-        assert list(overrides) == ["QWENPAW_SKILL_CONFIG_DEMO"]
+        assert list(overrides) == ["AIARB_SKILL_CONFIG_DEMO"]
 
 
 # ---------------------------------------------------------------------------
@@ -304,7 +304,7 @@ class TestBuildSkillConfigEnvOverrides:
 
 
 class TestSkillEnvKeyLifecycle:
-    KEY = "QWENPAW_SKILL_CONFIG_TEST_KEY"
+    KEY = "AIARB_SKILL_CONFIG_TEST_KEY"
 
     def test_acquire_sets_env(self, clean_caches):
         assert skill_registry._acquire_skill_env_key(self.KEY, "v1") is True
@@ -335,7 +335,7 @@ class TestSkillEnvKeyLifecycle:
         assert self.KEY not in skill_registry._ACTIVE_SKILL_ENV_ENTRIES
 
     def test_release_unknown_key_is_noop(self, clean_caches):
-        skill_registry._release_skill_env_key("QWENPAW_SKILL_CONFIG_NOPE")
+        skill_registry._release_skill_env_key("AIARB_SKILL_CONFIG_NOPE")
 
 
 # ---------------------------------------------------------------------------
@@ -366,7 +366,7 @@ class TestApplySkillConfigEnvOverrides:
             lambda workspace_dir, channel: ["demo"],
         )
 
-        key = "QWENPAW_SKILL_CONFIG_DEMO"
+        key = "AIARB_SKILL_CONFIG_DEMO"
         with skill_registry.apply_skill_config_env_overrides(
             tmp_path,
             "console",
@@ -402,5 +402,5 @@ class TestApplySkillConfigEnvOverrides:
             "console",
         ):
             assert not [
-                k for k in os.environ if k.startswith("QWENPAW_SKILL_CONFIG_")
+                k for k in os.environ if k.startswith("AIARB_SKILL_CONFIG_")
             ]

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for aiarb.security.skill_scanner.__init__.
 
 Covers:

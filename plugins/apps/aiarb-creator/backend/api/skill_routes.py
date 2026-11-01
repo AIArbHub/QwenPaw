@@ -16,7 +16,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
-from AIARB.exceptions import AppBaseException
+from aiarb.exceptions import AppBaseException
 from starlette.datastructures import UploadFile
 
 from services.external_skills import (

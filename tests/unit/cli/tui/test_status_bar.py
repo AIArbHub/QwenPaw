@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Status bar: compact token formatting and the in-flight estimate marker."""
 
 from __future__ import annotations

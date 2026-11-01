@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Runtime provisioner contract used by the AIArb Hub control plane."""
 
 from __future__ import annotations
@@ -59,7 +59,7 @@ class RuntimeProvisioner(ABC):
         credentials: Mapping[str, str],
     ) -> None:
         """Check model access when the runtime supports the status endpoint."""
-        if not credentials.get("QWENPAW_HUB_MODEL_TOKEN"):
+        if not credentials.get("AIARB_HUB_MODEL_TOKEN"):
             return
         try:
             with httpx.Client(timeout=15, trust_env=False) as client:
@@ -68,7 +68,7 @@ class RuntimeProvisioner(ABC):
                     f"/api/models/hub-status",
                     headers={
                         "X-QwenPaw-Runtime-Token": credentials[
-                            "QWENPAW_RUNTIME_INTERNAL_TOKEN"
+                            "AIARB_RUNTIME_INTERNAL_TOKEN"
                         ],
                     },
                 )

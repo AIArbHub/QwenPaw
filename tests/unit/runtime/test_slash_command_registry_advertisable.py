@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from AIARB.runtime.slash_command_registry import (
+from aiarb.runtime.slash_command_registry import (
     CommandSpec,
     SlashCommandRegistry,
 )

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Trusted shared Runner hello construction."""
 
 from __future__ import annotations

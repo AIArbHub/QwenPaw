@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=unused-argument,protected-access,unused-variable
 """Unit tests for Windows AppContainer sandbox.
 
@@ -1008,10 +1008,10 @@ def test_shutdown_cleanup_preserves_cleanup_without_progress_logging(
     containers = tmp_path / "containers"
     containers.mkdir()
     metadata = {
-        "container_name": "qwenpaw_test",
+        "container_name": "AIARB_test",
         "owner_pid": os.getpid(),
     }
-    meta_file = containers / "qwenpaw_test.json"
+    meta_file = containers / "AIARB_test.json"
     meta_file.write_text(json.dumps(metadata), encoding="utf-8")
     monkeypatch.setattr(mod, "_state_dir", tmp_path)
     cleanup = MagicMock()

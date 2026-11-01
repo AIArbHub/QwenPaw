@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Provider-independent context planning and request transformation.
 
 The transformer works on deep copies of ``Msg`` objects. Images remain

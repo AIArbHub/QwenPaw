@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Actual API startup context, inherited by the CLI reload serving process."""
 
 import os

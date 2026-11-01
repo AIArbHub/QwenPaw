@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Best-effort daily Runtime telemetry in a detached sender thread."""
 from __future__ import annotations
 

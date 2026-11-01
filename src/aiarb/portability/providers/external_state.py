@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Read external memory and plugin sources without installing caches."""
 
 from __future__ import annotations

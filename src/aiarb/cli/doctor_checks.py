@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Read-only diagnostics for `AIARB doctor` (no config or disk mutations)."""
 
 from __future__ import annotations

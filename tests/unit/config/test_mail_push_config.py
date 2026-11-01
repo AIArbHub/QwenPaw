@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for AgentMailPushConfig serialization semantics."""
 
 from __future__ import annotations

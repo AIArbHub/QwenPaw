@@ -1935,7 +1935,7 @@ async def _fetch_bundle_from_aliyun_url(
         )
 
     try:
-        from AIARB.market.providers.aliyun import (
+        from aiarb.market.providers.aliyun import (
             call_aliyun_action_async,
         )
     except ImportError as exc:  # pragma: no cover

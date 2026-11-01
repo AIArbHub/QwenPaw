@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Integration tests for the version endpoint.
 
 Covers GET /api/version.
@@ -33,7 +33,7 @@ def test_version_endpoint(app_server) -> None:
     )
     assert resp.status_code == 200, app_server.logs_tail()
     payload = resp.json()
-    assert "version" in payload or "qwenpaw_version" in payload
+    assert "version" in payload or "AIARB_version" in payload
 
 
 @pytest.mark.integration
@@ -56,7 +56,7 @@ def test_version_format(app_server) -> None:
     )
     assert resp.status_code == 200, app_server.logs_tail()
     payload = resp.json()
-    version = payload.get("version") or payload.get("qwenpaw_version", "")
+    version = payload.get("version") or payload.get("AIARB_version", "")
     assert isinstance(version, str)
     assert len(version) > 0
 

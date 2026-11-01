@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for the plugin manifest's declared AIArb compatibility range."""
 
 import json

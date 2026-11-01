@@ -16,7 +16,7 @@ from agentscope.message import (
     URLSource,
 )
 
-from AIARB.agents.utils.message_request_normalizer import (
+from aiarb.agents.utils.message_request_normalizer import (
     _clean_provider_specific_fields,
     _clone_msg,
     _clone_messages,
@@ -27,7 +27,7 @@ from AIARB.agents.utils.message_request_normalizer import (
     mark_media_omitted_after_overflow,
     normalize_messages_for_model_request,
 )
-from AIARB.constant import (
+from aiarb.constant import (
     MEDIA_UNSUPPORTED_PLACEHOLDER,
     AIARB_MESSAGE_TAG_KEY,
     SYNTHETIC_USER_MESSAGE_TAGS,

@@ -17,7 +17,7 @@ from api import skill_routes
 from api.dependencies import creator_error_handler
 from domain.errors import CreatorError
 from models import config
-from AIARB.exceptions import SkillsError
+from aiarb.exceptions import SkillsError
 from services import external_skills
 from services.media_files import user_skills
 from services.skill_hub import (

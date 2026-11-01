@@ -5,11 +5,11 @@ from typing import Any
 
 import pytest
 
-from AIARB.loop.gates.base import StopAction, StopHandlerResult
-from AIARB.loop.gates.handler import StopHandler
-from AIARB.loop.gates.runner import apply_stop_result, check_pending_gates
-from AIARB.modes.goal.gates import GoalTurnGate
-from AIARB.modes.goal.goal_mode import GoalSession
+from aiarb.loop.gates.base import StopAction, StopHandlerResult
+from aiarb.loop.gates.handler import StopHandler
+from aiarb.loop.gates.runner import apply_stop_result, check_pending_gates
+from aiarb.modes.goal.gates import GoalTurnGate
+from aiarb.modes.goal.goal_mode import GoalSession
 
 
 def _goal_handler(session: GoalSession) -> StopHandler:

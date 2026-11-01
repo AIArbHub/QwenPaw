@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Delivered official channels, safe for host discovery and release builds.
 
 Add a record only together with its descriptor, source and builtin retirement.

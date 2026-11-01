@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Real Chromium journey through the public Browser tool."""
 
 from collections.abc import AsyncGenerator

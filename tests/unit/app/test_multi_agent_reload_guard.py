@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Regression tests for zero-downtime reloads racing config writes.
 
 A reload that began before the latest ``save_agent_config`` builds its

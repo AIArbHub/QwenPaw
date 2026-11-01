@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Fail-closed OS process isolation for local Hub runtimes."""
 
 from __future__ import annotations
@@ -214,9 +214,9 @@ class LinuxBubblewrapIsolator(ProcessIsolator):
                 "TMP": f"{workspace}/tmp",
                 "TEMP": f"{workspace}/tmp",
                 "TMPDIR": f"{workspace}/tmp",
-                "QWENPAW_WORKING_DIR": workspace,
-                "QWENPAW_SECRET_DIR": "/secrets",
-                "QWENPAW_BACKUP_DIR": "/backups",
+                "AIARB_WORKING_DIR": workspace,
+                "AIARB_SECRET_DIR": "/secrets",
+                "AIARB_BACKUP_DIR": "/backups",
             },
         )
         self._probe(args, runtime_root, sandbox_environment)
@@ -322,8 +322,8 @@ class MacOSSeatbeltIsolator(ProcessIsolator):
         sandbox_environment = dict(environment)
         sandbox_environment.update(
             {
-                "QWENPAW_DEPENDENCY_STATE_DIR": str(state_root()),
-                "QWENPAW_DEPENDENCY_READER_SCOPE": scope,
+                "AIARB_DEPENDENCY_STATE_DIR": str(state_root()),
+                "AIARB_DEPENDENCY_READER_SCOPE": scope,
             },
         )
         profile = self._profile(record)
@@ -346,7 +346,7 @@ class MacOSSeatbeltIsolator(ProcessIsolator):
                 + self._escape(directory)
                 + '"))'
             )
-        endpoint = urlsplit(environment.get("QWENPAW_HUB_MODEL_URL", ""))
+        endpoint = urlsplit(environment.get("AIARB_HUB_MODEL_URL", ""))
         if endpoint.hostname in {"127.0.0.1", "localhost", "::1"}:
             model_port = endpoint.port or (
                 443 if endpoint.scheme == "https" else 80

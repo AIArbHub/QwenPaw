@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for the skills router pool operations and install worker.
 
 The read-side, mutation-side and helper-side test files already cover
@@ -2061,7 +2061,7 @@ class TestDownloadPoolSkillRoute:
         assert len(seen_during_download) == 1
         assert len(seen_during_download[0]) == 1
         assert seen_during_download[0][0].startswith(
-            "qwenpaw_skill_rollback_demo_",
+            "AIARB_skill_rollback_demo_",
         )
         assert list(temp_root.iterdir()) == []
 

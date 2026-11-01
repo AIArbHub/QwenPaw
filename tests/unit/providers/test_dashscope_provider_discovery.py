@@ -5,9 +5,9 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from AIARB.providers import dashscope_discovery
-from AIARB.providers.dashscope_provider import DashScopeProvider
-from AIARB.providers.provider import ModelInfo
+from aiarb.providers import dashscope_discovery
+from aiarb.providers.dashscope_provider import DashScopeProvider
+from aiarb.providers.provider import ModelInfo
 
 
 def test_dashscope_excludes_non_chat_catalog_entries() -> None:
@@ -34,7 +34,7 @@ async def test_dashscope_fetch_models_filters_non_chat_entries(
         response.raise_for_status()
 
     monkeypatch.setattr(
-        f"AIARB.providers.dashscope_provider.fetch_directory",
+        f"aiarb.providers.dashscope_provider.fetch_directory",
         unavailable,
     )
 
@@ -47,7 +47,7 @@ async def test_dashscope_fetch_models_filters_non_chat_entries(
         ]
 
     monkeypatch.setattr(
-        "AIARB.providers.openai_provider.OpenAIProvider.fetch_models",
+        "aiarb.providers.openai_provider.OpenAIProvider.fetch_models",
         fetch_models,
     )
 

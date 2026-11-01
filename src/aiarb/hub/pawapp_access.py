@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """App-scoped browser reads without exposing credentials in resource URLs."""
 
 from __future__ import annotations

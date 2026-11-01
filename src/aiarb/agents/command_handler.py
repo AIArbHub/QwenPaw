@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Agent command handler for system commands.
 
 This module handles system commands like /compact, /new, /clear, etc.

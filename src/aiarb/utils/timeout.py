@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Shared positive-timeout parsing for tool args and console chat tasks."""
 from __future__ import annotations
 

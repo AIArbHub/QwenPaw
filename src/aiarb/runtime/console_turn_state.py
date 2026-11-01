@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Durable console turn status and explicit last-turn regeneration."""
 
 from __future__ import annotations

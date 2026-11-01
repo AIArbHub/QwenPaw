@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for ``GET /api/healthz``."""
 # pylint: disable=redefined-outer-name
 from __future__ import annotations

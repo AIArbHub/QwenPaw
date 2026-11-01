@@ -33,7 +33,7 @@ from typing import Any, AsyncGenerator, AsyncIterator
 
 from agentscope.model import ChatModelBase
 from agentscope.model._model_response import ChatResponse
-from AIARB.exceptions import (
+from aiarb.exceptions import (
     RateLimitExceededException,
 )
 

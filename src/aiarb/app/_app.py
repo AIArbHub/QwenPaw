@@ -1014,17 +1014,17 @@ app.include_router(api_router, prefix="/api")
 
 # These registrations require the fully constructed application instance.
 # pylint: disable-next=wrong-import-position,wrong-import-order
-from AIARB.browser.control_link import (  # noqa: E402
+from aiarb.browser.control_link import (  # noqa: E402
     register_builtin_control_links,
 )
 
 # pylint: disable-next=wrong-import-position,wrong-import-order
-from AIARB.browser.control_link.chrome.ws_handler import (  # noqa: E402
+from aiarb.browser.control_link.chrome.ws_handler import (  # noqa: E402
     ws_router as browser_chrome_ws_router,
 )
 
 # pylint: disable-next=wrong-import-position,wrong-import-order
-from AIARB.browser.control_link.chrome.observe import (  # noqa: E402
+from aiarb.browser.control_link.chrome.observe import (  # noqa: E402
     status_router as browser_chrome_status_router,
 )
 

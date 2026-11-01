@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access
 """Tests for aiarb.security.tool_guard.engine."""
 from __future__ import annotations

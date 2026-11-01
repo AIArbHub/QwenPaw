@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Autopilot gate — lifecycle pipeline with cleanup + completed."""
 
 from __future__ import annotations

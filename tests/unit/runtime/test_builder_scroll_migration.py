@@ -9,13 +9,13 @@ from types import SimpleNamespace
 import pytest
 from agentscope.message import ToolResultState
 
-import AIARB.agents.context as context_mod
-from AIARB.runtime.builder import AgentBuilder, _resolve_react_iterations
-from AIARB.agents.context.types import LogEntry
-from AIARB.app.multi_agent_manager import MultiAgentManager
-from AIARB.app.workspace.workspace import Workspace
-from AIARB.config.config import LightContextConfig
-from AIARB.utils.io_utils import run_sync_io
+import aiarb.agents.context as context_mod
+from aiarb.runtime.builder import AgentBuilder, _resolve_react_iterations
+from aiarb.agents.context.types import LogEntry
+from aiarb.app.multi_agent_manager import MultiAgentManager
+from aiarb.app.workspace.workspace import Workspace
+from aiarb.config.config import LightContextConfig
+from aiarb.utils.io_utils import run_sync_io
 
 
 def _history_workspace(tmp_path, filename="history.db", strategy="scroll"):
@@ -172,7 +172,7 @@ async def test_final_stop_cancels_request_and_persists_history(
         assert "agent" not in multi.agents
         assert not multi._agent_stop_tasks
         assert not await ws.task_tracker.has_active_tasks()
-        from AIARB.agents.context.scroll.history import HistoryStore
+        from aiarb.agents.context.scroll.history import HistoryStore
 
         reopened = HistoryStore(store.path)
         try:

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Real worker-process lifecycle contracts for browser execution."""
 
 from __future__ import annotations

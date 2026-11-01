@@ -6,16 +6,16 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock
 
-from AIARB.providers.openai_provider import OpenAIProvider
-from AIARB.providers.provider import ModelInfo
-from AIARB.providers.provider_catalog import BUILTIN_PROVIDERS
-from AIARB.providers.provider_discovery_policy import (
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.provider import ModelInfo
+from aiarb.providers.provider_catalog import BUILTIN_PROVIDERS
+from aiarb.providers.provider_discovery_policy import (
     apply_custom_discovery_policy,
     BUILTIN_DISCOVERY_POLICIES,
     CUSTOM_CHAT_MODEL_NAMES,
     CUSTOM_DISCOVERY_POLICIES,
 )
-from AIARB.providers.provider_manager import ProviderManager
+from aiarb.providers.provider_manager import ProviderManager
 
 
 def test_every_builtin_provider_has_discovery_policy() -> None:

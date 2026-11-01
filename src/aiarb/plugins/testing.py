@@ -195,7 +195,7 @@ class PluginTestHost:  # pylint: disable=too-many-public-methods
         _ACTIVE_HOST = self
         os.environ["AIARB_WORKING_DIR"] = str(self.root)
         for module in tuple(sys.modules.values()):
-            if not getattr(module, "__name__", "").startswith("AIARB."):
+            if not getattr(module, "__name__", "").startswith("aiarb."):
                 continue
             for name, value in tuple(vars(module).items()):
                 if not isinstance(value, Path):
@@ -306,7 +306,7 @@ class PluginTestHost:  # pylint: disable=too-many-public-methods
 
         recorded = {(id(module), name) for module, name, _ in self._restore}
         for module in tuple(sys.modules.values()):
-            if not getattr(module, "__name__", "").startswith("AIARB."):
+            if not getattr(module, "__name__", "").startswith("aiarb."):
                 continue
             for name, value in tuple(vars(module).items()):
                 if (

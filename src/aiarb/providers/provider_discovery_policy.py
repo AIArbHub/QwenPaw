@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Declarative discovery and synchronization policy for built-in providers."""
 
 from __future__ import annotations

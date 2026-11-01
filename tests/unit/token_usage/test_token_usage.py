@@ -10,14 +10,14 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from AIARB.providers.adapters.usage import cache_usage
-from AIARB.app.agent_context import peek_current_agent_id
-from AIARB.token_usage.buffer import (
+from aiarb.providers.adapters.usage import cache_usage
+from aiarb.app.agent_context import peek_current_agent_id
+from aiarb.token_usage.buffer import (
     TokenUsageBuffer,
     _UsageEvent,
     _apply_event,
 )
-from AIARB.token_usage.manager import (
+from aiarb.token_usage.manager import (
     TokenUsageByDateModel,
     TokenUsageByModel,
     TokenUsageManager,
@@ -26,12 +26,12 @@ from AIARB.token_usage.manager import (
     TokenUsageSummary,
     _usage_agent_id,
 )
-from AIARB.token_usage.model_wrapper import (
+from aiarb.token_usage.model_wrapper import (
     TokenRecordingModelWrapper,
     _cache_usage_metrics,
 )
-from AIARB.token_usage.storage import load_data, save_data_sync
-from AIARB.token_usage.turn_usage import add_session_cache_usage
+from aiarb.token_usage.storage import load_data, save_data_sync
+from aiarb.token_usage.turn_usage import add_session_cache_usage
 
 _EMPTY_AGENT_KEY = "\x1f".join(("", "openai", "gpt-4"))
 _NAMED_AGENT_KEY = "\x1f".join(("bot-a", "openai", "gpt-4"))
@@ -220,7 +220,7 @@ class TestStorage:
             raise OSError("simulated replace failure")
 
         monkeypatch.setattr(
-            "AIARB.token_usage.storage.os.replace",
+            "aiarb.token_usage.storage.os.replace",
             _boom,
         )
         assert save_data_sync(path, {"test": "data"}) is False
@@ -313,7 +313,7 @@ class TestTokenUsageBuffer:
             return {}
 
         monkeypatch.setattr(
-            "AIARB.token_usage.buffer.load_data",
+            "aiarb.token_usage.buffer.load_data",
             _never_returns,
         )
 
@@ -396,7 +396,7 @@ class TestTokenUsageBuffer:
             return real_replace(src, dst, *args, **kwargs)
 
         monkeypatch.setattr(
-            "AIARB.token_usage.storage.os.replace",
+            "aiarb.token_usage.storage.os.replace",
             _flaky_replace,
         )
 
@@ -531,11 +531,11 @@ class TestTokenUsageManagerCore:
     def test_get_instance_returns_singleton(self, tmp_path, monkeypatch):
         """Should return same instance on multiple calls."""
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.WORKING_DIR",
+            "aiarb.token_usage.manager.WORKING_DIR",
             tmp_path,
         )
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.TOKEN_USAGE_FILE",
+            "aiarb.token_usage.manager.TOKEN_USAGE_FILE",
             "test_token_usage.json",
         )
 
@@ -547,11 +547,11 @@ class TestTokenUsageManagerCore:
     async def test_start_and_stop(self, tmp_path, monkeypatch):
         """Should start and stop cleanly."""
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.WORKING_DIR",
+            "aiarb.token_usage.manager.WORKING_DIR",
             tmp_path,
         )
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.TOKEN_USAGE_FILE",
+            "aiarb.token_usage.manager.TOKEN_USAGE_FILE",
             "test_token_usage.json",
         )
 
@@ -563,11 +563,11 @@ class TestTokenUsageManagerCore:
     async def test_record_usage(self, tmp_path, monkeypatch):
         """Should record token usage."""
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.WORKING_DIR",
+            "aiarb.token_usage.manager.WORKING_DIR",
             tmp_path,
         )
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.TOKEN_USAGE_FILE",
+            "aiarb.token_usage.manager.TOKEN_USAGE_FILE",
             "test_token_usage.json",
         )
 
@@ -588,11 +588,11 @@ class TestTokenUsageManagerCore:
     async def test_get_summary_empty(self, tmp_path, monkeypatch):
         """Should return empty summary when no data."""
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.WORKING_DIR",
+            "aiarb.token_usage.manager.WORKING_DIR",
             tmp_path,
         )
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.TOKEN_USAGE_FILE",
+            "aiarb.token_usage.manager.TOKEN_USAGE_FILE",
             "test_token_usage.json",
         )
 
@@ -644,11 +644,11 @@ class TestTokenUsageManagerCore:
     async def test_get_details_empty(self, tmp_path, monkeypatch):
         """Should return empty list when no data."""
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.WORKING_DIR",
+            "aiarb.token_usage.manager.WORKING_DIR",
             tmp_path,
         )
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.TOKEN_USAGE_FILE",
+            "aiarb.token_usage.manager.TOKEN_USAGE_FILE",
             "test_token_usage.json",
         )
 
@@ -665,11 +665,11 @@ class TestTokenUsageManagerCore:
     async def test_get_details_with_data(self, tmp_path, monkeypatch):
         """Should return raw records for frontend aggregation."""
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.WORKING_DIR",
+            "aiarb.token_usage.manager.WORKING_DIR",
             tmp_path,
         )
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.TOKEN_USAGE_FILE",
+            "aiarb.token_usage.manager.TOKEN_USAGE_FILE",
             "test_token_usage.json",
         )
 
@@ -713,11 +713,11 @@ class TestTokenUsageManagerCore:
     ):
         """Legacy rows stay unattributed; agent keys keep model and id."""
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.WORKING_DIR",
+            "aiarb.token_usage.manager.WORKING_DIR",
             tmp_path,
         )
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.TOKEN_USAGE_FILE",
+            "aiarb.token_usage.manager.TOKEN_USAGE_FILE",
             "t.json",
         )
         (tmp_path / "t.json").write_text(
@@ -907,7 +907,7 @@ class TestTokenRecordingModelWrapper:
     def _stream_harness(self, _tmp_path, monkeypatch):
         captured: list = []
         monkeypatch.setattr(
-            "AIARB.token_usage.model_wrapper.get_token_usage_manager",
+            "aiarb.token_usage.model_wrapper.get_token_usage_manager",
             lambda: MagicMock(enqueue=captured.append),
         )
         model = MagicMock()
@@ -917,11 +917,11 @@ class TestTokenRecordingModelWrapper:
     def test_init_wraps_model(self, tmp_path, monkeypatch):
         """Should wrap a ChatModelBase instance."""
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.WORKING_DIR",
+            "aiarb.token_usage.manager.WORKING_DIR",
             tmp_path,
         )
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.TOKEN_USAGE_FILE",
+            "aiarb.token_usage.manager.TOKEN_USAGE_FILE",
             "test_token_usage.json",
         )
 
@@ -943,11 +943,11 @@ class TestTokenRecordingModelWrapper:
     def test_record_usage_with_valid_usage(self, tmp_path, monkeypatch):
         """Should record valid usage."""
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.WORKING_DIR",
+            "aiarb.token_usage.manager.WORKING_DIR",
             tmp_path,
         )
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.TOKEN_USAGE_FILE",
+            "aiarb.token_usage.manager.TOKEN_USAGE_FILE",
             "test_token_usage.json",
         )
 
@@ -976,7 +976,7 @@ class TestTokenRecordingModelWrapper:
         fake_var = MagicMock()
         fake_var.get.return_value = "bot-a"
         monkeypatch.setattr(
-            "AIARB.app.agent_context._current_agent_id",
+            "aiarb.app.agent_context._current_agent_id",
             fake_var,
         )
         wrapper, captured = self._stream_harness(tmp_path, monkeypatch)
@@ -991,11 +991,11 @@ class TestTokenRecordingModelWrapper:
         wrapper._record_usage(usage)
         assert captured[1].agent_id == ""
         monkeypatch.setattr(
-            "AIARB.app.agent_context._current_agent_id",
+            "aiarb.app.agent_context._current_agent_id",
             ContextVar("current_agent_id", default=None),
         )
         monkeypatch.setattr(
-            "AIARB.app.agent_context.get_active_agent_id",
+            "aiarb.app.agent_context.get_active_agent_id",
             lambda: "default",
         )
         assert peek_current_agent_id() == ""
@@ -1004,11 +1004,11 @@ class TestTokenRecordingModelWrapper:
     def test_record_usage_carries_cache_metrics(self, tmp_path, monkeypatch):
         """Provider cache counters should reach both event and turn usage."""
         monkeypatch.setattr(
-            "AIARB.token_usage.model_wrapper._cache_usage_metrics",
+            "aiarb.token_usage.model_wrapper._cache_usage_metrics",
             lambda *_args: (True, 100),
         )
         monkeypatch.setattr(
-            "AIARB.app.agent_context.get_current_session_id",
+            "aiarb.app.agent_context.get_current_session_id",
             lambda: "sess-cache",
         )
         wrapper, captured = self._stream_harness(tmp_path, monkeypatch)
@@ -1036,7 +1036,7 @@ class TestTokenRecordingModelWrapper:
         monkeypatch,
     ):
         monkeypatch.setattr(
-            f"AIARB.app.agent_context.get_current_session_id",
+            f"aiarb.app.agent_context.get_current_session_id",
             lambda: f"live-usage",
         )
         wrapper, _ = self._stream_harness(tmp_path, monkeypatch)
@@ -1063,7 +1063,7 @@ class TestTokenRecordingModelWrapper:
         reported,
     ):
         monkeypatch.setattr(
-            f"AIARB.token_usage.model_wrapper._cache_usage_metrics",
+            f"aiarb.token_usage.model_wrapper._cache_usage_metrics",
             lambda *_args: (True, 100),
         )
         wrapper, captured = self._stream_harness(tmp_path, monkeypatch)
@@ -1091,11 +1091,11 @@ class TestTokenRecordingModelWrapper:
     ):
         """Unknown provider semantics should not pollute cache totals."""
         monkeypatch.setattr(
-            "AIARB.token_usage.model_wrapper._cache_usage_metrics",
+            "aiarb.token_usage.model_wrapper._cache_usage_metrics",
             lambda *_args: (False, 0),
         )
         monkeypatch.setattr(
-            "AIARB.app.agent_context.get_current_session_id",
+            "aiarb.app.agent_context.get_current_session_id",
             lambda: "sess-unknown-cache",
         )
         wrapper, captured = self._stream_harness(tmp_path, monkeypatch)
@@ -1125,11 +1125,11 @@ class TestTokenRecordingModelWrapper:
     ):
         """A tool-heavy turn should include every successful model call."""
         monkeypatch.setattr(
-            "AIARB.token_usage.model_wrapper._cache_usage_metrics",
+            "aiarb.token_usage.model_wrapper._cache_usage_metrics",
             lambda _model, prompt, _read, _write: (True, prompt),
         )
         monkeypatch.setattr(
-            "AIARB.app.agent_context.get_current_session_id",
+            "aiarb.app.agent_context.get_current_session_id",
             lambda: "sess-multi-call",
         )
         wrapper, _captured = self._stream_harness(tmp_path, monkeypatch)
@@ -1248,15 +1248,15 @@ class TestTokenRecordingModelWrapper:
     ):
         """Per-call usage carries context_size and compaction threshold."""
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.WORKING_DIR",
+            "aiarb.token_usage.manager.WORKING_DIR",
             tmp_path,
         )
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.TOKEN_USAGE_FILE",
+            "aiarb.token_usage.manager.TOKEN_USAGE_FILE",
             "test_token_usage.json",
         )
         monkeypatch.setattr(
-            "AIARB.app.agent_context.get_current_session_id",
+            "aiarb.app.agent_context.get_current_session_id",
             lambda: "sess-1",
         )
 
@@ -1285,11 +1285,11 @@ class TestTokenRecordingModelWrapper:
     def test_pop_usage_for_session(self, monkeypatch):
         """Should pop usage for session."""
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.WORKING_DIR",
+            "aiarb.token_usage.manager.WORKING_DIR",
             "/tmp",
         )
         monkeypatch.setattr(
-            "AIARB.token_usage.manager.TOKEN_USAGE_FILE",
+            "aiarb.token_usage.manager.TOKEN_USAGE_FILE",
             "test_token_usage.json",
         )
 

@@ -11,8 +11,8 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from agentscope.message import Msg
 from pydantic import ValidationError
-from AIARB.agents.context.scroll.serialize import strip_headline
-from AIARB.schemas import (
+from aiarb.agents.context.scroll.serialize import strip_headline
+from aiarb.schemas import (
     Message,
     TextContent,
     ImageContent,
@@ -25,7 +25,7 @@ from AIARB.schemas import (
     MessageType,
     ContentType,
 )
-from AIARB.exceptions import (
+from aiarb.exceptions import (
     AgentRuntimeErrorException,
 )
 

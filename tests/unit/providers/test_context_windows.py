@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,missing-function-docstring
 # pylint: disable=too-few-public-methods,unused-argument
 # pylint: disable=unsubscriptable-object

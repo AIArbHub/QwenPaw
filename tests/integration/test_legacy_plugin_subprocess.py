@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Legacy plugins retain their lifecycle behavior across fresh processes."""
 
 import json
@@ -23,10 +23,10 @@ def test_legacy_plugin_install_upgrade_restart_and_uninstall(tmp_path):
         )
     }
     environment.pop("PYTHONPATH", None)
-    environment.pop("QWENPAW_RUNTIME_ID", None)
+    environment.pop("AIARB_RUNTIME_ID", None)
     environment.update(
-        QWENPAW_WORKING_DIR=str(tmp_path / "working"),
-        QWENPAW_SECRET_DIR=str(tmp_path / "secrets"),
+        AIARB_WORKING_DIR=str(tmp_path / "working"),
+        AIARB_SECRET_DIR=str(tmp_path / "secrets"),
         XDG_CACHE_HOME=str(tmp_path / "cache"),
         XDG_CONFIG_HOME=str(tmp_path / "config"),
     )

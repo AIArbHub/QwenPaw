@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument,unused-variable,use-implicit-booleaness-not-comparison  # noqa: E501
 """Unit tests for config/utils.py helpers.
 
@@ -427,8 +427,8 @@ class TestGetAvailableChannels:
         )
 
     def test_no_filters_returns_all(self, monkeypatch, fake_registry):
-        monkeypatch.delenv("QWENPAW_ENABLED_CHANNELS", raising=False)
-        monkeypatch.delenv("QWENPAW_DISABLED_CHANNELS", raising=False)
+        monkeypatch.delenv("AIARB_ENABLED_CHANNELS", raising=False)
+        monkeypatch.delenv("AIARB_DISABLED_CHANNELS", raising=False)
         assert cu.get_available_channels() == (
             "console",
             "dingtalk",
@@ -436,8 +436,8 @@ class TestGetAvailableChannels:
         )
 
     def test_enabled_whitelist(self, monkeypatch, fake_registry):
-        monkeypatch.setenv("QWENPAW_ENABLED_CHANNELS", "console, feishu")
-        monkeypatch.delenv("QWENPAW_DISABLED_CHANNELS", raising=False)
+        monkeypatch.setenv("AIARB_ENABLED_CHANNELS", "console, feishu")
+        monkeypatch.delenv("AIARB_DISABLED_CHANNELS", raising=False)
         assert cu.get_available_channels() == ("console", "feishu")
 
     def test_enabled_whitelist_no_match_returns_empty(
@@ -445,13 +445,13 @@ class TestGetAvailableChannels:
         monkeypatch,
         fake_registry,
     ):
-        monkeypatch.setenv("QWENPAW_ENABLED_CHANNELS", "ghost")
-        monkeypatch.delenv("QWENPAW_DISABLED_CHANNELS", raising=False)
+        monkeypatch.setenv("AIARB_ENABLED_CHANNELS", "ghost")
+        monkeypatch.delenv("AIARB_DISABLED_CHANNELS", raising=False)
         assert cu.get_available_channels() == ()
 
     def test_disabled_blacklist(self, monkeypatch, fake_registry):
-        monkeypatch.delenv("QWENPAW_ENABLED_CHANNELS", raising=False)
-        monkeypatch.setenv("QWENPAW_DISABLED_CHANNELS", "feishu")
+        monkeypatch.delenv("AIARB_ENABLED_CHANNELS", raising=False)
+        monkeypatch.setenv("AIARB_DISABLED_CHANNELS", "feishu")
         assert cu.get_available_channels() == ("console", "dingtalk")
 
     def test_disabled_blacklist_all_returns_empty(
@@ -459,16 +459,16 @@ class TestGetAvailableChannels:
         monkeypatch,
         fake_registry,
     ):
-        monkeypatch.delenv("QWENPAW_ENABLED_CHANNELS", raising=False)
+        monkeypatch.delenv("AIARB_ENABLED_CHANNELS", raising=False)
         monkeypatch.setenv(
-            "QWENPAW_DISABLED_CHANNELS",
+            "AIARB_DISABLED_CHANNELS",
             "console, dingtalk, feishu",
         )
         assert cu.get_available_channels() == ()
 
     def test_enabled_wins_over_disabled(self, monkeypatch, fake_registry):
-        monkeypatch.setenv("QWENPAW_ENABLED_CHANNELS", "console")
-        monkeypatch.setenv("QWENPAW_DISABLED_CHANNELS", "feishu")
+        monkeypatch.setenv("AIARB_ENABLED_CHANNELS", "console")
+        monkeypatch.setenv("AIARB_DISABLED_CHANNELS", "feishu")
         assert cu.get_available_channels() == ("console",)
 
 

@@ -150,7 +150,7 @@ def install_sidecar_logging(log_path: Path) -> Path:
     _CRASH_FD = os.open(crash_path, os.O_WRONLY | os.O_APPEND | os.O_CREAT)
     faulthandler.enable(file=_CRASH_FD, all_threads=True)
 
-    logging.getLogger("AIARB.tauri").info(
+    logging.getLogger("aiarb.tauri").info(
         "Tauri sidecar logging enabled: %s (native crash traces: %s)",
         log_path,
         crash_path,
@@ -160,12 +160,12 @@ def install_sidecar_logging(log_path: Path) -> Path:
 
 def _add_project_file_handler(log_path: Path) -> logging.FileHandler:
     # Import lazily so AIARB.constant is loaded only after desktop env setup.
-    from AIARB.utils.logging import add_project_file_handler
+    from aiarb.utils.logging import add_project_file_handler
 
     return add_project_file_handler(log_path)
 
 
 def _create_rotating_file_handler(log_path: Path) -> logging.FileHandler:
-    from AIARB.utils.logging import create_rotating_file_handler
+    from aiarb.utils.logging import create_rotating_file_handler
 
     return create_rotating_file_handler(log_path)

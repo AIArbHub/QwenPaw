@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for cli/plugin_commands.py.
 
 All network (HTTPX/urllib), subprocess (pip/uv), filesystem (plugins dir) and
@@ -296,9 +296,9 @@ class TestApiUninstallPlugin:
 
 class TestIsRunning:
     def test_delegates_to_config_utils(self, monkeypatch):
-        monkeypatch.setattr(config_utils, "is_qwenpaw_running", lambda: True)
+        monkeypatch.setattr(config_utils, "is_AIARB_running", lambda: True)
         assert pc._is_running() is True
-        monkeypatch.setattr(config_utils, "is_qwenpaw_running", lambda: False)
+        monkeypatch.setattr(config_utils, "is_AIARB_running", lambda: False)
         assert pc._is_running() is False
 
 
@@ -921,8 +921,8 @@ class TestValidateCommand:
 
 @pytest.fixture(name="offline_environment")
 def _offline_environment(monkeypatch, tmp_path):
-    monkeypatch.delenv("QWENPAW_RUNTIME_ID", raising=False)
-    monkeypatch.delenv("QWENPAW_RUNTIME_PROVISIONER", raising=False)
+    monkeypatch.delenv("AIARB_RUNTIME_ID", raising=False)
+    monkeypatch.delenv("AIARB_RUNTIME_PROVISIONER", raising=False)
     monkeypatch.setattr(pc, "_is_running", lambda: False)
     monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
     return _patch_plugins_dir(monkeypatch, tmp_path)

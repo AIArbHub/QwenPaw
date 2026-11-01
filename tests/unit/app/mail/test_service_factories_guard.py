@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Unit tests for the backend guard in create_mail_monitor_service."""
 from __future__ import annotations

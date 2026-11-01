@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for Windows AppContainer Hub runtime isolation."""
 
 from __future__ import annotations

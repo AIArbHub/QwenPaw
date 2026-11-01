@@ -1493,7 +1493,7 @@ class PluginLoader:  # pylint: disable=too-many-public-methods
     ) -> None:
         """Bind the current instance and run ``plugin_def.register``."""
         from .settings import runtime_config
-        from AIARB.market import market_registry
+        from aiarb.market import market_registry
 
         api = PluginApi(
             plugin_id,
@@ -3980,8 +3980,8 @@ class PluginLoader:  # pylint: disable=too-many-public-methods
         interrupt_tasks: bool = False,
     ) -> UnloadReport:
         """Unload a plugin and release a failed unload reservation."""
-        from AIARB.memory import memory_registry
-        from AIARB.market import market_registry
+        from aiarb.memory import memory_registry
+        from aiarb.market import market_registry
 
         async with self.lifecycle.activity(plugin_id).mutation(
             interrupt_tasks=interrupt_tasks or mode is UnloadMode.SHUTDOWN,
@@ -4056,7 +4056,7 @@ class PluginLoader:  # pylint: disable=too-many-public-methods
         if instance is None:
             instance = self.lifecycle.ensure_instance(plugin_id)
 
-        from AIARB.memory import memory_registry
+        from aiarb.memory import memory_registry
 
         if mode is not UnloadMode.SHUTDOWN:
             self.registry.assert_memory_backends_not_in_use(plugin_id)
@@ -4323,7 +4323,7 @@ class PluginLoader:  # pylint: disable=too-many-public-methods
                 _unbridge_from_runtime,
             )
 
-            tools_module = sys.modules.get("AIARB.agents.tools")
+            tools_module = sys.modules.get("aiarb.agents.tools")
             meta: Dict = record.manifest.meta or {}
             # Manifest names are candidates only — never deletion authority.
             # A misconfigured / malicious plugin must not unload another
@@ -4790,7 +4790,7 @@ class PluginLoader:  # pylint: disable=too-many-public-methods
     ) -> None:
         """Bind a fresh API and run ``register()``; do not dispose on error."""
         from .settings import runtime_config
-        from AIARB.market import market_registry
+        from aiarb.market import market_registry
 
         api = PluginApi(
             plugin_id,

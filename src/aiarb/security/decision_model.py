@@ -265,21 +265,21 @@ def _is_declared_no_target_read(
                 and name == "memory_search"
                 and module
                 in {
-                    "AIARB.agents.memory.reme_light_memory_manager",
-                    "AIARB.agents.memory.dummy",
+                    "aiarb.agents.memory.reme_light_memory_manager",
+                    "aiarb.agents.memory.dummy",
                 }
             )
             or (
                 tool_name == "MemoryListTags"
                 and name == "memory_list_tags"
-                and module == "AIARB.agents.memory.reme_light_memory_manager"
+                and module == "aiarb.agents.memory.reme_light_memory_manager"
             )
             or (
                 tool_name == "RecallContext"
                 and name == "recall_context"
                 and module
                 == (
-                    "AIARB.agents.context."
+                    "aiarb.agents.context."
                     "visual_compression.runtime.recall_tool"
                 )
             )

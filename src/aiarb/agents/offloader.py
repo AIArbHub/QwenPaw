@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Offloader for persisting compressed context and tool results.
 
 Implements the agentscope ``Offloader`` protocol so the native

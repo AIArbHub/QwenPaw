@@ -23,12 +23,12 @@ import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 
-from AIARB.agents.memory.action_provider import MemoryActionProvider
-from AIARB.agents.memory.reme_embedding import (
+from aiarb.agents.memory.action_provider import MemoryActionProvider
+from aiarb.agents.memory.reme_embedding import (
     EmbeddingReindexUnavailableError,
 )
-from AIARB.app.agent_startup import AgentStartupStatus
-from AIARB.app.routers.agents import (
+from aiarb.app.agent_startup import AgentStartupStatus
+from aiarb.app.routers.agents import (
     CopyAgentRequest,
     CreateAgentRequest,
     ReorderAgentsRequest,
@@ -42,8 +42,8 @@ from AIARB.app.routers.agents import (
     update_backend_settings,
     BackendSettingsRequest,
 )
-from AIARB.exceptions import AppBaseException
-from AIARB.config.config import (
+from aiarb.exceptions import AppBaseException
+from aiarb.config.config import (
     AgentProfileConfig,
     AgentProfileRef,
     ChannelConfig,
@@ -161,11 +161,11 @@ def test_list_agents_returns_all_profiles(client, fake_config):
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             side_effect=fake_load,
         ),
     ):
@@ -184,11 +184,11 @@ def test_list_agents_falls_back_to_id_when_load_fails(client, fake_config):
     # the agent with a derived name rather than 500-ing the whole list.
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             side_effect=RuntimeError("config broken"),
         ),
     ):
@@ -215,11 +215,11 @@ def test_list_agents_preserves_unknown_backend(client, fake_config):
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             side_effect=lambda agent_id: {
                 "default": agent_cfg_default,
                 "bot": agent_cfg_bot,
@@ -251,7 +251,7 @@ def test_get_agent_returns_config(client):
     )
 
     with patch(
-        "AIARB.app.routers.agents.load_agent_config",
+        "aiarb.app.routers.agents.load_agent_config",
         return_value=cfg,
     ):
         response = client.get("/api/agents/bot")
@@ -274,11 +274,11 @@ async def test_get_agent_loads_config_off_event_loop(monkeypatch):
         return func(*args)
 
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.run_sync_io",
+        "aiarb.app.routers.agents.run_sync_io",
         fake_run_sync_io,
     )
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.load_agent_config",
+        "aiarb.app.routers.agents.load_agent_config",
         lambda _agent_id: cfg,
     )
 
@@ -300,7 +300,7 @@ def test_update_backend_settings_from_chat(client):
 
     calls = []
     with patch(
-        "AIARB.app.routers.agents.mutate_agent_config",
+        "aiarb.app.routers.agents.mutate_agent_config",
         side_effect=_agent_transaction(cfg, calls),
     ):
         response = client.patch(
@@ -331,7 +331,7 @@ def test_backend_settings_patch_preserves_absent_fields(client):
     )
 
     with patch(
-        "AIARB.app.routers.agents.mutate_agent_config",
+        "aiarb.app.routers.agents.mutate_agent_config",
         side_effect=_agent_transaction(cfg),
     ):
         response = client.patch(
@@ -356,7 +356,7 @@ def test_backend_settings_patch_explicit_null_clears_field(client):
     )
 
     with patch(
-        "AIARB.app.routers.agents.mutate_agent_config",
+        "aiarb.app.routers.agents.mutate_agent_config",
         side_effect=_agent_transaction(cfg),
     ):
         response = client.patch(
@@ -384,7 +384,7 @@ async def test_backend_settings_read_and_write_off_event_loop(monkeypatch):
         return _agent_transaction(cfg)(agent_id, mutator)
 
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.mutate_agent_config",
+        "aiarb.app.routers.agents.mutate_agent_config",
         mutate,
     )
 
@@ -402,7 +402,7 @@ async def test_backend_settings_read_and_write_off_event_loop(monkeypatch):
 
 def test_get_agent_returns_404_for_missing(client):
     with patch(
-        "AIARB.app.routers.agents.load_agent_config",
+        "aiarb.app.routers.agents.load_agent_config",
         side_effect=ValueError("no such agent"),
     ):
         response = client.get("/api/agents/ghost")
@@ -430,19 +430,19 @@ def test_update_agent_returns_merged_config(client, fake_config):
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=existing,
         ),
         patch(
-            "AIARB.app.routers.agents.update_agent_config_async",
+            "aiarb.app.routers.agents.update_agent_config_async",
             new_callable=AsyncMock,
             side_effect=apply_update,
         ),
-        patch("AIARB.app.routers.agents.schedule_agent_reload") as reload,
+        patch("aiarb.app.routers.agents.schedule_agent_reload") as reload,
     ):
         response = client.put(
             "/api/agents/bot",
@@ -488,10 +488,10 @@ def test_patch_agent_model_settings_preserves_active_model(
     calls = []
     with (
         patch(
-            "AIARB.app.routers.agents.mutate_agent_config",
+            "aiarb.app.routers.agents.mutate_agent_config",
             side_effect=_agent_transaction(existing, calls),
         ),
-        patch("AIARB.app.routers.agents.schedule_agent_reload") as reload,
+        patch("aiarb.app.routers.agents.schedule_agent_reload") as reload,
     ):
         response = client.patch(
             "/api/agents/bot/model-settings",
@@ -533,7 +533,7 @@ def test_patch_agent_model_settings_preserves_active_model(
 def test_patch_agent_model_settings_rejects_explicit_null(client, field):
     """Non-null model settings must reject an explicit JSON null."""
     with patch(
-        "AIARB.app.routers.agents.mutate_agent_config",
+        "aiarb.app.routers.agents.mutate_agent_config",
     ) as mutate:
         response = client.patch(
             "/api/agents/bot/model-settings",
@@ -547,7 +547,7 @@ def test_patch_agent_model_settings_rejects_explicit_null(client, field):
 
 def test_get_agent_returns_404_for_app_base_exception(client):
     with patch(
-        "AIARB.app.routers.agents.load_agent_config",
+        "aiarb.app.routers.agents.load_agent_config",
         side_effect=AppBaseException(
             status=404,
             code="agent_not_found",
@@ -601,11 +601,11 @@ def test_rebuild_memory_index_runs_reme_job(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -640,11 +640,11 @@ def test_rebuild_memory_index_rejects_concurrent_run(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -672,11 +672,11 @@ def test_rebuild_memory_index_rejects_disabled_embedding(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -707,11 +707,11 @@ def test_rebuild_all_rejects_disabled_embedding(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -743,14 +743,14 @@ def test_undo_pending_embedding_reindex_restores_indexed_config(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=profile,
         ),
-        patch("AIARB.app.routers.agents.schedule_agent_reload"),
+        patch("aiarb.app.routers.agents.schedule_agent_reload"),
     ):
         response = client.post("/api/agents/bot/memory/reindex/undo")
 
@@ -766,11 +766,11 @@ def test_undo_pending_embedding_reindex_rejects_unknown_agent(
 ):
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
         ) as load_agent_config_mock,
     ):
         response = client.post(
@@ -826,11 +826,11 @@ def test_get_memory_runtime_status_does_not_run_a_reme_job(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -890,11 +890,11 @@ def test_get_memory_status_returns_structured_reme_metrics(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -927,11 +927,11 @@ def test_get_memory_status_rejects_invalid_payload(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -954,11 +954,11 @@ def test_get_memory_status_does_not_start_an_unloaded_agent(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -988,11 +988,11 @@ def test_get_memory_status_returns_503_while_reme_dependency_is_starting(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -1020,11 +1020,11 @@ def test_get_memory_status_does_not_mask_unexpected_runtime_error(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
         pytest.raises(RuntimeError, match="unexpected failure"),
@@ -1041,11 +1041,11 @@ def test_get_memory_status_does_not_mask_unexpected_runtime_error(
 def memory_tag_backend(fake_config, manager_mock, monkeypatch):
     """Keep browser requests on one explicitly resolved memory backend."""
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.load_config",
+        "aiarb.app.routers.agents.load_config",
         lambda: fake_config,
     )
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.load_agent_config",
+        "aiarb.app.routers.agents.load_agent_config",
         lambda _: AgentProfileConfig(id="bot", name="Bot"),
     )
     memory = MagicMock(spec=MemoryActionProvider)
@@ -1194,11 +1194,11 @@ def test_get_memory_graph_returns_reme_snapshot(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -1256,15 +1256,15 @@ async def test_get_memory_graph_config_io_does_not_block_loop(
         return fake_config
 
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.load_config",
+        "aiarb.app.routers.agents.load_config",
         slow_load_config,
     )
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.load_agent_config",
+        "aiarb.app.routers.agents.load_agent_config",
         lambda _agent_id: agent_config,
     )
     monkeypatch.setattr(
-        "AIARB.app.routers.agents._get_multi_agent_manager",
+        "aiarb.app.routers.agents._get_multi_agent_manager",
         lambda _request: manager,
     )
 
@@ -1314,11 +1314,11 @@ def test_get_memory_graph_maps_nested_memory_roots(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -1346,11 +1346,11 @@ def test_get_memory_graph_reports_unavailable_reme(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=agent_config,
         ),
     ):
@@ -1366,7 +1366,7 @@ def test_get_memory_graph_reports_unavailable_reme(
 
 def test_reorder_agents_rejects_duplicate_ids(client, fake_config):
     with patch(
-        "AIARB.app.routers.agents.mutate_config",
+        "aiarb.app.routers.agents.mutate_config",
         side_effect=_root_transaction(fake_config),
     ):
         response = client.put(
@@ -1380,7 +1380,7 @@ def test_reorder_agents_rejects_duplicate_ids(client, fake_config):
 
 def test_reorder_agents_rejects_mismatched_ids(client, fake_config):
     with patch(
-        "AIARB.app.routers.agents.mutate_config",
+        "aiarb.app.routers.agents.mutate_config",
         side_effect=_root_transaction(fake_config),
     ):
         response = client.put(
@@ -1394,7 +1394,7 @@ def test_reorder_agents_rejects_mismatched_ids(client, fake_config):
 def test_reorder_agents_happy_path_saves(client, fake_config):
     calls = []
     with patch(
-        "AIARB.app.routers.agents.mutate_config",
+        "aiarb.app.routers.agents.mutate_config",
         side_effect=_root_transaction(fake_config, calls),
     ):
         response = client.put(
@@ -1420,7 +1420,7 @@ async def test_reorder_config_io_runs_off_event_loop(
         io_threads.append(threading.get_ident())
         return _root_transaction(fake_config)(mutator)
 
-    monkeypatch.setattr("AIARB.app.routers.agents.mutate_config", mutate)
+    monkeypatch.setattr("aiarb.app.routers.agents.mutate_config", mutate)
 
     await reorder_agents(
         ReorderAgentsRequest(agent_ids=["default", "bot"]),
@@ -1451,13 +1451,13 @@ async def test_create_workspace_io_runs_off_event_loop(
     def persist(*_args):
         io_threads.append(threading.get_ident())
 
-    monkeypatch.setattr("AIARB.app.routers.agents.load_config", load)
+    monkeypatch.setattr("aiarb.app.routers.agents.load_config", load)
     monkeypatch.setattr(
-        "AIARB.app.routers.agents._initialize_agent_workspace",
+        "aiarb.app.routers.agents._initialize_agent_workspace",
         initialize,
     )
     monkeypatch.setattr(
-        "AIARB.app.routers.agents._persist_created_agent",
+        "aiarb.app.routers.agents._persist_created_agent",
         persist,
     )
 
@@ -1486,15 +1486,15 @@ async def test_create_workspace_io_runs_off_event_loop(
 
 def _make_create_stubs(fake_config, monkeypatch):
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.load_config",
+        "aiarb.app.routers.agents.load_config",
         lambda: fake_config,
     )
     monkeypatch.setattr(
-        "AIARB.app.routers.agents._initialize_agent_workspace",
+        "aiarb.app.routers.agents._initialize_agent_workspace",
         lambda *_args, **_kwargs: None,
     )
     monkeypatch.setattr(
-        "AIARB.app.routers.agents._persist_created_agent",
+        "aiarb.app.routers.agents._persist_created_agent",
         lambda *_args: None,
     )
 
@@ -1508,7 +1508,7 @@ async def test_create_agent_default_workspace_under_working_dir(
     """Without workspace_dir the safe_join default path is used."""
     _make_create_stubs(fake_config, monkeypatch)
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.WORKING_DIR",
+        "aiarb.app.routers.agents.WORKING_DIR",
         str(tmp_path),
     )
 
@@ -1549,7 +1549,7 @@ async def test_create_agent_accepts_non_home_workspace_root(
 
 
 def test_resolve_workspace_dir_rejects_traversal_segments():
-    from AIARB.app.routers.agents import _resolve_custom_workspace_dir
+    from aiarb.app.routers.agents import _resolve_custom_workspace_dir
 
     for dangerous in (
         "../../etc/AIARB",
@@ -1569,10 +1569,10 @@ def test_resolve_workspace_dir_anchors_relative_to_working_dir(
     monkeypatch,
     tmp_path,
 ):
-    from AIARB.app.routers.agents import _resolve_custom_workspace_dir
+    from aiarb.app.routers.agents import _resolve_custom_workspace_dir
 
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.WORKING_DIR",
+        "aiarb.app.routers.agents.WORKING_DIR",
         str(tmp_path),
     )
 
@@ -1588,7 +1588,7 @@ def test_resolve_workspace_dir_anchors_relative_to_working_dir(
 
 def test_delete_agent_refuses_default(client, fake_config):
     with patch(
-        "AIARB.app.routers.agents.load_config",
+        "aiarb.app.routers.agents.load_config",
         return_value=fake_config,
     ):
         response = client.delete("/api/agents/default")
@@ -1599,7 +1599,7 @@ def test_delete_agent_refuses_default(client, fake_config):
 
 def test_delete_agent_404_when_missing(client, fake_config):
     with patch(
-        "AIARB.app.routers.agents.load_config",
+        "aiarb.app.routers.agents.load_config",
         return_value=fake_config,
     ):
         response = client.delete("/api/agents/ghost")
@@ -1615,11 +1615,11 @@ def test_delete_agent_happy_path_calls_stop_and_saves(
     calls = []
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.mutate_config",
+            "aiarb.app.routers.agents.mutate_config",
             side_effect=_root_transaction(fake_config, calls),
         ),
     ):
@@ -1640,7 +1640,7 @@ def test_toggle_rejects_disabling_agent_during_startup(
     manager_mock.is_agent_startup_in_progress.return_value = True
 
     with patch(
-        "AIARB.app.routers.agents.load_config",
+        "aiarb.app.routers.agents.load_config",
         return_value=fake_config,
     ):
         response = client.patch(
@@ -1662,11 +1662,11 @@ def test_toggle_enable_queues_bounded_startup(
     calls = []
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.mutate_config",
+            "aiarb.app.routers.agents.mutate_config",
             side_effect=_root_transaction(fake_config, calls),
         ),
     ):
@@ -1689,7 +1689,7 @@ def test_delete_rejects_agent_during_startup(
     manager_mock.is_agent_startup_in_progress.return_value = True
 
     with patch(
-        "AIARB.app.routers.agents.load_config",
+        "aiarb.app.routers.agents.load_config",
         return_value=fake_config,
     ):
         response = client.delete("/api/agents/bot")
@@ -1785,7 +1785,7 @@ def test_copy_agent_defaults_reset_channels_and_schedules_startup(
     working_dir = tmp_path / "working"
     working_dir.mkdir()
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.WORKING_DIR",
+        "aiarb.app.routers.agents.WORKING_DIR",
         working_dir,
     )
 
@@ -1797,26 +1797,26 @@ def test_copy_agent_defaults_reset_channels_and_schedules_startup(
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=source_cfg,
         ),
         patch(
-            "AIARB.app.routers.agents.mutate_config",
+            "aiarb.app.routers.agents.mutate_config",
             side_effect=_root_transaction(fake_config),
         ),
         patch(
-            "AIARB.app.routers.agents.write_json_atomic",
+            "aiarb.app.routers.agents.write_json_atomic",
             side_effect=fake_write_agent,
         ),
         patch(
-            "AIARB.app.routers.agents._initialize_agent_workspace",
+            "aiarb.app.routers.agents._initialize_agent_workspace",
         ) as init_mock,
         patch(
-            "AIARB.app.routers.agents._generate_unique_id",
+            "aiarb.app.routers.agents._generate_unique_id",
             return_value="copied1",
         ),
     ):
@@ -1889,29 +1889,29 @@ def test_copy_agent_copies_skills_and_jobs_when_requested(
     working_dir = tmp_path / "working"
     working_dir.mkdir()
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.WORKING_DIR",
+        "aiarb.app.routers.agents.WORKING_DIR",
         working_dir,
     )
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=source_cfg,
         ),
         patch(
-            "AIARB.app.routers.agents.mutate_config",
+            "aiarb.app.routers.agents.mutate_config",
             side_effect=_root_transaction(fake_config),
         ),
-        patch("AIARB.app.routers.agents.write_json_atomic"),
+        patch("aiarb.app.routers.agents.write_json_atomic"),
         patch(
-            "AIARB.app.routers.agents._initialize_agent_workspace",
+            "aiarb.app.routers.agents._initialize_agent_workspace",
         ) as init_mock,
         patch(
-            "AIARB.app.routers.agents._generate_unique_id",
+            "aiarb.app.routers.agents._generate_unique_id",
             return_value="copied2",
         ),
     ):
@@ -1942,7 +1942,7 @@ def test_copy_agent_copies_skills_and_jobs_when_requested(
 
 def test_copy_agent_returns_404_when_missing(client, fake_config):
     with patch(
-        "AIARB.app.routers.agents.load_config",
+        "aiarb.app.routers.agents.load_config",
         return_value=fake_config,
     ):
         response = client.post("/api/agents/ghost/copy", json={})
@@ -1952,7 +1952,7 @@ def test_copy_agent_returns_404_when_missing(client, fake_config):
 
 def test_copy_agent_rejects_copy_agent_json_false(client, fake_config):
     with patch(
-        "AIARB.app.routers.agents.load_config",
+        "aiarb.app.routers.agents.load_config",
         return_value=fake_config,
     ):
         response = client.post(
@@ -1985,31 +1985,31 @@ async def test_copy_agent_skips_startup_without_http_request(
     working_dir = tmp_path / "working"
     working_dir.mkdir()
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.WORKING_DIR",
+        "aiarb.app.routers.agents.WORKING_DIR",
         working_dir,
     )
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=source_cfg,
         ),
         patch(
-            "AIARB.app.routers.agents.mutate_config",
+            "aiarb.app.routers.agents.mutate_config",
             side_effect=_root_transaction(fake_config),
         ),
-        patch("AIARB.app.routers.agents.write_json_atomic"),
-        patch("AIARB.app.routers.agents._initialize_agent_workspace"),
+        patch("aiarb.app.routers.agents.write_json_atomic"),
+        patch("aiarb.app.routers.agents._initialize_agent_workspace"),
         patch(
-            "AIARB.app.routers.agents._generate_unique_id",
+            "aiarb.app.routers.agents._generate_unique_id",
             return_value="copied3",
         ),
         patch(
-            "AIARB.app.routers.agents._get_multi_agent_manager",
+            "aiarb.app.routers.agents._get_multi_agent_manager",
         ) as get_manager,
     ):
         result = await copy_agent(
@@ -2032,7 +2032,7 @@ def test_initialize_agent_workspace_skips_md_templates_when_disabled(
     fake_config.agents.language = "en"
 
     with patch(
-        "AIARB.config.load_config",
+        "aiarb.config.load_config",
         return_value=fake_config,
     ):
         _initialize_agent_workspace(
@@ -2064,7 +2064,7 @@ def test_initialize_agent_workspace_applies_md_templates_by_default(
     fake_config.agents.language = "en"
 
     with patch(
-        "AIARB.config.load_config",
+        "aiarb.config.load_config",
         return_value=fake_config,
     ):
         _initialize_agent_workspace(
@@ -2112,30 +2112,30 @@ def test_copy_agent_optional_assets_match_request_flags(
     working_dir = tmp_path / "working"
     working_dir.mkdir()
     monkeypatch.setattr(
-        "AIARB.app.routers.agents.WORKING_DIR",
+        "aiarb.app.routers.agents.WORKING_DIR",
         working_dir,
     )
 
     with (
         patch(
-            "AIARB.app.routers.agents.load_config",
+            "aiarb.app.routers.agents.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.config.load_config",
+            "aiarb.config.load_config",
             return_value=fake_config,
         ),
         patch(
-            "AIARB.app.routers.agents.load_agent_config",
+            "aiarb.app.routers.agents.load_agent_config",
             return_value=source_cfg,
         ),
         patch(
-            "AIARB.app.routers.agents.mutate_config",
+            "aiarb.app.routers.agents.mutate_config",
             side_effect=_root_transaction(fake_config),
         ),
-        patch("AIARB.app.routers.agents.write_json_atomic"),
+        patch("aiarb.app.routers.agents.write_json_atomic"),
         patch(
-            "AIARB.app.routers.agents._generate_unique_id",
+            "aiarb.app.routers.agents._generate_unique_id",
             return_value=agent_id,
         ),
     ):

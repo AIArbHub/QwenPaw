@@ -446,7 +446,7 @@ def _spawn_update_worker(
 ) -> subprocess.Popen[str]:
     """Spawn the worker that performs the actual package upgrade."""
     worker_code = (
-        "from AIARB.cli.update_cmd import run_update_worker; "
+        "from aiarb.cli.update_cmd import run_update_worker; "
         "import sys; "
         "sys.exit(run_update_worker(sys.argv[1]))"
     )

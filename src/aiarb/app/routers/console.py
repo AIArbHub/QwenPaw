@@ -24,12 +24,12 @@ from fastapi import (
 from pydantic import BaseModel
 from starlette.responses import StreamingResponse
 
-from AIARB.schemas import (
+from aiarb.schemas import (
     AgentRequest,
     _coerce_content_item,
 )
-from AIARB.tool_calls import CancelReason
-from AIARB.utils.timeout import resolve_stream_task_timeout
+from aiarb.tool_calls import CancelReason
+from aiarb.utils.timeout import resolve_stream_task_timeout
 from ...providers.thinking import ThinkingPreference
 from ...services.session_thinking import (
     decision_settings,
@@ -919,7 +919,7 @@ async def _finalize_background_fork(
     running as detached bookkeeping and must not rewrite that failure into
     ``completed``.
     """
-    from AIARB.agents.fork_project import finalize_fork_worktree_or_fail
+    from aiarb.agents.fork_project import finalize_fork_worktree_or_fail
 
     finalizer = asyncio.create_task(
         asyncio.to_thread(
@@ -961,7 +961,7 @@ async def _mark_background_fork_failed(
     if not project_dir or not branch:
         return
     try:
-        from AIARB.agents.fork_project import mark_fork_failed
+        from aiarb.agents.fork_project import mark_fork_failed
 
         await asyncio.to_thread(
             mark_fork_failed,

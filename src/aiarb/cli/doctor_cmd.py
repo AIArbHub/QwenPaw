@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """`AIARB doctor` — read-only checks.
 
 `AIARB doctor fix` — conservative repairs with backup.

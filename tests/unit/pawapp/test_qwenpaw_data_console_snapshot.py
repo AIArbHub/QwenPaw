@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import importlib.util
@@ -19,7 +19,7 @@ PATCH_FILE = (
 
 def _load_verifier():
     spec = importlib.util.spec_from_file_location(
-        "qwenpaw_data_console_verifier_under_test",
+        "AIARB_data_console_verifier_under_test",
         VERIFY_FILE,
     )
     assert spec is not None and spec.loader is not None

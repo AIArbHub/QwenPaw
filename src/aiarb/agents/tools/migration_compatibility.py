@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Private tools used by Mission migration compatibility work."""
 
 from __future__ import annotations

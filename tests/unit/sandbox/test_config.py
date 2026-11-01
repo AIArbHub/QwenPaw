@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Unit tests for sandbox config and seatbelt profile generation."""
 
@@ -302,7 +302,7 @@ class TestCreateSandboxSeatbeltDowngrade:
 
 def test_environment_markers_do_not_prove_runtime_isolation(monkeypatch):
     """A normal host process cannot skip its sandbox using forged flags."""
-    monkeypatch.setenv("QWENPAW_RUNTIME_PROVISIONER", "local")
-    monkeypatch.setenv("QWENPAW_RUNTIME_ID", "forged-runtime")
-    monkeypatch.setenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", "forged-token")
+    monkeypatch.setenv("AIARB_RUNTIME_PROVISIONER", "local")
+    monkeypatch.setenv("AIARB_RUNTIME_ID", "forged-runtime")
+    monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "forged-token")
     assert not sandbox_config._inherits_runtime_boundary()

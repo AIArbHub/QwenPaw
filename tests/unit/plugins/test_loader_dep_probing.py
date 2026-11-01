@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for PluginLoader dependency probing and installer security.
 
 Covers the static helpers that decide whether a requirement is already
@@ -863,10 +863,10 @@ def controlled_import_snapshot(monkeypatch):
 
     snapshot = transaction._module_snapshot
     names = {
-        "_qwenpaw_stale_dependency_test",
-        "_qwenpaw_other_import",
-        "_qwenpaw_added_import",
-        "_qwenpaw_supplemental_import",
+        "_AIARB_stale_dependency_test",
+        "_AIARB_other_import",
+        "_AIARB_added_import",
+        "_AIARB_supplemental_import",
     }
     monkeypatch.setattr(
         transaction,
@@ -1362,9 +1362,9 @@ async def test_host_dependency_boundaries_keep_preexisting_and_removed_imports(
         DependencyDeclaration("host-history", "source", (), None),
     )
     names = [
-        "_qwenpaw_before_register",
-        "_qwenpaw_in_register",
-        "_qwenpaw_in_teardown",
+        "_AIARB_before_register",
+        "_AIARB_in_register",
+        "_AIARB_in_teardown",
     ]
     rows = (
         [(name, f"{name}.py") for name in names]
@@ -1420,7 +1420,7 @@ async def test_host_dependency_boundaries_keep_preexisting_and_removed_imports(
         own = description.source_path / "main.py"
         own.parent.mkdir()
         own.touch()
-        module = ModuleType("_qwenpaw_own_source")
+        module = ModuleType("_AIARB_own_source")
         module.__file__ = str(own)
         monkeypatch.setitem(sys.modules, module.__name__, module)
         await PythonBackend.observe_host_dependencies(
@@ -1469,7 +1469,7 @@ async def test_host_dependency_boundaries_keep_preexisting_and_removed_imports(
         import os
         from qwenpaw.plugins import python_backend as backend
 
-        monkeypatch.delitem(sys.modules, "_qwenpaw_own_source")
+        monkeypatch.delitem(sys.modules, "_AIARB_own_source")
         state = backend._host_dependency_state
 
         def owned_state():
@@ -1934,7 +1934,7 @@ async def test_dependency_import_resolution_rejects_changed_module(
     from qwenpaw.plugins import dependency_transaction as transaction
     from qwenpaw.utils import io_utils
 
-    name, unrelated = "_qwenpaw_stale_dependency_test", "_qwenpaw_other_import"
+    name, unrelated = "_AIARB_stale_dependency_test", "_AIARB_other_import"
     source, other = tmp_path / "sdk.py", tmp_path / "other.py"
     if change != "missing":
         source.touch()
@@ -1974,7 +1974,7 @@ async def test_dependency_import_resolution_rejects_changed_module(
         if change == "order":
             sys.modules[name] = sys.modules.pop(name)
         elif change in {"no_file", "empty_no_file", "unrelated_addition"}:
-            added = ModuleType("_qwenpaw_added_import")
+            added = ModuleType("_AIARB_added_import")
             if change == "unrelated_addition":
                 added.__file__ = str(other)
             monkeypatch.setitem(sys.modules, added.__name__, added)
@@ -2035,7 +2035,7 @@ async def test_dependency_import_resolution_checks_supplemental_changes(
 
     def change_module(release):
         if passes <= 2 or change == "continuous":
-            module = ModuleType("_qwenpaw_supplemental_import")
+            module = ModuleType("_AIARB_supplemental_import")
             module.__file__ = str(
                 (
                     source
@@ -2087,7 +2087,7 @@ async def test_async_dependency_targets_reject_changed_host_paths(
     runtime = ChannelRuntimeSettings(
         python_executable=sys.executable,
         support_root=tmp_path,
-        qwenpaw_version="test",
+        AIARB_version="test",
         selected_channels=None,
         dependency_paths=(tmp_path / "site",),
     )
@@ -2135,7 +2135,7 @@ async def test_frozen_dependency_path_preparation_and_loop_publication(
     old = bucket / "bundle-old" / "site"
     paths = [str(old), str(bucket / "site"), str(tmp_path / "host")]
     monkeypatch.setattr(sys, "path", paths[:])
-    monkeypatch.setenv("QWENPAW_PLUGIN_SITE", "before")
+    monkeypatch.setenv("AIARB_PLUGIN_SITE", "before")
     monkeypatch.setattr(loader_mod, "_is_frozen", lambda: True)
     monkeypatch.setattr(loader_mod, "_plugin_runtime_dir", lambda: root)
     loader = loader_mod.PluginLoader([tmp_path])
@@ -2150,7 +2150,7 @@ async def test_frozen_dependency_path_preparation_and_loop_publication(
         assert tuple(snapshot) == tuple(paths)
         result = prepare(site, snapshot)
         assert sys.path == paths
-        assert os.environ["QWENPAW_PLUGIN_SITE"] == "before"
+        assert os.environ["AIARB_PLUGIN_SITE"] == "before"
         started.set()
         assert release.wait(3)
         return result
@@ -2175,12 +2175,12 @@ async def test_frozen_dependency_path_preparation_and_loop_publication(
         with pytest.raises(RuntimeError, match="IDENTITY_CHANGED"):
             await asyncio.wait_for(pending, 5)
         assert not publications
-        assert os.environ["QWENPAW_PLUGIN_SITE"] == "before"
+        assert os.environ["AIARB_PLUGIN_SITE"] == "before"
     else:
         await asyncio.wait_for(pending, 5)
         assert len(publications) == 1
         assert sys.path == [str(target), str(tmp_path / "host")]
-        assert os.environ["QWENPAW_PLUGIN_SITE"] == str(target)
+        assert os.environ["AIARB_PLUGIN_SITE"] == str(target)
 
 
 @pytest.mark.asyncio
@@ -2206,7 +2206,7 @@ async def test_load_waits_for_dependency_writer(
 
     site = bounded_dependency_environment
     monkeypatch.syspath_prepend(str(site))
-    monkeypatch.setenv("QWENPAW_WORKING_DIR", str(tmp_path / "work"))
+    monkeypatch.setenv("AIARB_WORKING_DIR", str(tmp_path / "work"))
     source = tmp_path / "plugins" / "publication-probe"
     source.mkdir(parents=True)
     (source / "plugin.json").write_text(

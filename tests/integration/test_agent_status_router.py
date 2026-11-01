@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Integration tests for Agent Status API endpoints.
 
 The agent-status router is mounted under the agent-scoped prefix, so the
@@ -64,7 +64,7 @@ def test_agent_status_second_agent(app_server) -> None:
     """
     resp = app_server.api_request(
         "GET",
-        "/api/agents/QwenPaw_QA_Agent_0.2/agent-status",
+        "/api/agents/AIARB_QA_Agent_0.2/agent-status",
         timeout=_STATUS_TIMEOUT,
     )
     assert resp.status_code == 200, app_server.logs_tail()

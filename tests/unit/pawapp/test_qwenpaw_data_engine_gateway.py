@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ GATEWAY_FILE = (
 
 def _gateway_module():
     spec = importlib.util.spec_from_file_location(
-        "qwenpaw_data_engine_gateway_under_test",
+        "AIARB_data_engine_gateway_under_test",
         GATEWAY_FILE,
     )
     assert spec is not None and spec.loader is not None
@@ -227,7 +227,7 @@ def test_engine_gateway_filters_untrusted_user_header() -> None:
 
 
 def test_managed_token_used_for_managed_service(monkeypatch) -> None:
-    monkeypatch.delenv("QWENPAW_DATA_ENGINE_TOKEN", raising=False)
+    monkeypatch.delenv("AIARB_DATA_ENGINE_TOKEN", raising=False)
     gateway_cls = _gateway_class()
     gateway = gateway_cls(
         SimpleNamespace(is_external=False, base_url="http://127.0.0.1:9"),
@@ -239,7 +239,7 @@ def test_managed_token_used_for_managed_service(monkeypatch) -> None:
 
 
 def test_external_token_read_from_env(monkeypatch) -> None:
-    monkeypatch.setenv("QWENPAW_DATA_ENGINE_TOKEN", "external-token")
+    monkeypatch.setenv("AIARB_DATA_ENGINE_TOKEN", "external-token")
     gateway_cls = _gateway_class()
     gateway = gateway_cls(
         SimpleNamespace(is_external=True, base_url="http://engine.example"),

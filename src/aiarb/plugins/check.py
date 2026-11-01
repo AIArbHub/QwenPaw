@@ -39,12 +39,12 @@ async def _runtime(directory, report):
     }
     public_types.update(
         {
-            ("AIARB.plugins.sdk", "PluginContext"),
-            ("AIARB.plugins.sdk", "Plugin"),
-            ("AIARB.plugins.activity", "PluginBusyError"),
-            ("AIARB.pawapp.app", "PawApp"),
+            ("aiarb.plugins.sdk", "PluginContext"),
+            ("aiarb.plugins.sdk", "Plugin"),
+            ("aiarb.plugins.activity", "PluginBusyError"),
+            ("aiarb.pawapp.app", "PawApp"),
             *(
-                ("AIARB.plugins.errors", name)
+                ("aiarb.plugins.errors", name)
                 for name in (
                     "SDKError",
                     "SDKAccessError",
@@ -56,7 +56,7 @@ async def _runtime(directory, report):
                 )
             ),
             *(
-                ("AIARB.plugins._testing_http", name)
+                ("aiarb.plugins._testing_http", name)
                 for name in ("TestHttpResponse", "TestConnection")
             ),
         },
@@ -68,16 +68,16 @@ async def _runtime(directory, report):
         return _source_file(filename, directory)
 
     protocols = {
-        ("AIARB.plugins.resources", "Registration"): {
+        ("aiarb.plugins.resources", "Registration"): {
             "__aenter__",
             "__aexit__",
         },
-        ("AIARB.plugins.testing", "TestFault"): {"__enter__", "__exit__"},
-        ("AIARB.plugins.testing", "PluginTestHost"): {
+        ("aiarb.plugins.testing", "TestFault"): {"__enter__", "__exit__"},
+        ("aiarb.plugins.testing", "PluginTestHost"): {
             "__aenter__",
             "__aexit__",
         },
-        ("AIARB.plugins._testing_http", "TestConnection"): {
+        ("aiarb.plugins._testing_http", "TestConnection"): {
             "__aenter__",
             "__aexit__",
             "__aiter__",
@@ -95,7 +95,7 @@ async def _runtime(directory, report):
         module = frame.f_globals.get("__name__", "")
         if module == "importlib" and frame.f_code.co_name == "import_module":
             imported = frame.f_locals.get("name", "")
-            if imported.startswith("AIARB.") and imported not in PUBLIC_API:
+            if imported.startswith("aiarb.") and imported not in PUBLIC_API:
                 key = (
                     str(file.relative_to(directory)),
                     caller.f_lineno,
@@ -112,11 +112,11 @@ async def _runtime(directory, report):
                         ),
                     )
             return
-        if not module.startswith("AIARB."):
+        if not module.startswith("aiarb."):
             return
         qualname = frame.f_code.co_qualname
         if (
-            module == "AIARB.plugins.module_isolation"
+            module == "aiarb.plugins.module_isolation"
             and qualname == "build_plugin_builtins.<locals>._plugin_import"
         ):
             imported = frame.f_locals.get("name", "")

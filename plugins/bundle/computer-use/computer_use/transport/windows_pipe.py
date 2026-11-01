@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Windows named-pipe transport for the host-managed Computer Use helper."""
 
 # The capability's endpoint name and secret are deliberately private so they

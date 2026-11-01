@@ -19,12 +19,12 @@ from agentscope.message import (
 from agentscope.model._model_response import ChatResponse
 from agentscope.tool import Toolkit
 
-from AIARB.agents import model_factory
-from AIARB.providers.capping_formatter import _CappingOpenAIFormatter
-from AIARB.providers.model_capability_cache import get_capability_cache
-from AIARB.providers.model_error_policy import RETRYABLE_STATUS_CODES
-from AIARB.providers.rate_limiter import LLMRateLimiter, _limiters
-from AIARB.providers.retry_chat_model import (
+from aiarb.agents import model_factory
+from aiarb.providers.capping_formatter import _CappingOpenAIFormatter
+from aiarb.providers.model_capability_cache import get_capability_cache
+from aiarb.providers.model_error_policy import RETRYABLE_STATUS_CODES
+from aiarb.providers.rate_limiter import LLMRateLimiter, _limiters
+from aiarb.providers.retry_chat_model import (
     RetryChatModel,
     RetryConfig,
     RateLimitConfig,
@@ -41,7 +41,7 @@ from AIARB.providers.retry_chat_model import (
     _normalize_rate_limit_config,
     _normalize_retry_config,
 )
-from AIARB.token_usage.model_wrapper import TokenRecordingModelWrapper
+from aiarb.token_usage.model_wrapper import TokenRecordingModelWrapper
 
 
 async def _failing_reasoning_stream() -> AsyncGenerator[Any, None]:
@@ -815,7 +815,7 @@ async def test_slow_stream_close_continues_in_background(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "AIARB.providers.retry_chat_model._STREAM_CLEANUP_TIMEOUT",
+        "aiarb.providers.retry_chat_model._STREAM_CLEANUP_TIMEOUT",
         0.02,
     )
     model = RetryChatModel(
@@ -847,7 +847,7 @@ async def test_deferred_cleanup_quarantines_model_without_retry(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "AIARB.providers.retry_chat_model._STREAM_CLEANUP_TIMEOUT",
+        "aiarb.providers.retry_chat_model._STREAM_CLEANUP_TIMEOUT",
         0.02,
     )
     _limiters.clear()
@@ -921,17 +921,17 @@ async def test_deferred_cleanup_allows_recovery_after_quarantine_timeout(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "AIARB.providers.retry_chat_model._STREAM_CLEANUP_TIMEOUT",
+        "aiarb.providers.retry_chat_model._STREAM_CLEANUP_TIMEOUT",
         0.01,
     )
     monkeypatch.setattr(
-        "AIARB.providers.retry_chat_model."
+        "aiarb.providers.retry_chat_model."
         "_STREAM_CLEANUP_QUARANTINE_TIMEOUT",
         0.02,
     )
     clock = {"now": 0.0}
     monkeypatch.setattr(
-        "AIARB.providers.retry_chat_model.monotonic",
+        "aiarb.providers.retry_chat_model.monotonic",
         lambda: clock["now"],
     )
     _limiters.clear()

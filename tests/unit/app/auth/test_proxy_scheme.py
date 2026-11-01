@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Trusted proxy schemes preserve HTTPS URLs and the real TCP peer."""
 
 from types import SimpleNamespace
@@ -28,7 +28,7 @@ def proxy_config(monkeypatch):
 @pytest.fixture
 def proxy_app(monkeypatch, proxy_config):
     """Use production middleware registration without agent startup."""
-    monkeypatch.delenv("QWENPAW_RUNTIME_INTERNAL_TOKEN", raising=False)
+    monkeypatch.delenv("AIARB_RUNTIME_INTERNAL_TOKEN", raising=False)
     monkeypatch.setattr(auth, "is_auth_enabled", lambda: True)
     monkeypatch.setattr(auth, "has_registered_users", lambda: True)
     monkeypatch.setattr(

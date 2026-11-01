@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Prompt for Mission compatibility workers."""
 
 from __future__ import annotations

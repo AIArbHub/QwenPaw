@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Slack Channel Contract Test.
 
 Ensures SlackChannel satisfies all BaseChannel contracts.

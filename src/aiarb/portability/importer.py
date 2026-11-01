@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=cell-var-from-loop
 """Additive provider-to-AIARB import with independent asset writes."""
 

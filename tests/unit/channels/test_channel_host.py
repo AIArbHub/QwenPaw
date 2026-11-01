@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Host lifecycle through real queues, Agents and child workers."""
 
 import asyncio
@@ -44,8 +44,8 @@ def static_channel_guard(host, monkeypatch):
                 (
                     "lark_oapi",
                     "dingtalk_stream",
-                    "qwenpaw_channel_feishu",
-                    "qwenpaw_channel_dingtalk",
+                    "AIARB_channel_feishu",
+                    "AIARB_channel_dingtalk",
                     "sample",
                 ),
             ):
@@ -141,7 +141,7 @@ def test_official_discovery_and_descriptor_snapshot_are_static(
             support_root=description.code_root,
             instance_id="prepared-descriptor",
             generation=1,
-            qwenpaw_version="1.0.0",
+            AIARB_version="1.0.0",
             prepared_config=prepared,
         )
         assert proxy.descriptor is description.descriptor
@@ -252,7 +252,7 @@ def test_runner_hello_requires_shared_identity():
 
     dedicated = {
         "protocol_version": 1,
-        "qwenpaw_version": "1.0.0",
+        "AIARB_version": "1.0.0",
         "channel_key": "feishu",
         "instance_id": "worker",
         "source_revision": "a" * 64,
@@ -288,7 +288,7 @@ def test_runner_hello_requires_shared_identity():
             "instance_id",
             "generation",
             "source_revision",
-            "qwenpaw_version",
+            "AIARB_version",
         )
     }
     expected.update(
@@ -355,7 +355,7 @@ async def test_execution_preparation_yields_and_consumes_session_snapshot(
         support_root=Path(__file__).resolve().parents[3] / "src",
         instance_id="preparation",
         generation=1,
-        qwenpaw_version=__version__,
+        AIARB_version=__version__,
         prepared_config=prepared,
     )
     spec = replace(proxy._launch_spec, workspace_id="test-workspace")
@@ -474,7 +474,7 @@ async def test_preparation_cancellation_retains_custody_and_rejects_changed_sour
         support_root=Path(__file__).resolve().parents[3] / "src",
         instance_id="cancel-preparation",
         generation=1,
-        qwenpaw_version=__version__,
+        AIARB_version=__version__,
         prepared_config=prepared,
     )
     spec, process = proxy._launch_spec, ChannelProcess()

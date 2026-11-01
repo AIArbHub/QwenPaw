@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Duplex process sessions using the existing sandbox factory and policies."""
 
 from __future__ import annotations

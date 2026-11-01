@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # flake8: noqa: E501
 """CLI init: interactively create working_dir config.json and HEARTBEAT.md."""
 from __future__ import annotations

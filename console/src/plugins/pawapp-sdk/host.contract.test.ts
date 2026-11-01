@@ -8,12 +8,12 @@
  *
  * What is asserted here is the observable contract of the PawApp host SDK:
  * the route each capability calls, the HTTP verb and body it sends, when a
- * host hook on window.QwenPaw is preferred over an HTTP fallback, and how a
+ * host hook on window.AIARB is preferred over an HTTP fallback, and how a
  * failed chat stream is mapped onto PawChatStreamError.
  *
  * Two environment facts drive the setup (both measured in this repo, not
  * assumed):
- * 1. jsdom does not define window.QwenPaw, so every test installs at least an
+ * 1. jsdom does not define window.AIARB, so every test installs at least an
  *    empty namespace. Production installs it in hostExternals.ts,
  *    moduleRegistry.ts and hostSdk/install.ts. The few tests that remove it
  *    again pin what happens when the host namespace is missing.
@@ -119,15 +119,15 @@ async function drainStream(
 }
 
 function installHost(hooks: Record<string, unknown> = {}): void {
-  (window as unknown as Record<string, unknown>).QwenPaw = { host: hooks };
+  (window as unknown as Record<string, unknown>).AIARB = { host: hooks };
 }
 
 function dropHostNamespace(): void {
-  delete (window as unknown as Record<string, unknown>).QwenPaw;
+  delete (window as unknown as Record<string, unknown>).AIARB;
 }
 
 beforeEach(() => {
-  (window as unknown as Record<string, unknown>).QwenPaw = {};
+  (window as unknown as Record<string, unknown>).AIARB = {};
   setActivePawAppId(APP_ID);
   mockedFetch.mockReset();
   respondWith({});
@@ -657,7 +657,7 @@ describe("pawapp host toast() and notify()", () => {
   });
 
   it("falls back to the backend toast route when no host namespace exists", async () => {
-    (window as unknown as Record<string, unknown>).QwenPaw = {};
+    (window as unknown as Record<string, unknown>).AIARB = {};
     respondWith({});
 
     await toast("saved", "warning");
@@ -792,7 +792,7 @@ describe("pawapp createHostNamespace()", () => {
   });
 
   it("reads the agent and session from the host hooks with fallbacks", () => {
-    (window as unknown as Record<string, unknown>).QwenPaw = {};
+    (window as unknown as Record<string, unknown>).AIARB = {};
     expect(scoped().getSelectedAgentId()).toBe("default");
     expect(scoped().getCurrentSessionId()).toBeNull();
 
@@ -812,7 +812,7 @@ describe("pawapp createHostNamespace()", () => {
     expect(hostToast).toHaveBeenCalledWith("m", "warning");
     expect(mockedFetch).not.toHaveBeenCalled();
 
-    (window as unknown as Record<string, unknown>).QwenPaw = {};
+    (window as unknown as Record<string, unknown>).AIARB = {};
     respondWith({});
     await scoped().toast("m2");
     expect(callPath()).toBe(`/${scopedId}/toast`);
@@ -880,7 +880,7 @@ describe("pawapp hostNamespace export", () => {
   });
 
   it("falls back to a default agent and a null session", () => {
-    (window as unknown as Record<string, unknown>).QwenPaw = {};
+    (window as unknown as Record<string, unknown>).AIARB = {};
 
     expect(hostNamespace.getSelectedAgentId()).toBe("default");
     expect(hostNamespace.getCurrentSessionId()).toBeNull();

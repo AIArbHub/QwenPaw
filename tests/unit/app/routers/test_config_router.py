@@ -26,11 +26,11 @@ import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 
-from AIARB.app.crons import heartbeat
-from AIARB.app.exception_handlers import register_exception_handlers
-from AIARB.app.routers.config import router as config_router
-from AIARB.config import get_available_channels, load_config
-from AIARB.config.config import (
+from aiarb.app.crons import heartbeat
+from aiarb.app.exception_handlers import register_exception_handlers
+from aiarb.app.routers.config import router as config_router
+from aiarb.config import get_available_channels, load_config
+from aiarb.config.config import (
     AgentProfileConfig,
     AgentProfileRef,
     AgentsConfig,
@@ -45,12 +45,12 @@ from AIARB.config.config import (
     load_agent_config,
     save_agent_config,
 )
-from AIARB.constant import (
+from aiarb.constant import (
     HEARTBEAT_FILE,
     HEARTBEAT_TARGET_INBOX,
     HEARTBEAT_TARGET_LAST,
 )
-from AIARB.exceptions import AgentConfigConflictError
+from aiarb.exceptions import AgentConfigConflictError
 
 
 class _HeartbeatWorkspace:
@@ -105,7 +105,7 @@ def fake_agent_workspace():
 def patch_get_agent(fake_agent_workspace):
     """Patch ``get_agent_for_request`` (imported lazily inside handlers)."""
     with patch(
-        "AIARB.app.agent_context.get_agent_for_request",
+        "aiarb.app.agent_context.get_agent_for_request",
         new=AsyncMock(return_value=fake_agent_workspace),
     ) as patched:
         yield patched
@@ -114,7 +114,7 @@ def patch_get_agent(fake_agent_workspace):
 @pytest.fixture
 def isolated_channel_persistence(tmp_path, monkeypatch, fake_agent_workspace):
     """Give channel PUTs real durable state, separate from the running agent."""
-    from AIARB.config import utils as config_utils
+    from aiarb.config import utils as config_utils
 
     root_path = tmp_path / "config.json"
     monkeypatch.setattr(config_utils, "get_config_path", lambda: root_path)
@@ -184,7 +184,7 @@ def test_list_channels_returns_dict_with_isBuiltin_flag(
 
 def test_list_channels_404_when_agent_lookup_fails(client):
     with patch(
-        "AIARB.app.agent_context.get_agent_for_request",
+        "aiarb.app.agent_context.get_agent_for_request",
         new=AsyncMock(
             side_effect=HTTPException(status_code=404, detail="nope"),
         ),
@@ -202,11 +202,11 @@ def test_put_channels_saves_and_triggers_reload(
 ):
     with (
         patch(
-            "AIARB.config.config.save_agent_config",
+            "aiarb.config.config.save_agent_config",
             wraps=save_agent_config,
         ) as save_mock,
         patch(
-            "AIARB.app.routers.config.schedule_agent_reload",
+            "aiarb.app.routers.config.schedule_agent_reload",
         ) as reload_mock,
     ):
         response = client.put(
@@ -238,11 +238,11 @@ def test_put_console_channel_keeps_it_enabled(
 ):
     with (
         patch(
-            "AIARB.config.config.save_agent_config",
+            "aiarb.config.config.save_agent_config",
             wraps=save_agent_config,
         ) as save_mock,
         patch(
-            "AIARB.app.routers.config.schedule_agent_reload",
+            "aiarb.app.routers.config.schedule_agent_reload",
         ) as reload_mock,
     ):
         response = client.put(
@@ -280,7 +280,7 @@ def test_put_channels_returns_409_for_stale_agent_config(
 ):
     """A stale agent save returns a stable conflict response."""
     with patch(
-        "AIARB.config.config.save_agent_config",
+        "aiarb.config.config.save_agent_config",
         side_effect=AgentConfigConflictError("default"),
     ):
         response = client.put(
@@ -370,11 +370,11 @@ def test_put_onebot_channel_stores_a_validated_model(
 
     with (
         patch(
-            "AIARB.config.config.save_agent_config",
+            "aiarb.config.config.save_agent_config",
             wraps=save_agent_config,
         ) as save_mock,
         patch(
-            "AIARB.app.routers.config.schedule_agent_reload",
+            "aiarb.app.routers.config.schedule_agent_reload",
         ) as reload_mock,
     ):
         response = client.put("/api/config/channels/onebot", json=payload)
@@ -406,7 +406,7 @@ def test_put_onebot_channel_rejects_invalid_value(
     """
     lenient_client = TestClient(app, raise_server_exceptions=False)
 
-    with patch("AIARB.config.config.save_agent_config") as save_mock:
+    with patch("aiarb.config.config.save_agent_config") as save_mock:
         response = lenient_client.put(
             "/api/config/channels/onebot",
             json={"enabled": True, "ws_port": "not-a-port"},
@@ -581,7 +581,7 @@ def test_put_heartbeat_preserves_timeout_seconds(
 ):
     fake_agent_workspace.cron_manager = None
 
-    with patch("AIARB.config.config.save_agent_config") as save_mock:
+    with patch("aiarb.config.config.save_agent_config") as save_mock:
         response = client.put(
             "/api/config/heartbeat",
             json={
@@ -718,7 +718,7 @@ async def test_run_heartbeat_once_uses_configured_timeout(
         ),
     )
     monkeypatch.setattr(
-        "AIARB.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: SimpleNamespace(last_dispatch=last_dispatch),
     )
     monkeypatch.setattr(
@@ -755,7 +755,7 @@ def test_get_tool_guard_returns_current_config(client):
     fake_cfg.security.tool_guard = ToolGuardConfig(enabled=True)
 
     with patch(
-        "AIARB.app.routers.config.load_config",
+        "aiarb.app.routers.config.load_config",
         return_value=fake_cfg,
     ):
         response = client.get("/api/config/security/tool-guard")
@@ -772,11 +772,11 @@ def test_put_tool_guard_saves_and_reloads_engine(client):
     calls = []
     with (
         patch(
-            "AIARB.app.routers.config.mutate_config",
+            "aiarb.app.routers.config.mutate_config",
             side_effect=_root_transaction(fake_cfg, calls),
         ),
         patch(
-            "AIARB.security.tool_guard.engine.get_guard_engine",
+            "aiarb.security.tool_guard.engine.get_guard_engine",
             return_value=engine_mock,
         ),
     ):
@@ -804,7 +804,7 @@ def test_get_theme_returns_sparse_defaults(client):
     read_config = AsyncMock(return_value=fake_cfg)
 
     with patch(
-        "AIARB.app.routers.config.run_sync_io",
+        "aiarb.app.routers.config.run_sync_io",
         new=read_config,
     ):
         response = client.get("/api/config/theme")
@@ -819,7 +819,7 @@ def test_put_theme_persists_without_agent_reload(client):
     calls = []
 
     with patch(
-        "AIARB.app.routers.config.mutate_config",
+        "aiarb.app.routers.config.mutate_config",
         side_effect=_root_transaction(fake_cfg, calls),
     ):
         response = client.put(
@@ -881,7 +881,7 @@ def test_delete_theme_clears_persisted_config(client):
     calls = []
 
     with patch(
-        "AIARB.app.routers.config.mutate_config",
+        "aiarb.app.routers.config.mutate_config",
         side_effect=_root_transaction(fake_cfg, calls),
     ):
         response = client.delete("/api/config/theme")
@@ -903,11 +903,11 @@ def test_get_sandbox_returns_enabled_effective_reason(client):
 
     with (
         patch(
-            "AIARB.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ),
         patch(
-            "AIARB.app.routers.config._sandbox_effective_status",
+            "aiarb.app.routers.config._sandbox_effective_status",
             return_value=(True, None),
         ),
     ):
@@ -927,11 +927,11 @@ def test_get_sandbox_preview_with_enabled_param(client):
 
     with (
         patch(
-            "AIARB.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ),
         patch(
-            "AIARB.app.routers.config._sandbox_effective_status",
+            "aiarb.app.routers.config._sandbox_effective_status",
             return_value=(False, None),
         ) as mock_status,
     ):
@@ -957,14 +957,14 @@ def test_put_sandbox_idempotent_same_value_no_save(client):
     mutate = MagicMock()
     with (
         patch(
-            "AIARB.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ),
         patch(
-            "AIARB.app.routers.config._sandbox_effective_status",
+            "aiarb.app.routers.config._sandbox_effective_status",
             return_value=(True, "unelevated"),
         ),
-        patch("AIARB.app.routers.config.mutate_config", mutate),
+        patch("aiarb.app.routers.config.mutate_config", mutate),
     ):
         response = client.put(
             "/api/config/security/sandbox",
@@ -988,15 +988,15 @@ def test_put_sandbox_non_admin_enabling_saves_with_unelevated(client):
     calls = []
     with (
         patch(
-            "AIARB.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ),
         patch(
-            "AIARB.app.routers.config._sandbox_effective_status",
+            "aiarb.app.routers.config._sandbox_effective_status",
             return_value=(True, "unelevated"),
         ),
         patch(
-            "AIARB.app.routers.config.mutate_config",
+            "aiarb.app.routers.config.mutate_config",
             side_effect=_root_transaction(fake_cfg, calls),
         ),
     ):
@@ -1021,15 +1021,15 @@ def test_put_sandbox_admin_enabling_saves(client):
     calls = []
     with (
         patch(
-            "AIARB.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ),
         patch(
-            "AIARB.app.routers.config._sandbox_effective_status",
+            "aiarb.app.routers.config._sandbox_effective_status",
             return_value=(True, None),
         ),
         patch(
-            "AIARB.app.routers.config.mutate_config",
+            "aiarb.app.routers.config.mutate_config",
             side_effect=_root_transaction(fake_cfg, calls),
         ),
     ):

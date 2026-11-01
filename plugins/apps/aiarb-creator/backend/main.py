@@ -17,7 +17,7 @@ import os
 import sys
 from pathlib import Path
 
-from AIARB.pawapp import PawApp
+from aiarb.pawapp import PawApp
 
 logger = logging.getLogger("AIARB").getChild("plugin.AIARB_creator")
 
@@ -95,7 +95,7 @@ def configure_creator_runtime_environment(
     """
 
     if working_dir is None:
-        from AIARB.constant import WORKING_DIR
+        from aiarb.constant import WORKING_DIR
 
         working_dir = Path(WORKING_DIR)
 

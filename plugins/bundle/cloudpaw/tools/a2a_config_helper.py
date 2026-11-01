@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Helpers to read per-agent A2A configuration from workspace.
 
 Used by ``a2a_list`` and ``a2a_call`` tools to resolve registered

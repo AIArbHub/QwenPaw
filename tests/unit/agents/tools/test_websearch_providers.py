@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # flake8: noqa: E501
 """Tests for the pluggable web search provider abstraction."""
 
@@ -280,7 +280,7 @@ async def test_firecrawl_key_is_read_from_credential_store(
     from qwenpaw.drivers.credentials.types import CredentialRecord
 
     # Keep the master key off the OS keychain and inside tmp_path.
-    monkeypatch.setenv("QWENPAW_DISABLE_KEYRING", "1")
+    monkeypatch.setenv("AIARB_DISABLE_KEYRING", "1")
     monkeypatch.setattr(secret_store, "_get_secret_dir", lambda: tmp_path)
     monkeypatch.setattr(secret_store, "_cached_master_key", None)
     monkeypatch.setattr(

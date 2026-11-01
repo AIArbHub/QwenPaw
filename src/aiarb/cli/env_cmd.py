@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """CLI commands for environment variable management."""
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ def _managed_envs(
     value: str | None = None,
 ) -> dict[str, str] | None:
     """Apply managed CLI changes in the owning runtime process."""
-    if not os.environ.get("QWENPAW_RUNTIME_ID"):
+    if not os.environ.get("AIARB_RUNTIME_ID"):
         return None
     endpoint = read_runtime_api()
     if endpoint is None:

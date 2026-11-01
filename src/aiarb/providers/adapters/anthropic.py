@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """AgentScope Anthropic model with AIARB request policy."""
 
 from datetime import datetime

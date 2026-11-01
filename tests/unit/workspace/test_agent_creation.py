@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for agent creation with short UUID."""
 from unittest.mock import patch
 

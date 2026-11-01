@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from AIARB.harnesses.base import MissingDependencyAdapter
-from AIARB.harnesses.registry import create_adapter
+from aiarb.harnesses.base import MissingDependencyAdapter
+from aiarb.harnesses.registry import create_adapter
 
 
 def test_codex_and_qoder_sdks_are_optional_and_in_full() -> None:
@@ -37,7 +37,7 @@ async def test_missing_qoder_sdk_does_not_break_provider_creation(
 ) -> None:
     monkeypatch.delitem(
         sys.modules,
-        "AIARB.harnesses.qoder.adapter",
+        "aiarb.harnesses.qoder.adapter",
         raising=False,
     )
     monkeypatch.setitem(sys.modules, "qoder_agent_sdk", None)

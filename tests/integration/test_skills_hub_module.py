@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Integration tests for the skills-hub client internals.
 
 Covers src/qwenpaw/agents/skill_system/hub.py (663 uncovered lines):
@@ -48,7 +48,7 @@ def test_hub_http_timeout_defaults(monkeypatch) -> None:
     """Timeout defaults apply when the env var is unset."""
     import qwenpaw.agents.skill_system.hub as hub
 
-    monkeypatch.delenv("QWENPAW_SKILLS_HUB_HTTP_TIMEOUT", raising=False)
+    monkeypatch.delenv("AIARB_SKILLS_HUB_HTTP_TIMEOUT", raising=False)
     assert hub._hub_http_timeout() == 30.0
 
 
@@ -58,7 +58,7 @@ def test_hub_http_timeout_env_override(monkeypatch) -> None:
     """Valid env values override the timeout."""
     import qwenpaw.agents.skill_system.hub as hub
 
-    monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_TIMEOUT", "45")
+    monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_TIMEOUT", "45")
     assert hub._hub_http_timeout() == 45.0
 
 
@@ -68,7 +68,7 @@ def test_hub_http_timeout_floor(monkeypatch) -> None:
     """Timeouts below the floor clamp up to 3 seconds."""
     import qwenpaw.agents.skill_system.hub as hub
 
-    monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_TIMEOUT", "1")
+    monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_TIMEOUT", "1")
     assert hub._hub_http_timeout() == 3.0
 
 
@@ -78,7 +78,7 @@ def test_hub_http_timeout_invalid_falls_back(monkeypatch) -> None:
     """Unparseable values fall back to the default."""
     import qwenpaw.agents.skill_system.hub as hub
 
-    monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_TIMEOUT", "not-a-number")
+    monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_TIMEOUT", "not-a-number")
     assert hub._hub_http_timeout() == 30.0
 
 
@@ -88,11 +88,11 @@ def test_hub_http_retries_defaults_and_bounds(monkeypatch) -> None:
     """Retry count defaults to 3 and never goes negative."""
     import qwenpaw.agents.skill_system.hub as hub
 
-    monkeypatch.delenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", raising=False)
+    monkeypatch.delenv("AIARB_SKILLS_HUB_HTTP_RETRIES", raising=False)
     assert hub._hub_http_retries() == 3
-    monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", "7")
+    monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_RETRIES", "7")
     assert hub._hub_http_retries() == 7
-    monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_RETRIES", "-2")
+    monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_RETRIES", "-2")
     assert hub._hub_http_retries() == 0
 
 
@@ -103,11 +103,11 @@ def test_hub_http_backoff_base_defaults_and_bounds(monkeypatch) -> None:
     import qwenpaw.agents.skill_system.hub as hub
 
     monkeypatch.delenv(
-        "QWENPAW_SKILLS_HUB_HTTP_BACKOFF_BASE",
+        "AIARB_SKILLS_HUB_HTTP_BACKOFF_BASE",
         raising=False,
     )
     assert hub._hub_http_backoff_base() == 0.8
-    monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_BASE", "0.01")
+    monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_BASE", "0.01")
     assert hub._hub_http_backoff_base() == 0.1
 
 
@@ -118,11 +118,11 @@ def test_hub_http_backoff_cap_defaults_and_bounds(monkeypatch) -> None:
     import qwenpaw.agents.skill_system.hub as hub
 
     monkeypatch.delenv(
-        "QWENPAW_SKILLS_HUB_HTTP_BACKOFF_CAP",
+        "AIARB_SKILLS_HUB_HTTP_BACKOFF_CAP",
         raising=False,
     )
     assert hub._hub_http_backoff_cap() == 6.0
-    monkeypatch.setenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_CAP", "0.1")
+    monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_CAP", "0.1")
     assert hub._hub_http_backoff_cap() == 0.5
 
 
@@ -133,10 +133,10 @@ def test_compute_backoff_seconds_growth(monkeypatch) -> None:
     import qwenpaw.agents.skill_system.hub as hub
 
     monkeypatch.delenv(
-        "QWENPAW_SKILLS_HUB_HTTP_BACKOFF_BASE",
+        "AIARB_SKILLS_HUB_HTTP_BACKOFF_BASE",
         raising=False,
     )
-    monkeypatch.delenv("QWENPAW_SKILLS_HUB_HTTP_BACKOFF_CAP", raising=False)
+    monkeypatch.delenv("AIARB_SKILLS_HUB_HTTP_BACKOFF_CAP", raising=False)
     first = hub._compute_backoff_seconds(1)
     second = hub._compute_backoff_seconds(2)
     later = hub._compute_backoff_seconds(20)
@@ -151,11 +151,11 @@ def test_github_cache_ttl_env(monkeypatch) -> None:
     """Cache TTL parses env values and clamps at zero."""
     import qwenpaw.agents.skill_system.hub as hub
 
-    monkeypatch.setenv("QWENPAW_GITHUB_CACHE_TTL", "120")
+    monkeypatch.setenv("AIARB_GITHUB_CACHE_TTL", "120")
     assert hub._github_cache_ttl() == 120.0
-    monkeypatch.setenv("QWENPAW_GITHUB_CACHE_TTL", "-5")
+    monkeypatch.setenv("AIARB_GITHUB_CACHE_TTL", "-5")
     assert hub._github_cache_ttl() == 0.0
-    monkeypatch.delenv("QWENPAW_GITHUB_CACHE_TTL", raising=False)
+    monkeypatch.delenv("AIARB_GITHUB_CACHE_TTL", raising=False)
     assert hub._github_cache_ttl() > 0
 
 
@@ -170,7 +170,7 @@ def test_hub_base_url_default(monkeypatch) -> None:
     """Default hub base URL is the public hub."""
     import qwenpaw.agents.skill_system.hub as hub
 
-    monkeypatch.delenv("QWENPAW_SKILLS_HUB_BASE_URL", raising=False)
+    monkeypatch.delenv("AIARB_SKILLS_HUB_BASE_URL", raising=False)
     assert hub._hub_base_url() == "https://clawhub.ai"
 
 
@@ -181,10 +181,10 @@ def test_hub_paths_default(monkeypatch) -> None:
     import qwenpaw.agents.skill_system.hub as hub
 
     for var in (
-        "QWENPAW_SKILLS_HUB_SEARCH_PATH",
-        "QWENPAW_SKILLS_HUB_VERSION_PATH",
-        "QWENPAW_SKILLS_HUB_DETAIL_PATH",
-        "QWENPAW_SKILLS_HUB_FILE_PATH",
+        "AIARB_SKILLS_HUB_SEARCH_PATH",
+        "AIARB_SKILLS_HUB_VERSION_PATH",
+        "AIARB_SKILLS_HUB_DETAIL_PATH",
+        "AIARB_SKILLS_HUB_FILE_PATH",
     ):
         monkeypatch.delenv(var, raising=False)
     assert hub._hub_search_path() == "/api/v1/search"

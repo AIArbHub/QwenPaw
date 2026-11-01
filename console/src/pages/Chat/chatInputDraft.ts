@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Chat input draft persistence.
  *
  * The key helpers and `useChatInputDraft` live here so the composer contract

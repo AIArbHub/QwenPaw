@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Trusted stdlib-only worker bootstrap mechanics."""
 
 from __future__ import annotations

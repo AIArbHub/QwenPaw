@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Authentication coverage for the Native Messaging bridge endpoint."""
 
 # pylint: disable=protected-access,redefined-outer-name

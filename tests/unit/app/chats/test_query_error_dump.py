@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument
 """Unit tests for the query-handler error dump writer.
 
@@ -165,7 +165,7 @@ class TestWriteQueryErrorDump:
     ):
         path = self._raise_and_dump(None, {})
         name = os.path.basename(path)
-        assert name.startswith("qwenpaw_query_error_")
+        assert name.startswith("AIARB_query_error_")
         assert name.endswith(".json")
 
     def test_records_exception_type_and_message(self, tmpdir_for_dumps):

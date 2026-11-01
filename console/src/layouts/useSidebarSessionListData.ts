@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { IAgentScopeRuntimeWebUISession } from "@agentscope-ai/chat";
 import type { ChatStatus } from "../api/types/chat";

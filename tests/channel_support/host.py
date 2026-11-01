@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Minimal loader and workspace wiring for a synthetic platform."""
 
 import base64
@@ -99,7 +99,7 @@ class Host:
             channel_runtime=ChannelRuntimeSettings(
                 python_executable=sys.executable,
                 support_root=ROOT / "src",
-                qwenpaw_version=__version__,
+                AIARB_version=__version__,
                 selected_channels=frozenset({KEY}),
                 startup_timeout=5,
                 shutdown_timeout=0.4,

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Stdlib-only shared-environment admission and process lifetime leases.
 
 This module is also loaded by absolute path before importing AIARB or SDKs.

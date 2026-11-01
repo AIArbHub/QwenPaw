@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for ``aiarb.app.routers.messages``.
 
 These tests use FastAPI's ``TestClient`` against a synthetic app whose

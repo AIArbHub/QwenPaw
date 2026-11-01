@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=unused-argument,protected-access,unused-variable
 # pylint: disable=wrong-import-position
 """Unit tests for Windows Unelevated sandbox (WRITE_RESTRICTED, no admin).

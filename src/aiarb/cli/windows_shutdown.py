@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Windows named-event transport for graceful application shutdown."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for the Codex third-party agent adapter."""
 
 # pylint: disable=protected-access

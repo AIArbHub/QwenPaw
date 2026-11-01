@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """PTY interrupt contracts and a Windows-only native smoke test."""
 
 import ctypes
@@ -49,14 +49,14 @@ def test_native_ping_interrupt_and_host_cleanup(
         assert marker in output, output
 
     try:
-        adapter.write("function prompt { 'QWENPAW_' + 'READY>' }; \r")
-        until("QWENPAW_READY>")
+        adapter.write("function prompt { 'AIARB_' + 'READY>' }; \r")
+        until("AIARB_READY>")
         adapter.write("ping -n 30 127.0.0.1\r")
         until("TTL=")
         adapter.write("\x03")
-        until("QWENPAW_READY>")
-        adapter.write("echo ('QWENPAW_' + 'INTERRUPT_OK')\r")
-        until("QWENPAW_INTERRUPT_OK")
+        until("AIARB_READY>")
+        adapter.write("echo ('AIARB_' + 'INTERRUPT_OK')\r")
+        until("AIARB_INTERRUPT_OK")
         owned = adapter.owner.children(recursive=True)
     finally:
         adapter.close()

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Unit tests for desktop backend port persistence helpers.
 
 Complements ``test_port.py`` (socket construction failure) by covering
@@ -114,7 +114,7 @@ class TestGetStablePort:
         port = port_mod.find_free_port()
         monkeypatch.setattr(
             port_mod,
-            f"QWENPAW_DESKTOP_PORT",
+            f"AIARB_DESKTOP_PORT",
             f"{port}" if source == f"fixed" else f"",
         )
         if source == f"recorded":
@@ -134,7 +134,7 @@ class TestGetStablePort:
     def test_env_var_port_wins(self, tmp_path):
         port_file = tmp_path / "port"
         free = port_mod.find_free_port()
-        with patch.object(port_mod, "QWENPAW_DESKTOP_PORT", str(free)):
+        with patch.object(port_mod, "AIARB_DESKTOP_PORT", str(free)):
             port, sock = port_mod.get_stable_port(port_file)
         try:
             assert port == free
@@ -147,7 +147,7 @@ class TestGetStablePort:
 
     def test_env_var_invalid_falls_back(self, tmp_path):
         port_file = tmp_path / "port"
-        with patch.object(port_mod, "QWENPAW_DESKTOP_PORT", "not-int"):
+        with patch.object(port_mod, "AIARB_DESKTOP_PORT", "not-int"):
             port, sock = port_mod.get_stable_port(port_file)
         if sock is not None:
             sock.close()
@@ -157,7 +157,7 @@ class TestGetStablePort:
 
     def test_env_var_out_of_range_falls_back(self, tmp_path):
         port_file = tmp_path / "port"
-        with patch.object(port_mod, "QWENPAW_DESKTOP_PORT", "99"):
+        with patch.object(port_mod, "AIARB_DESKTOP_PORT", "99"):
             port, sock = port_mod.get_stable_port(port_file)
         if sock is not None:
             sock.close()
@@ -170,7 +170,7 @@ class TestGetStablePort:
         try:
             with patch.object(
                 port_mod,
-                "QWENPAW_DESKTOP_PORT",
+                "AIARB_DESKTOP_PORT",
                 str(occupied),
             ):
                 port, sock = port_mod.get_stable_port(tmp_path / "port")
