@@ -3,9 +3,9 @@
 
 from fastapi import Request, Response
 
-from qwenpaw.hub.auth import HubAuthService
-from qwenpaw.hub.credentials import TenantCredentialVault
-from qwenpaw.hub.pawapp_access import issue_session, read_session
+from aiarb.hub.auth import HubAuthService
+from aiarb.hub.credentials import TenantCredentialVault
+from aiarb.hub.pawapp_access import issue_session, read_session
 from tests.unit.hub.factories import runtime_record
 
 

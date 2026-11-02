@@ -8,7 +8,7 @@ import pytest
 
 def test_tool_call_round_trip_preserves_correlation_and_arguments():
     from agentscope.message import Msg, ToolCallBlock
-    from qwenpaw.plugins._messages import from_host, to_host
+    from aiarb.plugins._messages import from_host, to_host
 
     original = ToolCallBlock(
         id="call-123",
@@ -38,7 +38,7 @@ def test_tool_result_round_trip_preserves_error_and_multimodal_output():
         ToolResultBlock,
         URLSource,
     )
-    from qwenpaw.plugins._messages import from_host, to_host
+    from aiarb.plugins._messages import from_host, to_host
 
     original = ToolResultBlock(
         id="call-123",
@@ -71,8 +71,8 @@ def test_tool_result_round_trip_preserves_error_and_multimodal_output():
 
 
 def test_unknown_host_block_is_rejected_instead_of_silently_removed():
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins._messages import from_host
+    from aiarb.plugins import SDKError
+    from aiarb.plugins._messages import from_host
 
     unknown = SimpleNamespace(type="future_block", value="must-not-disappear")
     message = SimpleNamespace(
@@ -86,18 +86,18 @@ def test_unknown_host_block_is_rejected_instead_of_silently_removed():
 
 
 def test_unknown_public_block_is_rejected_instead_of_silently_removed():
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins._messages import to_host
-    from qwenpaw.plugins.messages import ContentBlock, Message
+    from aiarb.plugins import SDKError
+    from aiarb.plugins._messages import to_host
+    from aiarb.plugins.messages import ContentBlock, Message
 
     with pytest.raises(SDKError):
         to_host(Message("user", (ContentBlock(type="future_block"),)))
 
 
 def test_unsupported_message_role_raises_public_error():
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins._messages import to_host
-    from qwenpaw.plugins.messages import ContentBlock, Message
+    from aiarb.plugins import SDKError
+    from aiarb.plugins._messages import to_host
+    from aiarb.plugins.messages import ContentBlock, Message
 
     with pytest.raises(SDKError):
         to_host(Message("tool", (ContentBlock(text="unsupported role"),)))
@@ -105,7 +105,7 @@ def test_unsupported_message_role_raises_public_error():
 
 def test_thinking_block_preserves_provider_extension_fields():
     from agentscope.message import Msg, ThinkingBlock
-    from qwenpaw.plugins._messages import from_host, to_host
+    from aiarb.plugins._messages import from_host, to_host
 
     original = ThinkingBlock(
         thinking="reason",
@@ -120,9 +120,9 @@ def test_thinking_block_preserves_provider_extension_fields():
 
 
 def test_invalid_public_tool_state_raises_sdk_error():
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins._messages import to_host
-    from qwenpaw.plugins.messages import ContentBlock, Message
+    from aiarb.plugins import SDKError
+    from aiarb.plugins._messages import to_host
+    from aiarb.plugins.messages import ContentBlock, Message
 
     with pytest.raises(SDKError):
         to_host(
@@ -150,8 +150,8 @@ def test_invalid_public_tool_state_raises_sdk_error():
 )
 @pytest.mark.parametrize("with_preview", [False, True])
 def test_public_metadata_collision_survives_round_trip(value, with_preview):
-    from qwenpaw.plugins._messages import from_host, to_host
-    from qwenpaw.plugins.messages import Attachment, ContentBlock, Message
+    from aiarb.plugins._messages import from_host, to_host
+    from aiarb.plugins.messages import Attachment, ContentBlock, Message
 
     block = (
         ContentBlock(
@@ -189,7 +189,7 @@ def test_public_metadata_collision_survives_round_trip(value, with_preview):
 )
 def test_ordinary_host_metadata_is_not_mistaken_for_sdk_envelope(value):
     from agentscope.message import DataBlock, Msg, URLSource
-    from qwenpaw.plugins._messages import from_host
+    from aiarb.plugins._messages import from_host
 
     metadata = {"_sdk_attachment_previews": value}
     original = Msg(
@@ -216,8 +216,8 @@ def test_ordinary_host_metadata_is_not_mistaken_for_sdk_envelope(value):
 @pytest.mark.parametrize("kind", ["image", "tool_result", "hint"])
 def test_preview_and_author_metadata_survive_host_json_history(kind):
     from agentscope.message import Msg
-    from qwenpaw.plugins._messages import from_host, to_host
-    from qwenpaw.plugins.messages import Attachment, ContentBlock, Message
+    from aiarb.plugins._messages import from_host, to_host
+    from aiarb.plugins.messages import Attachment, ContentBlock, Message
 
     image = ContentBlock(
         "image",
@@ -262,8 +262,8 @@ def test_preview_and_author_metadata_survive_host_json_history(kind):
 @pytest.mark.parametrize("kind", ["text", "thinking", "image"])
 def test_content_block_metadata_survives_json_history(kind):
     from agentscope.message import Msg
-    from qwenpaw.plugins._messages import from_host, to_host
-    from qwenpaw.plugins.messages import Attachment, ContentBlock, Message
+    from aiarb.plugins._messages import from_host, to_host
+    from aiarb.plugins.messages import Attachment, ContentBlock, Message
 
     original = ContentBlock(
         kind,
@@ -288,9 +288,9 @@ def test_duplicate_attachment_ids_never_silently_replace_preview_reference(
     second_preview,
 ):
     from agentscope.message import Msg
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins._messages import from_host, to_host
-    from qwenpaw.plugins.messages import Attachment, ContentBlock, Message
+    from aiarb.plugins import SDKError
+    from aiarb.plugins._messages import from_host, to_host
+    from aiarb.plugins.messages import Attachment, ContentBlock, Message
 
     images = tuple(
         ContentBlock(
@@ -320,8 +320,8 @@ def test_duplicate_attachment_ids_never_silently_replace_preview_reference(
 
 def test_author_tool_result_metadata_that_looks_like_full_codec_is_escaped():
     from agentscope.message import Msg
-    from qwenpaw.plugins._messages import from_host, to_host
-    from qwenpaw.plugins.messages import ContentBlock, Message
+    from aiarb.plugins._messages import from_host, to_host
+    from aiarb.plugins.messages import ContentBlock, Message
 
     metadata = {
         "_sdk_tool_result": {
@@ -350,9 +350,9 @@ def test_author_tool_result_metadata_that_looks_like_full_codec_is_escaped():
 @pytest.mark.parametrize("second_metadata", [{}, {"author": "second"}])
 def test_duplicate_block_ids_never_silently_replace_metadata(second_metadata):
     from agentscope.message import Msg
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins._messages import from_host, to_host
-    from qwenpaw.plugins.messages import ContentBlock, Message
+    from aiarb.plugins import SDKError
+    from aiarb.plugins._messages import from_host, to_host
+    from aiarb.plugins.messages import ContentBlock, Message
 
     blocks = (
         ContentBlock(text="first", id="same", metadata={"author": "first"}),
@@ -370,8 +370,8 @@ def test_duplicate_block_ids_never_silently_replace_metadata(second_metadata):
 
 def test_tool_call_and_result_may_share_correlation_id():
     from agentscope.message import Msg
-    from qwenpaw.plugins._messages import from_host, to_host
-    from qwenpaw.plugins.messages import ContentBlock, Message
+    from aiarb.plugins._messages import from_host, to_host
+    from aiarb.plugins.messages import ContentBlock, Message
 
     blocks = (
         ContentBlock(

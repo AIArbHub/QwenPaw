@@ -13,10 +13,10 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.agents.context.visual_compression.config import (
+from aiarb.agents.context.visual_compression.config import (
     LOW_EFFORT_PRESET,
 )
-from qwenpaw.agents.context.visual_compression.rendering import (
+from aiarb.agents.context.visual_compression.rendering import (
     renderer,
 )
 
@@ -69,7 +69,7 @@ class TestEscapeMissingGlyphs:
             assert out == f"a{char}b"
 
     def test_role_markers_preserved_when_requested(self):
-        from qwenpaw.agents.context.visual_compression.config import (
+        from aiarb.agents.context.visual_compression.config import (
             ROLE_MARK_USER,
         )
 
@@ -331,7 +331,7 @@ class TestPageRenderLines:
     ["words ", "中文a", "tab\tmissing\x00🙂↵end\n"],
 )
 def test_render_cell_bound_never_underestimates_page_rows(effort, body):
-    from qwenpaw.agents.context.visual_compression.config import effort_preset
+    from aiarb.agents.context.visual_compression.config import effort_preset
 
     preset = effort_preset(effort)
     profile = renderer._profile_for_preset(preset)

@@ -21,16 +21,16 @@ import openai
 import pytest
 from acp import RequestError, text_block
 
-from qwenpaw.agents.acp import server as acp_server
-from qwenpaw.agents.acp.server import (
+from aiarb.agents.acp import server as acp_server
+from aiarb.agents.acp.server import (
     ACP_KEEPALIVE_META_KEY,
-    QwenPawACPAgent,
+    AIARBACPAgent,
     _EnvelopeTracker,
 )
-from qwenpaw.harnesses import runtime as harness_runtime
-from qwenpaw.harnesses.events import HarnessEvent, HarnessEventKind
-from qwenpaw.providers.retry_chat_model import StreamIdleTimeoutError
-from qwenpaw.schemas import MessageType, RunStatus
+from aiarb.harnesses import runtime as harness_runtime
+from aiarb.harnesses.events import HarnessEvent, HarnessEventKind
+from aiarb.providers.retry_chat_model import StreamIdleTimeoutError
+from aiarb.schemas import MessageType, RunStatus
 
 pytestmark = pytest.mark.p1
 
@@ -98,7 +98,7 @@ def _tool_output_event(call_id: str):
 
 
 async def _agent_with_stream(monkeypatch, stream):
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIARBACPAgent(agent_id="default")
     conn = _RecordingConn()
     agent.on_connect(conn)
 
@@ -228,12 +228,12 @@ async def test_entry_point_reraises_unrelated_errors(monkeypatch, exc):
         calls.append("shutdown")
 
     monkeypatch.setattr(
-        acp_server.QwenPawACPAgent,
+        acp_server.AIARBACPAgent,
         "_install_runtime_provider",
         _install_noop,
     )
     monkeypatch.setattr(
-        acp_server.QwenPawACPAgent,
+        acp_server.AIARBACPAgent,
         "_shutdown_workspace",
         _shutdown,
     )
@@ -257,12 +257,12 @@ async def test_entry_point_swallows_verified_disconnect(monkeypatch):
         calls.append("shutdown")
 
     monkeypatch.setattr(
-        acp_server.QwenPawACPAgent,
+        acp_server.AIARBACPAgent,
         "_install_runtime_provider",
         _install_noop,
     )
     monkeypatch.setattr(
-        acp_server.QwenPawACPAgent,
+        acp_server.AIARBACPAgent,
         "_shutdown_workspace",
         _shutdown,
     )
@@ -276,7 +276,7 @@ async def test_entry_point_swallows_verified_disconnect(monkeypatch):
 @pytest.mark.parametrize(f"failure", [BrokenPipeError, RuntimeError])
 async def test_final_usage_preserves_failure_boundary(monkeypatch, failure):
     """Only a transport failure may be ignored during the final flush."""
-    from qwenpaw.token_usage.model_wrapper import TokenRecordingModelWrapper
+    from aiarb.token_usage.model_wrapper import TokenRecordingModelWrapper
 
     async def stream():
         TokenRecordingModelWrapper._usage_by_session[session_id] = {
@@ -365,7 +365,7 @@ async def test_disconnect_does_not_write_an_error_frame(monkeypatch):
         yield _content_event(f"tail")
 
     monkeypatch.setattr(
-        QwenPawACPAgent,
+        AIARBACPAgent,
         f"_advertise_commands",
         AsyncMock(),
     )
@@ -416,7 +416,7 @@ async def test_harness_terminal_preserves_output_and_status(
         f"adapter",
         AsyncMock(return_value=SimpleNamespace(run_turn=run_turn)),
     )
-    agent = QwenPawACPAgent(agent_id=f"default")
+    agent = AIARBACPAgent(agent_id=f"default")
     conn = _RecordingConn()
     agent.on_connect(conn)
     session_id = f"harness-review"

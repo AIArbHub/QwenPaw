@@ -21,14 +21,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.routers import workspace as workspace_router
-from qwenpaw.services.project_directory import (
+from aiarb.app.routers import workspace as workspace_router
+from aiarb.services.project_directory import (
     ResolvedProjectDir,
     ResolvedProjectDirs,
 )
 
-_RESOLVE_DIRS = "qwenpaw.app.routers.workspace.get_project_dirs_for_request"
-_DIR_KEY = "qwenpaw.services.project_directory.dir_key"
+_RESOLVE_DIRS = "aiarb.app.routers.workspace.get_project_dirs_for_request"
+_DIR_KEY = "aiarb.services.project_directory.dir_key"
 
 
 def _upload(filename: str, payload: bytes) -> Any:
@@ -445,7 +445,7 @@ class TestResolveFilesRoot:
 
     async def test_project_selector_uses_the_primary_dir(self):
         with patch(
-            "qwenpaw.app.routers.workspace.get_project_dir_for_request",
+            "aiarb.app.routers.workspace.get_project_dir_for_request",
             new=AsyncMock(return_value=Path("/proj")),
         ):
             result = await workspace_router._resolve_files_root(
@@ -457,7 +457,7 @@ class TestResolveFilesRoot:
 
     async def test_prefixed_selector_delegates_to_the_membership_check(self):
         with patch(
-            "qwenpaw.app.routers.workspace._resolve_extra_project_root",
+            "aiarb.app.routers.workspace._resolve_extra_project_root",
             new=AsyncMock(return_value=Path("/bound")),
         ) as resolver:
             result = await workspace_router._resolve_files_root(

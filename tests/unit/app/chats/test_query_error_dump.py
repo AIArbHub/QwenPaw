@@ -11,7 +11,7 @@ import os
 
 import pytest
 
-from qwenpaw.app.chats import query_error_dump as dump_mod
+from aiarb.app.chats import query_error_dump as dump_mod
 
 
 @pytest.fixture()
@@ -207,7 +207,7 @@ class TestWriteQueryErrorDump:
         assert info["user_id"] == "user-9"
 
     def test_channel_defaults_when_absent(self, tmpdir_for_dumps):
-        from qwenpaw.app.channels.schema import DEFAULT_CHANNEL
+        from aiarb.app.channels.schema import DEFAULT_CHANNEL
 
         path = self._raise_and_dump(_Request(session_id="s"), {})
         with open(path, encoding="utf-8") as handle:

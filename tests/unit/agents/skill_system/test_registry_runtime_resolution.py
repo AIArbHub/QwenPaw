@@ -25,10 +25,10 @@ from collections import OrderedDict
 from pathlib import Path
 
 import pytest
-from qwenpaw.agents.skill_system import registry as reg
-from qwenpaw.agents.skill_system.models import SkillRequirements
-from qwenpaw.drivers.contracts import DriverCard
-from qwenpaw.drivers.storage import card_path, dump_card
+from aiarb.agents.skill_system import registry as reg
+from aiarb.agents.skill_system.models import SkillRequirements
+from aiarb.drivers.contracts import DriverCard
+from aiarb.drivers.storage import card_path, dump_card
 
 # A name that cannot exist in any PATH the tests build. Note that
 # shell_execution_path(None) prepends the running interpreter's
@@ -236,7 +236,7 @@ class TestListWorkspaces:
                 {"agents": type("A", (), {"profiles": profiles})()},
             )()
             monkeypatch.setattr(
-                "qwenpaw.config.utils.load_config",
+                "aiarb.config.utils.load_config",
                 lambda *a, **k: config,
             )
             return config
@@ -258,7 +258,7 @@ class TestListWorkspaces:
             },
         )
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             lambda agent_id: type("A", (), {"name": f"Display {agent_id}"})(),
         )
 
@@ -279,7 +279,7 @@ class TestListWorkspaces:
         def boom(agent_id):
             raise RuntimeError("agent config unreadable")
 
-        monkeypatch.setattr("qwenpaw.config.config.load_agent_config", boom)
+        monkeypatch.setattr("aiarb.config.config.load_agent_config", boom)
 
         result = reg.list_workspaces()
 
@@ -301,7 +301,7 @@ class TestListWorkspaces:
     ):
         fake_config({"agent_a": str(tmp_path / "ws_a")})
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             lambda agent_id: type("A", (), {"name": blank_name})(),
         )
 
@@ -316,7 +316,7 @@ class TestListWorkspaces:
         def boom(*args, **kwargs):
             raise RuntimeError("config unreadable")
 
-        monkeypatch.setattr("qwenpaw.config.utils.load_config", boom)
+        monkeypatch.setattr("aiarb.config.utils.load_config", boom)
 
         assert reg.list_workspaces() == []
 
@@ -327,7 +327,7 @@ class TestListWorkspaces:
     ):
         fake_config({})
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             lambda agent_id: type("A", (), {"name": agent_id})(),
         )
 
@@ -342,7 +342,7 @@ class TestListWorkspaces:
         """A directory scan would resurrect deleted agents."""
         fake_config({"agent_a": str(tmp_path / "ws_a")})
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             lambda agent_id: type("A", (), {"name": agent_id})(),
         )
         (tmp_path / "workspaces" / "ghost").mkdir(parents=True)

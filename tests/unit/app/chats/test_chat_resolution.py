@@ -11,10 +11,10 @@ import httpx
 import pytest
 from fastapi import FastAPI
 
-from qwenpaw.app.chats import api as chat_api
-from qwenpaw.app.chats.models import ChatSpec, ChatsFile
-from qwenpaw.app.chats.repo.json_repo import JsonChatRepository
-from qwenpaw.config.config import AgentProfileRef
+from aiarb.app.chats import api as chat_api
+from aiarb.app.chats.models import ChatSpec, ChatsFile
+from aiarb.app.chats.repo.json_repo import JsonChatRepository
+from aiarb.config.config import AgentProfileRef
 
 
 CHAT_A = f"11111111-1111-4111-8111-111111111111"

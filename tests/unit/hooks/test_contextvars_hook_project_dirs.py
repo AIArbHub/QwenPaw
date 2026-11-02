@@ -13,7 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 
-from qwenpaw.hooks.request_setup import contextvars_hook as cvh
+from aiarb.hooks.request_setup import contextvars_hook as cvh
 
 
 # ---------------------------------------------------------------------------
@@ -129,7 +129,7 @@ class TestTrustedRequestProjectDir:
         assert cvh._trusted_request_project_dir(ctx) is None
 
     def test_acp_meta_key_takes_priority(self):
-        from qwenpaw.agents.acp.meta import ACP_PROJECT_DIR_META_KEY
+        from aiarb.agents.acp.meta import ACP_PROJECT_DIR_META_KEY
 
         ctx = {
             ACP_PROJECT_DIR_META_KEY: "/acp/proj",

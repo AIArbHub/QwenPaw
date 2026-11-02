@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.portability.models import SourcePlugin
-from qwenpaw.portability.providers.external_state import (
+from aiarb.portability.models import SourcePlugin
+from aiarb.portability.providers.external_state import (
     discover_codex_plugins,
     discover_codex_plugin_mcp,
     discover_qoder_mcp,

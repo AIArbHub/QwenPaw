@@ -40,8 +40,8 @@ from types import SimpleNamespace
 import click
 import pytest
 
-import qwenpaw.cli.channels_cmd as cc
-from qwenpaw.config.config import (
+import aiarb.cli.channels_cmd as cc
+from aiarb.config.config import (
     Config,
     ConsoleConfig,
     DingTalkConfig,

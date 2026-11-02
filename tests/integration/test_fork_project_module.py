@@ -23,7 +23,7 @@ import pytest
 @pytest.mark.p1
 def test_project_dir_from_worktree(tmp_path: Path) -> None:
     """Worktree paths map back three levels to the project root."""
-    from qwenpaw.agents.fork_project import project_dir_from_worktree
+    from aiarb.agents.fork_project import project_dir_from_worktree
 
     project = tmp_path / "proj"
     worktree = project / ".qwenpaw" / "worktrees" / "abc123"
@@ -36,7 +36,7 @@ def test_project_dir_from_worktree(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_registry_path_for_project(tmp_path: Path) -> None:
     """Registry path lives under .qwenpaw of the project."""
-    from qwenpaw.agents.fork_project import _registry_path_for_project
+    from aiarb.agents.fork_project import _registry_path_for_project
 
     project = tmp_path / "proj"
     project.mkdir()
@@ -48,7 +48,7 @@ def test_registry_path_for_project(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_fork_finalize_lock_path_deterministic(tmp_path: Path) -> None:
     """Lock paths derive deterministically from branch names."""
-    from qwenpaw.agents.fork_project import _fork_finalize_lock_path
+    from aiarb.agents.fork_project import _fork_finalize_lock_path
 
     path_a = _fork_finalize_lock_path(tmp_path, "feature/x")
     path_b = _fork_finalize_lock_path(tmp_path, "feature/x")
@@ -68,7 +68,7 @@ def test_fork_finalize_lock_path_deterministic(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_resolve_allowed_fork_dir_under_worktree(tmp_path: Path) -> None:
     """A directory under the allowed worktree area is accepted."""
-    from qwenpaw.agents.fork_project import (
+    from aiarb.agents.fork_project import (
         resolve_allowed_fork_project_dir,
     )
 
@@ -87,7 +87,7 @@ def test_resolve_allowed_fork_dir_under_worktree(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_resolve_allowed_fork_dir_outside_rejected(tmp_path: Path) -> None:
     """Directories outside the worktree area are rejected."""
-    from qwenpaw.agents.fork_project import (
+    from aiarb.agents.fork_project import (
         resolve_allowed_fork_project_dir,
     )
 
@@ -107,7 +107,7 @@ def test_resolve_allowed_fork_dir_outside_rejected(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_resolve_allowed_fork_dir_invalid_inputs(tmp_path: Path) -> None:
     """Empty, blank, missing, and non-string inputs are rejected."""
-    from qwenpaw.agents.fork_project import (
+    from aiarb.agents.fork_project import (
         resolve_allowed_fork_project_dir,
     )
 
@@ -133,7 +133,7 @@ def test_resolve_allowed_fork_dir_workspace_allowed(
     tmp_path: Path,
 ) -> None:
     """The agent workspace is also an allowed root for forks."""
-    from qwenpaw.agents.fork_project import (
+    from aiarb.agents.fork_project import (
         resolve_allowed_fork_project_dir,
     )
 
@@ -157,7 +157,7 @@ def test_resolve_allowed_fork_dir_workspace_allowed(
 @pytest.mark.p1
 def test_bind_workspace_integration_project(tmp_path: Path) -> None:
     """Binding writes the pointer file with the resolved project."""
-    from qwenpaw.agents.fork_project import (
+    from aiarb.agents.fork_project import (
         INTEGRATION_PROJECT_REL,
         bind_workspace_integration_project,
     )
@@ -179,7 +179,7 @@ def test_bind_workspace_integration_project(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_bind_workspace_integration_project_none_workspace() -> None:
     """None workspace is a no-op."""
-    from qwenpaw.agents.fork_project import (
+    from aiarb.agents.fork_project import (
         bind_workspace_integration_project,
     )
 
@@ -192,7 +192,7 @@ def test_resolve_integration_project_dir_with_pointer(
     tmp_path: Path,
 ) -> None:
     """A valid pointer resolves to the referenced git project."""
-    from qwenpaw.agents.fork_project import (
+    from aiarb.agents.fork_project import (
         INTEGRATION_PROJECT_REL,
         resolve_integration_project_dir,
     )
@@ -216,7 +216,7 @@ def test_resolve_integration_project_dir_invalid_pointer(
     tmp_path: Path,
 ) -> None:
     """Pointers at missing or non-git dirs are not usable."""
-    from qwenpaw.agents.fork_project import (
+    from aiarb.agents.fork_project import (
         INTEGRATION_PROJECT_REL,
         resolve_integration_project_dir,
     )
@@ -234,7 +234,7 @@ def test_resolve_integration_project_dir_invalid_pointer(
 @pytest.mark.p1
 def test_resolve_integration_project_dir_none_workspace() -> None:
     """None workspace yields None."""
-    from qwenpaw.agents.fork_project import resolve_integration_project_dir
+    from aiarb.agents.fork_project import resolve_integration_project_dir
 
     assert resolve_integration_project_dir(None) is None
 
@@ -248,7 +248,7 @@ def test_resolve_integration_project_dir_none_workspace() -> None:
 @pytest.mark.p1
 def test_active_scope_read_write_roundtrip(tmp_path: Path) -> None:
     """Active scope round-trips through the scope file."""
-    from qwenpaw.agents.fork_project import (
+    from aiarb.agents.fork_project import (
         _read_active_scope,
         _write_active_scope,
     )
@@ -273,7 +273,7 @@ def test_active_scope_read_write_roundtrip(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_windows_lock_conflict_permission_error() -> None:
     """PermissionError signals another lock holder."""
-    from qwenpaw.agents.fork_project import _windows_lock_conflict
+    from aiarb.agents.fork_project import _windows_lock_conflict
 
     assert _windows_lock_conflict(PermissionError("locked")) is True
 
@@ -282,7 +282,7 @@ def test_windows_lock_conflict_permission_error() -> None:
 @pytest.mark.p1
 def test_windows_lock_conflict_winerror() -> None:
     """Windows sharing-violation winerrors are conflicts."""
-    from qwenpaw.agents.fork_project import (
+    from aiarb.agents.fork_project import (
         _WINDOWS_LOCK_CONFLICT_WINERRORS,
         _windows_lock_conflict,
     )
@@ -296,7 +296,7 @@ def test_windows_lock_conflict_winerror() -> None:
 @pytest.mark.p1
 def test_windows_lock_conflict_plain_error() -> None:
     """Plain OS errors are not lock conflicts."""
-    from qwenpaw.agents.fork_project import _windows_lock_conflict
+    from aiarb.agents.fork_project import _windows_lock_conflict
 
     assert _windows_lock_conflict(OSError("something else")) is False
 
@@ -310,7 +310,7 @@ def test_windows_lock_conflict_plain_error() -> None:
 @pytest.mark.p1
 def test_resolve_git_project_dir_none_for_non_git(tmp_path: Path) -> None:
     """Workspaces without a git repo yield None."""
-    from qwenpaw.agents.fork_project import resolve_git_project_dir
+    from aiarb.agents.fork_project import resolve_git_project_dir
 
     ws = tmp_path / "plain-ws"
     ws.mkdir()
@@ -321,7 +321,7 @@ def test_resolve_git_project_dir_none_for_non_git(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_begin_fork_scope_creates_active_scope(tmp_path: Path) -> None:
     """begin_fork_scope writes a fresh active scope id."""
-    from qwenpaw.agents.fork_project import (
+    from aiarb.agents.fork_project import (
         _read_active_scope,
         begin_fork_scope,
     )
@@ -338,6 +338,6 @@ def test_begin_fork_scope_creates_active_scope(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_begin_fork_scope_none_workspace() -> None:
     """None workspace yields an empty scope without error."""
-    from qwenpaw.agents.fork_project import begin_fork_scope
+    from aiarb.agents.fork_project import begin_fork_scope
 
     assert begin_fork_scope(None) == ""

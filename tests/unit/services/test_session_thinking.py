@@ -8,24 +8,24 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.chats.api import (
+from aiarb.app.chats.api import (
     get_chat_thinking,
     set_chat_model,
     set_chat_thinking,
 )
-from qwenpaw.app.channels.console.channel import ConsoleChannel
-from qwenpaw.app.routers.console import (
+from aiarb.app.channels.console.channel import ConsoleChannel
+from aiarb.app.routers.console import (
     _extract_session_and_payload,
     _persist_pending_project_dirs,
 )
 
-from qwenpaw.app.chats.manager import ChatManager
-from qwenpaw.app.chats.models import ChatSpec
-from qwenpaw.app.chats.repo import JsonChatRepository
-from qwenpaw.config.config import AgentProfileConfig, ModelSlotConfig
-from qwenpaw.providers.thinking import ThinkingControl, ThinkingPreference
-from qwenpaw.schemas import AgentRequest
-from qwenpaw.services.session_thinking import (
+from aiarb.app.chats.manager import ChatManager
+from aiarb.app.chats.models import ChatSpec
+from aiarb.app.chats.repo import JsonChatRepository
+from aiarb.config.config import AgentProfileConfig, ModelSlotConfig
+from aiarb.providers.thinking import ThinkingControl, ThinkingPreference
+from aiarb.schemas import AgentRequest
+from aiarb.services.session_thinking import (
     apply_session_thinking,
     session_preference,
     thinking_view,
@@ -105,7 +105,7 @@ async def test_request_override_works_without_a_registered_chat():
         request=SimpleNamespace(model_slot_override=selected),
     )
     with patch(
-        "qwenpaw.services.session_thinking.ProviderManager.get_instance",
+        "aiarb.services.session_thinking.ProviderManager.get_instance",
     ) as factory:
         factory.return_value.active_model = None
         snapshot = await apply_session_thinking(ctx, config)
@@ -302,11 +302,11 @@ async def test_inherit_uses_agent_preference():
     )
     with (
         patch(
-            f"qwenpaw.services.session_thinking.load_agent_config",
+            f"aiarb.services.session_thinking.load_agent_config",
             return_value=config,
         ),
         patch(
-            f"qwenpaw.services.session_thinking.ProviderManager.get_instance",
+            f"aiarb.services.session_thinking.ProviderManager.get_instance",
         ) as factory,
     ):
         manager = factory.return_value
@@ -338,7 +338,7 @@ async def test_first_message_persists_thinking_without_project_dirs(tmp_path):
         },
     }
     with patch(
-        f"qwenpaw.app.routers.console.thinking_view",
+        f"aiarb.app.routers.console.thinking_view",
         return_value={f"reason": None, f"model_key": f"p:m"},
     ):
         updated = await _persist_pending_project_dirs(workspace, chat, body)
@@ -366,18 +366,8 @@ async def test_console_decision_approval_requires_configured_model(
         },
     )
     with (
-        patch(
-            "qwenpaw.app.routers.console.load_agent_config",
-            return_value=config,
-        ),
-        patch(
-            "qwenpaw.services.session_thinking.load_agent_config",
-            return_value=config,
-        ),
-        patch(
-            "qwenpaw.services.session_thinking.ProviderManager.get_instance",
-            return_value=provider_manager,
-        ),
+        patch("aiarb.app.routers.console.load_agent_config") as load,
+        patch("aiarb.app.routers.console.decision_settings") as settings,
     ):
         view = await thinking_view(workspace)
         assert view["decision_model_configured"] is configured
@@ -394,7 +384,7 @@ async def test_invalid_setting_is_not_persisted():
         get_chat=AsyncMock(return_value=SimpleNamespace(meta={})),
     )
     with patch(
-        f"qwenpaw.app.chats.api.thinking_view",
+        f"aiarb.app.chats.api.thinking_view",
         return_value={f"reason": f"cannot_disable"},
     ):
         with pytest.raises(HTTPException) as raised:
@@ -469,7 +459,7 @@ async def test_first_message_persists_model_before_thinking(tmp_path):
         },
     }
     with patch(
-        f"qwenpaw.app.routers.console.thinking_view",
+        f"aiarb.app.routers.console.thinking_view",
         return_value={f"model": f"b", f"model_key": f"p:b", f"reason": None},
     ) as view:
         updated = await _persist_pending_project_dirs(
@@ -502,11 +492,11 @@ async def test_session_routes_use_selected_model_constraints(tmp_path):
     workspace = SimpleNamespace(chat_manager=manager, agent_id=f"agent")
     with (
         patch(
-            f"qwenpaw.services.session_thinking.load_agent_config",
+            f"aiarb.services.session_thinking.load_agent_config",
             return_value=config,
         ),
         patch(
-            f"qwenpaw.services.session_thinking.ProviderManager.get_instance",
+            f"aiarb.services.session_thinking.ProviderManager.get_instance",
         ) as factory,
     ):
         provider = factory.return_value.get_provider.return_value
@@ -600,11 +590,11 @@ async def test_hub_view_separates_display_name_from_routing_id(monkeypatch):
     )
     with (
         patch(
-            f"qwenpaw.services.session_thinking.load_agent_config",
+            f"aiarb.services.session_thinking.load_agent_config",
             return_value=config,
         ),
         patch(
-            f"qwenpaw.providers.hub_managed.directory",
+            f"aiarb.providers.hub_managed.directory",
             return_value=catalog,
         ),
     ):
@@ -633,13 +623,13 @@ async def test_hub_personal_session_selection_and_reasoning(
     selected = ModelSlotConfig(provider_id=f"kilo", model=f"qwen")
     with (
         patch(
-            f"qwenpaw.services.session_thinking.load_agent_config",
+            f"aiarb.services.session_thinking.load_agent_config",
             return_value=config,
         ),
         patch(
-            f"qwenpaw.services.session_thinking.ProviderManager.get_instance",
+            f"aiarb.services.session_thinking.ProviderManager.get_instance",
         ) as factory,
-        patch(f"qwenpaw.services.session_thinking.managed_slot") as hub,
+        patch(f"aiarb.services.session_thinking.managed_slot") as hub,
     ):
         provider = factory.return_value.get_provider.return_value
         provider.get_model_info.return_value = SimpleNamespace(name=f"Qwen")
@@ -662,7 +652,7 @@ async def test_hub_personal_session_selection_and_reasoning(
         factory.return_value.get_provider.assert_called_with(f"kilo")
         hub.return_value = (config.active_model, {f"models": []})
         with patch(
-            f"qwenpaw.services.session_thinking.managed_provider",
+            f"aiarb.services.session_thinking.managed_provider",
             return_value=provider,
         ):
             org = await set_chat_model(
@@ -690,13 +680,13 @@ async def test_invalid_personal_selection_is_not_persisted(
     chat = await manager.create_chat(ChatSpec(session_id=f"s", user_id=f"u"))
     with (
         patch(
-            f"qwenpaw.services.session_thinking.load_agent_config",
+            f"aiarb.services.session_thinking.load_agent_config",
             return_value=config,
         ),
         patch(
-            f"qwenpaw.services.session_thinking.ProviderManager.get_instance",
+            f"aiarb.services.session_thinking.ProviderManager.get_instance",
         ) as factory,
-        patch(f"qwenpaw.services.session_thinking.managed_slot") as hub,
+        patch(f"aiarb.services.session_thinking.managed_slot") as hub,
     ):
         provider = factory.return_value.get_provider.return_value
         provider.get_model_info.return_value = None

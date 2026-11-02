@@ -18,8 +18,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.backup._utils import constants as bc
-from qwenpaw.backup._utils import meta as bm
+from aiarb.backup._utils import constants as bc
+from aiarb.backup._utils import meta as bm
 
 
 # ---------------------------------------------------------------------------
@@ -39,13 +39,13 @@ class TestGetQwenpawVersion:
         real_import = builtins.__import__
 
         def fake_import(name, *args, **kwargs):
-            if name == "qwenpaw.__version__":
+            if name == "aiarb.__version__":
                 raise ImportError("blocked for test")
             return real_import(name, *args, **kwargs)
 
         monkeypatch.setattr(builtins, "__import__", fake_import)
         # Drop the cached module so the import actually runs.
-        monkeypatch.delitem(sys.modules, "qwenpaw.__version__", raising=False)
+        monkeypatch.delitem(sys.modules, "aiarb.__version__", raising=False)
         assert bm.get_AIARB_version() == "unknown"
 
 

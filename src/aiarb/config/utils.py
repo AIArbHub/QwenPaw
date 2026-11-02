@@ -60,6 +60,42 @@ def config_publication_revision() -> tuple[int, int]:
     return _root_publication_revision, _agent_publication_revision
 
 
+def _normalize_working_dir_bound_paths(data: object) -> object:
+    """Normalize legacy ~/.copaw-bound paths to current WORKING_DIR.
+
+    This keeps AIARB_WORKING_DIR effective even if user config files contain
+    older hard-coded paths like "~/.copaw/media" or
+    "/Users/x/.copaw/workspaces/...".
+    Only rewrites known working-dir-bound keys.
+    """
+    legacy_root_tilde = "~/.copaw"
+    legacy_root_abs = str(Path(legacy_root_tilde).expanduser().resolve())
+    new_root_abs = str(WORKING_DIR)
+
+    def _rewrite_path_value(v: object) -> object:
+        if not isinstance(v, str) or not v:
+            return v
+        if v.startswith(legacy_root_tilde):
+            return new_root_abs + v[len(legacy_root_tilde) :]
+        if v.startswith(legacy_root_abs):
+            return new_root_abs + v[len(legacy_root_abs) :]
+        return v
+
+    def _walk(obj: object, key: str | None = None) -> object:
+        if isinstance(obj, dict):
+            out: dict = {}
+            for k, v in obj.items():
+                out[k] = _walk(v, str(k))
+            return out
+        if isinstance(obj, list):
+            return [_walk(x, key) for x in obj]
+        if key in {"workspace_dir", "media_dir"}:
+            return _rewrite_path_value(obj)
+        return obj
+
+    return _walk(data, None)
+
+
 def _record_agent_config_publication() -> None:
     """Called after publication while holding _agent_config_lock."""
     global _agent_publication_revision

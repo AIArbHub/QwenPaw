@@ -18,7 +18,7 @@ import pytest
 @pytest.mark.p1
 def test_sandbox_policy_known_values() -> None:
     """Known sandbox policies map to Codex policy dicts."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     assert CodexAdapter._sandbox_policy("read-only") == {
         "type": "readOnly",
@@ -35,7 +35,7 @@ def test_sandbox_policy_known_values() -> None:
 @pytest.mark.p1
 def test_sandbox_policy_unknown_returns_none() -> None:
     """Unknown or empty policies return None."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     assert CodexAdapter._sandbox_policy("bogus") is None
     assert CodexAdapter._sandbox_policy("") is None
@@ -46,7 +46,7 @@ def test_sandbox_policy_unknown_returns_none() -> None:
 @pytest.mark.p1
 def test_format_skills_lists_names() -> None:
     """Skill groups render as a bullet list."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     result = {
         "data": [
@@ -65,7 +65,7 @@ def test_format_skills_lists_names() -> None:
 @pytest.mark.p1
 def test_format_skills_empty_message() -> None:
     """No skills yields the empty-availability message."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     text = CodexAdapter._format_skills({"data": []})
     assert "No Codex skills" in text
@@ -76,7 +76,7 @@ def test_format_skills_empty_message() -> None:
 @pytest.mark.p1
 def test_notification_turn_id_direct() -> None:
     """Direct turnId params win."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     message = {"params": {"turnId": "t-1"}}
     assert CodexAdapter._notification_turn_id(message) == "t-1"
@@ -86,7 +86,7 @@ def test_notification_turn_id_direct() -> None:
 @pytest.mark.p1
 def test_notification_turn_id_nested_turn() -> None:
     """Nested turn.id is the fallback."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     message = {"params": {"turn": {"id": "t-2"}}}
     assert CodexAdapter._notification_turn_id(message) == "t-2"
@@ -96,7 +96,7 @@ def test_notification_turn_id_nested_turn() -> None:
 @pytest.mark.p1
 def test_notification_turn_id_missing() -> None:
     """Messages without turn identifiers return None."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     assert CodexAdapter._notification_turn_id({}) is None
     assert CodexAdapter._notification_turn_id({"params": {}}) is None
@@ -111,7 +111,7 @@ def test_notification_turn_id_missing() -> None:
 @pytest.mark.p1
 def test_tool_name_command_execution() -> None:
     """commandExecution items map to the shell tool."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     assert CodexAdapter._tool_name({"type": "commandExecution"}) == "shell"
 
@@ -120,7 +120,7 @@ def test_tool_name_command_execution() -> None:
 @pytest.mark.p1
 def test_tool_name_file_change() -> None:
     """fileChange items map to apply_patch."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     assert CodexAdapter._tool_name({"type": "fileChange"}) == "apply_patch"
 
@@ -129,7 +129,7 @@ def test_tool_name_file_change() -> None:
 @pytest.mark.p1
 def test_tool_name_mcp_dotted() -> None:
     """MCP tool calls build dotted server/namespace/tool names."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     item = {
         "type": "mcpToolCall",
@@ -144,7 +144,7 @@ def test_tool_name_mcp_dotted() -> None:
 @pytest.mark.p1
 def test_tool_name_mcp_partial_parts() -> None:
     """Missing parts are dropped from the dotted name."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     item = {"type": "mcpToolCall", "server": "s1", "tool": "t1"}
     assert CodexAdapter._tool_name(item) == "s1.t1"
@@ -155,7 +155,7 @@ def test_tool_name_mcp_partial_parts() -> None:
 @pytest.mark.p1
 def test_tool_name_collab_agent() -> None:
     """Collab agent calls use the agent.<tool> form."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     item = {"type": "collabAgentToolCall", "tool": "review"}
     assert CodexAdapter._tool_name(item) == "agent.review"
@@ -169,7 +169,7 @@ def test_tool_name_collab_agent() -> None:
 @pytest.mark.p1
 def test_tool_name_web_and_image() -> None:
     """Web search and image items map to stable names."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     assert CodexAdapter._tool_name({"type": "webSearch"}) == "web_search"
     assert CodexAdapter._tool_name({"type": "imageView"}) == "view_image"
@@ -183,7 +183,7 @@ def test_tool_name_web_and_image() -> None:
 @pytest.mark.p1
 def test_tool_name_unknown_passthrough() -> None:
     """Unknown item types pass through as the name."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     assert CodexAdapter._tool_name({"type": "customThing"}) == "customThing"
     assert CodexAdapter._tool_name({}) == "tool"
@@ -198,7 +198,7 @@ def test_tool_name_unknown_passthrough() -> None:
 @pytest.mark.p1
 def test_tool_arguments_command_execution() -> None:
     """Shell items expose command and cwd."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     item = {"type": "commandExecution", "command": "ls", "cwd": "/tmp"}
     args = CodexAdapter._tool_arguments(item)
@@ -209,7 +209,7 @@ def test_tool_arguments_command_execution() -> None:
 @pytest.mark.p1
 def test_tool_arguments_file_change() -> None:
     """File changes expose path and kind per change."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     item = {
         "type": "fileChange",
@@ -226,7 +226,7 @@ def test_tool_arguments_file_change() -> None:
 @pytest.mark.p1
 def test_tool_arguments_mcp_dict_passthrough() -> None:
     """Dict MCP arguments pass through; others are wrapped."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     item = {"type": "mcpToolCall", "arguments": {"k": 1}}
     assert CodexAdapter._tool_arguments(item) == {"k": 1}
@@ -238,7 +238,7 @@ def test_tool_arguments_mcp_dict_passthrough() -> None:
 @pytest.mark.p1
 def test_tool_arguments_misc_types() -> None:
     """Web/image/collab items expose their key fields."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     assert CodexAdapter._tool_arguments(
         {"type": "webSearch", "query": "q"},
@@ -261,7 +261,7 @@ def test_tool_arguments_misc_types() -> None:
 @pytest.mark.p1
 def test_tool_output_command_execution() -> None:
     """Shell output comes from aggregatedOutput."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     item = {"type": "commandExecution", "aggregatedOutput": "ok"}
     assert CodexAdapter._tool_output(item) == "ok"
@@ -272,7 +272,7 @@ def test_tool_output_command_execution() -> None:
 @pytest.mark.p1
 def test_tool_output_mcp_result_or_error() -> None:
     """MCP output prefers result, falls back to error."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     assert (
         CodexAdapter._tool_output(
@@ -290,7 +290,7 @@ def test_tool_output_mcp_result_or_error() -> None:
 @pytest.mark.p1
 def test_tool_output_json_serializes_structured() -> None:
     """Structured outputs serialize to JSON text."""
-    from qwenpaw.harnesses.codex.adapter import CodexAdapter
+    from aiarb.harnesses.codex.adapter import CodexAdapter
 
     out = CodexAdapter._tool_output(
         {"type": "imageView", "path": "/a.png"},

@@ -14,7 +14,7 @@ original = builtins.__import__
 original_module = importlib.import_module
 def isolated_import(name, globals=None, locals=None, fromlist=(), level=0):
     caller = (globals or {}).get('__name__', '')
-    if name == 'sys' and caller == 'qwenpaw.services.terminal':
+    if name == 'sys' and caller == 'aiarb.services.terminal':
         return SimpleNamespace(platform='win32')
     if name == 'winpty':
         raise ModuleNotFoundError('winpty')
@@ -25,8 +25,8 @@ def missing_module(name, *args, **kwargs):
     return original_module(name, *args, **kwargs)
 builtins.__import__ = isolated_import
 importlib.import_module = missing_module
-import qwenpaw.app._app
-from qwenpaw.services.terminal import terminal_unavailable_reason
+import aiarb.app._app
+from aiarb.services.terminal import terminal_unavailable_reason
 assert terminal_unavailable_reason() == 'dependency_missing'
 print('APP_IMPORT_OK')
 """

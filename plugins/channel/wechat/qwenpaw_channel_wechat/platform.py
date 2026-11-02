@@ -13,12 +13,12 @@ import logging
 from pathlib import Path
 import time
 
-from qwenpaw.app.channels.utils import (
+from aiarb.app.channels.utils import (
     file_url_to_local_path,
     materialize_data_url,
     split_text,
 )
-from qwenpaw.constant import DEFAULT_MEDIA_DIR, WORKING_DIR
+from aiarb.constant import DEFAULT_MEDIA_DIR, WORKING_DIR
 from .client import ILinkClient, _DEFAULT_BASE_URL
 from .errors import WeChatDeliveryError
 from .messages import WeChatMessageParser

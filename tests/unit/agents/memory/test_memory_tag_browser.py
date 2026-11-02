@@ -9,7 +9,7 @@ import pytest
 from reme.components.tag_index import LocalTagIndex
 from reme.schema import FileFrontMatter, FileNode
 
-from qwenpaw.agents.memory.reme_tags import list_tag_files
+from aiarb.agents.memory.reme_tags import list_tag_files
 
 
 @pytest.fixture

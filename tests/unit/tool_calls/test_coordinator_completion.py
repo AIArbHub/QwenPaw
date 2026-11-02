@@ -80,7 +80,7 @@ async def test_parent_cancel_cooperatively_stops_background_tool():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         async def wait_for_peer() -> None:
             started.set()
@@ -177,7 +177,7 @@ async def test_generator_close_cancels_running_tool():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         yield ToolChunk(
             is_last=False,
@@ -225,7 +225,7 @@ async def test_generator_close_preserves_offloaded_tool_ownership():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         await cancellable_wait(
             release.wait(),
@@ -520,7 +520,7 @@ async def test_timeout_persists_reason_without_streaming_cancel_text():
     async def next_handler(
         tool_call: _ToolCall,
     ) -> AsyncGenerator[Any, None]:
-        from qwenpaw.tool_calls import cancellable_wait
+        from aiarb.tool_calls import cancellable_wait
 
         tool_response = ToolResponse(id=tool_call.id)
         try:
@@ -1690,13 +1690,13 @@ async def test_request_offload_rejects_short_kill_without_bound():
 
 @pytest.fixture()
 def _coordinator_caplog(caplog: pytest.LogCaptureFixture):
-    """Capture logs from qwenpaw.tool_calls._coordinator."""
-    target = logging.getLogger("qwenpaw")
+    """Capture logs from aiarb.tool_calls._coordinator."""
+    target = logging.getLogger("aiarb")
     old_propagate = target.propagate
     target.propagate = True
     with caplog.at_level(
         logging.ERROR,
-        logger="qwenpaw.tool_calls._coordinator",
+        logger="aiarb.tool_calls._coordinator",
     ):
         yield
     target.propagate = old_propagate

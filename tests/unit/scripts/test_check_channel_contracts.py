@@ -40,7 +40,7 @@ def _alpha_contract(
     """Build one small Alpha contract module."""
     if factory_body is None:
         factory_body = """
-        from qwenpaw.app.channels.alpha import AlphaChannel
+        from aiarb.app.channels.alpha import AlphaChannel
         return AlphaChannel()
         """
 
@@ -125,7 +125,7 @@ def _build_repo(repo_root: Path) -> None:
 
         class TestSIPContract(ChannelContractTest):
             def create_instance(self):
-                from qwenpaw.app.channels.sip import SIPChannel
+                from aiarb.app.channels.sip import SIPChannel
                 return SIPChannel()
         """,
     )
@@ -329,7 +329,7 @@ def test_non_returned_constructor_does_not_count(tmp_path: Path) -> None:
         "tests/contract/channels/test_alpha_contract.py",
         _alpha_contract(
             """
-            from qwenpaw.app.channels.alpha import AlphaChannel
+            from aiarb.app.channels.alpha import AlphaChannel
             AlphaChannel()
             return object()
             """,
@@ -348,7 +348,7 @@ def test_factory_import_rebinding_is_rejected(tmp_path: Path) -> None:
         "tests/contract/channels/test_alpha_contract.py",
         _alpha_contract(
             """
-            from qwenpaw.app.channels.alpha import AlphaChannel
+            from aiarb.app.channels.alpha import AlphaChannel
             AlphaChannel = object
             return AlphaChannel()
             """,
@@ -371,7 +371,7 @@ def test_direct_registered_class_factory_counts(
         "tests/contract/channels/test_alpha_contract.py",
         _alpha_contract(
             f"""
-            from qwenpaw.app.channels.alpha import AlphaChannel
+            from aiarb.app.channels.alpha import AlphaChannel
             return AlphaChannel.{factory_name}({{}})
             """,
         ),
@@ -388,7 +388,7 @@ def test_direct_registered_class_factory_counts(
     [
         (
             """
-            from qwenpaw.app.channels.alpha import AlphaChannel
+            from aiarb.app.channels.alpha import AlphaChannel
             if enabled:
                 return AlphaChannel()
             return AlphaChannel()
@@ -397,7 +397,7 @@ def test_direct_registered_class_factory_counts(
         ),
         (
             """
-            from qwenpaw.app.channels.alpha import AlphaChannel
+            from aiarb.app.channels.alpha import AlphaChannel
             try:
                 value = AlphaChannel()
             except Exception:
@@ -408,7 +408,7 @@ def test_direct_registered_class_factory_counts(
         ),
         (
             """
-            from qwenpaw.app.channels.alpha import AlphaChannel
+            from aiarb.app.channels.alpha import AlphaChannel
             for _ in range(1):
                 value = AlphaChannel()
             return value
@@ -417,7 +417,7 @@ def test_direct_registered_class_factory_counts(
         ),
         (
             """
-            from qwenpaw.app.channels.alpha import AlphaChannel
+            from aiarb.app.channels.alpha import AlphaChannel
             while ready:
                 break
             return AlphaChannel()
@@ -426,7 +426,7 @@ def test_direct_registered_class_factory_counts(
         ),
         (
             """
-            from qwenpaw.app.channels.alpha import AlphaChannel
+            from aiarb.app.channels.alpha import AlphaChannel
             def build():
                 return AlphaChannel()
             return build()
@@ -458,7 +458,7 @@ def test_factory_control_flow_fails_closed(
         (
             """
             async def create_instance(self):
-                from qwenpaw.app.channels.alpha import AlphaChannel
+                from aiarb.app.channels.alpha import AlphaChannel
                 return AlphaChannel()
             """,
             "must be synchronous",
@@ -467,7 +467,7 @@ def test_factory_control_flow_fails_closed(
             """
             @staticmethod
             def create_instance(self):
-                from qwenpaw.app.channels.alpha import AlphaChannel
+                from aiarb.app.channels.alpha import AlphaChannel
                 return AlphaChannel()
             """,
             "must not use decorators",
@@ -482,7 +482,7 @@ def test_factory_control_flow_fails_closed(
         (
             """
             def create_instance(self):
-                from qwenpaw.app.channels.alpha import AlphaChannel
+                from aiarb.app.channels.alpha import AlphaChannel
                 return AlphaChannel()
             create_instance = lambda self: object()
             """,
@@ -491,7 +491,7 @@ def test_factory_control_flow_fails_closed(
         (
             """
             def create_instance(self):
-                from qwenpaw.app.channels.alpha import AlphaChannel
+                from aiarb.app.channels.alpha import AlphaChannel
                 return AlphaChannel()
             def create_instance(self):
                 return object()
@@ -543,7 +543,7 @@ def test_explicit_abstract_contract_helper_is_ignored(
 
         class TestAlphaContract(AbstractAlphaContract):
             def create_instance(self):
-                from qwenpaw.app.channels.alpha import AlphaChannel
+                from aiarb.app.channels.alpha import AlphaChannel
                 return AlphaChannel()
         """,
     )
@@ -837,7 +837,7 @@ def test_disabled_marker_is_inherited_from_local_contract_base(
         @pytest.mark.skip(reason="disabled")
         class AlphaContractBase(ChannelContractTest):
             def create_instance(self):
-                from qwenpaw.app.channels.alpha import AlphaChannel
+                from aiarb.app.channels.alpha import AlphaChannel
                 return AlphaChannel()
 
         class TestAlphaContract(AlphaContractBase):
@@ -855,19 +855,19 @@ def test_disabled_marker_is_inherited_from_local_contract_base(
     [
         """
         import pytest
-        from qwenpaw.app.channels.alpha import AlphaChannel
+        from aiarb.app.channels.alpha import AlphaChannel
         pytest.skip("disabled")
         return AlphaChannel()
         """,
         """
         from pytest import importorskip as require
-        from qwenpaw.app.channels.alpha import AlphaChannel
+        from aiarb.app.channels.alpha import AlphaChannel
         require("optional_dependency")
         return AlphaChannel()
         """,
         """
         import pytest
-        from qwenpaw.app.channels.alpha import AlphaChannel
+        from aiarb.app.channels.alpha import AlphaChannel
         pytest.xfail("disabled")
         return AlphaChannel()
         """,
@@ -979,12 +979,12 @@ def test_inherited_setup_gate_is_rejected(
                 pytest.skip("disabled")
 
             def create_instance(self):
-                from qwenpaw.app.channels.alpha import AlphaChannel
+                from aiarb.app.channels.alpha import AlphaChannel
                 return AlphaChannel()
 
         class TestAlphaContract(AlphaContractBase):
             def create_instance(self):
-                from qwenpaw.app.channels.alpha import AlphaChannel
+                from aiarb.app.channels.alpha import AlphaChannel
                 return AlphaChannel()
         """,
     )

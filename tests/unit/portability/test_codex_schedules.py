@@ -10,9 +10,9 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.portability.providers import codex_schedules
-from qwenpaw.portability.providers import codex_schedule_reader
-from qwenpaw.portability.providers.codex_schedules import (
+from aiarb.portability.providers import codex_schedules
+from aiarb.portability.providers import codex_schedule_reader
+from aiarb.portability.providers.codex_schedules import (
     discover_codex_scheduled_tasks,
 )
 

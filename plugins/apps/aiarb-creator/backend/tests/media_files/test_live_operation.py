@@ -662,9 +662,9 @@ def test_take_duration_ceiling_auto_stops_and_remains_collectable(
 
 
 def test_creator_browser_sessions_are_explicit_and_host_safe(monkeypatch):
-    from qwenpaw.browser.runtime import links as runtime_links
-    from qwenpaw.browser.sdk.contracts import Owner
-    from qwenpaw.browser.sdk.execution_context import (
+    from aiarb.browser.runtime import links as runtime_links
+    from aiarb.browser.sdk.contracts import Owner
+    from aiarb.browser.sdk.execution_context import (
         ExecutionContext,
         get_execution_context,
         reset_execution_context,
@@ -698,13 +698,13 @@ def test_creator_browser_sessions_are_explicit_and_host_safe(monkeypatch):
     before = runtime_links.registered_links()
 
     monkeypatch.setattr(
-        "qwenpaw.config.utils.load_config",
+        "aiarb.config.utils.load_config",
         lambda: SimpleNamespace(
             browser=SimpleNamespace(identity="auto", backend="auto"),
         ),
     )
     monkeypatch.setattr(
-        "qwenpaw.browser.runtime.launch_resolve.resolve_launch_env",
+        "aiarb.browser.runtime.launch_resolve.resolve_launch_env",
         lambda _config: {},
     )
 

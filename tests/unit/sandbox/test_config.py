@@ -8,7 +8,7 @@ import asyncio
 import logging
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from qwenpaw.sandbox import config as sandbox_config
+from aiarb.sandbox import config as sandbox_config
 
 from aiarb.sandbox import (
     MountSpec,
@@ -76,7 +76,7 @@ class TestMacOSSandboxExecution:
         proc.communicate = AsyncMock(return_value=(b"ok", b""))
 
         with patch(
-            "qwenpaw.sandbox.macos_sandbox.asyncio.create_subprocess_exec",
+            "aiarb.sandbox.macos_sandbox.asyncio.create_subprocess_exec",
             new=AsyncMock(return_value=proc),
         ) as create_process:
             result = asyncio.run(sandbox.execute("echo ok"))

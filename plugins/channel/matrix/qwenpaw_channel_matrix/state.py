@@ -12,7 +12,12 @@ from pathlib import Path
 import shutil
 import tempfile
 
-from qwenpaw.plugins.install_lock import plugin_install_lock
+from aiarb.plugins.install_lock import plugin_install_lock
+from aiarb.plugins.matrix_legacy import (
+    MatrixLegacyError,
+    load_matrix_legacy,
+    verify_matrix_legacy,
+)
 
 logger = logging.getLogger(__name__)
 

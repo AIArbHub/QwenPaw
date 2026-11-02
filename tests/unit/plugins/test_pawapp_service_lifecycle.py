@@ -11,14 +11,14 @@ import httpx
 import pytest
 from fastapi import FastAPI
 
-from qwenpaw.app.routers.pawapps import router as pawapps_router
-from qwenpaw.pawapp import PawApp
-from qwenpaw.pawapp import ManagedService, ManagedServiceSpec
-from qwenpaw.pawapp import service as service_module
-from qwenpaw.plugins.architecture import PluginManifest
-from qwenpaw.plugins import custody
-from qwenpaw.plugins.lifecycle import UnloadMode
-from qwenpaw.plugins.loader import PluginLoader
+from aiarb.app.routers.pawapps import router as pawapps_router
+from aiarb.pawapp import PawApp
+from aiarb.pawapp import ManagedService, ManagedServiceSpec
+from aiarb.pawapp import service as service_module
+from aiarb.plugins.architecture import PluginManifest
+from aiarb.plugins import custody
+from aiarb.plugins.lifecycle import UnloadMode
+from aiarb.plugins.loader import PluginLoader
 
 from .timing import WAIT_TIMEOUT
 
@@ -37,7 +37,7 @@ def _fixture_plugin(tmp_path, registry, declaration):
     )
     (root / "plugin.json").write_text(manifest.model_dump_json())
     (root / "main.py").write_text(
-        "from qwenpaw.pawapp import PawApp\n"
+        "from aiarb.pawapp import PawApp\n"
         'plugin = PawApp("Fixture", app_id="service-fixture")\n'
         "plugin.enable_standard_capabilities()\n" + declaration,
     )

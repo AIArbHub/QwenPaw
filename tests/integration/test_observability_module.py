@@ -25,7 +25,7 @@ def test_langfuse_trace_context_dataclass() -> None:
     2. Create instance with required fields.
     3. Verify fields are accessible.
     """
-    from qwenpaw.observability.langfuse import LangfuseTraceContext
+    from aiarb.observability.langfuse import LangfuseTraceContext
 
     ctx = LangfuseTraceContext(
         trace_id="test-trace-123",
@@ -53,7 +53,7 @@ def test_langfuse_trace_context_frozen() -> None:
     """
     from dataclasses import FrozenInstanceError
 
-    from qwenpaw.observability.langfuse import LangfuseTraceContext
+    from aiarb.observability.langfuse import LangfuseTraceContext
 
     ctx = LangfuseTraceContext(
         trace_id="test",
@@ -77,7 +77,7 @@ def test_is_langfuse_enabled_no_env_vars() -> None:
     2. Call is_langfuse_enabled().
     3. Verify returns False.
     """
-    from qwenpaw.observability.langfuse import is_langfuse_enabled
+    from aiarb.observability.langfuse import is_langfuse_enabled
 
     # Save and clear env var
     original = os.environ.pop("LANGFUSE_SECRET_KEY", None)
@@ -101,7 +101,7 @@ def test_set_and_get_current_trace() -> None:
     1. Call set_current_trace with test data.
     2. Verify the context var is set (via _current_trace).
     """
-    from qwenpaw.observability.langfuse import (
+    from aiarb.observability.langfuse import (
         _current_trace,
         set_current_trace,
     )
@@ -135,7 +135,7 @@ def test_set_current_trace_default_metadata() -> None:
     1. Call set_current_trace with metadata=None.
     2. Verify metadata is empty dict, not None.
     """
-    from qwenpaw.observability.langfuse import (
+    from aiarb.observability.langfuse import (
         _current_trace,
         set_current_trace,
     )
@@ -166,7 +166,7 @@ def test_current_trace_default_none() -> None:
     1. Get _current_trace without setting it.
     2. Verify returns None.
     """
-    from qwenpaw.observability.langfuse import _current_trace
+    from aiarb.observability.langfuse import _current_trace
 
     # Reset to default
     _current_trace.set(None)
@@ -185,7 +185,7 @@ def test_langfuse_available_detection() -> None:
     1. Call _langfuse_available().
     2. Verify returns bool (True if langfuse is installed, False otherwise).
     """
-    from qwenpaw.observability.langfuse import _langfuse_available
+    from aiarb.observability.langfuse import _langfuse_available
 
     result = _langfuse_available()
     assert isinstance(result, bool)
@@ -202,7 +202,7 @@ def test_langfuse_client_returns_none_when_unavailable() -> None:
     1. Call _langfuse_client().
     2. If langfuse not installed, verify returns None.
     """
-    from qwenpaw.observability.langfuse import (
+    from aiarb.observability.langfuse import (
         _langfuse_available,
         _langfuse_client,
     )
@@ -223,6 +223,6 @@ def test_observability_init_exports() -> None:
     1. Import qwenpaw.observability.
     2. Verify import succeeds (package exists).
     """
-    import qwenpaw.observability
+    import aiarb.observability
 
     assert qwenpaw.observability is not None

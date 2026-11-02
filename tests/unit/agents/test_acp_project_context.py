@@ -9,7 +9,7 @@ from aiarb.agents.acp.meta import (
     ACP_EPHEMERAL_META_KEY,
     ACP_PROJECT_DIR_META_KEY,
 )
-from aiarb.agents.acp.server import AIArbACPAgent
+from aiarb.agents.acp.server import AIARBACPAgent
 
 
 class _FakeConn:
@@ -28,7 +28,7 @@ class _FakeWorkspace:
             yield event
 
 
-class _TestACPAgent(AIArbACPAgent):
+class _TestACPAgent(AIARBACPAgent):
     def __init__(self, workspace: _FakeWorkspace) -> None:
         super().__init__(agent_id="default")
         self._fake_workspace = workspace

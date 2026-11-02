@@ -6,13 +6,13 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from qwenpaw.agents.routing_chat_model import (
+from aiarb.agents.routing_chat_model import (
     RoutingChatModel,
     RoutingDecision,
     RoutingEndpoint,
     RoutingPolicy,
 )
-from qwenpaw.config.config import AgentsLLMRoutingConfig
+from aiarb.config.config import AgentsLLMRoutingConfig
 
 
 def _endpoint(provider_id="local-prov", model_name="local-model"):

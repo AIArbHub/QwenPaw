@@ -11,10 +11,10 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.plugins.architecture import PluginManifest
-from qwenpaw.plugins.loader import PluginLoader
-from qwenpaw.plugins.lifecycle import UnloadMode
-from qwenpaw.plugins.updates import (
+from aiarb.plugins.architecture import PluginManifest
+from aiarb.plugins.loader import PluginLoader
+from aiarb.plugins.lifecycle import UnloadMode
+from aiarb.plugins.updates import (
     marker_path,
     recover_interrupted_updates,
     write_updating_marker,
@@ -37,7 +37,7 @@ def _residual_install(
     monkeypatch,
     manifest_kind="missing",
 ):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     target, source = tmp_path / "plugins/demo", tmp_path / "source"
     (target / "data").mkdir(parents=True)
     (target / "data/private.txt").write_bytes(b"residual user data\x00")

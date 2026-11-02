@@ -27,8 +27,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.backup._utils import safe_swap as mod
-from qwenpaw.backup._utils._mount_swap import (
+from aiarb.backup._utils import safe_swap as mod
+from aiarb.backup._utils._mount_swap import (
     OLD_CONTENT_DIR_NAME,
     SwapPreparation,
 )
@@ -208,7 +208,7 @@ def test_restore_process_lock_creates_and_releases_the_lock_file(
     tmp_path,
     monkeypatch,
 ) -> None:
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "working")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "working")
 
     import fcntl
 
@@ -379,15 +379,15 @@ def test_startup_restore_targets_covers_skill_pool_and_workspaces(
         "dup": SimpleNamespace(workspace_dir=str(tmp_path / "ws-a")),
     }
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "working",
     )
     monkeypatch.setattr(
-        "qwenpaw.config.utils.get_config_path",
+        "aiarb.config.utils.get_config_path",
         lambda: tmp_path / "config.json",
     )
     monkeypatch.setattr(
-        "qwenpaw.config.load_config",
+        "aiarb.config.load_config",
         lambda _path: SimpleNamespace(
             agents=SimpleNamespace(profiles=profiles),
         ),
@@ -401,13 +401,13 @@ def test_startup_restore_targets_covers_skill_pool_and_workspaces(
 
 def test_startup_restore_targets_expands_user_home(monkeypatch) -> None:
     monkeypatch.setenv("HOME", "/tmp/home-under-test")
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", Path("/tmp/working"))
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", Path("/tmp/working"))
     monkeypatch.setattr(
-        "qwenpaw.config.utils.get_config_path",
+        "aiarb.config.utils.get_config_path",
         lambda: Path("/tmp/config.json"),
     )
     monkeypatch.setattr(
-        "qwenpaw.config.load_config",
+        "aiarb.config.load_config",
         lambda _path: SimpleNamespace(
             agents=SimpleNamespace(
                 profiles={

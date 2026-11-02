@@ -12,7 +12,7 @@ import pytest
 from aiarb.agents.memory.reme_light_memory_manager import (
     ReMeLightMemoryManager,
 )
-from qwenpaw.agents.memory.reme_inbox import build_payload, emit_job_result
+from aiarb.agents.memory.reme_inbox import build_payload, emit_job_result
 
 
 def _manager() -> ReMeLightMemoryManager:
@@ -81,7 +81,7 @@ async def test_auto_dream_preserves_notification_policy(
     )
     manager._reme.run_job.return_value = response
     with patch(
-        "qwenpaw.agents.memory.reme_light_memory_manager.append_inbox_event",
+        "aiarb.agents.memory.reme_light_memory_manager.append_inbox_event",
         new_callable=AsyncMock,
         return_value={"id": "event-1"},
     ) as append_event:
@@ -114,7 +114,7 @@ async def test_auto_dream_errors_propagate_without_success_notification(error):
     manager = _action_manager()
     manager._reme.run_job.side_effect = error
     with patch(
-        "qwenpaw.agents.memory.reme_light_memory_manager.append_inbox_event",
+        "aiarb.agents.memory.reme_light_memory_manager.append_inbox_event",
         new_callable=AsyncMock,
     ) as append_event:
         with pytest.raises(type(error)):
@@ -405,7 +405,7 @@ async def test_tag_failures_are_reported_without_losing_job_outcome(
         return_value="auto_memory_with_tags",
     )
     with patch(
-        "qwenpaw.agents.memory.reme_light_memory_manager.append_inbox_event",
+        "aiarb.agents.memory.reme_light_memory_manager.append_inbox_event",
         new_callable=AsyncMock,
         return_value={"id": "tag-warning"},
     ) as append_event:
@@ -445,7 +445,7 @@ async def test_tag_warning_remains_in_result_when_notifications_are_disabled():
     )
     manager._reme.run_job.return_value = response
     with patch(
-        "qwenpaw.agents.memory.reme_light_memory_manager.append_inbox_event",
+        "aiarb.agents.memory.reme_light_memory_manager.append_inbox_event",
         new_callable=AsyncMock,
     ) as append_event:
         assert await manager.run_action("auto_dream") is response

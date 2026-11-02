@@ -3,8 +3,8 @@
 
 import pytest
 
-from qwenpaw.providers.adapters.wire_protocol import WireProtocol
-from qwenpaw.hub.model_service.api_models import ModelBody
+from aiarb.providers.adapters.wire_protocol import WireProtocol
+from aiarb.hub.model_service.api_models import ModelBody
 
 
 @pytest.mark.parametrize(f"protocol", [f"responses", f"anthropic"])

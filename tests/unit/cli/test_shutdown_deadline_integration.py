@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.cli import shutdown_cmd
+from aiarb.cli import shutdown_cmd
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="POSIX signal behavior")
@@ -40,7 +40,7 @@ def test_cli_waits_for_request_import_and_workspace_drains(
         import uvicorn
         from fastapi import FastAPI
 
-        from qwenpaw.app._app import _stop_workspaces_after_dependents
+        from aiarb.app._app import _stop_workspaces_after_dependents
 
         ready = Path(sys.argv[1])
         request_started = Path(sys.argv[2])

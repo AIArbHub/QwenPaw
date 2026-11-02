@@ -15,7 +15,7 @@ from uuid import uuid4
 import psutil
 import pytest
 
-from qwenpaw.services import terminal
+from aiarb.services import terminal
 
 if os.name != "nt":
     import fcntl

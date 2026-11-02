@@ -23,19 +23,19 @@ from acp import (
 )
 from acp.stdio import spawn_agent_process
 
-import qwenpaw
-from qwenpaw.agents.acp import server as acp_server
-from qwenpaw.agents.acp.server import (
+import aiarb
+from aiarb.agents.acp import server as acp_server
+from aiarb.agents.acp.server import (
     ACP_KEEPALIVE_META_KEY,
-    QwenPawACPAgent,
+    AIARBACPAgent,
 )
-from qwenpaw.schemas import MessageType, RunStatus
+from aiarb.schemas import MessageType, RunStatus
 
 pytestmark = pytest.mark.p1
 
 
 DRIVER = pathlib.Path(__file__).with_name("_acp_fault_driver.py")
-SRC_DIR = pathlib.Path(qwenpaw.__file__).resolve().parents[1]
+SRC_DIR = pathlib.Path(aiarb.__file__).resolve().parents[1]
 
 
 class _RecordingConn:
@@ -77,7 +77,7 @@ def _unmapped_event():
 
 
 async def _agent_with_stream(monkeypatch, stream):
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIARBACPAgent(agent_id="default")
     conn = _RecordingConn()
     agent.on_connect(conn)
 
@@ -139,7 +139,7 @@ async def test_keepalive_covers_workspace_initialization(monkeypatch):
     async def _normal_stream():
         yield _content_event("ok")
 
-    agent = QwenPawACPAgent(agent_id="default")
+    agent = AIARBACPAgent(agent_id="default")
     conn = _RecordingConn()
     agent.on_connect(conn)
 

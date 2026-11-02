@@ -10,7 +10,7 @@ import subprocess
 import venv
 import zipfile
 
-import qwenpaw
+import aiarb
 
 
 def expose(source, destination):
@@ -57,7 +57,7 @@ def dependency_python(root):
                     shutil.copytree(entry, destination)
                 else:
                     expose(entry, destination)
-    source = library / "qwenpaw"
+    source = library / "aiarb"
     if not source.exists():
         expose(Path(qwenpaw.__file__).resolve().parent, source)
     if not (library / "pip").exists():

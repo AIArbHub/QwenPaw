@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """ModelScope Skill marketplace plugin."""
 
-from qwenpaw.market.builtin import BuiltinMarketProvider
-from qwenpaw.market.providers.modelscope import ModelScopeProvider
+from aiarb.market.builtin import BuiltinMarketProvider
+from aiarb.market.providers.modelscope import ModelScopeProvider
 
 
 class HubPlugin:

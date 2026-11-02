@@ -13,10 +13,10 @@ from typing import Any, Callable
 import httpx
 import pytest
 
-import qwenpaw.drivers.handlers.mcp_stateful_client as mod
-import qwenpaw.drivers.handlers.mcp_streamable_http as http_mod
-from qwenpaw.drivers.handlers.mcp_stateful_client import HttpStatefulClient
-from qwenpaw.drivers.handlers.mcp_streamable_http import (
+import aiarb.drivers.handlers.mcp_stateful_client as mod
+import aiarb.drivers.handlers.mcp_streamable_http as http_mod
+from aiarb.drivers.handlers.mcp_stateful_client import HttpStatefulClient
+from aiarb.drivers.handlers.mcp_streamable_http import (
     HttpAutoClient,
     HttpStatelessClient,
     _CLIENT_CAPABILITIES_META_KEY,
@@ -710,7 +710,7 @@ async def test_stateless_discover_list_call_and_headers():
     meta = json.loads(discover.content)["params"]["_meta"]
     assert meta[_PROTOCOL_VERSION_META_KEY] == _MODERN_PROTOCOL_VERSION
     assert meta[_CLIENT_CAPABILITIES_META_KEY] == {}
-    assert meta[_CLIENT_INFO_META_KEY]["name"] == "qwenpaw"
+    assert meta[_CLIENT_INFO_META_KEY]["name"] == "aiarb"
     assert discover.headers[_MCP_METHOD_HEADER] == "server/discover"
     assert _MCP_SESSION_ID_HEADER not in {
         key.casefold() for key in discover.headers
@@ -885,9 +885,9 @@ async def test_stateless_close_keeps_http_until_aclose_succeeds():
 async def test_driver_routes_streamable_http_to_auto_and_sse_to_stateful(
     monkeypatch,
 ):
-    from qwenpaw.drivers.contracts import DriverCard
-    from qwenpaw.drivers.credentials.providers import NoneProvider
-    from qwenpaw.drivers.handlers import mcp as mcp_mod
+    from aiarb.drivers.contracts import DriverCard
+    from aiarb.drivers.credentials.providers import NoneProvider
+    from aiarb.drivers.handlers import mcp as mcp_mod
 
     built: list[str] = []
 
@@ -925,9 +925,9 @@ async def test_driver_routes_streamable_http_to_auto_and_sse_to_stateful(
 
 async def test_stdio_driver_injects_managed_environment(monkeypatch) -> None:
     """Managed values bypass the MCP SDK inherited-env allowlist."""
-    from qwenpaw.drivers.contracts import DriverCard
-    from qwenpaw.drivers.credentials.providers import NoneProvider
-    from qwenpaw.drivers.handlers import mcp as mcp_mod
+    from aiarb.drivers.contracts import DriverCard
+    from aiarb.drivers.credentials.providers import NoneProvider
+    from aiarb.drivers.handlers import mcp as mcp_mod
 
     captured: dict[str, str] = {}
 

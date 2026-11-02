@@ -8,11 +8,11 @@ import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from qwenpaw.app.routers import backup as backup_router
-from qwenpaw.backup import manager as manager_module
-from qwenpaw.backup._ops.create import BackupCancelled
-from qwenpaw.backup.manager import BackupManager
-from qwenpaw.backup.models import BackupJobStatus
+from aiarb.app.routers import backup as backup_router
+from aiarb.backup import manager as manager_module
+from aiarb.backup._ops.create import BackupCancelled
+from aiarb.backup.manager import BackupManager
+from aiarb.backup.models import BackupJobStatus
 
 
 def _payload() -> dict:

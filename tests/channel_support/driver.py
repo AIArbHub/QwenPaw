@@ -6,9 +6,9 @@ import json
 from pathlib import Path
 import sys
 
-from qwenpaw.channel_protocol.models import IdentityParams
-from qwenpaw.channel_protocol.response_receipts import ResponseReceiptStore
-from qwenpaw.channel_protocol.shared_worker import DriverContext
+from aiarb.channel_protocol.models import IdentityParams
+from aiarb.channel_protocol.response_receipts import ResponseReceiptStore
+from aiarb.channel_protocol.shared_worker import DriverContext
 
 ROOT = Path(__file__).resolve().parents[2]
 

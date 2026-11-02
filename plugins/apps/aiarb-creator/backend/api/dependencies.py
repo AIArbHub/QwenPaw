@@ -38,7 +38,7 @@ from services.observability import (
 from services.storage_root import require_creator_data_root
 from services.runtime_files.errors import LockTimeoutError
 
-logger = logging.getLogger("qwenpaw.creator.api.errors")
+logger = logging.getLogger("aiarb.creator.api.errors")
 
 
 def project_file_services() -> CreatorFileServices:

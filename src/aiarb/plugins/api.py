@@ -636,7 +636,7 @@ class PluginApi:  # pylint: disable=too-many-public-methods
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Register a plugin-owned memory backend before workspaces start."""
-        from qwenpaw.memory import memory_registry
+        from aiarb.memory import memory_registry
 
         self._guard_register()
         memory_registry.register_backend(
@@ -650,7 +650,7 @@ class PluginApi:  # pylint: disable=too-many-public-methods
         for tool_name, governance in (metadata or {}).get("tools", {}).items():
             if not isinstance(governance, dict):
                 continue
-            from qwenpaw.governance.tool_registry import (
+            from aiarb.governance.tool_registry import (
                 DEFAULT_REGISTRY as GOVERNANCE_REGISTRY,
                 register_tool_governance,
             )
@@ -1238,7 +1238,7 @@ class PluginApi:  # pylint: disable=too-many-public-methods
         Import MarketProvider, MarketInstallProvider and MarketResult from
         qwenpaw.market. Lower priority values appear first in the market.
         """
-        from qwenpaw.market import market_registry
+        from aiarb.market import market_registry
 
         self._guard_register()
         market_registry.register(self.plugin_id, provider, priority)

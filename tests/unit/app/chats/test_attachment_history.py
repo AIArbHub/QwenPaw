@@ -10,18 +10,18 @@ from agentscope.agent import Agent
 from agentscope.message import Msg
 from agentscope.state import AgentState
 
-from qwenpaw.app.channels.console.channel import ConsoleChannel
-from qwenpaw.app.chats.api import get_chat
-from qwenpaw.app.chats.models import ChatSpec
-from qwenpaw.app.chats.session import SafeJSONSession
-from qwenpaw.app.chats.utils import agentscope_msg_to_message
-from qwenpaw.constant import (
+from aiarb.app.channels.console.channel import ConsoleChannel
+from aiarb.app.chats.api import get_chat
+from aiarb.app.chats.models import ChatSpec
+from aiarb.app.chats.session import SafeJSONSession
+from aiarb.app.chats.utils import agentscope_msg_to_message
+from aiarb.constant import (
     AIARB_CLIENT_MESSAGE_ID_KEY,
     AIARB_USER_CONTENT_KEY,
 )
-from qwenpaw.runtime._state_utils import StateProxy
-from qwenpaw.runtime.message_convert import _request_input_to_msgs
-from qwenpaw.schemas import ContentType, Event, FileContent, TextContent
+from aiarb.runtime._state_utils import StateProxy
+from aiarb.runtime.message_convert import _request_input_to_msgs
+from aiarb.schemas import ContentType, Event, FileContent, TextContent
 
 
 @pytest.mark.asyncio
@@ -104,7 +104,7 @@ async def test_console_file_survives_agent_ingestion_and_disk_history(
         mgr=SimpleNamespace(get_chat=AsyncMock(return_value=chat)),
         session=SafeJSONSession(save_dir=str(tmp_path / "sessions")),
         workspace=SimpleNamespace(
-            config=SimpleNamespace(backend="qwenpaw"),
+            config=SimpleNamespace(backend="aiarb"),
             task_tracker=SimpleNamespace(
                 get_status=AsyncMock(return_value="idle"),
             ),

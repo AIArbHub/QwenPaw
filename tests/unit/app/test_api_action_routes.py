@@ -16,15 +16,15 @@ import pytest
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from qwenpaw.api_action import ApiActionSpec, ManagerBase, ManagerRegistry
-from qwenpaw.api_action import api_action
-from qwenpaw.app._api_action_routes import (
+from aiarb.api_action import ApiActionSpec, ManagerBase, ManagerRegistry
+from aiarb.api_action import api_action
+from aiarb.app._api_action_routes import (
     _extract_path_params,
     _make_endpoint,
     collect_slash_specs_from_api_actions,
     register_http_routes,
 )
-from qwenpaw.runtime.slash_command_registry import CommandSpec
+from aiarb.runtime.slash_command_registry import CommandSpec
 
 
 class _Body(BaseModel):

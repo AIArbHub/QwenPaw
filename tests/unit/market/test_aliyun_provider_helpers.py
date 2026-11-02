@@ -10,7 +10,7 @@ no coverage.
 from __future__ import annotations
 
 
-from qwenpaw.market.providers import aliyun as aliyun_mod
+from aiarb.market.providers import aliyun as aliyun_mod
 
 
 # ---------------------------------------------------------------------------

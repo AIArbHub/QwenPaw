@@ -23,16 +23,16 @@ async def wait_flag(ctx, name):
 
 
 async def test_sync_channel_send_observes_current_call_cancellation(tmp_path):
-    from qwenpaw.plugins.channels import ChannelMessage
-    from qwenpaw.plugins.messages import ContentBlock
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.channels import ChannelMessage
+    from aiarb.plugins.messages import ContentBlock
+    from aiarb.plugins.testing import PluginTestHost
 
     source = """
 import time
 from pathlib import Path
-from qwenpaw.plugins.channels import ChannelSpec
-from qwenpaw.plugins.commands import CommandSpec, CommandResult
-from qwenpaw.plugins.messages import Message, ContentBlock
+from aiarb.plugins.channels import ChannelSpec
+from aiarb.plugins.commands import CommandSpec, CommandResult
+from aiarb.plugins.messages import Message, ContentBlock
 
 
 class Plugin:
@@ -114,19 +114,19 @@ plugin = Plugin()
 
 
 async def test_cancelled_channel_stream_emits_one_cancelled_terminal(tmp_path):
-    from qwenpaw.plugins.channels import ChannelMessage
-    from qwenpaw.plugins.messages import ContentBlock
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.channels import ChannelMessage
+    from aiarb.plugins.messages import ContentBlock
+    from aiarb.plugins.testing import PluginTestHost
 
     source = """
 import asyncio
-from qwenpaw.plugins.channels import ChannelSpec
-from qwenpaw.plugins.providers import (
+from aiarb.plugins.channels import ChannelSpec
+from aiarb.plugins.providers import (
     ProviderSpec,
     ModelInfo,
     ModelChunk,
 )
-from qwenpaw.plugins.messages import ContentBlock
+from aiarb.plugins.messages import ContentBlock
 
 
 class Plugin:
@@ -218,14 +218,14 @@ async def test_old_queued_channel_payload_cannot_run_on_replacement_generation(
     tmp_path,
     monkeypatch,
 ):
-    from qwenpaw.plugins.channels import ChannelMessage
-    from qwenpaw.plugins.messages import ContentBlock
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.channels import ChannelMessage
+    from aiarb.plugins.messages import ContentBlock
+    from aiarb.plugins.testing import PluginTestHost
 
     source = """
-from qwenpaw.plugins.channels import ChannelSpec
-from qwenpaw.plugins.commands import CommandSpec, CommandResult
-from qwenpaw.plugins.messages import Message, ContentBlock
+from aiarb.plugins.channels import ChannelSpec
+from aiarb.plugins.commands import CommandSpec, CommandResult
+from aiarb.plugins.messages import Message, ContentBlock
 
 
 class Plugin:
@@ -334,11 +334,11 @@ plugin = Plugin()
 
 async def test_channel_uses_real_sender_access_policy_before_runtime(tmp_path):
     from pathlib import Path
-    from qwenpaw.app.channels.access_control import get_access_control_store
+    from aiarb.app.channels.access_control import get_access_control_store
     from .test_sdk_channel_contract import SOURCE, wait_sent
-    from qwenpaw.plugins.channels import ChannelMessage
-    from qwenpaw.plugins.messages import ContentBlock
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.channels import ChannelMessage
+    from aiarb.plugins.messages import ContentBlock
+    from aiarb.plugins.testing import PluginTestHost
 
     source = SOURCE.replace(
         (
@@ -392,9 +392,9 @@ async def test_channel_uses_real_sender_access_policy_before_runtime(tmp_path):
 
 async def test_real_channel_manager_clone_keeps_only_current_owner(tmp_path):
     from .test_sdk_channel_contract import SOURCE, wait_sent
-    from qwenpaw.plugins.channels import ChannelMessage
-    from qwenpaw.plugins.messages import ContentBlock
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.channels import ChannelMessage
+    from aiarb.plugins.messages import ContentBlock
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         ctx = await host.load(
@@ -431,9 +431,9 @@ async def test_stop_waits_for_invocation_not_long_lived_queue_worker(
     monkeypatch,
 ):
     from .test_sdk_channel_contract import SOURCE
-    from qwenpaw.plugins.channels import ChannelMessage
-    from qwenpaw.plugins.messages import ContentBlock
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.channels import ChannelMessage
+    from aiarb.plugins.messages import ContentBlock
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         ctx = await host.load(

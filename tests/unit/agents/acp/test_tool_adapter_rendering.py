@@ -15,7 +15,7 @@ from types import SimpleNamespace
 import pytest
 from agentscope.message import ToolResultState
 
-from qwenpaw.agents.acp import tool_adapter as ta
+from aiarb.agents.acp import tool_adapter as ta
 
 
 def _text(chunk) -> str:

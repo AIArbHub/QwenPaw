@@ -6,16 +6,16 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.hub.model_service.provider_setup import provider_presets
-from qwenpaw.providers.model_info import ModelInfo
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.provider import agent_thinking_level
-from qwenpaw.providers.provider_catalog import PROVIDER_AGENTSCOPE_PLATFORM
-from qwenpaw.providers.provider_model_state import (
+from aiarb.hub.model_service.provider_setup import provider_presets
+from aiarb.providers.model_info import ModelInfo
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.provider import agent_thinking_level
+from aiarb.providers.provider_catalog import PROVIDER_AGENTSCOPE_PLATFORM
+from aiarb.providers.provider_model_state import (
     restore_model_state,
     serialize_model_state,
 )
-from qwenpaw.providers.thinking import ThinkingControl
+from aiarb.providers.thinking import ThinkingControl
 
 
 async def test_platform_discovers_cardless_models(monkeypatch):

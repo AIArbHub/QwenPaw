@@ -14,7 +14,7 @@ import json
 from pathlib import Path
 
 
-from qwenpaw.agents.fork_project import (
+from aiarb.agents.fork_project import (
     _lock_file_acquire,
     _lock_file_release,
     _read_registry_unlocked,
@@ -227,7 +227,7 @@ class TestResolveGitProjectDir:
 
     def test_none_inputs_no_agent_fallback(self, tmp_path, monkeypatch):
         monkeypatch.setattr(
-            "qwenpaw.app.agent_context.get_current_agent_id",
+            "aiarb.app.agent_context.get_current_agent_id",
             lambda: None,
         )
         assert resolve_git_project_dir(None) is None
@@ -242,7 +242,7 @@ class TestResolveGitProjectDir:
             workspace_dir=str(workspace),
         )
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             lambda aid: config,
         )
         result = resolve_git_project_dir(None, agent_id="agent-1")
@@ -257,7 +257,7 @@ class TestResolveGitProjectDir:
             workspace_dir=str(workspace),
         )
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             lambda aid: config,
         )
         result = resolve_git_project_dir(None, agent_id="agent-1")
@@ -281,7 +281,7 @@ class TestResolveGitProjectDir:
             return config
 
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             load,
         )
         result = resolve_git_project_dir(ws, agent_id=None)

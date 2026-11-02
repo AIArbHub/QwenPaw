@@ -5,19 +5,19 @@ from __future__ import annotations
 
 import uuid
 
-from qwenpaw.channel_protocol.models import ContentSource, InboundEvent
-from qwenpaw.channel_protocol.response_lifecycle import (
+from aiarb.channel_protocol.models import ContentSource, InboundEvent
+from aiarb.channel_protocol.response_lifecycle import (
     ResponseResourceRef,
     ResponseCleanupState,
 )
-from qwenpaw.channel_protocol.response_policy import (
+from aiarb.channel_protocol.response_policy import (
     ResponsePolicy,
     SendFormatPolicy,
 )
-from qwenpaw.channel_protocol.shared_response_driver import (
+from aiarb.channel_protocol.shared_response_driver import (
     SharedResponseDriver,
 )
-from qwenpaw.channel_protocol.targets import decode_reply_target
+from aiarb.channel_protocol.targets import decode_reply_target
 
 from .platform import SIPPlatform, SIPPlatformError
 

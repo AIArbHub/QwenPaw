@@ -7,8 +7,8 @@ import json
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli import env_cmd as env_mod
-from qwenpaw.envs import store as env_store
+from aiarb.cli import env_cmd as env_mod
+from aiarb.envs import store as env_store
 
 
 @pytest.fixture()

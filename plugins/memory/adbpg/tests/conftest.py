@@ -7,11 +7,11 @@ import pytest
 @pytest.fixture(scope="session", autouse=True)
 def register_plugin_contract():
     """Exercise tests with the ADBPG governance metadata installed."""
-    from qwenpaw.governance.tool_registry import (
+    from aiarb.governance.tool_registry import (
         DEFAULT_REGISTRY,
         register_tool_governance,
     )
-    from qwenpaw.plugins.api import release_tool_ownership_for_plugin
+    from aiarb.plugins.api import release_tool_ownership_for_plugin
 
     plugin_id = "memory-adbpg"
     register_tool_governance(

@@ -15,8 +15,8 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.agents.memory.proactive import proactive_trigger as pt
-from qwenpaw.agents.memory.proactive.proactive_types import ProactiveConfig
+from aiarb.agents.memory.proactive import proactive_trigger as pt
+from aiarb.agents.memory.proactive.proactive_types import ProactiveConfig
 
 
 @pytest.fixture(autouse=True)

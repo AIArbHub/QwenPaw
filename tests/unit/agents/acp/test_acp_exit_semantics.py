@@ -13,13 +13,13 @@ import openai
 import pytest
 from google.genai import errors as genai_errors
 
-from qwenpaw.agents.acp.server import (
+from aiarb.agents.acp.server import (
     ACPClientDisconnected,
-    QwenPawACPAgent,
+    AIARBACPAgent,
     _EnvelopeTracker,
     _prompt_failure_stop_reason,
 )
-from qwenpaw.schemas import MessageType, RunStatus
+from aiarb.schemas import MessageType, RunStatus
 
 
 def _provider_error(message: str) -> openai.BadRequestError:
@@ -109,7 +109,7 @@ def test_internal_error_text_is_not_content_safety():
     ],
 )
 def test_send_update_wraps_transport_failure(error, expected):
-    agent = QwenPawACPAgent(agent_id=f"default")
+    agent = AIARBACPAgent(agent_id=f"default")
     agent.on_connect(
         SimpleNamespace(
             session_update=AsyncMock(side_effect=error),

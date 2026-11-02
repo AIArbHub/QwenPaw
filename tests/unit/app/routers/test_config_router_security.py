@@ -15,9 +15,9 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.exception_handlers import register_exception_handlers
-from qwenpaw.app.routers.config import router as config_router
-from qwenpaw.config.config import ACPAgentConfig, ACPConfig
+from aiarb.app.exception_handlers import register_exception_handlers
+from aiarb.app.routers.config import router as config_router
+from aiarb.config.config import ACPAgentConfig, ACPConfig
 
 
 def _root_transaction(config, calls=None):
@@ -56,7 +56,7 @@ def fake_agent_workspace():
 @pytest.fixture
 def patch_get_agent(fake_agent_workspace):
     with patch(
-        "qwenpaw.app.agent_context.get_agent_for_request",
+        "aiarb.app.agent_context.get_agent_for_request",
         new=AsyncMock(return_value=fake_agent_workspace),
     ) as patched:
         yield patched
@@ -118,10 +118,10 @@ class TestAcpConfig:
         fake_agent_workspace.config.acp = ACPConfig(agents={})
         with (
             patch(
-                "qwenpaw.config.config.save_agent_config",
+                "aiarb.config.config.save_agent_config",
             ) as save_mock,
             patch(
-                "qwenpaw.app.routers.config.schedule_agent_reload",
+                "aiarb.app.routers.config.schedule_agent_reload",
             ) as reload_mock,
         ):
             response = client.put(
@@ -180,10 +180,10 @@ class TestAcpConfig:
     ):
         with (
             patch(
-                "qwenpaw.config.config.save_agent_config",
+                "aiarb.config.config.save_agent_config",
             ) as save_mock,
             patch(
-                "qwenpaw.app.routers.config.schedule_agent_reload",
+                "aiarb.app.routers.config.schedule_agent_reload",
             ),
         ):
             response = client.put(
@@ -207,11 +207,11 @@ class TestAcpNodeRuntime:
         )
         with (
             patch(
-                "qwenpaw.app.routers.config.load_config",
+                "aiarb.app.routers.config.load_config",
                 return_value=fake_cfg,
             ),
             patch(
-                "qwenpaw.app.routers.config.get_node_runtime_status",
+                "aiarb.app.routers.config.get_node_runtime_status",
                 return_value=status,
             ),
         ):
@@ -226,7 +226,7 @@ class TestAcpNodeRuntime:
             reason="no such file",
         )
         with patch(
-            "qwenpaw.app.routers.config.resolve_node_runtime",
+            "aiarb.app.routers.config.resolve_node_runtime",
             return_value=candidate,
         ):
             response = client.put(
@@ -249,15 +249,15 @@ class TestAcpNodeRuntime:
         calls = []
         with (
             patch(
-                "qwenpaw.app.routers.config.resolve_node_runtime",
+                "aiarb.app.routers.config.resolve_node_runtime",
                 return_value=candidate,
             ),
             patch(
-                "qwenpaw.app.routers.config.mutate_config",
+                "aiarb.app.routers.config.mutate_config",
                 side_effect=_root_transaction(fake_cfg, calls),
             ),
             patch(
-                "qwenpaw.app.routers.config.get_node_runtime_status",
+                "aiarb.app.routers.config.get_node_runtime_status",
                 return_value=status,
             ),
         ):
@@ -279,14 +279,14 @@ class TestAcpNodeRuntime:
         fake_cfg.acp = SimpleNamespace(node_path="/old/node")
         with (
             patch(
-                "qwenpaw.app.routers.config.resolve_node_runtime",
+                "aiarb.app.routers.config.resolve_node_runtime",
             ) as resolve_mock,
             patch(
-                "qwenpaw.app.routers.config.mutate_config",
+                "aiarb.app.routers.config.mutate_config",
                 side_effect=_root_transaction(fake_cfg),
             ),
             patch(
-                "qwenpaw.app.routers.config.get_node_runtime_status",
+                "aiarb.app.routers.config.get_node_runtime_status",
                 return_value=status,
             ),
         ):
@@ -309,7 +309,7 @@ class TestUserTimezone:
         fake_cfg = MagicMock()
         fake_cfg.user_timezone = "Asia/Shanghai"
         with patch(
-            "qwenpaw.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ):
             response = client.get("/api/config/user-timezone")
@@ -321,7 +321,7 @@ class TestUserTimezone:
         fake_cfg.user_timezone = ""
         calls = []
         with patch(
-            "qwenpaw.app.routers.config.mutate_config",
+            "aiarb.app.routers.config.mutate_config",
             side_effect=_root_transaction(fake_cfg, calls),
         ):
             response = client.put(
@@ -360,7 +360,7 @@ class TestAgentsLlmRouting:
         fake_cfg = MagicMock()
         fake_cfg.agents.llm_routing = {"default_provider": "dashscope"}
         with patch(
-            "qwenpaw.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ):
             response = client.get("/api/config/agents/llm-routing")
@@ -369,11 +369,11 @@ class TestAgentsLlmRouting:
     def test_put_routing_saves(self, client):
         fake_cfg = MagicMock()
         calls = []
-        from qwenpaw.config.config import AgentsLLMRoutingConfig
+        from aiarb.config.config import AgentsLLMRoutingConfig
 
         routing = AgentsLLMRoutingConfig()
         with patch(
-            "qwenpaw.app.routers.config.mutate_config",
+            "aiarb.app.routers.config.mutate_config",
             side_effect=_root_transaction(fake_cfg, calls),
         ):
             response = client.put(
@@ -425,7 +425,7 @@ class TestFileGuard:
             allow_preview_outside_workspace=False,
         )
         with patch(
-            "qwenpaw.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ):
             response = client.get("/api/config/security/file-guard")
@@ -446,16 +446,16 @@ class TestFileGuard:
         calls = []
         with (
             patch(
-                "qwenpaw.app.routers.config.mutate_config",
+                "aiarb.app.routers.config.mutate_config",
                 side_effect=_root_transaction(fake_cfg, calls),
             ),
             patch(
-                "qwenpaw.security.tool_guard.guardians"
+                "aiarb.security.tool_guard.guardians"
                 ".file_guardian.ensure_file_guard_paths",
                 side_effect=lambda paths: sorted(set(paths)),
             ),
             patch(
-                "qwenpaw.security.tool_guard.engine.get_guard_engine",
+                "aiarb.security.tool_guard.engine.get_guard_engine",
                 return_value=engine,
             ),
         ):
@@ -487,11 +487,11 @@ class TestFileGuard:
         engine = MagicMock()
         with (
             patch(
-                "qwenpaw.app.routers.config.mutate_config",
+                "aiarb.app.routers.config.mutate_config",
                 side_effect=_root_transaction(fake_cfg),
             ),
             patch(
-                "qwenpaw.security.tool_guard.engine.get_guard_engine",
+                "aiarb.security.tool_guard.engine.get_guard_engine",
                 return_value=engine,
             ),
         ):
@@ -553,12 +553,12 @@ def _scanner_config_with_whitelist(entries):
 
 class TestSkillScannerWhitelist:
     def test_add_to_whitelist(self, client):
-        from qwenpaw.config.config import SkillScannerWhitelistEntry
+        from aiarb.config.config import SkillScannerWhitelistEntry
 
         fake_cfg = _scanner_config_with_whitelist([])
         calls = []
         with patch(
-            "qwenpaw.app.routers.config.mutate_config",
+            "aiarb.app.routers.config.mutate_config",
             side_effect=_root_transaction(fake_cfg, calls),
         ):
             response = client.post(
@@ -577,7 +577,7 @@ class TestSkillScannerWhitelist:
         assert whitelist[0].added_at
 
     def test_add_duplicate_returns_409(self, client):
-        from qwenpaw.config.config import SkillScannerWhitelistEntry
+        from aiarb.config.config import SkillScannerWhitelistEntry
 
         existing = SkillScannerWhitelistEntry(
             skill_name="dup_skill",
@@ -586,7 +586,7 @@ class TestSkillScannerWhitelist:
         )
         fake_cfg = _scanner_config_with_whitelist([existing])
         with patch(
-            "qwenpaw.app.routers.config.mutate_config",
+            "aiarb.app.routers.config.mutate_config",
             side_effect=_root_transaction(fake_cfg),
         ):
             response = client.post(
@@ -604,7 +604,7 @@ class TestSkillScannerWhitelist:
         assert response.status_code == 400
 
     def test_remove_from_whitelist(self, client):
-        from qwenpaw.config.config import SkillScannerWhitelistEntry
+        from aiarb.config.config import SkillScannerWhitelistEntry
 
         entries = [
             SkillScannerWhitelistEntry(
@@ -618,7 +618,7 @@ class TestSkillScannerWhitelist:
         ]
         fake_cfg = _scanner_config_with_whitelist(entries)
         with patch(
-            "qwenpaw.app.routers.config.mutate_config",
+            "aiarb.app.routers.config.mutate_config",
             side_effect=_root_transaction(fake_cfg),
         ):
             response = client.delete(
@@ -632,7 +632,7 @@ class TestSkillScannerWhitelist:
     def test_remove_missing_returns_404(self, client):
         fake_cfg = _scanner_config_with_whitelist([])
         with patch(
-            "qwenpaw.app.routers.config.mutate_config",
+            "aiarb.app.routers.config.mutate_config",
             side_effect=_root_transaction(fake_cfg),
         ):
             response = client.delete(
@@ -651,7 +651,7 @@ class TestAllowNoAuthHosts:
         fake_cfg = MagicMock()
         fake_cfg.security.allow_no_auth_hosts = ["127.0.0.1", "::1"]
         with patch(
-            "qwenpaw.app.routers.config.load_config",
+            "aiarb.app.routers.config.load_config",
             return_value=fake_cfg,
         ):
             response = client.get("/api/config/security/allow-no-auth-hosts")
@@ -663,7 +663,7 @@ class TestAllowNoAuthHosts:
         fake_cfg.security.allow_no_auth_hosts = []
         calls = []
         with patch(
-            "qwenpaw.app.routers.config.mutate_config",
+            "aiarb.app.routers.config.mutate_config",
             side_effect=_root_transaction(fake_cfg, calls),
         ):
             response = client.put(

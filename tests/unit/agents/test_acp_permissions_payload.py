@@ -34,8 +34,8 @@ from typing import Any
 
 import pytest
 
-from qwenpaw.agents.acp.core import SuspendedPermission
-from qwenpaw.agents.acp.permissions import (
+from aiarb.agents.acp.core import SuspendedPermission
+from aiarb.agents.acp.permissions import (
     _MAX_DISPLAY_PATHS,
     ACPPermissionAdapter,
     _command_from_args,
@@ -850,7 +850,7 @@ def test_display_path_nul_is_not_passed_to_platform_path_parser(
     tmp_path,
     monkeypatch,
 ):
-    from qwenpaw.agents.acp import permissions
+    from aiarb.agents.acp import permissions
 
     adapter = ACPPermissionAdapter(cwd=str(tmp_path))
 

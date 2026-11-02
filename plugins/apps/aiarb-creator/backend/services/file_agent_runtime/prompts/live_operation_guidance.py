@@ -162,7 +162,7 @@ observation = await desktop.observe_window(window_id=window_id)
 
 def _skill_root() -> Path | None:
     try:
-        import qwenpaw
+        import aiarb
     except ImportError:  # pragma: no cover - Creator always runs inside host
         return None
     module_file = getattr(qwenpaw, "__file__", None)
@@ -226,7 +226,7 @@ def load_host_computer_use_manual() -> str:
 
     # Source checkouts may render guidance before the plugin package is on
     # sys.path. Search trusted ancestors instead of depending on an exact
-    # number of parent hops from qwenpaw/agents/skills.
+    # number of parent hops from aiarb/agents/skills.
     root = _skill_root()
     if root is not None:
         for parent in (root, *root.parents):

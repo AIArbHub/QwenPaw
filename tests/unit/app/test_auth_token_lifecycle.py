@@ -18,7 +18,7 @@ import json
 
 import pytest
 
-from qwenpaw.app import auth as auth_module
+from aiarb.app import auth as auth_module
 
 
 @pytest.fixture

@@ -7,7 +7,7 @@ import sys
 import threading
 from types import ModuleType, SimpleNamespace as NS
 import pytest
-from qwenpaw.channel_protocol.models import SendParams, ResponseFinishParams
+from aiarb.channel_protocol.models import SendParams, ResponseFinishParams
 from tests.channel_support.driver import ROOT, bind, module
 
 pytestmark = pytest.mark.asyncio

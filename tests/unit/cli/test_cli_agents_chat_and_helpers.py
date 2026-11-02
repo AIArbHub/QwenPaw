@@ -24,9 +24,9 @@ import httpx
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli import agents_cmd as mod
-from qwenpaw.cli.main import cli
-from qwenpaw.config.config import ModelSlotConfig
+from aiarb.cli import agents_cmd as mod
+from aiarb.cli.main import cli
+from aiarb.config.config import ModelSlotConfig
 
 # --------------------------------------------------------------------- #
 # shared stubs
@@ -47,7 +47,7 @@ def _stub_chat_request(monkeypatch, session_id="sid-1"):
         )
 
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.agent_tools.build_agent_chat_request",
+        "aiarb.cli.agents_cmd.agent_tools.build_agent_chat_request",
         _fake,
     )
     return calls
@@ -132,7 +132,7 @@ def test_handle_stream_mode_delegates_to_shared_streamer(
         return ["chunk-1"]
 
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.agent_tools.stream_agent_chat",
+        "aiarb.cli.agents_cmd.agent_tools.stream_agent_chat",
         _fake,
     )
     _stub_chat_request(monkeypatch)
@@ -159,7 +159,7 @@ def test_handle_stream_mode_delegates_to_shared_streamer(
 def test_handle_final_mode_without_response_warns(monkeypatch) -> None:
     _stub_chat_request(monkeypatch)
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.agent_tools."
+        "aiarb.cli.agents_cmd.agent_tools."
         "collect_final_agent_chat_response",
         lambda *a, **k: None,
     )
@@ -175,7 +175,7 @@ def test_handle_final_mode_json_output_injects_session_id(
 ) -> None:
     _stub_chat_request(monkeypatch, session_id="sid-json")
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.agent_tools."
+        "aiarb.cli.agents_cmd.agent_tools."
         "collect_final_agent_chat_response",
         lambda *a, **k: {"output": [{"content": []}]},
     )
@@ -192,7 +192,7 @@ def test_handle_final_mode_json_output_keeps_existing_session_id(
 ) -> None:
     _stub_chat_request(monkeypatch, session_id="sid-json")
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.agent_tools."
+        "aiarb.cli.agents_cmd.agent_tools."
         "collect_final_agent_chat_response",
         lambda *a, **k: {"session_id": "server-side", "output": []},
     )
@@ -207,7 +207,7 @@ def test_handle_final_mode_json_output_keeps_existing_session_id(
 def test_handle_final_mode_text_output_prints_reply(monkeypatch) -> None:
     _stub_chat_request(monkeypatch, session_id="sid-text")
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.agent_tools."
+        "aiarb.cli.agents_cmd.agent_tools."
         "collect_final_agent_chat_response",
         lambda *a, **k: {
             "output": [
@@ -323,7 +323,7 @@ def _run_background(monkeypatch, submit_result, submit_error=None):
         return submit_result
 
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.agent_tools.submit_agent_chat_task",
+        "aiarb.cli.agents_cmd.agent_tools.submit_agent_chat_task",
         _fake,
     )
     result = CliRunner().invoke(
@@ -362,7 +362,7 @@ def test_submit_background_task_sets_headless_tool_guard(
         return {"task_id": "task-1"}
 
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.agent_tools.submit_agent_chat_task",
+        "aiarb.cli.agents_cmd.agent_tools.submit_agent_chat_task",
         _fake,
     )
 
@@ -420,7 +420,7 @@ def _run_status(monkeypatch, status_result, status_error=None):
         return status_result
 
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.agent_tools.get_agent_chat_task_status",
+        "aiarb.cli.agents_cmd.agent_tools.get_agent_chat_task_status",
         _fake,
     )
     result = CliRunner().invoke(
@@ -604,7 +604,7 @@ def _stub_status(monkeypatch, status_result):
 
     _fake.seen = None
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.agent_tools.get_agent_chat_task_status",
+        "aiarb.cli.agents_cmd.agent_tools.get_agent_chat_task_status",
         _fake,
     )
     return _fake
@@ -730,7 +730,7 @@ def test_generate_agent_id_creates_unique_id(monkeypatch) -> None:
     config = _config_with(["taken"])
     generated = iter(["taken", "fresh"])
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.generate_short_agent_id",
+        "aiarb.cli.agents_cmd.generate_short_agent_id",
         lambda: next(generated),
     )
 
@@ -746,7 +746,7 @@ def test_generate_agent_id_gives_up_after_ten_attempts(monkeypatch) -> None:
         return "taken"
 
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.generate_short_agent_id",
+        "aiarb.cli.agents_cmd.generate_short_agent_id",
         _always_taken,
     )
 
@@ -769,7 +769,7 @@ def test_build_agent_workspace_dir_honours_explicit_value(
     monkeypatch,
     tmp_path,
 ) -> None:
-    monkeypatch.setattr("qwenpaw.cli.agents_cmd.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.cli.agents_cmd.WORKING_DIR", tmp_path)
     explicit = tmp_path / "explicit"
 
     assert mod._build_agent_workspace_dir("a1", str(explicit)) == explicit
@@ -779,7 +779,7 @@ def test_build_agent_workspace_dir_treats_blank_as_unset(
     monkeypatch,
     tmp_path,
 ) -> None:
-    monkeypatch.setattr("qwenpaw.cli.agents_cmd.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.cli.agents_cmd.WORKING_DIR", tmp_path)
 
     resolved = mod._build_agent_workspace_dir("a1", "   ")
 
@@ -790,7 +790,7 @@ def test_build_agent_workspace_dir_defaults_under_working_dir(
     monkeypatch,
     tmp_path,
 ) -> None:
-    monkeypatch.setattr("qwenpaw.cli.agents_cmd.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.cli.agents_cmd.WORKING_DIR", tmp_path)
 
     resolved = mod._build_agent_workspace_dir("a2", None)
 
@@ -809,7 +809,7 @@ def test_initialize_new_agent_workspace_delegates(monkeypatch) -> None:
         seen["call"] = (workspace_dir, skill_names, md_template_id)
 
     monkeypatch.setattr(
-        "qwenpaw.app.routers.agents._initialize_agent_workspace",
+        "aiarb.app.routers.agents._initialize_agent_workspace",
         _fake,
     )
     target = Path("/tmp/ws-target")
@@ -857,7 +857,7 @@ def _stub_provider(monkeypatch, provider):
     manager = Mock()
     manager.get_provider.return_value = provider
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.ProviderManager.get_instance",
+        "aiarb.cli.agents_cmd.ProviderManager.get_instance",
         staticmethod(lambda: manager),
     )
     return manager
@@ -950,7 +950,7 @@ def test_remove_agent_workspace_returns_false_when_absent(
     monkeypatch,
     tmp_path,
 ) -> None:
-    monkeypatch.setattr("qwenpaw.cli.agents_cmd.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.cli.agents_cmd.WORKING_DIR", tmp_path)
 
     assert mod._remove_agent_workspace(tmp_path / "missing") is False
 
@@ -959,7 +959,7 @@ def test_remove_agent_workspace_deletes_directory(
     monkeypatch,
     tmp_path,
 ) -> None:
-    monkeypatch.setattr("qwenpaw.cli.agents_cmd.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.cli.agents_cmd.WORKING_DIR", tmp_path)
     target = tmp_path / "workspaces" / "a1"
     target.mkdir(parents=True)
     (target / "agent.json").write_text("{}", encoding="utf-8")
@@ -972,7 +972,7 @@ def test_remove_agent_workspace_rejects_path_outside_working_dir(
     monkeypatch,
     tmp_path,
 ) -> None:
-    monkeypatch.setattr("qwenpaw.cli.agents_cmd.WORKING_DIR", tmp_path / "in")
+    monkeypatch.setattr("aiarb.cli.agents_cmd.WORKING_DIR", tmp_path / "in")
     (tmp_path / "in").mkdir()
 
     with pytest.raises(click.ClickException) as excinfo:
@@ -987,14 +987,14 @@ def test_remove_agent_workspace_surfaces_oserror(
     monkeypatch,
     tmp_path,
 ) -> None:
-    monkeypatch.setattr("qwenpaw.cli.agents_cmd.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.cli.agents_cmd.WORKING_DIR", tmp_path)
     target = tmp_path / "workspaces" / "a1"
     target.mkdir(parents=True)
 
     def _boom(_path):
         raise OSError("device or resource busy")
 
-    monkeypatch.setattr("qwenpaw.cli.agents_cmd.shutil.rmtree", _boom)
+    monkeypatch.setattr("aiarb.cli.agents_cmd.shutil.rmtree", _boom)
 
     with pytest.raises(click.ClickException) as excinfo:
         mod._remove_agent_workspace(target)
@@ -1011,7 +1011,7 @@ def test_remove_agent_workspace_surfaces_oserror(
 def test_create_cmd_rejects_whitespace_only_name(monkeypatch) -> None:
     config = _config_with([])
     config.agents.language = "zh"
-    monkeypatch.setattr("qwenpaw.cli.agents_cmd.load_config", lambda: config)
+    monkeypatch.setattr("aiarb.cli.agents_cmd.load_config", lambda: config)
 
     result = CliRunner().invoke(
         cli,
@@ -1028,13 +1028,13 @@ def test_create_cmd_wraps_template_value_error(
 ) -> None:
     config = _config_with([])
     config.agents.language = "zh"
-    monkeypatch.setattr("qwenpaw.cli.agents_cmd.load_config", lambda: config)
+    monkeypatch.setattr("aiarb.cli.agents_cmd.load_config", lambda: config)
 
     def _boom(*_args, **_kwargs):
         raise ValueError("template exploded")
 
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.build_agent_template",
+        "aiarb.cli.agents_cmd.build_agent_template",
         _boom,
     )
 
@@ -1064,21 +1064,21 @@ def test_create_cmd_default_workspace_lands_under_working_dir(
     config.agents.language = "zh"
     saved: dict = {}
 
-    monkeypatch.setattr("qwenpaw.cli.agents_cmd.load_config", lambda: config)
-    monkeypatch.setattr("qwenpaw.cli.agents_cmd.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.cli.agents_cmd.load_config", lambda: config)
+    monkeypatch.setattr("aiarb.cli.agents_cmd.WORKING_DIR", tmp_path)
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.save_config",
+        "aiarb.cli.agents_cmd.save_config",
         lambda updated: saved.setdefault("config", updated),
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd.save_agent_config",
+        "aiarb.cli.agents_cmd.save_agent_config",
         lambda agent_id, agent_config: saved.setdefault(
             "agent_config",
             (agent_id, agent_config),
         ),
     )
     monkeypatch.setattr(
-        "qwenpaw.cli.agents_cmd._initialize_new_agent_workspace",
+        "aiarb.cli.agents_cmd._initialize_new_agent_workspace",
         lambda workspace_dir, skill_names, md_template_id=None: (
             saved.setdefault("workspace_init", workspace_dir)
         ),

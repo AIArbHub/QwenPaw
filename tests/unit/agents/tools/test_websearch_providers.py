@@ -69,11 +69,11 @@ def test_get_search_provider_selects_firecrawl(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.factory.get_current_agent_id",
+        "aiarb.agents.tools.websearch.factory.get_current_agent_id",
         lambda: "default",
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.factory.load_agent_config",
+        "aiarb.agents.tools.websearch.factory.load_agent_config",
         lambda agent_id: _agent_config_with_provider("firecrawl"),
     )
     assert isinstance(get_search_provider(), FirecrawlProvider)
@@ -191,7 +191,7 @@ async def test_firecrawl_provider_parses_response_without_key(
             "query": "qwen",
             "limit": 3,
             "sources": ["web"],
-            "origin": "qwenpaw",
+            "origin": "aiarb",
         }
         return {
             "success": True,
@@ -208,11 +208,11 @@ async def test_firecrawl_provider_parses_response_without_key(
         }
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._post",
+        "aiarb.agents.tools.websearch.firecrawl._post",
         fake_post,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
+        "aiarb.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
         AsyncMock(return_value=""),
     )
     results = await FirecrawlProvider().search("qwen", max_results=3)
@@ -236,11 +236,11 @@ async def test_firecrawl_provider_sends_key_when_set(
         return {"success": True, "data": {"web": []}}
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._post",
+        "aiarb.agents.tools.websearch.firecrawl._post",
         fake_post,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
+        "aiarb.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
         AsyncMock(return_value="fc-test"),
     )
     assert await FirecrawlProvider().search("qwen") == []
@@ -251,17 +251,17 @@ async def test_firecrawl_provider_handles_missing_web_and_failure(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
+        "aiarb.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
         AsyncMock(return_value=""),
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._post",
+        "aiarb.agents.tools.websearch.firecrawl._post",
         AsyncMock(return_value={"success": True, "data": {}}),
     )
     assert await FirecrawlProvider().search("qwen") == []
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._post",
+        "aiarb.agents.tools.websearch.firecrawl._post",
         AsyncMock(return_value={"success": False, "error": "bad request"}),
     )
     with pytest.raises(ValueError, match="bad request"):
@@ -274,17 +274,17 @@ async def test_firecrawl_key_is_read_from_credential_store(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # pylint: disable=protected-access
-    from qwenpaw.agents.tools.websearch import firecrawl as fc_module
-    from qwenpaw.security import secret_store
-    from qwenpaw.drivers.credentials.store import AsyncCredentialStore
-    from qwenpaw.drivers.credentials.types import CredentialRecord
+    from aiarb.agents.tools.websearch import firecrawl as fc_module
+    from aiarb.security import secret_store
+    from aiarb.drivers.credentials.store import AsyncCredentialStore
+    from aiarb.drivers.credentials.types import CredentialRecord
 
     # Keep the master key off the OS keychain and inside tmp_path.
     monkeypatch.setenv("AIARB_DISABLE_KEYRING", "1")
     monkeypatch.setattr(secret_store, "_get_secret_dir", lambda: tmp_path)
     monkeypatch.setattr(secret_store, "_cached_master_key", None)
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.credentials."
+        "aiarb.agents.tools.websearch.credentials."
         "get_current_workspace_dir",
         lambda: tmp_path,
     )
@@ -343,11 +343,11 @@ async def test_firecrawl_retries_once_without_key_on_auth_failure(
         }
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._post",
+        "aiarb.agents.tools.websearch.firecrawl._post",
         fake_post,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
+        "aiarb.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
         AsyncMock(return_value="fc-secret-key"),
     )
     with caplog.at_level("WARNING"):
@@ -373,11 +373,11 @@ async def test_firecrawl_does_not_retry_other_failures(
 ) -> None:
     post = AsyncMock(side_effect=_firecrawl_status_error(status))
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._post",
+        "aiarb.agents.tools.websearch.firecrawl._post",
         post,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
+        "aiarb.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
         AsyncMock(return_value=key),
     )
     with pytest.raises(ValueError, match=str(status)):
@@ -396,11 +396,11 @@ async def test_firecrawl_surfaces_error_when_anonymous_retry_fails(
         ],
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._post",
+        "aiarb.agents.tools.websearch.firecrawl._post",
         post,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
+        "aiarb.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
         AsyncMock(return_value="fc-test"),
     )
     with pytest.raises(ValueError, match="429"):
@@ -413,7 +413,7 @@ async def test_firecrawl_provider_surfaces_http_errors(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
+        "aiarb.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
         AsyncMock(return_value=""),
     )
     request = httpx.Request("POST", "https://api.firecrawl.dev/v2/search")
@@ -432,14 +432,14 @@ async def test_firecrawl_provider_surfaces_http_errors(
         )
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._post",
+        "aiarb.agents.tools.websearch.firecrawl._post",
         fake_post,
     )
     with pytest.raises(ValueError, match="429.*Rate limit exceeded.*API key"):
         await FirecrawlProvider().search("qwen")
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
+        "aiarb.agents.tools.websearch.firecrawl._current_agent_firecrawl_key",
         AsyncMock(return_value="fc-test"),
     )
     with pytest.raises(ValueError, match="429.*try again") as exc_info:
@@ -463,7 +463,7 @@ async def test_tavily_provider_uses_keyless_header(
         fake_post,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.tavily._current_agent_tavily_key",
+        "aiarb.agents.tools.websearch.tavily._current_agent_tavily_key",
         AsyncMock(return_value=""),
     )
     provider = TavilyProvider()
@@ -482,11 +482,11 @@ async def test_tavily_provider_uses_bearer_when_key_set(
         return {"results": [{"title": "A", "url": "u", "content": "c"}]}
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.tavily._post",
+        "aiarb.agents.tools.websearch.tavily._post",
         fake_post,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.tavily._current_agent_tavily_key",
+        "aiarb.agents.tools.websearch.tavily._current_agent_tavily_key",
         AsyncMock(return_value="tvly-test"),
     )
     provider = TavilyProvider()
@@ -518,11 +518,11 @@ async def test_tavily_provider_falls_back_to_keyless_on_quota_errors(
         return {"results": [{"title": "K", "url": "u", "content": "c"}]}
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.tavily._post",
+        "aiarb.agents.tools.websearch.tavily._post",
         fake_post,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.tavily._current_agent_tavily_key",
+        "aiarb.agents.tools.websearch.tavily._current_agent_tavily_key",
         AsyncMock(return_value="tvly-bad"),
     )
     provider = TavilyProvider()
@@ -548,11 +548,11 @@ async def test_tavily_provider_does_not_fallback_on_other_errors(
         )
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.tavily._post",
+        "aiarb.agents.tools.websearch.tavily._post",
         fake_post,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.tavily._current_agent_tavily_key",
+        "aiarb.agents.tools.websearch.tavily._current_agent_tavily_key",
         AsyncMock(return_value="tvly-bad"),
     )
     provider = TavilyProvider()
@@ -578,12 +578,12 @@ def test_format_search_results() -> None:
 async def test_read_optional_api_key_returns_none_without_workspace(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from qwenpaw.agents.tools.websearch.credentials import (
+    from aiarb.agents.tools.websearch.credentials import (
         read_optional_api_key,
     )
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.credentials.get_current_workspace_dir",
+        "aiarb.agents.tools.websearch.credentials.get_current_workspace_dir",
         lambda: None,
     )
     assert await read_optional_api_key("tool/web_search/tavily") is None
@@ -594,11 +594,11 @@ async def test_read_optional_api_key_reads_via_sync_store(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
 ) -> None:
-    from qwenpaw.agents.tools.websearch.credentials import (
+    from aiarb.agents.tools.websearch.credentials import (
         read_optional_api_key,
     )
-    from qwenpaw.drivers.credentials.store import AsyncCredentialStore
-    from qwenpaw.drivers.credentials.types import CredentialRecord
+    from aiarb.drivers.credentials.store import AsyncCredentialStore
+    from aiarb.drivers.credentials.types import CredentialRecord
 
     cred_path = tmp_path / "credentials.yaml"
     store = AsyncCredentialStore(cred_path)
@@ -611,7 +611,7 @@ async def test_read_optional_api_key_reads_via_sync_store(
     )
 
     monkeypatch.setattr(
-        "qwenpaw.agents.tools.websearch.credentials.get_current_workspace_dir",
+        "aiarb.agents.tools.websearch.credentials.get_current_workspace_dir",
         lambda: tmp_path,
     )
     assert await read_optional_api_key("tool/web_search/tavily") == (

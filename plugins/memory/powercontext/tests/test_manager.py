@@ -19,11 +19,11 @@ from plugins.memory.powercontext.backend.manager import (
 from plugins.memory.powercontext.backend.prompts import (
     POWERCONTEXT_UNTRUSTED_HISTORY_NOTICE,
 )
-from qwenpaw.memory import MemoryBackendContext
-from qwenpaw.governance import PolicyGuardedTool
-from qwenpaw.governance.policy import GovernanceAction, GovernancePolicy
-from qwenpaw.governance.tool_registry import DEFAULT_REGISTRY
-from qwenpaw.runtime.builder import AgentBuilder
+from aiarb.memory import MemoryBackendContext
+from aiarb.governance import PolicyGuardedTool
+from aiarb.governance.policy import GovernanceAction, GovernancePolicy
+from aiarb.governance.tool_registry import DEFAULT_REGISTRY
+from aiarb.runtime.builder import AgentBuilder
 
 
 def _manager(

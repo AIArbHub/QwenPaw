@@ -16,10 +16,10 @@ from unittest.mock import AsyncMock, MagicMock
 import httpx
 import pytest
 
-from qwenpaw.drivers.contracts import CredentialRef
-from qwenpaw.drivers.credentials import providers as pv
-from qwenpaw.drivers.credentials.types import ResolvedCredential
-from qwenpaw.drivers.errors import (
+from aiarb.drivers.contracts import CredentialRef
+from aiarb.drivers.credentials import providers as pv
+from aiarb.drivers.credentials.types import ResolvedCredential
+from aiarb.drivers.errors import (
     DriverCredentialProviderError,
     UnsupportedCredentialKindError,
 )

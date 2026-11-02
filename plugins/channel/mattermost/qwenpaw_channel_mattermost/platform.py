@@ -15,7 +15,7 @@ from typing import Optional
 
 import httpx
 import websockets
-from qwenpaw.app.channels.utils import (
+from aiarb.app.channels.utils import (
     file_url_to_local_path,
     materialize_data_url,
 )
@@ -81,7 +81,7 @@ class MattermostPlatform:
         elif workspace:
             self._media_dir = Path(workspace) / "media"
         else:
-            from qwenpaw.constant import WORKING_DIR
+            from aiarb.constant import WORKING_DIR
 
             self._media_dir = WORKING_DIR / "media" / "mattermost"
         self._thread_follow = bool(config.get("thread_follow_without_mention"))

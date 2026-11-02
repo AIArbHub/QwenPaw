@@ -1,5 +1,4 @@
 ﻿# -*- coding: utf-8 -*-
-"""ADBPG memory backend plugin implementation.
 """ADBPG Memory Manager for AIArb agents.
 
 Provides long-term memory backed by AnalyticDB for PostgreSQL (ADBPG).

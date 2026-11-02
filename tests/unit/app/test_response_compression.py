@@ -8,9 +8,9 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from fastapi.testclient import TestClient
 
-from qwenpaw.app._app import app as production_app
-from qwenpaw.app.auth import AuthMiddleware
-from qwenpaw.app.response_compression import ResponseCompressionMiddleware
+from aiarb.app._app import app as production_app
+from aiarb.app.auth import AuthMiddleware
+from aiarb.app.response_compression import ResponseCompressionMiddleware
 
 
 @pytest.fixture(name="client")

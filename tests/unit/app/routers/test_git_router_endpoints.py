@@ -16,8 +16,8 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.routers import git as git_module
-from qwenpaw.app.routers.git import router as git_router
+from aiarb.app.routers import git as git_module
+from aiarb.app.routers.git import router as git_router
 
 
 def _git_cli(cwd: Path, *args: str) -> subprocess.CompletedProcess:

@@ -12,8 +12,8 @@ from agentscope.permission import PermissionMode
 from agentscope.state import AgentState
 from agentscope.tool import FunctionTool, ToolChunk
 
-from qwenpaw.modes.coding.code_mode import CodeModeTool
-from qwenpaw.runtime.builder import AgentBuilder
+from aiarb.modes.coding.code_mode import CodeModeTool
+from aiarb.runtime.builder import AgentBuilder
 
 
 def _load_mission_prompts(monkeypatch):

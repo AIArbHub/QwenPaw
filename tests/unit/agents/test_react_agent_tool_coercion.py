@@ -3,7 +3,7 @@
 """Agent-layer tool-call input coercion funnel (issue #6839).
 
 The pure coercion helpers live in ``qwenpaw.agents.utils.tool_call_coerce``
-(tested in ``tests/unit/agents/test_tool_call_coerce.py``).  QwenPawAgent
+(tested in ``tests/unit/agents/test_tool_call_coerce.py``).  AIARBAgent
 indexes the tool schemas in ``_call_model`` and applies the coercion in
 its ``_execute_tool_call`` override — the single funnel both the
 sequential and the concurrent execution paths reach, immediately before
@@ -21,7 +21,7 @@ from unittest.mock import AsyncMock
 from agentscope.agent import Agent
 from agentscope.message import Msg, ToolCallBlock
 
-from qwenpaw.agents.react_agent import QwenPawAgent
+from aiarb.agents.react_agent import AIARBAgent
 
 STOCK_SCHEMA = {
     "type": "object",
@@ -45,8 +45,8 @@ TOOLS = [
 ]
 
 
-def _agent() -> QwenPawAgent:
-    agent = object.__new__(QwenPawAgent)
+def _agent() -> AIARBAgent:
+    agent = object.__new__(AIARBAgent)
     agent._tool_schema_index = {}
     return agent
 

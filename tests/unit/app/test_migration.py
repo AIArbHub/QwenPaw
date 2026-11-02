@@ -17,7 +17,7 @@ from types import SimpleNamespace
 
 import pytest
 
-import qwenpaw.app.migration as migration
+import aiarb.app.migration as migration
 
 
 @pytest.fixture()
@@ -29,7 +29,7 @@ def working_dir(tmp_path, monkeypatch):
 
 
 def _config(profiles=None):
-    from qwenpaw.config.config import Config
+    from aiarb.config.config import Config
 
     cfg = Config()
     if profiles is not None:
@@ -38,7 +38,7 @@ def _config(profiles=None):
 
 
 def _ref(agent_id: str, workspace_dir: str):
-    from qwenpaw.config.config import AgentProfileRef
+    from aiarb.config.config import AgentProfileRef
 
     return AgentProfileRef(id=agent_id, workspace_dir=workspace_dir)
 
@@ -239,7 +239,7 @@ class TestMigrateLegacySkills:
         assert migration.migrate_legacy_skills_to_skill_pool() is False
 
     def test_pool_manifest_exists_skips(self, working_dir, monkeypatch):
-        from qwenpaw.agents.skill_system import store as skill_store
+        from aiarb.agents.skill_system import store as skill_store
 
         monkeypatch.setattr(
             skill_store,
@@ -252,7 +252,7 @@ class TestMigrateLegacySkills:
         assert migration._do_migrate_legacy_skills() is False
 
     def test_config_failure_returns_false(self, working_dir, monkeypatch):
-        from qwenpaw.agents.skill_system import store as skill_store
+        from aiarb.agents.skill_system import store as skill_store
 
         monkeypatch.setattr(
             skill_store,
@@ -266,13 +266,13 @@ class TestMigrateLegacySkills:
         )
         # ensure_skill_pool_initialized must not create the manifest here
         monkeypatch.setattr(
-            "qwenpaw.agents.skill_system.ensure_skill_pool_initialized",
+            "aiarb.agents.skill_system.ensure_skill_pool_initialized",
             lambda: False,
         )
         assert migration._do_migrate_legacy_skills() is False
 
     def test_pool_init_failure_returns_false(self, working_dir, monkeypatch):
-        from qwenpaw.agents.skill_system import store as skill_store
+        from aiarb.agents.skill_system import store as skill_store
 
         monkeypatch.setattr(
             skill_store,
@@ -280,7 +280,7 @@ class TestMigrateLegacySkills:
             lambda: working_dir / "skill_pool" / "skill.json",
         )
         monkeypatch.setattr(
-            "qwenpaw.agents.skill_system.ensure_skill_pool_initialized",
+            "aiarb.agents.skill_system.ensure_skill_pool_initialized",
             lambda: (_ for _ in ()).throw(RuntimeError("init failed")),
         )
         assert migration._do_migrate_legacy_skills() is False
@@ -352,7 +352,7 @@ class TestEnsureQaAgent:
         migration.ensure_qa_agent_exists()  # must not raise
 
     def test_existing_qa_agent_noop(self, working_dir, monkeypatch):
-        from qwenpaw.constant import BUILTIN_QA_AGENT_ID
+        from aiarb.constant import BUILTIN_QA_AGENT_ID
 
         cfg = _config(
             {
@@ -375,7 +375,7 @@ class TestEnsureQaAgent:
 
 class TestLegacyQaDisable:
     def test_disables_legacy_qa_profile(self):
-        from qwenpaw.constant import LEGACY_QA_AGENT_ID
+        from aiarb.constant import LEGACY_QA_AGENT_ID
 
         cfg = _config(
             {LEGACY_QA_AGENT_ID: _ref(LEGACY_QA_AGENT_ID, "/tmp/ws_qa")},

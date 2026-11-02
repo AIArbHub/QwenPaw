@@ -16,7 +16,7 @@ import os
 from pathlib import Path
 
 import pytest
-from qwenpaw.agents.skill_system import registry as skill_registry
+from aiarb.agents.skill_system import registry as skill_registry
 
 
 # ---------------------------------------------------------------------------
@@ -47,7 +47,7 @@ def clean_caches(monkeypatch):
 
 @pytest.fixture()
 def fake_working_dir(tmp_path, monkeypatch):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path)
     return tmp_path
 
 

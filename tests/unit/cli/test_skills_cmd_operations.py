@@ -15,11 +15,11 @@ import click
 import pytest
 from click.testing import CliRunner
 
-import qwenpaw.cli.skills_cmd as sc
+import aiarb.cli.skills_cmd as sc
 
 
 def _config(profiles=None):
-    from qwenpaw.config.config import Config
+    from aiarb.config.config import Config
 
     cfg = Config()
     if profiles is not None:
@@ -28,7 +28,7 @@ def _config(profiles=None):
 
 
 def _ref(agent_id: str, workspace_dir: str):
-    from qwenpaw.config.config import AgentProfileRef
+    from aiarb.config.config import AgentProfileRef
 
     return AgentProfileRef(id=agent_id, workspace_dir=workspace_dir)
 

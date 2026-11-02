@@ -361,17 +361,10 @@ class TestNoneSandboxReporting:
         proc.returncode = 0
         proc.communicate = AsyncMock(return_value=(b"ok", b""))
 
-        create_process = AsyncMock(return_value=proc)
-        with (
-            patch(
-                "qwenpaw.sandbox.local_sandbox.asyncio.create_subprocess_exec",
-                new=create_process,
-            ),
-            patch(
-                "qwenpaw.sandbox.local_sandbox.asyncio.create_subprocess_shell",
-                new=create_process,
-            ),
-        ):
+        with patch(
+            "aiarb.sandbox.local_sandbox.asyncio.create_subprocess_exec",
+            new=AsyncMock(return_value=proc),
+        ) as create_process:
             result = asyncio.run(sandbox.execute("echo ok"))
 
         assert result.exit_code == 0

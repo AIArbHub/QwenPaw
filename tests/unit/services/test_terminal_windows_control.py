@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, call
 
 import pytest
 
-from qwenpaw.services import terminal_windows as windows
+from aiarb.services import terminal_windows as windows
 
 
 def worker_ignoring_ctrl_c(*args):

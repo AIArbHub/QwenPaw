@@ -18,8 +18,8 @@ import sys
 
 import pytest
 
-from qwenpaw.plugins.loader import PluginLoader
-from qwenpaw.plugins.execution.dependencies import canonical_environment_path
+from aiarb.plugins.loader import PluginLoader
+from aiarb.plugins.execution.dependencies import canonical_environment_path
 
 
 @pytest.mark.asyncio
@@ -223,7 +223,7 @@ def test_dependency_installer_security_versions(
     version,
     safe,
 ):
-    from qwenpaw.utils import runtime_environment
+    from aiarb.utils import runtime_environment
 
     calls = []
 
@@ -267,7 +267,7 @@ async def test_old_installer_cannot_acquire_dependency_wheels(
     resolver = Mock()
     guard = Mock(side_effect=RuntimeError("Unsafe pip 26.2.1"))
     monkeypatch.setattr(loader, "_run_subprocess_with_streaming_log", resolver)
-    monkeypatch.setattr("qwenpaw.plugins.loader.require_pip", guard)
+    monkeypatch.setattr("aiarb.plugins.loader.require_pip", guard)
 
     with pytest.raises(RuntimeError, match="Unsafe pip"):
         await loader._acquire_dependency_wheels(
@@ -374,7 +374,7 @@ async def test_controlled_wheels_use_certifi_floor_without_editing_source(
     tmp_path,
     monkeypatch,
 ):
-    from qwenpaw.utils.runtime_environment import CERTIFI_REQUIREMENT
+    from aiarb.utils.runtime_environment import CERTIFI_REQUIREMENT
 
     loader = PluginLoader([tmp_path])
     requirements = tmp_path / "requirements.txt"
@@ -424,14 +424,14 @@ async def test_controlled_wheels_use_certifi_floor_without_editing_source(
         assert options["expected_snapshot"].distributions == {}
         assert options["wheels"] == ()
 
-    monkeypatch.setattr("qwenpaw.plugins.loader.require_pip", safe_installer)
+    monkeypatch.setattr("aiarb.plugins.loader.require_pip", safe_installer)
     monkeypatch.setattr(
         loader,
         "_run_subprocess_with_streaming_log",
         inspect_resolution,
     )
     monkeypatch.setattr(
-        "qwenpaw.plugins.dependency_gate.prepare_shared_dependencies",
+        "aiarb.plugins.dependency_gate.prepare_shared_dependencies",
         inspect_gate,
     )
     await loader._acquire_dependency_wheels(
@@ -464,7 +464,7 @@ async def test_certifi_floor_refuses_old_immutable_provider_before_download(
     )
     resolver, guard = Mock(), Mock()
     monkeypatch.setattr(loader, "_run_subprocess_with_streaming_log", resolver)
-    monkeypatch.setattr("qwenpaw.plugins.loader.require_pip", guard)
+    monkeypatch.setattr("aiarb.plugins.loader.require_pip", guard)
 
     with pytest.raises(RuntimeError, match="protected certifi"):
         await loader._acquire_dependency_wheels(
@@ -500,7 +500,7 @@ async def test_immutable_installer_without_pip_never_runs_ensurepip(
         runtime_identity={"protocol": 1},
     )
     monkeypatch.setattr(loader, "_run_subprocess_with_streaming_log", resolver)
-    monkeypatch.setattr("qwenpaw.plugins.loader.require_pip", guard)
+    monkeypatch.setattr("aiarb.plugins.loader.require_pip", guard)
 
     with pytest.raises(RuntimeError, match="bundled pip is missing"):
         await loader._acquire_dependency_wheels(
@@ -559,10 +559,10 @@ async def test_mutable_missing_pip_is_rechecked_and_reaudited_after_bootstrap(
         events.append("gate")
         assert options["expected_snapshot"] is refreshed
 
-    monkeypatch.setattr("qwenpaw.plugins.loader.require_pip", check)
+    monkeypatch.setattr("aiarb.plugins.loader.require_pip", check)
     monkeypatch.setattr(loader, "_run_subprocess_with_streaming_log", run)
     monkeypatch.setattr(
-        "qwenpaw.plugins.dependency_gate.prepare_shared_dependencies",
+        "aiarb.plugins.dependency_gate.prepare_shared_dependencies",
         gate,
     )
     await loader._acquire_dependency_wheels(
@@ -586,7 +586,7 @@ async def test_async_loader_leases_before_loop_registry_publication(
 ):
     import asyncio
     import threading
-    from qwenpaw.plugins import dependency_maintenance, loader as loader_mod
+    from aiarb.plugins import dependency_maintenance, loader as loader_mod
 
     loop_thread = threading.get_ident()
     events = []
@@ -661,17 +661,17 @@ async def test_preparation_and_admission_keep_only_required_real_audits(
     case,
 ):
     import sys
-    from qwenpaw.plugins.dependency_gate import GateDecision
-    from qwenpaw.plugins.dependency_usage import (
+    from aiarb.plugins.dependency_gate import GateDecision
+    from aiarb.plugins.dependency_usage import (
         DependencyUsageRegistry,
     )
-    from qwenpaw.plugins.execution_backend import (
+    from aiarb.plugins.execution_backend import (
         BackendBinding,
         PluginDescription,
     )
-    from qwenpaw.plugins.lifecycle import PluginLifecycle
-    from qwenpaw.plugins.ownership import RuntimeOwners
-    from qwenpaw.plugins.python_backend import PythonBackend
+    from aiarb.plugins.lifecycle import PluginLifecycle
+    from aiarb.plugins.ownership import RuntimeOwners
+    from aiarb.plugins.python_backend import PythonBackend
 
     site, added, source = (
         tmp_path / part for part in ("site", "added", "plugin")
@@ -724,7 +724,7 @@ async def test_preparation_and_admission_keep_only_required_real_audits(
     monkeypatch.setattr(backend, "audit_dependencies", counted)
     monkeypatch.setattr(backend, "prepare_dependency_targets", targets)
     if case == "preflight_invalid":
-        from qwenpaw.plugins.dependency_maintenance import repair_marker
+        from aiarb.plugins.dependency_maintenance import repair_marker
 
         marker = repair_marker(site)
         marker.parent.mkdir(parents=True, exist_ok=True)
@@ -794,13 +794,13 @@ async def test_existing_dependency_read_admission_keeps_safety_boundaries(
     case,
 ):
     import sys
-    from qwenpaw.plugins.dependency_gate import SharedDependencyError
-    from qwenpaw.plugins.dependency_usage import (
+    from aiarb.plugins.dependency_gate import SharedDependencyError
+    from aiarb.plugins.dependency_usage import (
         DependencyUsageRegistry,
     )
-    from qwenpaw.plugins.ownership import RuntimeKey, RuntimeOwners
-    from qwenpaw.plugins.execution_backend import PluginDescription
-    from qwenpaw.plugins.python_backend import PythonBackend
+    from aiarb.plugins.ownership import RuntimeKey, RuntimeOwners
+    from aiarb.plugins.execution_backend import PluginDescription
+    from aiarb.plugins.python_backend import PythonBackend
 
     site, source = tmp_path / "site", tmp_path / "plugin"
     site.mkdir()
@@ -849,7 +849,7 @@ async def test_existing_dependency_read_admission_keeps_safety_boundaries(
         usage.withdraw(token)
         replacement = usage.declare(declaration)
     if case == "repair":
-        from qwenpaw.plugins.dependency_maintenance import repair_marker
+        from aiarb.plugins.dependency_maintenance import repair_marker
 
         marker = repair_marker(site)
         marker.parent.mkdir(parents=True, exist_ok=True)
@@ -868,6 +868,59 @@ async def test_existing_dependency_read_admission_keeps_safety_boundaries(
         for p in site.rglob("*")
         if p.is_file()
     }
+    if case in {"fresh_metadata", "fresh_record", "child_record"}:
+        import asyncio
+        import os
+        from aiarb.plugins.install_lock import environment_observation
+
+        async with environment_observation((site,)):
+            assert (
+                await backend.admit_existing(
+                    description,
+                    usage=usage,
+                    token=token,
+                )
+                is None
+            )
+            changed = info / (
+                "METADATA" if case == "fresh_metadata" else "RECORD"
+            )
+            stamp = changed.stat()
+            changed.write_text(
+                "Name: sample\nVersion: 0.5\n"
+                if case == "fresh_metadata"
+                else "sample.py,,not-a-size\n",
+            )
+            os.utime(changed, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+            fresh_token = usage.declare(declaration)
+            pending = (
+                asyncio.create_task(
+                    backend.admit_existing(
+                        description,
+                        usage=usage,
+                        token=fresh_token,
+                    ),
+                )
+                if case == "child_record"
+                else None
+            )
+        with pytest.raises(SharedDependencyError) as rejected:
+            if pending is not None:
+                await pending
+            else:
+                await backend.admit_existing(
+                    description,
+                    usage=usage,
+                    token=fresh_token,
+                )
+        expected = (
+            {"DEPENDENCY_UNSATISFIED"}
+            if case == "fresh_metadata"
+            else {"DEPENDENCY_METADATA_INVALID", "DEPENDENCY_PLAN_UNVERIFIED"}
+        )
+        assert rejected.value.decision.reason_code in expected
+        assert usage.snapshot().uses[-1].environment is None
+        return
     if case in {
         "missing_package",
         "transitive",
@@ -970,7 +1023,7 @@ async def test_existing_dependency_read_admission_keeps_safety_boundaries(
 @pytest.fixture
 def controlled_import_snapshot(monkeypatch):
     """Exercise real module changes without scanning other suites' imports."""
-    from qwenpaw.plugins import dependency_transaction as transaction
+    from aiarb.plugins import dependency_transaction as transaction
 
     snapshot = transaction._module_snapshot
     names = {
@@ -989,7 +1042,7 @@ def controlled_import_snapshot(monkeypatch):
 def test_dependency_sites_classify_batch_once(tmp_path, monkeypatch):
     from collections import Counter
     from pathlib import PureWindowsPath
-    from qwenpaw.plugins.execution import dependencies as deps
+    from aiarb.plugins.execution import dependencies as deps
 
     standard = tmp_path / "stdlib"
     package = standard / "site-packages"
@@ -1042,7 +1095,13 @@ def test_dependency_sites_classify_batch_once(tmp_path, monkeypatch):
     ]
     assert deps.dependency_sites(distinct) == tuple(map(str, distinct))
 
-    from qwenpaw.plugins import python_backend as backend
+
+def test_host_delta_skips_own_source_inventory(tmp_path, monkeypatch):
+    import json
+    from collections import Counter
+    from pathlib import PureWindowsPath
+    from aiarb.plugins.execution import dependencies as deps
+    from aiarb.plugins import python_backend as backend
 
     with monkeypatch.context() as patch:
         patch.setattr(backend, "Path", PureWindowsPath)
@@ -1075,8 +1134,9 @@ async def test_host_observation_reuses_only_scoped_raw_inputs(
 ):
     from collections import Counter
     from importlib.metadata import PathDistribution
-    from qwenpaw.plugins.execution import dependencies as deps
-    from qwenpaw.plugins.install_lock import (
+    from aiarb.plugins.execution import dependencies as deps
+    from aiarb.plugins import python_backend as backend
+    from aiarb.plugins.install_lock import (
         environment_observation,
         observation_inputs,
         observation_write,
@@ -1150,14 +1210,65 @@ async def test_host_observation_reuses_only_scoped_raw_inputs(
 
 def test_host_dependency_record_retains_loaded_ownership(tmp_path):
     import os
+    import sys
+    from importlib.metadata import PathDistribution
+    from pathlib import PurePosixPath
+    from aiarb.plugins.python_backend import _files_for_loaded_origins
+
+    info = tmp_path / "sample-1.0.dist-info"
+    info.mkdir()
+    source = tmp_path / "shared_ns" / "loaded.py"
+    source.parent.mkdir()
+    source.write_text("VALUE = 1")
+    record = info / "RECORD"
+    record.write_text(
+        "shared_ns/./loaded.py,,9\n"
+        "unrelated.py,,12\n"
+        "shared_ns/missing.py,,1\n",
+    )
+    paths = ["shared_ns/loaded.py", "shared_ns/missing.py"]
+    origins = {os.path.normcase(os.path.normpath(path)) for path in paths}
+    distribution = PathDistribution(info)
+    expected = paths[:1] if sys.version_info >= (3, 12) else paths
+    assert _files_for_loaded_origins(distribution, origins) == [
+        PurePosixPath(path) for path in expected
+    ]
+    from aiarb.plugins.python_backend import _observe_host_dependencies
+
+    (info / "METADATA").write_text("Name: sample\nVersion: 1.0\n")
+    loaded = (("shared_ns.loaded", str(source)),)
+    original = record.read_text()
+    record_stat = record.stat()
+    _, imported = _observe_host_dependencies(
+        tmp_path / "plugin",
+        (tmp_path,),
+        loaded,
+    )
+    assert "sample" in imported
+    record.write_text("unrelated.py,,12\n")
+    os.utime(record, ns=(record_stat.st_atime_ns, record_stat.st_mtime_ns))
+    _, imported = _observe_host_dependencies(
+        tmp_path / "plugin",
+        (tmp_path,),
+        loaded,
+    )
+    assert "sample" not in imported
+    record.write_text(original)
+    os.utime(record, ns=(record_stat.st_atime_ns, record_stat.st_mtime_ns))
+    _, imported = _observe_host_dependencies(
+        tmp_path / "plugin",
+        (tmp_path,),
+        loaded,
+    )
+    assert "sample" in imported
+    # Admission generations retain independent historical pins, even when
+    # later observations no longer contain the module or show a new version.
     from dataclasses import replace
-    from qwenpaw.plugins.execution.dependencies import observe_dependencies
-    from qwenpaw.plugins.dependency_usage import (
+    from aiarb.plugins.dependency_usage import (
         DependencyDeclaration,
         DependencyUsageRegistry,
     )
-    from qwenpaw.plugins.ownership import RuntimeOwners
-    from qwenpaw.plugins.dependency_gate import _host_observation_roots
+    from aiarb.plugins.ownership import RuntimeOwners
 
     info = tmp_path / "sample-1.0.dist-info"
     info.mkdir()
@@ -1311,14 +1422,12 @@ async def test_host_dependency_boundaries_keep_preexisting_and_removed_imports(
     layout,
 ):
     from types import ModuleType
-    from importlib.metadata import PathDistribution
-    from qwenpaw.plugins import python_backend as backend
-    from qwenpaw.plugins.dependency_usage import (
+    from aiarb.plugins.dependency_usage import (
         DependencyDeclaration,
         DependencyUsageRegistry,
     )
-    from qwenpaw.plugins.execution.dependencies import host_module_affected
-    from qwenpaw.plugins.ownership import RuntimeOwners
+    from aiarb.plugins.ownership import RuntimeOwners
+    from aiarb.plugins.python_backend import PythonBackend
 
     site = tmp_path / "site"
     site.mkdir()
@@ -1461,6 +1570,7 @@ async def test_host_dependency_boundaries_keep_preexisting_and_removed_imports(
         assert host_module_affected({"metadata_path": str(info)}, initial)
         from dataclasses import replace
         import os
+        from aiarb.plugins import python_backend as backend
 
         monkeypatch.delitem(sys.modules, "_AIARB_own_source")
         state = backend._host_dependency_state
@@ -1501,7 +1611,7 @@ async def test_host_dependency_boundaries_keep_preexisting_and_removed_imports(
         assert other_host.snapshot is not None
         assert other_host.environment is not None
         assert other_host.snapshot.distributions[remaining]["version"] == "1.0"
-        from qwenpaw.plugins.execution.dependencies import (
+        from aiarb.plugins.execution.dependencies import (
             canonical_environment_path,
         )
 
@@ -1556,7 +1666,7 @@ async def test_host_dependency_boundaries_keep_preexisting_and_removed_imports(
         _, excluded_hosts = await observe_source(site, "excluded-source")
         assert excluded_hosts == []
     elif layout == "namespace_alias":
-        from qwenpaw.plugins import python_backend as backend
+        from aiarb.plugins import python_backend as backend
 
         unclaimed = site / "unclaimed.py"
         unclaimed.write_text("VALUE = 1\n")
@@ -1611,12 +1721,13 @@ async def test_dependency_directory_classification_retains_provider_ownership(
     layout,
     monkeypatch,
 ):
-    from qwenpaw.plugins.execution.dependencies import (
+    from aiarb.plugins.execution.dependencies import (
         _installed_metadata,
         canonical_environment_path,
         dependency_sites,
         observe_dependencies,
     )
+    from aiarb.plugins.python_backend import _observe_host_dependencies
 
     site = tmp_path / "site"
     nested = site / "owner" / "_vendor"
@@ -1740,15 +1851,60 @@ async def test_dependency_directory_classification_retains_provider_ownership(
             "DEPENDENCY_ENVIRONMENT_AMBIGUOUS"
         )
         return
-    from dataclasses import replace
-    from types import ModuleType
-    from qwenpaw.plugins import python_backend as backend
-    from qwenpaw.plugins.dependency_usage import (
-        DependencyDeclaration,
-        DependencyUsageRegistry,
+    observed, imported = _observe_host_dependencies(
+        tmp_path / "plugin",
+        paths,
+        ((loaded_module, str(embedded)),),
     )
-    from qwenpaw.plugins.ownership import RuntimeOwners
-    from qwenpaw.plugins.dependency_gate import evaluate_shared_dependencies
+    assert observed.distributions["sample-sdk"]["metadata_path"] == (
+        str(canonical_environment_path(public_info))
+    )
+    assert imported["owner"]["metadata_path"] == str(
+        canonical_environment_path(owner_info),
+    )
+    assert ("sample-sdk" in imported) is (layout != "namespace")
+    if layout in {"owned", "namespace"}:
+        import sys
+        from types import ModuleType
+        from aiarb.plugins.dependency_usage import (
+            DependencyDeclaration,
+            DependencyUsageRegistry,
+        )
+        from aiarb.plugins.ownership import RuntimeOwners
+        from aiarb.plugins.python_backend import PythonBackend
+
+        usage = DependencyUsageRegistry(RuntimeOwners())
+        with monkeypatch.context() as patch:
+            patch.setattr(sys, "path", list(map(str, paths)))
+            loaded = ModuleType(loaded_module)
+            loaded.__file__ = str(embedded)
+            patch.setitem(sys.modules, loaded_module, loaded)
+            for revision in ("first", "second"):
+                description = SimpleNamespace(
+                    manifest=SimpleNamespace(id="embedded-history"),
+                    source_path=tmp_path / revision,
+                )
+                token = usage.declare(
+                    DependencyDeclaration(
+                        "embedded-history",
+                        revision,
+                        (),
+                        None,
+                    ),
+                )
+                await PythonBackend.observe_host_dependencies(
+                    description,
+                    usage,
+                    token,
+                )
+                host = next(
+                    use
+                    for use in usage.snapshot().uses
+                    if use.origin == "host" and use.source_revision == revision
+                )
+                assert host.snapshot.distributions == imported
+    from dataclasses import replace
+    from aiarb.plugins.dependency_gate import evaluate_shared_dependencies
 
     usage = DependencyUsageRegistry(RuntimeOwners())
     state = backend._host_dependency_state
@@ -1919,8 +2075,8 @@ async def test_dependency_import_resolution_rejects_changed_module(
     import sys
     import threading
     from types import ModuleType
-    from qwenpaw.plugins import dependency_transaction as transaction
-    from qwenpaw.utils import io_utils
+    from aiarb.plugins import dependency_transaction as transaction
+    from aiarb.utils import io_utils
 
     name, unrelated = "_AIARB_stale_dependency_test", "_AIARB_other_import"
     source, other = tmp_path / "sdk.py", tmp_path / "other.py"
@@ -2009,8 +2165,8 @@ async def test_dependency_import_resolution_checks_supplemental_changes(
     import sys
     import threading
     from types import ModuleType
-    from qwenpaw.plugins import dependency_transaction as transaction
-    from qwenpaw.utils import io_utils
+    from aiarb.plugins import dependency_transaction as transaction
+    from aiarb.utils import io_utils
 
     source = tmp_path / "sdk.py"
     source.touch()
@@ -2065,9 +2221,9 @@ async def test_async_dependency_targets_reject_changed_host_paths(
     kind,
 ):
     import sys
-    from qwenpaw.plugins.python_backend import PythonBackend
+    from aiarb.plugins.python_backend import PythonBackend
 
-    from qwenpaw.plugins.channel_adapter import (
+    from aiarb.plugins.channel_adapter import (
         ChannelBackend,
         ChannelRuntimeSettings,
     )
@@ -2115,7 +2271,7 @@ async def test_frozen_dependency_path_preparation_and_loop_publication(
     import os
     import sys
     import threading
-    from qwenpaw.plugins import loader as loader_mod
+    from aiarb.plugins import loader as loader_mod
 
     root = tmp_path / "runtime"
     bucket = root / "python"
@@ -2189,8 +2345,8 @@ async def test_load_waits_for_dependency_writer(
 
     from .timing import WAIT_TIMEOUT
 
-    from qwenpaw.plugins import dependency_maintenance as maintenance
-    from qwenpaw.plugins import install_lock
+    from aiarb.plugins import dependency_maintenance as maintenance
+    from aiarb.plugins import install_lock
 
     site = bounded_dependency_environment
     monkeypatch.syspath_prepend(str(site))

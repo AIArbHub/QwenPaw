@@ -22,10 +22,10 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.agents.skill_system import store as skill_store
-from qwenpaw.app import migration
-from qwenpaw.config.config import AgentProfileRef, Config
-from qwenpaw.constant import BUILTIN_QA_AGENT_ID, LEGACY_QA_AGENT_ID
+from aiarb.agents.skill_system import store as skill_store
+from aiarb.app import migration
+from aiarb.config.config import AgentProfileRef, Config
+from aiarb.constant import BUILTIN_QA_AGENT_ID, LEGACY_QA_AGENT_ID
 
 SKILL_BODY = "---\nname: {name}\n---\n\n# {name}\n\nBody: {body}\n"
 
@@ -125,7 +125,7 @@ def migrated_env(tmp_path, monkeypatch):
         lambda: wd / "skill_pool" / "skill.json",
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.skill_system.ensure_skill_pool_initialized",
+        "aiarb.agents.skill_system.ensure_skill_pool_initialized",
         lambda: True,
     )
     return wd
@@ -709,7 +709,7 @@ def qa_env(tmp_path, monkeypatch):
         lambda agent_id, agent_config: saved_agents.append(agent_id),
     )
     monkeypatch.setattr(
-        "qwenpaw.app.routers.agents._initialize_agent_workspace",
+        "aiarb.app.routers.agents._initialize_agent_workspace",
         lambda ws, skill_names, md_template_id: initialized.append(
             (Path(ws), list(skill_names), md_template_id),
         ),

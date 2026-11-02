@@ -15,7 +15,7 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.utils import port as port_mod
+from aiarb.utils import port as port_mod
 
 
 # ---------------------------------------------------------------------------

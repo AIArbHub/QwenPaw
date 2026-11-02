@@ -36,14 +36,14 @@ def texts(value):
 
 
 def session_path(ws, room, user="alice"):
-    from qwenpaw.app.chats.session import session_filename
+    from aiarb.app.chats.session import session_filename
 
     return ws.workspace_dir / "sessions" / KEY / session_filename(room, user)
 
 
 async def saved_texts(ws, room, user="alice"):
-    from qwenpaw.app.chats.session import SafeJSONSession
-    from qwenpaw.runtime._state_utils import StateProxy
+    from aiarb.app.chats.session import SafeJSONSession
+    from aiarb.runtime._state_utils import StateProxy
 
     proxy = StateProxy()
     await SafeJSONSession(
@@ -62,11 +62,11 @@ class Host:
     @classmethod
     async def create(cls, directory, monkeypatch):
         self = cls()
-        from qwenpaw.__version__ import __version__
-        from qwenpaw.plugins.channel_adapter import ChannelRuntimeSettings
-        from qwenpaw.plugins.loader import PluginLoader
-        from qwenpaw.plugins.registry import PluginRegistry
-        from qwenpaw.plugins.workspace_projector import WorkspaceProjector
+        from aiarb.__version__ import __version__
+        from aiarb.plugins.channel_adapter import ChannelRuntimeSettings
+        from aiarb.plugins.loader import PluginLoader
+        from aiarb.plugins.registry import PluginRegistry
+        from aiarb.plugins.workspace_projector import WorkspaceProjector
 
         self.root, self.patch = directory, monkeypatch
         self.installed = directory / "installed" / KEY
@@ -74,20 +74,20 @@ class Host:
         self.site = directory / "site"
         self.site.mkdir()
         self.config_path = directory / "config.json"
-        monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", directory / "host")
+        monkeypatch.setattr("aiarb.constant.WORKING_DIR", directory / "host")
         monkeypatch.setattr(
-            "qwenpaw.constant.PLUGINS_DIR",
+            "aiarb.constant.PLUGINS_DIR",
             self.installed.parent,
         )
         monkeypatch.setattr(
-            "qwenpaw.config.utils.WORKING_DIR",
+            "aiarb.config.utils.WORKING_DIR",
             directory / "host",
         )
-        monkeypatch.setattr("qwenpaw.config.utils._config_cache", None)
-        monkeypatch.setattr("qwenpaw.config.utils._config_mtime", None)
-        monkeypatch.setattr("qwenpaw.config.utils._agent_config_cache", {})
+        monkeypatch.setattr("aiarb.config.utils._config_cache", None)
+        monkeypatch.setattr("aiarb.config.utils._config_mtime", None)
+        monkeypatch.setattr("aiarb.config.utils._agent_config_cache", {})
         monkeypatch.setattr(
-            "qwenpaw.config.utils.get_config_path",
+            "aiarb.config.utils.get_config_path",
             lambda: self.config_path,
         )
         self.previous = PluginRegistry._instance
@@ -158,18 +158,18 @@ class Host:
         return source
 
     async def workspace(self, name, **settings):
-        from qwenpaw.app.channels.manager import ChannelManager
-        from qwenpaw.app.chats.manager import ChatManager
-        from qwenpaw.app.chats.repo.json_repo import JsonChatRepository
-        from qwenpaw.app.task_tracker import TaskTracker
-        from qwenpaw.config.config import (
+        from aiarb.app.channels.manager import ChannelManager
+        from aiarb.app.chats.manager import ChatManager
+        from aiarb.app.chats.repo.json_repo import JsonChatRepository
+        from aiarb.app.task_tracker import TaskTracker
+        from aiarb.config.config import (
             Config,
             AgentProfileConfig,
             AgentProfileRef,
             save_agent_config,
         )
-        from qwenpaw.config.utils import load_config, save_config
-        from qwenpaw.schemas import Message, RunStatus, TextContent
+        from aiarb.config.utils import load_config, save_config
+        from aiarb.schemas import Message, RunStatus, TextContent
 
         directory = self.root / name
         directory.mkdir()
@@ -246,7 +246,7 @@ class Host:
         )
 
     async def close(self):
-        from qwenpaw.plugins.registry import PluginRegistry
+        from aiarb.plugins.registry import PluginRegistry
 
         try:
             if self.loader.get_loaded_plugin(KEY):
@@ -263,26 +263,26 @@ class Host:
         from agentscope.message import TextBlock
         from agentscope.model import ChatModelBase
         from agentscope.model._model_response import ChatResponse
-        from qwenpaw.agents import model_factory
-        from qwenpaw.agents.react_agent import QwenPawAgent
-        from qwenpaw.app.channels.manager import ChannelManager
-        from qwenpaw.app.chats.session import SafeJSONSession
-        from qwenpaw.app.workspace.workspace_plugins import WorkspacePlugins
-        from qwenpaw.config.config import (
+        from aiarb.agents import model_factory
+        from aiarb.agents.react_agent import AIARBAgent
+        from aiarb.app.channels.manager import ChannelManager
+        from aiarb.app.chats.session import SafeJSONSession
+        from aiarb.app.workspace.workspace_plugins import WorkspacePlugins
+        from aiarb.config.config import (
             AgentProfileConfig,
             AgentProfileRef,
             ModelSlotConfig,
             save_agent_config,
         )
-        from qwenpaw.config.utils import load_config, save_config
-        from qwenpaw.hooks.base import LifecycleHook
-        from qwenpaw.hooks.session.session_hook import (
+        from aiarb.config.utils import load_config, save_config
+        from aiarb.hooks.base import LifecycleHook
+        from aiarb.hooks.session.session_hook import (
             SessionLoadHook,
             SessionSaveHook,
         )
-        from qwenpaw.runtime.hooks import HookResult
-        from qwenpaw.runtime.phases import Phase
-        from qwenpaw.runtime.runtime import Runtime
+        from aiarb.runtime.hooks import HookResult
+        from aiarb.runtime.phases import Phase
+        from aiarb.runtime.runtime import Runtime
 
         class Model(ChatModelBase):
             def __init__(self):
@@ -357,7 +357,7 @@ class Host:
             phase, name = Phase.POST_AGENT_BUILD, "observe_real_agent"
 
             async def run(self, ctx):
-                assert isinstance(ctx.agent, QwenPawAgent)
+                assert isinstance(ctx.agent, AIARBAgent)
                 ws.builds.append(
                     {"pid": os.getpid(), "session_id": ctx.session_id},
                 )

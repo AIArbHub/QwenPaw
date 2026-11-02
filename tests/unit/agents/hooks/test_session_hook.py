@@ -110,7 +110,7 @@ async def test_console_image_check_keeps_event_loop_responsive(monkeypatch):
         completed = True
 
     monkeypatch.setattr(
-        "qwenpaw.hooks.session.session_hook.repair_invalid_history_images",
+        "aiarb.hooks.session.session_hook.repair_invalid_history_images",
         slow_repair,
     )
     task = asyncio.create_task(SessionLoadHook().run(ctx))

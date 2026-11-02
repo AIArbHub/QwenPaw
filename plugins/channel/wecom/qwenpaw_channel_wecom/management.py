@@ -12,14 +12,14 @@ from urllib.parse import quote
 
 import httpx
 
-from qwenpaw.channel_protocol.errors import ProtocolValidationError
-from qwenpaw.channel_protocol.management import (
+from aiarb.channel_protocol.errors import ProtocolValidationError
+from aiarb.channel_protocol.management import (
     ManagementRequest,
     ManagementResult,
 )
 
 _AUTH_ORIGIN = "https://work.weixin.qq.com"
-_SOURCE = "qwenpaw"
+_SOURCE = "aiarb"
 
 
 def _result(request, payload=None, reason=None, unsupported=False):

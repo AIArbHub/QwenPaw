@@ -8,10 +8,10 @@ from unittest.mock import Mock
 
 import pytest
 
-from qwenpaw.providers import model_catalog, model_metadata
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.provider import ModelInfo
-from qwenpaw.providers.model_resolution import resolve_model_info
+from aiarb.providers import model_catalog, model_metadata
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.provider import ModelInfo
+from aiarb.providers.model_resolution import resolve_model_info
 
 
 @pytest.fixture

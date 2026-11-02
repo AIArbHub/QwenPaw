@@ -2,7 +2,7 @@
 """PowerContext memory plugin entry point."""
 
 from backend import PowerContextMemoryConfig, PowerContextMemoryManager
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 
 
 class PowerContextMemoryPlugin:

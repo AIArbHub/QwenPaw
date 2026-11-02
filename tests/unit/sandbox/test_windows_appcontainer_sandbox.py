@@ -1003,7 +1003,7 @@ def test_shutdown_cleanup_preserves_cleanup_without_progress_logging(
     monkeypatch,
     log_progress,
 ):
-    from qwenpaw.sandbox import windows_appcontainer_sandbox as mod
+    from aiarb.sandbox import windows_appcontainer_sandbox as mod
 
     containers = tmp_path / "containers"
     containers.mkdir()
@@ -1034,8 +1034,8 @@ def test_quiet_cleanup_preserves_failed_metadata_and_continues(
     unexpected_error,
 ):
     import logging
-    from qwenpaw.sandbox import windows_appcontainer_sandbox as mod
-    from qwenpaw.sandbox import windows_unelevated_sandbox as acl
+    from aiarb.sandbox import windows_appcontainer_sandbox as mod
+    from aiarb.sandbox import windows_unelevated_sandbox as acl
 
     class ClosedHandler(logging.Handler):
         def emit(self, record):

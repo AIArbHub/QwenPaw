@@ -7,8 +7,8 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from qwenpaw.config.config import ScrollContextConfig
-from qwenpaw.config.history_path import (
+from aiarb.config.config import ScrollContextConfig
+from aiarb.config.history_path import (
     normalize_history_db_filename,
     resolve_history_db_path,
 )

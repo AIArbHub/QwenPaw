@@ -6,11 +6,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from qwenpaw.sandbox._cleanup_logging import cleanup_logging
+from aiarb.sandbox._cleanup_logging import cleanup_logging
 
 
 def test_quiet_cleanup_is_context_local_and_restores_logging(caplog):
-    logger = logging.getLogger("qwenpaw.sandbox.cleanup_test")
+    logger = logging.getLogger("aiarb.sandbox.cleanup_test")
     with caplog.at_level(logging.WARNING):
         with pytest.raises(RuntimeError):
             with cleanup_logging(False):

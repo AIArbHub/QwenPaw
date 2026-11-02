@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.routers import plugins
+from aiarb.app.routers import plugins
 
 
 @pytest.mark.parametrize("enabled", [True, False])
@@ -30,7 +30,7 @@ async def test_enable_failure_sanitizes_exception_in_rendered_log(
         app=SimpleNamespace(state=SimpleNamespace(plugin_loader=loader)),
     )
     monkeypatch.setattr(
-        "qwenpaw.config.utils.get_plugins_dir",
+        "aiarb.config.utils.get_plugins_dir",
         lambda: tmp_path,
     )
     with caplog.at_level(logging.ERROR, logger=plugins.__name__):

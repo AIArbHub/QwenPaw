@@ -8,9 +8,9 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from qwenpaw.hub.model_service.listener import ModelListener
-from qwenpaw.hub.model_service.storage import GovernanceStore
-from qwenpaw.hub.provisioner import RuntimeModelNetwork
+from aiarb.hub.model_service.listener import ModelListener
+from aiarb.hub.model_service.storage import GovernanceStore
+from aiarb.hub.provisioner import RuntimeModelNetwork
 
 
 def _listener(tmp_path: Path) -> ModelListener:

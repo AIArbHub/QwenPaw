@@ -188,7 +188,7 @@ async def test_new_message_rejects_active_run(
 ):
     """A non-reconnect payload must not silently attach to an active run."""
     from starlette.requests import Request
-    from qwenpaw.app.routers import console
+    from aiarb.app.routers import console
 
     tracker = console_workspace.task_tracker
     release = asyncio.Event()

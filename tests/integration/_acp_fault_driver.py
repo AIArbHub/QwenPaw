@@ -18,8 +18,8 @@ from types import SimpleNamespace
 import httpx
 import openai
 
-from qwenpaw.agents.acp import server
-from qwenpaw.providers.retry_chat_model import StreamIdleTimeoutError
+from aiarb.agents.acp import server
+from aiarb.providers.retry_chat_model import StreamIdleTimeoutError
 
 _SCENARIO = os.environ[f"AIARB_FAULT_SCENARIO"]
 
@@ -88,12 +88,12 @@ async def _shutdown_workspace(self):
         pathlib.Path(marker).write_text("shutdown", encoding="utf-8")
 
 
-server.QwenPawACPAgent._ensure_workspace = _ensure_workspace
-server.QwenPawACPAgent._advertise_commands = _advertise_commands
-server.QwenPawACPAgent._bridge_approval_requests = _bridge_approval_requests
-server.QwenPawACPAgent._build_model_state = _build_model_state
-server.QwenPawACPAgent._sync_session_mcp = _sync_session_mcp
-server.QwenPawACPAgent._shutdown_workspace = _shutdown_workspace
+server.AIARBACPAgent._ensure_workspace = _ensure_workspace
+server.AIARBACPAgent._advertise_commands = _advertise_commands
+server.AIARBACPAgent._bridge_approval_requests = _bridge_approval_requests
+server.AIARBACPAgent._build_model_state = _build_model_state
+server.AIARBACPAgent._sync_session_mcp = _sync_session_mcp
+server.AIARBACPAgent._shutdown_workspace = _shutdown_workspace
 
 
 if __name__ == "__main__":

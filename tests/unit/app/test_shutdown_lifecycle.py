@@ -14,7 +14,7 @@ from types import SimpleNamespace
 import pytest
 from fastapi import FastAPI
 
-from qwenpaw.app._app import _stop_workspaces_after_dependents
+from aiarb.app._app import _stop_workspaces_after_dependents
 
 
 @pytest.mark.asyncio
@@ -81,14 +81,14 @@ async def test_plugin_resource_finishes_before_workspace_stop(
     monkeypatch,
     tmp_path,
 ):
-    from qwenpaw.plugins.api import PluginApi
-    from qwenpaw.plugins.architecture import (
+    from aiarb.plugins.api import PluginApi
+    from aiarb.plugins.architecture import (
         PluginEntryPoints,
         PluginManifest,
         PluginRecord,
     )
-    from qwenpaw.plugins.loader import PluginLoader
-    from qwenpaw.plugins.registry import PluginRegistry
+    from aiarb.plugins.loader import PluginLoader
+    from aiarb.plugins.registry import PluginRegistry
 
     monkeypatch.setattr(PluginRegistry, "_instance", None)
     loader = PluginLoader(plugin_dirs=[])
@@ -167,7 +167,7 @@ def test_direct_signal_hard_exits_when_import_never_quiesces(tmp_path):
         import uvicorn
         from fastapi import FastAPI
 
-        from qwenpaw.app._app import _stop_workspaces_after_dependents
+        from aiarb.app._app import _stop_workspaces_after_dependents
 
         started = Path(sys.argv[1])
         workspace_stopped = Path(sys.argv[2])

@@ -32,7 +32,7 @@ from telegram.ext import (
     filters,
 )
 from telegram.request import HTTPXRequest
-from qwenpaw.schemas import (
+from aiarb.schemas import (
     TextContent,
     ImageContent,
     VideoContent,
@@ -40,13 +40,13 @@ from qwenpaw.schemas import (
     FileContent,
     ContentType,
 )
-from qwenpaw.app.channels.utils import (
+from aiarb.app.channels.utils import (
     MediaDataError,
     data_url_filename,
     file_url_to_local_path,
     parse_data_url_async,
 )
-from qwenpaw.channel_protocol.models import ContentSource
+from aiarb.channel_protocol.models import ContentSource
 from .format_html import markdown_to_telegram_html
 from .errors import TelegramDeliveryError
 
@@ -570,7 +570,7 @@ class TelegramPlatform:
         workspace = config.get("workspace_dir")
         media = config.get("media_dir")
         if not media and not workspace:
-            from qwenpaw.constant import DEFAULT_MEDIA_DIR
+            from aiarb.constant import DEFAULT_MEDIA_DIR
 
             media = str(DEFAULT_MEDIA_DIR / "telegram")
         self._media_dir = Path(media or Path(workspace) / "media").expanduser()

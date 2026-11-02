@@ -21,11 +21,11 @@ from unittest.mock import MagicMock
 import httpx
 import pytest
 
-from qwenpaw.local_models.download_manager import (
+from aiarb.local_models.download_manager import (
     DownloadTaskResult,
     DownloadTaskStatus,
 )
-from qwenpaw.local_models.model_manager import (
+from aiarb.local_models.model_manager import (
     DownloadSource,
     ModelManager,
 )
@@ -374,14 +374,14 @@ class TestProbeAndResolveSource:
 
 class TestRecommendedModels:
     def test_prefers_vram(self, manager, monkeypatch):
-        from qwenpaw.utils import system_info
+        from aiarb.utils import system_info
 
         monkeypatch.setattr(system_info, "get_vram_size_gb", lambda: 12.0)
         monkeypatch.setattr(system_info, "get_memory_size_gb", lambda: 4.0)
         assert manager._detect_available_memory_gb() == 12.0
 
     def test_falls_back_to_system_memory(self, manager, monkeypatch):
-        from qwenpaw.utils import system_info
+        from aiarb.utils import system_info
 
         monkeypatch.setattr(system_info, "get_vram_size_gb", lambda: 0.0)
         monkeypatch.setattr(system_info, "get_memory_size_gb", lambda: 6.0)

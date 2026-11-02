@@ -22,7 +22,7 @@ import pytest
 @pytest.mark.p1
 def test_acp_resolve_process_command_found() -> None:
     """_resolve_process_command resolves an existing binary via PATH."""
-    from qwenpaw.agents.acp.service import _resolve_process_command
+    from aiarb.agents.acp.service import _resolve_process_command
 
     import os
 
@@ -40,7 +40,7 @@ def test_acp_resolve_process_command_found() -> None:
 @pytest.mark.p1
 def test_acp_resolve_process_command_missing() -> None:
     """_resolve_process_command falls back to the raw command."""
-    from qwenpaw.agents.acp.service import _resolve_process_command
+    from aiarb.agents.acp.service import _resolve_process_command
 
     resolved = _resolve_process_command(
         "integ-nonexistent-binary",
@@ -53,7 +53,7 @@ def test_acp_resolve_process_command_missing() -> None:
 @pytest.mark.p1
 def test_acp_kill_process_tree_noop() -> None:
     """_kill_process_tree tolerates a dead pid."""
-    from qwenpaw.agents.acp.service import _kill_process_tree
+    from aiarb.agents.acp.service import _kill_process_tree
 
     # pid 0 / negative are invalid; use a large unlikely pid
     _kill_process_tree(999999999)
@@ -68,7 +68,7 @@ def test_acp_kill_process_tree_noop() -> None:
 @pytest.mark.p1
 def test_none_provider_resolves_empty() -> None:
     """NoneProvider resolves to an empty credential."""
-    from qwenpaw.drivers.credentials.providers import NoneProvider
+    from aiarb.drivers.credentials.providers import NoneProvider
 
     provider = NoneProvider()
     cred = asyncio.run(provider.resolve())
@@ -80,7 +80,7 @@ def test_none_provider_resolves_empty() -> None:
 @pytest.mark.p1
 def test_resolved_credential_values_merge() -> None:
     """ResolvedCredential.values merges public and secrets."""
-    from qwenpaw.drivers.credentials.types import ResolvedCredential
+    from aiarb.drivers.credentials.types import ResolvedCredential
 
     cred = ResolvedCredential(
         kind="token",
@@ -96,7 +96,7 @@ def test_is_transient_oauth_status() -> None:
     """_is_transient_oauth_status flags 429/503, not 401."""
     import httpx
 
-    from qwenpaw.drivers.credentials.providers import (
+    from aiarb.drivers.credentials.providers import (
         _is_transient_oauth_status,
     )
 
@@ -119,7 +119,7 @@ def test_is_transient_oauth_status() -> None:
 @pytest.mark.p1
 def test_driver_card_construct() -> None:
     """DriverCard builds with required fields and defaults."""
-    from qwenpaw.drivers.contracts import DriverCard
+    from aiarb.drivers.contracts import DriverCard
 
     card = DriverCard(
         name="integ-driver",

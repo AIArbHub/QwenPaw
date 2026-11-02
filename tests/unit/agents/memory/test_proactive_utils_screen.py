@@ -17,7 +17,7 @@ from unittest.mock import AsyncMock, patch
 
 from agentscope.message import Base64Source, DataBlock, TextBlock
 
-from qwenpaw.agents.memory.proactive import proactive_utils as pu
+from aiarb.agents.memory.proactive import proactive_utils as pu
 
 
 # ---------------------------------------------------------------------------
@@ -85,7 +85,7 @@ class TestAnalyzeScreenActivity:
         ok_json = json.dumps({"ok": True})
         fake_shot = _screenshot_result(ok_json)
         with patch(
-            "qwenpaw.agents.tools.desktop_screenshot.desktop_screenshot",
+            "aiarb.agents.tools.desktop_screenshot.desktop_screenshot",
             new=AsyncMock(return_value=fake_shot),
         ):
             result = await pu._analyze_screen_activity(agent)
@@ -96,7 +96,7 @@ class TestAnalyzeScreenActivity:
     async def test_screenshot_none_returns_none(self):
         agent = SimpleNamespace(reply=AsyncMock())
         with patch(
-            "qwenpaw.agents.tools.desktop_screenshot.desktop_screenshot",
+            "aiarb.agents.tools.desktop_screenshot.desktop_screenshot",
             new=AsyncMock(return_value=None),
         ):
             assert await pu._analyze_screen_activity(agent) is None
@@ -105,7 +105,7 @@ class TestAnalyzeScreenActivity:
         agent = SimpleNamespace(reply=AsyncMock())
         fake = SimpleNamespace(content=[])
         with patch(
-            "qwenpaw.agents.tools.desktop_screenshot.desktop_screenshot",
+            "aiarb.agents.tools.desktop_screenshot.desktop_screenshot",
             new=AsyncMock(return_value=fake),
         ):
             assert await pu._analyze_screen_activity(agent) is None
@@ -115,7 +115,7 @@ class TestAnalyzeScreenActivity:
         ok_json = json.dumps({"ok": False, "error": "no display"})
         fake = _screenshot_result(ok_json)
         with patch(
-            "qwenpaw.agents.tools.desktop_screenshot.desktop_screenshot",
+            "aiarb.agents.tools.desktop_screenshot.desktop_screenshot",
             new=AsyncMock(return_value=fake),
         ):
             assert await pu._analyze_screen_activity(agent) is None
@@ -125,7 +125,7 @@ class TestAnalyzeScreenActivity:
         ok_json = json.dumps({"ok": True})
         fake = _screenshot_result(ok_json, with_image=False)
         with patch(
-            "qwenpaw.agents.tools.desktop_screenshot.desktop_screenshot",
+            "aiarb.agents.tools.desktop_screenshot.desktop_screenshot",
             new=AsyncMock(return_value=fake),
         ):
             assert await pu._analyze_screen_activity(agent) is None
@@ -134,7 +134,7 @@ class TestAnalyzeScreenActivity:
         agent = SimpleNamespace(reply=AsyncMock())
         fake = _screenshot_result("not json at all")
         with patch(
-            "qwenpaw.agents.tools.desktop_screenshot.desktop_screenshot",
+            "aiarb.agents.tools.desktop_screenshot.desktop_screenshot",
             new=AsyncMock(return_value=fake),
         ):
             assert await pu._analyze_screen_activity(agent) is None
@@ -142,7 +142,7 @@ class TestAnalyzeScreenActivity:
     async def test_screenshot_exception_swallowed(self):
         agent = SimpleNamespace(reply=AsyncMock())
         with patch(
-            "qwenpaw.agents.tools.desktop_screenshot.desktop_screenshot",
+            "aiarb.agents.tools.desktop_screenshot.desktop_screenshot",
             new=AsyncMock(side_effect=RuntimeError("display down")),
         ):
             assert await pu._analyze_screen_activity(agent) is None
@@ -154,7 +154,7 @@ class TestAnalyzeScreenActivity:
         ok_json = json.dumps({"ok": True})
         fake = _screenshot_result(ok_json)
         with patch(
-            "qwenpaw.agents.tools.desktop_screenshot.desktop_screenshot",
+            "aiarb.agents.tools.desktop_screenshot.desktop_screenshot",
             new=AsyncMock(return_value=fake),
         ):
             assert await pu._analyze_screen_activity(agent) is None

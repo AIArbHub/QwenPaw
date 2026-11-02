@@ -13,25 +13,25 @@ from unittest.mock import MagicMock
 import pytest
 from agentscope.message import Base64Source, DataBlock, TextBlock
 
-from qwenpaw.config.config import (
+from aiarb.config.config import (
     AdvisorInterventionConfig,
     AgentProfileConfig,
     ModelSlotConfig,
 )
-from qwenpaw.modes.advisor import AdvisorMiddleware, AdvisorMode
-from qwenpaw.modes.advisor import mode as mode_module
-from qwenpaw.modes.advisor.config import is_enabled
-from qwenpaw.modes.advisor import models as models_module
-from qwenpaw.modes.advisor.hooks import WorkerModelHook
-from qwenpaw.modes.advisor.tools import CONSULT_TOOL_NAME
-from qwenpaw.modes.base import find_active_explicit_mode
-from qwenpaw.modes.coding import CodingMode
-from qwenpaw.modes.advisor.models import (
+from aiarb.modes.advisor import AdvisorMiddleware, AdvisorMode
+from aiarb.modes.advisor import mode as mode_module
+from aiarb.modes.advisor.config import is_enabled
+from aiarb.modes.advisor import models as models_module
+from aiarb.modes.advisor.hooks import WorkerModelHook
+from aiarb.modes.advisor.tools import CONSULT_TOOL_NAME
+from aiarb.modes.base import find_active_explicit_mode
+from aiarb.modes.coding import CodingMode
+from aiarb.modes.advisor.models import (
     AdvisorClient,
     slot_label,
     slot_to_dict,
 )
-from qwenpaw.runtime.phases import Phase
+from aiarb.runtime.phases import Phase
 
 
 def _config(
@@ -89,7 +89,7 @@ def test_inactive_when_config_unavailable(monkeypatch):
     def boom(_agent_id):
         raise RuntimeError("no config")
 
-    monkeypatch.setattr("qwenpaw.config.config.load_agent_config", boom)
+    monkeypatch.setattr("aiarb.config.config.load_agent_config", boom)
     mode = AdvisorMode()
     mode.session_state("sess-1").override = True
     assert mode.is_active(_ctx(None)) is False
@@ -102,7 +102,7 @@ def test_is_active_reads_no_config_until_the_conversation_picked_it(
     comes first so unrelated conversations never load agent config."""
     loads = []
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda agent_id: loads.append(agent_id) or _config(enabled=True),
     )
     mode = AdvisorMode()
@@ -115,7 +115,7 @@ def test_is_active_reads_no_config_until_the_conversation_picked_it(
 
 def test_loads_persisted_config_when_ctx_has_none(monkeypatch):
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: _config(enabled=True),
     )
     mode = AdvisorMode()
@@ -245,7 +245,7 @@ def test_command_is_registered():
 
 async def test_command_status_reports_models(monkeypatch):
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: _config(enabled=True),
     )
     mode = AdvisorMode()
@@ -261,7 +261,7 @@ async def test_command_status_reports_models(monkeypatch):
 
 async def test_command_status_without_subagent_model(monkeypatch):
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: _config(enabled=False, sub=None),
     )
     text = _text(await AdvisorMode()._command_handler(_ctx(), ""))
@@ -276,7 +276,7 @@ async def test_command_refuses_to_start_when_switched_off(monkeypatch):
 
     cfg = _config(enabled=False)
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: cfg,
     )
     mode = AdvisorMode()
@@ -299,7 +299,7 @@ async def test_command_refuses_while_another_mode_is_active(monkeypatch):
     explicit mode. Advisor itself being active is not a conflict."""
     cfg = _config()
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: cfg,
     )
     mode = AdvisorMode()
@@ -345,7 +345,7 @@ async def test_command_on_off_switches_this_conversation(
     written."""
     stored = _config(enabled=True)
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: stored,
     )
     mode = AdvisorMode()
@@ -372,7 +372,7 @@ async def test_command_with_a_task_starts_the_mode_and_runs_it(
 
     cfg = _config(enabled=True)
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: cfg,
     )
     mode = AdvisorMode()
@@ -413,7 +413,7 @@ async def test_command_with_a_task_keeps_attached_media():
 async def test_leaving_the_mode_switches_everything_off(monkeypatch):
     cfg = _config(enabled=True)
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: cfg,
     )
     mode = _picked()
@@ -460,7 +460,7 @@ async def test_advisor_builds_model_once_and_sends_msgs(monkeypatch):
 
     # Patched at the source module: ``models.py`` imports the factory lazily.
     monkeypatch.setattr(
-        "qwenpaw.agents.model_factory.create_model_and_formatter_async",
+        "aiarb.agents.model_factory.create_model_and_formatter_async",
         fake_factory,
     )
     cfg = _config()
@@ -518,7 +518,7 @@ async def test_advisor_streams_cumulative_text_from_incremental_chunks(
         return _Model(), None
 
     monkeypatch.setattr(
-        "qwenpaw.agents.model_factory.create_model_and_formatter_async",
+        "aiarb.agents.model_factory.create_model_and_formatter_async",
         fake_factory,
     )
     advisor = AdvisorClient(agent_id="agent-1")
@@ -538,7 +538,7 @@ def test_mode_module_exports():
 
 
 def test_advisor_override_beats_the_primary_model():
-    from qwenpaw.modes.advisor.models import (
+    from aiarb.modes.advisor.models import (
         resolve_worker_slot,
         resolve_advisor_slot,
     )
@@ -561,7 +561,7 @@ def test_advisor_override_beats_the_primary_model():
 
 
 def test_advisor_falls_back_to_the_global_active_model(monkeypatch):
-    from qwenpaw.modes.advisor.models import (
+    from aiarb.modes.advisor.models import (
         default_advisor_slot,
         resolve_advisor_slot,
     )
@@ -573,7 +573,7 @@ def test_advisor_falls_back_to_the_global_active_model(monkeypatch):
     global_slot = ModelSlotConfig(provider_id="glob", model="g-max")
     manager = SimpleNamespace(get_active_model=lambda: global_slot)
     monkeypatch.setattr(
-        "qwenpaw.providers.ProviderManager.get_instance",
+        "aiarb.providers.ProviderManager.get_instance",
         lambda: manager,
     )
     assert default_advisor_slot(cfg) is global_slot
@@ -634,7 +634,7 @@ async def test_tool_consults_the_middleware_of_the_current_session(
     advisor = _Advisor("Switch to the other approach.")
     mw._advisor = advisor
     monkeypatch.setattr(
-        "qwenpaw.modes.advisor.mode.get_current_session_id",
+        "aiarb.modes.advisor.mode.get_current_session_id",
         lambda: "sess-1",
     )
     consult = mode.tools()[0].func
@@ -658,7 +658,7 @@ async def test_tool_streams_through_the_agentscope_toolkit(monkeypatch):
     mw = mode.build_middleware(_ctx(cfg), cfg)
     mw._advisor = _Advisor("First half, second half.")
     monkeypatch.setattr(
-        "qwenpaw.modes.advisor.mode.get_current_session_id",
+        "aiarb.modes.advisor.mode.get_current_session_id",
         lambda: "sess-1",
     )
     toolkit = Toolkit(tools=[FunctionTool(mode.tools()[0].func)])
@@ -682,7 +682,7 @@ async def test_tool_without_session_or_when_disabled(monkeypatch):
     mode = AdvisorMode()
     consult = mode.tools()[0].func
     monkeypatch.setattr(
-        "qwenpaw.modes.advisor.mode.get_current_session_id",
+        "aiarb.modes.advisor.mode.get_current_session_id",
         lambda: None,
     )
     assert "not available" in (await _tool_text(consult, "q"))[0]
@@ -692,7 +692,7 @@ async def test_tool_without_session_or_when_disabled(monkeypatch):
     mw = mode.build_middleware(_ctx(cfg), cfg)
     mw._advisor = _Advisor()
     monkeypatch.setattr(
-        "qwenpaw.modes.advisor.mode.get_current_session_id",
+        "aiarb.modes.advisor.mode.get_current_session_id",
         lambda: "sess-1",
     )
     assert "switched off" in (await _tool_text(consult, "q"))[0]
@@ -703,7 +703,7 @@ async def test_session_state_carries_plan_and_budget_across_requests(
     monkeypatch,
 ):
     monkeypatch.setattr(
-        "qwenpaw.modes.advisor.mode.get_current_session_id",
+        "aiarb.modes.advisor.mode.get_current_session_id",
         lambda: "sess-1",
     )
     mode = AdvisorMode()
@@ -804,7 +804,7 @@ def test_intervention_thresholds_come_from_the_config():
 
 
 def test_transcripts_stay_out_of_the_real_working_dir(isolated_advisor_dir):
-    from qwenpaw.modes.advisor.middleware import default_log_dir
+    from aiarb.modes.advisor.middleware import default_log_dir
 
     assert default_log_dir("agent-1") == isolated_advisor_dir / "agent-1"
     mw = AdvisorMode().build_middleware(_ctx(_config()), _config())
@@ -836,7 +836,7 @@ async def test_leaving_the_mode_drops_the_session(monkeypatch):
     later ``/advisor on`` starts over with a fresh plan."""
     cfg = _config()
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: cfg,
     )
     mode = _picked()
@@ -852,7 +852,7 @@ async def test_status_mentions_the_consult_tool(monkeypatch):
     cfg.advisor_mode.on_demand_enabled = False
     cfg.advisor_mode.max_consults = 5
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: cfg,
     )
     text = _text(await AdvisorMode()._command_handler(_ctx(), "status"))
@@ -868,8 +868,8 @@ def test_command_metadata_exposes_the_loop_mode_entry():
 def test_consult_tool_is_registered_with_governance():
     """Unregistered tools are denied by policy, so the mode registers its
     tool as internal so the agent can call it without approval."""
-    from qwenpaw.governance.tool_registry import DEFAULT_REGISTRY
-    from qwenpaw.modes.advisor.tools import CONSULT_POLICY_NAME
+    from aiarb.governance.tool_registry import DEFAULT_REGISTRY
+    from aiarb.modes.advisor.tools import CONSULT_POLICY_NAME
 
     AdvisorMode().setup(MagicMock())
     assert (
@@ -889,7 +889,7 @@ async def test_advisor_thinking_level_reaches_the_model_factory(monkeypatch):
         return SimpleNamespace(), None
 
     monkeypatch.setattr(
-        "qwenpaw.agents.model_factory.create_model_and_formatter_async",
+        "aiarb.agents.model_factory.create_model_and_formatter_async",
         fake_create,
     )
     cfg = _config()

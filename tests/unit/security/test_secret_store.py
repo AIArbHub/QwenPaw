@@ -190,7 +190,7 @@ class TestMasterKeyFilePermissions:
         caplog: pytest.LogCaptureFixture,
         insecure_mode: int,
     ):
-        import qwenpaw.security.secret_store as mod
+        import aiarb.security.secret_store as mod
 
         key_hex = "aa" * 32
         key_file = tmp_path / ".master_key"
@@ -208,7 +208,7 @@ class TestMasterKeyFilePermissions:
         tmp_path: Path,
         caplog: pytest.LogCaptureFixture,
     ):
-        import qwenpaw.security.secret_store as mod
+        import aiarb.security.secret_store as mod
 
         key_hex = "aa" * 32
         key_file = tmp_path / ".master_key"
@@ -227,7 +227,7 @@ class TestMasterKeyFilePermissions:
         monkeypatch: pytest.MonkeyPatch,
         caplog: pytest.LogCaptureFixture,
     ):
-        import qwenpaw.security.secret_store as mod
+        import aiarb.security.secret_store as mod
 
         key_hex = "aa" * 32
         key_file = tmp_path / ".master_key"
@@ -249,7 +249,7 @@ class TestMasterKeyFilePermissions:
         monkeypatch: pytest.MonkeyPatch,
         caplog: pytest.LogCaptureFixture,
     ):
-        import qwenpaw.security.secret_store as mod
+        import aiarb.security.secret_store as mod
 
         key_hex = "aa" * 32
         key_file = tmp_path / ".master_key"

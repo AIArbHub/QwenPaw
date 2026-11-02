@@ -10,9 +10,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.sandbox import windows_appcontainer_sandbox as app
-from qwenpaw.sandbox import windows_elevated_sandbox as elevated
-from qwenpaw.sandbox import windows_unelevated_sandbox as unelevated
+from aiarb.sandbox import windows_appcontainer_sandbox as app
+from aiarb.sandbox import windows_elevated_sandbox as elevated
+from aiarb.sandbox import windows_unelevated_sandbox as unelevated
 
 
 @pytest.fixture(
@@ -38,7 +38,7 @@ def backend(request, tmp_path, monkeypatch):
         lambda: SimpleNamespace(active=False),
     )
     monkeypatch.setattr(
-        "qwenpaw.utils.platform.is_windows_admin",
+        "aiarb.utils.platform.is_windows_admin",
         lambda: True,
     )
     original_glob = Path.glob

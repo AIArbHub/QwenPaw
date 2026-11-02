@@ -17,7 +17,7 @@ import pytest
 @pytest.mark.p1
 def test_is_command_catastrophic_rm_root() -> None:
     """rm -rf / is catastrophic."""
-    from qwenpaw.security.tool_guard.safety_checks import (
+    from aiarb.security.tool_guard.safety_checks import (
         is_command_catastrophic,
     )
 
@@ -28,7 +28,7 @@ def test_is_command_catastrophic_rm_root() -> None:
 @pytest.mark.p1
 def test_is_command_catastrophic_wildcard_wipe() -> None:
     """Broad wildcard deletes are catastrophic."""
-    from qwenpaw.security.tool_guard.safety_checks import (
+    from aiarb.security.tool_guard.safety_checks import (
         is_command_catastrophic,
     )
 
@@ -39,7 +39,7 @@ def test_is_command_catastrophic_wildcard_wipe() -> None:
 @pytest.mark.p1
 def test_is_command_catastrophic_mkfs() -> None:
     """Formatting a filesystem is catastrophic."""
-    from qwenpaw.security.tool_guard.safety_checks import (
+    from aiarb.security.tool_guard.safety_checks import (
         is_command_catastrophic,
     )
 
@@ -50,7 +50,7 @@ def test_is_command_catastrophic_mkfs() -> None:
 @pytest.mark.p1
 def test_is_command_catastrophic_fork_bomb() -> None:
     """Classic fork bombs are catastrophic."""
-    from qwenpaw.security.tool_guard.safety_checks import (
+    from aiarb.security.tool_guard.safety_checks import (
         is_command_catastrophic,
     )
 
@@ -61,7 +61,7 @@ def test_is_command_catastrophic_fork_bomb() -> None:
 @pytest.mark.p1
 def test_is_command_catastrophic_benign_rm() -> None:
     """Removing a regular file under a workspace is not catastrophic."""
-    from qwenpaw.security.tool_guard.safety_checks import (
+    from aiarb.security.tool_guard.safety_checks import (
         is_command_catastrophic,
     )
 
@@ -72,7 +72,7 @@ def test_is_command_catastrophic_benign_rm() -> None:
 @pytest.mark.p1
 def test_is_command_destructive_shutdown() -> None:
     """shutdown in command position is destructive (system_power)."""
-    from qwenpaw.security.tool_guard.safety_checks import (
+    from aiarb.security.tool_guard.safety_checks import (
         is_command_destructive,
     )
 
@@ -83,7 +83,7 @@ def test_is_command_destructive_shutdown() -> None:
 @pytest.mark.p1
 def test_is_command_destructive_benign() -> None:
     """Harmless commands are not destructive."""
-    from qwenpaw.security.tool_guard.safety_checks import (
+    from aiarb.security.tool_guard.safety_checks import (
         is_command_destructive,
     )
 
@@ -95,7 +95,7 @@ def test_is_command_destructive_benign() -> None:
 @pytest.mark.p1
 def test_classify_destructive_command_kinds() -> None:
     """Classification distinguishes catastrophic, power, and none."""
-    from qwenpaw.security.tool_guard.safety_checks import (
+    from aiarb.security.tool_guard.safety_checks import (
         classify_destructive_command,
     )
 
@@ -107,7 +107,7 @@ def test_classify_destructive_command_kinds() -> None:
 @pytest.mark.p1
 def test_is_path_outside_boundary_outside(tmp_path: Path) -> None:
     """Path outside the workspace boundary reports True."""
-    from qwenpaw.security.tool_guard.safety_checks import (
+    from aiarb.security.tool_guard.safety_checks import (
         is_path_outside_boundary,
     )
 
@@ -124,7 +124,7 @@ def test_is_path_outside_boundary_outside(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_is_path_outside_boundary_inside(tmp_path: Path) -> None:
     """Path inside the workspace boundary reports False."""
-    from qwenpaw.security.tool_guard.safety_checks import (
+    from aiarb.security.tool_guard.safety_checks import (
         is_path_outside_boundary,
     )
 
@@ -144,7 +144,7 @@ def test_is_path_outside_boundary_sibling_prefix(tmp_path: Path) -> None:
 
     Guards against string-prefix bypass (/foo/bar_evil vs /foo/bar).
     """
-    from qwenpaw.security.tool_guard.safety_checks import (
+    from aiarb.security.tool_guard.safety_checks import (
         is_path_outside_boundary,
     )
 
@@ -161,7 +161,7 @@ def test_is_path_outside_boundary_sibling_prefix(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_posix_root_treated_catastrophically() -> None:
     """POSIX absolute root wipe token is catastrophic on any host."""
-    from qwenpaw.security.tool_guard.safety_checks import (
+    from aiarb.security.tool_guard.safety_checks import (
         is_command_catastrophic,
     )
 
@@ -172,7 +172,7 @@ def test_posix_root_treated_catastrophically() -> None:
 @pytest.mark.p1
 def test_safe_temp_tree_not_catastrophic() -> None:
     """Wiping a temp-tree target is not classified catastrophic."""
-    from qwenpaw.security.tool_guard.safety_checks import (
+    from aiarb.security.tool_guard.safety_checks import (
         classify_destructive_command,
     )
 

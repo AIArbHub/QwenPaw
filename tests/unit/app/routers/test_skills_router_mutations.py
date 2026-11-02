@@ -21,9 +21,9 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.routers import skills as skills_module
-from qwenpaw.app.routers.skills import router as skills_router
-from qwenpaw.exceptions import SkillScanError
+from aiarb.app.routers import skills as skills_module
+from aiarb.app.routers.skills import router as skills_router
+from aiarb.exceptions import SkillScanError
 
 
 def _zip_bytes(names: tuple[str, ...] = ("SKILL.md",)) -> bytes:
@@ -69,7 +69,7 @@ def fake_workspace(tmp_path: Path):
 @pytest.fixture
 def patch_get_agent(fake_workspace):
     with patch(
-        "qwenpaw.app.agent_context.get_agent_for_request",
+        "aiarb.app.agent_context.get_agent_for_request",
         new=AsyncMock(return_value=fake_workspace),
     ) as patched:
         yield patched
@@ -79,7 +79,7 @@ def patch_get_agent(fake_workspace):
 def mock_workspace_service():
     service = MagicMock(name="SkillServiceInstance")
     with patch(
-        "qwenpaw.app.routers.skills.SkillService",
+        "aiarb.app.routers.skills.SkillService",
         return_value=service,
     ):
         yield service
@@ -89,7 +89,7 @@ def mock_workspace_service():
 def mock_pool_service():
     service = MagicMock(name="SkillPoolServiceInstance")
     with patch(
-        "qwenpaw.app.routers.skills.SkillPoolService",
+        "aiarb.app.routers.skills.SkillPoolService",
         return_value=service,
     ):
         yield service
@@ -98,7 +98,7 @@ def mock_pool_service():
 @pytest.fixture
 def mock_inbox_append():
     with patch(
-        "qwenpaw.app.routers.skills.append_inbox_event",
+        "aiarb.app.routers.skills.append_inbox_event",
         new=AsyncMock(return_value=None),
     ) as patched:
         yield patched
@@ -107,7 +107,7 @@ def mock_inbox_append():
 @pytest.fixture
 def mock_schedule_reload():
     with patch(
-        "qwenpaw.app.routers.skills.schedule_agent_reload",
+        "aiarb.app.routers.skills.schedule_agent_reload",
     ) as patched:
         yield patched
 
@@ -173,7 +173,7 @@ class TestPostAutoSyncInbox:
 
     async def test_inbox_error_returns_false(self):
         with patch(
-            "qwenpaw.app.routers.skills.append_inbox_event",
+            "aiarb.app.routers.skills.append_inbox_event",
             new=AsyncMock(side_effect=RuntimeError("inbox down")),
         ):
             result = {"synced": [{"skill": "s1", "agents": ["a"]}]}
@@ -270,7 +270,7 @@ class TestCreateSkill:
     ):
         mock_workspace_service.create_skill.return_value = None
         with patch(
-            "qwenpaw.app.routers.skills.suggest_conflict_name",
+            "aiarb.app.routers.skills.suggest_conflict_name",
             return_value="new_skill_2",
         ):
             response = client.post(
@@ -330,7 +330,7 @@ class TestCreatePoolSkill:
     def test_conflict_returns_409(self, client, mock_pool_service):
         mock_pool_service.create_skill.return_value = None
         with patch(
-            "qwenpaw.app.routers.skills.suggest_conflict_name",
+            "aiarb.app.routers.skills.suggest_conflict_name",
             return_value="pool_skill_2",
         ):
             response = client.post(
@@ -360,10 +360,10 @@ class TestSavePoolSkill:
             "name": "renamed",
         }
         with patch(
-            "qwenpaw.app.routers.skills.run_pool_auto_sync",
+            "aiarb.app.routers.skills.run_pool_auto_sync",
             return_value=None,
         ) as sync_mock, patch(
-            "qwenpaw.app.routers.skills.append_inbox_event",
+            "aiarb.app.routers.skills.append_inbox_event",
             new=AsyncMock(return_value=None),
         ):
             response = client.put(
@@ -601,10 +601,10 @@ class TestUploadPoolSkillZip:
             "skills": ["p1"],
         }
         with patch(
-            "qwenpaw.app.routers.skills.run_pool_auto_sync",
+            "aiarb.app.routers.skills.run_pool_auto_sync",
             return_value=None,
         ) as sync_mock, patch(
-            "qwenpaw.app.routers.skills.append_inbox_event",
+            "aiarb.app.routers.skills.append_inbox_event",
             new=AsyncMock(return_value=None),
         ):
             response = client.post(
@@ -926,7 +926,7 @@ class TestUpdatePoolSkillAutomation:
             },
         }
         with patch(
-            "qwenpaw.app.routers.skills.append_inbox_event",
+            "aiarb.app.routers.skills.append_inbox_event",
             new=AsyncMock(return_value=None),
         ):
             response = client.put(
@@ -977,7 +977,7 @@ class TestUpdatePoolSkillAutomation:
             "automation": {},
         }
         with patch(
-            "qwenpaw.app.routers.skills.append_inbox_event",
+            "aiarb.app.routers.skills.append_inbox_event",
             new=AsyncMock(return_value=None),
         ):
             response = client.put(
@@ -999,7 +999,7 @@ class TestUpdatePoolSkillAutomation:
 class TestDownloadPoolSkill:
     def test_no_targets_returns_400(self, client):
         with patch(
-            "qwenpaw.app.routers.skills.list_workspaces",
+            "aiarb.app.routers.skills.list_workspaces",
             return_value=[],
         ):
             response = client.post(
@@ -1015,7 +1015,7 @@ class TestDownloadPoolSkill:
         mock_pool_service,
     ):
         with patch(
-            "qwenpaw.app.routers.skills._preflight_download_conflicts",
+            "aiarb.app.routers.skills._preflight_download_conflicts",
             return_value=[],
         ):
             response = client.post(
@@ -1035,7 +1035,7 @@ class TestDownloadPoolSkill:
         mock_pool_service,
     ):
         with patch(
-            "qwenpaw.app.routers.skills._preflight_download_conflicts",
+            "aiarb.app.routers.skills._preflight_download_conflicts",
             return_value=[{"workspace_id": "default", "skill": "s1"}],
         ):
             response = client.post(
@@ -1056,16 +1056,16 @@ class TestDownloadPoolSkill:
         mock_pool_service,
     ):
         with patch(
-            "qwenpaw.app.routers.skills.list_workspaces",
+            "aiarb.app.routers.skills.list_workspaces",
             return_value=[
                 {"agent_id": "default", "workspace_dir": "/tmp/ws-default"},
                 {"agent_id": "work", "workspace_dir": "/tmp/ws-work"},
             ],
         ), patch(
-            "qwenpaw.app.routers.skills._preflight_download_conflicts",
+            "aiarb.app.routers.skills._preflight_download_conflicts",
             return_value=[],
         ) as preflight_mock, patch(
-            "qwenpaw.app.routers.skills._build_download_plan",
+            "aiarb.app.routers.skills._build_download_plan",
             return_value=[],
         ):
             response = client.post(

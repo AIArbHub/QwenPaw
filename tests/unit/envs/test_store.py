@@ -10,9 +10,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.routers.envs import router
-from qwenpaw.envs import store
-from qwenpaw.utils.shell_resources import ShellGuard
+from aiarb.envs import store
 
 
 @pytest.fixture

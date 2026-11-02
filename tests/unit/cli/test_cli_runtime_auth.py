@@ -13,15 +13,15 @@ from click.testing import CliRunner
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from qwenpaw.agents.tools import agent_management
-from qwenpaw.agents.memory.proactive.proactive_responder import (
+from aiarb.agents.tools import agent_management
+from aiarb.agents.memory.proactive.proactive_responder import (
     send_proactive_message_via_http,
 )
-from qwenpaw.app.auth import RuntimeBoundaryMiddleware
-from qwenpaw.cli import http as cli_http
-from qwenpaw.cli import doctor_cmd, plugin_commands, update_cmd
-from qwenpaw.utils.runtime_api import async_api_client
-from qwenpaw.cli.main import cli
+from aiarb.app.auth import RuntimeBoundaryMiddleware
+from aiarb.cli import http as cli_http
+from aiarb.cli import doctor_cmd, plugin_commands, update_cmd
+from aiarb.utils.runtime_api import async_api_client
+from aiarb.cli.main import cli
 
 _RUNTIME_URL = "http://127.0.0.1:9001"
 _TOKEN_HEADER = "X-QwenPaw-Runtime-Token"
@@ -34,7 +34,7 @@ def managed_runtime(monkeypatch):
     monkeypatch.setenv("AIARB_RUNTIME_INTERNAL_TOKEN", "secret-a")
     monkeypatch.setenv("AIARB_RUNTIME_API_URL", _RUNTIME_URL)
     monkeypatch.setattr(
-        "qwenpaw.cli.main.read_last_api",
+        "aiarb.cli.main.read_last_api",
         lambda: ("127.0.0.1", 9002),
     )
     monkeypatch.setattr(

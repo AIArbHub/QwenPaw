@@ -23,7 +23,7 @@ import pytest
 @pytest.mark.p1
 def test_detect_sensitive_paths_match() -> None:
     """detect_sensitive_paths flags a target inside a sensitive dir."""
-    from qwenpaw.governance.detectors import detect_sensitive_paths
+    from aiarb.governance.detectors import detect_sensitive_paths
 
     findings = detect_sensitive_paths(
         tool_name="shell",
@@ -39,7 +39,7 @@ def test_detect_sensitive_paths_match() -> None:
 @pytest.mark.p1
 def test_detect_sensitive_paths_no_match() -> None:
     """detect_sensitive_paths returns empty for a clean target."""
-    from qwenpaw.governance.detectors import detect_sensitive_paths
+    from aiarb.governance.detectors import detect_sensitive_paths
 
     findings = detect_sensitive_paths(
         tool_name="shell",
@@ -54,7 +54,7 @@ def test_detect_sensitive_paths_no_match() -> None:
 @pytest.mark.p1
 def test_detect_sensitive_paths_empty_config() -> None:
     """detect_sensitive_paths returns empty when no paths configured."""
-    from qwenpaw.governance.detectors import detect_sensitive_paths
+    from aiarb.governance.detectors import detect_sensitive_paths
 
     findings = detect_sensitive_paths(
         tool_name="shell",
@@ -69,9 +69,9 @@ def test_detect_sensitive_paths_empty_config() -> None:
 @pytest.mark.p1
 def test_detect_dangerous_patterns_match() -> None:
     """detect_dangerous_patterns flags a target matching a rule."""
-    from qwenpaw.governance.detectors import detect_dangerous_patterns
+    from aiarb.governance.detectors import detect_dangerous_patterns
 
-    from qwenpaw.governance.policy import DetectionRuleConfig
+    from aiarb.governance.policy import DetectionRuleConfig
 
     rule = DetectionRuleConfig(
         id="integ-rule",
@@ -89,7 +89,7 @@ def test_detect_dangerous_patterns_match() -> None:
 @pytest.mark.p1
 def test_detect_dangerous_patterns_no_rules() -> None:
     """detect_dangerous_patterns returns empty with no rules."""
-    from qwenpaw.governance.detectors import detect_dangerous_patterns
+    from aiarb.governance.detectors import detect_dangerous_patterns
 
     findings = detect_dangerous_patterns(
         tool_name="shell",
@@ -108,8 +108,8 @@ def test_detect_dangerous_patterns_no_rules() -> None:
 @pytest.mark.p1
 def test_audit_log_record_and_query() -> None:
     """AuditLog records an event and returns it on query."""
-    from qwenpaw.governance.audit import AuditLog
-    from qwenpaw.governance.policy import (
+    from aiarb.governance.audit import AuditLog
+    from aiarb.governance.policy import (
         GovernanceAction,
         GovernanceDecision,
         ToolCallSpec,
@@ -139,7 +139,7 @@ def test_audit_log_record_and_query() -> None:
 @pytest.mark.p1
 def test_audit_event_fields() -> None:
     """AuditEvent carries the recorded fields."""
-    from qwenpaw.governance.audit import AuditEvent
+    from aiarb.governance.audit import AuditEvent
 
     ev = AuditEvent(
         ts=0,
@@ -164,7 +164,7 @@ def test_audit_event_fields() -> None:
 @pytest.mark.p1
 def test_governance_action_enum() -> None:
     """GovernanceAction enum has the four expected values."""
-    from qwenpaw.governance.policy import GovernanceAction
+    from aiarb.governance.policy import GovernanceAction
 
     assert GovernanceAction.ALLOW.value == "allow"
     assert GovernanceAction.DENY.value == "deny"
@@ -176,7 +176,7 @@ def test_governance_action_enum() -> None:
 @pytest.mark.p1
 def test_default_user_rules_nonempty() -> None:
     """get_default_user_rules returns the built-in rule set."""
-    from qwenpaw.governance.policy import get_default_user_rules
+    from aiarb.governance.policy import get_default_user_rules
 
     rules = get_default_user_rules()
     assert isinstance(rules, list)
@@ -187,7 +187,7 @@ def test_default_user_rules_nonempty() -> None:
 @pytest.mark.p1
 def test_load_governance_policy_default() -> None:
     """load_governance_policy returns a default policy when missing."""
-    from qwenpaw.governance.policy import load_governance_policy
+    from aiarb.governance.policy import load_governance_policy
 
     with tempfile.TemporaryDirectory() as tmp:
         policy = load_governance_policy(tmp, tmp)
@@ -203,7 +203,7 @@ def test_load_governance_policy_default() -> None:
 @pytest.mark.p1
 def test_secret_store_roundtrip() -> None:
     """mask/restore round-trips a secret value."""
-    from qwenpaw.security.secret_store import (
+    from aiarb.security.secret_store import (
         mask_secret_value,
         restore_masked_secret_value,
     )
@@ -224,7 +224,7 @@ def test_secret_store_roundtrip() -> None:
 @pytest.mark.p1
 def test_guard_rule_from_dict() -> None:
     """GuardRule builds from a dict payload."""
-    from qwenpaw.security.tool_guard.guardians.rule_guardian import (
+    from aiarb.security.tool_guard.guardians.rule_guardian import (
         GuardRule,
     )
 
@@ -243,7 +243,7 @@ def test_guard_rule_from_dict() -> None:
 @pytest.mark.p1
 def test_load_rules_from_yaml(tmp_path) -> None:
     """load_rules_from_yaml parses a rules list."""
-    from qwenpaw.security.tool_guard.guardians.rule_guardian import (
+    from aiarb.security.tool_guard.guardians.rule_guardian import (
         load_rules_from_yaml,
     )
 

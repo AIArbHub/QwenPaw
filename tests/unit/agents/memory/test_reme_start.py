@@ -7,11 +7,11 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.agents.memory.reme_light_memory_manager import (
+from aiarb.agents.memory.reme_light_memory_manager import (
     ReMeLightMemoryManager,
     _load_validated_reme_app,
 )
-from qwenpaw.exceptions import ProviderError
+from aiarb.exceptions import ProviderError
 
 
 @pytest.mark.asyncio

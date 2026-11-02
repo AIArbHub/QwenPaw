@@ -12,33 +12,33 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.app.channels.manager import ChannelManager
-from qwenpaw.app.workspace.workspace_plugins import WorkspacePlugins
-from qwenpaw.plugins.api import PluginApi
-from qwenpaw.plugins.architecture import PluginManifest, PluginRecord
-from qwenpaw.plugins.lifecycle import PluginState, UnloadMode
-from qwenpaw.plugins.loader import PluginLoader
-from qwenpaw.plugins.provision import (
+from aiarb.app.channels.manager import ChannelManager
+from aiarb.app.workspace.workspace_plugins import WorkspacePlugins
+from aiarb.plugins.api import PluginApi
+from aiarb.plugins.architecture import PluginManifest, PluginRecord
+from aiarb.plugins.lifecycle import PluginState, UnloadMode
+from aiarb.plugins.loader import PluginLoader
+from aiarb.plugins.provision import (
     EscapeRollbackError,
     load_inventory,
     record_escape_provision,
     save_inventory,
     undo_this_txn_escapes,
 )
-from qwenpaw.plugins.updates import (
+from aiarb.plugins.updates import (
     STATUS_COMMITTED,
     marker_path,
     write_updating_marker,
 )
-from qwenpaw.plugins.registry import PluginRegistry
-from qwenpaw.plugins.workspace_projector import WorkspaceProjector
+from aiarb.plugins.registry import PluginRegistry
+from aiarb.plugins.workspace_projector import WorkspaceProjector
 
 from .timing import WAIT_TIMEOUT
 
 
 @pytest.fixture
 def registry(tmp_path, monkeypatch):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     monkeypatch.setattr(PluginRegistry, "_instance", None)
     return PluginRegistry()
 
@@ -53,13 +53,13 @@ async def test_cancelled_tool_config_write_revokes_published_tool(
     registry,
     monkeypatch,
 ):
-    from qwenpaw.agents import tools
-    from qwenpaw.governance.tool_registry import DEFAULT_REGISTRY
-    from qwenpaw.plugins.api import (
+    from aiarb.agents import tools
+    from aiarb.governance.tool_registry import DEFAULT_REGISTRY
+    from aiarb.plugins.api import (
         _TOOL_PLUGIN_OWNERS,
         release_tool_ownership_for_plugin,
     )
-    from qwenpaw.runtime.tool_registry import ToolRegistry
+    from aiarb.runtime.tool_registry import ToolRegistry
 
     plugin_id = "cancelled-tool-write"
     tool_name = "cancelled_plugin_tool"
@@ -83,7 +83,7 @@ async def test_cancelled_tool_config_write_revokes_published_tool(
         if not release.wait(timeout=WAIT_TIMEOUT * 2):
             raise TimeoutError("test did not release config writer")
 
-    monkeypatch.setattr("qwenpaw.plugins.api._write_tool_config", write_config)
+    monkeypatch.setattr("aiarb.plugins.api._write_tool_config", write_config)
     root = tmp_path / "plugins" / plugin_id
     root.mkdir(parents=True)
     manifest = PluginManifest.from_dict(
@@ -608,7 +608,7 @@ async def test_partial_channel_start_keeps_handle_until_stopped(
         set_enqueue=lambda _: None,
     )
     monkeypatch.setattr(
-        "qwenpaw.app.channels.manager.instantiate_channel",
+        "aiarb.app.channels.manager.instantiate_channel",
         lambda *a, **k: ch,
     )
     manager = ChannelManager([])
@@ -666,8 +666,8 @@ async def test_memory_config_rejected_before_any_teardown(
     registry,
     monkeypatch,
 ):
-    from qwenpaw.agents.memory.base_memory_manager import MemoryBackendRegistry
-    from qwenpaw import memory
+    from aiarb.agents.memory.base_memory_manager import MemoryBackendRegistry
+    from aiarb import memory
 
     isolated = MemoryBackendRegistry()
     monkeypatch.setattr(memory, "memory_registry", isolated)
@@ -705,7 +705,7 @@ async def test_memory_config_rejected_before_any_teardown(
     assert inst.has_runtime_ledger()
     assert loader.get_loaded_plugin("memory-plugin").status == "active"
     from fastapi import HTTPException
-    from qwenpaw.app.routers.plugins import (
+    from aiarb.app.routers.plugins import (
         UpdatePluginConfigRequest,
         update_plugin_config,
     )
@@ -742,11 +742,11 @@ async def test_channel_failed_projection_can_retry_cleanup(
         set_enqueue=lambda _: None,
     )
     monkeypatch.setattr(
-        "qwenpaw.app.channels.manager.instantiate_channel",
+        "aiarb.app.channels.manager.instantiate_channel",
         lambda *a, **k: ch,
     )
     monkeypatch.setattr(
-        "qwenpaw.plugins.api.channel_passes_gates",
+        "aiarb.plugins.api.channel_passes_gates",
         lambda *_: True,
     )
     loader = PluginLoader([])
@@ -900,7 +900,7 @@ def test_existing_provision_can_gain_restartable_cleanup_without_setup(
 
 @pytest.mark.asyncio
 async def test_workspace_stop_releases_its_plugin_bindings(registry):
-    from qwenpaw.app.workspace.workspace import Workspace
+    from aiarb.app.workspace.workspace import Workspace
 
     old = Workspace.__new__(Workspace)
     old.agent_id = "same-agent"
@@ -941,9 +941,9 @@ async def test_workspace_stop_continues_after_failed_plugin_revoke(
     final,
     preserve_reused,
 ):
-    from qwenpaw.app.task_tracker import TaskTracker
-    from qwenpaw.app.workspace.workspace import Workspace
-    from qwenpaw.plugins.lifecycle import QuiescenceError
+    from aiarb.app.task_tracker import TaskTracker
+    from aiarb.app.workspace.workspace import Workspace
+    from aiarb.plugins.lifecycle import QuiescenceError
 
     old = Workspace.__new__(Workspace)
     old.agent_id = "retiring"
@@ -992,7 +992,7 @@ async def test_workspace_stop_continues_after_failed_plugin_revoke(
 
 @pytest.mark.asyncio
 async def test_workspace_stop_retains_failed_harness_for_retry(registry):
-    from qwenpaw.app.workspace.workspace import Workspace
+    from aiarb.app.workspace.workspace import Workspace
 
     old = Workspace.__new__(Workspace)
     old.agent_id = "retiring"
@@ -1027,7 +1027,7 @@ async def test_unresolved_restart_cleanup_returns_http_conflict(
     registry,
 ):
     from fastapi import HTTPException
-    from qwenpaw.app.routers.plugins import uninstall_plugin
+    from aiarb.app.routers.plugins import uninstall_plugin
 
     root = tmp_path / "plugins" / "disk-plugin"
     root.mkdir(parents=True)
@@ -1101,7 +1101,7 @@ async def test_stubborn_hosted_task_returns_failure_and_keeps_retry_handle(
     monkeypatch,
     mode,
 ):
-    from qwenpaw.plugins import custody
+    from aiarb.plugins import custody
 
     monkeypatch.setattr(custody, "TASK_STOP_SECONDS", 0.01)
     loader = PluginLoader([])
@@ -1169,7 +1169,7 @@ async def test_stubborn_hosted_task_returns_failure_and_keeps_retry_handle(
 
 @pytest.mark.asyncio
 async def test_stop_task_accepts_normal_cancellation():
-    from qwenpaw.plugins.custody import stop_task
+    from aiarb.plugins.custody import stop_task
 
     started = asyncio.Event()
 
@@ -1192,7 +1192,7 @@ async def test_connection_timeout_preserves_owned_files_and_retry_handle(
     close_method,
 ):
     # pylint: disable=too-many-statements
-    from qwenpaw.plugins import custody
+    from aiarb.plugins import custody
 
     monkeypatch.setattr(custody, "CONNECTION_STOP_SECONDS", 0.01)
     loader = PluginLoader([])
@@ -1361,7 +1361,7 @@ async def test_connection_cleanup_reports_actual_result(
 
 @pytest.mark.asyncio
 async def test_stop_request_cancellation_does_not_wait_for_stubborn_task():
-    from qwenpaw.plugins.custody import stop_task
+    from aiarb.plugins.custody import stop_task
 
     started = asyncio.Event()
     cancellation_seen = asyncio.Event()
@@ -1450,7 +1450,7 @@ async def test_prepared_update_failure_blocks_activation_and_allows_retry(
     failure_stage,
     retry,
 ):
-    from qwenpaw.plugins import updates
+    from aiarb.plugins import updates
 
     plugin_id = f"boot_{failure_stage}"
     plugins = tmp_path / "plugins"
@@ -1614,7 +1614,7 @@ async def test_committed_cleanup_failure_keeps_new_version_and_diagnostics(
     registry,
     monkeypatch,
 ):
-    from qwenpaw.plugins import updates
+    from aiarb.plugins import updates
 
     plugin_id = "boot_committed_cleanup"
     plugins = tmp_path / "plugins"
@@ -1662,7 +1662,7 @@ async def test_failed_recovery_rescan_cannot_release_existing_barrier(
     registry,
     monkeypatch,
 ):
-    from qwenpaw.plugins import updates
+    from aiarb.plugins import updates
 
     plugin_id = "boot_failed_rescan"
     plugins = tmp_path / "plugins"
@@ -1700,7 +1700,7 @@ async def test_failed_provision_recovery_blocks_plugin_until_retry(
     registry,
     monkeypatch,
 ):
-    from qwenpaw.plugins import provision
+    from aiarb.plugins import provision
 
     plugin_id = "boot_provision"
     plugins = tmp_path / "plugins"

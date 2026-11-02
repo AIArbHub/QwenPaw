@@ -8,8 +8,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.agents.memory.base_memory_manager import BaseMemoryManager
-from qwenpaw.agents.memory.reme_light_memory_manager import (
+from aiarb.agents.memory.base_memory_manager import BaseMemoryManager
+from aiarb.agents.memory.reme_light_memory_manager import (
     ReMeLightMemoryManager,
 )
 
@@ -44,7 +44,7 @@ async def test_close_is_bounded_when_auto_memory_never_releases_lease(
     assert worker is not None
     await started.wait()
     monkeypatch.setattr(
-        "qwenpaw.agents.memory.reme_light_memory_manager."
+        "aiarb.agents.memory.reme_light_memory_manager."
         "AUTO_MEMORY_WORKER_CLOSE_TIMEOUT_SECONDS",
         0.01,
     )

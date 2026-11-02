@@ -5,8 +5,8 @@
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli import clean_cmd as clean_mod
-from qwenpaw.utils.telemetry import TELEMETRY_MARKER_FILE
+from aiarb.cli import clean_cmd as clean_mod
+from aiarb.utils.telemetry import TELEMETRY_MARKER_FILE
 
 
 @pytest.fixture()

@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.portability.models import SourceScheduledTask
-from qwenpaw.portability.scheduled_tasks import (
+from aiarb.portability.models import SourceScheduledTask
+from aiarb.portability.scheduled_tasks import (
     build_imported_job,
     imported_job_id,
     imported_job_source,

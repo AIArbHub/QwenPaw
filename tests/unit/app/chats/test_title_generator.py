@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.app.chats import title_generator
+from aiarb.app.chats import title_generator
 
 
 class _ChatManager:
@@ -73,7 +73,7 @@ async def test_title_generation_keeps_thinking_out_of_persisted_title(
         fake_consume_model_response,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.model_factory.create_model_and_formatter_async",
+        "aiarb.agents.model_factory.create_model_and_formatter_async",
         fake_create_model_and_formatter_async,
     )
 
@@ -143,7 +143,7 @@ async def test_title_uses_conversation_model_and_its_thinking(
     monkeypatch,
     request_override,
 ):
-    from qwenpaw.config.config import AgentProfileConfig, ModelSlotConfig
+    from aiarb.config.config import AgentProfileConfig, ModelSlotConfig
 
     default = ModelSlotConfig(provider_id="default", model="M1")
     selected = ModelSlotConfig(provider_id="session", model="M2")
@@ -167,11 +167,11 @@ async def test_title_uses_conversation_model_and_its_thinking(
     workspace = SimpleNamespace(agent_id="agent", chat_manager=chat_manager)
     factory = AsyncMock(return_value=(object(), None))
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _: config,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.model_factory.create_model_and_formatter_async",
+        "aiarb.agents.model_factory.create_model_and_formatter_async",
         factory,
     )
     monkeypatch.setattr(
@@ -219,15 +219,15 @@ async def test_title_and_execution_resolve_the_same_conversation_settings(
     model_override,
     spawned,
 ):
-    from qwenpaw.app.channels.console.channel import ConsoleChannel
-    from qwenpaw.app.chats.manager import ChatManager
-    from qwenpaw.app.chats.models import ChatSpec
-    from qwenpaw.app.chats.repo import JsonChatRepository
-    from qwenpaw.app.routers.console import _extract_session_and_payload
-    from qwenpaw.config.config import AgentProfileConfig, ModelSlotConfig
-    from qwenpaw.providers.thinking import ThinkingPreference
-    from qwenpaw.schemas import AgentRequest
-    from qwenpaw.services.session_thinking import apply_session_thinking
+    from aiarb.app.channels.console.channel import ConsoleChannel
+    from aiarb.app.chats.manager import ChatManager
+    from aiarb.app.chats.models import ChatSpec
+    from aiarb.app.chats.repo import JsonChatRepository
+    from aiarb.app.routers.console import _extract_session_and_payload
+    from aiarb.config.config import AgentProfileConfig, ModelSlotConfig
+    from aiarb.providers.thinking import ThinkingPreference
+    from aiarb.schemas import AgentRequest
+    from aiarb.services.session_thinking import apply_session_thinking
 
     manager = ChatManager(repo=JsonChatRepository(tmp_path / "chats.json"))
     parent = await manager.create_chat(
@@ -308,11 +308,11 @@ async def test_title_and_execution_resolve_the_same_conversation_settings(
     )
     factory = AsyncMock(return_value=(object(), None))
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _: config,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.model_factory.create_model_and_formatter_async",
+        "aiarb.agents.model_factory.create_model_and_formatter_async",
         factory,
     )
     monkeypatch.setattr(
@@ -350,7 +350,7 @@ async def test_subagent_title_with_missing_parent_uses_execution_defaults(
     monkeypatch,
     model_override,
 ):
-    from qwenpaw.config.config import AgentProfileConfig, ModelSlotConfig
+    from aiarb.config.config import AgentProfileConfig, ModelSlotConfig
 
     default = ModelSlotConfig(provider_id="default", model="M1")
     config = AgentProfileConfig(
@@ -373,11 +373,11 @@ async def test_subagent_title_with_missing_parent_uses_execution_defaults(
     manager.get_chat_id_by_session = AsyncMock(return_value=None)
     factory = AsyncMock(return_value=(object(), None))
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _: config,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.model_factory.create_model_and_formatter_async",
+        "aiarb.agents.model_factory.create_model_and_formatter_async",
         factory,
     )
     monkeypatch.setattr(
@@ -418,16 +418,16 @@ async def test_subagent_title_with_missing_parent_uses_execution_defaults(
 
 
 async def test_deleted_chat_does_not_generate_a_title(monkeypatch):
-    from qwenpaw.config.config import AgentProfileConfig
+    from aiarb.config.config import AgentProfileConfig
 
     config = AgentProfileConfig(id="agent", name="Agent")
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _: config,
     )
     factory = AsyncMock()
     monkeypatch.setattr(
-        "qwenpaw.agents.model_factory.create_model_and_formatter_async",
+        "aiarb.agents.model_factory.create_model_and_formatter_async",
         factory,
     )
     workspace = SimpleNamespace(

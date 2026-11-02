@@ -13,7 +13,7 @@ from pathlib import Path
 import threading
 import uuid
 
-from qwenpaw.app.channels.utils import (
+from aiarb.app.channels.utils import (
     file_url_to_local_path,
     materialize_data_url,
     split_text,
@@ -82,7 +82,7 @@ class WeComPlatform(InboundDecoder):
         workspace = config.get("workspace_dir")
         media = config.get("media_dir")
         if not media and not workspace:
-            from qwenpaw.constant import DEFAULT_MEDIA_DIR
+            from aiarb.constant import DEFAULT_MEDIA_DIR
 
             media = str(DEFAULT_MEDIA_DIR)
         self._media_dir = Path(media or Path(workspace) / "media").expanduser()

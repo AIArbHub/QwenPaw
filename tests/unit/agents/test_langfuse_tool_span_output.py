@@ -31,8 +31,8 @@ import pytest
 from agentscope.message import TextBlock, ToolResultState
 from agentscope.tool import ToolChunk, ToolResponse
 
-from qwenpaw.agents.middlewares import LangfuseToolSpanMiddleware
-from qwenpaw.observability import langfuse as lf
+from aiarb.agents.middlewares import LangfuseToolSpanMiddleware
+from aiarb.observability import langfuse as lf
 
 # ---------------------------------------------------------------------------
 # Shared fakes (copied from test_langfuse_integration.py so this file
@@ -461,7 +461,7 @@ class TestLangfuseToolSpanMiddleware:
 
     async def test_output_truncated_over_8kb(self, client):
         """Oversized output is truncated with an explicit marker."""
-        from qwenpaw.agents.middlewares import _MAX_RECORDED_TEXT_CHARS
+        from aiarb.agents.middlewares import _MAX_RECORDED_TEXT_CHARS
 
         big_text = "x" * (_MAX_RECORDED_TEXT_CHARS + 1000)
 

@@ -15,10 +15,10 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.app.approvals import ApprovalIdentityPolicy, ApprovalService
-from qwenpaw.runtime.commands.control import approval_handler as ah
-from qwenpaw.runtime.commands.control.base import ControlContext
-from qwenpaw.security.tool_guard.approval import (
+from aiarb.app.approvals import ApprovalIdentityPolicy, ApprovalService
+from aiarb.runtime.commands.control import approval_handler as ah
+from aiarb.runtime.commands.control.base import ControlContext
+from aiarb.security.tool_guard.approval import (
     ApprovalDecision,
     ApprovalScope,
 )

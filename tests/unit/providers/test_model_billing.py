@@ -8,15 +8,15 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.providers.model_billing import classify_pricing
-from qwenpaw.providers.model_info import ModelInfo
-from qwenpaw.providers.provider_model_state import (
+from aiarb.providers.model_billing import classify_pricing
+from aiarb.providers.model_info import ModelInfo
+from aiarb.providers.provider_model_state import (
     serialize_model_state,
     restore_model_state,
 )
-from qwenpaw.providers.model_pool import ModelPoolQuery, model_pool_page
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.provider_catalog import (
+from aiarb.providers.model_pool import ModelPoolQuery, model_pool_page
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.provider_catalog import (
     PROVIDER_DASHSCOPE,
     PROVIDER_ZHIPU_CN_CODINGPLAN,
     PROVIDER_ZHIPU_INTL_CODINGPLAN,

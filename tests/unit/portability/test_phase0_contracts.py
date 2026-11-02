@@ -11,9 +11,9 @@ from typing import Any
 
 import pytest
 
-from qwenpaw.portability.providers.codex import CodexMigrationProvider
-from qwenpaw.portability.providers.locator import resolve_source_location
-from qwenpaw.portability.providers.qoder import QoderMigrationProvider
+from aiarb.portability.providers.codex import CodexMigrationProvider
+from aiarb.portability.providers.locator import resolve_source_location
+from aiarb.portability.providers.qoder import QoderMigrationProvider
 
 _FIXTURES = Path(__file__).parents[2] / "fixtures" / "portability"
 
@@ -29,7 +29,7 @@ def _workspace(tmp_path: Path) -> SimpleNamespace:
     root.mkdir()
     return SimpleNamespace(
         workspace_dir=root,
-        config=SimpleNamespace(backend="qwenpaw", backend_settings={}),
+        config=SimpleNamespace(backend="aiarb", backend_settings={}),
         harness_runtime=_UnexpectedHarnessRuntime(),
     )
 

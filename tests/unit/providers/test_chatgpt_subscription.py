@@ -18,11 +18,11 @@ from openai import APIError
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.asymmetric import rsa
 
-from qwenpaw.providers import chatgpt_provider as model_module
-from qwenpaw.providers.oauth import chatgpt as auth_module
-from qwenpaw.providers.provider import agent_thinking_level
-from qwenpaw.security import secret_store
-from qwenpaw.runtime.envelope import Envelope
+from aiarb.providers import chatgpt_provider as model_module
+from aiarb.providers.oauth import chatgpt as auth_module
+from aiarb.providers.provider import agent_thinking_level
+from aiarb.security import secret_store
+from aiarb.runtime.envelope import Envelope
 
 
 @pytest.fixture
@@ -51,8 +51,8 @@ async def test_account_controls_require_local_client_through_proxy(
     status,
 ):
     from fastapi import Depends, FastAPI
-    from qwenpaw.app import auth
-    from qwenpaw.app.routers.chatgpt import require_local
+    from aiarb.app import auth
+    from aiarb.app.routers.chatgpt import require_local
 
     config = SimpleNamespace(
         security=SimpleNamespace(allow_no_auth_hosts=[]),
@@ -368,7 +368,7 @@ async def test_native_messages_tool_roundtrip_and_terminal_events(monkeypatch):
     result = await model(history, tools=tools)
     assert result.content[0].text == f"Sunny."
     assert any(
-        i.get(f"namespace") == f"qwenpaw" for i in requests[-1][f"input"]
+        i.get(f"namespace") == f"aiarb" for i in requests[-1][f"input"]
     )
     assert requests[-1][f"input"][-1][f"call_id"] == f"call_1"
     model.stream = True

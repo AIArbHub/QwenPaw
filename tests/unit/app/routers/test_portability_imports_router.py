@@ -5,10 +5,10 @@ import httpx
 import pytest
 from fastapi import FastAPI, HTTPException
 
-from qwenpaw.app.routers import agent_scoped
-from qwenpaw.app.routers import portability_imports as routes
-from qwenpaw.portability.import_jobs import ImportRun
-from qwenpaw.portability.models import ImportSelection, SourceLocation
+from aiarb.app.routers import agent_scoped
+from aiarb.app.routers import portability_imports as routes
+from aiarb.portability.import_jobs import ImportRun
+from aiarb.portability.models import ImportSelection, SourceLocation
 
 
 def _request(host: str = "127.0.0.1", headers=None):
@@ -73,7 +73,7 @@ def _api(monkeypatch):
         return workspace
 
     async def load_config(_agent_id):
-        return SimpleNamespace(backend="qwenpaw")
+        return SimpleNamespace(backend="aiarb")
 
     monkeypatch.setattr(routes, "get_agent_for_request", get_workspace)
     monkeypatch.setattr(routes, "load_agent_config_async", load_config)

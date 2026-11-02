@@ -7,11 +7,11 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.agents.memory.prompts import build_memory_guidance_prompt
-from qwenpaw.agents.memory.reme_light_memory_manager import (
+from aiarb.agents.memory.prompts import build_memory_guidance_prompt
+from aiarb.agents.memory.reme_light_memory_manager import (
     ReMeLightMemoryManager,
 )
-from qwenpaw.config.config import ReMeLightMemoryConfig
+from aiarb.config.config import ReMeLightMemoryConfig
 
 
 @pytest.mark.parametrize("enabled", [False, True])

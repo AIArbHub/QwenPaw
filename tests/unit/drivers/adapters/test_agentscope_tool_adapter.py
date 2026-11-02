@@ -15,8 +15,8 @@ from unittest.mock import AsyncMock
 from agentscope.message import ToolResultState
 from agentscope.permission import PermissionBehavior
 
-from qwenpaw.drivers.adapters import agentscope_tool as at
-from qwenpaw.drivers.capabilities import (
+from aiarb.drivers.adapters import agentscope_tool as at
+from aiarb.drivers.capabilities import (
     DriverCapability,
     DriverInvocationResult,
 )

@@ -11,19 +11,19 @@ import json
 import time
 import uuid
 
-from qwenpaw.channel_protocol.response_policy import ResponsePolicy
-from qwenpaw.channel_protocol.targets import decode_reply_target
-from qwenpaw.channel_protocol.errors import RPC_LIFECYCLE_ERROR, RpcError
-from qwenpaw.channel_protocol.models import (
+from aiarb.channel_protocol.response_policy import ResponsePolicy
+from aiarb.channel_protocol.targets import decode_reply_target
+from aiarb.channel_protocol.errors import RPC_LIFECYCLE_ERROR, RpcError
+from aiarb.channel_protocol.models import (
     InboundEvent,
     ResponseOutcome,
 )
-from qwenpaw.channel_protocol.response_lifecycle import ResponseResourceRef
-from qwenpaw.channel_protocol.shared_response_driver import (
+from aiarb.channel_protocol.response_lifecycle import ResponseResourceRef
+from aiarb.channel_protocol.shared_response_driver import (
     SharedResponseDriver,
 )
-from qwenpaw.exceptions import ChannelError
-from qwenpaw.schemas import Message
+from aiarb.exceptions import ChannelError
+from aiarb.schemas import Message
 
 from .constants import AI_CARD_RECOVERY_FINAL_TEXT
 from .content_utils import (

@@ -9,7 +9,7 @@ so the tests pin the payload contract the server relies on.
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli import mission_cmd as mission_mod
+from aiarb.cli import mission_cmd as mission_mod
 
 
 class _Response:

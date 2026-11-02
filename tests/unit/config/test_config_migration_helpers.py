@@ -13,7 +13,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 
-from qwenpaw.config import config as cfg_mod
+from aiarb.config import config as cfg_mod
 
 
 # ---------------------------------------------------------------------------
@@ -77,7 +77,7 @@ class TestMigrateAccessControlFields:
     def test_allow_from_imported_and_removed(self, tmp_path, monkeypatch):
         store = MagicMock()
         monkeypatch.setattr(
-            "qwenpaw.app.channels.access_control.get_access_control_store",
+            "aiarb.app.channels.access_control.get_access_control_store",
             lambda workspace_dir: store,
         )
         channels = {"dingtalk": {"allow_from": ["u1", "u2"]}}
@@ -104,7 +104,7 @@ class TestMigrateAccessControlFields:
             raise RuntimeError("store down")
 
         monkeypatch.setattr(
-            "qwenpaw.app.channels.access_control.get_access_control_store",
+            "aiarb.app.channels.access_control.get_access_control_store",
             boom,
         )
         channels = {"dingtalk": {"allow_from": ["u1"]}}
@@ -116,7 +116,7 @@ class TestMigrateAccessControlFields:
     def test_group_allow_from_imported(self, tmp_path, monkeypatch):
         store = MagicMock()
         monkeypatch.setattr(
-            "qwenpaw.app.channels.access_control.get_access_control_store",
+            "aiarb.app.channels.access_control.get_access_control_store",
             lambda workspace_dir: store,
         )
         channels = {"matrix": {"group_allow_from": ["g1"]}}
@@ -167,7 +167,7 @@ class TestSanitizeCustomLoopModes:
         catalog = MagicMock()
         catalog.validate_params.side_effect = ValueError("bad gate")
         monkeypatch.setattr(
-            "qwenpaw.loop.catalog.get_gate_catalog",
+            "aiarb.loop.catalog.get_gate_catalog",
             lambda: catalog,
         )
         mode = {
@@ -183,7 +183,7 @@ class TestSanitizeCustomLoopModes:
     def test_valid_mode_kept(self, monkeypatch):
         catalog = MagicMock()
         monkeypatch.setattr(
-            "qwenpaw.loop.catalog.get_gate_catalog",
+            "aiarb.loop.catalog.get_gate_catalog",
             lambda: catalog,
         )
         mode = {
@@ -199,7 +199,7 @@ class TestSanitizeCustomLoopModes:
     def test_over_limit_modes_truncated(self, monkeypatch):
         catalog = MagicMock()
         monkeypatch.setattr(
-            "qwenpaw.loop.catalog.get_gate_catalog",
+            "aiarb.loop.catalog.get_gate_catalog",
             lambda: catalog,
         )
         modes = [
@@ -218,7 +218,7 @@ class TestSanitizeCustomLoopModes:
     def test_duplicate_command_skipped(self, monkeypatch):
         catalog = MagicMock()
         monkeypatch.setattr(
-            "qwenpaw.loop.catalog.get_gate_catalog",
+            "aiarb.loop.catalog.get_gate_catalog",
             lambda: catalog,
         )
         modes = [

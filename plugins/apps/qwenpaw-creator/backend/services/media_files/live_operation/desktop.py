@@ -62,7 +62,7 @@ def computer_use_status() -> dict[str, Any]:
     host_feature_enabled = False
     host_feature_state_available = False
     try:
-        from qwenpaw.app.computer_use import HostRuntimeProvider
+        from aiarb.app.computer_use import HostRuntimeProvider
 
         runtime = HostRuntimeProvider.status()
         platform_helper = bool(runtime.supported_platform)
@@ -486,8 +486,8 @@ async def run_computer_use_code(
     )
     client = _load_native_client(session_id)
     controller = DesktopController(client, recorder, workspace)
-    from qwenpaw.app.computer_use import set_current_computer_use_turn_id
-    from qwenpaw.app.agent_context import scoped_session_id
+    from aiarb.app.computer_use import set_current_computer_use_turn_id
+    from aiarb.app.agent_context import scoped_session_id
 
     # Bind one native turn for this dispatch; the host API is a setter, so its
     # result is not captured.
@@ -531,7 +531,7 @@ async def run_computer_use_code(
 
 
 def _reset_turn() -> None:
-    from qwenpaw.app.computer_use import set_current_computer_use_turn_id
+    from aiarb.app.computer_use import set_current_computer_use_turn_id
 
     # Clearing to None ends the turn binding for this dispatch.
     with contextlib.suppress(Exception):

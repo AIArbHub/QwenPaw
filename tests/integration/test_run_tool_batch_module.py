@@ -22,7 +22,7 @@ import pytest
 @pytest.mark.p1
 def test_resolve_step_refs_plain_value() -> None:
     """resolve_step_refs passes through non-string values."""
-    from qwenpaw.agents.tools.run_tool_batch import resolve_step_refs
+    from aiarb.agents.tools.run_tool_batch import resolve_step_refs
 
     assert resolve_step_refs(42, []) == 42
     assert resolve_step_refs(None, []) is None
@@ -32,7 +32,7 @@ def test_resolve_step_refs_plain_value() -> None:
 @pytest.mark.p1
 def test_resolve_step_refs_step_ref() -> None:
     """resolve_step_refs resolves ${steps.N.value}."""
-    from qwenpaw.agents.tools.run_tool_batch import resolve_step_refs
+    from aiarb.agents.tools.run_tool_batch import resolve_step_refs
 
     results = [{"step": 0, "value": "hello"}]
     resolved = resolve_step_refs("${steps.0.value}", results)
@@ -43,7 +43,7 @@ def test_resolve_step_refs_step_ref() -> None:
 @pytest.mark.p1
 def test_resolve_step_refs_var_ref() -> None:
     """resolve_step_refs resolves ${vars.name}."""
-    from qwenpaw.agents.tools.run_tool_batch import resolve_step_refs
+    from aiarb.agents.tools.run_tool_batch import resolve_step_refs
 
     resolved = resolve_step_refs("${vars.count}", [], {"count": 3})
     assert resolved == 3
@@ -53,7 +53,7 @@ def test_resolve_step_refs_var_ref() -> None:
 @pytest.mark.p1
 def test_resolve_step_refs_nested() -> None:
     """resolve_step_refs walks dicts and lists recursively."""
-    from qwenpaw.agents.tools.run_tool_batch import resolve_step_refs
+    from aiarb.agents.tools.run_tool_batch import resolve_step_refs
 
     results = [{"step": 0, "value": "x"}]
     resolved = resolve_step_refs(
@@ -72,7 +72,7 @@ def test_resolve_step_refs_nested() -> None:
 @pytest.mark.p1
 def test_parse_scalar_bool() -> None:
     """_parse_scalar converts true/false strings."""
-    from qwenpaw.agents.tools.run_tool_batch import _parse_scalar
+    from aiarb.agents.tools.run_tool_batch import _parse_scalar
 
     assert _parse_scalar("true") is True
     assert _parse_scalar("False") is False
@@ -83,7 +83,7 @@ def test_parse_scalar_bool() -> None:
 @pytest.mark.p1
 def test_parse_scalar_int() -> None:
     """_parse_scalar converts integer strings."""
-    from qwenpaw.agents.tools.run_tool_batch import _parse_scalar
+    from aiarb.agents.tools.run_tool_batch import _parse_scalar
 
     assert _parse_scalar("42") == 42
     assert _parse_scalar("-7") == -7
@@ -99,7 +99,7 @@ def test_parse_scalar_int() -> None:
 @pytest.mark.p1
 def test_evaluate_condition_comparison() -> None:
     """_evaluate_condition handles simple comparisons."""
-    from qwenpaw.agents.tools.run_tool_batch import _evaluate_condition
+    from aiarb.agents.tools.run_tool_batch import _evaluate_condition
 
     assert _evaluate_condition("1<2", [], {}) is True
     assert _evaluate_condition("2<=1", [], {}) is False
@@ -110,7 +110,7 @@ def test_evaluate_condition_comparison() -> None:
 @pytest.mark.p1
 def test_evaluate_condition_bool_token() -> None:
     """_evaluate_condition coerces bare boolean tokens."""
-    from qwenpaw.agents.tools.run_tool_batch import _evaluate_condition
+    from aiarb.agents.tools.run_tool_batch import _evaluate_condition
 
     assert _evaluate_condition("true", [], {}) is True
     assert _evaluate_condition("false", [], {}) is False
@@ -125,7 +125,7 @@ def test_evaluate_condition_bool_token() -> None:
 @pytest.mark.p1
 def test_evaluate_arithmetic_expr() -> None:
     """_evaluate_arithmetic_expr computes simple expressions."""
-    from qwenpaw.agents.tools.run_tool_batch import (
+    from aiarb.agents.tools.run_tool_batch import (
         _evaluate_arithmetic_expr,
     )
 
@@ -137,7 +137,7 @@ def test_evaluate_arithmetic_expr() -> None:
 @pytest.mark.p1
 def test_evaluate_set_var_expr() -> None:
     """_evaluate_set_var_expr assigns arithmetic results."""
-    from qwenpaw.agents.tools.run_tool_batch import (
+    from aiarb.agents.tools.run_tool_batch import (
         _evaluate_set_var_expr,
     )
 
@@ -156,7 +156,7 @@ def test_evaluate_set_var_expr() -> None:
 @pytest.mark.p1
 def test_load_batch_file(tmp_path) -> None:
     """_load_batch_file reads an actions list from JSON."""
-    from qwenpaw.agents.tools.run_tool_batch import _load_batch_file
+    from aiarb.agents.tools.run_tool_batch import _load_batch_file
 
     batch = tmp_path / "batch.json"
     batch.write_text(
@@ -172,7 +172,7 @@ def test_load_batch_file(tmp_path) -> None:
 @pytest.mark.p1
 def test_load_batch_file_plain_list(tmp_path) -> None:
     """_load_batch_file accepts a bare JSON array."""
-    from qwenpaw.agents.tools.run_tool_batch import _load_batch_file
+    from aiarb.agents.tools.run_tool_batch import _load_batch_file
 
     batch = tmp_path / "batch.json"
     batch.write_text(json.dumps([{"tool_name": "y"}]))
@@ -189,7 +189,7 @@ def test_load_batch_file_plain_list(tmp_path) -> None:
 @pytest.mark.p1
 def test_resolve_args_placeholder() -> None:
     """_resolve_args substitutes ${args.name} placeholders."""
-    from qwenpaw.agents.tools.run_tool_batch import _resolve_args
+    from aiarb.agents.tools.run_tool_batch import _resolve_args
 
     resolved = _resolve_args(
         "run ${args.folder}",

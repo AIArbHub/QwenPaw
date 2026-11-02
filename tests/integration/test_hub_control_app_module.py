@@ -19,7 +19,7 @@ import pytest
 @pytest.mark.p1
 def test_get_hub_root_default(monkeypatch) -> None:
     """Without AIARB_HUB_DIR the hub root is WORKING_DIR/hub."""
-    import qwenpaw.hub.control_app as control_app
+    import aiarb.hub.control_app as control_app
 
     monkeypatch.delenv("AIARB_HUB_DIR", raising=False)
     root = control_app.get_hub_root()
@@ -31,7 +31,7 @@ def test_get_hub_root_default(monkeypatch) -> None:
 @pytest.mark.p1
 def test_get_hub_root_env_override(tmp_path: Path, monkeypatch) -> None:
     """AIARB_HUB_DIR overrides the hub data root."""
-    import qwenpaw.hub.control_app as control_app
+    import aiarb.hub.control_app as control_app
 
     custom = tmp_path / "custom-hub"
     monkeypatch.setenv("AIARB_HUB_DIR", str(custom))
@@ -43,7 +43,7 @@ def test_get_hub_root_env_override(tmp_path: Path, monkeypatch) -> None:
 @pytest.mark.p1
 def test_get_hub_root_blank_env_falls_back(monkeypatch) -> None:
     """Blank AIARB_HUB_DIR is treated as unset."""
-    import qwenpaw.hub.control_app as control_app
+    import aiarb.hub.control_app as control_app
 
     monkeypatch.setenv("AIARB_HUB_DIR", "   ")
     root = control_app.get_hub_root()
@@ -54,7 +54,7 @@ def test_get_hub_root_blank_env_falls_back(monkeypatch) -> None:
 @pytest.mark.p1
 def test_page_payload_single_page() -> None:
     """Small totals fit on one page."""
-    import qwenpaw.hub.control_app as control_app
+    import aiarb.hub.control_app as control_app
 
     payload = control_app._page_payload(["a", "b"], 1, 10, 2)
     assert payload["items"] == ["a", "b"]
@@ -68,7 +68,7 @@ def test_page_payload_single_page() -> None:
 @pytest.mark.p1
 def test_page_payload_multi_page() -> None:
     """Page count rounds up for partial pages."""
-    import qwenpaw.hub.control_app as control_app
+    import aiarb.hub.control_app as control_app
 
     payload = control_app._page_payload([], 2, 10, 25)
     assert payload["pages"] == 3
@@ -79,7 +79,7 @@ def test_page_payload_multi_page() -> None:
 @pytest.mark.p1
 def test_page_payload_zero_total() -> None:
     """Zero items still report at least one page."""
-    import qwenpaw.hub.control_app as control_app
+    import aiarb.hub.control_app as control_app
 
     payload = control_app._page_payload([], 1, 10, 0)
     assert payload["pages"] == 1
@@ -90,7 +90,7 @@ def test_page_payload_zero_total() -> None:
 @pytest.mark.p1
 def test_runtime_payload_assembly() -> None:
     """Runtime payload adds owner, endpoint, and security level."""
-    import qwenpaw.hub.control_app as control_app
+    import aiarb.hub.control_app as control_app
 
     class FakeRecord:
         host = "127.0.0.1"

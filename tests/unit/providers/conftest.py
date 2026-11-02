@@ -3,7 +3,7 @@
 
 import pytest
 
-from qwenpaw.providers import model_catalog
+from aiarb.providers import model_catalog
 
 
 @pytest.fixture(autouse=True)

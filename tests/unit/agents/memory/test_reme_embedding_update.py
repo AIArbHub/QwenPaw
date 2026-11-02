@@ -263,7 +263,7 @@ async def test_reindex_returns_unavailable_when_reme_is_not_started(
     manager._reme = reme
 
     with patch(
-        "qwenpaw.agents.memory.reme_light_memory_manager."
+        "aiarb.agents.memory.reme_light_memory_manager."
         "load_agent_config_async",
     ) as load_config:
         response = await manager._rebuild_index("embedding")

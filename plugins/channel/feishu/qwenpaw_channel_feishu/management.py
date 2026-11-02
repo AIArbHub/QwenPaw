@@ -8,8 +8,8 @@ from urllib.parse import urlencode
 
 import httpx
 
-from qwenpaw.channel_protocol.errors import ProtocolValidationError
-from qwenpaw.channel_protocol.management import (
+from aiarb.channel_protocol.errors import ProtocolValidationError
+from aiarb.channel_protocol.management import (
     ManagementRequest,
     management_result,
 )

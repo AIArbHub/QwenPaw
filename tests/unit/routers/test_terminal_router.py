@@ -10,8 +10,8 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.routers import terminal
-from qwenpaw.app.auth import (
+from aiarb.app.routers import terminal
+from aiarb.app.auth import (
     AuthMiddleware,
     RuntimeBoundaryMiddleware,
     runtime_token_matches,
@@ -124,7 +124,7 @@ def test_hub_token_does_not_bypass_disabled_switch(client, monkeypatch):
     assert (
         http.post(
             f"/api/terminals/{uuid4()}",
-            headers={"X-QwenPaw-Runtime-Token": "boundary"},
+            headers={"X-AIARB-runtime-token": "boundary"},
         ).status_code
         == 403
     )
@@ -140,7 +140,7 @@ def test_hub_authentication_with_enabled_switch(client, monkeypatch):
     assert (
         http.post(
             f"/api/terminals/{uuid4()}",
-            headers={"X-QwenPaw-Runtime-Token": "boundary"},
+            headers={"X-AIARB-runtime-token": "boundary"},
         ).status_code
         == 200
     )
@@ -167,7 +167,7 @@ def test_non_ascii_runtime_token_is_not_trusted(client, monkeypatch):
     http.headers.pop("Authorization")
     response = http.post(
         f"/api/terminals/{uuid4()}",
-        headers=[(b"x-qwenpaw-runtime-token", b"boundary\xff")],
+        headers=[(b"x-aiarb-runtime-token", b"boundary\xff")],
     )
     assert response.status_code == 401
     assert not manager.mock_calls
@@ -181,7 +181,7 @@ async def test_boundary_rejects_non_ascii_runtime_token(monkeypatch, protocol):
     await RuntimeBoundaryMiddleware(downstream)(
         {
             "type": protocol,
-            "headers": [(b"x-qwenpaw-runtime-token", b"boundary\xff")],
+            "headers": [(b"x-aiarb-runtime-token", b"boundary\xff")],
         },
         AsyncMock(),
         send,
@@ -215,10 +215,10 @@ def test_managed_runtime_origin_requires_real_boundary_token(
     path = f"/api/terminals/{uuid4()}"
     headers = {
         "Origin": "https://hub.example.test",
-        "X-QwenPaw-Runtime-Token": "wrong",
+        "X-AIARB-runtime-token": "wrong",
     }
     assert http.post(path, headers=headers).status_code == 403
-    headers["X-QwenPaw-Runtime-Token"] = "test-token"
+    headers["X-AIARB-runtime-token"] = "test-token"
     assert http.post(path, headers=headers).status_code == 200
     manager.create.assert_called_once()
 

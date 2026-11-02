@@ -28,9 +28,9 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from qwenpaw.config import config as cfg_mod
-from qwenpaw.config import utils as config_utils
-from qwenpaw.exceptions import ConfigurationException
+from aiarb.config import config as cfg_mod
+from aiarb.config import utils as config_utils
+from aiarb.exceptions import ConfigurationException
 
 LEGACY_DIR = Path("~/.copaw").expanduser()
 
@@ -593,7 +593,7 @@ class _StubRegistry:
 
 
 def test_plugin_manifest_merge_collects_named_tools_only(monkeypatch):
-    import qwenpaw.plugins.registry as registry_mod
+    import aiarb.plugins.registry as registry_mod
 
     monkeypatch.setattr(registry_mod, "PluginRegistry", _StubRegistry)
     tools: dict = {}
@@ -607,7 +607,7 @@ def test_plugin_manifest_merge_collects_named_tools_only(monkeypatch):
 
 
 def test_plugin_manifest_merge_is_skipped_when_the_registry_fails(monkeypatch):
-    import qwenpaw.plugins.registry as registry_mod
+    import aiarb.plugins.registry as registry_mod
 
     class _Boom:
         def __init__(self) -> None:
@@ -772,7 +772,7 @@ def test_context_length_uses_the_provider_resolution(monkeypatch) -> None:
 
             return _Inner()
 
-    import qwenpaw.providers as providers_mod
+    import aiarb.providers as providers_mod
 
     monkeypatch.setattr(providers_mod, "ProviderManager", _Manager)
     assert (
@@ -785,7 +785,7 @@ def test_context_length_uses_the_provider_resolution(monkeypatch) -> None:
 
 def test_context_length_falls_back_when_unresolvable(monkeypatch) -> None:
     """Every failure leg must yield the same documented 128k default."""
-    import qwenpaw.providers as providers_mod
+    import aiarb.providers as providers_mod
 
     default = 128 * 1024
 
@@ -824,7 +824,7 @@ def test_context_length_falls_back_when_unresolvable(monkeypatch) -> None:
 
 def test_context_length_recovers_the_slot_from_the_manager(monkeypatch):
     """A profile without ``active_model`` still resolves via the manager."""
-    import qwenpaw.providers as providers_mod
+    import aiarb.providers as providers_mod
 
     class _Manager:
         @staticmethod
@@ -990,7 +990,7 @@ def test_legacy_migration_survives_an_unavailable_provider_manager(
         def get_instance():
             raise RuntimeError("providers unavailable")
 
-    import qwenpaw.providers as providers_mod
+    import aiarb.providers as providers_mod
 
     monkeypatch.setattr(providers_mod, "ProviderManager", _RaisingManager)
     assert cfg_mod.migrate_legacy_config_to_multi_agent() is True
@@ -1020,7 +1020,7 @@ def test_legacy_migration_records_the_global_active_model(
 
             return _Inner()
 
-    import qwenpaw.providers as providers_mod
+    import aiarb.providers as providers_mod
 
     monkeypatch.setattr(providers_mod, "ProviderManager", _Manager)
     assert cfg_mod.migrate_legacy_config_to_multi_agent() is True

@@ -8,8 +8,8 @@ import os
 from pathlib import Path
 import tempfile
 
-from qwenpaw.plugins.install_lock import plugin_install_lock
-from qwenpaw.plugins.azure_legacy import (
+from aiarb.plugins.install_lock import plugin_install_lock
+from aiarb.plugins.azure_legacy import (
     AzureLegacyError,
     load_azure_legacy,
     select_azure_legacy,

@@ -22,7 +22,7 @@ import pytest
 @pytest.mark.p1
 def test_dense_gray_atlas_loads_all_efforts() -> None:
     """Frozen glyph atlases load for low/medium/high effort."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         _load_dense_gray_atlas,
     )
 
@@ -37,7 +37,7 @@ def test_dense_gray_atlas_loads_all_efforts() -> None:
 @pytest.mark.p1
 def test_dense_gray_atlas_unknown_profile_raises() -> None:
     """Unknown effort profiles raise ValueError."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         _load_dense_gray_atlas,
     )
 
@@ -54,7 +54,7 @@ def test_dense_gray_atlas_unknown_profile_raises() -> None:
 @pytest.mark.p1
 def test_char_cells_ascii() -> None:
     """ASCII characters occupy one cell."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         _char_cells,
     )
 
@@ -73,7 +73,7 @@ def test_char_cells_ascii() -> None:
 @pytest.mark.p1
 def test_escape_missing_glyphs_ascii_unchanged() -> None:
     """ASCII-only lines need no escaping."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         _escape_missing_glyphs,
     )
 
@@ -84,7 +84,7 @@ def test_escape_missing_glyphs_ascii_unchanged() -> None:
 @pytest.mark.p1
 def test_escape_missing_glyphs_formats_codepoint() -> None:
     """Characters outside the atlas are escaped as [U+XXXX]."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         _escape_missing_glyphs,
     )
 
@@ -102,7 +102,7 @@ def test_escape_missing_glyphs_formats_codepoint() -> None:
 @pytest.mark.p1
 def test_expand_tabs_no_tabs_passthrough() -> None:
     """Lines without tabs pass through unchanged."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         _expand_tabs_visible,
     )
 
@@ -113,7 +113,7 @@ def test_expand_tabs_no_tabs_passthrough() -> None:
 @pytest.mark.p1
 def test_expand_tabs_visible_glyph() -> None:
     """Tabs become visible arrow glyphs with column alignment."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         _expand_tabs_visible,
     )
 
@@ -131,7 +131,7 @@ def test_expand_tabs_visible_glyph() -> None:
 @pytest.mark.p1
 def test_minify_strips_trailing_whitespace() -> None:
     """Trailing spaces/tabs are removed from every line."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         _minify_for_render,
     )
 
@@ -142,7 +142,7 @@ def test_minify_strips_trailing_whitespace() -> None:
 @pytest.mark.p1
 def test_minify_collapses_blank_runs() -> None:
     """Runs of 4+ newlines collapse to 3."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         _minify_for_render,
     )
 
@@ -160,7 +160,7 @@ def test_minify_collapses_blank_runs() -> None:
 @pytest.mark.p1
 def test_measure_content_columns_short_text() -> None:
     """Short lines measure to their visible width."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         measure_content_columns,
     )
 
@@ -172,10 +172,10 @@ def test_measure_content_columns_short_text() -> None:
 @pytest.mark.p1
 def test_measure_content_columns_capped_by_preset() -> None:
     """Wide lines are capped at the preset column limit."""
-    from qwenpaw.agents.context.visual_compression.config import (
+    from aiarb.agents.context.visual_compression.config import (
         LOW_EFFORT_PRESET,
     )
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         measure_content_columns,
     )
 
@@ -194,7 +194,7 @@ def test_measure_content_columns_capped_by_preset() -> None:
 @pytest.mark.p1
 def test_reflow_preserves_hard_breaks() -> None:
     """Hard line breaks become visible return glyphs."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         reflow_for_render,
     )
 
@@ -207,7 +207,7 @@ def test_reflow_preserves_hard_breaks() -> None:
 @pytest.mark.p1
 def test_prepare_render_text_matches_reflow() -> None:
     """prepare_render_text delegates to reflow_for_render."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         prepare_render_text,
         reflow_for_render,
     )
@@ -225,10 +225,10 @@ def test_prepare_render_text_matches_reflow() -> None:
 @pytest.mark.p1
 def test_render_rows_per_page_positive() -> None:
     """Rows per page are a positive, bounded number."""
-    from qwenpaw.agents.context.visual_compression.config import (
+    from aiarb.agents.context.visual_compression.config import (
         LOW_EFFORT_PRESET,
     )
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         render_rows_per_page,
     )
 
@@ -240,7 +240,7 @@ def test_render_rows_per_page_positive() -> None:
 @pytest.mark.p1
 def test_split_visual_pages_line_limit() -> None:
     """Lines split into pages honoring the row limit."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         _split_visual_pages,
     )
 
@@ -254,7 +254,7 @@ def test_split_visual_pages_line_limit() -> None:
 @pytest.mark.p1
 def test_split_visual_pages_char_limit() -> None:
     """Long lines force splits by the character budget."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         _split_visual_pages,
     )
 
@@ -267,7 +267,7 @@ def test_split_visual_pages_char_limit() -> None:
 @pytest.mark.p1
 def test_split_visual_pages_empty() -> None:
     """No input yields a single empty page."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         _split_visual_pages,
     )
 
@@ -283,7 +283,7 @@ def test_split_visual_pages_empty() -> None:
 @pytest.mark.p1
 def test_page_count_short_text_single_page() -> None:
     """A short text fits on one page."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         page_count_for_text,
     )
 
@@ -294,7 +294,7 @@ def test_page_count_short_text_single_page() -> None:
 @pytest.mark.p1
 def test_page_count_grows_with_text() -> None:
     """Longer texts need more pages."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         page_count_for_text,
     )
 
@@ -312,7 +312,7 @@ def test_page_count_grows_with_text() -> None:
 @pytest.mark.p1
 def test_render_text_pages_produces_png() -> None:
     """Rendering yields PNG pages with positive dimensions."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         render_text_pages,
     )
 
@@ -328,7 +328,7 @@ def test_render_text_pages_produces_png() -> None:
 @pytest.mark.p1
 def test_render_text_pages_sha256_stable() -> None:
     """Rendered page hashes are stable across renders (cache)."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         render_text_pages,
     )
 
@@ -342,7 +342,7 @@ def test_render_text_pages_sha256_stable() -> None:
 @pytest.mark.p1
 def test_render_text_pages_max_pages_bound() -> None:
     """max_pages bounds the number of returned pages."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         render_text_pages,
     )
 
@@ -355,7 +355,7 @@ def test_render_text_pages_max_pages_bound() -> None:
 @pytest.mark.p1
 def test_render_cache_info_counters() -> None:
     """Cache info reports hits and misses."""
-    from qwenpaw.agents.context.visual_compression.rendering.renderer import (
+    from aiarb.agents.context.visual_compression.rendering.renderer import (
         render_cache_info,
         render_text_pages,
     )

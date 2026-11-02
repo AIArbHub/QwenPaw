@@ -12,10 +12,10 @@ from .timing import WAIT_TIMEOUT
 SOURCE = """
 import asyncio
 from pathlib import Path
-from qwenpaw.plugins import SDKError
-from qwenpaw.plugins.apps import PawApp, ChatRequest
-from qwenpaw.plugins.commands import CommandSpec, CommandResult
-from qwenpaw.plugins.messages import Message, ContentBlock
+from aiarb.plugins import SDKError
+from aiarb.plugins.apps import PawApp, ChatRequest
+from aiarb.plugins.commands import CommandSpec, CommandResult
+from aiarb.plugins.messages import Message, ContentBlock
 
 
 class Plugin:
@@ -221,7 +221,7 @@ async def setup(host, tmp_path):
 async def test_workspace_delegation_identity_unknown_and_closed_scope(
     tmp_path,
 ):
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         await setup(host, tmp_path)
@@ -271,7 +271,7 @@ async def test_workspace_delegation_identity_unknown_and_closed_scope(
 async def test_explicit_background_delegation_and_started_task_survive_request(
     tmp_path,
 ):
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         ctx = await setup(host, tmp_path)
@@ -333,7 +333,7 @@ async def test_explicit_background_delegation_and_started_task_survive_request(
 
 
 async def test_request_cancellation_finishes_delegated_resources(tmp_path):
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         ctx = await setup(host, tmp_path)

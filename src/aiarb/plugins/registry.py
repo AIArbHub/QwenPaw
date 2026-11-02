@@ -1292,8 +1292,8 @@ class PluginRegistry:  # pylint:disable=too-many-public-methods
         Args:
             plugin_id: Plugin identifier to remove
         """
-        from qwenpaw.memory import memory_registry
-        from qwenpaw.market import market_registry
+        from aiarb.memory import memory_registry
+        from aiarb.market import market_registry
 
         self.assert_memory_backends_not_in_use(plugin_id)
         market_registry.unregister_owner(plugin_id)
@@ -1470,7 +1470,7 @@ class PluginRegistry:  # pylint:disable=too-many-public-methods
 
     def assert_memory_backends_not_in_use(self, plugin_id: str) -> None:
         """Protect selected, starting, and draining memory backends."""
-        from qwenpaw.memory import memory_registry
+        from aiarb.memory import memory_registry
 
         owned_memory = set(memory_registry.owned_by(plugin_id))
         if not owned_memory:

@@ -48,7 +48,7 @@ def alive(pid):
 
 
 def launch(directory, *, mode="normal", **overrides):
-    from qwenpaw.plugins.execution import PluginLaunchSpec
+    from aiarb.plugins.execution import PluginLaunchSpec
 
     code = directory / "component"
     code.mkdir()
@@ -89,13 +89,13 @@ def dependency_site(path):
 def runtime_layout(directory, monkeypatch):
     """Simulate a trusted frozen layout without rebuilding releases."""
     from packaging.tags import sys_tags
-    from qwenpaw.__version__ import __version__
+    from aiarb.__version__ import __version__
 
     root = directory / "Resources"
     support = root / "support"
     shutil.copytree(
         ROOT / "src/qwenpaw",
-        support / "qwenpaw",
+        support / "aiarb",
         ignore=shutil.ignore_patterns("__pycache__"),
     )
     runtime = root / "runtime"

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """ClawHub Skill marketplace plugin."""
 
-from qwenpaw.market.builtin import BuiltinMarketProvider
-from qwenpaw.market.providers.clawhub import ClawHubProvider
+from aiarb.market.builtin import BuiltinMarketProvider
+from aiarb.market.providers.clawhub import ClawHubProvider
 
 
 class HubPlugin:

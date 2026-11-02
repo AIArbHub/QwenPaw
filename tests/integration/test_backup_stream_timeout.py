@@ -15,10 +15,10 @@ import pytest
 import uvicorn
 from fastapi import FastAPI
 
-from qwenpaw.app.routers import backup as backup_router
-from qwenpaw.backup import manager as manager_module
-from qwenpaw.backup.manager import BackupManager
-from qwenpaw.backup.models import BackupJobStatus
+from aiarb.app.routers import backup as backup_router
+from aiarb.backup import manager as manager_module
+from aiarb.backup.manager import BackupManager
+from aiarb.backup.models import BackupJobStatus
 
 
 _CLIENT_IDLE_TIMEOUT_SECONDS = 0.2

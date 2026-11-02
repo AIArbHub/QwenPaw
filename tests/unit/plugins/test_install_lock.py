@@ -17,7 +17,7 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.plugins import install_lock as lock_mod
+from aiarb.plugins import install_lock as lock_mod
 
 _WINDOWS = os.name == "nt"
 _POSIX_FLOCK = pytest.mark.skipif(
@@ -234,7 +234,7 @@ class TestDegradedPaths:
 class TestEnvironmentIdentity:
     @pytest.mark.skipif(_WINDOWS, reason="requires POSIX search permissions")
     def test_search_only_ancestor_preserves_admission(self, tmp_path):
-        from qwenpaw.plugins import dependency_maintenance as maintenance
+        from aiarb.plugins import dependency_maintenance as maintenance
 
         if os.geteuid() == 0:
             pytest.skip("root bypasses directory permissions")
@@ -287,7 +287,7 @@ class TestEnvironmentIdentity:
         import pwd
         from types import SimpleNamespace
 
-        from qwenpaw.plugins import dependency_maintenance as maintenance
+        from aiarb.plugins import dependency_maintenance as maintenance
 
         spec = importlib.util.spec_from_file_location(
             "fresh_dependency_maintenance",
@@ -708,7 +708,7 @@ class TestEnvironmentIdentity:
         import subprocess
         import sys
 
-        from qwenpaw.plugins import dependency_maintenance as maintenance
+        from aiarb.plugins import dependency_maintenance as maintenance
 
         site = tmp_path / "CaseParent" / "CaseSite"
         site.mkdir(parents=True)
@@ -728,8 +728,8 @@ class TestEnvironmentIdentity:
         assert (path == lock_mod.environment_install_lock_path(alias)) == same
         script = """import sys
 from pathlib import Path
-from qwenpaw.plugins import dependency_maintenance as m
-from qwenpaw.plugins.install_lock import (
+from aiarb.plugins import dependency_maintenance as m
+from aiarb.plugins.install_lock import (
     environment_install_lock_path, plugin_install_lock,
 )
 site = Path(sys.argv[1])
@@ -783,7 +783,7 @@ async def test_reader_admission_waits_for_publication(tmp_path, outcome):
     import asyncio
     import sys
 
-    from qwenpaw.plugins import dependency_maintenance as maintenance
+    from aiarb.plugins import dependency_maintenance as maintenance
 
     site = tmp_path / "site"
     site.mkdir()
@@ -792,7 +792,7 @@ async def test_reader_admission_waits_for_publication(tmp_path, outcome):
         f"import sys\nsys.path.insert(0, {source!r})\n"
         + """
 from pathlib import Path
-from qwenpaw.plugins import dependency_maintenance as m
+from aiarb.plugins import dependency_maintenance as m
 site = Path(sys.argv[1])
 original = m._try_lock
 attempts = 0
@@ -991,7 +991,7 @@ async def test_observation_child_custody_is_temporary(
     import asyncio
     import sys
 
-    from qwenpaw.plugins import dependency_maintenance as maintenance
+    from aiarb.plugins import dependency_maintenance as maintenance
     from .timing import WAIT_TIMEOUT
 
     site = tmp_path / "inspection-site"
@@ -1134,7 +1134,7 @@ def test_scoped_reader_custody_across_process_exit(tmp_path, monkeypatch):
     import subprocess
     import sys
 
-    from qwenpaw.plugins import dependency_maintenance as maintenance
+    from aiarb.plugins import dependency_maintenance as maintenance
 
     site = tmp_path / "site"
     site.mkdir()

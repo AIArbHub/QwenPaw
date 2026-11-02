@@ -13,13 +13,13 @@ from reme import ReMe
 from reme.components.file_store import LocalFileStore
 from reme.components.file_store.local_file_store import FileChunk
 
-from qwenpaw.agents.memory.embedding_model import embedding_config_fingerprint
-from qwenpaw.agents.memory.reme_light_memory_manager import (
+from aiarb.agents.memory.embedding_model import embedding_config_fingerprint
+from aiarb.agents.memory.reme_light_memory_manager import (
     EmbeddingReindexUnavailableError,
     ReMeLightMemoryManager,
     _load_validated_reme_app,
 )
-from qwenpaw.config.config import AgentProfileConfig, EmbeddingModelConfig
+from aiarb.config.config import AgentProfileConfig, EmbeddingModelConfig
 
 
 def _embedding_config(model_name: str) -> EmbeddingModelConfig:
@@ -170,12 +170,12 @@ async def test_disabled_embedding_reindex_preserves_real_reme_vectors(
         manager._run_reme_job = AsyncMock(side_effect=destructive_reindex)
         with (
             patch(
-                "qwenpaw.agents.memory.reme_light_memory_manager."
+                "aiarb.agents.memory.reme_light_memory_manager."
                 "load_agent_config_async",
                 return_value=profile,
             ),
             patch(
-                "qwenpaw.agents.memory.reme_light_memory_manager."
+                "aiarb.agents.memory.reme_light_memory_manager."
                 "update_agent_config_async",
             ) as update_config,
             pytest.raises(EmbeddingReindexUnavailableError),

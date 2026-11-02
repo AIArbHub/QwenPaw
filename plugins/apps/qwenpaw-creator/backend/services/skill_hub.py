@@ -97,7 +97,7 @@ def _validate_url(bundle_url: str) -> str:
 
 def _resolve_fetcher() -> Any:
     try:
-        from qwenpaw.agents.skill_system.hub import (
+        from aiarb.agents.skill_system.hub import (
             _prepare_install_payload,
         )
     except Exception as exc:  # noqa: BLE001 - host layout, not our bug

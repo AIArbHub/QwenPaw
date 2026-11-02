@@ -16,14 +16,14 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.security.tool_guard.guardians import rule_guardian as rg
+from aiarb.security.tool_guard.guardians import rule_guardian as rg
 
 
 @pytest.fixture
 def workspace(tmp_path: Path):
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(
-            "qwenpaw.security.tool_guard.guardians.rule_guardian"
+            "aiarb.security.tool_guard.guardians.rule_guardian"
             "._get_workspace_root",
             lambda: tmp_path,
         )
@@ -41,7 +41,7 @@ class TestGetWorkspaceRoot:
             raise ImportError("no config module")
 
         monkeypatch.setattr(
-            "qwenpaw.config.context.get_tool_base_dir",
+            "aiarb.config.context.get_tool_base_dir",
             boom,
             raising=False,
         )
@@ -61,7 +61,7 @@ class TestGetWorkspaceRoot:
             raise OSError("disk gone")
 
         monkeypatch.setattr(
-            "qwenpaw.config.context.get_tool_base_dir",
+            "aiarb.config.context.get_tool_base_dir",
             boom,
             raising=False,
         )
@@ -72,7 +72,7 @@ class TestGetWorkspaceRoot:
             raise RuntimeError("weird")
 
         monkeypatch.setattr(
-            "qwenpaw.config.context.get_tool_base_dir",
+            "aiarb.config.context.get_tool_base_dir",
             boom,
             raising=False,
         )
@@ -124,7 +124,7 @@ class TestIsOutsideWorkspaceProjectRoots:
         project.mkdir()
         monkeypatch.setattr(rg, "_get_workspace_root", lambda: workspace)
         monkeypatch.setattr(
-            "qwenpaw.config.context.get_all_project_dir_paths",
+            "aiarb.config.context.get_all_project_dir_paths",
             lambda: [project],
         )
         target = project / "sub" / "file.txt"
@@ -135,7 +135,7 @@ class TestIsOutsideWorkspaceProjectRoots:
         workspace.mkdir()
         monkeypatch.setattr(rg, "_get_workspace_root", lambda: workspace)
         monkeypatch.setattr(
-            "qwenpaw.config.context.get_all_project_dir_paths",
+            "aiarb.config.context.get_all_project_dir_paths",
             lambda: [],
         )
         outside = tmp_path / "elsewhere" / "file.txt"
@@ -154,7 +154,7 @@ class TestIsOutsideWorkspaceProjectRoots:
             raise RuntimeError("context broken")
 
         monkeypatch.setattr(
-            "qwenpaw.config.context.get_all_project_dir_paths",
+            "aiarb.config.context.get_all_project_dir_paths",
             boom,
         )
         inside = workspace / "file.txt"
@@ -173,7 +173,7 @@ class TestIsOutsideWorkspaceProjectRoots:
 
         monkeypatch.setattr(rg, "_get_workspace_root", boom)
         monkeypatch.setattr(
-            "qwenpaw.config.context.get_all_project_dir_paths",
+            "aiarb.config.context.get_all_project_dir_paths",
             lambda: [project],
         )
         assert rg._is_outside_workspace(project / "x.txt") is False
@@ -183,7 +183,7 @@ class TestIsOutsideWorkspaceProjectRoots:
         workspace.mkdir()
         monkeypatch.setattr(rg, "_get_workspace_root", lambda: workspace)
         monkeypatch.setattr(
-            "qwenpaw.config.context.get_all_project_dir_paths",
+            "aiarb.config.context.get_all_project_dir_paths",
             lambda: [],
         )
         target = workspace / "f.txt"
@@ -321,7 +321,7 @@ class TestLoadConfigRules:
         def boom():
             raise RuntimeError("no config")
 
-        monkeypatch.setattr("qwenpaw.config.load_config", boom)
+        monkeypatch.setattr("aiarb.config.load_config", boom)
         rules, disabled = rg._load_config_rules()
         assert rules == []
         assert disabled == set()
@@ -346,7 +346,7 @@ class TestLoadConfigRules:
                 ),
             ),
         )
-        monkeypatch.setattr("qwenpaw.config.load_config", lambda: cfg)
+        monkeypatch.setattr("aiarb.config.load_config", lambda: cfg)
 
         rules, disabled = rg._load_config_rules()
 
@@ -374,7 +374,7 @@ class TestLoadConfigRules:
                 ),
             ),
         )
-        monkeypatch.setattr("qwenpaw.config.load_config", lambda: cfg)
+        monkeypatch.setattr("aiarb.config.load_config", lambda: cfg)
 
         rules, disabled = rg._load_config_rules()
 

@@ -9,18 +9,18 @@ import threading
 
 import pytest
 
-from qwenpaw.plugins import api as plugin_api
-from qwenpaw.plugins import provision, updates
-from qwenpaw.plugins.architecture import PluginManifest
-from qwenpaw.plugins.lifecycle import UnloadMode
-from qwenpaw.plugins.loader import PluginLoader
+from aiarb.plugins import api as plugin_api
+from aiarb.plugins import provision, updates
+from aiarb.plugins.architecture import PluginManifest
+from aiarb.plugins.lifecycle import UnloadMode
+from aiarb.plugins.loader import PluginLoader
 
 from .timing import WAIT_TIMEOUT, assert_loop_progress
 
 
 @pytest.fixture
 def provision_plugin(tmp_path, monkeypatch, fresh_registry):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     factory = tmp_path / "factory"
     factory.mkdir()
     (factory / "value.txt").write_text("factory", encoding="utf-8")

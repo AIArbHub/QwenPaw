@@ -5,7 +5,7 @@
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli import auth_cmd as auth_mod
+from aiarb.cli import auth_cmd as auth_mod
 
 
 @pytest.fixture()

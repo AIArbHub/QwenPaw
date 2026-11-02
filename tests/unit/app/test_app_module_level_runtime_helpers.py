@@ -30,10 +30,10 @@ import pytest
 from fastapi import HTTPException, Request
 from fastapi.responses import FileResponse
 
-from qwenpaw.app.routers import runtime as runtime_router
-from qwenpaw.tauri.backend_guard import BackendInstance
+from aiarb.app.routers import runtime as runtime_router
+from aiarb.tauri.backend_guard import BackendInstance
 
-app_module = importlib.import_module("qwenpaw.app._app")
+app_module = importlib.import_module("aiarb.app._app")
 
 CONSOLE_STATIC_ENV = "AIARB_CONSOLE_STATIC_DIR"
 
@@ -71,7 +71,7 @@ class _RecordingKernel:
 @pytest.fixture()
 def stub_playwright_stop(monkeypatch):
     """Replace the managed-chromium download stop and record the call."""
-    import qwenpaw.browser.runtime.managed_playwright as mp
+    import aiarb.browser.runtime.managed_playwright as mp
 
     stopped: List[int] = []
 
@@ -276,7 +276,7 @@ def packaged_tree(monkeypatch, tmp_path):
     candidate at ``repo/console/dist``, both inside *tmp_path*.
     """
     monkeypatch.delenv(CONSOLE_STATIC_ENV, raising=False)
-    package = tmp_path / "repo" / "src" / "qwenpaw"
+    package = tmp_path / "repo" / "src" / "aiarb"
     (package / "app").mkdir(parents=True)
     fake_file = package / "app" / "_app.py"
     fake_file.write_text("", encoding="utf-8")
@@ -553,3 +553,37 @@ async def test_shared_stop_preserves_other_clients(runtime_request):
         await first.body_iterator.aclose()
         await second.body_iterator.aclose()
     assert not state.runtime_clients
+
+
+# ---------------------------------------------------------------------------
+# _sync_scroll_history_on_startup failure leg
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_scroll_sync_failure_never_blocks_startup(monkeypatch) -> None:
+    """A broken session sync is logged, not propagated out of startup."""
+    from aiarb.agents.context.scroll import sync as scroll_sync
+
+    def boom() -> None:
+        raise RuntimeError("scroll sync is broken")
+
+    monkeypatch.setattr(scroll_sync, "sync_all_scroll_agents", boom)
+
+    await app_module._sync_scroll_history_on_startup()
+
+
+@pytest.mark.asyncio
+async def test_scroll_sync_success_runs_the_migration(monkeypatch) -> None:
+    from aiarb.agents.context.scroll import sync as scroll_sync
+
+    ran: List[str] = []
+
+    def ok() -> None:
+        ran.append("synced")
+
+    monkeypatch.setattr(scroll_sync, "sync_all_scroll_agents", ok)
+
+    await app_module._sync_scroll_history_on_startup()
+
+    assert ran == ["synced"]

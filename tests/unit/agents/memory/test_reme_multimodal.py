@@ -10,11 +10,11 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from agentscope.message import Base64Source, DataBlock, UserMsg
 
-from qwenpaw.agents.memory import reme_light_memory_manager as memory_module
-from qwenpaw.agents.memory.reme_config import get_reme_app_config
-from qwenpaw.config.config import AgentProfileConfig, ReMeLightMemoryConfig
-from qwenpaw.providers.model_info import ModelInfo
-from qwenpaw.providers.provider_manager import ProviderManager
+from aiarb.agents.memory import reme_light_memory_manager as memory_module
+from aiarb.agents.memory.reme_config import get_reme_app_config
+from aiarb.config.config import AgentProfileConfig, ReMeLightMemoryConfig
+from aiarb.providers.model_info import ModelInfo
+from aiarb.providers.provider_manager import ProviderManager
 
 
 def _image_message():

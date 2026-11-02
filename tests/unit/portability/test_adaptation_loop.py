@@ -10,9 +10,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.app.agent_context import scoped_session_id
-from qwenpaw.modes.mission import MissionMode
-from qwenpaw.portability.adaptation_loop import (
+from aiarb.app.agent_context import scoped_session_id
+from aiarb.modes.mission import MissionMode
+from aiarb.portability.adaptation_loop import (
     _DRAINING_WORKERS,
     _run_phase,
     _stop_worker,
@@ -20,15 +20,15 @@ from qwenpaw.portability.adaptation_loop import (
     get_active_adaptation_context,
     run_adaptation_loop,
 )
-from qwenpaw.portability.compatibility import (
+from aiarb.portability.compatibility import (
     CompatibilityAsset,
     AssetType,
     AssetZone,
 )
-from qwenpaw.portability.compatibility_testing import (
+from aiarb.portability.compatibility_testing import (
     CompatibilityTester,
 )
-from qwenpaw.portability.models import (
+from aiarb.portability.models import (
     ProviderInventory,
     SourceMCPServer,
     SourcePlugin,
@@ -99,7 +99,7 @@ async def test_stopping_an_uncooperative_worker_is_bounded(
     task = asyncio.create_task(worker())
     await asyncio.sleep(0)
     monkeypatch.setattr(
-        "qwenpaw.portability.adaptation_loop._WORKER_STOP_GRACE_SECONDS",
+        "aiarb.portability.adaptation_loop._WORKER_STOP_GRACE_SECONDS",
         0.01,
     )
     await _stop_worker(workspace, task)
@@ -140,11 +140,11 @@ async def test_heartbeat_does_not_reset_mission_idle_timeout(
 
     workspace = SimpleNamespace(agent_id="agent", stream_query=stream_query)
     monkeypatch.setattr(
-        "qwenpaw.portability.adaptation_loop._HEARTBEAT_SECONDS",
+        "aiarb.portability.adaptation_loop._HEARTBEAT_SECONDS",
         0.005,
     )
     monkeypatch.setattr(
-        "qwenpaw.portability.adaptation_loop._IDLE_SECONDS",
+        "aiarb.portability.adaptation_loop._IDLE_SECONDS",
         0.03,
     )
     with pytest.raises(TimeoutError, match="was idle"):
@@ -170,15 +170,15 @@ async def test_mission_worker_has_absolute_deadline(
 
     workspace = SimpleNamespace(agent_id="agent", stream_query=stream_query)
     monkeypatch.setattr(
-        "qwenpaw.portability.adaptation_loop._HEARTBEAT_SECONDS",
+        "aiarb.portability.adaptation_loop._HEARTBEAT_SECONDS",
         0.005,
     )
     monkeypatch.setattr(
-        "qwenpaw.portability.adaptation_loop._IDLE_SECONDS",
+        "aiarb.portability.adaptation_loop._IDLE_SECONDS",
         1,
     )
     monkeypatch.setattr(
-        "qwenpaw.portability.adaptation_loop._MAX_WORKER_SECONDS",
+        "aiarb.portability.adaptation_loop._MAX_WORKER_SECONDS",
         0.03,
     )
     with pytest.raises(TimeoutError, match="exceeded"):

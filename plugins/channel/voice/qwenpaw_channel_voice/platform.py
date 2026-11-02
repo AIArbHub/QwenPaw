@@ -21,7 +21,7 @@ import uuid
 import aiohttp
 from aiohttp import web
 
-from qwenpaw.channel_protocol import PlatformAuthenticationError
+from aiarb.channel_protocol import PlatformAuthenticationError
 from .runner_twilio_manager import (
     RunnerTwilioManager,
     TwilioAuthenticationError,
@@ -191,7 +191,7 @@ def _default_validator_factory(auth_token: str) -> RequestValidator:
 
 def _default_tunnel_factory() -> TunnelDriver:
     """Load the tunnel implementation only inside the Runner path."""
-    from qwenpaw.tunnel import CloudflareTunnelDriver
+    from aiarb.tunnel import CloudflareTunnelDriver
 
     return CloudflareTunnelDriver()
 

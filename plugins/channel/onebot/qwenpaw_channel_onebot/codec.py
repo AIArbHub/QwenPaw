@@ -9,7 +9,7 @@ import re
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
-from qwenpaw.app.channels.utils import file_url_to_local_path
+from aiarb.app.channels.utils import file_url_to_local_path
 
 logger = logging.getLogger(__name__)
 

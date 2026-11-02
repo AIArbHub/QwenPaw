@@ -9,10 +9,10 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.plugins import SDKError
-from qwenpaw.plugins import dependency_gate
-from qwenpaw.plugins.loader import PluginLoader
-from qwenpaw.plugins.testing import PluginTestHost
+from aiarb.plugins import SDKError, SDKRestartRequiredError
+from aiarb.plugins import dependency_gate
+from aiarb.plugins.loader import PluginLoader
+from aiarb.plugins.testing import PluginTestHost
 
 from .sdk_author_fixture import make_plugin
 from .sdk_dependency_fixture import dependency_python
@@ -319,9 +319,9 @@ def test_wheel_identity_and_header_validation(
 
     from packaging.markers import default_environment
 
-    from qwenpaw.plugins.execution.dependencies import DependencySnapshot
-    from qwenpaw.plugins.execution.errors import ProtocolValidationError
-    from qwenpaw.plugins.wheel_additions import (
+    from aiarb.plugins.execution.dependencies import DependencySnapshot
+    from aiarb.plugins.execution.errors import ProtocolValidationError
+    from aiarb.plugins.wheel_additions import (
         WheelAddition,
         validate_additions,
     )
@@ -434,7 +434,7 @@ def install_case(tmp_path, source, expected, *, repair=False, tool=False):
     import subprocess
     import shutil
 
-    import qwenpaw
+    import aiarb
     from tests.channel_support.host import local_certifi_wheel
 
     wheels = tmp_path / "wheels"
@@ -464,7 +464,7 @@ def install_case(tmp_path, source, expected, *, repair=False, tool=False):
     host_source.mkdir()
     shutil.copytree(
         Path(qwenpaw.__file__).resolve().parent,
-        host_source / "qwenpaw",
+        host_source / "aiarb",
         ignore=shutil.ignore_patterns("__pycache__"),
     )
     code = r"""
@@ -472,9 +472,9 @@ import asyncio, importlib, importlib.metadata, json, subprocess, sys
 import mcp.types
 from pathlib import Path
 sys.path.insert(0, sys.argv[1])
-from qwenpaw.plugins import SDKError
-from qwenpaw.plugins.testing import PluginTestHost
-from qwenpaw.utils.runtime_environment import CERTIFI_REQUIREMENT
+from aiarb.plugins import SDKError
+from aiarb.plugins.testing import PluginTestHost
+from aiarb.utils.runtime_environment import CERTIFI_REQUIREMENT
 source, root = map(Path, sys.argv[2:4])
 expected = set(json.loads(sys.argv[4]))
 # Unrelated stale metadata must not block a real manifest dependency install.
@@ -791,7 +791,7 @@ def test_manifest_dependency_installs_offline_wheel_in_isolated_python(
     (source / "main.py").write_text(
         """
 from b01_probe_real import ANSWER
-from qwenpaw.plugins.tools import ToolResult, ToolSpec
+from aiarb.plugins.tools import ToolResult, ToolSpec
 class Plugin:
     def register(self, ctx):
         async def answer(call, args):
@@ -811,7 +811,7 @@ def test_author_checker_rejects_invalid_manifest_dependencies(
     tmp_path,
     declaration,
 ):
-    from qwenpaw.plugins.compliance import check_plugin
+    from aiarb.plugins.compliance import check_plugin
 
     report = check_plugin(package(tmp_path, [declaration]))
     assert not report.ok
@@ -878,7 +878,7 @@ async def test_cancelled_installer_keeps_normalized_input_until_thread_stops(
         assert requirements.is_file(), "Input deleted during installation"
 
     async def prepare(loader, requirements, plugin_id, **kwargs):
-        from qwenpaw.utils.io_utils import run_sync_io
+        from aiarb.utils.io_utils import run_sync_io
 
         await run_sync_io(install, loader, requirements, plugin_id, **kwargs)
 

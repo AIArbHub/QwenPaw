@@ -23,8 +23,8 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.routers import project_directory as pd
-from qwenpaw.app.routers.project_directory import router as pd_router
+from aiarb.app.routers import project_directory as pd
+from aiarb.app.routers.project_directory import router as pd_router
 
 
 @pytest.fixture
@@ -123,11 +123,11 @@ class TestAgentDefaultDirs:
             project_dirs=[],
         )
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             lambda _agent_id: config,
         )
         monkeypatch.setattr(
-            "qwenpaw.config.config.save_agent_config",
+            "aiarb.config.config.save_agent_config",
             lambda _agent_id, _config: None,
         )
         endpoint = "/api/workspace/project-directory/dirs"
@@ -373,7 +373,7 @@ class TestUploadZip:
             return "main", False
 
         monkeypatch.setattr(
-            "qwenpaw.app.routers.git._resolve_branch",
+            "aiarb.app.routers.git._resolve_branch",
             fake_resolve_branch,
         )
         data = _zip_bytes({"README.md": "hi", "src/app.py": "x"})

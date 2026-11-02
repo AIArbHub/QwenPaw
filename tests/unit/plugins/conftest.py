@@ -4,13 +4,13 @@
 
 import pytest
 
-from qwenpaw.plugins.registry import PluginRegistry
+from aiarb.plugins.registry import PluginRegistry
 
 
 @pytest.fixture
 def bounded_dependency_environment(tmp_path, monkeypatch):
     """Keep real dependency admission, with a small fixture-owned inventory."""
-    from qwenpaw.plugins import python_backend
+    from aiarb.plugins import python_backend
 
     site = tmp_path / "dependency-site"
     metadata = site / "lifecycle_fixture-1.0.dist-info"
@@ -47,10 +47,10 @@ def sdk_component(tmp_path):
     """Real SDK activation/disposal, retaining Host's process isolation only."""
     from contextlib import asynccontextmanager
 
-    from qwenpaw.plugins.api import PluginApi
-    from qwenpaw.plugins.lifecycle import UnloadMode
-    from qwenpaw.plugins.sdk import PluginContext
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.api import PluginApi
+    from aiarb.plugins.lifecycle import UnloadMode
+    from aiarb.plugins.sdk import PluginContext
+    from aiarb.plugins.testing import PluginTestHost
 
     @asynccontextmanager
     async def component(
@@ -98,7 +98,7 @@ def sdk_component(tmp_path):
                     intent.plugin_id == plugin_id
                     for intent in loader.registry.projector._intents
                 )
-                from qwenpaw.plugins.workspace_projector import scan_owner_rows
+                from aiarb.plugins.workspace_projector import scan_owner_rows
 
                 assert not scan_owner_rows(
                     plugin_id,

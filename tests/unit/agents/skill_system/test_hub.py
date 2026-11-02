@@ -25,8 +25,8 @@ from unittest.mock import patch
 import httpx
 import pytest
 
-hub = importlib.import_module("qwenpaw.agents.skill_system.hub")
-from qwenpaw.exceptions import (  # noqa: E402
+hub = importlib.import_module("aiarb.agents.skill_system.hub")
+from aiarb.exceptions import (  # noqa: E402
     ConfigurationException,
     SkillConflictError,
     SkillImportCancelled,
@@ -2110,7 +2110,7 @@ class TestFetchBundleAliyun:
             _run(hub._fetch_bundle_from_aliyun_url("https://x.com/", ""))
 
     def test_success(self, monkeypatch):
-        import qwenpaw.market.providers.aliyun as aliyun_mod
+        import aiarb.market.providers.aliyun as aliyun_mod
 
         async def _call(action, pathname, method):
             assert action == "GetSkillContent"
@@ -2131,7 +2131,7 @@ class TestFetchBundleAliyun:
         assert "aliyun" in url
 
     def test_call_failure(self, monkeypatch):
-        import qwenpaw.market.providers.aliyun as aliyun_mod
+        import aiarb.market.providers.aliyun as aliyun_mod
 
         async def _call(action, pathname, method):
             raise RuntimeError("denied")
@@ -2488,7 +2488,7 @@ class TestProviderRouting:
             ("https://skills.sh/o/r/s", "skills-sh"),
             ("https://github.com/o/r", "github"),
             ("https://lobehub.com/skills/x", "lobehub"),
-            ("https://platform.agentscope.io/skills/o/n", "qwenpaw"),
+            ("https://platform.agentscope.io/skills/o/n", "aiarb"),
             ("https://modelscope.cn/skills/o/n", "modelscope"),
             (
                 "https://api.aliyun.com/agentexplorer/skills/sk",
@@ -2544,9 +2544,9 @@ class TestProviderRouting:
 class TestRegisteredMarketHub:
     @pytest.fixture
     def registered_hub(self):
-        from qwenpaw.market import MarketResult
-        from qwenpaw.market import market_registry
-        from qwenpaw.plugins.api import PluginApi
+        from aiarb.market import MarketResult
+        from aiarb.market import market_registry
+        from aiarb.plugins.api import PluginApi
 
         class TeamHub:
             key = "team"
@@ -2589,9 +2589,9 @@ class TestRegisteredMarketHub:
             market_registry.unregister_owner("test-hub")
 
     def test_search_and_install_payload(self, registered_hub, monkeypatch):
-        from qwenpaw.app.routers.market import _result_to_spec
-        from qwenpaw.market import list_providers, search_market
-        from qwenpaw.market import market_registry
+        from aiarb.app.routers.market import _result_to_spec
+        from aiarb.market import list_providers, search_market
+        from aiarb.market import market_registry
 
         info = next(p for p in list_providers() if p.key == "team")
         assert info.label == "Team Skills"
@@ -2640,7 +2640,7 @@ class TestRegisteredMarketHub:
             fallback.assert_not_called()
 
     def test_invalid_registration(self, registered_hub, monkeypatch):
-        from qwenpaw.market import market_registry
+        from aiarb.market import market_registry
 
         with pytest.raises(ValueError, match="Duplicate hub key"):
             market_registry.register("another-plugin", registered_hub)
@@ -2656,8 +2656,8 @@ class TestRegisteredMarketHub:
         tmp_path,
         target,
     ):
-        from qwenpaw.market import market_registry
-        from qwenpaw.market.registry import MarketProviderBusyError
+        from aiarb.market import market_registry
+        from aiarb.market.registry import MarketProviderBusyError
 
         created = []
 
@@ -2819,7 +2819,7 @@ class TestInstallSkillFromHub:
                 bundle_url=("https://github.com/o/r/tree/main/skills/demo"),
             ),
         )
-        store = importlib.import_module("qwenpaw.agents.skill_system.store")
+        store = importlib.import_module("aiarb.agents.skill_system.store")
         installed_file = (
             store.get_workspace_skills_dir(tmp_path)
             / result.name

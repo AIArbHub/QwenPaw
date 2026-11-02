@@ -5,7 +5,7 @@ import httpx
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli import env_cmd, plugin_commands
+from aiarb.cli import env_cmd, plugin_commands
 
 
 @pytest.fixture

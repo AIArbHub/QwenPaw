@@ -14,10 +14,10 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.plugins.architecture import PluginManifest
-from qwenpaw.plugins.lifecycle import UnloadMode
-from qwenpaw.plugins.loader import PluginLoader
-from qwenpaw.plugins.provision import load_inventory, provision_files
+from aiarb.plugins.architecture import PluginManifest
+from aiarb.plugins.lifecycle import UnloadMode
+from aiarb.plugins.loader import PluginLoader
+from aiarb.plugins.provision import load_inventory, provision_files
 
 
 def _write_plugin(
@@ -95,7 +95,7 @@ async def test_reload_ignores_same_size_same_mtime_bytecode(
 ):
     if external_cache:
         monkeypatch.setattr(sys, "pycache_prefix", str(tmp_path / "cache"))
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     observed = tmp_path / "imports.log"
     root = _write_plugin(tmp_path / "plugins" / "cached", "cached")
     entry = root / "main.py"
@@ -177,7 +177,7 @@ async def test_reload_rollback_leaves_old_on_disk(
     monkeypatch,
 ):
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     installed = _write_plugin(
@@ -217,7 +217,7 @@ async def test_failed_reload_preserves_user_symlinks_and_external_data(
     monkeypatch,
     link_kind,
 ):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     plugin_id, dest = "linked-migration", tmp_path / "dest"
     monkeypatch.chdir(tmp_path)
     external = tmp_path / "external"
@@ -305,7 +305,7 @@ async def test_successful_reload_replaces_source(
     cleanup_fails,
 ):
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     installed = _write_plugin(tmp_path / "plugins" / "swap", "swap")
@@ -322,7 +322,7 @@ async def test_successful_reload_replaces_source(
         def fail_cleanup(_path):
             raise PermissionError("committed backup is busy")
 
-        monkeypatch.setattr("qwenpaw.plugins.loader._remove_dir", fail_cleanup)
+        monkeypatch.setattr("aiarb.plugins.loader._remove_dir", fail_cleanup)
     staging = _write_plugin(
         tmp_path / "staging-swap",
         "swap",

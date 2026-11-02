@@ -11,8 +11,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.portability.providers.qoder import QoderMigrationProvider
-from qwenpaw.portability.providers.qoder_sessions import (
+from aiarb.portability.providers.qoder import QoderMigrationProvider
+from aiarb.portability.providers.qoder_sessions import (
     QoderIndex,
     QoderTranscript,
     read_qoder_transcript,
@@ -113,7 +113,7 @@ def test_transcript_reader_rejects_oversized_jsonl_line(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from qwenpaw.portability.providers import qoder_sessions
+    from aiarb.portability.providers import qoder_sessions
 
     path = tmp_path / "session.jsonl"
     path.write_text('{"message":"too long"}\n', encoding="utf-8")

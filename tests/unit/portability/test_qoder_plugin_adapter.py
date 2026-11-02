@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.portability.models import SourcePlugin
-from qwenpaw.portability.qoder_plugin_adapter import (
+from aiarb.portability.models import SourcePlugin
+from aiarb.portability.qoder_plugin_adapter import (
     stage_qoder_skill_plugin,
 )
 

@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from qwenpaw.pawapp.app import PawApp
-from qwenpaw.pawapp.context import PawAppContext
+from aiarb.pawapp.app import PawApp
+from aiarb.pawapp.context import PawAppContext
 
 
 class _WorkspaceRegistry:

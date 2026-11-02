@@ -176,7 +176,7 @@ class TestCollapseEmbeddedNewlines:
         command = 'echo "hello\nworld"'
         assert _collapse_embedded_newlines(command, "/bin/bash") == command
 
-    @patch("qwenpaw.agents.tools.shell.sys")
+    @patch("aiarb.agents.tools.shell.sys")
     def test_unix_removes_posix_line_continuation(self, mock_sys):
         mock_sys.platform = "linux"
         command = "cat /tmp/.qwenpaw\\\n.secret/token.json"
@@ -185,7 +185,7 @@ class TestCollapseEmbeddedNewlines:
             == "cat /tmp/.qwenpaw.secret/token.json"
         )
 
-    @patch("qwenpaw.agents.tools.shell.sys")
+    @patch("aiarb.agents.tools.shell.sys")
     def test_unix_preserves_line_continuation_inside_single_quotes(
         self,
         mock_sys,
@@ -2224,12 +2224,12 @@ def test_execute_subprocess_sync_reaps_after_fallback_kill(tmp_path):
             return_value=proc,
         ) as popen_mock,
         patch(
-            "qwenpaw.agents.tools.shell.subprocess.CREATE_NEW_PROCESS_GROUP",
+            "aiarb.agents.tools.shell.subprocess.CREATE_NEW_PROCESS_GROUP",
             0x00000200,
             create=True,
         ),
         patch(
-            "qwenpaw.agents.tools.shell.subprocess.CREATE_NO_WINDOW",
+            "aiarb.agents.tools.shell.subprocess.CREATE_NO_WINDOW",
             0x08000000,
             create=True,
         ),

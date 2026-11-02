@@ -57,7 +57,7 @@ def test_app_storage_set_get_roundtrip() -> None:
     """Storage namespaces writes and reads back values."""
     import asyncio
 
-    from qwenpaw.pawapp.context import AppStorage
+    from aiarb.pawapp.context import AppStorage
 
     session = FakeSession()
     storage = AppStorage(session, namespace="pawapp:demo")
@@ -78,7 +78,7 @@ def test_app_storage_keys_and_delete() -> None:
     """keys lists namespace keys; delete removes a key."""
     import asyncio
 
-    from qwenpaw.pawapp.context import AppStorage
+    from aiarb.pawapp.context import AppStorage
 
     session = FakeSession()
     storage = AppStorage(session, namespace="ns")
@@ -99,7 +99,7 @@ def test_app_storage_clear_namespace() -> None:
     """clear_namespace deletes the whole session namespace."""
     import asyncio
 
-    from qwenpaw.pawapp.context import AppStorage
+    from aiarb.pawapp.context import AppStorage
 
     session = FakeSession()
     storage = AppStorage(session, namespace="ns")
@@ -119,7 +119,7 @@ def test_app_storage_error_paths_return_defaults() -> None:
     """Session errors degrade to defaults instead of raising."""
     import asyncio
 
-    from qwenpaw.pawapp.context import AppStorage
+    from aiarb.pawapp.context import AppStorage
 
     class BrokenSession(FakeSession):
         async def get_session_state_dict(
@@ -144,7 +144,7 @@ def test_tool_proxy_requires_coordinator() -> None:
     """ToolProxy without a coordinator raises RuntimeError."""
     import asyncio
 
-    from qwenpaw.pawapp.context import ToolProxy
+    from aiarb.pawapp.context import ToolProxy
 
     proxy = ToolProxy(tool_coordinator=None)
 
@@ -161,7 +161,7 @@ def test_tool_proxy_invokes_coordinator() -> None:
     """ToolProxy delegates name and params to the coordinator."""
     import asyncio
 
-    from qwenpaw.pawapp.context import ToolProxy
+    from aiarb.pawapp.context import ToolProxy
 
     class FakeCoordinator:
         def __init__(self) -> None:
@@ -188,7 +188,7 @@ def test_ui_bridge_push_without_channel_noop() -> None:
     """UIBridge.push with no SSE channel is a safe no-op."""
     import asyncio
 
-    from qwenpaw.pawapp.context import UIBridge
+    from aiarb.pawapp.context import UIBridge
 
     bridge = UIBridge(sse_channel=None)
 
@@ -204,7 +204,7 @@ def test_ui_bridge_push_with_channel() -> None:
     """UIBridge.push forwards typed events over the SSE channel."""
     import asyncio
 
-    from qwenpaw.pawapp.context import UIBridge
+    from aiarb.pawapp.context import UIBridge
 
     class FakeChannel:
         def __init__(self) -> None:
@@ -233,7 +233,7 @@ def test_ui_bridge_confirm_requires_connection() -> None:
     """UIBridge.confirm without channel/approval raises RuntimeError."""
     import asyncio
 
-    from qwenpaw.pawapp.context import UIBridge
+    from aiarb.pawapp.context import UIBridge
 
     bridge = UIBridge(sse_channel=None, approval_coordinator=None)
 
@@ -248,7 +248,7 @@ def test_ui_bridge_confirm_requires_connection() -> None:
 @pytest.mark.p1
 def test_app_settings_default_when_no_registry() -> None:
     """AppSettings.get returns default without a registry."""
-    from qwenpaw.pawapp.context import AppSettings
+    from aiarb.pawapp.context import AppSettings
 
     settings = AppSettings(plugin_registry=None, app_id="app1")
     assert settings.get("key") is None
@@ -259,7 +259,7 @@ def test_app_settings_default_when_no_registry() -> None:
 @pytest.mark.p1
 def test_app_settings_reads_tool_config() -> None:
     """AppSettings reads values from plugin tool config."""
-    from qwenpaw.pawapp.context import AppSettings
+    from aiarb.pawapp.context import AppSettings
 
     class FakeRegistry:
         def get_tool_config(self, app_id: str, agent_id: str) -> dict:
@@ -279,7 +279,7 @@ def test_app_settings_reads_tool_config() -> None:
 @pytest.mark.p1
 def test_app_settings_empty_config_returns_default() -> None:
     """Empty tool config falls back to defaults."""
-    from qwenpaw.pawapp.context import AppSettings
+    from aiarb.pawapp.context import AppSettings
 
     class EmptyRegistry:
         def get_tool_config(self, app_id: str, agent_id: str) -> dict:
@@ -294,7 +294,7 @@ def test_app_settings_empty_config_returns_default() -> None:
 @pytest.mark.p1
 def test_paw_app_context_defaults() -> None:
     """PawAppContext dataclass has sensible defaults."""
-    from qwenpaw.pawapp.context import PawAppContext
+    from aiarb.pawapp.context import PawAppContext
 
     ctx = PawAppContext(app_id="app1")
     assert ctx.app_id == "app1"
@@ -307,7 +307,7 @@ def test_paw_app_context_defaults() -> None:
 @pytest.mark.p1
 def test_chat_reply_text_from_plain_strings() -> None:
     """ChatReply.text concatenates legacy plain-string chunks."""
-    from qwenpaw.pawapp.context import ChatReply
+    from aiarb.pawapp.context import ChatReply
 
     reply = ChatReply(chunks=["hello ", "world"])
     assert reply.text == "hello world"
@@ -317,7 +317,7 @@ def test_chat_reply_text_from_plain_strings() -> None:
 @pytest.mark.p1
 def test_chat_reply_text_from_dicts() -> None:
     """ChatReply.text handles legacy dict chunks with text deltas."""
-    from qwenpaw.pawapp.context import ChatReply
+    from aiarb.pawapp.context import ChatReply
 
     chunks = [
         {"delta": "part1 "},

@@ -19,9 +19,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.backup import models as backup_models
-from qwenpaw.backup._ops import restore as restore_mod
-from qwenpaw.backup._ops import restore_helpers as rh
+from aiarb.backup import models as backup_models
+from aiarb.backup._ops import restore as restore_mod
+from aiarb.backup._ops import restore_helpers as rh
 
 
 def _zip_bytes(entries: dict[str, str]) -> bytes:

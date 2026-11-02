@@ -208,7 +208,7 @@ async def test_retired_workspace_stop_failure_retries(monkeypatch, delayed):
     old.stop.side_effect = stop
     old.task_tracker.wait_tasks_done = AsyncMock(return_value=True)
     monkeypatch.setattr(
-        "qwenpaw.app.multi_agent_manager._OLD_WORKSPACE_CLEANUP_RETRY_SECONDS",
+        "aiarb.app.multi_agent_manager._OLD_WORKSPACE_CLEANUP_RETRY_SECONDS",
         0,
     )
     active = {"request": asyncio.get_running_loop().create_future()}
@@ -243,7 +243,7 @@ async def test_shutdown_retries_retired_workspace_preserving_reused_services(
     mgr.agents["agent"] = new
     old.stop.side_effect = [RuntimeError("plugin still alive"), None]
     monkeypatch.setattr(
-        "qwenpaw.app.multi_agent_manager._OLD_WORKSPACE_CLEANUP_RETRY_SECONDS",
+        "aiarb.app.multi_agent_manager._OLD_WORKSPACE_CLEANUP_RETRY_SECONDS",
         60,
     )
     await mgr._graceful_stop_old_instance(old, "agent", active_tasks={})
@@ -342,7 +342,7 @@ async def test_cached_agent_lookup_refuses_unavailable_instance(unavailable):
 
 
 async def test_parallel_shutdown_retains_failed_current_and_retired():
-    from qwenpaw.plugins.lifecycle import QuiescenceError
+    from aiarb.plugins.lifecycle import QuiescenceError
 
     mgr = MultiAgentManager()
     healthy = _ControlledStopWorkspace("healthy")
@@ -394,7 +394,7 @@ async def test_stop_agent_retries_failed_retired_cleanup(monkeypatch):
     mgr.agents.update(agent=current, other=other)
     old.stop.side_effect = [RuntimeError("busy"), RuntimeError("busy"), None]
     monkeypatch.setattr(
-        "qwenpaw.app.multi_agent_manager._OLD_WORKSPACE_CLEANUP_RETRY_SECONDS",
+        "aiarb.app.multi_agent_manager._OLD_WORKSPACE_CLEANUP_RETRY_SECONDS",
         60,
     )
     await mgr._graceful_stop_old_instance(old, "agent", active_tasks={})
@@ -434,7 +434,7 @@ async def test_cancelled_stop_caller_keeps_retired_cleanup_owned(monkeypatch):
 
     old.stop.side_effect = stop
     monkeypatch.setattr(
-        "qwenpaw.app.multi_agent_manager._OLD_WORKSPACE_CLEANUP_RETRY_SECONDS",
+        "aiarb.app.multi_agent_manager._OLD_WORKSPACE_CLEANUP_RETRY_SECONDS",
         60,
     )
     await mgr._graceful_stop_old_instance(old, "agent", active_tasks={})

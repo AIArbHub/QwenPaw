@@ -28,20 +28,20 @@ import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.driver_config_service import DriverConfigService
-from qwenpaw.app.routers import mcp_oauth as mo
-from qwenpaw.app.routers.mcp_oauth import router as oauth_router
-from qwenpaw.drivers.adapters.mcp_console import (
+from aiarb.app.driver_config_service import DriverConfigService
+from aiarb.app.routers import mcp_oauth as mo
+from aiarb.app.routers.mcp_oauth import router as oauth_router
+from aiarb.drivers.adapters.mcp_console import (
     OAUTH_CREDENTIAL_ALIAS,
     attach_mcp_oauth_credential,
     mcp_oauth_credential_ref,
 )
-from qwenpaw.drivers.constants import PROTOCOL_MCP
-from qwenpaw.drivers.contracts import DriverCard
-from qwenpaw.drivers.credentials.store import AsyncCredentialStore
-from qwenpaw.drivers.credentials.types import CredentialRecord
-from qwenpaw.drivers.errors import CredentialNotFoundError
-from qwenpaw.drivers.storage import dump_card, load_card
+from aiarb.drivers.constants import PROTOCOL_MCP
+from aiarb.drivers.contracts import DriverCard
+from aiarb.drivers.credentials.store import AsyncCredentialStore
+from aiarb.drivers.credentials.types import CredentialRecord
+from aiarb.drivers.errors import CredentialNotFoundError
+from aiarb.drivers.storage import dump_card, load_card
 
 MCP_URL = "https://mcp.example.com/coop/mcp"
 AS_URL = "https://as.example.com"
@@ -189,7 +189,7 @@ def client(app: FastAPI) -> TestClient:
 def patch_agent(workspace: WorkspaceStub) -> Any:
     """Stub the agent lookup the endpoints import from agent_context."""
     with patch(
-        "qwenpaw.app.agent_context.get_agent_for_request",
+        "aiarb.app.agent_context.get_agent_for_request",
         new=AsyncMock(return_value=workspace),
     ) as patched:
         yield patched
@@ -986,7 +986,7 @@ class TestPersistTokens:
         config_stub.agents.active_agent = "active-7"
 
         with patch(
-            "qwenpaw.config.utils.load_config",
+            "aiarb.config.utils.load_config",
             return_value=config_stub,
         ) as load_config:
             await mo._persist_tokens(

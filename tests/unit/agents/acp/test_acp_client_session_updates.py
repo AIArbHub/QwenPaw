@@ -45,8 +45,8 @@ from acp.schema import (
     UserMessageChunk,
 )
 
-from qwenpaw.agents.acp.client import ACPHostedClient
-from qwenpaw.config.config import ACPAgentConfig
+from aiarb.agents.acp.client import ACPHostedClient
+from aiarb.config.config import ACPAgentConfig
 
 
 def _client(

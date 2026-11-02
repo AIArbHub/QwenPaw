@@ -19,9 +19,9 @@ import json
 from pathlib import Path
 
 import pytest
-from qwenpaw.agents.skill_system import registry as reg
-from qwenpaw.exceptions import SkillsError
-from qwenpaw.utils.file_snapshot_cache import get_file_snapshot_cache
+from aiarb.agents.skill_system import registry as reg
+from aiarb.exceptions import SkillsError
+from aiarb.utils.file_snapshot_cache import get_file_snapshot_cache
 
 
 def _packaged_variant(
@@ -79,7 +79,7 @@ def _opt_in_auto_update(entry: dict) -> dict:
 @pytest.fixture(autouse=True)
 def packaged_root(tmp_path, monkeypatch):
     """Isolate WORKING_DIR, the packaged builtins and the caches."""
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path)
     root = tmp_path / "packaged"
     root.mkdir()
     monkeypatch.setattr(reg, "get_builtin_skills_dir", lambda: root)

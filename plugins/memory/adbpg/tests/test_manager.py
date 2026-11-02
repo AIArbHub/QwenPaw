@@ -19,12 +19,12 @@ from plugins.memory.adbpg.backend.prompts import (
     ADBPG_MEMORY_GUIDANCE_EN,
     ADBPG_MEMORY_GUIDANCE_ZH,
 )
-from qwenpaw.memory import MemoryBackendContext
-from qwenpaw.constant import AUTO_MEMORY_SEARCH_BLOCK_IDS_KEY
-from qwenpaw.governance import PolicyGuardedTool
-from qwenpaw.governance.policy import GovernanceAction, GovernancePolicy
-from qwenpaw.governance.tool_registry import DEFAULT_REGISTRY
-from qwenpaw.runtime.builder import AgentBuilder
+from aiarb.memory import MemoryBackendContext
+from aiarb.constant import AUTO_MEMORY_SEARCH_BLOCK_IDS_KEY
+from aiarb.governance import PolicyGuardedTool
+from aiarb.governance.policy import GovernanceAction, GovernancePolicy
+from aiarb.governance.tool_registry import DEFAULT_REGISTRY
+from aiarb.runtime.builder import AgentBuilder
 
 
 def _manager(

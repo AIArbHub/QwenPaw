@@ -20,7 +20,7 @@ import httpx
 import pytest
 from click.testing import CliRunner
 
-import qwenpaw.cli.doctor_cmd as dc
+import aiarb.cli.doctor_cmd as dc
 
 
 # ---------------------------------------------------------------------------
@@ -612,7 +612,7 @@ class TestRunDoctorFixCli:
             captured.update(kw)
             return 2
 
-        import qwenpaw.cli.doctor_fix_runner as dfr
+        import aiarb.cli.doctor_fix_runner as dfr
 
         monkeypatch.setattr(dfr, "run_doctor_fix", fake_run)
         root = click.Context(click.Command("cli"))
@@ -633,7 +633,7 @@ class TestRunDoctorFixCli:
         assert captured["cli_api_port"] == 1
 
     def test_returns_normally_on_zero(self, monkeypatch):
-        import qwenpaw.cli.doctor_fix_runner as dfr
+        import aiarb.cli.doctor_fix_runner as dfr
 
         monkeypatch.setattr(dfr, "run_doctor_fix", lambda **kw: 0)
         root = click.Context(click.Command("cli"))
@@ -655,7 +655,7 @@ class TestRunDoctorFixCli:
         monkeypatch,
         capsys,
     ):
-        import qwenpaw.cli.doctor_fix_runner as dfr
+        import aiarb.cli.doctor_fix_runner as dfr
 
         def fake_run(**kw):
             kw["echo"]("out line")

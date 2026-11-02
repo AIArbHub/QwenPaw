@@ -22,7 +22,7 @@ def test_governance_action_enum_values() -> None:
     1. Import GovernanceAction.
     2. Verify all 4 actions exist.
     """
-    from qwenpaw.governance.policy import GovernanceAction
+    from aiarb.governance.policy import GovernanceAction
 
     assert GovernanceAction.ALLOW.value == "allow"
     assert GovernanceAction.DENY.value == "deny"
@@ -42,7 +42,7 @@ def test_governance_decision_dataclass() -> None:
     2. Create instance with ALLOW action.
     3. Verify fields.
     """
-    from qwenpaw.governance.policy import GovernanceAction, GovernanceDecision
+    from aiarb.governance.policy import GovernanceAction, GovernanceDecision
 
     decision = GovernanceDecision(
         action=GovernanceAction.ALLOW,
@@ -63,8 +63,8 @@ def test_governance_decision_with_sandbox_config() -> None:
     1. Create GovernanceDecision with SANDBOX_FALLBACK and sandbox_config.
     2. Verify sandbox_config is accessible.
     """
-    from qwenpaw.governance.policy import GovernanceAction, GovernanceDecision
-    from qwenpaw.sandbox.config import SandboxConfig, SandboxMode
+    from aiarb.governance.policy import GovernanceAction, GovernanceDecision
+    from aiarb.sandbox.config import SandboxConfig, SandboxMode
 
     config = SandboxConfig(
         mode=SandboxMode.NONE,
@@ -93,7 +93,7 @@ def test_resource_governor_creation() -> None:
     3. Verify it has expected methods.
     """
     import tempfile
-    from qwenpaw.governance import ResourceGovernor
+    from aiarb.governance import ResourceGovernor
 
     with tempfile.TemporaryDirectory() as tmpdir:
         governor = ResourceGovernor(workspace_dir=tmpdir)
@@ -108,10 +108,10 @@ def test_governance_init_exports() -> None:
     - Verify qwenpaw.governance package exports expected symbols.
 
     Test flow:
-    1. Import from qwenpaw.governance.
+    1. Import from aiarb.governance.
     2. Verify all expected symbols are accessible.
     """
-    from qwenpaw.governance import (
+    from aiarb.governance import (
         GovernanceAction,
         GovernanceDecision,
         PolicyGuardedTool,
@@ -135,7 +135,7 @@ def test_governance_detectors_module_exists() -> None:
     1. Import qwenpaw.governance.detectors.
     2. Verify import succeeds.
     """
-    from qwenpaw.governance import detectors
+    from aiarb.governance import detectors
 
     assert detectors is not None
 
@@ -151,7 +151,7 @@ def test_governance_tool_registry_module_exists() -> None:
     1. Import qwenpaw.governance.tool_registry.
     2. Verify import succeeds.
     """
-    from qwenpaw.governance import tool_registry
+    from aiarb.governance import tool_registry
 
     assert tool_registry is not None
 
@@ -167,7 +167,7 @@ def test_governance_tool_adapter_module_exists() -> None:
     1. Import qwenpaw.governance.tool_adapter.
     2. Verify import succeeds.
     """
-    from qwenpaw.governance import tool_adapter
+    from aiarb.governance import tool_adapter
 
     assert tool_adapter is not None
 
@@ -183,7 +183,7 @@ def test_governance_generalize_module_exists() -> None:
     1. Import qwenpaw.governance.generalize.
     2. Verify import succeeds.
     """
-    from qwenpaw.governance import generalize
+    from aiarb.governance import generalize
 
     assert generalize is not None
 
@@ -199,6 +199,6 @@ def test_governance_audit_module_exists() -> None:
     1. Import qwenpaw.governance.audit.
     2. Verify import succeeds.
     """
-    from qwenpaw.governance import audit
+    from aiarb.governance import audit
 
     assert audit is not None

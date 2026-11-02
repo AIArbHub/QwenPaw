@@ -15,7 +15,7 @@ def main() -> None:
     if sys.argv[1:2] == ["--internal-dependency-continue"]:
         if len(sys.argv) != 4:
             raise RuntimeError("DEPENDENCY_APPROVAL_REQUIRED")
-        from qwenpaw.plugins.dependency_upgrade import run_native_continuation
+        from aiarb.plugins.dependency_upgrade import run_native_continuation
 
         run_native_continuation(sys.argv[2], sys.argv[3])
         return

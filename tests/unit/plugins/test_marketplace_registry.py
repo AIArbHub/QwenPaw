@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from qwenpaw.plugins.marketplace_registry import ExternalMarketplaceRegistry
+from aiarb.plugins.marketplace_registry import ExternalMarketplaceRegistry
 
 
 @pytest.mark.asyncio

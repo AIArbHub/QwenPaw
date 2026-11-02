@@ -4,7 +4,7 @@
 from copy import deepcopy
 from typing import Any
 
-from qwenpaw.providers.provider_model_state import (
+from aiarb.providers.provider_model_state import (
     PROVIDER_SNAPSHOT_SCHEMA_VERSION,
     migrate_provider_snapshot,
 )

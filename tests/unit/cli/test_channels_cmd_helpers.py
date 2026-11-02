@@ -17,9 +17,9 @@ from types import SimpleNamespace
 
 import pytest
 
-import qwenpaw.cli.channels_cmd as cc
-from qwenpaw.config import utils as config_utils
-from qwenpaw.plugins.registry import PluginRegistry
+import aiarb.cli.channels_cmd as cc
+from aiarb.config import utils as config_utils
+from aiarb.plugins.registry import PluginRegistry
 
 
 @pytest.fixture

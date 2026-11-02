@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.utils import media_paths
+from aiarb.utils import media_paths
 
 
 @pytest.mark.parametrize("host", ["posix", "nt"])

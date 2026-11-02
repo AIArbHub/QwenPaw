@@ -6,12 +6,12 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.portability.transaction_journal import (
+from aiarb.portability.transaction_journal import (
     ImportTransactionJournal,
     recover_import_transactions,
 )
-from qwenpaw.portability.models import MigrationPlan
-from qwenpaw.utils.io_utils import read_json_async, write_json_atomic_async
+from aiarb.portability.models import MigrationPlan
+from aiarb.utils.io_utils import read_json_async, write_json_atomic_async
 
 
 async def _plan(workspace: Path, plan_id: str, state: str) -> Path:

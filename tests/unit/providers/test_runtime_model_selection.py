@@ -8,16 +8,16 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.agents import prompt
-from qwenpaw.agents.tools import view_media
-from qwenpaw.config.config import AgentProfileConfig, ModelSlotConfig
-from qwenpaw.providers.model_info import ModelInfo
-from qwenpaw.providers.model_selection import (
+from aiarb.agents import prompt
+from aiarb.agents.tools import view_media
+from aiarb.config.config import AgentProfileConfig, ModelSlotConfig
+from aiarb.providers.model_info import ModelInfo
+from aiarb.providers.model_selection import (
     current_model_slot,
     runtime_model_context,
 )
-from qwenpaw.runtime.prompt_contributors import MultimodalHintContributor
-from qwenpaw.utils.io_utils import run_sync_io
+from aiarb.runtime.prompt_contributors import MultimodalHintContributor
+from aiarb.utils.io_utils import run_sync_io
 
 
 @pytest.fixture
@@ -63,11 +63,11 @@ def models(monkeypatch):
         ),
     )
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _: config,
     )
     monkeypatch.setattr(
-        "qwenpaw.providers.provider_manager.ProviderManager.get_instance",
+        "aiarb.providers.provider_manager.ProviderManager.get_instance",
         lambda: manager,
     )
     return config, manager
@@ -132,7 +132,7 @@ async def test_hub_token_wrapper_preserves_executing_identity(
     monkeypatch,
     known,
 ):
-    from qwenpaw.token_usage.model_wrapper import TokenRecordingModelWrapper
+    from aiarb.token_usage.model_wrapper import TokenRecordingModelWrapper
 
     _config, manager = models
     slot = ModelSlotConfig(provider_id="hub-managed", model="selected:tag")
@@ -176,7 +176,7 @@ async def test_hub_token_wrapper_preserves_executing_identity(
     ["invalid\r\nforged", {"model": ["forged\r\n"]}],
 )
 def test_invalid_override_logs_escape_line_breaks(caplog, override):
-    from qwenpaw.providers.model_selection import resolve_model_slot_override
+    from aiarb.providers.model_selection import resolve_model_slot_override
 
     assert resolve_model_slot_override(override) is None
     assert caplog.records
@@ -194,8 +194,8 @@ async def test_runtime_exposes_model_to_tools_and_cleans_up(
     monkeypatch,
     outcome,
 ):
-    from qwenpaw.runtime import runtime as runtime_module
-    from qwenpaw.runtime.hooks import HookResult
+    from aiarb.runtime import runtime as runtime_module
+    from aiarb.runtime.hooks import HookResult
 
     slot = ModelSlotConfig(provider_id="session", model="vision")
     agent = SimpleNamespace(model=SimpleNamespace(model_key="session:vision"))

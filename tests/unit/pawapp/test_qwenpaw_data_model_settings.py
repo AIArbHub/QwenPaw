@@ -215,7 +215,7 @@ def test_workspace_selection_matches_main_chat_precedence(
 ):
     # Exercise the internal resolver directly to isolate model precedence.
     # pylint: disable=protected-access
-    from qwenpaw.config import config
+    from aiarb.config import config
 
     service = module.ModelSettingsService(tmp_path)
     global_slot = SimpleNamespace(provider_id="global", model="global-model")

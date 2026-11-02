@@ -15,7 +15,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.app.routers import mcp_oauth as mo
+from aiarb.app.routers import mcp_oauth as mo
 
 
 # ---------------------------------------------------------------------------

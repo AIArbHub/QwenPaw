@@ -22,7 +22,7 @@ import pytest
 @pytest.mark.p1
 def test_ensure_tz_aware_naive() -> None:
     """ensure_tz_aware attaches UTC to a naive datetime."""
-    from qwenpaw.agents.memory.proactive.proactive_utils import (
+    from aiarb.agents.memory.proactive.proactive_utils import (
         ensure_tz_aware,
     )
 
@@ -35,7 +35,7 @@ def test_ensure_tz_aware_naive() -> None:
 @pytest.mark.p1
 def test_ensure_tz_aware_already() -> None:
     """ensure_tz_aware keeps an aware datetime unchanged."""
-    from qwenpaw.agents.memory.proactive.proactive_utils import (
+    from aiarb.agents.memory.proactive.proactive_utils import (
         ensure_tz_aware,
     )
 
@@ -47,7 +47,7 @@ def test_ensure_tz_aware_already() -> None:
 @pytest.mark.p1
 def test_load_json_safely_dict() -> None:
     """load_json_safely parses a JSON string."""
-    from qwenpaw.agents.memory.proactive.proactive_utils import (
+    from aiarb.agents.memory.proactive.proactive_utils import (
         load_json_safely,
     )
 
@@ -58,7 +58,7 @@ def test_load_json_safely_dict() -> None:
 @pytest.mark.p1
 def test_load_json_safely_garbage() -> None:
     """load_json_safely returns None for garbage input."""
-    from qwenpaw.agents.memory.proactive.proactive_utils import (
+    from aiarb.agents.memory.proactive.proactive_utils import (
         load_json_safely,
     )
 
@@ -69,7 +69,7 @@ def test_load_json_safely_garbage() -> None:
 @pytest.mark.p1
 def test_extract_content_string() -> None:
     """extract_content returns plain string content."""
-    from qwenpaw.agents.memory.proactive.proactive_utils import (
+    from aiarb.agents.memory.proactive.proactive_utils import (
         extract_content,
     )
 
@@ -85,7 +85,7 @@ def test_extract_content_string() -> None:
 @pytest.mark.p1
 def test_get_memory_manager_backend_unknown() -> None:
     """get_memory_manager_backend raises or falls back for unknown."""
-    from qwenpaw.agents.memory.base_memory_manager import (
+    from aiarb.agents.memory.base_memory_manager import (
         get_memory_manager_backend,
     )
 

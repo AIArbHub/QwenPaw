@@ -15,7 +15,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 
-from qwenpaw.agents.memory.proactive import proactive_responder as pr
+from aiarb.agents.memory.proactive import proactive_responder as pr
 
 
 # ---------------------------------------------------------------------------

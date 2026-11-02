@@ -50,13 +50,13 @@ class LiveBrowserSession:
                 "auto, user, avatar, or guest",
             )
 
-        from qwenpaw.config.utils import load_config
-        from qwenpaw.browser import Browser
-        from qwenpaw.browser.runtime.engine import Engine
-        from qwenpaw.browser.runtime.identity import resolve_identity
-        from qwenpaw.browser.runtime.launch_resolve import resolve_launch_env
-        from qwenpaw.browser.runtime.ownership_adapter import build_session
-        from qwenpaw.browser.sdk.contracts import Owner
+        from aiarb.config.utils import load_config
+        from aiarb.browser import Browser
+        from aiarb.browser.runtime.engine import Engine
+        from aiarb.browser.runtime.identity import resolve_identity
+        from aiarb.browser.runtime.launch_resolve import resolve_launch_env
+        from aiarb.browser.runtime.ownership_adapter import build_session
+        from aiarb.browser.sdk.contracts import Owner
 
         available: dict[str, bool] = {}
         by_variant: dict[str, Any] = {}

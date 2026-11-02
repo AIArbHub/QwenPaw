@@ -12,23 +12,23 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.app.channels.base import BaseChannel
-from qwenpaw.app.channels.manager import ChannelManager
-from qwenpaw.app.multi_agent_manager import MultiAgentManager
-from qwenpaw.app.workspace.workspace_plugins import WorkspacePlugins
-from qwenpaw.modes.base import AgentMode
-from qwenpaw.plugins.api import PluginApi
-from qwenpaw.plugins.architecture import PluginManifest
-from qwenpaw.plugins.lifecycle import PluginInstance, PluginState, UnloadMode
-from qwenpaw.plugins.loader import PluginLoader
-from qwenpaw.plugins.workspace_projector import (
+from aiarb.app.channels.base import BaseChannel
+from aiarb.app.channels.manager import ChannelManager
+from aiarb.app.multi_agent_manager import MultiAgentManager
+from aiarb.app.workspace.workspace_plugins import WorkspacePlugins
+from aiarb.modes.base import AgentMode
+from aiarb.plugins.api import PluginApi
+from aiarb.plugins.architecture import PluginManifest
+from aiarb.plugins.lifecycle import PluginInstance, PluginState, UnloadMode
+from aiarb.plugins.loader import PluginLoader
+from aiarb.plugins.workspace_projector import (
     WorkspaceProjector,
     scan_owner_rows,
 )
-from qwenpaw.runtime.hooks import HookBase
-from qwenpaw.runtime.phases import Phase
-from qwenpaw.runtime.slash_command_registry import CommandSpec
-from qwenpaw.runtime.tool_registry import ToolDescriptor
+from aiarb.runtime.hooks import HookBase
+from aiarb.runtime.phases import Phase
+from aiarb.runtime.slash_command_registry import CommandSpec
+from aiarb.runtime.tool_registry import ToolDescriptor
 
 from .timing import WAIT_TIMEOUT
 
@@ -227,11 +227,11 @@ async def test_channel_start_stop_is_paired_and_isolated():
 
     with (
         patch(
-            "qwenpaw.app.channels.manager.get_channel_registry",
+            "aiarb.app.channels.manager.get_channel_registry",
             return_value=registry,
         ),
         patch(
-            "qwenpaw.app.channels.manager.get_available_channels",
+            "aiarb.app.channels.manager.get_available_channels",
             return_value=("fake-heart", "other-ch"),
         ),
     ):
@@ -264,7 +264,7 @@ async def test_channel_project_respects_three_gates(fresh_registry):
     instance = PluginInstance("ch-plug")
     api.bind_instance(instance)
 
-    from qwenpaw.plugins.registry import ChannelRegistration
+    from aiarb.plugins.registry import ChannelRegistration
 
     fresh_registry._channels["fake-heart"] = ChannelRegistration(
         plugin_id="ch-plug",
@@ -273,15 +273,15 @@ async def test_channel_project_respects_three_gates(fresh_registry):
     )
     with (
         patch(
-            "qwenpaw.plugins.api.get_available_channels",
+            "aiarb.plugins.api.get_available_channels",
             return_value=("fake-heart",),
         ),
         patch(
-            "qwenpaw.app.channels.manager.get_channel_registry",
+            "aiarb.app.channels.manager.get_channel_registry",
             return_value={"fake-heart": _HeartChannel},
         ),
         patch(
-            "qwenpaw.app.channels.manager.get_available_channels",
+            "aiarb.app.channels.manager.get_available_channels",
             return_value=("fake-heart",),
         ),
     ):
@@ -335,7 +335,7 @@ async def test_failed_channel_stop_is_not_quiescent(fresh_registry):
     api.set_registry(fresh_registry)
     instance = PluginInstance("stuck-plug")
     api.bind_instance(instance)
-    from qwenpaw.plugins.registry import ChannelRegistration
+    from aiarb.plugins.registry import ChannelRegistration
 
     fresh_registry._channels["stuck-ch"] = ChannelRegistration(
         plugin_id="stuck-plug",
@@ -344,15 +344,15 @@ async def test_failed_channel_stop_is_not_quiescent(fresh_registry):
     )
     with (
         patch(
-            "qwenpaw.plugins.api.get_available_channels",
+            "aiarb.plugins.api.get_available_channels",
             return_value=("stuck-ch",),
         ),
         patch(
-            "qwenpaw.app.channels.manager.get_channel_registry",
+            "aiarb.app.channels.manager.get_channel_registry",
             return_value={"stuck-ch": _StuckChannel},
         ),
         patch(
-            "qwenpaw.app.channels.manager.get_available_channels",
+            "aiarb.app.channels.manager.get_available_channels",
             return_value=("stuck-ch",),
         ),
     ):
@@ -416,12 +416,12 @@ async def test_unload_drains_boot_channel_start(
         live_workspaces=lambda: [workspace],
     )
     monkeypatch.setattr(
-        "qwenpaw.plugins.api.get_available_channels",
+        "aiarb.plugins.api.get_available_channels",
         lambda: ("boot-race",),
     )
     if ignore_cancel:
         monkeypatch.setattr(
-            "qwenpaw.app.channels.manager._CHANNEL_START_STOP_TIMEOUT",
+            "aiarb.app.channels.manager._CHANNEL_START_STOP_TIMEOUT",
             0.01,
         )
     api = PluginApi("boot-plugin", {}, {"id": "boot-plugin"})
@@ -484,15 +484,15 @@ async def test_unload_drains_channel_replacement(
         live_workspaces=lambda: [workspace],
     )
     monkeypatch.setattr(
-        "qwenpaw.plugins.api.get_available_channels",
+        "aiarb.plugins.api.get_available_channels",
         lambda: ("boot-race",),
     )
     monkeypatch.setattr(
-        "qwenpaw.app.channels.manager._CHANNEL_START_STOP_TIMEOUT",
+        "aiarb.app.channels.manager._CHANNEL_START_STOP_TIMEOUT",
         0.01,
     )
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _agent_id: workspace._config,
     )
     monkeypatch.setattr(
@@ -552,7 +552,7 @@ async def test_unload_removes_plugin_manifest(
     monkeypatch,
 ):
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     root = tmp_path / "manifest-p"
@@ -608,7 +608,7 @@ def test_hook_unregister_and_collision():
 
 @pytest.fixture
 async def channel_plugin(tmp_path, monkeypatch, fresh_registry):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     registry = fresh_registry
     live = []
     registry.projector = WorkspaceProjector(live_workspaces=lambda: live)
@@ -652,15 +652,15 @@ async def channel_plugin(tmp_path, monkeypatch, fresh_registry):
         raising=False,
     )
     for module in (
-        "qwenpaw.plugins.api",
-        "qwenpaw.app.channels.manager",
+        "aiarb.plugins.api",
+        "aiarb.app.channels.manager",
     ):
         monkeypatch.setattr(
             f"{module}.get_available_channels",
             lambda: ("projection-race",),
         )
     monkeypatch.setattr(
-        "qwenpaw.app.channels.manager.get_channel_registry",
+        "aiarb.app.channels.manager.get_channel_registry",
         lambda: {
             key: row.channel_class
             for key, row in registry.get_registered_channels().items()
@@ -839,7 +839,7 @@ async def test_pending_projection_timeout_preserves_cleanup_for_retry(
 ):
     case = channel_plugin
     monkeypatch.setattr(
-        "qwenpaw.plugins.workspace_projector.PROJECTION_DRAIN_TIMEOUT",
+        "aiarb.plugins.workspace_projector.PROJECTION_DRAIN_TIMEOUT",
         0.01,
     )
     projection = _start_workspace(case)

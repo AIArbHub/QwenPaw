@@ -131,7 +131,7 @@ async def test_portability_adaptation_cannot_route_to_harness(
     as_dict: bool,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.app.workspace.workspace.load_agent_config",
+        "aiarb.app.workspace.workspace.load_agent_config",
         lambda _agent_id: SimpleNamespace(backend="codex"),
     )
     workspace = Workspace("agent-1", str(tmp_path / "workspace"))

@@ -19,7 +19,7 @@ import pytest
 @pytest.mark.p1
 def test_langfuse_available_bool() -> None:
     """_langfuse_available returns a bool."""
-    from qwenpaw.observability.langfuse import _langfuse_available
+    from aiarb.observability.langfuse import _langfuse_available
 
     assert isinstance(_langfuse_available(), bool)
 
@@ -28,7 +28,7 @@ def test_langfuse_available_bool() -> None:
 @pytest.mark.p1
 def test_is_langfuse_enabled_bool() -> None:
     """is_langfuse_enabled returns a bool."""
-    from qwenpaw.observability.langfuse import is_langfuse_enabled
+    from aiarb.observability.langfuse import is_langfuse_enabled
 
     assert isinstance(is_langfuse_enabled(), bool)
 
@@ -37,7 +37,7 @@ def test_is_langfuse_enabled_bool() -> None:
 @pytest.mark.p1
 def test_trace_context_roundtrip() -> None:
     """set_current_trace + get_current_trace round-trip."""
-    from qwenpaw.observability.langfuse import (
+    from aiarb.observability.langfuse import (
         clear_current_trace,
         get_current_trace,
         set_current_trace,
@@ -58,7 +58,7 @@ def test_trace_context_roundtrip() -> None:
 @pytest.mark.p1
 def test_current_generation_kwargs() -> None:
     """current_generation_kwargs returns a dict."""
-    from qwenpaw.observability.langfuse import (
+    from aiarb.observability.langfuse import (
         current_generation_kwargs,
     )
 
@@ -74,7 +74,7 @@ def test_current_generation_kwargs() -> None:
 @pytest.mark.p1
 def test_restore_lock_timeout_seconds() -> None:
     """_restore_lock_timeout_seconds returns a positive float."""
-    from qwenpaw.backup._utils.safe_swap import (
+    from aiarb.backup._utils.safe_swap import (
         _restore_lock_timeout_seconds,
     )
 
@@ -85,7 +85,7 @@ def test_restore_lock_timeout_seconds() -> None:
 @pytest.mark.p1
 def test_cleanup_stale_restore_artifacts(tmp_path) -> None:
     """cleanup_stale_restore_artifacts runs on an empty dir."""
-    from qwenpaw.backup._utils.safe_swap import (
+    from aiarb.backup._utils.safe_swap import (
         cleanup_stale_restore_artifacts,
     )
 
@@ -96,7 +96,7 @@ def test_cleanup_stale_restore_artifacts(tmp_path) -> None:
 @pytest.mark.p1
 def test_lock_for_same_path(tmp_path) -> None:
     """_lock_for returns the same lock for the same destination."""
-    from qwenpaw.backup._utils.safe_swap import _lock_for
+    from aiarb.backup._utils.safe_swap import _lock_for
 
     dst = tmp_path / "x"
     assert _lock_for(dst) is _lock_for(dst)

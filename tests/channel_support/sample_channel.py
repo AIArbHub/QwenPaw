@@ -7,11 +7,11 @@ from pathlib import Path
 import time
 import uuid
 
-from qwenpaw.utils.media_paths import local_media_path
-from qwenpaw.channel_protocol.models import InboundEvent
-from qwenpaw.channel_protocol.response_lifecycle import ResponseResourceRef
-from qwenpaw.channel_protocol.response_policy import ResponsePolicy
-from qwenpaw.channel_protocol.shared_response_driver import (
+from aiarb.utils.media_paths import local_media_path
+from aiarb.channel_protocol.models import InboundEvent
+from aiarb.channel_protocol.response_lifecycle import ResponseResourceRef
+from aiarb.channel_protocol.response_policy import ResponsePolicy
+from aiarb.channel_protocol.shared_response_driver import (
     SharedResponseDriver,
 )
 
@@ -99,7 +99,7 @@ class Driver(SharedResponseDriver):
 
     async def _open(self, params, _request):
         self._identity(params)
-        from qwenpaw.channel_protocol.targets import decode_reply_target
+        from aiarb.channel_protocol.targets import decode_reply_target
 
         target = decode_reply_target(params["to_handle"])
         room = target["session_id"] if target else params["to_handle"]

@@ -11,17 +11,17 @@ from unittest.mock import AsyncMock
 import pytest
 from agentscope.message import Msg, TextBlock, ToolCallBlock, ToolResultBlock
 
-from qwenpaw.agents.context import decision_compaction
-from qwenpaw.agents.context.decision_compaction import DecisionCompactor
-from qwenpaw.agents.context.types import (
+from aiarb.agents.context import decision_compaction
+from aiarb.agents.context.decision_compaction import DecisionCompactor
+from aiarb.agents.context.types import (
     DECISION_COMPACTED,
     DecisionCompactionResult,
 )
-from qwenpaw.agents.context.scroll.history import HistoryStore
-from qwenpaw.agents.context.scroll.manager import ScrollContextManager
-from qwenpaw.agents.react_agent import QwenPawAgent
-from qwenpaw.agents.offloader import QwenPawOffloader
-from qwenpaw.config.config import AgentProfileConfig, DecisionCompactConfig
+from aiarb.agents.context.scroll.history import HistoryStore
+from aiarb.agents.context.scroll.manager import ScrollContextManager
+from aiarb.agents.react_agent import AIARBAgent
+from aiarb.agents.offloader import AIARBOffloader
+from aiarb.config.config import AgentProfileConfig, DecisionCompactConfig
 
 
 def _tool_message(
@@ -72,7 +72,7 @@ def make_agent():
         ),
         _tool_message("active", "active evidence ", tool_input="{}"),
     ]
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIARBAgent)
     agent.__dict__.update(
         _agent_config=config,
         _model_session_id="session",
@@ -332,7 +332,7 @@ async def test_failures_and_cancellation_preserve_original_context(
 async def test_native_retries_reuse_archives(model, tmp_path, outcome):
     agent = make_agent()
     original = agent.state.context
-    agent.offloader = QwenPawOffloader(
+    agent.offloader = AIARBOffloader(
         str(tmp_path / "dialog"),
         str(tmp_path / "results"),
     )
@@ -374,7 +374,7 @@ async def test_disabled_compaction_does_not_create_component_or_model(
     automatic,
     decision,
 ):
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIARBAgent)
     agent._agent_config = AgentProfileConfig(id="agent", name="Agent")
     config = agent._agent_config.running.light_context_config
     config.context_compact_config.enabled = automatic
@@ -626,7 +626,7 @@ async def test_native_dispatch_preserves_manual_compact(
     from agentscope.agent import Agent
 
     fake = make_agent()
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIARBAgent)
     agent.__dict__.update(vars(fake))
     agent._context_manager = None
     agent._get_active_formatter = lambda: None
@@ -645,7 +645,7 @@ async def test_native_dispatch_preserves_manual_compact(
 
 @pytest.mark.asyncio
 async def test_synthetic_continuation_does_not_expose_active_turn(model):
-    from qwenpaw.constant import (
+    from aiarb.constant import (
         LOOP_CONTINUATION_MESSAGE_TAG,
         AIARB_MESSAGE_TAG_KEY,
     )
@@ -672,7 +672,7 @@ async def test_memory_middleware_detects_compaction_without_eviction(
     model,
     scroll,
 ):
-    from qwenpaw.agents.middlewares import MemoryMiddleware
+    from aiarb.agents.middlewares import MemoryMiddleware
 
     agent = make_agent()
     if scroll:

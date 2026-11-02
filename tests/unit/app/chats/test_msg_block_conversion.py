@@ -35,8 +35,8 @@ from unittest.mock import patch
 import pytest
 from agentscope.message import Msg
 
-from qwenpaw.app.chats import utils as chats_utils
-from qwenpaw.app.chats.utils import (
+from aiarb.app.chats import utils as chats_utils
+from aiarb.app.chats.utils import (
     _MAX_TOOL_OUTPUT_CHARS,
     _abspath_from_url,
     _is_local_file_url,
@@ -44,9 +44,9 @@ from qwenpaw.app.chats.utils import (
     agentscope_msg_to_message,
     build_env_context,
 )
-from qwenpaw.constant import AIARB_USER_CONTENT_KEY
-from qwenpaw.exceptions import AgentRuntimeErrorException
-from qwenpaw.schemas import ContentType, MessageType
+from aiarb.constant import AIARB_USER_CONTENT_KEY
+from aiarb.exceptions import AgentRuntimeErrorException
+from aiarb.schemas import ContentType, MessageType
 
 
 def _convert(msg, tz: str | None = "UTC", truncate: bool = False):
@@ -720,7 +720,7 @@ def test_resolve_content_url_non_string_is_returned_as_is(value) -> None:
 # ---------------------------------------------------------------------------
 def _env_context(tz: str = "UTC", **kw) -> str:
     with patch(
-        "qwenpaw.app.chats.utils.load_config",
+        "aiarb.app.chats.utils.load_config",
         return_value=SimpleNamespace(user_timezone=tz),
     ):
         return build_env_context(**kw)

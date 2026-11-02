@@ -16,13 +16,13 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.backup._ops import restore
-from qwenpaw.backup._utils.constants import (
+from aiarb.backup._ops import restore
+from aiarb.backup._utils.constants import (
     PREFIX_CONFIG,
     PREFIX_SKILL_POOL,
     PREFIX_WORKSPACES,
 )
-from qwenpaw.backup.models import BackupMeta, RestoreBackupRequest
+from aiarb.backup.models import BackupMeta, RestoreBackupRequest
 
 
 # ---------------------------------------------------------------------------
@@ -207,7 +207,7 @@ class TestStageSkillPool:
         pool_dir.mkdir()
         staged: list[Path] = []
         monkeypatch.setattr(
-            "qwenpaw.agents.skill_system.store.get_skill_pool_dir",
+            "aiarb.agents.skill_system.store.get_skill_pool_dir",
             lambda: pool_dir,
         )
         with _open_zip(backup_zip) as zf:
@@ -228,7 +228,7 @@ class TestStageSkillPool:
         (pool_dir / "existing.txt").write_text("keep me")
         staged: list[Path] = []
         monkeypatch.setattr(
-            "qwenpaw.agents.skill_system.store.get_skill_pool_dir",
+            "aiarb.agents.skill_system.store.get_skill_pool_dir",
             lambda: pool_dir,
         )
         with _open_zip(zp) as zf:
@@ -338,7 +338,7 @@ class TestRestoreDirectoryTargets:
         secret_dir.mkdir()
         monkeypatch.setattr(restore, "SECRET_DIR", secret_dir)
         monkeypatch.setattr(
-            "qwenpaw.agents.skill_system.store.get_skill_pool_dir",
+            "aiarb.agents.skill_system.store.get_skill_pool_dir",
             lambda: pool_dir,
         )
         req = RestoreBackupRequest(

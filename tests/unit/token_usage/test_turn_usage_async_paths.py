@@ -13,7 +13,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.token_usage import turn_usage
+from aiarb.token_usage import turn_usage
 
 
 def _msg_stat(role: str, total_tokens: int = 0):
@@ -34,11 +34,11 @@ class TestSnapshotContextUsage:
         stats: dict | None = None,
     ):
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             lambda agent_id: SimpleNamespace(),
         )
         monkeypatch.setattr(
-            "qwenpaw.config.config.get_model_max_input_length",
+            "aiarb.config.config.get_model_max_input_length",
             lambda config: max_input_length,
         )
 
@@ -60,11 +60,11 @@ class TestSnapshotContextUsage:
             )
 
         monkeypatch.setattr(
-            "qwenpaw.agents.utils.context_stats.estimate_context_tokens",
+            "aiarb.agents.utils.context_stats.estimate_context_tokens",
             fake_estimate,
         )
         monkeypatch.setattr(
-            "qwenpaw.agents.utils.estimate_token_counter."
+            "aiarb.agents.utils.estimate_token_counter."
             "EstimatedTokenCounter",
             object,
         )
@@ -138,7 +138,7 @@ class TestSnapshotContextUsage:
             raise RuntimeError("config gone")
 
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             boom,
         )
         result = await turn_usage.snapshot_context_usage_for_state(
@@ -160,7 +160,7 @@ class TestResolveTurnUsage:
     ):
         turn = {"prompt_tokens": 1, "completion_tokens": 2}
         monkeypatch.setattr(
-            "qwenpaw.token_usage.model_wrapper."
+            "aiarb.token_usage.model_wrapper."
             "TokenRecordingModelWrapper.pop_usage_for_session",
             classmethod(lambda cls, sid: turn),
         )
@@ -180,7 +180,7 @@ class TestResolveTurnUsage:
         monkeypatch: pytest.MonkeyPatch,
     ):
         monkeypatch.setattr(
-            "qwenpaw.token_usage.model_wrapper."
+            "aiarb.token_usage.model_wrapper."
             "TokenRecordingModelWrapper.pop_usage_for_session",
             classmethod(lambda cls, sid: None),
         )
@@ -206,7 +206,7 @@ class TestResolveTurnUsage:
     ):
         agent_state = SimpleNamespace()
         monkeypatch.setattr(
-            "qwenpaw.token_usage.model_wrapper."
+            "aiarb.token_usage.model_wrapper."
             "TokenRecordingModelWrapper.pop_usage_for_session",
             classmethod(lambda cls, sid: None),
         )
@@ -243,7 +243,7 @@ class TestResolveTurnUsage:
             "latest_assistant_tokens": 100,
         }
         monkeypatch.setattr(
-            "qwenpaw.token_usage.model_wrapper."
+            "aiarb.token_usage.model_wrapper."
             "TokenRecordingModelWrapper.pop_usage_for_session",
             classmethod(lambda cls, sid: None),
         )
@@ -293,7 +293,7 @@ class TestResolveTurnUsage:
             "latest_assistant_tokens": 90,
         }
         monkeypatch.setattr(
-            "qwenpaw.token_usage.model_wrapper."
+            "aiarb.token_usage.model_wrapper."
             "TokenRecordingModelWrapper.pop_usage_for_session",
             classmethod(lambda cls, sid: recorded),
         )

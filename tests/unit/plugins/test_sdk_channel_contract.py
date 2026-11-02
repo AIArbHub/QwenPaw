@@ -11,9 +11,9 @@ from .timing import WAIT_TIMEOUT
 
 SOURCE = """
 from pathlib import Path
-from qwenpaw.plugins.channels import ChannelSpec
-from qwenpaw.plugins.commands import CommandSpec, CommandResult
-from qwenpaw.plugins.messages import ContentBlock, Message
+from aiarb.plugins.channels import ChannelSpec
+from aiarb.plugins.commands import CommandSpec, CommandResult
+from aiarb.plugins.messages import ContentBlock, Message
 
 
 class Plugin:
@@ -113,10 +113,10 @@ async def wait_sent(ctx, workspace, minimum=1):
 async def test_channel_start_none_restores_persisted_settings_but_empty_resets(
     tmp_path,
 ):
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.testing import PluginTestHost
 
     source = """
-from qwenpaw.plugins.channels import ChannelSpec
+from aiarb.plugins.channels import ChannelSpec
 
 
 class Plugin:
@@ -187,9 +187,9 @@ plugin = Plugin()
 async def test_channel_real_queue_reply_target_and_workspace_isolation(
     tmp_path,
 ):
-    from qwenpaw.plugins.channels import ChannelMessage
-    from qwenpaw.plugins.messages import ContentBlock
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.channels import ChannelMessage
+    from aiarb.plugins.messages import ContentBlock
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         ctx = await host.load(
@@ -236,8 +236,8 @@ async def test_channel_real_queue_reply_target_and_workspace_isolation(
 
 
 async def test_channel_failed_stop_keeps_owner_until_real_stop(tmp_path):
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import SDKError
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         ctx = await host.load(
@@ -261,8 +261,8 @@ async def test_channel_failed_stop_keeps_owner_until_real_stop(tmp_path):
 
 
 async def test_sdk_channel_cannot_replace_builtin_dingtalk(tmp_path):
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import SDKError
+    from aiarb.plugins.testing import PluginTestHost
 
     source = SOURCE.replace('"sdk-contract-channel"', '"dingtalk"')
     async with PluginTestHost(tmp_path / "host") as host:
@@ -288,19 +288,19 @@ async def test_sdk_channel_cannot_replace_builtin_dingtalk(tmp_path):
 async def test_channel_streaming_real_model_preserves_metadata_and_terminal(
     tmp_path,
 ):
-    from qwenpaw.plugins.channels import ChannelMessage
-    from qwenpaw.plugins.messages import ContentBlock
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.channels import ChannelMessage
+    from aiarb.plugins.messages import ContentBlock
+    from aiarb.plugins.testing import PluginTestHost
 
     source = """
 import asyncio
-from qwenpaw.plugins.channels import ChannelSpec
-from qwenpaw.plugins.providers import (
+from aiarb.plugins.channels import ChannelSpec
+from aiarb.plugins.providers import (
     ProviderSpec,
     ModelInfo,
     ModelChunk,
 )
-from qwenpaw.plugins.messages import ContentBlock
+from aiarb.plugins.messages import ContentBlock
 
 
 class Plugin:
@@ -406,13 +406,13 @@ plugin = Plugin()
 
 
 async def test_channel_partial_start_failure_releases_owned_task(tmp_path):
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import SDKError
+    from aiarb.plugins.testing import PluginTestHost
 
     source = """
 import asyncio
 from pathlib import Path
-from qwenpaw.plugins.channels import ChannelSpec
+from aiarb.plugins.channels import ChannelSpec
 
 
 class Plugin:
@@ -472,16 +472,16 @@ async def test_stop_during_send_finishes_call_before_backend_stop(
     tmp_path,
     stop_fails_once,
 ):
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins.channels import ChannelMessage
-    from qwenpaw.plugins.messages import ContentBlock
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import SDKError
+    from aiarb.plugins.channels import ChannelMessage
+    from aiarb.plugins.messages import ContentBlock
+    from aiarb.plugins.testing import PluginTestHost
 
     source = """
 import asyncio
-from qwenpaw.plugins.channels import ChannelSpec
-from qwenpaw.plugins.commands import CommandSpec, CommandResult
-from qwenpaw.plugins.messages import ContentBlock, Message
+from aiarb.plugins.channels import ChannelSpec
+from aiarb.plugins.commands import CommandSpec, CommandResult
+from aiarb.plugins.messages import ContentBlock, Message
 
 
 class Plugin:

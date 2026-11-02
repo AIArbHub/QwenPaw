@@ -6,7 +6,7 @@ import socket
 from pathlib import Path
 import aiohttp
 import pytest
-from qwenpaw.channel_protocol.models import SendParams
+from aiarb.channel_protocol.models import SendParams
 from tests.channel_support.driver import bind, module
 
 pytestmark = pytest.mark.asyncio

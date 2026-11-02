@@ -11,8 +11,8 @@ from .timing import WAIT_TIMEOUT
 
 SOURCE = """
 from pathlib import Path
-from qwenpaw.plugins.memory import MemorySpec
-from qwenpaw.plugins.tools import ToolResult
+from aiarb.plugins.memory import MemorySpec
+from aiarb.plugins.tools import ToolResult
 
 
 class Backend:
@@ -69,8 +69,8 @@ plugin = Plugin()
 
 
 async def test_memory_search_remember_queue_and_workspace_instances(tmp_path):
-    from qwenpaw.plugins.messages import ContentBlock, Message
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.messages import ContentBlock, Message
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         await host.load(make_plugin(tmp_path, SOURCE, ["memory", "storage"]))
@@ -116,8 +116,8 @@ async def test_memory_search_remember_queue_and_workspace_instances(tmp_path):
 async def test_memory_failed_close_keeps_live_owner_and_blocks_replacement(
     tmp_path,
 ):
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import SDKError
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         await host.load(make_plugin(tmp_path, SOURCE, ["memory", "storage"]))
@@ -143,14 +143,14 @@ async def test_memory_failed_close_keeps_live_owner_and_blocks_replacement(
 
 
 async def test_memory_partial_start_cleans_backend_and_managed_tasks(tmp_path):
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import SDKError
+    from aiarb.plugins.testing import PluginTestHost
 
     source = """
 import asyncio
 from pathlib import Path
-from qwenpaw.plugins.memory import MemorySpec
-from qwenpaw.plugins.tools import ToolResult
+from aiarb.plugins.memory import MemorySpec
+from aiarb.plugins.tools import ToolResult
 
 
 class Backend:
@@ -211,13 +211,13 @@ plugin = Plugin()
 async def test_sync_memory_search_uses_current_invocation_cancellation(
     tmp_path,
 ):
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.testing import PluginTestHost
 
     source = """
 import time
 from pathlib import Path
-from qwenpaw.plugins.memory import MemorySpec
-from qwenpaw.plugins.tools import ToolResult
+from aiarb.plugins.memory import MemorySpec
+from aiarb.plugins.tools import ToolResult
 class Backend:
     async def start(self, call):
         pass

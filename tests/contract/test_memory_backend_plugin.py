@@ -11,7 +11,7 @@ from agentscope.tool import ToolChunk
 
 from tests.unit.plugins.timing import WAIT_TIMEOUT
 
-from qwenpaw.memory import (
+from aiarb.memory import (
     BaseMemoryManager,
     MemoryBackendContext,
     MemoryBackendUnavailableError,

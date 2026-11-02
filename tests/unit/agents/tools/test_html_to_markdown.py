@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Tests for the stdlib HTML -> Markdown converter used by web_fetch."""
 
-from qwenpaw.agents.tools._html_to_markdown import html_to_markdown
+from aiarb.agents.tools._html_to_markdown import html_to_markdown
 
 
 def test_drops_non_content_and_images():

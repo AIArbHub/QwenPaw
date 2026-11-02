@@ -16,11 +16,11 @@ from typing import Any
 
 from agentscope.tool import Toolkit
 
-from qwenpaw.agents.tools.file_io import read_file
-from qwenpaw.agents.tools.file_search import grep_search
-from qwenpaw.agents.tools.shell import execute_shell_command
-from qwenpaw.governance import PolicyGuardedTool
-from qwenpaw.providers.dashscope_provider import DashScopeProvider
+from aiarb.agents.tools.file_io import read_file
+from aiarb.agents.tools.file_search import grep_search
+from aiarb.agents.tools.shell import execute_shell_command
+from aiarb.governance import PolicyGuardedTool
+from aiarb.providers.dashscope_provider import DashScopeProvider
 
 
 def _type_null_paths(node: Any, path: tuple[str, ...] = ()) -> list[str]:

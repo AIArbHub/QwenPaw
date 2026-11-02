@@ -12,8 +12,8 @@ from __future__ import annotations
 
 import pytest
 
-import qwenpaw.security.tool_guard.guardians.shell_evasion_guardian as seg
-from qwenpaw.security.tool_guard.guardians.shell_evasion_guardian import (
+import aiarb.security.tool_guard.guardians.shell_evasion_guardian as seg
+from aiarb.security.tool_guard.guardians.shell_evasion_guardian import (
     ShellEvasionGuardian,
 )
 
@@ -305,7 +305,7 @@ class TestShellEvasionGuardian:
 
 class TestLoadCheckEnabledMap:
     def test_config_load_failure_returns_empty(self, monkeypatch):
-        import qwenpaw.config as config_module
+        import aiarb.config as config_module
 
         def boom():
             raise RuntimeError("no config")
@@ -314,7 +314,7 @@ class TestLoadCheckEnabledMap:
         assert seg._load_check_enabled_map() == {}
 
     def test_non_dict_returns_empty(self, monkeypatch):
-        import qwenpaw.config as config_module
+        import aiarb.config as config_module
         from types import SimpleNamespace
 
         monkeypatch.setattr(
@@ -331,7 +331,7 @@ class TestLoadCheckEnabledMap:
         assert seg._load_check_enabled_map() == {}
 
     def test_valid_config_filters_unknown_keys(self, monkeypatch):
-        import qwenpaw.config as config_module
+        import aiarb.config as config_module
         from types import SimpleNamespace
 
         monkeypatch.setattr(

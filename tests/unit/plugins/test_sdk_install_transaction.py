@@ -8,7 +8,7 @@ import pytest
 from .sdk_author_fixture import make_plugin
 
 SOURCE = """
-from qwenpaw.plugins.tools import ToolSpec, ToolResult
+from aiarb.plugins.tools import ToolSpec, ToolResult
 
 
 class Plugin:
@@ -59,8 +59,8 @@ async def text_result(host):
 async def test_install_config_disable_upgrade_uninstall_preserves_user_data(
     tmp_path,
 ):
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import SDKError
+    from aiarb.plugins.testing import PluginTestHost
 
     one, two = package(tmp_path, "1.0.0"), package(tmp_path, "2.0.0")
     root = tmp_path / "host"
@@ -105,8 +105,8 @@ async def test_sdk_transaction_commit_boundary_retains_correct_code_and_data(
     tmp_path,
     point,
 ):
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import SDKError
+    from aiarb.plugins.testing import PluginTestHost
 
     one, two = package(tmp_path, "1.0.0"), package(tmp_path, "2.0.0")
     root = tmp_path / "host"
@@ -137,15 +137,15 @@ async def test_sdk_busy_stream_in_other_workspace_prevents_install_commit(
     tmp_path,
 ):
     import asyncio
-    from qwenpaw.plugins import PluginBusyError
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import PluginBusyError
+    from aiarb.plugins.testing import PluginTestHost
 
     one, two = package(tmp_path, "1.0.0"), package(tmp_path, "2.0.0")
     (one / "main.py").write_text(
         """
 import asyncio
-from qwenpaw.plugins.tools import ToolSpec, ToolEvent, ToolResult
-from qwenpaw.plugins.messages import ContentBlock
+from aiarb.plugins.tools import ToolSpec, ToolEvent, ToolResult
+from aiarb.plugins.messages import ContentBlock
 
 
 class Plugin:
@@ -212,8 +212,8 @@ plugin = Plugin()
 async def test_sdk_upgrade_partial_activation_stops_new_task_and_restores_old(
     tmp_path,
 ):
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import SDKError
+    from aiarb.plugins.testing import PluginTestHost
 
     one, two = package(tmp_path, "1.0.0"), package(tmp_path, "2.0.0")
     marker = tmp_path / "new-task-stopped"

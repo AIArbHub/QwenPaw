@@ -14,8 +14,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from qwenpaw.agents.skill_system import registry as reg
-from qwenpaw.agents.skill_system.models import BuiltinSkillVariant
+from aiarb.agents.skill_system import registry as reg
+from aiarb.agents.skill_system.models import BuiltinSkillVariant
 
 
 @pytest.fixture()

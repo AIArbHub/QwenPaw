@@ -11,15 +11,15 @@ import pytest
 from agentscope.message import Msg, TextBlock
 from agentscope.state import AgentState
 
-from qwenpaw.app.chats.session import SafeJSONSession
-from qwenpaw.hooks.cron.cron_hook import (
+from aiarb.app.chats.session import SafeJSONSession
+from aiarb.hooks.cron.cron_hook import (
     CronContextHook,
     CronMemoryIsolateHook,
     CronMemoryRestoreHook,
 )
-from qwenpaw.hooks.session.session_hook import SessionLoadHook, SessionSaveHook
-from qwenpaw.runtime.hooks import HookRegistry
-from qwenpaw.runtime.runtime import Runtime
+from aiarb.hooks.session.session_hook import SessionLoadHook, SessionSaveHook
+from aiarb.runtime.hooks import HookRegistry
+from aiarb.runtime.runtime import Runtime
 
 
 def message(text, role="user"):
@@ -106,8 +106,8 @@ async def test_runtime_keeps_old_history_on_disk(
             if False:  # pylint: disable=using-constant-test
                 yield
 
-    monkeypatch.setattr("qwenpaw.runtime.runtime.AgentBuilder", Builder)
-    monkeypatch.setattr("qwenpaw.runtime.runtime.AgentExecutor", Executor)
+    monkeypatch.setattr("aiarb.runtime.runtime.AgentBuilder", Builder)
+    monkeypatch.setattr("aiarb.runtime.runtime.AgentExecutor", Executor)
     runtime = Runtime(workspace=workspace, app_services=None)
 
     async def consume():

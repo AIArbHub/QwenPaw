@@ -7,8 +7,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.agents.acp.meta import ACP_EPHEMERAL_META_KEY
-from qwenpaw.runtime.runtime import Runtime
+from aiarb.agents.acp.meta import ACP_EPHEMERAL_META_KEY
+from aiarb.runtime.runtime import Runtime
 
 
 @pytest.mark.asyncio

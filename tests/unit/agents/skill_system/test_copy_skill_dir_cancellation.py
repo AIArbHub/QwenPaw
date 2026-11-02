@@ -14,11 +14,11 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.agents.skill_system.store import (
+from aiarb.agents.skill_system.store import (
     copy_skill_dir,
     with_cancel_checker,
 )
-from qwenpaw.exceptions import SkillImportCancelled
+from aiarb.exceptions import SkillImportCancelled
 
 _PAYLOAD = "payload-" * 512
 

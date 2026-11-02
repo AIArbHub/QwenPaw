@@ -6,13 +6,13 @@ import pytest
 from .sdk_author_fixture import make_plugin
 
 SOURCE = """
-from qwenpaw.plugins.markets import (
+from aiarb.plugins.markets import (
     MarketSpec,
     MarketResult,
     SearchPage,
     SkillBundle,
 )
-from qwenpaw.plugins.commands import CommandSpec, CommandResult
+from aiarb.plugins.commands import CommandSpec, CommandResult
 
 
 class Plugin:
@@ -90,7 +90,7 @@ plugin = Plugin()
 
 
 async def test_market_search_and_bundle_use_existing_install_service(tmp_path):
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         ctx = await host.load(
@@ -138,8 +138,8 @@ async def test_market_search_and_bundle_use_existing_install_service(tmp_path):
 
 
 async def test_market_release_only_revokes_its_own_provider(tmp_path):
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import SDKError
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         await host.load(

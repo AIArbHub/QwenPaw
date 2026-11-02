@@ -17,20 +17,20 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.channels.manager import ChannelManager
-from qwenpaw.app.workspace.workspace_plugins import WorkspacePlugins
-from qwenpaw.plugins.architecture import PluginManifest
-from qwenpaw.plugins.lifecycle import (
+from aiarb.app.channels.manager import ChannelManager
+from aiarb.app.workspace.workspace_plugins import WorkspacePlugins
+from aiarb.plugins.architecture import PluginManifest
+from aiarb.plugins.lifecycle import (
     PluginInstance,
     PluginState,
     UnloadMode,
     UnloadReport,
 )
-from qwenpaw.plugins.loader import PluginLoader
-from qwenpaw.plugins.updates import marker_path
-from qwenpaw.plugins.workspace_projector import WorkspaceProjector
-from qwenpaw.runtime.slash_command_registry import SlashCommandRegistry
-from qwenpaw.runtime.tool_registry import ToolRegistry
+from aiarb.plugins.loader import PluginLoader
+from aiarb.plugins.updates import marker_path
+from aiarb.plugins.workspace_projector import WorkspaceProjector
+from aiarb.runtime.slash_command_registry import SlashCommandRegistry
+from aiarb.runtime.tool_registry import ToolRegistry
 
 from .timing import WAIT_TIMEOUT
 
@@ -83,9 +83,9 @@ def _slash_workspace():
 def _isolate_working_dir(tmp_path: Path, monkeypatch) -> Path:
     work = tmp_path / "work"
     work.mkdir(parents=True, exist_ok=True)
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", work)
-    monkeypatch.setattr("qwenpaw.config.utils.WORKING_DIR", work)
-    from qwenpaw.config import utils as config_utils
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", work)
+    monkeypatch.setattr("aiarb.config.utils.WORKING_DIR", work)
+    from aiarb.config import utils as config_utils
 
     config_utils._config_cache = None
     config_utils._config_mtime = None
@@ -95,7 +95,7 @@ def _isolate_working_dir(tmp_path: Path, monkeypatch) -> Path:
 
 def _control_body(name: str) -> str:
     return (
-        "from qwenpaw.runtime.commands.control.base import "
+        "from aiarb.runtime.commands.control.base import "
         "BaseControlCommandHandler\n"
         "        class _H(BaseControlCommandHandler):\n"
         f"            command_name = '{name}'\n"
@@ -149,7 +149,7 @@ async def _load_busy_command(
     ignore_cancel=False,
     exit_release=None,
 ):
-    from qwenpaw.runtime.commands.control import handle_control_command
+    from aiarb.runtime.commands.control import handle_control_command
 
     entered, release, cancelled = (
         asyncio.Event(),
@@ -187,8 +187,8 @@ async def _load_busy_command(
     )
     if kind == "mode":
         body = (
-            "from qwenpaw.modes.base import AgentMode\n"
-            "        from qwenpaw.runtime.slash_command_registry "
+            "from aiarb.modes.base import AgentMode\n"
+            "        from aiarb.runtime.slash_command_registry "
             "import CommandSpec\n"
             "        class Mode(AgentMode):\n"
             "            name = 'busy-mode'\n"
@@ -212,7 +212,7 @@ async def _load_busy_command(
     )
     ctx = SimpleNamespace(workspace=workspace)
     if kind == "adapter":
-        from qwenpaw.runtime.builtin_commands import (
+        from aiarb.runtime.builtin_commands import (
             collect_builtin_command_specs,
         )
 
@@ -242,7 +242,7 @@ async def test_commands_wait_for_initial_activation(
     monkeypatch,
     fail_startup,
 ):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     entered, release = asyncio.Event(), asyncio.Event()
     calls = []
 
@@ -309,7 +309,7 @@ async def test_busy_command_blocks_lifecycle(
     kind,
     operation,
 ):
-    from qwenpaw.plugins.activity import PluginBusyError
+    from aiarb.plugins.activity import PluginBusyError
 
     _isolate_working_dir(tmp_path, monkeypatch)
     (
@@ -375,8 +375,8 @@ async def test_interrupt_waits_for_actual_command_exit(
     ignore_cancel,
     kind,
 ):
-    from qwenpaw.plugins.activity import PluginBusyError
-    from qwenpaw.runtime.commands.control import handle_control_command
+    from aiarb.plugins.activity import PluginBusyError
+    from aiarb.runtime.commands.control import handle_control_command
 
     config_path = _isolate_working_dir(tmp_path, monkeypatch) / "config.json"
     config_path.write_text(
@@ -386,7 +386,7 @@ async def test_interrupt_waits_for_actual_command_exit(
     )
     if ignore_cancel:
         monkeypatch.setattr(
-            "qwenpaw.plugins.activity.INTERRUPT_TIMEOUT_SECONDS",
+            "aiarb.plugins.activity.INTERRUPT_TIMEOUT_SECONDS",
             0.01,
         )
     exit_release = asyncio.Event()
@@ -485,7 +485,7 @@ async def test_startup_failure_restores_old_projection(
     fresh_registry,
     monkeypatch,
 ):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     loader, workspace, installed = await _load(
         tmp_path,
         fresh_registry,
@@ -532,7 +532,7 @@ async def test_install_cancel_waits_for_copy_before_next_load(
     fresh_registry,
     monkeypatch,
 ):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     source = _write_plugin(tmp_path / "src-copier", "copier", body="pass")
     install_dir = tmp_path / "plugins"
     install_dir.mkdir(parents=True, exist_ok=True)
@@ -552,7 +552,7 @@ async def test_install_cancel_waits_for_copy_before_next_load(
         finished["done"] = True
         return result
 
-    monkeypatch.setattr("qwenpaw.plugins.loader.shutil.copytree", _slow_copy)
+    monkeypatch.setattr("aiarb.plugins.loader.shutil.copytree", _slow_copy)
     task = asyncio.create_task(
         loader.load_plugin_from_path(source, install_dir=install_dir),
     )
@@ -580,7 +580,7 @@ async def test_unquiescent_new_version_does_not_restore_old(
     fresh_registry,
     monkeypatch,
 ):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     loader, workspace, _installed = await _load(
         tmp_path,
         fresh_registry,
@@ -635,14 +635,14 @@ async def test_disable_unquiescent_does_not_persist_or_lie(
     fresh_registry,
     monkeypatch,
 ):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     persisted: list[tuple[str, dict]] = []
 
     def _persist(plugin_id, **kwargs):
         persisted.append((plugin_id, kwargs))
 
     monkeypatch.setattr(
-        "qwenpaw.plugins.settings.persist_plugin_settings",
+        "aiarb.plugins.settings.persist_plugin_settings",
         _persist,
     )
     loader, _workspace, _installed = await _load(
@@ -672,7 +672,7 @@ async def test_disable_unquiescent_does_not_persist_or_lie(
         for plugin_id, item in persisted
     )
 
-    from qwenpaw.app.routers.plugins import router as plugins_router
+    from aiarb.app.routers.plugins import router as plugins_router
 
     app = FastAPI()
     app.include_router(plugins_router, prefix="/api")
@@ -710,7 +710,7 @@ async def test_startup_stop_failure_keeps_channel(
     fresh_registry,
     monkeypatch,
 ):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
 
     async def _noop_process(_req):
         return None
@@ -730,7 +730,7 @@ async def test_startup_stop_failure_keeps_channel(
         SimpleNamespace(agents={"talk": workspace}),
     )
     body = (
-        "from qwenpaw.app.channels.base import BaseChannel\n"
+        "from aiarb.app.channels.base import BaseChannel\n"
         "        class _Stuck(BaseChannel):\n"
         "            channel = 'sticky-ch'\n"
         "            uses_manager_queue = False\n"
@@ -772,15 +772,15 @@ async def test_startup_stop_failure_keeps_channel(
 
     with (
         patch(
-            "qwenpaw.plugins.api.get_available_channels",
+            "aiarb.plugins.api.get_available_channels",
             return_value=("sticky-ch",),
         ),
         patch(
-            "qwenpaw.app.channels.manager.get_channel_registry",
+            "aiarb.app.channels.manager.get_channel_registry",
             _ch_registry,
         ),
         patch(
-            "qwenpaw.app.channels.manager.get_available_channels",
+            "aiarb.app.channels.manager.get_available_channels",
             return_value=("sticky-ch",),
         ),
     ):

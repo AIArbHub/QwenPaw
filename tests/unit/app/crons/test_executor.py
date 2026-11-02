@@ -222,7 +222,7 @@ async def test_non_shared_job_reuses_its_dedicated_session(
 async def test_timeout_preserves_run_reference(monkeypatch):
     import asyncio
 
-    from qwenpaw.app.crons.executor import CronExecutionTimeout
+    from aiarb.app.crons.executor import CronExecutionTimeout
 
     class SlowWorkspace(_Workspace):
         async def stream_query(self, request):
@@ -253,7 +253,7 @@ async def test_timeout_preserves_run_reference(monkeypatch):
 )
 async def test_execution_model_override_is_per_request(monkeypatch, selection):
     from unittest.mock import MagicMock
-    from qwenpaw.providers import ProviderManager
+    from aiarb.providers import ProviderManager
 
     workspace = _Workspace()
     job = make_cron_job_spec(job_id="model-job")
@@ -292,7 +292,7 @@ async def test_invalid_execution_model_fails_without_running(
     exists,
 ):
     from unittest.mock import MagicMock
-    from qwenpaw.providers import ProviderManager
+    from aiarb.providers import ProviderManager
 
     workspace = _Workspace()
     job = make_cron_job_spec(job_id="model-job")
@@ -341,7 +341,7 @@ async def test_default_clears_nested_override_without_changing_job(
 @pytest.mark.asyncio
 async def test_external_backend_does_not_silently_ignore_model(monkeypatch):
     from unittest.mock import MagicMock
-    from qwenpaw.providers import ProviderManager
+    from aiarb.providers import ProviderManager
 
     workspace = _Workspace()
     workspace.config = SimpleNamespace(backend="external")

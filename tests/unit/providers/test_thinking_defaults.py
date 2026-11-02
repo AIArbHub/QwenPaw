@@ -7,11 +7,11 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.providers.model_info import ModelInfo
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.provider import agent_thinking_level
-from qwenpaw.providers.thinking import ThinkingControl
-from qwenpaw.services.session_thinking import _model_default_thinking
+from aiarb.providers.model_info import ModelInfo
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.provider import agent_thinking_level
+from aiarb.providers.thinking import ThinkingControl
+from aiarb.services.session_thinking import _model_default_thinking
 
 
 def make_provider(**model_defaults):

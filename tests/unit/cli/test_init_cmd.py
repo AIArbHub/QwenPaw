@@ -7,8 +7,8 @@ import json
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli import init_cmd as init_mod
-from qwenpaw.config import utils as config_utils
+from aiarb.cli import init_cmd as init_mod
+from aiarb.config import utils as config_utils
 
 
 @pytest.fixture()
@@ -32,7 +32,7 @@ def init_env(monkeypatch, tmp_path):
 
     # Telemetry helpers are imported lazily inside init_cmd, so patch the
     # source module rather than the init_cmd namespace.
-    from qwenpaw.utils import telemetry as telemetry_mod
+    from aiarb.utils import telemetry as telemetry_mod
 
     monkeypatch.setattr(
         telemetry_mod,
@@ -59,8 +59,8 @@ def init_env(monkeypatch, tmp_path):
     )
     monkeypatch.setattr(telemetry_mod, "mark_telemetry_collected", _fake_mark)
 
-    # Migration helpers are imported lazily from qwenpaw.app.migration.
-    from qwenpaw.app import migration as migration_mod
+    # Migration helpers are imported lazily from aiarb.app.migration.
+    from aiarb.app import migration as migration_mod
 
     migration_calls = []
     for name in (
@@ -74,8 +74,8 @@ def init_env(monkeypatch, tmp_path):
             lambda _n=name: migration_calls.append(_n),
         )
 
-    # Skill pool bootstrap is imported lazily from qwenpaw.agents.skill_system.
-    from qwenpaw.agents import skill_system as skill_mod
+    # Skill pool bootstrap is imported lazily from aiarb.agents.skill_system.
+    from aiarb.agents import skill_system as skill_mod
 
     monkeypatch.setattr(
         skill_mod,
@@ -88,8 +88,8 @@ def init_env(monkeypatch, tmp_path):
         lambda _ws, **_kw: 0,
     )
 
-    # copy_md_files is imported lazily from qwenpaw.agents.utils.
-    from qwenpaw.agents import utils as agents_utils
+    # copy_md_files is imported lazily from aiarb.agents.utils.
+    from aiarb.agents import utils as agents_utils
 
     copied_md = []
     monkeypatch.setattr(

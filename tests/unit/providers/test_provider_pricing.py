@@ -8,15 +8,15 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.providers.model_info import ModelInfo
-from qwenpaw.providers.openai_provider import (
+from aiarb.providers.model_info import ModelInfo
+from aiarb.providers.openai_provider import (
     OpenAIProvider,
     OpenCodeProvider,
     KiloProvider,
 )
-from qwenpaw.providers.openrouter_provider import OpenRouterProvider
-from qwenpaw.providers.provider_catalog import PROVIDER_SILICONFLOW_CN
-from qwenpaw.providers.provider_discovery import merge_discovered_model
+from aiarb.providers.openrouter_provider import OpenRouterProvider
+from aiarb.providers.provider_catalog import PROVIDER_SILICONFLOW_CN
+from aiarb.providers.provider_discovery import merge_discovered_model
 
 
 @pytest.mark.parametrize(

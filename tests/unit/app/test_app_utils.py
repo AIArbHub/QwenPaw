@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from qwenpaw.app.utils import schedule_agent_reload
+from aiarb.app.utils import schedule_agent_reload
 
 
 @pytest.mark.asyncio

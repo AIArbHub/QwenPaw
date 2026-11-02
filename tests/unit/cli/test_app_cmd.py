@@ -10,8 +10,8 @@ import time
 
 import pytest
 
-from qwenpaw.cli import windows_shutdown
-from qwenpaw.cli.windows_shutdown import (
+from aiarb.cli import windows_shutdown
+from aiarb.cli.windows_shutdown import (
     _sigbreak_to_sigint,
     install_shutdown_handlers,
 )
@@ -26,8 +26,8 @@ def test_server_setup_keeps_runtime_mode_and_channel_host_port(
     runtime_id,
     expected_mode,
 ) -> None:
-    from qwenpaw.cli import app_cmd
-    from qwenpaw.app.server_context import HOST_PORT_ENV
+    from aiarb.cli import app_cmd
+    from aiarb.app.server_context import HOST_PORT_ENV
 
     monkeypatch.setenv("AIARB_RUNTIME_MODE", "shared")
     monkeypatch.setenv(HOST_PORT_ENV, "1111")
@@ -108,7 +108,7 @@ def test_named_event_runs_uvicorn_lifespan_shutdown(tmp_path) -> None:
         import uvicorn
         from fastapi import FastAPI
 
-        from qwenpaw.cli.windows_shutdown import install_shutdown_handlers
+        from aiarb.cli.windows_shutdown import install_shutdown_handlers
 
         started = Path(sys.argv[1])
         stopped = Path(sys.argv[2])
@@ -139,7 +139,7 @@ def test_named_event_runs_uvicorn_lifespan_shutdown(tmp_path) -> None:
             time.sleep(0.1)
         assert started.exists()
 
-        from qwenpaw.cli.windows_shutdown import signal_shutdown_event
+        from aiarb.cli.windows_shutdown import signal_shutdown_event
 
         assert signal_shutdown_event(proc.pid)
         proc.wait(timeout=15.0)
@@ -167,7 +167,7 @@ def test_reload_child_exposes_graceful_shutdown_event(tmp_path) -> None:
 
             import uvicorn
 
-            from qwenpaw.cli.windows_shutdown import (
+            from aiarb.cli.windows_shutdown import (
                 install_shutdown_handlers,
             )
 
@@ -195,7 +195,7 @@ def test_reload_child_exposes_graceful_shutdown_event(tmp_path) -> None:
 
             from fastapi import FastAPI
 
-            from qwenpaw.cli.windows_shutdown import install_shutdown_handlers
+            from aiarb.cli.windows_shutdown import install_shutdown_handlers
 
             started = Path(sys.argv[2])
             stopped = Path(sys.argv[3])
@@ -237,7 +237,7 @@ def test_reload_child_exposes_graceful_shutdown_event(tmp_path) -> None:
             time.sleep(0.1)
         assert started.exists()
 
-        from qwenpaw.cli.windows_shutdown import signal_shutdown_event
+        from aiarb.cli.windows_shutdown import signal_shutdown_event
 
         server_pid = int(started.read_text(encoding="utf-8"))
         assert server_pid != proc.pid

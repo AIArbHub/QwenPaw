@@ -15,8 +15,8 @@ import click
 import pytest
 from click.testing import CliRunner
 
-import qwenpaw.cli.providers_cmd as pcmd
-from qwenpaw.providers.provider import ModelInfo, ProviderInfo
+import aiarb.cli.providers_cmd as pcmd
+from aiarb.providers.provider import ModelInfo, ProviderInfo
 
 
 # ---------------------------------------------------------------------------
@@ -280,7 +280,7 @@ class TestGetLocalModelManager:
         # sys.modules raises ImportError -> the CLI prints and exits 1
         import sys
 
-        monkeypatch.setitem(sys.modules, "qwenpaw.local_models", None)
+        monkeypatch.setitem(sys.modules, "aiarb.local_models", None)
         with pytest.raises(SystemExit) as exc:
             pcmd._get_local_model_manager()
         assert exc.value.code == 1
@@ -295,11 +295,11 @@ class TestGetLocalModelManager:
 
         import types
 
-        fake = types.ModuleType("qwenpaw.local_models")
+        fake = types.ModuleType("aiarb.local_models")
         fake.LocalModelManager = LM
         import sys
 
-        monkeypatch.setitem(sys.modules, "qwenpaw.local_models", fake)
+        monkeypatch.setitem(sys.modules, "aiarb.local_models", fake)
         assert pcmd._get_local_model_manager() is sentinel
 
 
@@ -920,7 +920,7 @@ class TestAddProviderCmd:
 class TestRealManagerAccessor:
     def test_manager_returns_provider_manager_singleton(self):
         # exercises the unpatched module-level accessor
-        from qwenpaw.providers.provider_manager import ProviderManager
+        from aiarb.providers.provider_manager import ProviderManager
 
         assert pcmd._manager() is ProviderManager.get_instance()
 

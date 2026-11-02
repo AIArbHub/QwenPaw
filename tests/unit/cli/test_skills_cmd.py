@@ -17,7 +17,7 @@ import click
 import pytest
 from click.testing import CliRunner
 
-import qwenpaw.cli.skills_cmd as sc
+import aiarb.cli.skills_cmd as sc
 
 
 def _skill_md(name: str) -> str:
@@ -25,7 +25,7 @@ def _skill_md(name: str) -> str:
 
 
 def _config(profiles=None):
-    from qwenpaw.config.config import Config
+    from aiarb.config.config import Config
 
     cfg = Config()
     if profiles is not None:
@@ -34,7 +34,7 @@ def _config(profiles=None):
 
 
 def _ref(agent_id: str, workspace_dir: str):
-    from qwenpaw.config.config import AgentProfileRef
+    from aiarb.config.config import AgentProfileRef
 
     return AgentProfileRef(id=agent_id, workspace_dir=workspace_dir)
 
@@ -184,8 +184,8 @@ class TestRunSkillTest:
     ):
         from unittest.mock import Mock
 
-        from qwenpaw.config.config import SkillScannerConfig
-        from qwenpaw.security import skill_scanner
+        from aiarb.config.config import SkillScannerConfig
+        from aiarb.security import skill_scanner
 
         skill_dir = tmp_path / "skills"
         skill_dir.mkdir()

@@ -15,18 +15,18 @@ from unittest.mock import patch
 import pytest
 from packaging.requirements import Requirement
 
-from qwenpaw.plugins.architecture import PluginManifest
-from qwenpaw.plugins.dependency_gate import (
+from aiarb.plugins.architecture import PluginManifest
+from aiarb.plugins.dependency_gate import (
     DependencyGate,
 )
-from qwenpaw.plugins.lifecycle import (
+from aiarb.plugins.lifecycle import (
     LifecycleDelegate,
     PluginInstance,
     PluginState,
     UnloadMode,
 )
-from qwenpaw.plugins.loader import PluginLoader
-from qwenpaw.plugins.provision import (
+from aiarb.plugins.loader import PluginLoader
+from aiarb.plugins.provision import (
     load_inventory,
     provision_files,
     record_escape_provision,
@@ -35,7 +35,7 @@ from qwenpaw.plugins.provision import (
     save_inventory,
     teardown_created_locations,
 )
-from qwenpaw.plugins.safe_fs import safe_remove
+from aiarb.plugins.safe_fs import safe_remove
 
 
 @pytest.fixture()
@@ -124,21 +124,66 @@ class TestDependencyGate:
         assert not decision.allow_install
         assert not decision.require_restart
 
+    def test_unsatisfied_httpx_requires_restart(self, tmp_path: Path):
+        req = tmp_path / "requirements.txt"
+        req.write_text("httpx==0.0.1\n", encoding="utf-8")
+        decision = DependencyGate().evaluate(
+            req,
+            allow_install=True,
+            plugin_id="p",
+        )
+        assert decision.require_restart
+        assert not decision.allow_install
+        assert hits_imported_host_package(Requirement("httpx==0.0.1"))
+
+    @pytest.mark.parametrize(
+        "package,frozen",
+        [
+            ("openai", False),
+            ("agentscope", False),
+            ("reme-ai", False),
+            ("apscheduler", False),
+            ("openai", True),
+        ],
+    )
+    def test_conflicting_core_dependency_is_blocked(
+        self,
+        tmp_path: Path,
+        package: str,
+        frozen: bool,
+    ):
+        requirements = tmp_path / "requirements.txt"
+        declaration = f"{package}<0.1"
+        requirements.write_text(declaration + "\n", encoding="utf-8")
+        with (
+            patch(
+                "aiarb.plugins.dependency_gate._dist_version",
+                return_value="2.0.0",
+            ),
+            patch(
+                "aiarb.plugins.dependency_gate._is_frozen",
+                return_value=frozen,
+            ),
+        ):
+            decision = DependencyGate().evaluate(
+                requirements,
+                allow_install=True,
+                plugin_id="test-plugin",
+            )
+        assert not decision.allow_install
+        assert not decision.already_satisfied
+        assert decision.host_conflicts == [declaration]
+        assert decision.require_restart
+
     def test_satisfied_core_dependency_needs_no_install(
         self,
         tmp_path: Path,
     ):
         requirements = tmp_path / "requirements.txt"
         requirements.write_text("openai>=1\n", encoding="utf-8")
-        with (
-            patch(
-                "qwenpaw.plugins.dependency_gate._dist_version",
-                return_value="2.0.0",
-            ),
-            patch(
-                "qwenpaw.plugins.dependency_gate._dist_requires",
-                return_value=(),
-            ),
+        with patch(
+            "aiarb.plugins.dependency_gate._dist_version",
+            return_value="2.0.0",
         ):
             decision = DependencyGate().evaluate(
                 requirements,
@@ -150,6 +195,20 @@ class TestDependencyGate:
         assert not decision.host_conflicts
         assert not decision.require_restart
 
+    def test_reme_distribution_detects_loaded_module_without_metadata(self):
+        with (
+            patch.dict(sys.modules, {"reme": ModuleType("reme")}),
+            patch(
+                "aiarb.plugins.dependency_gate._dist_version",
+                side_effect=PackageNotFoundError("reme-ai"),
+            ),
+            patch(
+                "aiarb.plugins.dependency_gate._is_frozen",
+                return_value=False,
+            ),
+        ):
+            assert hits_imported_host_package(Requirement("reme-ai<0.1"))
+
 
 class TestProvisionFiles:
     def test_create_keep_migrate_and_recover(
@@ -158,7 +217,7 @@ class TestProvisionFiles:
         monkeypatch,
     ):
         monkeypatch.setattr(
-            "qwenpaw.constant.WORKING_DIR",
+            "aiarb.constant.WORKING_DIR",
             tmp_path / "work",
         )
         src = tmp_path / "src"
@@ -196,7 +255,7 @@ class TestProvisionFiles:
         monkeypatch,
     ):
         monkeypatch.setattr(
-            "qwenpaw.constant.WORKING_DIR",
+            "aiarb.constant.WORKING_DIR",
             tmp_path / "work",
         )
         src = tmp_path / "src"
@@ -280,7 +339,7 @@ async def test_unload_mode_leaves_agent_json_and_removes_manifest(
     monkeypatch,
 ):
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     agent_json = tmp_path / "agent.json"
@@ -317,7 +376,7 @@ async def test_uninstall_failed_plugin_clears_provisions(
     monkeypatch,
 ):
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     plugin_id = "failed-one"
@@ -357,7 +416,7 @@ async def test_uninstall_rechecks_leftover_created_dests(
     monkeypatch,
 ):
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     src = tmp_path / "src"
@@ -375,7 +434,7 @@ async def test_uninstall_rechecks_leftover_created_dests(
     await loader.load_plugin(manifest, plugin_dir)
 
     monkeypatch.setattr(
-        "qwenpaw.plugins.provision.shutil.rmtree",
+        "aiarb.plugins.provision.shutil.rmtree",
         lambda *args, **kwargs: None,
     )
     report = await loader.unload_plugin(
@@ -396,7 +455,7 @@ async def test_uninstall_without_loaded_instance_clears_provisions(
     monkeypatch,
 ):
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     src = tmp_path / "src"
@@ -437,7 +496,7 @@ async def test_cloudpaw_uninstall_replays_relative_import_cleanup(
     fresh_registry,
     monkeypatch,
 ):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     monkeypatch.setattr(sys, "path", list(sys.path))
     source = Path(__file__).parents[3] / "plugins" / "bundle" / "cloudpaw"
     root = tmp_path / "plugins" / "cloudpaw"
@@ -483,7 +542,7 @@ async def test_uninstall_never_enabled_preserves_declared_user_directory(
     monkeypatch,
 ):
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     dest = tmp_path / "declared-dest"
@@ -531,7 +590,7 @@ async def test_uninstall_unlinks_replaced_owned_directory(
     fresh_registry,
     monkeypatch,
 ):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     source = tmp_path / "factory"
     source.mkdir()
     (source / "SKILL.md").write_text("plugin", encoding="utf-8")
@@ -585,7 +644,7 @@ async def test_startup_rollback_preserves_user_directory(
     monkeypatch,
 ):
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     source = tmp_path / "factory"
@@ -641,7 +700,7 @@ async def test_startup_failure_marks_failed_and_continues(
     monkeypatch,
 ):
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     boom = _write_plugin(
@@ -695,8 +754,8 @@ async def test_delegate_default_owns_commit():
 
 
 def test_projection_failed_records_diagnostic(fresh_registry):
-    from qwenpaw.plugins.api import PluginApi
-    from qwenpaw.plugins.workspace_projector import ProjectionError
+    from aiarb.plugins.api import PluginApi
+    from aiarb.plugins.workspace_projector import ProjectionError
 
     api = PluginApi("p", {}, {"id": "p"})
     api.set_registry(fresh_registry)
@@ -719,7 +778,7 @@ async def test_uninstall_with_inventory_preserves_declared_user_directory(
     """An empty owned-path list must not trigger manifest-based deletion."""
     from unittest.mock import AsyncMock
 
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     root = _write_plugin(tmp_path / "disk-user", "disk-user")
     dest = tmp_path / "user-directory"
     dest.mkdir()

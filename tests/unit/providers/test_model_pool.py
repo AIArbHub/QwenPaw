@@ -7,13 +7,13 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.config.config import ModelSlotConfig
-from qwenpaw.providers.anthropic_provider import AnthropicProvider
-from qwenpaw.providers.model_info import ModelInfo
-from qwenpaw.providers.provider import Provider
-from qwenpaw.providers.model_pool import ModelPoolQuery, model_pool_page
-from qwenpaw.providers.openrouter_provider import OpenRouterProvider
-from qwenpaw.providers.provider_manager import ProviderManager
+from aiarb.config.config import ModelSlotConfig
+from aiarb.providers.anthropic_provider import AnthropicProvider
+from aiarb.providers.model_info import ModelInfo
+from aiarb.providers.provider import Provider
+from aiarb.providers.model_pool import ModelPoolQuery, model_pool_page
+from aiarb.providers.openrouter_provider import OpenRouterProvider
+from aiarb.providers.provider_manager import ProviderManager
 
 
 async def test_catalog_is_candidate_until_selected(isolated_secret_dir):
