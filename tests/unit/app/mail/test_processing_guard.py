@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.app.mail.processing_guard import MailProcessingGuard
+from aiarb.app.mail.processing_guard import MailProcessingGuard
 
 
 def _guard(tmp_path: Path, fingerprint: str = "mailbox"):
@@ -130,7 +130,7 @@ def test_write_failure_never_unlocks_processing(tmp_path, operation):
     if operation in {"resume", "notify"}:
         pause, _ = _pause_batch(guard)
     with patch(
-        "qwenpaw.app.mail.processing_guard.write_json_atomic",
+        "aiarb.app.mail.processing_guard.write_json_atomic",
         side_effect=OSError("disk full"),
     ), pytest.raises(OSError, match="disk full"):
         if operation == "batch":

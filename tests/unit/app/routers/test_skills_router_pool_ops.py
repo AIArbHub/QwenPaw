@@ -37,10 +37,10 @@ import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 
-from qwenpaw.agents.skill_system.hub import HubInstallResult
-from qwenpaw.app.routers import skills as skills_module
-from qwenpaw.app.routers.skills import router as skills_router
-from qwenpaw.exceptions import (
+from aiarb.agents.skill_system.hub import HubInstallResult
+from aiarb.app.routers import skills as skills_module
+from aiarb.app.routers.skills import router as skills_router
+from aiarb.exceptions import (
     AppBaseException,
     SkillConflictError,
     SkillImportCancelled,
@@ -117,7 +117,7 @@ def fake_workspace(tmp_path: Path):
 @pytest.fixture
 def patch_get_agent(fake_workspace):
     with patch(
-        "qwenpaw.app.agent_context.get_agent_for_request",
+        "aiarb.app.agent_context.get_agent_for_request",
         new=AsyncMock(return_value=fake_workspace),
     ) as patched:
         yield patched
@@ -165,7 +165,7 @@ def no_auto_sync():
 @pytest.fixture
 def workspace_agent(tmp_path: Path, monkeypatch):
     """Point the request-scoped agent lookup at a real temp workspace."""
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path)
     workspace_dir = tmp_path / "workspaces" / "agent_x"
     workspace_dir.mkdir(parents=True)
     workspace = SimpleNamespace(
@@ -173,7 +173,7 @@ def workspace_agent(tmp_path: Path, monkeypatch):
         agent_id="agent_x",
     )
     with patch(
-        "qwenpaw.app.agent_context.get_agent_for_request",
+        "aiarb.app.agent_context.get_agent_for_request",
         new=AsyncMock(return_value=workspace),
     ):
         yield workspace_dir

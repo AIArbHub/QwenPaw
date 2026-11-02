@@ -5,7 +5,7 @@ import asyncio
 
 import httpx
 
-from qwenpaw.channel_protocol.management import ManagementResult
+from aiarb.channel_protocol.management import ManagementResult
 from .client import ILinkClient, _DEFAULT_BASE_URL
 
 

@@ -8,14 +8,14 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.governance.policy import (
+from aiarb.governance.policy import (
     GovernanceAction,
     GovernanceDecision,
     GovernancePolicy,
     ToolCallSpec,
 )
-from qwenpaw.governance import tool_adapter
-from qwenpaw.security.decision_model import DecisionModelAssessment
+from aiarb.governance import tool_adapter
+from aiarb.security.decision_model import DecisionModelAssessment
 
 
 def _fake_tool(action, *, approval_origin="unknown", tool_name="Write"):
@@ -64,7 +64,7 @@ async def test_deterministic_deny_never_calls_decision_model(
         raise AssertionError("Decision model must not be called after deny")
 
     monkeypatch.setattr(
-        "qwenpaw.security.decision_model.assess_tool_call",
+        "aiarb.security.decision_model.assess_tool_call",
         unexpected,
     )
     result = await tool_adapter._policy_tool_check_permissions(tool, {})
@@ -90,7 +90,7 @@ async def test_model_escalates_sandbox_fallback_without_dropping_sandbox(
         return "approved"
 
     monkeypatch.setattr(
-        "qwenpaw.security.decision_model.assess_tool_call",
+        "aiarb.security.decision_model.assess_tool_call",
         risky,
     )
     monkeypatch.setattr(tool_adapter, "_ask_user_approval", approve)
@@ -118,7 +118,7 @@ async def test_decision_model_can_relax_only_proven_soft_ask(monkeypatch):
         )
 
     monkeypatch.setattr(
-        "qwenpaw.security.decision_model.assess_tool_call",
+        "aiarb.security.decision_model.assess_tool_call",
         safe,
     )
     result = await tool_adapter._policy_tool_check_permissions(tool, {})
@@ -146,7 +146,7 @@ async def test_explicit_ask_does_not_call_decision_model(
         return "approved"
 
     monkeypatch.setattr(
-        "qwenpaw.security.decision_model.assess_tool_call",
+        "aiarb.security.decision_model.assess_tool_call",
         unexpected,
     )
     monkeypatch.setattr(tool_adapter, "_ask_user_approval", approve)
@@ -156,7 +156,7 @@ async def test_explicit_ask_does_not_call_decision_model(
 
 
 def test_only_unmodified_bundled_findings_are_soft(monkeypatch):
-    from qwenpaw.governance import policy as policy_module
+    from aiarb.governance import policy as policy_module
 
     bundled = policy_module.DetectionRuleConfig(id="bundled")
     policy = GovernancePolicy(execution_level="jev", detection_rules=[bundled])
@@ -210,7 +210,7 @@ async def test_soft_shell_ask_never_becomes_unsandboxed_allow(
         )
 
     monkeypatch.setattr(
-        "qwenpaw.security.decision_model.assess_tool_call",
+        "aiarb.security.decision_model.assess_tool_call",
         safe,
     )
     result = await tool_adapter._policy_tool_check_permissions(tool, {})
@@ -243,7 +243,7 @@ async def test_soft_shell_ask_stays_ask_without_sandbox(
         return "approved"
 
     monkeypatch.setattr(
-        "qwenpaw.security.decision_model.assess_tool_call",
+        "aiarb.security.decision_model.assess_tool_call",
         unexpected,
     )
     monkeypatch.setattr(tool_adapter, "_ask_user_approval", approve)
@@ -286,14 +286,14 @@ async def test_code_credentials_stop_before_provider(
 
     from agentscope.permission import PermissionBehavior, PermissionDecision
     from agentscope.tool import Toolkit
-    from qwenpaw.modes.coding.code_mode import CodeModeTool
+    from aiarb.modes.coding.code_mode import CodeModeTool
 
     # Exercise the real CodeModeTool -> policy gate -> disclosure preflight.
     # Provider invocation itself is a disclosure, regardless of its verdict.
     evaluate = AsyncMock()
     resolve = Mock(return_value=(SimpleNamespace(evaluate=evaluate), "jev"))
     monkeypatch.setattr(
-        "qwenpaw.security.decision_model._decision_provider",
+        "aiarb.security.decision_model._decision_provider",
         resolve,
     )
     approval = AsyncMock(
@@ -325,7 +325,7 @@ async def test_code_credentials_stop_before_provider(
 @pytest.mark.asyncio
 async def test_code_mode_outer_gate_preserves_complete_source(monkeypatch):
     from agentscope.tool import Toolkit
-    from qwenpaw.modes.coding.code_mode import CodeModeTool
+    from aiarb.modes.coding.code_mode import CodeModeTool
 
     fake, _ = _fake_tool(GovernanceAction.SANDBOX_FALLBACK)
     code = "token_count = 1\nprint(token_count)\n"
@@ -339,7 +339,7 @@ async def test_code_mode_outer_gate_preserves_complete_source(monkeypatch):
         )
 
     monkeypatch.setattr(
-        "qwenpaw.security.decision_model.assess_tool_call",
+        "aiarb.security.decision_model.assess_tool_call",
         assess,
     )
     tool = CodeModeTool(
@@ -357,7 +357,7 @@ async def test_code_mode_outer_gate_preserves_complete_source(monkeypatch):
 @pytest.mark.parametrize("behavior", ["ask", "deny"])
 async def test_code_inner_call_still_requires_permission(behavior):
     from agentscope.permission import PermissionBehavior, PermissionDecision
-    from qwenpaw.modes.coding.code_mode import _Script
+    from aiarb.modes.coding.code_mode import _Script
 
     native = SimpleNamespace(is_external_tool=False, input_schema={})
     check = AsyncMock(

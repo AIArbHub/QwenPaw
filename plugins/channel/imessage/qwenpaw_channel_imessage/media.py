@@ -10,7 +10,7 @@ import stat
 import tempfile
 from pathlib import Path
 
-from qwenpaw.app.channels.utils import (
+from aiarb.app.channels.utils import (
     MediaDataError,
     file_url_to_local_path,
     parse_data_url,
@@ -72,7 +72,7 @@ class IMessageMedia:
         elif workspace:
             directory = Path(workspace).expanduser() / "media"
         else:
-            from qwenpaw.constant import DEFAULT_MEDIA_DIR
+            from aiarb.constant import DEFAULT_MEDIA_DIR
 
             directory = DEFAULT_MEDIA_DIR
         self.directory = directory.resolve()

@@ -10,14 +10,14 @@ import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from qwenpaw.app.approvals.models import ApprovalRequestSummary
-from qwenpaw.app.approvals.service import ApprovalService
-from qwenpaw.app.routers import approval as approval_router
-from qwenpaw.governance import generalize, tool_adapter
-from qwenpaw.governance.policy import ToolCallSpec
-from qwenpaw.runtime.commands.control import approval_handler
-from qwenpaw.runtime.commands.control.base import ControlContext
-from qwenpaw.security.tool_guard.approval import ApprovalDecision
+from aiarb.app.approvals.models import ApprovalRequestSummary
+from aiarb.app.approvals.service import ApprovalService
+from aiarb.app.routers import approval as approval_router
+from aiarb.governance import generalize, tool_adapter
+from aiarb.governance.policy import ToolCallSpec
+from aiarb.runtime.commands.control import approval_handler
+from aiarb.runtime.commands.control.base import ControlContext
+from aiarb.security.tool_guard.approval import ApprovalDecision
 
 
 async def _create_pending(service: ApprovalService):
@@ -76,7 +76,7 @@ async def test_fast_decision_reaches_governance_tool(
 
     monkeypatch.setattr(service, f"create_pending", _create_then_resolve)
     monkeypatch.setattr(
-        f"qwenpaw.app.approvals.service._approval_service",
+        f"aiarb.app.approvals.service._approval_service",
         service,
     )
     monkeypatch.setattr(

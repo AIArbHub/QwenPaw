@@ -24,7 +24,7 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.portability.providers import external_state as es
+from aiarb.portability.providers import external_state as es
 
 
 # --------------------------------------------------------------------------

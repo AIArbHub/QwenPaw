@@ -15,9 +15,9 @@ import sys
 
 import pytest
 
-import qwenpaw.agents.acp.service as acp_service
-from qwenpaw.agents.acp.core import ACPConfigurationError
-from qwenpaw.config.config import ACPConfig
+import aiarb.agents.acp.service as acp_service
+from aiarb.agents.acp.core import ACPConfigurationError
+from aiarb.config.config import ACPConfig
 
 
 @pytest.fixture(autouse=True)
@@ -192,7 +192,7 @@ class TestServiceRegistry:
 
 class TestPromptBlocksToModels:
     def test_text_blocks_converted(self):
-        from qwenpaw.agents.acp.service import ACPService
+        from aiarb.agents.acp.service import ACPService
 
         models = ACPService._prompt_blocks_to_models(
             [{"type": "text", "text": "hello"}],
@@ -200,13 +200,13 @@ class TestPromptBlocksToModels:
         assert len(models) == 1
 
     def test_non_text_block_rejected(self):
-        from qwenpaw.agents.acp.service import ACPService
+        from aiarb.agents.acp.service import ACPService
 
         with pytest.raises(ACPConfigurationError):
             ACPService._prompt_blocks_to_models([{"type": "image"}])
 
     def test_empty_list(self):
-        from qwenpaw.agents.acp.service import ACPService
+        from aiarb.agents.acp.service import ACPService
 
         assert ACPService._prompt_blocks_to_models([]) == []
 

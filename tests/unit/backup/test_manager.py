@@ -6,10 +6,10 @@ import threading
 
 import pytest
 
-from qwenpaw.backup import manager as manager_module
-from qwenpaw.backup._ops.create import BackupCancelled
-from qwenpaw.backup.manager import BackupManager, BackupOperationConflict
-from qwenpaw.backup.models import (
+from aiarb.backup import manager as manager_module
+from aiarb.backup._ops.create import BackupCancelled
+from aiarb.backup.manager import BackupManager, BackupOperationConflict
+from aiarb.backup.models import (
     BackupJobStatus,
     BackupScope,
     CreateBackupRequest,

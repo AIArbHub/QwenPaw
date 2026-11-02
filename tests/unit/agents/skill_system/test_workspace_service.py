@@ -15,8 +15,8 @@ import json
 from pathlib import Path
 
 import pytest
-from qwenpaw.agents.skill_system import workspace_service as ws_module
-from qwenpaw.agents.skill_system.workspace_service import SkillService
+from aiarb.agents.skill_system import workspace_service as ws_module
+from aiarb.agents.skill_system.workspace_service import SkillService
 
 
 def _skill_md(name: str, description: str = "desc for tests") -> str:
@@ -26,7 +26,7 @@ def _skill_md(name: str, description: str = "desc for tests") -> str:
 @pytest.fixture()
 def ws_env(tmp_path, monkeypatch):
     """Isolated workspace with scanner stubbed (pool fixture pattern)."""
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path)
     monkeypatch.setattr(
         ws_module,
         "scan_skill_dir_or_raise",
@@ -72,14 +72,14 @@ class TestCreateSkill:
 
     def test_bad_name_raises(self, ws_env):
         service, _ws = ws_env
-        from qwenpaw.exceptions import SkillsError
+        from aiarb.exceptions import SkillsError
 
         with pytest.raises(SkillsError):
             service.create_skill("bad/name", _skill_md("x"))
 
     def test_invalid_frontmatter_raises(self, ws_env):
         service, _ws = ws_env
-        from qwenpaw.exceptions import SkillsError
+        from aiarb.exceptions import SkillsError
 
         with pytest.raises(SkillsError):
             service.create_skill("demo", "---\nname: [unclosed\n---\n")
@@ -321,7 +321,7 @@ class TestZipImport:
         assert not (skill_dir / ".qwenpaw-pawport.json").exists()
 
     def test_import_bad_zip_raises(self, ws_env):
-        from qwenpaw.exceptions import SkillsError
+        from aiarb.exceptions import SkillsError
 
         service, _ws = ws_env
         with pytest.raises(SkillsError):

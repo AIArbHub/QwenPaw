@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from qwenpaw.config.config import (
+from aiarb.config.config import (
     AdvisorModeConfig,
     AgentProfileConfig,
     ModelSlotConfig,
@@ -85,7 +85,7 @@ def test_max_consults_cannot_be_negative():
 
 
 def test_intervention_thresholds_are_validated():
-    from qwenpaw.config.config import AdvisorInterventionConfig
+    from aiarb.config.config import AdvisorInterventionConfig
 
     assert AdvisorInterventionConfig().max_interventions == 3
     with pytest.raises(ValueError):

@@ -8,17 +8,17 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.app.chats.manager import ChatManager
-from qwenpaw.app.chats.repo import JsonChatRepository
-from qwenpaw.app.chats.session import SafeJSONSession
-from qwenpaw.harnesses.events import HarnessHistoryItem, HarnessHistoryKind
-from qwenpaw.harnesses.session import HarnessSessionBridge
-from qwenpaw.portability.import_conversations import (
+from aiarb.app.chats.manager import ChatManager
+from aiarb.app.chats.repo import JsonChatRepository
+from aiarb.app.chats.session import SafeJSONSession
+from aiarb.harnesses.events import HarnessHistoryItem, HarnessHistoryKind
+from aiarb.harnesses.session import HarnessSessionBridge
+from aiarb.portability.import_conversations import (
     ConversationState,
     import_conversations,
 )
-from qwenpaw.portability.import_support import _session_key
-from qwenpaw.portability.models import ProviderInventory, SourceSession
+from aiarb.portability.import_support import _session_key
+from aiarb.portability.models import ProviderInventory, SourceSession
 
 
 def _workspace(tmp_path: Path) -> SimpleNamespace:

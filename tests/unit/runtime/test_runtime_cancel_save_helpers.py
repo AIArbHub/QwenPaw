@@ -21,7 +21,7 @@ from agentscope.message import (
     ToolResultState,
 )
 
-from qwenpaw.runtime.runtime import Runtime
+from aiarb.runtime.runtime import Runtime
 
 
 def _runtime(workspace_agent_id="ws-agent"):
@@ -63,7 +63,7 @@ def _agent(name="TestAgent", context=None):
 class TestNormalize:
     def test_dict_coerced_to_agent_request(self):
         request = Runtime._normalize({"session_id": "s1", "user_id": "u1"})
-        from qwenpaw.schemas import AgentRequest
+        from aiarb.schemas import AgentRequest
 
         assert isinstance(request, AgentRequest)
         assert request.session_id == "s1"
@@ -76,7 +76,7 @@ class TestNormalize:
         assert request.user_id == request.session_id
 
     def test_existing_request_passthrough(self):
-        from qwenpaw.schemas import AgentRequest
+        from aiarb.schemas import AgentRequest
 
         original = AgentRequest(session_id="fixed", user_id="bob")
         result = Runtime._normalize(original)

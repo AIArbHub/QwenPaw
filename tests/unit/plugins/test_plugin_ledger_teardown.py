@@ -12,21 +12,21 @@ from types import SimpleNamespace
 import pytest
 from fastapi import APIRouter, FastAPI
 
-from qwenpaw.plugins.api import PluginApi, _bridge_to_runtime
-from qwenpaw.plugins.architecture import (
+from aiarb.plugins.api import PluginApi, _bridge_to_runtime
+from aiarb.plugins.architecture import (
     PluginEntryPoints,
     PluginManifest,
     PluginRecord,
 )
-from qwenpaw.plugins.lifecycle import (
+from aiarb.plugins.lifecycle import (
     LifecycleDelegate,
     PluginInstance,
     PluginState,
     UnloadMode,
 )
-from qwenpaw.plugins.loader import PluginLoader
-from qwenpaw.plugins.registry import PluginRegistry
-from qwenpaw.runtime.tool_registry import ToolDescriptor, ToolRegistry
+from aiarb.plugins.loader import PluginLoader
+from aiarb.plugins.registry import PluginRegistry
+from aiarb.runtime.tool_registry import ToolDescriptor, ToolRegistry
 
 
 def _api(registry: PluginRegistry, plugin_id: str = "demo") -> PluginApi:
@@ -301,7 +301,7 @@ async def test_reload_aborts_when_not_quiescent(
     monkeypatch,
 ):
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     installed = _write_plugin(
@@ -336,8 +336,8 @@ async def test_reload_aborts_when_not_quiescent(
 
 @pytest.mark.asyncio
 async def test_plugin_runtime_hook_is_isolated():
-    from qwenpaw.runtime.hooks import HookBase, HookContext, HookRegistry
-    from qwenpaw.runtime.phases import Phase
+    from aiarb.runtime.hooks import HookBase, HookContext, HookRegistry
+    from aiarb.runtime.phases import Phase
 
     inst = PluginInstance("hook-plug")
 

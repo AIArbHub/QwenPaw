@@ -68,7 +68,7 @@ def test_official_discovery_and_descriptor_snapshot_are_static(
     static_channel_guard,
 ):
     from dataclasses import replace
-    from qwenpaw.app.channels.catalog import get_configurable_channel_catalog
+    from aiarb.app.channels.catalog import get_configurable_channel_catalog
 
     official = get_configurable_channel_catalog()
     assert {
@@ -92,10 +92,10 @@ def test_official_discovery_and_descriptor_snapshot_are_static(
         "voice",
         "sip",
     } <= set(official)
-    from qwenpaw.channel_protocol.errors import ProtocolValidationError
-    from qwenpaw.plugins.architecture import PluginManifest
-    from qwenpaw.plugins.channel_adapter import describe_channel
-    from qwenpaw.channel_protocol.shared import validate_channel_contract
+    from aiarb.channel_protocol.errors import ProtocolValidationError
+    from aiarb.plugins.architecture import PluginManifest
+    from aiarb.plugins.channel_adapter import describe_channel
+    from aiarb.channel_protocol.shared import validate_channel_contract
 
     sources = Path(__file__).resolve().parents[3] / "plugins" / "channel"
     descriptors = list(sources.glob("*/channel.json"))
@@ -113,8 +113,8 @@ def test_official_discovery_and_descriptor_snapshot_are_static(
     for key in ("feishu", "dingtalk"):
         with pytest.raises(ProtocolValidationError, match="contract required"):
             validate_channel_contract(key, ())
-    from qwenpaw.app.channels.isolated_proxy import IsolatedChannelProxy
-    from qwenpaw.channel_protocol.shared import SharedChannelDescriptor
+    from aiarb.app.channels.isolated_proxy import IsolatedChannelProxy
+    from aiarb.channel_protocol.shared import SharedChannelDescriptor
 
     source = host.artifact(sdk=True)
     description = describe_channel(
@@ -177,8 +177,8 @@ async def test_channel_catalog_admission_preserves_config_without_runtime(
     runtime,
 ):
     from dataclasses import replace
-    from qwenpaw.plugins.settings import persist_plugin_settings
-    from qwenpaw.plugins.channel_adapter import (
+    from aiarb.plugins.settings import persist_plugin_settings
+    from aiarb.plugins.channel_adapter import (
         ChannelRuntimeNotIntegratedError,
     )
 
@@ -236,7 +236,7 @@ async def test_channel_catalog_admission_preserves_config_without_runtime(
                 allow_install=False,
                 probe=True,
             )
-    from qwenpaw.config.utils import load_config
+    from aiarb.config.utils import load_config
 
     assert load_config().plugins[KEY] == {
         "enabled": enabled,
@@ -247,8 +247,8 @@ async def test_channel_catalog_admission_preserves_config_without_runtime(
 
 def test_runner_hello_requires_shared_identity():
     from packaging.markers import default_environment
-    from qwenpaw.channel_protocol.errors import ProtocolValidationError
-    from qwenpaw.channel_protocol.models import validate_method_params
+    from aiarb.channel_protocol.errors import ProtocolValidationError
+    from aiarb.channel_protocol.models import validate_method_params
 
     dedicated = {
         "protocol_version": 1,
@@ -279,7 +279,7 @@ def test_runner_hello_requires_shared_identity():
         validate_method_params("runner.hello", shared).to_mapping() == shared
     )
 
-    from qwenpaw.channel_protocol.shared import validate_shared_hello
+    from aiarb.channel_protocol.shared import validate_shared_hello
 
     expected = {
         name: shared[name]
@@ -323,10 +323,10 @@ async def test_execution_preparation_yields_and_consumes_session_snapshot(
 ):
     import threading
     from dataclasses import replace
-    from qwenpaw.__version__ import __version__
-    from qwenpaw.app.channels.process_supervisor import ChannelProcess
-    from qwenpaw.plugins.architecture import PluginManifest
-    from qwenpaw.plugins.channel_adapter import describe_channel
+    from aiarb.__version__ import __version__
+    from aiarb.app.channels.process_supervisor import ChannelProcess
+    from aiarb.plugins.architecture import PluginManifest
+    from aiarb.plugins.channel_adapter import describe_channel
 
     source = host.artifact()
     if mode == "manage":
@@ -408,7 +408,7 @@ async def test_execution_preparation_yields_and_consumes_session_snapshot(
             )
             assert process.observed_hello["generation"] == spec.generation
         if mode == "manage":
-            from qwenpaw.channel_protocol.management import MANAGEMENT_METHOD
+            from aiarb.channel_protocol.management import MANAGEMENT_METHOD
             from uuid import uuid4
 
             request = {
@@ -454,10 +454,10 @@ async def test_preparation_cancellation_retains_custody_and_rejects_changed_sour
     monkeypatch,
 ):
     import threading
-    from qwenpaw.__version__ import __version__
-    from qwenpaw.app.channels.process_supervisor import ChannelProcess
-    from qwenpaw.plugins.architecture import PluginManifest
-    from qwenpaw.plugins.channel_adapter import describe_channel
+    from aiarb.__version__ import __version__
+    from aiarb.app.channels.process_supervisor import ChannelProcess
+    from aiarb.plugins.architecture import PluginManifest
+    from aiarb.plugins.channel_adapter import describe_channel
 
     source = host.artifact()
     description = describe_channel(
@@ -542,8 +542,8 @@ async def test_local_install_enable_uses_installed_code_and_offline_dependency(
     host,
     monkeypatch,
 ):
-    from qwenpaw.config.utils import load_config
-    from qwenpaw.plugins.settings import persist_plugin_settings
+    from aiarb.config.utils import load_config
+    from aiarb.plugins.settings import persist_plugin_settings
 
     ws = await host.workspace("first", use_sdk=True)
     source = host.artifact(sdk=True)
@@ -635,7 +635,7 @@ async def test_workspace_messages_sessions_reply_targets_and_acl_are_isolated(
     host,
     monkeypatch,
 ):
-    from qwenpaw.app.channels.access_control import get_access_control_store
+    from aiarb.app.channels.access_control import get_access_control_store
 
     one = await host.workspace("one")
     two = await host.workspace("two", access_control_dm=True)
@@ -646,7 +646,7 @@ async def test_workspace_messages_sessions_reply_targets_and_acl_are_isolated(
         "blocked",
     )
     import threading
-    from qwenpaw.app.channels.access_control import AccessControlStore
+    from aiarb.app.channels.access_control import AccessControlStore
 
     loop_thread = threading.get_ident()
     decide = AccessControlStore.check_or_add_pending
@@ -724,7 +724,7 @@ async def test_workspace_messages_sessions_reply_targets_and_acl_are_isolated(
 async def test_config_read_save_restart_preserves_fields_and_exits_old_worker(
     host,
 ):
-    from qwenpaw.config.config import load_agent_config, save_agent_config
+    from aiarb.config.config import load_agent_config, save_agent_config
 
     ws = await host.workspace("configured")
     await host.loader.load_plugin_from_path(host.artifact())
@@ -814,7 +814,7 @@ async def test_application_shutdown_reaps_workers_and_preserves_installed_code(
     workspaces = [await host.workspace(name) for name in ("first", "second")]
     await host.loader.load_plugin_from_path(host.artifact())
     pids = [(await host.identity(ws))[1]["pid"] for ws in workspaces]
-    from qwenpaw.plugins.lifecycle import UnloadMode
+    from aiarb.plugins.lifecycle import UnloadMode
 
     reports = await host.loader.lifecycle.unload_all(UnloadMode.SHUTDOWN)
     assert reports and all(report.quiescent for report in reports)
@@ -880,9 +880,9 @@ async def test_pending_host_state_stop_blocks_replacement_until_cleanup(host):
 
 @pytest.mark.asyncio
 async def test_authorized_external_project_snapshot_delivers_exact_bytes(host):
-    from qwenpaw.agents.tools.send_file import send_file_to_user
-    from qwenpaw.utils.media_paths import local_media_path
-    from qwenpaw.config.context import (
+    from aiarb.agents.tools.send_file import send_file_to_user
+    from aiarb.utils.media_paths import local_media_path
+    from aiarb.config.context import (
         current_workspace_dir,
         current_project_dir,
     )
@@ -917,12 +917,12 @@ async def test_real_approval_card_and_inbound_operator_decision(
     host,
     monkeypatch,
 ):
-    from qwenpaw.app.approvals import service
-    from qwenpaw.app.approvals.models import ApprovalRequestSummary
-    from qwenpaw.app.approvals.service import ApprovalIdentityPolicy
-    from qwenpaw.app.channels.access_control import get_access_control_store
-    from qwenpaw.runtime.builtin_commands import collect_builtin_command_specs
-    from qwenpaw.security.tool_guard.approval import ApprovalDecision
+    from aiarb.app.approvals import service
+    from aiarb.app.approvals.models import ApprovalRequestSummary
+    from aiarb.app.approvals.service import ApprovalIdentityPolicy
+    from aiarb.app.channels.access_control import get_access_control_store
+    from aiarb.runtime.builtin_commands import collect_builtin_command_specs
+    from aiarb.security.tool_guard.approval import ApprovalDecision
 
     approvals = service.ApprovalService()
     monkeypatch.setattr(service, "_approval_service", approvals)
@@ -976,10 +976,10 @@ async def test_real_approval_card_and_inbound_operator_decision(
 def legacy_start(request, host, tmp_path, monkeypatch):
     from dataclasses import replace
     from types import SimpleNamespace
-    from qwenpaw.app.channels.manager import ChannelManager
-    from qwenpaw.plugins.architecture import PluginManifest
-    from qwenpaw.plugins.channel_adapter import describe_channel
-    from qwenpaw.plugins import azure_legacy, matrix_legacy
+    from aiarb.app.channels.manager import ChannelManager
+    from aiarb.plugins.architecture import PluginManifest
+    from aiarb.plugins.channel_adapter import describe_channel
+    from aiarb.plugins import azure_legacy, matrix_legacy
 
     key = request.param
     root = Path(__file__).resolve().parents[3]
@@ -1003,7 +1003,7 @@ def legacy_start(request, host, tmp_path, monkeypatch):
     workspace.mkdir()
     legacy = tmp_path / "legacy"
     legacy.mkdir()
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", legacy)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", legacy)
     values = (
         {"enabled": True, "app_id": "app", "app_password": "secret"}
         if key == "azure_bot"
@@ -1241,14 +1241,14 @@ async def test_qr_session_rechecks_source_after_scope_read(
     import threading
     from dataclasses import replace
     from types import SimpleNamespace
-    from qwenpaw.app.channels import qrcode_sessions as qr
-    from qwenpaw.app.channels.management import (
+    from aiarb.app.channels import qrcode_sessions as qr
+    from aiarb.app.channels.management import (
         ChannelManagementService,
         ManagementError,
     )
 
-    from qwenpaw.plugins.architecture import PluginRecord
-    from qwenpaw.plugins.execution_backend import BackendBinding
+    from aiarb.plugins.architecture import PluginRecord
+    from aiarb.plugins.execution_backend import BackendBinding
 
     source = host.artifact()
     _, manifest = host.loader.read_source_manifest(source)

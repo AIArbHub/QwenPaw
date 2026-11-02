@@ -6,13 +6,13 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.plugins import provision
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins import provision
+from aiarb.plugins.api import PluginApi
 
 
 @pytest.fixture
 def create_paths(tmp_path, monkeypatch):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     source = tmp_path / "factory"
     source.mkdir()
     (source / "factory.txt").write_text("plugin", encoding="utf-8")

@@ -7,17 +7,17 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.app.approvals.models import ApprovalRequestSummary
-from qwenpaw.app.approvals.service import (
+from aiarb.app.approvals.models import ApprovalRequestSummary
+from aiarb.app.approvals.service import (
     ApprovalIdentityPolicy,
     ApprovalService,
 )
-from qwenpaw.runtime.builtin_commands import _request_reme_action_approval
-from qwenpaw.runtime.commands.control.approval_handler import (
+from aiarb.runtime.builtin_commands import _request_reme_action_approval
+from aiarb.runtime.commands.control.approval_handler import (
     ApprovalCommandHandler,
 )
-from qwenpaw.runtime.commands.control.base import ControlContext
-from qwenpaw.security.tool_guard.approval import ApprovalDecision
+from aiarb.runtime.commands.control.base import ControlContext
+from aiarb.security.tool_guard.approval import ApprovalDecision
 
 
 @pytest.mark.asyncio
@@ -31,7 +31,7 @@ async def test_reme_action_uses_shared_approval_service(monkeypatch) -> None:
         ),
     )
     monkeypatch.setattr(
-        "qwenpaw.app.approvals.get_approval_service",
+        "aiarb.app.approvals.get_approval_service",
         lambda: service,
     )
     ctx = SimpleNamespace(
@@ -79,7 +79,7 @@ async def test_reme_action_denies_when_approval_is_rejected(
         ),
     )
     monkeypatch.setattr(
-        "qwenpaw.app.approvals.get_approval_service",
+        "aiarb.app.approvals.get_approval_service",
         lambda: service,
     )
     ctx = SimpleNamespace(
@@ -117,7 +117,7 @@ async def test_other_requester_cannot_approve_reme_action(monkeypatch) -> None:
         identity_policy=ApprovalIdentityPolicy.EXACT_REQUESTER,
     )
     monkeypatch.setattr(
-        "qwenpaw.runtime.commands.control.approval_handler."
+        "aiarb.runtime.commands.control.approval_handler."
         "get_approval_service",
         lambda: service,
     )
@@ -162,7 +162,7 @@ async def test_original_requester_can_approve_reme_action(monkeypatch) -> None:
         identity_policy=ApprovalIdentityPolicy.EXACT_REQUESTER,
     )
     monkeypatch.setattr(
-        "qwenpaw.runtime.commands.control.approval_handler."
+        "aiarb.runtime.commands.control.approval_handler."
         "get_approval_service",
         lambda: service,
     )
@@ -196,7 +196,7 @@ async def test_cancelled_reme_wait_removes_pending_approval(
         resolve_request=AsyncMock(return_value=pending),
     )
     monkeypatch.setattr(
-        "qwenpaw.app.approvals.get_approval_service",
+        "aiarb.app.approvals.get_approval_service",
         lambda: service,
     )
     ctx = SimpleNamespace(

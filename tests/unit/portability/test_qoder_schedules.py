@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.portability.providers import qoder_schedules
-from qwenpaw.portability.providers.qoder_schedules import (
+from aiarb.portability.providers import qoder_schedules
+from aiarb.portability.providers.qoder_schedules import (
     discover_qoder_scheduled_tasks,
 )
 

@@ -7,7 +7,7 @@ import nturl2path
 import pytest
 from PIL import Image
 
-from qwenpaw.runtime import console_turn_state
+from aiarb.runtime import console_turn_state
 
 pytestmark = [pytest.mark.unit, pytest.mark.p1]
 

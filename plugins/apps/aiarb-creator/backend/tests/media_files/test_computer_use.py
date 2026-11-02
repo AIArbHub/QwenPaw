@@ -165,7 +165,7 @@ class _FakeNativeClient:
         self.closed = False
 
     async def execute(self, method, params):
-        from qwenpaw.app import agent_context
+        from aiarb.app import agent_context
 
         assert agent_context.get_current_session_id() == "creator-session"
         self.calls.append((method, dict(params)))

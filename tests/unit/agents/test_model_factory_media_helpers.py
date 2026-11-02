@@ -37,7 +37,7 @@ from typing import Any
 import pytest
 from agentscope.message import TextBlock
 
-from qwenpaw.agents import model_factory as mf
+from aiarb.agents import model_factory as mf
 
 
 def _existing(tmp_path, name: str = "real.png") -> str:

@@ -15,11 +15,11 @@ import threading
 import anyio
 import pytest
 
-from qwenpaw.agents.memory.reme_config import get_reme_app_config
-from qwenpaw.agents.memory.reme_light_memory_manager import (
+from aiarb.agents.memory.reme_config import get_reme_app_config
+from aiarb.agents.memory.reme_light_memory_manager import (
     _load_validated_reme_app,
 )
-from qwenpaw.config.config import AgentProfileConfig
+from aiarb.config.config import AgentProfileConfig
 
 
 @pytest.mark.integration

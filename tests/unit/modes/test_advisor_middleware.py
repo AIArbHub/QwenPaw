@@ -18,9 +18,9 @@ from agentscope.message import (
     UserMsg,
 )
 
-from qwenpaw.config.config import AdvisorInterventionConfig
-from qwenpaw.modes.advisor.prompts import ADVISOR_SYSTEM_PROMPT
-from qwenpaw.modes.advisor.middleware import (
+from aiarb.config.config import AdvisorInterventionConfig
+from aiarb.modes.advisor.prompts import ADVISOR_SYSTEM_PROMPT
+from aiarb.modes.advisor.middleware import (
     _LiveExchange,
     CONSULT_BUDGET_EXHAUSTED,
     FOLLOWUP_TOOL_NAME,
@@ -34,7 +34,7 @@ from qwenpaw.modes.advisor.middleware import (
     _result_text,
     _workspace_listing,
 )
-from qwenpaw.modes.advisor.trigger import FailureDetector, InterventionTrigger
+from aiarb.modes.advisor.trigger import FailureDetector, InterventionTrigger
 
 FAIL = "Command failed with exit code 1."
 OK = "done"
@@ -529,7 +529,7 @@ async def test_plan_transcript_is_written(tmp_path):
 
 async def test_plan_call_is_retried(monkeypatch):
     monkeypatch.setattr(
-        "qwenpaw.modes.advisor.middleware.asyncio.sleep",
+        "aiarb.modes.advisor.middleware.asyncio.sleep",
         _no_sleep,
     )
     mw = _plan_mw([RuntimeError("400 filtered"), "THE PLAN"])
@@ -542,7 +542,7 @@ async def test_plan_call_is_retried(monkeypatch):
 
 async def test_exhausted_retries_report_failure(monkeypatch):
     monkeypatch.setattr(
-        "qwenpaw.modes.advisor.middleware.asyncio.sleep",
+        "aiarb.modes.advisor.middleware.asyncio.sleep",
         _no_sleep,
     )
     mw, agent = _plan_mw([RuntimeError("400 filtered")]), _agent_with_task()
@@ -556,7 +556,7 @@ async def test_failed_plan_does_not_consume_the_injected_flag(monkeypatch):
     """A rejected call leaves the flag clear (the next turn tries again),
     but this run stops retrying once the attempts are used up."""
     monkeypatch.setattr(
-        "qwenpaw.modes.advisor.middleware.asyncio.sleep",
+        "aiarb.modes.advisor.middleware.asyncio.sleep",
         _no_sleep,
     )
     mw, agent = _plan_mw([RuntimeError("boom")]), _agent_with_task()
@@ -986,7 +986,7 @@ async def test_plan_is_opened_before_the_advisor_answers_and_streamed():
 
 
 async def test_plan_failure_closes_the_exchange_as_an_error(monkeypatch):
-    import qwenpaw.modes.advisor.middleware as mw_module
+    import aiarb.modes.advisor.middleware as mw_module
 
     monkeypatch.setattr(mw_module, "_PLAN_RETRY_DELAY_S", 0)
     mw = _plan_mw([RuntimeError("advisor down")])

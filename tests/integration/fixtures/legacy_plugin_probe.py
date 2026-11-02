@@ -38,7 +38,7 @@ def package(root, version):
 import json
 import os
 from pathlib import Path
-from qwenpaw.plugins import PluginApi
+from aiarb.plugins import PluginApi
 
 
 class Plugin:
@@ -107,9 +107,9 @@ async def run(phase):
     # Reject copied absolute references before importing code that may migrate
     # data.
     check_workspace_paths()
-    from qwenpaw.agents import tools
-    from qwenpaw.config.utils import load_config, save_config
-    from qwenpaw.plugins import PluginApi, PluginLoader
+    from aiarb.agents import tools
+    from aiarb.config.utils import load_config, save_config
+    from aiarb.plugins import PluginApi, PluginLoader
 
     loader = PluginLoader([working / "plugins"])
     observations = []
@@ -144,7 +144,7 @@ async def run(phase):
         await call("initial", "1.0.0", 1)
         await loader.unload_plugin(PLUGIN_ID)
     else:
-        from qwenpaw.plugins import UnloadMode
+        from aiarb.plugins import UnloadMode
 
         records = await loader.load_all_plugins(
             load_config().plugins,

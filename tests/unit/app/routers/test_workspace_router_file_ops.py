@@ -19,7 +19,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.routers import workspace as workspace_router
+from aiarb.app.routers import workspace as workspace_router
 
 
 @pytest.fixture(name="ws_client")
@@ -327,7 +327,7 @@ class TestTranscribeAudio:
             return "hello world"
 
         monkeypatch.setattr(
-            "qwenpaw.agents.utils.audio_transcription.transcribe_audio",
+            "aiarb.agents.utils.audio_transcription.transcribe_audio",
             fake_transcribe,
         )
         response = ws_client.post(
@@ -348,7 +348,7 @@ class TestTranscribeAudio:
             return None
 
         monkeypatch.setattr(
-            "qwenpaw.agents.utils.audio_transcription.transcribe_audio",
+            "aiarb.agents.utils.audio_transcription.transcribe_audio",
             failing_transcribe,
         )
         response = ws_client.post(
@@ -368,7 +368,7 @@ class TestTranscribeAudio:
             return "ok"
 
         monkeypatch.setattr(
-            "qwenpaw.agents.utils.audio_transcription.transcribe_audio",
+            "aiarb.agents.utils.audio_transcription.transcribe_audio",
             fake_transcribe,
         )
         monkeypatch.setattr(

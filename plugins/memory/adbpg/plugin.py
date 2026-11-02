@@ -2,7 +2,7 @@
 """ADBPG memory plugin entry point."""
 
 from backend import ADBPGMemoryConfig, ADBPGMemoryManager
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 
 
 class ADBPGMemoryPlugin:

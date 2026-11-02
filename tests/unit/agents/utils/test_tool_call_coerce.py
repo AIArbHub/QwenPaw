@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import json
 
-from qwenpaw.agents.utils.tool_call_coerce import (
+from aiarb.agents.utils.tool_call_coerce import (
     _coerce_string_fields,
     _coerce_tool_input,
 )

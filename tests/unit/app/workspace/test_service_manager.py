@@ -15,10 +15,10 @@ from aiarb.app.workspace.service_manager import (
     ServiceDescriptor,
     ServiceManager,
 )
-from qwenpaw.app.workspace.workspace import Workspace
-from qwenpaw.app.workspace.workspace import _memory_manager_reuse_compatible
-from qwenpaw.constant import WORKING_DIR
-from qwenpaw.memory import MemoryBackendContext
+from aiarb.app.workspace.workspace import Workspace
+from aiarb.app.workspace.workspace import _memory_manager_reuse_compatible
+from aiarb.constant import WORKING_DIR
+from aiarb.memory import MemoryBackendContext
 
 
 async def _wait_for(event: threading.Event) -> None:
@@ -31,7 +31,7 @@ def workspace(monkeypatch, tmp_path) -> Workspace:
     instance = Workspace("agent-1", str(tmp_path))
     instance._service_manager = ServiceManager(instance)
     monkeypatch.setattr(
-        "qwenpaw.app.workspace.workspace.load_agent_config",
+        "aiarb.app.workspace.workspace.load_agent_config",
         lambda _agent_id: SimpleNamespace(),
     )
     monkeypatch.setattr(instance, "_migrate_legacy_weixin_data", lambda: None)

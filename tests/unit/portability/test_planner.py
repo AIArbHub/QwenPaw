@@ -7,15 +7,15 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.portability import planner
-from qwenpaw.portability.models import (
+from aiarb.portability import planner
+from aiarb.portability.models import (
     ProviderInventory,
     SourceMemoryFile,
     SourceMemoryProject,
     SourcePlugin,
     SourceSkill,
 )
-from qwenpaw.portability.planner import inventory_fingerprint
+from aiarb.portability.planner import inventory_fingerprint
 
 
 def _skill_inventory(root: Path) -> ProviderInventory:

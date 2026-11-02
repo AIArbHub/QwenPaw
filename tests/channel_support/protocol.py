@@ -2,7 +2,7 @@
 """Small protocol calls shared by native platform tests (no test cases)."""
 
 import asyncio
-from qwenpaw.channel_protocol.models import SendParams, ResponseFinishParams
+from aiarb.channel_protocol.models import SendParams, ResponseFinishParams
 
 
 async def eventually(predicate):

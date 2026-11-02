@@ -12,7 +12,7 @@ import json
 
 import pytest
 
-from qwenpaw.agents.context.visual_compression.runtime import (
+from aiarb.agents.context.visual_compression.runtime import (
     recall_tool as rt,
 )
 

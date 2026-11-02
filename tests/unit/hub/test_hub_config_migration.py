@@ -29,8 +29,8 @@ from typing import Any
 
 import pytest
 
-from qwenpaw.hub import config_migration as cm
-from qwenpaw.hub.database import connect_hub_database, initialize_hub_database
+from aiarb.hub import config_migration as cm
+from aiarb.hub.database import connect_hub_database, initialize_hub_database
 
 NOW = "2026-09-17T20:00:00+00:00"
 MODE_KEYS = ("registration_mode", "registration_enabled", "hub_config")

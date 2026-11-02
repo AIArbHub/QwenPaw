@@ -22,8 +22,8 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.hub.model_service import protocol as pr
-from qwenpaw.hub.model_service import runtime_policy as rp
+from aiarb.hub.model_service import protocol as pr
+from aiarb.hub.model_service import runtime_policy as rp
 
 MODEL = {
     "upstream_model": "qwen-max",

@@ -32,7 +32,7 @@ from unittest.mock import patch
 
 import pytest
 
-from qwenpaw.plugins.download_catalog import (
+from aiarb.plugins.download_catalog import (
     PLUGIN_DOWNLOAD_CDN,
     _fetch_json,
     _installed_plugin_ids,
@@ -297,7 +297,7 @@ def fixture_plugins_dir(tmp_path: Path, monkeypatch: Any) -> Path:
     target = tmp_path / "plugins"
     target.mkdir()
     monkeypatch.setattr(
-        "qwenpaw.config.utils.get_plugins_dir",
+        "aiarb.config.utils.get_plugins_dir",
         lambda: target,
     )
     return target
@@ -318,7 +318,7 @@ def test_installed_plugin_ids_missing_dir_returns_empty(
     monkeypatch: Any,
 ) -> None:
     monkeypatch.setattr(
-        "qwenpaw.config.utils.get_plugins_dir",
+        "aiarb.config.utils.get_plugins_dir",
         lambda: tmp_path / "nope",
     )
     assert _installed_plugin_ids() == {}
@@ -360,7 +360,7 @@ _MAIN_INDEX = {"products": {"plugins": {"index_url": "/plugins.json"}}}
 
 def test_catalog_without_plugins_product_is_empty() -> None:
     with patch(
-        "qwenpaw.plugins.download_catalog._fetch_json",
+        "aiarb.plugins.download_catalog._fetch_json",
         return_value={"products": {}},
     ):
         result = build_plugin_catalog()
@@ -370,7 +370,7 @@ def test_catalog_without_plugins_product_is_empty() -> None:
 
 def test_catalog_without_products_key_is_empty() -> None:
     with patch(
-        "qwenpaw.plugins.download_catalog._fetch_json",
+        "aiarb.plugins.download_catalog._fetch_json",
         return_value={},
     ):
         result = build_plugin_catalog()
@@ -382,7 +382,7 @@ def test_catalog_without_products_key_is_empty() -> None:
 def test_catalog_with_empty_plugins_product_is_empty() -> None:
     """A falsy ``plugins`` product is 'no catalog', not a malformed one."""
     with patch(
-        "qwenpaw.plugins.download_catalog._fetch_json",
+        "aiarb.plugins.download_catalog._fetch_json",
         return_value={"products": {"plugins": {}}},
     ):
         result = build_plugin_catalog()
@@ -405,7 +405,7 @@ def test_catalog_rejects_non_root_relative_index_url(
     """An absolute or foreign index_url must not be fetched."""
     main_index = {"products": {"plugins": plugins_product}}
     with patch(
-        "qwenpaw.plugins.download_catalog._fetch_json",
+        "aiarb.plugins.download_catalog._fetch_json",
         return_value=main_index,
     ) as fetch:
         result = build_plugin_catalog()
@@ -450,11 +450,11 @@ def test_catalog_drops_malformed_and_foreign_entries() -> None:
     }
     with (
         patch(
-            "qwenpaw.plugins.download_catalog._fetch_json",
+            "aiarb.plugins.download_catalog._fetch_json",
             side_effect=[_MAIN_INDEX, plugins_index],
         ),
         patch(
-            "qwenpaw.plugins.download_catalog._installed_plugin_ids",
+            "aiarb.plugins.download_catalog._installed_plugin_ids",
             return_value={},
         ),
     ):
@@ -493,11 +493,11 @@ def test_catalog_marks_installed_and_upgrade_available() -> None:
     }
     with (
         patch(
-            "qwenpaw.plugins.download_catalog._fetch_json",
+            "aiarb.plugins.download_catalog._fetch_json",
             side_effect=[_MAIN_INDEX, plugins_index],
         ),
         patch(
-            "qwenpaw.plugins.download_catalog._installed_plugin_ids",
+            "aiarb.plugins.download_catalog._installed_plugin_ids",
             return_value={"stale": "1.0.0", "fresh": "2.0.0"},
         ),
     ):
@@ -515,11 +515,11 @@ def test_catalog_marks_installed_and_upgrade_available() -> None:
 def test_catalog_missing_files_key_is_empty() -> None:
     with (
         patch(
-            "qwenpaw.plugins.download_catalog._fetch_json",
+            "aiarb.plugins.download_catalog._fetch_json",
             side_effect=[_MAIN_INDEX, {"updated_at": "ts"}],
         ),
         patch(
-            "qwenpaw.plugins.download_catalog._installed_plugin_ids",
+            "aiarb.plugins.download_catalog._installed_plugin_ids",
             return_value={},
         ),
     ):
@@ -537,7 +537,7 @@ def test_catalog_missing_files_key_is_empty() -> None:
 async def test_fetch_plugin_catalog_async_delegates_to_sync() -> None:
     sentinel = {"updated_at": None, "plugins": [], "error": None}
     with patch(
-        "qwenpaw.plugins.download_catalog.build_plugin_catalog",
+        "aiarb.plugins.download_catalog.build_plugin_catalog",
         return_value=sentinel,
     ) as build:
         result = await fetch_plugin_catalog_async()

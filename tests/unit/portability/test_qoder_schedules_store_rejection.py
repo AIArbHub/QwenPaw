@@ -20,9 +20,9 @@ from typing import Any
 
 import pytest
 
-from qwenpaw.portability.models import SourceScheduledTask
-from qwenpaw.portability.providers import qoder_schedules
-from qwenpaw.portability.providers.qoder_schedules import (
+from aiarb.portability.models import SourceScheduledTask
+from aiarb.portability.providers import qoder_schedules
+from aiarb.portability.providers.qoder_schedules import (
     discover_qoder_scheduled_tasks,
 )
 

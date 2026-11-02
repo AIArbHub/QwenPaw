@@ -12,10 +12,10 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.drivers.contracts import DriverCard, CredentialRef
-from qwenpaw.drivers.errors import DriverCardError
-from qwenpaw.drivers.policy_types import DriverPolicy
-from qwenpaw.drivers.storage import (
+from aiarb.drivers.contracts import DriverCard, CredentialRef
+from aiarb.drivers.errors import DriverCardError
+from aiarb.drivers.policy_types import DriverPolicy
+from aiarb.drivers.storage import (
     AsyncDriverCardStore,
     _card_from_mapping,
     _condition_from_mapping,
@@ -163,39 +163,39 @@ class TestConditionAndTimeRange:
 
 class TestPolicyFromMapping:
     def test_none_returns_default_policy(self):
-        from qwenpaw.drivers.storage import _policy_from_mapping
+        from aiarb.drivers.storage import _policy_from_mapping
 
         assert _policy_from_mapping(None, Path("p")) == DriverPolicy()
 
     def test_non_mapping_non_list_raises(self):
-        from qwenpaw.drivers.storage import _policy_from_mapping
+        from aiarb.drivers.storage import _policy_from_mapping
 
         with pytest.raises(DriverCardError, match="policy"):
             _policy_from_mapping("bad", Path("p"))
 
     def test_legacy_list_defaults_deny(self):
-        from qwenpaw.drivers.storage import _policy_from_mapping
-        from qwenpaw.drivers.constants import POLICY_EFFECT_DENY
+        from aiarb.drivers.storage import _policy_from_mapping
+        from aiarb.drivers.constants import POLICY_EFFECT_DENY
 
         policy = _policy_from_mapping([{"subject": "s"}], Path("p"))
         assert policy.default_effect == POLICY_EFFECT_DENY
         assert len(policy.rules) == 1
 
     def test_rules_non_list_raises(self):
-        from qwenpaw.drivers.storage import _policy_from_mapping
+        from aiarb.drivers.storage import _policy_from_mapping
 
         with pytest.raises(DriverCardError, match="policy.rules"):
             _policy_from_mapping({"rules": "bad"}, Path("p"))
 
     def test_rule_non_mapping_raises(self):
-        from qwenpaw.drivers.storage import _policy_rule_from_mapping
+        from aiarb.drivers.storage import _policy_rule_from_mapping
 
         with pytest.raises(DriverCardError, match="policy rule"):
             _policy_rule_from_mapping("bad", Path("p"))
 
     def test_rule_defaults(self):
-        from qwenpaw.drivers.storage import _policy_rule_from_mapping
-        from qwenpaw.drivers.constants import (
+        from aiarb.drivers.storage import _policy_rule_from_mapping
+        from aiarb.drivers.constants import (
             POLICY_EFFECT_ASK,
             POLICY_TARGET_WILDCARD,
         )
@@ -205,7 +205,7 @@ class TestPolicyFromMapping:
         assert rule.effect == POLICY_EFFECT_ASK
 
     def test_target_non_mapping_raises(self):
-        from qwenpaw.drivers.storage import _policy_target_from_mapping
+        from aiarb.drivers.storage import _policy_target_from_mapping
 
         with pytest.raises(DriverCardError, match="policy target"):
             _policy_target_from_mapping("bad", Path("p"))

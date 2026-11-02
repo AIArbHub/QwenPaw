@@ -13,8 +13,8 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 
-from qwenpaw.plugins import api as plugins_api
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins import api as plugins_api
+from aiarb.plugins.api import PluginApi
 
 
 # ---------------------------------------------------------------------------
@@ -25,12 +25,12 @@ from qwenpaw.plugins.api import PluginApi
 class TestGetToolConfig:
     def test_no_agent_id_returns_none(self):
         with patch(
-            "qwenpaw.plugins.api.get_current_agent_id",
+            "aiarb.plugins.api.get_current_agent_id",
             create=True,
             return_value=None,
         ):
             with patch(
-                "qwenpaw.app.agent_context.get_current_agent_id",
+                "aiarb.app.agent_context.get_current_agent_id",
                 return_value=None,
             ):
                 result = plugins_api.get_tool_config("my_tool")
@@ -41,11 +41,11 @@ class TestGetToolConfig:
         fake_registry.get_tool_config.return_value = {"api_key": "abc"}
         with (
             patch(
-                "qwenpaw.app.agent_context.get_current_agent_id",
+                "aiarb.app.agent_context.get_current_agent_id",
                 return_value="agent-1",
             ),
             patch(
-                "qwenpaw.plugins.registry.PluginRegistry",
+                "aiarb.plugins.registry.PluginRegistry",
                 return_value=fake_registry,
             ),
         ):
@@ -58,7 +58,7 @@ class TestGetToolConfig:
 
     def test_exception_returns_none(self):
         with patch(
-            "qwenpaw.app.agent_context.get_current_agent_id",
+            "aiarb.app.agent_context.get_current_agent_id",
             side_effect=RuntimeError("boom"),
         ):
             result = plugins_api.get_tool_config("my_tool")
@@ -85,7 +85,7 @@ class TestGetWorkspaceFromInfo:
         fake_registry = MagicMock()
         fake_registry.get_workspace_manager.return_value = fake_mgr
         with patch(
-            "qwenpaw.plugins.registry.PluginRegistry",
+            "aiarb.plugins.registry.PluginRegistry",
             return_value=fake_registry,
         ):
             result = api._get_workspace_from_info({"agent_id": "agent-1"})
@@ -101,7 +101,7 @@ class TestGetWorkspaceFromInfo:
         fake_registry = MagicMock()
         fake_registry.get_workspace_manager.return_value = None
         with patch(
-            "qwenpaw.plugins.registry.PluginRegistry",
+            "aiarb.plugins.registry.PluginRegistry",
             return_value=fake_registry,
         ):
             result = api._get_workspace_from_info({"agent_id": "agent-1"})
@@ -110,7 +110,7 @@ class TestGetWorkspaceFromInfo:
     def test_registry_exception_returns_none(self):
         api = PluginApi("test-plugin", {})
         with patch(
-            "qwenpaw.plugins.registry.PluginRegistry",
+            "aiarb.plugins.registry.PluginRegistry",
             side_effect=RuntimeError("registry down"),
         ):
             result = api._get_workspace_from_info({"agent_id": "agent-1"})
@@ -128,11 +128,11 @@ class TestWriteToolConfig:
         host.agents = None
         with (
             patch(
-                "qwenpaw.app.agent_context.get_current_agent_id",
+                "aiarb.app.agent_context.get_current_agent_id",
                 return_value=None,
             ),
             patch(
-                "qwenpaw.config.utils.load_config",
+                "aiarb.config.utils.load_config",
                 return_value=host,
             ),
         ):
@@ -146,25 +146,25 @@ class TestWriteToolConfig:
         assert "No agent profiles" in caplog.text
 
     def test_writes_to_agent_config(self, tmp_path, monkeypatch):
-        monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+        monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
         fake_config = MagicMock()
         fake_config.tools = None
         host = MagicMock()
         host.agents.profiles = {"agent-1": object()}
         with (
             patch(
-                "qwenpaw.app.agent_context.get_current_agent_id",
+                "aiarb.app.agent_context.get_current_agent_id",
                 return_value="agent-1",
             ),
             patch(
-                "qwenpaw.config.utils.load_config",
+                "aiarb.config.utils.load_config",
                 return_value=host,
             ),
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=fake_config,
             ),
-            patch("qwenpaw.config.config.save_agent_config") as save_mock,
+            patch("aiarb.config.config.save_agent_config") as save_mock,
         ):
             plugins_api._write_tool_config(
                 "my_tool",
@@ -176,9 +176,9 @@ class TestWriteToolConfig:
         save_mock.assert_called_once()
 
     def test_updates_existing_tool_entry(self, tmp_path, monkeypatch):
-        monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+        monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
         fake_config = MagicMock()
-        from qwenpaw.config.config import ToolsConfig
+        from aiarb.config.config import ToolsConfig
 
         fake_config.tools = ToolsConfig()
         fake_config.tools.builtin_tools["existing_tool"] = MagicMock()
@@ -186,18 +186,18 @@ class TestWriteToolConfig:
         host.agents.profiles = {"agent-1": object()}
         with (
             patch(
-                "qwenpaw.app.agent_context.get_current_agent_id",
+                "aiarb.app.agent_context.get_current_agent_id",
                 return_value="agent-1",
             ),
             patch(
-                "qwenpaw.config.utils.load_config",
+                "aiarb.config.utils.load_config",
                 return_value=host,
             ),
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=fake_config,
             ),
-            patch("qwenpaw.config.config.save_agent_config") as save_mock,
+            patch("aiarb.config.config.save_agent_config") as save_mock,
         ):
             plugins_api._write_tool_config(
                 "existing_tool",

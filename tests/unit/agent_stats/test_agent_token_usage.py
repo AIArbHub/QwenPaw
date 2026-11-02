@@ -514,11 +514,11 @@ async def test_get_global_llm_tool_by_date_sums_skips_and_fills(tmp_path):
     ws_b = _write_trend_workspace(tmp_path / "b", 1, 1)
     with (
         patch(
-            "qwenpaw.agent_stats.service.get_agent_dirs",
+            "aiarb.agent_stats.service.get_agent_dirs",
             return_value=[ws_a, ws_a, ws_b],
         ),
         patch(
-            "qwenpaw.agent_stats.service.get_token_usage_manager",
+            "aiarb.agent_stats.service.get_token_usage_manager",
         ) as mock_overlay,
     ):
         rows = await AgentStatsService().get_global_llm_tool_by_date(
@@ -535,7 +535,7 @@ async def test_get_global_llm_tool_by_date_sums_skips_and_fills(tmp_path):
 @pytest.mark.asyncio
 async def test_get_global_llm_tool_by_date_clamps_to_365_days():
     with patch(
-        "qwenpaw.agent_stats.service.get_agent_dirs",
+        "aiarb.agent_stats.service.get_agent_dirs",
         return_value=[],
     ):
         rows = await AgentStatsService().get_global_llm_tool_by_date(

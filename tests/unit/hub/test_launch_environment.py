@@ -7,13 +7,13 @@ from pathlib import Path
 import subprocess
 import sys
 
-from qwenpaw import constant
-from qwenpaw.hub import local_provisioner
+from aiarb import constant
+from aiarb.hub import local_provisioner
 from tests.unit.hub.factories import runtime_record
 
 
 def test_managed_startup_ignores_dotenv(tmp_path):
-    fake = tmp_path / "repo" / "src" / "qwenpaw" / "constant.py"
+    fake = tmp_path / "repo" / "src" / "aiarb" / "constant.py"
     fake.parent.mkdir(parents=True)
     fake.write_text(
         Path(constant.__file__).read_text(encoding="utf-8"),

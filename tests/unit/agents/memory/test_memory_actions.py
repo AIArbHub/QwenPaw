@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock
 import pytest
 from reme.config import parse_kwargs
 
-from qwenpaw.agents.memory.reme_light_memory_manager import (
+from aiarb.agents.memory.reme_light_memory_manager import (
     ReMeLightMemoryManager,
     _validate_reme_action_kwargs,
 )

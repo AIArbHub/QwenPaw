@@ -728,13 +728,13 @@ class TestGovernancePolicyEvaluate:
         expected,
     ):
         """CRITICAL asks unless its rule is explicitly auto-denied."""
-        from qwenpaw.governance.policy import DetectionRuleConfig
+        from aiarb.governance.policy import DetectionRuleConfig
 
         def resolve_auto_denied_rules():
             return auto_denied
 
         monkeypatch.setattr(
-            "qwenpaw.security.tool_guard.utils.resolve_auto_denied_rules",
+            "aiarb.security.tool_guard.utils.resolve_auto_denied_rules",
             resolve_auto_denied_rules,
         )
         if custom_rule:
@@ -1681,7 +1681,7 @@ class TestFileGuardConfigBridge:
                 ),
             ),
         )
-        monkeypatch.setattr("qwenpaw.config.load_config", lambda: config)
+        monkeypatch.setattr("aiarb.config.load_config", lambda: config)
 
     def test_read_allow_rule_cannot_override_sensitive_path(
         self,

@@ -12,7 +12,7 @@ import httpx
 from fastapi import HTTPException, Request
 from fastapi.responses import Response, StreamingResponse
 
-from qwenpaw.pawapp import ManagedService
+from aiarb.pawapp import ManagedService
 
 _ALLOWED_ROUTES = (
     ("/health", False),

@@ -25,7 +25,7 @@ import pytest
 @pytest.mark.p1
 def test_build_hub_conflict_payload() -> None:
     """Conflict payloads carry reason, skill name, and suggestion."""
-    from qwenpaw.agents.skill_system.hub import _build_hub_conflict
+    from aiarb.agents.skill_system.hub import _build_hub_conflict
 
     payload = _build_hub_conflict("my-skill")
     assert payload["reason"] == "conflict"
@@ -46,7 +46,7 @@ def test_build_hub_conflict_payload() -> None:
 @pytest.mark.p1
 def test_hub_http_timeout_defaults(monkeypatch) -> None:
     """Timeout defaults apply when the env var is unset."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     monkeypatch.delenv("AIARB_SKILLS_HUB_HTTP_TIMEOUT", raising=False)
     assert hub._hub_http_timeout() == 30.0
@@ -56,7 +56,7 @@ def test_hub_http_timeout_defaults(monkeypatch) -> None:
 @pytest.mark.p1
 def test_hub_http_timeout_env_override(monkeypatch) -> None:
     """Valid env values override the timeout."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_TIMEOUT", "45")
     assert hub._hub_http_timeout() == 45.0
@@ -66,7 +66,7 @@ def test_hub_http_timeout_env_override(monkeypatch) -> None:
 @pytest.mark.p1
 def test_hub_http_timeout_floor(monkeypatch) -> None:
     """Timeouts below the floor clamp up to 3 seconds."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_TIMEOUT", "1")
     assert hub._hub_http_timeout() == 3.0
@@ -76,7 +76,7 @@ def test_hub_http_timeout_floor(monkeypatch) -> None:
 @pytest.mark.p1
 def test_hub_http_timeout_invalid_falls_back(monkeypatch) -> None:
     """Unparseable values fall back to the default."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     monkeypatch.setenv("AIARB_SKILLS_HUB_HTTP_TIMEOUT", "not-a-number")
     assert hub._hub_http_timeout() == 30.0
@@ -86,7 +86,7 @@ def test_hub_http_timeout_invalid_falls_back(monkeypatch) -> None:
 @pytest.mark.p1
 def test_hub_http_retries_defaults_and_bounds(monkeypatch) -> None:
     """Retry count defaults to 3 and never goes negative."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     monkeypatch.delenv("AIARB_SKILLS_HUB_HTTP_RETRIES", raising=False)
     assert hub._hub_http_retries() == 3
@@ -100,7 +100,7 @@ def test_hub_http_retries_defaults_and_bounds(monkeypatch) -> None:
 @pytest.mark.p1
 def test_hub_http_backoff_base_defaults_and_bounds(monkeypatch) -> None:
     """Backoff base defaults to 0.8 and clamps at 0.1."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     monkeypatch.delenv(
         "AIARB_SKILLS_HUB_HTTP_BACKOFF_BASE",
@@ -115,7 +115,7 @@ def test_hub_http_backoff_base_defaults_and_bounds(monkeypatch) -> None:
 @pytest.mark.p1
 def test_hub_http_backoff_cap_defaults_and_bounds(monkeypatch) -> None:
     """Backoff cap defaults to 6 and clamps at 0.5."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     monkeypatch.delenv(
         "AIARB_SKILLS_HUB_HTTP_BACKOFF_CAP",
@@ -130,7 +130,7 @@ def test_hub_http_backoff_cap_defaults_and_bounds(monkeypatch) -> None:
 @pytest.mark.p1
 def test_compute_backoff_seconds_growth(monkeypatch) -> None:
     """Backoff doubles per attempt up to the cap."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     monkeypatch.delenv(
         "AIARB_SKILLS_HUB_HTTP_BACKOFF_BASE",
@@ -149,7 +149,7 @@ def test_compute_backoff_seconds_growth(monkeypatch) -> None:
 @pytest.mark.p1
 def test_github_cache_ttl_env(monkeypatch) -> None:
     """Cache TTL parses env values and clamps at zero."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     monkeypatch.setenv("AIARB_GITHUB_CACHE_TTL", "120")
     assert hub._github_cache_ttl() == 120.0
@@ -168,7 +168,7 @@ def test_github_cache_ttl_env(monkeypatch) -> None:
 @pytest.mark.p1
 def test_hub_base_url_default(monkeypatch) -> None:
     """Default hub base URL is the public hub."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     monkeypatch.delenv("AIARB_SKILLS_HUB_BASE_URL", raising=False)
     assert hub._hub_base_url() == "https://clawhub.ai"
@@ -178,7 +178,7 @@ def test_hub_base_url_default(monkeypatch) -> None:
 @pytest.mark.p1
 def test_hub_paths_default(monkeypatch) -> None:
     """Default API paths target the v1 endpoints."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     for var in (
         "AIARB_SKILLS_HUB_SEARCH_PATH",
@@ -197,7 +197,7 @@ def test_hub_paths_default(monkeypatch) -> None:
 @pytest.mark.p1
 def test_join_url_normalizes_slashes() -> None:
     """URL joining normalizes boundary slashes."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     assert hub._join_url("https://x.com/", "/api/v1") == "https://x.com/api/v1"
     assert hub._join_url("https://x.com", "api/v1") == "https://x.com/api/v1"
@@ -213,7 +213,7 @@ def test_join_url_normalizes_slashes() -> None:
 @pytest.mark.p1
 def test_ensure_not_cancelled_no_checker() -> None:
     """Without a checker installed, the check is a no-op."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     hub._ensure_not_cancelled()  # must not raise
 
@@ -222,8 +222,8 @@ def test_ensure_not_cancelled_no_checker() -> None:
 @pytest.mark.p1
 def test_with_cancel_checker_raises_when_cancelled() -> None:
     """A truthy checker triggers SkillImportCancelled."""
-    import qwenpaw.agents.skill_system.hub as hub
-    from qwenpaw.exceptions import SkillImportCancelled
+    import aiarb.agents.skill_system.hub as hub
+    from aiarb.exceptions import SkillImportCancelled
 
     with hub._with_cancel_checker(lambda: True):
         with pytest.raises(SkillImportCancelled):
@@ -234,7 +234,7 @@ def test_with_cancel_checker_raises_when_cancelled() -> None:
 @pytest.mark.p1
 def test_with_cancel_checker_false_continues() -> None:
     """A falsy checker lets execution continue."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     with hub._with_cancel_checker(lambda: False):
         hub._ensure_not_cancelled()  # must not raise
@@ -244,7 +244,7 @@ def test_with_cancel_checker_false_continues() -> None:
 @pytest.mark.p1
 def test_with_cancel_checker_broken_checker_ignored() -> None:
     """Checker exceptions other than cancel are ignored."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     def broken() -> bool:
         raise RuntimeError("checker bug")
@@ -262,7 +262,7 @@ def test_with_cancel_checker_broken_checker_ignored() -> None:
 @pytest.mark.p1
 def test_github_cache_set_get_prune() -> None:
     """Cache set/get round-trips and prune drops expired entries."""
-    import qwenpaw.agents.skill_system.hub as hub
+    import aiarb.agents.skill_system.hub as hub
 
     key = f"test-key-{time.monotonic_ns()}"
     assert hub._github_cache_get(key) is None

@@ -295,11 +295,11 @@ class CronExecutor:
                 backend = getattr(
                     getattr(self._workspace, "config", None),
                     "backend",
-                    "qwenpaw",
+                    "AIARB",
                 )
-                if backend != "qwenpaw":
+                if backend != "AIARB":
                     raise ValueError(
-                        "Per-task execution models require the QwenPaw "
+                        "Per-task execution models require the AIARB "
                         "backend; select Default for this agent",
                     )
             final_event: Any | None = None

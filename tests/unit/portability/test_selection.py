@@ -7,8 +7,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.portability.import_planning import ImportPlanningMixin
-from qwenpaw.portability.models import (
+from aiarb.portability.import_planning import ImportPlanningMixin
+from aiarb.portability.models import (
     ImportSelection,
     MigrationPlan,
     ProviderInventory,
@@ -21,11 +21,11 @@ from qwenpaw.portability.models import (
     SourceSession,
     SourceSkill,
 )
-from qwenpaw.portability.planner import (
+from aiarb.portability.planner import (
     build_migration_plan,
     tool_asset_fingerprints,
 )
-from qwenpaw.portability.selection import select_inventory
+from aiarb.portability.selection import select_inventory
 
 
 def _inventory(tmp_path: Path) -> ProviderInventory:

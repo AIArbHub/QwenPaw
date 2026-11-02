@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Integration tests for the sandbox module (config, probing, factory).
 
-These tests import qwenpaw.sandbox directly and verify configuration
+These tests import aiarb.sandbox directly and verify configuration
 data classes, platform probing, and factory dispatch logic. No HTTP
 server needed — these are pure module-level integration tests that
 verify the sandbox subsystem's public API contract.
@@ -25,7 +25,7 @@ def test_sandbox_mode_enum_values() -> None:
     1. Import SandboxMode.
     2. Verify all 5 modes exist with correct string values.
     """
-    from qwenpaw.sandbox import SandboxMode
+    from aiarb.sandbox import SandboxMode
 
     assert SandboxMode.SEATBELT.value == "seatbelt"
     assert SandboxMode.BUBBLEWRAP.value == "bubblewrap"
@@ -45,7 +45,7 @@ def test_sandbox_config_dataclass_creation() -> None:
     1. Create SandboxConfig with mode=NONE and a workspace dir.
     2. Verify defaults are applied correctly.
     """
-    from qwenpaw.sandbox.config import SandboxConfig, SandboxMode
+    from aiarb.sandbox.config import SandboxConfig, SandboxMode
 
     config = SandboxConfig(
         mode=SandboxMode.NONE,
@@ -70,7 +70,7 @@ def test_mount_spec_dataclass() -> None:
     1. Create MountSpec with just a path.
     2. Verify defaults (writable=False, executable=True).
     """
-    from qwenpaw.sandbox.config import MountSpec
+    from aiarb.sandbox.config import MountSpec
 
     mount = MountSpec(path="/some/path")
     assert mount.path == "/some/path"
@@ -88,7 +88,7 @@ def test_port_rule_dataclass() -> None:
     1. Create PortRule with just a port.
     2. Verify defaults (direction=connect, allow=True).
     """
-    from qwenpaw.sandbox.config import PortRule
+    from aiarb.sandbox.config import PortRule
 
     rule = PortRule(port=8080)
     assert rule.port == 8080
@@ -106,7 +106,7 @@ def test_execution_result_dataclass() -> None:
     1. Create ExecutionResult with required fields.
     2. Verify optional fields have correct defaults.
     """
-    from qwenpaw.sandbox.config import ExecutionResult
+    from aiarb.sandbox.config import ExecutionResult
 
     result = ExecutionResult(
         exit_code=0,
@@ -133,7 +133,7 @@ def test_probe_sandbox_support_returns_capability() -> None:
     1. Call probe_sandbox_support().
     2. Verify result has supported (bool), mode (SandboxMode), reason (str).
     """
-    from qwenpaw.sandbox.config import (
+    from aiarb.sandbox.config import (
         SandboxCapability,
         SandboxMode,
         probe_sandbox_support,
@@ -157,7 +157,7 @@ def test_detect_platform_mode_returns_valid_mode() -> None:
     1. Call detect_platform_mode().
     2. Verify result is a SandboxMode enum value.
     """
-    from qwenpaw.sandbox.config import SandboxMode, detect_platform_mode
+    from aiarb.sandbox.config import SandboxMode, detect_platform_mode
 
     mode = detect_platform_mode()
     assert isinstance(mode, SandboxMode)
@@ -175,8 +175,8 @@ def test_create_sandbox_none_mode() -> None:
     2. Call create_sandbox.
     3. Verify returned instance has execute method.
     """
-    from qwenpaw.sandbox.config import SandboxConfig
-    from qwenpaw.sandbox.config import SandboxMode, create_sandbox
+    from aiarb.sandbox.config import SandboxConfig
+    from aiarb.sandbox.config import SandboxMode, create_sandbox
 
     config = SandboxConfig(
         mode=SandboxMode.NONE,
@@ -199,8 +199,8 @@ def test_create_sandbox_platform_compatibility_guard() -> None:
     1. On Linux, create config with mode=SEATBELT.
     2. Call create_sandbox — should not raise, should fall back.
     """
-    from qwenpaw.sandbox.config import SandboxConfig
-    from qwenpaw.sandbox.config import SandboxMode, create_sandbox
+    from aiarb.sandbox.config import SandboxConfig
+    from aiarb.sandbox.config import SandboxMode, create_sandbox
 
     if sys.platform != "linux":
         pytest.skip("Platform compatibility guard test for Linux")
@@ -225,7 +225,7 @@ def test_network_allow_is_absolute_block_all() -> None:
     1. Create configs with network_allow=[] and network_allow=["*"].
     2. Verify both return True.
     """
-    from qwenpaw.sandbox.config import (
+    from aiarb.sandbox.config import (
         SandboxConfig,
         SandboxMode,
         network_allow_is_absolute,
@@ -257,7 +257,7 @@ def test_network_allow_is_absolute_domain_list() -> None:
     1. Create config with network_allow=["example.com"].
     2. Verify returns False.
     """
-    from qwenpaw.sandbox.config import (
+    from aiarb.sandbox.config import (
         SandboxConfig,
         SandboxMode,
         network_allow_is_absolute,
@@ -282,7 +282,7 @@ def test_sandbox_capability_landlock_version() -> None:
     1. Create SandboxCapability with minimal fields.
     2. Verify landlock_abi_version defaults to 0.
     """
-    from qwenpaw.sandbox.config import SandboxCapability, SandboxMode
+    from aiarb.sandbox.config import SandboxCapability, SandboxMode
 
     cap = SandboxCapability(
         supported=False,
@@ -306,8 +306,8 @@ def test_none_sandbox_execute_command() -> None:
     import asyncio
     import tempfile
 
-    from qwenpaw.sandbox.config import SandboxConfig, SandboxMode
-    from qwenpaw.sandbox.local_sandbox import NoneSandbox
+    from aiarb.sandbox.config import SandboxConfig, SandboxMode
+    from aiarb.sandbox.local_sandbox import NoneSandbox
 
     with tempfile.TemporaryDirectory() as tmpdir:
         config = SandboxConfig(

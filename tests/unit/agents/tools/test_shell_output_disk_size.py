@@ -21,7 +21,7 @@ import os
 from pathlib import Path
 
 import pytest
-from qwenpaw.agents.tools.shell import (
+from aiarb.agents.tools.shell import (
     _SHELL_MAX_DISK_BYTES,
     _check_output_disk_size,
 )

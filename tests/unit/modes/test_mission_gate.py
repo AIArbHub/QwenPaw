@@ -13,8 +13,8 @@ import json
 from pathlib import Path
 
 
-from qwenpaw.loop.gates.base import StopAction
-from qwenpaw.modes.mission.gates import MissionGate
+from aiarb.loop.gates.base import StopAction
+from aiarb.modes.mission.gates import MissionGate
 
 
 def _make_gate(loop_dir: Path | None = None) -> MissionGate:

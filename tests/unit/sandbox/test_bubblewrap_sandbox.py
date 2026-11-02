@@ -54,7 +54,7 @@ class TestBuildBwrapArgs:
                 return_value=["--", "/bin/sh", "-c", "echo ok"],
             ),
             patch(
-                "qwenpaw.sandbox.bubblewrap_sandbox."
+                "aiarb.sandbox.bubblewrap_sandbox."
                 "asyncio.create_subprocess_exec",
                 new=AsyncMock(return_value=proc),
             ) as create_process,

@@ -9,7 +9,7 @@ from pathlib import Path
 import tempfile
 from urllib.parse import urlsplit
 
-from qwenpaw.app.channels.utils import (
+from aiarb.app.channels.utils import (
     file_url_to_local_path,
     parse_data_url,
 )

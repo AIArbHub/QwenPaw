@@ -17,7 +17,7 @@ import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.routers.plugins import (
+from aiarb.app.routers.plugins import (
     _find_plugin_dir,
     _list_plugins_from_disk,
     _safe_extract_zip,
@@ -108,7 +108,7 @@ class TestListPluginsFromDisk:
         monkeypatch,
     ):
         monkeypatch.setattr(
-            "qwenpaw.config.utils.get_plugins_dir",
+            "aiarb.config.utils.get_plugins_dir",
             lambda: tmp_path / "nonexistent",
         )
         assert _list_plugins_from_disk() == []
@@ -116,7 +116,7 @@ class TestListPluginsFromDisk:
     def test_lists_valid_plugins(self, tmp_path, monkeypatch):
         plugins_dir = tmp_path / "plugins"
         monkeypatch.setattr(
-            "qwenpaw.config.utils.get_plugins_dir",
+            "aiarb.config.utils.get_plugins_dir",
             lambda: plugins_dir,
         )
         _write_plugin(
@@ -140,7 +140,7 @@ class TestListPluginsFromDisk:
     def test_skips_disabled_and_hidden_dirs(self, tmp_path, monkeypatch):
         plugins_dir = tmp_path / "plugins"
         monkeypatch.setattr(
-            "qwenpaw.config.utils.get_plugins_dir",
+            "aiarb.config.utils.get_plugins_dir",
             lambda: plugins_dir,
         )
         _write_plugin(plugins_dir / "good", {"id": "good", "version": "1.0"})
@@ -158,7 +158,7 @@ class TestListPluginsFromDisk:
     def test_skips_dir_without_manifest(self, tmp_path, monkeypatch):
         plugins_dir = tmp_path / "plugins"
         monkeypatch.setattr(
-            "qwenpaw.config.utils.get_plugins_dir",
+            "aiarb.config.utils.get_plugins_dir",
             lambda: plugins_dir,
         )
         (plugins_dir / "no-manifest").mkdir(parents=True)
@@ -167,7 +167,7 @@ class TestListPluginsFromDisk:
     def test_malformed_manifest_skipped(self, tmp_path, monkeypatch):
         plugins_dir = tmp_path / "plugins"
         monkeypatch.setattr(
-            "qwenpaw.config.utils.get_plugins_dir",
+            "aiarb.config.utils.get_plugins_dir",
             lambda: plugins_dir,
         )
         bad = plugins_dir / "bad"
@@ -178,7 +178,7 @@ class TestListPluginsFromDisk:
     def test_non_dir_entries_ignored(self, tmp_path, monkeypatch):
         plugins_dir = tmp_path / "plugins"
         monkeypatch.setattr(
-            "qwenpaw.config.utils.get_plugins_dir",
+            "aiarb.config.utils.get_plugins_dir",
             lambda: plugins_dir,
         )
         plugins_dir.mkdir()
@@ -207,7 +207,7 @@ def ui_client(tmp_path, monkeypatch):
     (plugin_dir / "ui" / "chunk-abcdefgh.js").write_text("// hashed")
 
     monkeypatch.setattr(
-        "qwenpaw.config.utils.get_plugins_dir",
+        "aiarb.config.utils.get_plugins_dir",
         lambda: plugins_dir,
     )
     app = FastAPI()
@@ -251,11 +251,11 @@ class TestServePluginUiFile:
         import asyncio
         from types import SimpleNamespace
 
-        from qwenpaw.app.routers.plugins import serve_plugin_ui_file
+        from aiarb.app.routers.plugins import serve_plugin_ui_file
 
         plugins_dir = tmp_path / "plugins"
         monkeypatch.setattr(
-            "qwenpaw.config.utils.get_plugins_dir",
+            "aiarb.config.utils.get_plugins_dir",
             lambda: plugins_dir,
         )
         request = SimpleNamespace(app=ui_client.app)

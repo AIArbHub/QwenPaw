@@ -12,11 +12,11 @@ from __future__ import annotations
 
 from agentscope.message import Msg, TextBlock
 
-from qwenpaw.app.chats.utils import (
+from aiarb.app.chats.utils import (
     _build_media_message_from_block,
     parse_legacy_memory_state,
 )
-from qwenpaw.schemas import ContentType
+from aiarb.schemas import ContentType
 
 
 META = {"original_id": "id-1"}

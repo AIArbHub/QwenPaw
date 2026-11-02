@@ -5,9 +5,9 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.config.config import AdvisorInterventionConfig
-from qwenpaw.modes.advisor import trigger as advisor_trigger
-from qwenpaw.modes.advisor.trigger import (
+from aiarb.config.config import AdvisorInterventionConfig
+from aiarb.modes.advisor import trigger as advisor_trigger
+from aiarb.modes.advisor.trigger import (
     FailureDetector,
     InterventionTrigger,
 )

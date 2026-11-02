@@ -20,37 +20,37 @@ from agentscope.message import (
     ToolResultState,
 )
 
-from qwenpaw.agents.context.visual_compression.config import (
+from aiarb.agents.context.visual_compression.config import (
     effort_preset,
 )
-from qwenpaw.agents.context.visual_compression.pipeline import (
+from aiarb.agents.context.visual_compression.pipeline import (
     history as history_mod,
 )
-from qwenpaw.agents.context.visual_compression.pipeline import (
+from aiarb.agents.context.visual_compression.pipeline import (
     messages as messages_mod,
 )
-from qwenpaw.agents.context.visual_compression.pipeline import (
+from aiarb.agents.context.visual_compression.pipeline import (
     request as request_mod,
 )
-from qwenpaw.agents.context.visual_compression.pipeline.budget import (
+from aiarb.agents.context.visual_compression.pipeline.budget import (
     RequestBudget,
     count_text_tokens,
     estimate_image_tokens,
     estimate_visual_replacement_tokens,
     profitable,
 )
-from qwenpaw.agents.context.visual_compression.pipeline.precision import (
+from aiarb.agents.context.visual_compression.pipeline.precision import (
     extract_fact_entries,
     factsheet_text,
 )
-from qwenpaw.agents.context.visual_compression.pipeline.receipt import (
+from aiarb.agents.context.visual_compression.pipeline.receipt import (
     CompressionReceipt,
     record_pages,
 )
-from qwenpaw.agents.context.visual_compression.rendering import (
+from aiarb.agents.context.visual_compression.rendering import (
     RenderedPage,
 )
-from qwenpaw.constant import (
+from aiarb.constant import (
     EXTERNAL_USER_QUERY_MESSAGE_TAG,
     AIARB_MESSAGE_TAG_KEY,
 )
@@ -501,7 +501,7 @@ class TestPlanHistory:
         assert plan.ends[-1] == 26
 
     def test_synthetic_user_messages_not_active_anchor(self):
-        from qwenpaw.constant import SYNTHETIC_USER_MESSAGE_TAGS
+        from aiarb.constant import SYNTHETIC_USER_MESSAGE_TAGS
 
         messages = conversation_turns(30)
         messages[28] = Msg(

@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-import qwenpaw.plugins.loader as pl
+import aiarb.plugins.loader as pl
 
 from .timing import WAIT_TIMEOUT
 
@@ -24,7 +24,7 @@ from .timing import WAIT_TIMEOUT
 def working_dir(tmp_path, monkeypatch):
     wd = tmp_path / "wd"
     wd.mkdir()
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", wd)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", wd)
     return wd
 
 
@@ -106,12 +106,12 @@ class TestHubPluginLifecycle:
         expected,
     ):
         import json
-        from qwenpaw.config.config import Config
-        from qwenpaw.plugins.registry import PluginRegistry
+        from aiarb.config.config import Config
+        from aiarb.plugins.registry import PluginRegistry
 
         monkeypatch.setattr(PluginRegistry, "_instance", None)
         monkeypatch.setattr(
-            "qwenpaw.config.load_config",
+            "aiarb.config.load_config",
             lambda: Config(
                 plugins={"config-plugin": {"endpoint": "saved"}},
             ),
@@ -161,10 +161,10 @@ class TestHubPluginLifecycle:
         host_version,
         compatible,
     ):
-        from qwenpaw.market import builtin
-        from qwenpaw.plugins.download_catalog import _is_entry_compatible
+        from aiarb.market import builtin
+        from aiarb.plugins.download_catalog import _is_entry_compatible
 
-        monkeypatch.setattr("qwenpaw.__version__.__version__", host_version)
+        monkeypatch.setattr("aiarb.__version__.__version__", host_version)
         source = builtin.get_builtin_hub_plugins_dir()
         loader = pl.PluginLoader([])
         manifest = loader._load_manifest(source / plugin_id / "plugin.json")
@@ -201,15 +201,15 @@ class TestHubPluginLifecycle:
     async def test_catalog_waits_for_default_hubs(self, monkeypatch):
         import asyncio
         from fastapi import FastAPI, Request
-        from qwenpaw.app.routers.market import get_market_providers
-        from qwenpaw.market.schema import ProviderInfo
+        from aiarb.app.routers.market import get_market_providers
+        from aiarb.market.schema import ProviderInfo
 
         providers = [
             ProviderInfo(key, key, True, None)
-            for key in ("qwenpaw", "clawhub", "modelscope", "aliyun")
+            for key in ("aiarb", "clawhub", "modelscope", "aliyun")
         ]
         monkeypatch.setattr(
-            "qwenpaw.app.routers.market.list_providers",
+            "aiarb.app.routers.market.list_providers",
             lambda: providers,
         )
         app = FastAPI()
@@ -226,7 +226,7 @@ class TestHubPluginLifecycle:
                 timeout=WAIT_TIMEOUT,
             )
             assert [provider.key for provider in catalog] == [
-                "qwenpaw",
+                "aiarb",
                 "clawhub",
                 "modelscope",
                 "aliyun",
@@ -239,7 +239,7 @@ class TestHubPluginLifecycle:
         self,
         tmp_path,
     ):
-        from qwenpaw.market.builtin import seed_builtin_hub_plugins
+        from aiarb.market.builtin import seed_builtin_hub_plugins
 
         existing = tmp_path / "qwenpaw-hub"
         existing.mkdir()
@@ -259,8 +259,8 @@ class TestHubPluginLifecycle:
         import asyncio
         import json
         from textwrap import dedent
-        from qwenpaw.market import market_registry
-        from qwenpaw.plugins.registry import PluginRegistry
+        from aiarb.market import market_registry
+        from aiarb.plugins.registry import PluginRegistry
 
         monkeypatch.setattr(PluginRegistry, "_instance", None)
         source = tmp_path / "broken-hub"
@@ -279,12 +279,12 @@ class TestHubPluginLifecycle:
         (source / "plugin.py").write_text(
             dedent(
                 """
-        from qwenpaw.market.builtin import BuiltinMarketProvider
-        from qwenpaw.market.providers.qwenpaw import QwenPawProvider
+        from aiarb.market.builtin import BuiltinMarketProvider
+        from aiarb.market.providers.aiarb import AIArbProvider
         class HubPlugin:
             async def register(self, api):
                 api.register_market_provider(
-                    BuiltinMarketProvider(QwenPawProvider()))
+                    BuiltinMarketProvider(AIArbProvider()))
                 api.config["registered"].set()
                 await api.config["release"].wait()
                 raise RuntimeError("registration failed")
@@ -302,15 +302,15 @@ class TestHubPluginLifecycle:
         )
         await asyncio.wait_for(registered.wait(), timeout=WAIT_TIMEOUT)
         try:
-            assert "qwenpaw" not in market_registry.snapshot()
+            assert "aiarb" not in market_registry.snapshot()
             with pytest.raises(ValueError, match="not loaded"):
-                with market_registry.use("qwenpaw"):
+                with market_registry.use("aiarb"):
                     pytest.fail("A partially loaded Hub must not be usable")
         finally:
             release.set()
         with pytest.raises(RuntimeError, match="registration failed"):
             await loading
-        assert "qwenpaw" not in market_registry.snapshot()
+        assert "aiarb" not in market_registry.snapshot()
         record = loader.get_loaded_plugin("broken-hub")
         assert record.status == "failed"
         instance = loader.lifecycle.get_instance("broken-hub")
@@ -322,21 +322,21 @@ class TestHubPluginLifecycle:
         tmp_path,
         monkeypatch,
     ):
-        from qwenpaw.market import builtin, market_registry
-        from qwenpaw.plugins.registry import PluginRegistry
+        from aiarb.market import builtin, market_registry
+        from aiarb.plugins.registry import PluginRegistry
 
         monkeypatch.setattr(PluginRegistry, "_instance", None)
-        monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+        monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
         loader = pl.PluginLoader([tmp_path / "plugins"])
         source = builtin.get_builtin_hub_plugins_dir() / "qwenpaw-hub"
         await loader.load_plugin_from_path(source)
-        original = market_registry.snapshot()["qwenpaw"]
+        original = market_registry.snapshot()["aiarb"]
         try:
             report = await loader.lifecycle.update_config("qwenpaw-hub", {})
             assert report.ok
-            replacement = market_registry.snapshot()["qwenpaw"]
+            replacement = market_registry.snapshot()["aiarb"]
             assert replacement is not original
             assert replacement.key == original.key
         finally:
             await loader.unload_plugin("qwenpaw-hub")
-        assert "qwenpaw" not in market_registry.snapshot()
+        assert "aiarb" not in market_registry.snapshot()

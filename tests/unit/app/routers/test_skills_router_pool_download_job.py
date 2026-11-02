@@ -21,18 +21,18 @@ from typing import Any
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.agents.skill_system.store import (
+from aiarb.agents.skill_system.store import (
     _cancel_checker_ctx,
     ensure_not_cancelled,
     with_cancel_checker,
 )
-from qwenpaw.app.routers import skills as skills_module
-from qwenpaw.app.routers.skills import (
+from aiarb.app.routers import skills as skills_module
+from aiarb.app.routers.skills import (
     DownloadFromPoolRequest,
     PoolDownloadState,
     _ResolvedDownloadTarget,
 )
-from qwenpaw.exceptions import SkillImportCancelled, SkillScanError
+from aiarb.exceptions import SkillImportCancelled, SkillScanError
 
 
 @pytest.fixture(autouse=True)

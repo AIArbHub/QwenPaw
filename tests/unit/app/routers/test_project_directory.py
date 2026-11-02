@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.routers import project_directory as pd
+from aiarb.app.routers import project_directory as pd
 
 
 @pytest.fixture()
@@ -115,7 +115,7 @@ class TestSaveProjectDir:
             project_dir = None
 
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             lambda agent_id: _Cfg(),
         )
 
@@ -124,7 +124,7 @@ class TestSaveProjectDir:
             saved["project_dir"] = config.project_dir
 
         monkeypatch.setattr(
-            "qwenpaw.config.config.save_agent_config",
+            "aiarb.config.config.save_agent_config",
             fake_save,
         )
         pd._save_project_dir("agent_x", str(project_dir))
@@ -145,11 +145,11 @@ class TestSaveProjectDir:
             ]
 
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             lambda agent_id: _Cfg(),
         )
         monkeypatch.setattr(
-            "qwenpaw.config.config.save_agent_config",
+            "aiarb.config.config.save_agent_config",
             lambda agent_id, config: saved.update(
                 project_dir=config.project_dir,
                 project_dirs=config.project_dirs,
@@ -182,11 +182,11 @@ class TestSaveProjectDir:
             },
         )()
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             lambda agent_id: config,
         )
         monkeypatch.setattr(
-            "qwenpaw.config.config.save_agent_config",
+            "aiarb.config.config.save_agent_config",
             lambda agent_id, saved: None,
         )
 
@@ -221,11 +221,11 @@ class TestSaveProjectDir:
             },
         )()
         monkeypatch.setattr(
-            "qwenpaw.config.config.load_agent_config",
+            "aiarb.config.config.load_agent_config",
             lambda agent_id: config,
         )
         monkeypatch.setattr(
-            "qwenpaw.config.config.save_agent_config",
+            "aiarb.config.config.save_agent_config",
             lambda agent_id, saved: None,
         )
 

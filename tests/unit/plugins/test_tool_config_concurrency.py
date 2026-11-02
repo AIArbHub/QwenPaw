@@ -18,10 +18,10 @@ async def test_concurrent_legacy_activations_preserve_both_tools_and_user_config
     tmp_path,
     monkeypatch,
 ):
-    from qwenpaw.agents import tools
-    from qwenpaw.config import config as configs
-    from qwenpaw.plugins import api
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.agents import tools
+    from aiarb.config import config as configs
+    from aiarb.plugins import api
+    from aiarb.plugins.testing import PluginTestHost
 
     plugins = []
     for suffix in ("a", "b"):
@@ -161,9 +161,9 @@ async def test_tool_cleanup_transaction_preserves_concurrent_registration(
     monkeypatch,
     operation,
 ):
-    from qwenpaw.config import config as configs
-    from qwenpaw.plugins import api
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.config import config as configs
+    from aiarb.plugins import api
+    from aiarb.plugins.testing import PluginTestHost
 
     root = tmp_path / "legacy-cleanup-peer"
     manifest = write_plugin(
@@ -271,7 +271,7 @@ plugin = Plugin()
                     task.cancel()
                 await asyncio.gather(*tasks, return_exceptions=True)
         assert record.status == "active"
-        from qwenpaw.agents import tools
+        from aiarb.agents import tools
 
         assert await tools.legacy_cleanup_peer("live") == "peer:live"
         actual = configs.load_agent_config("test").model_dump()
@@ -289,9 +289,9 @@ async def test_tool_config_mutations_keep_read_write_error_and_noop_contracts(
     tmp_path,
     monkeypatch,
 ):
-    from qwenpaw.config import config as configs
-    from qwenpaw.plugins import api
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.config import config as configs
+    from aiarb.plugins import api
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         await host._workspace("test")

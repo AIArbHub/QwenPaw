@@ -8,10 +8,10 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.providers.anthropic_provider import AnthropicProvider
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.openrouter_provider import OpenRouterProvider
-from qwenpaw.providers.model_info import ModelInfo
+from aiarb.providers.anthropic_provider import AnthropicProvider
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.openrouter_provider import OpenRouterProvider
+from aiarb.providers.model_info import ModelInfo
 
 
 def test_anthropic_reads_native_model_capability_fields():

@@ -10,13 +10,13 @@ from .sdk_author_fixture import make_plugin
 
 
 def declare_provider(ctx):
-    from qwenpaw.plugins.providers import (
+    from aiarb.plugins.providers import (
         ProviderSpec,
         ModelInfo,
         ModelChunk,
         ModelUsage,
     )
-    from qwenpaw.plugins.messages import ContentBlock
+    from aiarb.plugins.messages import ContentBlock
 
     async def generate(call, request):
         assert not hasattr(call, "workspace") and not hasattr(call, "agent")
@@ -83,8 +83,8 @@ SOURCE = inspect.getsource(declare_provider) + (
 async def test_provider_preserves_public_request_and_multiblock_response(
     sdk_component,
 ):
-    from qwenpaw.plugins.messages import ContentBlock, Message
-    from qwenpaw.plugins.providers import ModelToolChoice
+    from aiarb.plugins.messages import ContentBlock, Message
+    from aiarb.plugins.providers import ModelToolChoice
 
     async with sdk_component(
         declare_provider,
@@ -155,9 +155,9 @@ async def test_provider_preserves_public_request_and_multiblock_response(
 async def test_provider_cross_task_stream_keeps_owner_busy_and_closes(
     tmp_path,
 ):
-    from qwenpaw.plugins import PluginBusyError, StaleContextError
-    from qwenpaw.plugins.messages import ContentBlock, Message
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import PluginBusyError, StaleContextError
+    from aiarb.plugins.messages import ContentBlock, Message
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         ctx = await host.load(
@@ -197,9 +197,9 @@ async def test_provider_rejects_invalid_stream_terminal_protocol(
     sdk_component,
     case,
 ):
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins.providers import ProviderSpec, ModelInfo, ModelChunk
-    from qwenpaw.plugins.messages import ContentBlock, Message
+    from aiarb.plugins import SDKError
+    from aiarb.plugins.providers import ProviderSpec, ModelInfo, ModelChunk
+    from aiarb.plugins.messages import ContentBlock, Message
 
     def declare(ctx):
         async def generate(call, request):
@@ -240,17 +240,17 @@ async def test_provider_rejects_invalid_stream_terminal_protocol(
 async def test_provider_configuration_uses_secret_api_and_survives_reload(
     tmp_path,
 ):
-    from qwenpaw.plugins.messages import ContentBlock, Message
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.messages import ContentBlock, Message
+    from aiarb.plugins.testing import PluginTestHost
 
     source = """
-from qwenpaw.plugins.providers import (
+from aiarb.plugins.providers import (
     ProviderSpec,
     ModelInfo,
     ModelChunk,
 )
-from qwenpaw.plugins.messages import ContentBlock
-from qwenpaw.plugins import SDKError
+from aiarb.plugins.messages import ContentBlock
+from aiarb.plugins import SDKError
 
 
 class Plugin:

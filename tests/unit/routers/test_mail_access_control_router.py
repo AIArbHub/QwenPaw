@@ -64,7 +64,7 @@ async def test_processing_pauses_include_acl_off_and_ignore_inbox_history():
         {AGENT: monitor, "other": running, "off": None},
     )
     with patch(
-        "qwenpaw.app.routers.mail_access_control._iter_mail_agent_stores",
+        "aiarb.app.routers.mail_access_control._iter_mail_agent_stores",
         side_effect=AssertionError("Sender ACL must not gate safety controls"),
     ):
         assert await get_processing_pauses(request) == [

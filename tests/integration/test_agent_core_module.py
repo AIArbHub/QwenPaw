@@ -19,7 +19,7 @@ import pytest
 @pytest.mark.p1
 def test_fmt_tokens() -> None:
     """_fmt_tokens formats token counts compactly."""
-    from qwenpaw.agents.command_handler import _fmt_tokens
+    from aiarb.agents.command_handler import _fmt_tokens
 
     assert _fmt_tokens(500) == "500"
     assert "k" in _fmt_tokens(1500).lower()
@@ -29,7 +29,7 @@ def test_fmt_tokens() -> None:
 @pytest.mark.p1
 def test_is_conversation_command() -> None:
     """is_conversation_command detects slash commands."""
-    from qwenpaw.agents.command_handler import (
+    from aiarb.agents.command_handler import (
         ConversationCommandHandlerMixin,
     )
 
@@ -51,7 +51,7 @@ def test_is_conversation_command() -> None:
 @pytest.mark.p1
 def test_auto_memory_turn_state() -> None:
     """auto_memory_turn_state returns a dict for an agent state."""
-    from qwenpaw.agents.middlewares import auto_memory_turn_state
+    from aiarb.agents.middlewares import auto_memory_turn_state
 
     class _State:
         pass
@@ -65,7 +65,7 @@ def test_auto_memory_turn_state() -> None:
 @pytest.mark.p1
 def test_reset_auto_memory_turn_state() -> None:
     """reset_auto_memory_turn_state clears the turn state."""
-    from qwenpaw.agents.middlewares import (
+    from aiarb.agents.middlewares import (
         auto_memory_turn_state,
         reset_auto_memory_turn_state,
     )
@@ -89,7 +89,7 @@ def test_reset_auto_memory_turn_state() -> None:
 @pytest.mark.p1
 def test_build_multimodal_hint() -> None:
     """build_multimodal_hint returns a string."""
-    from qwenpaw.agents.prompt import build_multimodal_hint
+    from aiarb.agents.prompt import build_multimodal_hint
 
     assert isinstance(build_multimodal_hint(), str)
 
@@ -98,7 +98,7 @@ def test_build_multimodal_hint() -> None:
 @pytest.mark.p1
 def test_build_driver_policy_recheck_hint() -> None:
     """build_driver_policy_recheck_hint returns a string."""
-    from qwenpaw.agents.prompt import (
+    from aiarb.agents.prompt import (
         build_driver_policy_recheck_hint,
     )
 
@@ -109,7 +109,7 @@ def test_build_driver_policy_recheck_hint() -> None:
 @pytest.mark.p1
 def test_prompt_config_defaults() -> None:
     """PromptConfig constructs with defaults."""
-    from qwenpaw.agents.prompt import PromptConfig
+    from aiarb.agents.prompt import PromptConfig
 
     config = PromptConfig()
     assert config is not None
@@ -124,7 +124,7 @@ def test_prompt_config_defaults() -> None:
 @pytest.mark.p1
 def test_single_line_log_value() -> None:
     """single_line_log_value collapses newlines."""
-    from qwenpaw.agents.utils.file_handling import (
+    from aiarb.agents.utils.file_handling import (
         single_line_log_value,
     )
 
@@ -135,7 +135,7 @@ def test_single_line_log_value() -> None:
 @pytest.mark.p1
 def test_decode_text_bytes_fallback() -> None:
     """decode_text_bytes_with_encoding_fallback decodes utf-8."""
-    from qwenpaw.agents.utils.file_handling import (
+    from aiarb.agents.utils.file_handling import (
         decode_text_bytes_with_encoding_fallback,
     )
 
@@ -149,7 +149,7 @@ def test_decode_text_bytes_fallback() -> None:
 @pytest.mark.p1
 def test_read_text_file_fallback(tmp_path) -> None:
     """read_text_file_with_encoding_fallback reads a utf-8 file."""
-    from qwenpaw.agents.utils.file_handling import (
+    from aiarb.agents.utils.file_handling import (
         read_text_file_with_encoding_fallback,
     )
 

@@ -4,11 +4,11 @@
 from pathlib import Path
 from typing import AsyncGenerator, assert_type
 
-from qwenpaw.plugins.apps import AppContext, ChatRequest, TaskSnapshot
-from qwenpaw.plugins.events import ChatEvent
-from qwenpaw.plugins.providers import ModelChunk
-from qwenpaw.plugins.testing import PluginTestHost, TestModel
-from qwenpaw.plugins.tools import ToolEvent, ToolContext
+from aiarb.plugins.apps import AppContext, ChatRequest, TaskSnapshot
+from aiarb.plugins.events import ChatEvent
+from aiarb.plugins.providers import ModelChunk
+from aiarb.plugins.testing import PluginTestHost, TestModel
+from aiarb.plugins.tools import ToolEvent, ToolContext
 
 
 async def close_streams(
@@ -41,7 +41,7 @@ async def close_streams(
 
 
 async def delegate_workspace(app: AppContext) -> None:
-    from qwenpaw.plugins.apps import WorkspaceSummary
+    from aiarb.plugins.apps import WorkspaceSummary
 
     workspaces = assert_type(
         await app.workspaces(),
@@ -57,14 +57,14 @@ async def delegate_workspace(app: AppContext) -> None:
 
 
 async def channel_contract(host: PluginTestHost) -> None:
-    from qwenpaw.plugins.channels import (
+    from aiarb.plugins.channels import (
         ChannelHealth,
         ChannelMessage,
         ChannelRunEvent,
         ChannelStreamEvent,
         OutgoingMessage,
     )
-    from qwenpaw.plugins.messages import ContentBlock
+    from aiarb.plugins.messages import ContentBlock
 
     incoming = ChannelMessage(
         "display-sender",
@@ -100,10 +100,10 @@ async def channel_contract(host: PluginTestHost) -> None:
 
 
 async def context_services(call: "ToolContext") -> None:
-    from qwenpaw.plugins.logging import PluginLogger
-    from qwenpaw.plugins.models import ModelService
-    from qwenpaw.plugins.messages import ContentBlock, Message
-    from qwenpaw.plugins.providers import ModelToolChoice
+    from aiarb.plugins.logging import PluginLogger
+    from aiarb.plugins.models import ModelService
+    from aiarb.plugins.messages import ContentBlock, Message
+    from aiarb.plugins.providers import ModelToolChoice
 
     logger = assert_type(call.logger, PluginLogger)
     logger.info("author operation", fields={"stage": "begin", "count": 1})
@@ -139,7 +139,7 @@ def custom_workspace_host(root: Path) -> PluginTestHost:
 
 async def async_storage(call: ToolContext) -> None:
     from typing import Any
-    from qwenpaw.plugins.messages import Attachment
+    from aiarb.plugins.messages import Attachment
 
     assert_type(await call.storage.aread_bytes("data.bin"), bytes)
     assert_type(await call.storage.aread_json("state.json", {}), Any)

@@ -19,7 +19,7 @@ import pytest
 @pytest.mark.p1
 def test_count_text_tokens() -> None:
     """count_text_tokens estimates tokens from characters."""
-    from qwenpaw.agents.context.visual_compression.pipeline.budget import (
+    from aiarb.agents.context.visual_compression.pipeline.budget import (
         count_text_tokens,
     )
 
@@ -31,7 +31,7 @@ def test_count_text_tokens() -> None:
 @pytest.mark.p1
 def test_estimate_image_tokens_empty() -> None:
     """estimate_image_tokens returns 0 for no pages."""
-    from qwenpaw.agents.context.visual_compression.pipeline.budget import (
+    from aiarb.agents.context.visual_compression.pipeline.budget import (
         estimate_image_tokens,
     )
 
@@ -47,7 +47,7 @@ def test_estimate_image_tokens_empty() -> None:
 @pytest.mark.p1
 def test_trim_context_whitespace() -> None:
     """_trim_context_whitespace strips surrounding whitespace."""
-    from qwenpaw.agents.context.visual_compression.pipeline.precision import (
+    from aiarb.agents.context.visual_compression.pipeline.precision import (
         _trim_context_whitespace,
     )
 
@@ -58,7 +58,7 @@ def test_trim_context_whitespace() -> None:
 @pytest.mark.p1
 def test_extract_fact_entries_urls() -> None:
     """extract_fact_entries pulls exact tokens (urls) from text."""
-    from qwenpaw.agents.context.visual_compression.pipeline.precision import (
+    from aiarb.agents.context.visual_compression.pipeline.precision import (
         extract_fact_entries,
     )
 
@@ -73,7 +73,7 @@ def test_extract_fact_entries_urls() -> None:
 @pytest.mark.p1
 def test_factsheet_text_empty() -> None:
     """factsheet_text returns empty string when no facts found."""
-    from qwenpaw.agents.context.visual_compression.pipeline.precision import (
+    from aiarb.agents.context.visual_compression.pipeline.precision import (
         factsheet_text,
     )
 
@@ -89,7 +89,7 @@ def test_factsheet_text_empty() -> None:
 @pytest.mark.p1
 def test_sha256(tmp_path) -> None:
     """_sha256 hashes a file deterministically."""
-    from qwenpaw.agents.context.scroll.sync import _sha256
+    from aiarb.agents.context.scroll.sync import _sha256
 
     f = tmp_path / "x.txt"
     f.write_text("hello")
@@ -103,7 +103,7 @@ def test_sha256(tmp_path) -> None:
 @pytest.mark.p1
 def test_load_save_manifest_roundtrip(tmp_path) -> None:
     """_load_manifest/_save_manifest round-trip a manifest."""
-    from qwenpaw.agents.context.scroll.sync import (
+    from aiarb.agents.context.scroll.sync import (
         _load_manifest,
         _save_manifest,
     )
@@ -118,7 +118,7 @@ def test_load_save_manifest_roundtrip(tmp_path) -> None:
 @pytest.mark.p1
 def test_load_manifest_missing(tmp_path) -> None:
     """_load_manifest returns a versioned empty manifest when missing."""
-    from qwenpaw.agents.context.scroll.sync import _load_manifest
+    from aiarb.agents.context.scroll.sync import _load_manifest
 
     loaded = _load_manifest(tmp_path / "missing.json")
     assert loaded.get("files") == {}

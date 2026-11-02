@@ -20,12 +20,12 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from qwenpaw.agents.skill_system import pool_service as skill_pool_service
-from qwenpaw.agents.skill_system import registry as skill_registry
-from qwenpaw.agents.skill_system import store as skill_store
-from qwenpaw.agents.skill_system.pool_service import SkillPoolService
-from qwenpaw.constant import WORKING_DIR
-from qwenpaw.exceptions import SkillImportCancelled
+from aiarb.agents.skill_system import pool_service as skill_pool_service
+from aiarb.agents.skill_system import registry as skill_registry
+from aiarb.agents.skill_system import store as skill_store
+from aiarb.agents.skill_system.pool_service import SkillPoolService
+from aiarb.constant import WORKING_DIR
+from aiarb.exceptions import SkillImportCancelled
 
 
 def _skill_md(name: str, description: str = "desc for tests") -> str:
@@ -90,7 +90,7 @@ def pool_env(tmp_path, monkeypatch):
     The security scan is stubbed because this file targets the pool
     lifecycle logic, not scanner behavior (scanner has its own suite).
     """
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path)
     monkeypatch.setattr(
         skill_registry,
         "import_builtin_skills",
@@ -319,7 +319,7 @@ class TestSkillNameValidation:
 
     def test_register_entry_preserves_tags_from_existing(self, pool_env):
         """tags merge entry points must retain tags (both paths)."""
-        from qwenpaw.agents.skill_system.pool_service import (
+        from aiarb.agents.skill_system.pool_service import (
             _register_pool_skill_entry,
         )
 

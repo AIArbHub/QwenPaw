@@ -9,7 +9,7 @@ which previously had no coverage.
 from __future__ import annotations
 
 
-from qwenpaw.runtime.commands import daemon as dm
+from aiarb.runtime.commands import daemon as dm
 
 
 # ---------------------------------------------------------------------------

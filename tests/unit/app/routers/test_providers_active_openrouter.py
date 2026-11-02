@@ -16,10 +16,10 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.routers import providers as providers_mod
-from qwenpaw.config.config import ModelSlotConfig
-from qwenpaw.providers.openrouter_provider import OpenRouterProvider
-from qwenpaw.providers.provider import (
+from aiarb.app.routers import providers as providers_mod
+from aiarb.config.config import ModelSlotConfig
+from aiarb.providers.openrouter_provider import OpenRouterProvider
+from aiarb.providers.provider import (
     ExtendedModelInfo,
     ModelInfo,
     Provider,

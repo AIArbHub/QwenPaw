@@ -55,8 +55,8 @@ async def test_guarded_permissions_offloads_engine_guard():
 @pytest.mark.asyncio
 async def test_fallback_jev_skips_registered_target_free_read():
     """The fallback uses a Python name but the read declaration uses policy."""
-    from qwenpaw.agents.tools.get_current_time import get_current_time
-    from qwenpaw.runtime.tool_guard import GuardedFunctionTool
+    from aiarb.agents.tools.get_current_time import get_current_time
+    from aiarb.runtime.tool_guard import GuardedFunctionTool
 
     engine = MagicMock()
     engine.enabled = True
@@ -74,11 +74,11 @@ async def test_fallback_jev_skips_registered_target_free_read():
 
     with (
         patch(
-            "qwenpaw.security.tool_guard.engine.get_guard_engine",
+            "aiarb.security.tool_guard.engine.get_guard_engine",
             return_value=engine,
         ),
         patch(
-            "qwenpaw.runtime.tool_guard._ask_user_approval",
+            "aiarb.runtime.tool_guard._ask_user_approval",
             new_callable=AsyncMock,
         ) as ask,
     ):
@@ -97,7 +97,7 @@ async def test_fallback_jev_skips_registered_target_free_read():
 @pytest.mark.asyncio
 async def test_fallback_jev_does_not_trust_unregistered_same_name():
     """A same-name callable must still go through approval."""
-    from qwenpaw.runtime.tool_guard import _guarded_tool_check_permissions
+    from aiarb.runtime.tool_guard import _guarded_tool_check_permissions
 
     async def get_current_time():
         return None
@@ -121,11 +121,11 @@ async def test_fallback_jev_does_not_trust_unregistered_same_name():
 
     with (
         patch(
-            "qwenpaw.security.tool_guard.engine.get_guard_engine",
+            "aiarb.security.tool_guard.engine.get_guard_engine",
             return_value=engine,
         ),
         patch(
-            "qwenpaw.runtime.tool_guard._ask_user_approval",
+            "aiarb.runtime.tool_guard._ask_user_approval",
             new_callable=AsyncMock,
             return_value=approval,
         ) as ask,

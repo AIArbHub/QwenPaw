@@ -27,11 +27,11 @@ from urllib.parse import unquote, urlparse
 
 
 import aiohttp
-from qwenpaw.config.utils import get_config_path
-from qwenpaw.constant import DEFAULT_MEDIA_DIR
-from qwenpaw.exceptions import ChannelError
+from aiarb.config.utils import get_config_path
+from aiarb.constant import DEFAULT_MEDIA_DIR
+from aiarb.exceptions import ChannelError
 
-from qwenpaw.schemas import ContentType
+from aiarb.schemas import ContentType
 
 
 from .constants import (
@@ -51,7 +51,7 @@ from .ai_card import (
 from .platform import DingTalkPlatform, owned_io
 
 if TYPE_CHECKING:
-    from qwenpaw.schemas import (
+    from aiarb.schemas import (
         AudioContent,
         FileContent,
         ImageContent,

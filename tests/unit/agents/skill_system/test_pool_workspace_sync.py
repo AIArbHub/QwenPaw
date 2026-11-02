@@ -16,9 +16,9 @@ import json
 from pathlib import Path
 
 import pytest
-from qwenpaw.agents.skill_system import pool_service as skill_pool_service
-from qwenpaw.agents.skill_system import registry as skill_registry
-from qwenpaw.agents.skill_system.pool_service import (
+from aiarb.agents.skill_system import pool_service as skill_pool_service
+from aiarb.agents.skill_system import registry as skill_registry
+from aiarb.agents.skill_system.pool_service import (
     SkillPoolService,
     _detect_changed_auto_sync_skills,
     run_pool_auto_sync,
@@ -84,7 +84,7 @@ def _seed_workspace_skill(
 @pytest.fixture()
 def pool_env(tmp_path, monkeypatch):
     """Isolated skill pool rooted in tmp_path, built-ins and scans stubbed."""
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path)
     monkeypatch.setattr(
         skill_registry,
         "import_builtin_skills",

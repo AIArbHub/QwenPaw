@@ -17,8 +17,8 @@ import uuid
 
 import httpx
 
-from qwenpaw.app.channels.utils import split_text
-from qwenpaw.channel_protocol.models import ContentSource
+from aiarb.app.channels.utils import split_text
+from aiarb.channel_protocol.models import ContentSource
 
 from .cards.dispatcher import QQCardHandler
 from .cards.tool_guard import (

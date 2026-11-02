@@ -455,7 +455,7 @@ def _simulate_host_in(monkeypatch, chats_utils, zone_name):
 def test_process_local_tz_carries_dst_rule(monkeypatch):
     """Regression #8046: the process zone must answer for the timestamp's
     own date, not freeze the offset in effect right now."""
-    import qwenpaw.app.chats.utils as chats_utils
+    import aiarb.app.chats.utils as chats_utils
 
     _simulate_host_in(monkeypatch, chats_utils, "America/New_York")
     try:
@@ -474,7 +474,7 @@ def test_process_local_tz_falls_back_when_zone_unresolvable(monkeypatch):
     (``normalize_tz`` validates every candidate and bottoms out at
     ``"UTC"``), so this pins the defensive branch only.
     """
-    import qwenpaw.app.chats.utils as chats_utils
+    import aiarb.app.chats.utils as chats_utils
 
     chats_utils._process_local_tz.cache_clear()
     monkeypatch.setattr(
@@ -497,7 +497,7 @@ def test_process_local_tz_rejects_zone_that_contradicts_the_clock(monkeypatch):
     stamps naive timestamps with the wrong offset (here +00:00 instead of
     +08:00).  The check must keep the previous fixed offset instead.
     """
-    import qwenpaw.app.chats.utils as chats_utils
+    import aiarb.app.chats.utils as chats_utils
 
     # Windows host whose registry name is unmapped: the process clock is
     # +08:00 while detect_system_timezone() silently says "UTC".
@@ -515,7 +515,7 @@ def test_process_local_tz_rejects_zone_that_contradicts_the_clock(monkeypatch):
 
 def test_process_local_tz_accepts_zone_that_matches_the_clock(monkeypatch):
     """A zone that does explain the current offset is kept (DST rules)."""
-    import qwenpaw.app.chats.utils as chats_utils
+    import aiarb.app.chats.utils as chats_utils
 
     _simulate_host_in(monkeypatch, chats_utils, "Asia/Shanghai")
     try:
@@ -530,7 +530,7 @@ def test_normalize_msg_timestamp_other_dst_half_year():
     keeps its instant — 09:00 EST (-05:00) == 22:00 +08:00."""
     shanghai = ZoneInfo("Asia/Shanghai")
     with patch(
-        "qwenpaw.app.chats.utils._process_local_tz",
+        "aiarb.app.chats.utils._process_local_tz",
         return_value=ZoneInfo("America/New_York"),
     ):
         assert (
@@ -545,7 +545,7 @@ def test_normalize_msg_timestamp_keeps_offset_when_zone_contradicts_clock(
     """The Windows fallback must not shift a naive timestamp by the whole
     UTC offset: with the process at +08:00 and ``detect_system_timezone()``
     wrongly returning ``"UTC"``, 09:00 local stays 09:00 +08:00."""
-    import qwenpaw.app.chats.utils as chats_utils
+    import aiarb.app.chats.utils as chats_utils
 
     # Same unmapped-Windows-name scenario, driven through the real
     # normalization path.
@@ -567,7 +567,7 @@ def test_normalize_msg_timestamp_keeps_offset_when_zone_contradicts_clock(
 def test_process_local_tz_dst_rule_via_tz_env(monkeypatch):
     """Mirror the issue repro: with ``TZ=America/New_York`` the process
     zone reports EST in January and EDT in July."""
-    import qwenpaw.app.chats.utils as chats_utils
+    import aiarb.app.chats.utils as chats_utils
 
     monkeypatch.setenv("TZ", "America/New_York")
     time.tzset()

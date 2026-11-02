@@ -16,8 +16,8 @@ from typing import Any
 from unittest.mock import patch
 
 
-from qwenpaw.pawapp import task as task_mod
-from qwenpaw.pawapp.task import (
+from aiarb.pawapp import task as task_mod
+from aiarb.pawapp.task import (
     SSEChannel,
     TaskManager,
     TaskRecord,

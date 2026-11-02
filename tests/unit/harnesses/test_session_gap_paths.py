@@ -12,10 +12,10 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.app.chats.session import SafeJSONSession
-from qwenpaw.harnesses.events import HarnessHistoryItem, HarnessHistoryKind
-from qwenpaw.harnesses.session import HarnessSessionBridge
-from qwenpaw.schemas import (
+from aiarb.app.chats.session import SafeJSONSession
+from aiarb.harnesses.events import HarnessHistoryItem, HarnessHistoryKind
+from aiarb.harnesses.session import HarnessSessionBridge
+from aiarb.schemas import (
     AgentResponse,
     AgentRequest,
     Message,
@@ -242,7 +242,7 @@ class TestOutputBlock:
         assert HarnessSessionBridge._output_block(msg) is None
 
     def test_dict_output_serialized(self):
-        from qwenpaw.schemas import DataContent
+        from aiarb.schemas import DataContent
 
         msg = self._message(
             MessageType.PLUGIN_CALL_OUTPUT,
@@ -262,7 +262,7 @@ class TestOutputBlock:
         assert '"k"' in block["output"]
 
     def test_unknown_type_with_data_returns_none(self):
-        from qwenpaw.schemas import DataContent
+        from aiarb.schemas import DataContent
 
         msg = self._message(
             MessageType.MESSAGE,

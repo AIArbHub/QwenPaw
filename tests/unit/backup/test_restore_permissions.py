@@ -11,10 +11,10 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.backup._ops.restore import _harden_secret_dir, _stage_secrets
-from qwenpaw.backup._utils.safe_swap import _extract_zip_to, extract_to_tmp
+from aiarb.backup._ops.restore import _harden_secret_dir, _stage_secrets
+from aiarb.backup._utils.safe_swap import _extract_zip_to, extract_to_tmp
 
-restore_ops = importlib.import_module("qwenpaw.backup._ops.restore")
+restore_ops = importlib.import_module("aiarb.backup._ops.restore")
 
 pytestmark = pytest.mark.skipif(
     os.name == "nt",

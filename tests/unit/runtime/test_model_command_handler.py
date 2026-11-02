@@ -15,8 +15,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from qwenpaw.runtime.commands.control.base import ControlContext
-from qwenpaw.runtime.commands.control.model_handler import ModelCommandHandler
+from aiarb.runtime.commands.control.base import ControlContext
+from aiarb.runtime.commands.control.model_handler import ModelCommandHandler
 
 
 def _context(active_model=None, raw_args=""):
@@ -140,7 +140,7 @@ class TestShowModelInfo:
     async def test_unknown_provider_reports(self, handler):
         manager = SimpleNamespace(get_provider=lambda pid: None)
         with patch(
-            "qwenpaw.providers.provider_manager.ProviderManager.get_instance",
+            "aiarb.providers.provider_manager.ProviderManager.get_instance",
             return_value=manager,
         ):
             result = await handler._show_model_info(_context(), "ghost:model")
@@ -171,7 +171,7 @@ class TestShowCurrentModel:
             ),
         )
         with patch(
-            "qwenpaw.providers.provider_manager.ProviderManager.get_instance",
+            "aiarb.providers.provider_manager.ProviderManager.get_instance",
             return_value=manager,
         ):
             result = await handler._show_current_model(
@@ -183,7 +183,7 @@ class TestShowCurrentModel:
     async def test_no_model_configured(self, handler):
         manager = SimpleNamespace(get_active_model=lambda: None)
         with patch(
-            "qwenpaw.providers.provider_manager.ProviderManager.get_instance",
+            "aiarb.providers.provider_manager.ProviderManager.get_instance",
             return_value=manager,
         ):
             result = await handler._show_current_model(
@@ -194,7 +194,7 @@ class TestShowCurrentModel:
     async def test_agent_model_without_provider_falls_back(self, handler):
         manager = SimpleNamespace(get_active_model=lambda: None)
         with patch(
-            "qwenpaw.providers.provider_manager.ProviderManager.get_instance",
+            "aiarb.providers.provider_manager.ProviderManager.get_instance",
             return_value=manager,
         ):
             result = await handler._show_current_model(
@@ -243,7 +243,7 @@ class TestListModels:
             list_provider_info=AsyncMock(return_value=[]),
         )
         with patch(
-            "qwenpaw.providers.provider_manager.ProviderManager.get_instance",
+            "aiarb.providers.provider_manager.ProviderManager.get_instance",
             return_value=manager,
         ):
             result = await handler._list_models(_context())
@@ -256,7 +256,7 @@ class TestListModels:
             list_provider_info=AsyncMock(return_value=infos),
         )
         with patch(
-            "qwenpaw.providers.provider_manager.ProviderManager.get_instance",
+            "aiarb.providers.provider_manager.ProviderManager.get_instance",
             return_value=manager,
         ):
             result = await handler._list_models(_context())
@@ -269,7 +269,7 @@ class TestListModels:
             list_provider_info=AsyncMock(return_value=infos),
         )
         with patch(
-            "qwenpaw.providers.provider_manager.ProviderManager.get_instance",
+            "aiarb.providers.provider_manager.ProviderManager.get_instance",
             return_value=manager,
         ):
             result = await handler._list_models(_context())
@@ -282,7 +282,7 @@ class TestListModels:
             list_provider_info=AsyncMock(return_value=infos),
         )
         with patch(
-            "qwenpaw.providers.provider_manager.ProviderManager.get_instance",
+            "aiarb.providers.provider_manager.ProviderManager.get_instance",
             return_value=manager,
         ):
             result = await handler._list_models(_context())
@@ -299,7 +299,7 @@ class TestResetModel:
     async def test_no_global_model_fails(self, handler):
         manager = SimpleNamespace(get_active_model=lambda: None)
         with patch(
-            "qwenpaw.providers.provider_manager.ProviderManager.get_instance",
+            "aiarb.providers.provider_manager.ProviderManager.get_instance",
             return_value=manager,
         ):
             result = await handler._reset_model(_context())
@@ -323,12 +323,12 @@ class TestResetModel:
 
         with (
             patch(
-                "qwenpaw.providers.provider_manager"
+                "aiarb.providers.provider_manager"
                 ".ProviderManager.get_instance",
                 return_value=manager,
             ),
             patch(
-                "qwenpaw.config.config.update_agent_config_async",
+                "aiarb.config.config.update_agent_config_async",
                 fake_update,
             ),
         ):
@@ -340,7 +340,7 @@ class TestResetModel:
 class TestConversationOverrides:
     @pytest.fixture
     def context(self):
-        from qwenpaw.config.config import AgentProfileConfig, ModelSlotConfig
+        from aiarb.config.config import AgentProfileConfig, ModelSlotConfig
 
         ctx = _context()
         ctx.workspace.config = AgentProfileConfig(
@@ -381,7 +381,7 @@ class TestConversationOverrides:
             list_provider_info=AsyncMock(return_value=[info]),
         )
         with patch(
-            "qwenpaw.providers.provider_manager.ProviderManager.get_instance",
+            "aiarb.providers.provider_manager.ProviderManager.get_instance",
             return_value=manager,
         ):
             listed = await handler._list_models(context)
@@ -410,7 +410,7 @@ class TestConversationOverrides:
         context,
         reset,
     ):
-        from qwenpaw.config.config import ModelSlotConfig
+        from aiarb.config.config import ModelSlotConfig
 
         persisted = context.workspace.config.model_copy(deep=True)
 
@@ -429,9 +429,9 @@ class TestConversationOverrides:
                 "_validate_model",
                 AsyncMock(return_value=(True, "")),
             ),
-            patch("qwenpaw.config.config.update_agent_config_async", update),
+            patch("aiarb.config.config.update_agent_config_async", update),
             patch(
-                "qwenpaw.providers.provider_manager"
+                "aiarb.providers.provider_manager"
                 ".ProviderManager.get_instance",
                 return_value=manager,
             ),

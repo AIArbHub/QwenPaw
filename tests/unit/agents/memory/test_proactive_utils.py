@@ -17,7 +17,7 @@ from types import SimpleNamespace
 import pytest
 from agentscope.message import Msg, TextBlock
 
-from qwenpaw.agents.memory.proactive import proactive_utils as pu
+from aiarb.agents.memory.proactive import proactive_utils as pu
 
 
 # ---------------------------------------------------------------------------

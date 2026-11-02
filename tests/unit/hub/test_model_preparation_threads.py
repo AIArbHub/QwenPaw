@@ -9,9 +9,9 @@ from unittest.mock import AsyncMock, patch
 import httpx
 import pytest
 
-from qwenpaw.hub.model_service import gateway, provider_setup
-from qwenpaw.providers.provider_catalog import PROVIDER_OPENAI
-from qwenpaw.providers.model_info import ModelInfo
+from aiarb.hub.model_service import gateway, provider_setup
+from aiarb.providers.provider_catalog import PROVIDER_OPENAI
+from aiarb.providers.model_info import ModelInfo
 
 
 @pytest.mark.asyncio

@@ -11,12 +11,12 @@ from unittest.mock import AsyncMock
 import pytest
 from watchfiles import Change
 
-from qwenpaw.agents.memory.reme_config import get_reme_app_config
-from qwenpaw.agents.memory.reme_light_memory_manager import (
+from aiarb.agents.memory.reme_config import get_reme_app_config
+from aiarb.agents.memory.reme_light_memory_manager import (
     ReMeLightMemoryManager,
     _load_validated_reme_app,
 )
-from qwenpaw.config.config import AgentProfileConfig
+from aiarb.config.config import AgentProfileConfig
 
 pytestmark = [pytest.mark.integration, pytest.mark.p1]
 
@@ -190,7 +190,7 @@ async def test_missing_tag_write_preserves_memory_and_warns_host(
         AsyncMock(return_value={"result": "", "last_message": {}}),
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.memory.reme_light_memory_manager.append_inbox_event",
+        "aiarb.agents.memory.reme_light_memory_manager.append_inbox_event",
         append_event,
     )
     try:

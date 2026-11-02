@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.backup._ops import create_helpers
-from qwenpaw.backup._utils import _mount_swap, safe_swap
+from aiarb.backup._ops import create_helpers
+from aiarb.backup._utils import _mount_swap, safe_swap
 
 
 @pytest.mark.parametrize("exists", [False, True])

@@ -12,18 +12,18 @@ from __future__ import annotations
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.mcp.config_service import (
+from aiarb.app.mcp.config_service import (
     _is_mcp_tool_default_rule,
     _legacy_subject_access_rule,
     driver_policy_from_mcp_access_update,
 )
-from qwenpaw.app.mcp.schemas import (
+from aiarb.app.mcp.schemas import (
     MCPAccessPolicy,
     MCPAccessRule,
     MCPToolAccessOverride,
     MCPToolDefaultPolicy,
 )
-from qwenpaw.drivers.policy_types import (
+from aiarb.drivers.policy_types import (
     DriverPolicy,
     PolicyPrincipal,
     PolicyRule,

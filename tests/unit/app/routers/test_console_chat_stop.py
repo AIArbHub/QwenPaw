@@ -11,8 +11,8 @@ import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from qwenpaw.app.routers import console as console_mod
-from qwenpaw.tool_calls import CancelReason
+from aiarb.app.routers import console as console_mod
+from aiarb.tool_calls import CancelReason
 
 
 @pytest.fixture(name="stop_workspace")
@@ -217,7 +217,7 @@ async def test_stop_audit_log_carries_reason_and_initiator(
     stop_workspace.chat_manager.get_chat_id_by_session = AsyncMock()
 
     capture = _Capture()
-    logger = logging.getLogger("qwenpaw.app.routers.console")
+    logger = logging.getLogger("aiarb.app.routers.console")
     logger.addHandler(capture)
     logger.setLevel(logging.INFO)
     try:
@@ -260,7 +260,7 @@ async def test_stop_audit_log_defaults_without_initiator(
     stop_workspace.chat_manager.get_chat_id_by_session = AsyncMock()
 
     capture = _Capture()
-    logger = logging.getLogger("qwenpaw.app.routers.console")
+    logger = logging.getLogger("aiarb.app.routers.console")
     logger.addHandler(capture)
     logger.setLevel(logging.INFO)
     try:

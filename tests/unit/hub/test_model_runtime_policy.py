@@ -4,7 +4,7 @@
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.hub.model_service.runtime_policy import require_model_route
+from aiarb.hub.model_service.runtime_policy import require_model_route
 
 
 @pytest.mark.parametrize(

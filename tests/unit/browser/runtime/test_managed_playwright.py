@@ -10,7 +10,7 @@ import time
 
 import pytest
 
-import qwenpaw.browser.runtime.managed_playwright as managed
+import aiarb.browser.runtime.managed_playwright as managed
 
 
 class _Done:

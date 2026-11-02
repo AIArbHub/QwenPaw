@@ -473,8 +473,8 @@ async def test_chat_with_agent_returns_error_for_single_tool_cancel(
     reason_value,
     expected_text,
 ):
-    from qwenpaw.tool_calls import reset_call_context, set_call_context
-    from qwenpaw.tool_calls._context import CancelReason, ToolCallContext
+    from aiarb.tool_calls import reset_call_context, set_call_context
+    from aiarb.tool_calls._context import CancelReason, ToolCallContext
 
     stop_calls = []
 
@@ -530,8 +530,8 @@ async def test_chat_with_agent_returns_error_for_single_tool_cancel(
 
 
 async def test_chat_with_agent_propagates_parent_task_cancel(monkeypatch):
-    from qwenpaw.tool_calls import reset_call_context, set_call_context
-    from qwenpaw.tool_calls._context import CancelReason, ToolCallContext
+    from aiarb.tool_calls import reset_call_context, set_call_context
+    from aiarb.tool_calls._context import CancelReason, ToolCallContext
 
     collect_started = asyncio.Event()
     stop_calls = []
@@ -594,8 +594,8 @@ async def test_chat_with_agent_propagates_parent_task_cancel(monkeypatch):
 async def test_chat_with_agent_propagates_timeout_to_target_stop(
     monkeypatch,
 ):
-    from qwenpaw.tool_calls import reset_call_context, set_call_context
-    from qwenpaw.tool_calls._context import CancelReason, ToolCallContext
+    from aiarb.tool_calls import reset_call_context, set_call_context
+    from aiarb.tool_calls._context import CancelReason, ToolCallContext
 
     stop_calls = []
 
@@ -2006,12 +2006,12 @@ async def test_spawn_foreground_omitted_timeout_waits_600(monkeypatch):
 async def test_spawn_foreground_uses_coordinator_owned_http_timeout(
     monkeypatch,
 ):
-    from qwenpaw.tool_calls import (
+    from aiarb.tool_calls import (
         COORDINATOR_OWNED_EXEC_TIMEOUT_SECS,
         reset_call_context,
         set_call_context,
     )
-    from qwenpaw.tool_calls._context import ToolCallContext
+    from aiarb.tool_calls._context import ToolCallContext
 
     captured = {}
 
@@ -2160,7 +2160,7 @@ async def test_spawn_fork_foreground_stops_subagent_when_cancelled(
     monkeypatch,
     mark_fails,
 ):
-    from qwenpaw.agents import fork_project
+    from aiarb.agents import fork_project
 
     stop_calls = []
     failed_calls = []

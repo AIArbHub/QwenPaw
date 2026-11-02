@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-import qwenpaw.constant as _constant
+import aiarb.constant as _constant
 
 
 @pytest.fixture(autouse=True)

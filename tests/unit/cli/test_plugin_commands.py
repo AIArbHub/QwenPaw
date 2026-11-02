@@ -20,14 +20,14 @@ import httpx
 import pytest
 from click.testing import CliRunner
 
-import qwenpaw.cli.plugin_commands as pc
-import qwenpaw.config.utils as config_utils
+import aiarb.cli.plugin_commands as pc
+import aiarb.config.utils as config_utils
 
 
 @pytest.fixture(autouse=True)
 def _isolated_plugin_registry():
     """Each CLI invocation test gets its own trusted runtime configuration."""
-    from qwenpaw.plugins.registry import PluginRegistry
+    from aiarb.plugins.registry import PluginRegistry
 
     previous = PluginRegistry._instance
     PluginRegistry._instance = None
@@ -61,7 +61,7 @@ def _patch_transport(monkeypatch, handler):
 
 def _patch_plugins_dir(monkeypatch, tmp_path: Path) -> Path:
     pdir = tmp_path / "plugins"
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     monkeypatch.setattr(config_utils, "WORKING_DIR", tmp_path / "work")
     monkeypatch.setattr(config_utils, "get_plugins_dir", lambda: pdir)
     return pdir
@@ -482,7 +482,7 @@ class TestInstallCommandOffline:
         assert "Path not found" in res.output
 
     def test_missing_manifest(self, tmp_path):
-        from qwenpaw.plugins.loader import PluginLoader
+        from aiarb.plugins.loader import PluginLoader
 
         with pytest.raises(FileNotFoundError, match="plugin.json not found"):
             PluginLoader.__new__(PluginLoader).read_source_manifest(tmp_path)
@@ -497,7 +497,7 @@ class TestInstallCommandOffline:
         assert "Failed to install plugin" in res.output
 
     def test_manifest_read_failure_generic(self, tmp_path):
-        from qwenpaw.plugins.loader import PluginLoader
+        from aiarb.plugins.loader import PluginLoader
 
         (tmp_path / "plugin.json").write_bytes(b"\xff\xfe\x00invalid")
         with pytest.raises(UnicodeDecodeError):
@@ -505,7 +505,7 @@ class TestInstallCommandOffline:
 
     def test_manifest_missing_fields(self, tmp_path):
         from pydantic import ValidationError
-        from qwenpaw.plugins.loader import PluginLoader
+        from aiarb.plugins.loader import PluginLoader
 
         (tmp_path / "plugin.json").write_text(json.dumps({"id": "x"}))
         with pytest.raises(ValidationError, match="Field required"):
@@ -568,7 +568,7 @@ class TestInstallCommandOffline:
             lambda url: (src, temp),
         )
         from types import SimpleNamespace
-        from qwenpaw.plugins.loader import PluginLoader
+        from aiarb.plugins.loader import PluginLoader
 
         async def install(source_path, **kwargs):
             assert source_path == src
@@ -590,7 +590,7 @@ class TestInstallCommandOffline:
 
         monkeypatch.setattr(PluginLoader, "create", create)
         monkeypatch.setattr(
-            "qwenpaw.plugins.channel_bootstrap.resolve_default_channel_runtime",
+            "aiarb.plugins.channel_bootstrap.resolve_default_channel_runtime",
             lambda: None,
         )
         cleanup_attempts = []
@@ -924,7 +924,7 @@ def _offline_environment(monkeypatch, tmp_path):
     monkeypatch.delenv("AIARB_RUNTIME_ID", raising=False)
     monkeypatch.delenv("AIARB_RUNTIME_PROVISIONER", raising=False)
     monkeypatch.setattr(pc, "_is_running", lambda: False)
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     return _patch_plugins_dir(monkeypatch, tmp_path)
 
 
@@ -965,7 +965,7 @@ def test_offline_force_dependency_failure_preserves_old(
         )
         raise RuntimeError("deps failed")
 
-    from qwenpaw.plugins.loader import PluginLoader
+    from aiarb.plugins.loader import PluginLoader
 
     monkeypatch.setattr(
         PluginLoader,
@@ -1015,7 +1015,7 @@ def test_offline_uninstall_respects_inventory_ownership(
     offline_environment,
     owned,
 ):
-    from qwenpaw.plugins.provision import inventory_path, save_inventory
+    from aiarb.plugins.provision import inventory_path, save_inventory
 
     root = offline_environment / "demo"
     root.mkdir(parents=True)
@@ -1050,8 +1050,8 @@ def test_offline_uninstall_config_failure_retains_cleanup_for_retry(
     offline_environment,
 ):
     from types import SimpleNamespace
-    from qwenpaw.plugins.provision import inventory_path, record_tool_factory
-    import qwenpaw.config.config as cc
+    from aiarb.plugins.provision import inventory_path, record_tool_factory
+    import aiarb.config.config as cc
 
     root = offline_environment / "demo"
     root.mkdir(parents=True)
@@ -1100,7 +1100,7 @@ def test_offline_force_install_respects_durable_commit(
     offline_environment,
     failure_stage,
 ):
-    from qwenpaw.plugins import loader, updates
+    from aiarb.plugins import loader, updates
 
     old = offline_environment / "demo"
     old.mkdir(parents=True)
@@ -1146,8 +1146,8 @@ def test_offline_dependency_operation_uses_one_async_loader(
 ):
     import asyncio
     import threading
-    from qwenpaw.plugins import channel_bootstrap, dependency_upgrade
-    from qwenpaw.plugins.loader import PluginLoader
+    from aiarb.plugins import channel_bootstrap, dependency_upgrade
+    from aiarb.plugins.loader import PluginLoader
 
     runtime, loader = object(), object()
     loop_thread = threading.get_ident()

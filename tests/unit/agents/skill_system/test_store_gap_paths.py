@@ -20,7 +20,7 @@ import zipfile
 
 import pytest
 
-from qwenpaw.agents.skill_system.store import (
+from aiarb.agents.skill_system.store import (
     PoolSkillAutomation,
     _create_files_from_tree,
     _directory_tree,
@@ -49,7 +49,7 @@ from qwenpaw.agents.skill_system.store import (
     write_json_atomic,
     write_pool_skill_automation,
 )
-from qwenpaw.exceptions import SkillsError
+from aiarb.exceptions import SkillsError
 
 
 SKILL_MD = """---
@@ -232,17 +232,17 @@ class TestMetadataExtraction:
         assert extract_version({}) == ""
 
     def test_emoji_from_AIARB_metadata(self):
-        metadata = {"qwenpaw": {"emoji": "🚀"}}
+        metadata = {"aiarb": {"emoji": "🚀"}}
         assert _extract_emoji_from_metadata(metadata) == "🚀"
 
     def test_emoji_empty_for_non_dict(self):
         assert _extract_emoji_from_metadata("not-a-dict") == ""
-        assert _extract_emoji_from_metadata({"qwenpaw": "x"}) == ""
+        assert _extract_emoji_from_metadata({"aiarb": "x"}) == ""
 
     def test_requirements_from_namespace(self):
         post = {
             "metadata": {
-                "qwenpaw": {"requires": {"bins": ["git"], "env": ["KEY"]}},
+                "aiarb": {"requires": {"bins": ["git"], "env": ["KEY"]}},
             },
         }
         req, errors = parse_skill_requirements(post)
@@ -697,7 +697,7 @@ def _build_zip(files: dict[str, str]) -> bytes:
 class TestExtractZipSkills:
     def test_single_skill_at_root(self, tmp_path, monkeypatch):
         monkeypatch.chdir(tmp_path)
-        from qwenpaw.agents.skill_system import store
+        from aiarb.agents.skill_system import store
 
         data = _build_zip({"SKILL.md": SKILL_MD})
         extracted_dir, found = store.extract_zip_skills(data)
@@ -708,7 +708,7 @@ class TestExtractZipSkills:
             shutil.rmtree(extracted_dir, ignore_errors=True)
 
     def test_multi_skill_dirs(self, tmp_path):
-        from qwenpaw.agents.skill_system import store
+        from aiarb.agents.skill_system import store
 
         data = _build_zip(
             {
@@ -725,13 +725,13 @@ class TestExtractZipSkills:
             shutil.rmtree(extracted_dir, ignore_errors=True)
 
     def test_non_zip_raises(self):
-        from qwenpaw.agents.skill_system import store
+        from aiarb.agents.skill_system import store
 
         with pytest.raises(SkillsError):
             store.extract_zip_skills(b"not a zip file")
 
     def test_zip_without_skills_raises(self, tmp_path):
-        from qwenpaw.agents.skill_system import store
+        from aiarb.agents.skill_system import store
 
         data = _build_zip({"readme.txt": "nothing here"})
         with pytest.raises(SkillsError):

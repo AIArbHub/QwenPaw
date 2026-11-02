@@ -9,17 +9,17 @@ import pytest
 @pytest.fixture(autouse=True)
 def capture_qwenpaw_logs(monkeypatch: pytest.MonkeyPatch) -> None:
     """Let caplog observe records emitted through the app logger tree."""
-    monkeypatch.setattr(logging.getLogger("qwenpaw"), "propagate", True)
+    monkeypatch.setattr(logging.getLogger("aiarb"), "propagate", True)
 
 
 @pytest.fixture(scope="session", autouse=True)
 def register_plugin_contract():
     """Exercise tests with the governance metadata installed by the plugin."""
-    from qwenpaw.governance.tool_registry import (
+    from aiarb.governance.tool_registry import (
         DEFAULT_REGISTRY,
         register_tool_governance,
     )
-    from qwenpaw.plugins.api import release_tool_ownership_for_plugin
+    from aiarb.plugins.api import release_tool_ownership_for_plugin
 
     plugin_id = "memory-powercontext"
     register_tool_governance(

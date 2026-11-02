@@ -13,7 +13,7 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 
-from qwenpaw.cli import doctor_connectivity as dc
+from aiarb.cli import doctor_connectivity as dc
 
 
 # ---------------------------------------------------------------------------

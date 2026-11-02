@@ -26,8 +26,8 @@ def package(root, plugin_id, source, capabilities):
 
 
 CALLER = """
-from qwenpaw.plugins.messages import ContentBlock, Message
-from qwenpaw.plugins.tools import ToolSpec, ToolResult
+from aiarb.plugins.messages import ContentBlock, Message
+from aiarb.plugins.tools import ToolSpec, ToolResult
 
 class Plugin:
     def register(self, ctx):
@@ -46,8 +46,8 @@ plugin = Plugin()
 
 SYNC_PROVIDER = """
 import time
-from qwenpaw.plugins.messages import ContentBlock
-from qwenpaw.plugins.providers import (
+from aiarb.plugins.messages import ContentBlock
+from aiarb.plugins.providers import (
     ProviderSpec,
     ModelInfo,
     ModelChunk,
@@ -122,8 +122,8 @@ async def load_pair(host, tmp_path, provider_source):
 async def test_context_model_cancel_waits_for_actual_sync_provider_worker(
     tmp_path,
 ):
-    from qwenpaw.plugins import PluginBusyError
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import PluginBusyError
+    from aiarb.plugins.testing import PluginTestHost
 
     async with PluginTestHost(tmp_path / "host") as host:
         provider, _ = await load_pair(host, tmp_path, SYNC_PROVIDER)
@@ -163,12 +163,12 @@ async def test_context_model_cancel_waits_for_actual_sync_provider_worker(
 async def test_failed_model_scope_cleanup_keeps_ownership_until_retry(
     tmp_path,
 ):
-    from qwenpaw.plugins import PluginBusyError
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import PluginBusyError
+    from aiarb.plugins.testing import PluginTestHost
 
     provider_source = """
-from qwenpaw.plugins.messages import ContentBlock
-from qwenpaw.plugins.providers import (
+from aiarb.plugins.messages import ContentBlock
+from aiarb.plugins.providers import (
     ProviderSpec,
     ModelInfo,
     ModelChunk,

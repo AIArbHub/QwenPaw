@@ -27,7 +27,7 @@ from .process_utils import (
     _base_url,
     _candidate_hosts,
     _extract_port_from_command,
-    _is_AIARB_service_command,
+    _is_aiarb_service_command,
     _process_table,
 )
 

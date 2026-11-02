@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.tauri.backend_guard import BackendInstance
+from aiarb.tauri.backend_guard import BackendInstance
 
 
 @pytest.fixture(name="manifest_to_semver", scope="module")
@@ -45,7 +45,7 @@ def test_runtime_lock_rejects_a_second_owner(
     manifest_to_semver,
 ):
     monkeypatch.setattr(
-        "qwenpaw.tauri.backend_guard.__version__",
+        "aiarb.tauri.backend_guard.__version__",
         version,
     )
     monkeypatch.delenv("AIARB_RUNTIME_ID", raising=False)
@@ -68,7 +68,7 @@ def test_runtime_lock_rejects_a_second_owner(
 def test_runtime_lock_is_released_after_process_death(tmp_path):
     source = (
         f"from pathlib import Path; import time; "
-        f"from qwenpaw.tauri.backend_guard import BackendInstance; "
+        f"from aiarb.tauri.backend_guard import BackendInstance; "
         f"instance = BackendInstance(Path({str(tmp_path)!r}), 'shared'); "
         f"instance.__enter__(); instance.publish(12345); "
         f"print('ready', flush=True); time.sleep(60)"

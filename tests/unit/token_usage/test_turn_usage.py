@@ -13,7 +13,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 
-from qwenpaw.token_usage import turn_usage as tu
+from aiarb.token_usage import turn_usage as tu
 
 
 # ---------------------------------------------------------------------------

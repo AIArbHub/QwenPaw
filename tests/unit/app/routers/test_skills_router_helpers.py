@@ -18,7 +18,7 @@ from pathlib import Path
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.routers import skills as skills_module
+from aiarb.app.routers import skills as skills_module
 
 
 def _skill_md(name: str) -> str:
@@ -53,7 +53,7 @@ def _read_manifest(workspace_dir: Path) -> dict:
 @pytest.fixture()
 def skill_env(tmp_path, monkeypatch):
     """Isolated working dir with scan stubbed."""
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path)
     monkeypatch.setattr(
         skills_module,
         "scan_skill_dir_or_raise",
@@ -528,7 +528,7 @@ class TestScanErrorHelpers:
     def _scan_error():
         from types import SimpleNamespace
 
-        from qwenpaw.exceptions import SkillScanError
+        from aiarb.exceptions import SkillScanError
 
         finding = SimpleNamespace(
             severity=SimpleNamespace(value="high"),

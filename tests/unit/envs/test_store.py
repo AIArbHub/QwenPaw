@@ -8,7 +8,7 @@ import json
 
 import pytest
 
-from qwenpaw.envs import store
+from aiarb.envs import store
 
 
 @pytest.fixture

@@ -164,15 +164,15 @@ async def test_get_tool_config_reads_tavily_credential_and_masks() -> None:
 
     with (
         patch(
-            "qwenpaw.plugins.registry.PluginRegistry",
+            "aiarb.plugins.registry.PluginRegistry",
             return_value=registry,
         ),
         patch(
-            "qwenpaw.app.agent_context.get_agent_for_request",
+            "aiarb.app.agent_context.get_agent_for_request",
             AsyncMock(return_value=_workspace()),
         ),
         patch(
-            "qwenpaw.app.driver_config_service.DriverConfigService"
+            "aiarb.app.driver_config_service.DriverConfigService"
             ".load_optional_credential",
             load_credential,
         ),

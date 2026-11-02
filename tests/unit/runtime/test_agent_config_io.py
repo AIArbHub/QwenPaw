@@ -248,7 +248,7 @@ async def test_request_model_is_resolved_before_validation_and_build(
 ):
     """A request override works even when no agent/global default exists."""
     from unittest.mock import AsyncMock
-    from qwenpaw.config.config import AgentProfileConfig, ModelSlotConfig
+    from aiarb.config.config import AgentProfileConfig, ModelSlotConfig
 
     config = AgentProfileConfig(
         id="agent",
@@ -258,18 +258,18 @@ async def test_request_model_is_resolved_before_validation_and_build(
     selected = ModelSlotConfig(provider_id="request", model="selected")
     monkeypatch.setattr(config_module, "load_agent_config", lambda _: config)
     monkeypatch.setattr(
-        "qwenpaw.services.session_thinking.ProviderManager.get_instance",
+        "aiarb.services.session_thinking.ProviderManager.get_instance",
         lambda: SimpleNamespace(
             active_model=None,
             get_active_model=lambda: None,
         ),
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.skill_system.ensure_skills_initialized",
+        "aiarb.agents.skill_system.ensure_skills_initialized",
         lambda *_: None,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.skill_system.resolve_effective_skills",
+        "aiarb.agents.skill_system.resolve_effective_skills",
         lambda *_: [],
     )
     builder = AgentBuilder.__new__(AgentBuilder)

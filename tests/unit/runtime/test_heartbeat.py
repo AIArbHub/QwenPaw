@@ -8,7 +8,7 @@ from collections.abc import AsyncIterator
 
 import pytest
 
-from qwenpaw.runtime.heartbeat import (
+from aiarb.runtime.heartbeat import (
     _iter_with_heartbeat,
     _HEARTBEAT_TICK,
 )

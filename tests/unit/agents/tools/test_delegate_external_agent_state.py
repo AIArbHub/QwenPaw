@@ -15,7 +15,7 @@ from importlib import import_module
 
 import pytest
 
-from qwenpaw.agents.tools.delegate_external_agent import (
+from aiarb.agents.tools.delegate_external_agent import (
     _RunnerState,
     _copy_content_text,
     _format_task_state_text,
@@ -23,7 +23,7 @@ from qwenpaw.agents.tools.delegate_external_agent import (
     _resolve_execution_cwd,
 )
 
-dea = import_module("qwenpaw.agents.tools.delegate_external_agent")
+dea = import_module("aiarb.agents.tools.delegate_external_agent")
 
 
 # ---------------------------------------------------------------------------

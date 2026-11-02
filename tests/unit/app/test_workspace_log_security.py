@@ -8,8 +8,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.app.multi_agent_manager import MultiAgentManager
-from qwenpaw.app.workspace.service_manager import (
+from aiarb.app.multi_agent_manager import MultiAgentManager
+from aiarb.app.workspace.service_manager import (
     ServiceDescriptor,
     ServiceManager,
 )
@@ -33,7 +33,7 @@ async def test_service_shutdown_escapes_agent_id(caplog, reusable, reused):
         manager.reused_services.add(descriptor.name)
     with caplog.at_level(
         logging.DEBUG,
-        logger="qwenpaw.app.workspace.service_manager",
+        logger="aiarb.app.workspace.service_manager",
     ):
         await manager._stop_service(descriptor)
     messages = [

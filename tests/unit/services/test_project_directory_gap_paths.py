@@ -13,8 +13,8 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.services import project_directory as pd
-from qwenpaw.services.fs_name_rules import NameRules
+from aiarb.services import project_directory as pd
+from aiarb.services.fs_name_rules import NameRules
 
 
 CASE_SENSITIVE = NameRules(case_sensitive=True, normalization_sensitive=True)

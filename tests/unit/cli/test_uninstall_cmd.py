@@ -9,7 +9,7 @@ The command rewrites shell profiles discovered at import time from
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli import uninstall_cmd as un_mod
+from aiarb.cli import uninstall_cmd as un_mod
 
 # The exact block the installer appends to shell profiles.
 _PATH_BLOCK = '# QwenPaw\nexport PATH="$HOME/.qwenpaw/bin:$PATH"\n'

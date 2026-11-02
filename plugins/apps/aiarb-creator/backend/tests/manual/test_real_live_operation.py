@@ -60,7 +60,7 @@ def _reap_browsers():
     reset only restores that isolation for the test.
     """
     yield
-    from qwenpaw.browser.control_link.playwright import adapter as pw_adapter
+    from aiarb.browser.control_link.playwright import adapter as pw_adapter
 
     for link in list(getattr(pw_adapter, "_LIVE", [])):
         with contextlib.suppress(Exception):

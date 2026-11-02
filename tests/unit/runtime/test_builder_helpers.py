@@ -11,7 +11,7 @@ import types
 
 import pytest
 
-from qwenpaw.runtime import builder as builder_mod
+from aiarb.runtime import builder as builder_mod
 
 
 # ── _resolve_react_iterations ─────────────────────────────────────────
@@ -149,7 +149,7 @@ def _tool_with_metadata(metadata):
 @pytest.fixture()
 def zh_language(monkeypatch):
     """Pin the builtin skill language preference to 'zh'."""
-    from qwenpaw.agents.skill_system import registry
+    from aiarb.agents.skill_system import registry
 
     monkeypatch.setattr(
         registry,
@@ -295,7 +295,7 @@ class TestBoundSkillLoaderDirs:
         monkeypatch,
         tmp_path,
     ):
-        from qwenpaw.agents.skill_system import registry
+        from aiarb.agents.skill_system import registry
 
         monkeypatch.setattr(
             registry,

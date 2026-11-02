@@ -9,7 +9,7 @@ import pytest
 
 
 def test_runtime_snapshot_preserves_multimodal_tools_and_unknown_fields():
-    from qwenpaw.plugins._events import chat_event
+    from aiarb.plugins._events import chat_event
 
     original = {
         "object": "response",

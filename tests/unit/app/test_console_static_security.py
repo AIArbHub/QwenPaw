@@ -34,7 +34,7 @@ def test_console_static_symlinks_stay_within_build(tmp_path):
             textwrap.dedent(
                 """
                 from pathlib import Path
-                from qwenpaw.app import _app
+                from aiarb.app import _app
 
                 endpoint = next(
                     route.endpoint for route in _app.app.routes

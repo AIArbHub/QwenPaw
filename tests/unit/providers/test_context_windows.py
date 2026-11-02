@@ -12,7 +12,7 @@ catalog every model inherited the 128k ``max_input_length`` default, so a
 from types import SimpleNamespace
 
 import pytest
-from qwenpaw.providers import model_resolution
+from aiarb.providers import model_resolution
 
 from aiarb.providers.context_windows import (
     DEFAULT_CONTEXT_WINDOW,

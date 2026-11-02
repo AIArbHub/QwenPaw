@@ -28,7 +28,7 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from qwenpaw.portability.providers import codex_schedule_reader as reader
+from aiarb.portability.providers import codex_schedule_reader as reader
 
 
 # --------------------------------------------------------------------- #

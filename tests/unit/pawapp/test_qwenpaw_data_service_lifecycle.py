@@ -10,7 +10,7 @@ import httpx
 import psutil
 import pytest
 
-from qwenpaw.pawapp import PawApp
+from aiarb.pawapp import PawApp
 
 APP = Path(__file__).resolve().parents[3] / "plugins/apps/qwenpaw-data"
 

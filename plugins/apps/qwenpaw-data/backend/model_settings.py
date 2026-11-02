@@ -76,12 +76,12 @@ class ModelSettingsService:
 
     @staticmethod
     def _manager():
-        from qwenpaw.providers.provider_manager import ProviderManager
+        from aiarb.providers.provider_manager import ProviderManager
 
         return ProviderManager.get_instance()
 
     def _workspace_choice(self, scope):
-        from qwenpaw.config.config import load_agent_config
+        from aiarb.config.config import load_agent_config
 
         slot = load_agent_config(scope.workspace_id).active_model
         slot = slot or self._manager().get_active_model()

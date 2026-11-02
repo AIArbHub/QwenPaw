@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.envs.registry import validate_env_value
+from aiarb.envs.registry import validate_env_value
 
 
 @pytest.mark.parametrize("value", ["nan", "inf", "-inf"])

@@ -1436,7 +1436,7 @@ class AgentBuilder:
                     reg.plugin_id,
                     exc_info=True,
                 )
-                from qwenpaw.plugins.lifecycle import note_plugin_diagnostic
+                from aiarb.plugins.lifecycle import note_plugin_diagnostic
 
                 note_plugin_diagnostic(
                     reg.plugin_id,

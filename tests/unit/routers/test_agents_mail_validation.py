@@ -16,7 +16,7 @@ from aiarb.app.routers.agents import (
     CopyAgentRequest,
     CreateAgentRequest,
     _build_copied_agent_config,
-    _build_aiarbmail_env,
+    build_AIARBmail_env as _build_aiarbmail_env,
     _ensure_mail_triage_file,
     _generate_aiarbmail_driver_card,
     _resolve_aiarbmail_command,
@@ -287,7 +287,7 @@ def test_create_agent_rejects_mail_for_third_party_backend():
     with pytest.raises(HTTPException) as exc_info:
         asyncio.run(create_agent(request=request, http_request=None))
     assert exc_info.value.status_code == 400
-    assert "aiarb backend" in exc_info.value.detail
+    assert "AIARB backend" in exc_info.value.detail
 
 
 def test_create_mail_agent_driver_failure_is_not_committed(tmp_path):
@@ -313,7 +313,7 @@ def test_create_mail_agent_driver_failure_is_not_committed(tmp_path):
             "aiarb.app.routers.agents._initialize_agent_workspace",
         ),
         patch(
-            "aiarb.app.routers.agents._sync_aiarbmail_driver_card",
+            "aiarb.app.routers.agents._sync_AIARBmail_driver_card",
             return_value=False,
         ),
         patch(
@@ -350,7 +350,7 @@ def test_copy_mail_agent_driver_failure_is_not_committed(
         id="source",
         name="source",
         workspace_dir=str(source_workspace),
-        backend="aiarb",
+        backend="AIARB",
         mail=_valid_mail(),
     )
     monkeypatch.setattr(
@@ -372,7 +372,7 @@ def test_copy_mail_agent_driver_failure_is_not_committed(
         ),
         patch("aiarb.app.routers.agents._prepare_copied_workspace"),
         patch(
-            "aiarb.app.routers.agents._sync_aiarbmail_driver_card",
+            "aiarb.app.routers.agents._sync_AIARBmail_driver_card",
             return_value=False,
         ),
         patch(
@@ -420,7 +420,7 @@ def test_update_agent_rejects_mail_when_existing_backend_third_party():
                 update_agent(agentId="a1", agent_config=body, request=None),
             )
     assert exc_info.value.status_code == 400
-    assert "aiarb backend" in exc_info.value.detail
+    assert "AIARB backend" in exc_info.value.detail
 
 
 def test_update_agent_rejects_mail_with_explicit_third_party_backend():
@@ -445,7 +445,7 @@ def test_update_agent_rejects_mail_with_explicit_third_party_backend():
                 update_agent(agentId="a1", agent_config=body, request=None),
             )
     assert exc_info.value.status_code == 400
-    assert "aiarb backend" in exc_info.value.detail
+    assert "AIARB backend" in exc_info.value.detail
 
 
 def test_update_agent_lock_recheck_rejects_stale_backend_snapshot():
@@ -485,7 +485,7 @@ def test_update_agent_lock_recheck_rejects_stale_backend_snapshot():
                 update_agent(agentId="a1", agent_config=body, request=None),
             )
     assert exc_info.value.status_code == 400
-    assert "aiarb backend" in exc_info.value.detail
+    assert "AIARB backend" in exc_info.value.detail
 
 
 # ── aiarbmail MCP command resolution ──────────────────────────────
@@ -517,7 +517,7 @@ def test_resolve_aiarbmail_command_falls_back_to_path(monkeypatch):
 def test_driver_card_uses_resolved_command(tmp_path, monkeypatch):
     monkeypatch.setenv("AIARBMAIL_PYTHON", "/custom/bin/python")
     _generate_aiarbmail_driver_card(tmp_path, _valid_mail())
-    card_path = tmp_path / "drivers" / "mcp" / "aiarbmail.yaml"
+    card_path = tmp_path / "drivers" / "mcp" / "AIARBmail.yaml"
     card = yaml.safe_load(card_path.read_text(encoding="utf-8"))
     assert card["endpoint"]["command"] == "/custom/bin/python"
     assert card["endpoint"]["args"] == ["-m", "aiarbmail_mcp"]
@@ -537,7 +537,7 @@ def test_driver_card_uses_resolved_command(tmp_path, monkeypatch):
 
 def test_driver_runtime_resolves_mail_secret_from_credential_store(tmp_path):
     assert _generate_aiarbmail_driver_card(tmp_path, _valid_mail())
-    card = load_card(tmp_path / "drivers" / "mcp" / "aiarbmail.yaml")
+    card = load_card(tmp_path / "drivers" / "mcp" / "AIARBmail.yaml")
     store = AsyncCredentialStore(tmp_path / "credentials.yaml")
     providers = {
         alias: build_provider(reference, store)
@@ -552,7 +552,7 @@ def test_driver_runtime_resolves_mail_secret_from_credential_store(tmp_path):
 
 
 def test_sync_upgrades_legacy_plaintext_driver_card(tmp_path):
-    card_path = tmp_path / "drivers" / "mcp" / "aiarbmail.yaml"
+    card_path = tmp_path / "drivers" / "mcp" / "AIARBmail.yaml"
     card_path.parent.mkdir(parents=True)
     card_path.write_text(
         """name: aiarbmail
@@ -572,7 +572,7 @@ credentials: {}
     assert _sync_aiarbmail_driver_card(
         tmp_path,
         _valid_mail(),
-        "aiarb",
+        "AIARB",
     )
 
     rewritten = card_path.read_text("utf-8")
@@ -583,7 +583,7 @@ credentials: {}
 def test_sync_preserves_policy_enabled_and_tool_whitelist(tmp_path):
     original_mail = _valid_mail()
     assert _generate_aiarbmail_driver_card(tmp_path, original_mail)
-    card_path = tmp_path / "drivers" / "mcp" / "aiarbmail.yaml"
+    card_path = tmp_path / "drivers" / "mcp" / "AIARBmail.yaml"
     card = load_card(card_path)
     expected_policy = DriverPolicy(
         default_effect="allow",
@@ -603,7 +603,7 @@ def test_sync_preserves_policy_enabled_and_tool_whitelist(tmp_path):
     assert _sync_aiarbmail_driver_card(
         tmp_path,
         original_mail,
-        "aiarb",
+        "AIARB",
     )
     restarted = load_card(card_path)
     assert restarted.policy == expected_policy
@@ -617,7 +617,7 @@ def test_sync_preserves_policy_enabled_and_tool_whitelist(tmp_path):
     assert _sync_aiarbmail_driver_card(
         tmp_path,
         updated_mail,
-        "aiarb",
+        "AIARB",
         force_rewrite=True,
     )
     updated = load_card(card_path)
@@ -637,7 +637,7 @@ def _run_mail_revocation_update(tmp_path, body: AgentProfileConfig):
             id="a1",
             name="bot",
             workspace_dir=str(tmp_path),
-            backend="aiarb",
+            backend="AIARB",
             mail=_valid_mail(),
         ),
     ]
@@ -689,7 +689,7 @@ def test_update_personal_mail_to_none_revokes_driver_card(tmp_path):
 
     assert list_card_paths(tmp_path / "drivers") == []
     # Repeated close is idempotent.
-    _sync_aiarbmail_driver_card(tmp_path, None, "aiarb")
+    _sync_aiarbmail_driver_card(tmp_path, None, "AIARB")
     assert not card_path.exists()
 
 
@@ -762,17 +762,17 @@ def test_update_changed_mailbox_requires_fresh_secret(tmp_path):
 
 
 def test_failed_driver_rewrite_revokes_stale_credentials(tmp_path):
-    card_path = tmp_path / "drivers" / "mcp" / "aiarbmail.yaml"
+    card_path = tmp_path / "drivers" / "mcp" / "AIARBmail.yaml"
     card_path.parent.mkdir(parents=True)
     card_path.write_text("old plaintext credentials", encoding="utf-8")
     with patch(
-        "aiarb.app.mail.driver_config.generate_aiarbmail_driver_card",
+        "aiarb.app.mail.driver_config.generate_AIARBmail_driver_card",
         return_value=False,
     ):
         assert not _sync_aiarbmail_driver_card(
             tmp_path,
             _valid_mail(),
-            "aiarb",
+            "AIARB",
             force_rewrite=True,
         )
     assert not card_path.exists()
@@ -788,7 +788,7 @@ def test_update_driver_failure_restores_previous_config(tmp_path):
             id="a1",
             name="bot",
             workspace_dir=str(stale_workspace),
-            backend="aiarb",
+            backend="AIARB",
             mail=previous_mail,
         ),
     ]
@@ -828,7 +828,7 @@ def test_update_driver_failure_restores_previous_config(tmp_path):
             side_effect=_fake_save,
         ),
         patch(
-            "aiarb.app.routers.agents._sync_aiarbmail_driver_card",
+            "aiarb.app.routers.agents._sync_AIARBmail_driver_card",
             side_effect=[False, True],
         ) as sync_driver,
         patch(
@@ -909,7 +909,7 @@ def test_update_failed_new_card_rebuilds_old_credentials(tmp_path):
             side_effect=_fake_save,
         ),
         patch(
-            "aiarb.app.mail.driver_config.generate_aiarbmail_driver_card",
+            "aiarb.app.mail.driver_config.generate_AIARBmail_driver_card",
             side_effect=_fail_only_new_credentials,
         ),
         patch(
@@ -961,7 +961,7 @@ def test_copied_agent_keeps_mail_for_aiarb_backend(tmp_path):
     source = AgentProfileConfig(
         id="src",
         name="src",
-        backend="aiarb",
+        backend="AIARB",
         mail=_valid_mail(),
     )
     copied = _build_copied_agent_config(

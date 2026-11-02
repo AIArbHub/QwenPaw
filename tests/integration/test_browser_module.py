@@ -21,7 +21,7 @@ def test_browser_errors_module_exists() -> None:
     1. Import qwenpaw.browser.errors.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser import errors
+    from aiarb.browser import errors
 
     assert errors is not None
 
@@ -37,7 +37,7 @@ def test_browser_governance_error_codes() -> None:
     1. Import qwenpaw.browser.governance.error_codes.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.governance import error_codes
+    from aiarb.browser.governance import error_codes
 
     assert error_codes is not None
 
@@ -53,7 +53,7 @@ def test_browser_sdk_contracts_module() -> None:
     1. Import qwenpaw.browser.sdk.contracts.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.sdk import contracts
+    from aiarb.browser.sdk import contracts
 
     assert contracts is not None
 
@@ -69,7 +69,7 @@ def test_browser_sdk_execution_context_module() -> None:
     1. Import qwenpaw.browser.sdk.execution_context.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.sdk import execution_context
+    from aiarb.browser.sdk import execution_context
 
     assert execution_context is not None
 
@@ -85,7 +85,7 @@ def test_browser_sdk_facade_module() -> None:
     1. Import qwenpaw.browser.sdk.facade.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.sdk import facade
+    from aiarb.browser.sdk import facade
 
     assert facade is not None
 
@@ -101,7 +101,7 @@ def test_browser_sdk_page_module() -> None:
     1. Import qwenpaw.browser.sdk.page.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.sdk import page
+    from aiarb.browser.sdk import page
 
     assert page is not None
 
@@ -117,7 +117,7 @@ def test_browser_sdk_tabs_module() -> None:
     1. Import qwenpaw.browser.sdk.tabs.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.sdk import tabs
+    from aiarb.browser.sdk import tabs
 
     assert tabs is not None
 
@@ -133,7 +133,7 @@ def test_browser_runtime_engine_module() -> None:
     1. Import qwenpaw.browser.runtime.engine.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.runtime import engine
+    from aiarb.browser.runtime import engine
 
     assert engine is not None
 
@@ -149,7 +149,7 @@ def test_browser_runtime_identity_module() -> None:
     1. Import qwenpaw.browser.runtime.identity.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.runtime import identity
+    from aiarb.browser.runtime import identity
 
     assert identity is not None
 
@@ -165,7 +165,7 @@ def test_browser_runtime_launch_resolve_module() -> None:
     1. Import qwenpaw.browser.runtime.launch_resolve.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.runtime import launch_resolve
+    from aiarb.browser.runtime import launch_resolve
 
     assert launch_resolve is not None
 
@@ -181,7 +181,7 @@ def test_browser_runtime_locator_module() -> None:
     1. Import qwenpaw.browser.runtime.locator.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.runtime import locator
+    from aiarb.browser.runtime import locator
 
     assert locator is not None
 
@@ -197,7 +197,7 @@ def test_browser_runtime_ownership_module() -> None:
     1. Import qwenpaw.browser.runtime.ownership.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.runtime import ownership
+    from aiarb.browser.runtime import ownership
 
     assert ownership is not None
 
@@ -213,7 +213,7 @@ def test_browser_runtime_ports_module() -> None:
     1. Import qwenpaw.browser.runtime.ports.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.runtime import ports
+    from aiarb.browser.runtime import ports
 
     assert ports is not None
 
@@ -229,7 +229,7 @@ def test_browser_telemetry_trace_module() -> None:
     1. Import qwenpaw.browser.telemetry.trace.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.telemetry import trace
+    from aiarb.browser.telemetry import trace
 
     assert trace is not None
 
@@ -245,7 +245,7 @@ def test_browser_control_link_identity_module() -> None:
     1. Import qwenpaw.browser.control_link.identity.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser.control_link import identity
+    from aiarb.browser.control_link import identity
 
     assert identity is not None
 
@@ -261,7 +261,7 @@ def test_browser_handoff_signal_module() -> None:
     1. Import qwenpaw.browser.handoff_signal.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser import handoff_signal
+    from aiarb.browser import handoff_signal
 
     assert handoff_signal is not None
 
@@ -277,6 +277,6 @@ def test_browser_tool_entrypoint_module() -> None:
     1. Import qwenpaw.browser.tool_entrypoint.
     2. Verify import succeeds.
     """
-    from qwenpaw.browser import tool_entrypoint
+    from aiarb.browser import tool_entrypoint
 
     assert tool_entrypoint is not None

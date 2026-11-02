@@ -13,11 +13,11 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.agents.context.scroll.history import HistoryStore
-from qwenpaw.agents.context.types import LogEntry
-from qwenpaw.backup._ops import restore
-from qwenpaw.backup._ops.create_helpers import add_agent_workspaces
-from qwenpaw.backup.models import BackupValidationError
+from aiarb.agents.context.scroll.history import HistoryStore
+from aiarb.agents.context.types import LogEntry
+from aiarb.backup._ops import restore
+from aiarb.backup._ops.create_helpers import add_agent_workspaces
+from aiarb.backup.models import BackupValidationError
 
 
 def _agent_json(db_filename: str = "history.db") -> str:

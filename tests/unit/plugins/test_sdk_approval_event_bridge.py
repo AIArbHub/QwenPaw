@@ -15,7 +15,7 @@ from .timing import WAIT_TIMEOUT
 
 SOURCE = """
 from dataclasses import FrozenInstanceError
-from qwenpaw.plugins.events import EventSubscription
+from aiarb.plugins.events import EventSubscription
 
 
 class Plugin:
@@ -55,14 +55,14 @@ async def test_approval_resolve_supersede_cancel_and_gc_results(
     tmp_path,
     observer_raises,
 ):
-    from qwenpaw.plugins.testing import PluginTestHost
-    from qwenpaw.app.approvals.service import (
+    from aiarb.plugins.testing import PluginTestHost
+    from aiarb.app.approvals.service import (
         ApprovalService,
         _GC_PENDING_MAX_AGE_SECONDS,
     )
-    from qwenpaw.app.approvals.models import ApprovalRequestSummary
-    from qwenpaw.security.tool_guard.approval import ApprovalDecision
-    from qwenpaw.security.tool_guard.models import ToolGuardResult
+    from aiarb.app.approvals.models import ApprovalRequestSummary
+    from aiarb.security.tool_guard.approval import ApprovalDecision
+    from aiarb.security.tool_guard.models import ToolGuardResult
 
     async with PluginTestHost(tmp_path / "host") as host:
         ctx = await host.load(

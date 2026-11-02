@@ -23,13 +23,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from qwenpaw.agents import acp as acp_pkg
-from qwenpaw.app import agent_context
-from qwenpaw.config import config as config_mod
+from aiarb.agents import acp as acp_pkg
+from aiarb.app import agent_context
+from aiarb.config import config as config_mod
 
 # Package ``tools.__init__`` re-exports the tool function under the same
 # name as the module, so resolve the real module object via importlib.
-dea = importlib.import_module("qwenpaw.agents.tools.delegate_external_agent")
+dea = importlib.import_module("aiarb.agents.tools.delegate_external_agent")
 
 
 def _chunk_text(chunk: Any) -> str:

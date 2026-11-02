@@ -13,35 +13,35 @@ from types import ModuleType, SimpleNamespace
 
 import pytest
 
-from qwenpaw.app.chats.manager import ChatManager
-from qwenpaw.app.agent_context import scoped_session_id
-from qwenpaw.modes.mission import MissionMode
-from qwenpaw.app.chats.repo import JsonChatRepository
-from qwenpaw.app.chats.session import SafeJSONSession
-from qwenpaw.app.crons.manager import CronManager
-from qwenpaw.app.driver_config_service import DriverConfigService
-from qwenpaw.drivers.adapters.mcp_legacy_config import (
+from aiarb.app.chats.manager import ChatManager
+from aiarb.app.agent_context import scoped_session_id
+from aiarb.modes.mission import MissionMode
+from aiarb.app.chats.repo import JsonChatRepository
+from aiarb.app.chats.session import SafeJSONSession
+from aiarb.app.crons.manager import CronManager
+from aiarb.app.driver_config_service import DriverConfigService
+from aiarb.drivers.adapters.mcp_legacy_config import (
     legacy_mcp_client_to_driver,
 )
-from qwenpaw.harnesses.events import HarnessHistoryItem, HarnessHistoryKind
-from qwenpaw.portability.importer import ProviderImportService
-from qwenpaw.portability.import_jobs import (
+from aiarb.harnesses.events import HarnessHistoryItem, HarnessHistoryKind
+from aiarb.portability.importer import ProviderImportService
+from aiarb.portability.import_jobs import (
     ImportProviderSnapshot,
     PortabilityImportJobManager,
 )
-from qwenpaw.portability.import_support import (
+from aiarb.portability.import_support import (
     _create_memory_project as create_memory_project,
     _prepare_memory_payloads,
 )
-from qwenpaw.portability.adaptation_loop import (
+from aiarb.portability.adaptation_loop import (
     AdaptationResult,
     get_active_adaptation_context,
 )
-from qwenpaw.portability.compatibility import (
+from aiarb.portability.compatibility import (
     CompatibilityStore,
     load_manifest,
 )
-from qwenpaw.portability.models import (
+from aiarb.portability.models import (
     ImportAssetResult,
     ImportAssetState,
     ImportSelection,
@@ -55,13 +55,13 @@ from qwenpaw.portability.models import (
     SourceSkill,
     SourceScheduledTask,
 )
-from qwenpaw.portability import planner
-from qwenpaw.portability.selection import select_inventory
-from qwenpaw.portability.transaction_journal import (
+from aiarb.portability import planner
+from aiarb.portability.selection import select_inventory
+from aiarb.portability.transaction_journal import (
     ImportTransactionJournal,
     recover_import_transactions,
 )
-from qwenpaw.plugins.marketplace_registry import ExternalMarketplaceRegistry
+from aiarb.plugins.marketplace_registry import ExternalMarketplaceRegistry
 
 
 class _Provider:
@@ -87,7 +87,7 @@ class _Provider:
 
 def _bind_inventory(monkeypatch, inventory: ProviderInventory) -> None:
     monkeypatch.setattr(
-        "qwenpaw.portability.import_planning.create_migration_provider",
+        "aiarb.portability.import_planning.create_migration_provider",
         lambda _source, _workspace, **_kwargs: _Provider(inventory),
     )
 
@@ -148,7 +148,7 @@ def _mock_adaptation(
         )
 
     monkeypatch.setattr(
-        "qwenpaw.portability.importer.run_adaptation_loop",
+        "aiarb.portability.importer.run_adaptation_loop",
         result,
     )
 
@@ -266,7 +266,7 @@ async def test_failed_skill_details_isolated_and_retryable(
     except OSError:
         pytest.skip("symbolic links are unavailable on this platform")
     monkeypatch.setattr(
-        "qwenpaw.portability.import_planning.create_migration_provider",
+        "aiarb.portability.import_planning.create_migration_provider",
         lambda *_args, **_kwargs: _Provider(inventory.model_copy(deep=True)),
     )
     manager = PortabilityImportJobManager()
@@ -325,7 +325,7 @@ async def test_unavailable_loader_does_not_claim_repair_plugin_passed(
     tmp_path,
     monkeypatch,
 ):
-    from qwenpaw.portability.codex_plugin_adapter import ADAPTER
+    from aiarb.portability.codex_plugin_adapter import ADAPTER
 
     workspace = _workspace(tmp_path)
     inventory = ProviderInventory(
@@ -344,7 +344,7 @@ async def test_unavailable_loader_does_not_claim_repair_plugin_passed(
     )
     _mock_adaptation(monkeypatch, workspace, inventory, zone="repair")
     monkeypatch.setattr(
-        "qwenpaw.plugins.registry.PluginRegistry.get_plugin_http_app",
+        "aiarb.plugins.registry.PluginRegistry.get_plugin_http_app",
         lambda self: None,
     )
     (asset,) = await _apply_with_results(workspace, inventory)
@@ -358,7 +358,7 @@ async def test_repeated_native_failure_keeps_agent_explanation(
     tmp_path,
     monkeypatch,
 ):
-    from qwenpaw.portability.compatibility_testing import CompatibilityTester
+    from aiarb.portability.compatibility_testing import CompatibilityTester
 
     workspace = _workspace(tmp_path)
     skills = _source_skills(tmp_path, "broken")
@@ -393,7 +393,7 @@ async def test_repeated_native_failure_keeps_agent_explanation(
         return AdaptationResult(manifest, tmp_path / "summary.md")
 
     monkeypatch.setattr(
-        "qwenpaw.portability.importer.run_adaptation_loop",
+        "aiarb.portability.importer.run_adaptation_loop",
         adaptation,
     )
     (asset,) = await _apply_with_results(workspace, inventory)
@@ -460,15 +460,15 @@ async def test_import_failures_explain_each_asset_and_keep_relevant_analysis(
         raise PermissionError("api_key=sk-test-secret-1234567890")
 
     monkeypatch.setattr(
-        "qwenpaw.portability.importer.run_adaptation_loop",
+        "aiarb.portability.importer.run_adaptation_loop",
         adaptation,
     )
     monkeypatch.setattr(
-        "qwenpaw.portability.importer.SkillService.import_from_zip",
+        "aiarb.portability.importer.SkillService.import_from_zip",
         deny_write,
     )
     monkeypatch.setattr(
-        "qwenpaw.portability.importer._create_memory_project",
+        "aiarb.portability.importer._create_memory_project",
         deny_write,
     )
     results = await _apply_with_results(
@@ -810,7 +810,7 @@ async def test_migrate_zone_materializes_assets(
         )
 
     monkeypatch.setattr(
-        "qwenpaw.portability.importer.run_adaptation_loop",
+        "aiarb.portability.importer.run_adaptation_loop",
         _approved,
     )
 
@@ -1484,14 +1484,14 @@ async def test_provider_plugin_restores_marketplace_then_native_installs(
 
     app = SimpleNamespace(state=SimpleNamespace(plugin_loader=object()))
     monkeypatch.setattr(
-        "qwenpaw.plugins.registry.PluginRegistry.get_plugin_http_app",
+        "aiarb.plugins.registry.PluginRegistry.get_plugin_http_app",
         lambda _self: app,
     )
-    plugins_router = ModuleType("qwenpaw.app.routers.plugins")
+    plugins_router = ModuleType("aiarb.app.routers.plugins")
     plugins_router.install_plugin_source = _install
     monkeypatch.setitem(
         sys.modules,
-        "qwenpaw.app.routers.plugins",
+        "aiarb.app.routers.plugins",
         plugins_router,
     )
     inventory = ProviderInventory(
@@ -1666,14 +1666,14 @@ async def test_qoder_custom_skill_plugin_uses_native_adapter(
 
     app = SimpleNamespace(state=SimpleNamespace(plugin_loader=object()))
     monkeypatch.setattr(
-        "qwenpaw.plugins.registry.PluginRegistry.get_plugin_http_app",
+        "aiarb.plugins.registry.PluginRegistry.get_plugin_http_app",
         lambda _self: app,
     )
-    plugins_router = ModuleType("qwenpaw.app.routers.plugins")
+    plugins_router = ModuleType("aiarb.app.routers.plugins")
     plugins_router.install_plugin_source = _install
     monkeypatch.setitem(
         sys.modules,
-        "qwenpaw.app.routers.plugins",
+        "aiarb.app.routers.plugins",
         plugins_router,
     )
     inventory = ProviderInventory(
@@ -1764,14 +1764,14 @@ async def test_codex_content_plugin_registers_skills_and_owned_mcp(
 
     app = SimpleNamespace(state=SimpleNamespace(plugin_loader=object()))
     monkeypatch.setattr(
-        "qwenpaw.plugins.registry.PluginRegistry.get_plugin_http_app",
+        "aiarb.plugins.registry.PluginRegistry.get_plugin_http_app",
         lambda _self: app,
     )
-    plugins_router = ModuleType("qwenpaw.app.routers.plugins")
+    plugins_router = ModuleType("aiarb.app.routers.plugins")
     plugins_router.install_plugin_source = _install
     monkeypatch.setitem(
         sys.modules,
-        "qwenpaw.app.routers.plugins",
+        "aiarb.app.routers.plugins",
         plugins_router,
     )
     plugin_id = "creative-production@openai-curated-remote"

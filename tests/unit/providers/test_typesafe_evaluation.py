@@ -15,7 +15,7 @@ from agentscope.classifier import (
     JevClassifierModel,
 )
 
-from qwenpaw.providers.typesafe_provider import (
+from aiarb.providers.typesafe_provider import (
     TypeSafeEvaluationError,
     TypeSafeProvider,
 )

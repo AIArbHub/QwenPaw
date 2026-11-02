@@ -18,7 +18,7 @@ import pytest
 @pytest.mark.p1
 def test_parse_only_defaults_to_safe_ids() -> None:
     """Empty ``only`` returns sorted safe fix ids."""
-    from qwenpaw.cli.doctor_fix_runner import (
+    from aiarb.cli.doctor_fix_runner import (
         SAFE_FIX_IDS,
         _parse_only,
     )
@@ -32,7 +32,7 @@ def test_parse_only_defaults_to_safe_ids() -> None:
 @pytest.mark.p1
 def test_parse_only_explicit_ids() -> None:
     """Comma-separated ids parse in order, whitespace stripped."""
-    from qwenpaw.cli.doctor_fix_runner import _parse_only
+    from aiarb.cli.doctor_fix_runner import _parse_only
 
     result = _parse_only("ensure-working-dir, validate-all-jobs-json")
     assert result == ["ensure-working-dir", "validate-all-jobs-json"]
@@ -42,7 +42,7 @@ def test_parse_only_explicit_ids() -> None:
 @pytest.mark.p1
 def test_parse_only_rejects_unknown_id() -> None:
     """Unknown fix ids raise ValueError listing known ids."""
-    from qwenpaw.cli.doctor_fix_runner import _parse_only
+    from aiarb.cli.doctor_fix_runner import _parse_only
 
     with pytest.raises(ValueError, match="unknown fix id"):
         _parse_only("nonexistent-fix")
@@ -52,7 +52,7 @@ def test_parse_only_rejects_unknown_id() -> None:
 @pytest.mark.p1
 def test_fix_id_sets_partition() -> None:
     """Fix-id categories are disjoint and union to ALL_FIX_IDS."""
-    from qwenpaw.cli.doctor_fix_runner import (
+    from aiarb.cli.doctor_fix_runner import (
         ALL_FIX_IDS,
         NONINTERACTIVE_FIX_IDS,
         READONLY_FIX_IDS,
@@ -77,7 +77,7 @@ def test_fix_id_sets_partition() -> None:
 @pytest.mark.p1
 def test_workspace_under_working_dir(tmp_path: Path) -> None:
     """Workspace inside working dir passes; outside fails."""
-    from qwenpaw.cli.doctor_fix_runner import workspace_under_working_dir
+    from aiarb.cli.doctor_fix_runner import workspace_under_working_dir
 
     wd = tmp_path / "wd"
     wd.mkdir()
@@ -94,7 +94,7 @@ def test_workspace_under_working_dir(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_path_allowed_for_write(tmp_path: Path) -> None:
     """Writes allowed under wd, rejected outside."""
-    from qwenpaw.cli.doctor_fix_runner import path_allowed_for_write
+    from aiarb.cli.doctor_fix_runner import path_allowed_for_write
 
     wd = tmp_path / "wd"
     wd.mkdir()
@@ -112,7 +112,7 @@ def test_path_allowed_for_write(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_relative_under_wd(tmp_path: Path) -> None:
     """Relative path computed under working dir."""
-    from qwenpaw.cli.doctor_fix_runner import _relative_under_wd
+    from aiarb.cli.doctor_fix_runner import _relative_under_wd
 
     wd = tmp_path / "wd"
     (wd / "a" / "b").mkdir(parents=True)
@@ -126,7 +126,7 @@ def test_relative_under_wd(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_normalize_cron_fields_no_jobs() -> None:
     """Dict without jobs list returns unchanged False."""
-    from qwenpaw.cli.doctor_fix_runner import (
+    from aiarb.cli.doctor_fix_runner import (
         _normalize_cron_fields_in_jobs_dict,
     )
 
@@ -139,7 +139,7 @@ def test_normalize_cron_fields_no_jobs() -> None:
 @pytest.mark.p1
 def test_normalize_cron_fields_valid_cron_unchanged() -> None:
     """Already-normal cron expression produces no change."""
-    from qwenpaw.cli.doctor_fix_runner import (
+    from aiarb.cli.doctor_fix_runner import (
         _normalize_cron_fields_in_jobs_dict,
     )
 
@@ -162,7 +162,7 @@ def test_normalize_cron_fields_valid_cron_unchanged() -> None:
 @pytest.mark.p1
 def test_normalize_cron_fields_invalid_cron_raises() -> None:
     """Invalid cron expression raises ValueError with job id."""
-    from qwenpaw.cli.doctor_fix_runner import (
+    from aiarb.cli.doctor_fix_runner import (
         _normalize_cron_fields_in_jobs_dict,
     )
 
@@ -179,7 +179,7 @@ def test_normalize_cron_fields_invalid_cron_raises() -> None:
 @pytest.mark.p1
 def test_normalize_cron_skips_non_dict_entries() -> None:
     """Non-dict job entries and non-dict schedules are skipped."""
-    from qwenpaw.cli.doctor_fix_runner import (
+    from aiarb.cli.doctor_fix_runner import (
         _normalize_cron_fields_in_jobs_dict,
     )
 
@@ -191,7 +191,7 @@ def test_normalize_cron_skips_non_dict_entries() -> None:
 @pytest.mark.p1
 def test_workspace_agent_json_valid_true(tmp_path: Path) -> None:
     """A minimal valid agent profile passes validation."""
-    from qwenpaw.cli.doctor_fix_runner import _workspace_agent_json_valid
+    from aiarb.cli.doctor_fix_runner import _workspace_agent_json_valid
 
     path = tmp_path / "agent.json"
     minimal = {"id": "default", "name": "Default Agent"}
@@ -203,7 +203,7 @@ def test_workspace_agent_json_valid_true(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_workspace_agent_json_invalid_json(tmp_path: Path) -> None:
     """Broken JSON returns False."""
-    from qwenpaw.cli.doctor_fix_runner import _workspace_agent_json_valid
+    from aiarb.cli.doctor_fix_runner import _workspace_agent_json_valid
 
     path = tmp_path / "agent.json"
     path.write_text("{ not json", encoding="utf-8")
@@ -214,7 +214,7 @@ def test_workspace_agent_json_invalid_json(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_workspace_agent_json_non_dict(tmp_path: Path) -> None:
     """Valid JSON that is not an object returns False."""
-    from qwenpaw.cli.doctor_fix_runner import _workspace_agent_json_valid
+    from aiarb.cli.doctor_fix_runner import _workspace_agent_json_valid
 
     path = tmp_path / "agent.json"
     path.write_text("[1, 2, 3]", encoding="utf-8")
@@ -225,7 +225,7 @@ def test_workspace_agent_json_non_dict(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_workspace_agent_json_missing_file(tmp_path: Path) -> None:
     """Missing file returns False (OSError caught)."""
-    from qwenpaw.cli.doctor_fix_runner import _workspace_agent_json_valid
+    from aiarb.cli.doctor_fix_runner import _workspace_agent_json_valid
 
     assert _workspace_agent_json_valid(tmp_path / "nope.json") is False
 
@@ -234,7 +234,7 @@ def test_workspace_agent_json_missing_file(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_atomic_write_text(tmp_path: Path) -> None:
     """Atomic write lands content and cleans the temp file."""
-    from qwenpaw.cli.doctor_fix_runner import _atomic_write_text
+    from aiarb.cli.doctor_fix_runner import _atomic_write_text
 
     path = tmp_path / "deep" / "target.json"
     _atomic_write_text(path, '{"ok": true}')
@@ -248,7 +248,7 @@ def test_atomic_write_text(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_backup_one_file_copies_existing(tmp_path: Path) -> None:
     """Existing file is copied into the session backup tree."""
-    from qwenpaw.cli.doctor_fix_runner import _backup_one_file
+    from aiarb.cli.doctor_fix_runner import _backup_one_file
 
     wd = tmp_path / "wd"
     wd.mkdir()
@@ -264,7 +264,7 @@ def test_backup_one_file_copies_existing(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_backup_one_file_missing_marker(tmp_path: Path) -> None:
     """Missing source writes a .MISSING marker instead of copying."""
-    from qwenpaw.cli.doctor_fix_runner import _backup_one_file
+    from aiarb.cli.doctor_fix_runner import _backup_one_file
 
     wd = tmp_path / "wd"
     wd.mkdir()
@@ -280,7 +280,7 @@ def test_backup_one_file_missing_marker(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_effective_cli_api_host_port_explicit() -> None:
     """Explicit overrides win over saved last-api values."""
-    from qwenpaw.cli.doctor_fix_runner import _effective_cli_api_host_port
+    from aiarb.cli.doctor_fix_runner import _effective_cli_api_host_port
 
     host, port = _effective_cli_api_host_port("0.0.0.0", 9999)
     assert host == "0.0.0.0"
@@ -291,7 +291,7 @@ def test_effective_cli_api_host_port_explicit() -> None:
 @pytest.mark.p1
 def test_planned_fix_dataclass() -> None:
     """PlannedFix is a frozen dataclass with expected fields."""
-    from qwenpaw.cli.doctor_fix_runner import PlannedFix
+    from aiarb.cli.doctor_fix_runner import PlannedFix
 
     fix = PlannedFix(
         fix_id="ensure-working-dir",

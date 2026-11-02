@@ -13,7 +13,7 @@ import click
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli import auto as auto_mod
+from aiarb.cli import auto as auto_mod
 
 # Module-level recorder: a class attribute referenced as `_FakeClient.calls`
 # would be re-created per fixture reset, and instances cannot see it reliably.
@@ -180,7 +180,7 @@ class _BoomClient:
 class TestLoadManagerClasses:
     def test_loads_the_configured_manager(self):
         classes = auto_mod._load_manager_classes()
-        from qwenpaw.app.crons.manager import CronManager
+        from aiarb.app.crons.manager import CronManager
 
         assert CronManager in classes
 
@@ -196,9 +196,9 @@ class TestLoadManagerClasses:
         monkeypatch.setattr(
             auto_mod,
             "_MANAGER_CLASSES",
-            ["no.such.module:Nope", "qwenpaw.app.crons.manager:CronManager"],
+            ["no.such.module:Nope", "aiarb.app.crons.manager:CronManager"],
         )
-        from qwenpaw.app.crons.manager import CronManager
+        from aiarb.app.crons.manager import CronManager
 
         assert auto_mod._load_manager_classes() == [CronManager]
 

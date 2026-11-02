@@ -14,9 +14,9 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.app.mcp import config_service as cs
-from qwenpaw.app.mcp.schemas import MCPAccessPolicy, MCPClientInfo
-from qwenpaw.drivers.constants import (
+from aiarb.app.mcp import config_service as cs
+from aiarb.app.mcp.schemas import MCPAccessPolicy, MCPClientInfo
+from aiarb.drivers.constants import (
     CAPABILITY_KIND_TOOL,
     POLICY_EFFECT_ALLOW,
     POLICY_EFFECT_ASK,
@@ -25,7 +25,7 @@ from qwenpaw.drivers.constants import (
     PRINCIPAL_SUBJECT_ALL,
     PRINCIPAL_SUBJECT_USER,
 )
-from qwenpaw.drivers.policy_types import (
+from aiarb.drivers.policy_types import (
     PolicyPrincipal,
     PolicyRule,
     PolicyTarget,
@@ -158,7 +158,7 @@ class TestMergeUpdateWithExisting:
         )
 
     def test_no_updates_returns_create_request(self):
-        from qwenpaw.app.mcp.schemas import MCPClientUpdateRequest
+        from aiarb.app.mcp.schemas import MCPClientUpdateRequest
 
         info = self._info()
         result = cs.merge_update_with_existing(info, MCPClientUpdateRequest())
@@ -166,7 +166,7 @@ class TestMergeUpdateWithExisting:
         assert result.command == "mcp-server"
 
     def test_updates_override_existing(self):
-        from qwenpaw.app.mcp.schemas import MCPClientUpdateRequest
+        from aiarb.app.mcp.schemas import MCPClientUpdateRequest
 
         info = self._info()
         result = cs.merge_update_with_existing(
@@ -177,7 +177,7 @@ class TestMergeUpdateWithExisting:
         assert result.command == "mcp-server"
 
     def test_none_update_values_ignored(self):
-        from qwenpaw.app.mcp.schemas import MCPClientUpdateRequest
+        from aiarb.app.mcp.schemas import MCPClientUpdateRequest
 
         info = self._info()
         result = cs.merge_update_with_existing(
@@ -253,7 +253,7 @@ class TestEnsureDisplayNameUnique:
 
 class TestMcpAccessPolicyFromCard:
     def test_empty_policy(self):
-        from qwenpaw.drivers.policy_types import DriverPolicy
+        from aiarb.drivers.policy_types import DriverPolicy
 
         card = SimpleNamespace(policy=DriverPolicy())
         result = cs.mcp_access_policy_from_card(card)
@@ -263,7 +263,7 @@ class TestMcpAccessPolicyFromCard:
         assert result.tool_overrides == []
 
     def test_condition_rules_filtered(self):
-        from qwenpaw.drivers.policy_types import DriverPolicy
+        from aiarb.drivers.policy_types import DriverPolicy
 
         rule = _policy_rule(condition={"if": True})
         card = SimpleNamespace(policy=DriverPolicy(rules=[rule]))
@@ -273,7 +273,7 @@ class TestMcpAccessPolicyFromCard:
         assert result.tool_defaults == []
 
     def test_channel_rule_becomes_tool_override(self):
-        from qwenpaw.drivers.policy_types import DriverPolicy
+        from aiarb.drivers.policy_types import DriverPolicy
 
         rule = _policy_rule(
             source_type=PRINCIPAL_SOURCE_CHANNEL,

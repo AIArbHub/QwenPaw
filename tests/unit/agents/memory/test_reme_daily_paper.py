@@ -122,8 +122,6 @@ async def test_daily_paper_reports_the_real_execution_failure() -> None:
     manager._active_reme_jobs = 0
     manager._update_AIARB_model = AsyncMock()
     manager._load_memory_config = lambda: SimpleNamespace(
-    manager._update_aiarb_model = AsyncMock()
-    manager.get_memory_config = lambda: SimpleNamespace(
         daily_paper_use_hf_mirror=True,
         daily_paper_topics="",
     )

@@ -233,7 +233,7 @@ class TestLinuxSandboxExecution:
 
     def test_execute_redirects_stdin_to_devnull(self, tmp_path):
         """Landlock commands must not inherit the parent console stdin."""
-        from qwenpaw.sandbox.linux_sandbox import LinuxSandbox
+        from aiarb.sandbox.linux_sandbox import LinuxSandbox
 
         sandbox = LinuxSandbox(
             SandboxConfig(
@@ -247,11 +247,11 @@ class TestLinuxSandboxExecution:
 
         with (
             patch(
-                "qwenpaw.sandbox.linux_sandbox._generate_sandbox_script",
+                "aiarb.sandbox.linux_sandbox._generate_sandbox_script",
                 return_value="print('sandbox')",
             ),
             patch(
-                "qwenpaw.sandbox.linux_sandbox."
+                "aiarb.sandbox.linux_sandbox."
                 "asyncio.create_subprocess_exec",
                 new=AsyncMock(return_value=proc),
             ) as create_process,

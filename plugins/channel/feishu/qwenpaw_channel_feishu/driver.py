@@ -11,12 +11,12 @@ import json
 from pathlib import Path
 import uuid
 
-from qwenpaw.channel_protocol.errors import RPC_LIFECYCLE_ERROR, RpcError
-from qwenpaw.channel_protocol.response_policy import ResponsePolicy
-from qwenpaw.channel_protocol.targets import decode_reply_target
-from qwenpaw.channel_protocol.models import InboundEvent
-from qwenpaw.channel_protocol.response_lifecycle import ResponseResourceRef
-from qwenpaw.channel_protocol.shared_response_driver import (
+from aiarb.channel_protocol.errors import RPC_LIFECYCLE_ERROR, RpcError
+from aiarb.channel_protocol.response_policy import ResponsePolicy
+from aiarb.channel_protocol.targets import decode_reply_target
+from aiarb.channel_protocol.models import InboundEvent
+from aiarb.channel_protocol.response_lifecycle import ResponseResourceRef
+from aiarb.channel_protocol.shared_response_driver import (
     SharedResponseDriver,
 )
 from .errors import FeishuDeliveryError
@@ -58,7 +58,7 @@ class FeishuDriver(SharedResponseDriver):
                 if workspace:
                     media = str(Path(workspace) / "media")
                 else:
-                    from qwenpaw.constant import DEFAULT_MEDIA_DIR
+                    from aiarb.constant import DEFAULT_MEDIA_DIR
 
                     media = str(DEFAULT_MEDIA_DIR)
             await self._platform.prepare(
@@ -215,7 +215,7 @@ class FeishuDriver(SharedResponseDriver):
         if workspace:
             path = Path(workspace) / "feishu_receive_ids.json"
         else:
-            from qwenpaw.config.utils import get_config_path
+            from aiarb.config.utils import get_config_path
 
             path = get_config_path().parent / "feishu_receive_ids.json"
         if not path.is_file():

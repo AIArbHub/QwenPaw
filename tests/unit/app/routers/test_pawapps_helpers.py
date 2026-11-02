@@ -13,7 +13,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 
-from qwenpaw.app.routers import pawapps as pa
+from aiarb.app.routers import pawapps as pa
 
 
 def _manifest(**meta_pawapp):

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Aliyun Skill marketplace plugin."""
 
-from qwenpaw.market.builtin import BuiltinMarketProvider
-from qwenpaw.market.providers.aliyun import AliyunProvider
+from aiarb.market.builtin import BuiltinMarketProvider
+from aiarb.market.providers.aliyun import AliyunProvider
 
 
 class HubPlugin:

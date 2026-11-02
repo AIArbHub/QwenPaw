@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import pytest
 
-from qwenpaw.agents.utils.as_msg_handler import AsMsgHandler
-from qwenpaw.agents.utils.estimate_token_counter import EstimatedTokenCounter
+from aiarb.agents.utils.as_msg_handler import AsMsgHandler
+from aiarb.agents.utils.estimate_token_counter import EstimatedTokenCounter
 
 
 @pytest.fixture

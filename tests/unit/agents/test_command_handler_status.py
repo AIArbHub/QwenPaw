@@ -16,7 +16,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from agentscope.message import Msg, TextBlock
 
-from qwenpaw.agents.command_handler import CommandHandler
+from aiarb.agents.command_handler import CommandHandler
 
 
 def _state(summary: str = ""):
@@ -298,15 +298,15 @@ class TestProcessHistory:
                 new=AsyncMock(return_value=config),
             ),
             patch(
-                "qwenpaw.agents.command_handler.format_history_str",
+                "aiarb.agents.command_handler.format_history_str",
                 new=AsyncMock(return_value="user: hi\nassistant: hello"),
             ),
             patch(
-                "qwenpaw.agents.command_handler.get_model_max_input_length",
+                "aiarb.agents.command_handler.get_model_max_input_length",
                 return_value=8000,
             ),
             patch(
-                "qwenpaw.agents.utils.get_token_counter",
+                "aiarb.agents.utils.get_token_counter",
                 return_value=MagicMock(),
             ),
         ):
@@ -329,15 +329,15 @@ class TestProcessHistory:
                 new=AsyncMock(return_value=config),
             ),
             patch(
-                "qwenpaw.agents.command_handler.format_history_str",
+                "aiarb.agents.command_handler.format_history_str",
                 new=AsyncMock(return_value=long_history),
             ),
             patch(
-                "qwenpaw.agents.command_handler.get_model_max_input_length",
+                "aiarb.agents.command_handler.get_model_max_input_length",
                 return_value=8000,
             ),
             patch(
-                "qwenpaw.agents.utils.get_token_counter",
+                "aiarb.agents.utils.get_token_counter",
                 return_value=MagicMock(),
             ),
         ):
@@ -360,15 +360,15 @@ class TestProcessHistory:
                 new=AsyncMock(return_value=config),
             ),
             patch(
-                "qwenpaw.agents.command_handler.format_history_str",
+                "aiarb.agents.command_handler.format_history_str",
                 new=AsyncMock(return_value="short"),
             ),
             patch(
-                "qwenpaw.agents.command_handler.get_model_max_input_length",
+                "aiarb.agents.command_handler.get_model_max_input_length",
                 return_value=8000,
             ),
             patch(
-                "qwenpaw.agents.utils.get_token_counter",
+                "aiarb.agents.utils.get_token_counter",
                 return_value=MagicMock(),
             ),
         ):

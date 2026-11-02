@@ -15,7 +15,7 @@ from types import SimpleNamespace
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.routers import fork as fork_module
+from aiarb.app.routers import fork as fork_module
 
 
 # ---------------------------------------------------------------------------

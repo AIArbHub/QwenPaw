@@ -12,12 +12,12 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.plugins.architecture import PluginManifest
-from qwenpaw.plugins.lifecycle import PluginState, UnloadMode
-from qwenpaw.plugins.loader import PluginLoader
-from qwenpaw.plugins.settings import persist_plugin_settings
-from qwenpaw.plugins.workspace_projector import WorkspaceProjector
-from qwenpaw.runtime.slash_command_registry import SlashCommandRegistry
+from aiarb.plugins.architecture import PluginManifest
+from aiarb.plugins.lifecycle import PluginState, UnloadMode
+from aiarb.plugins.loader import PluginLoader
+from aiarb.plugins.settings import persist_plugin_settings
+from aiarb.plugins.workspace_projector import WorkspaceProjector
+from aiarb.runtime.slash_command_registry import SlashCommandRegistry
 
 from .timing import WAIT_TIMEOUT
 
@@ -95,11 +95,11 @@ async def test_update_config_success_replaces_slash(
     monkeypatch,
 ):
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     monkeypatch.setattr(
-        "qwenpaw.plugins.settings.persist_plugin_settings",
+        "aiarb.plugins.settings.persist_plugin_settings",
         lambda *args, **kwargs: None,
     )
     body = (
@@ -132,11 +132,11 @@ async def test_config_write_failure_restores_runtime_and_allows_retry(
 ):
     config_path = tmp_path / "config.json"
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     monkeypatch.setattr(
-        "qwenpaw.config.utils.get_config_path",
+        "aiarb.config.utils.get_config_path",
         lambda: config_path,
     )
     persist_plugin_settings("cfg", config={"cmd": "old"})
@@ -153,7 +153,7 @@ async def test_config_write_failure_restores_runtime_and_allows_retry(
         raise OSError("disk write failed")
 
     monkeypatch.setattr(
-        "qwenpaw.plugins.settings.persist_plugin_settings",
+        "aiarb.plugins.settings.persist_plugin_settings",
         fail_save,
     )
     if restore_fails:
@@ -182,7 +182,7 @@ async def test_config_write_failure_restores_runtime_and_allows_retry(
     assert config_path.read_bytes() == before
 
     monkeypatch.setattr(
-        "qwenpaw.plugins.settings.persist_plugin_settings",
+        "aiarb.plugins.settings.persist_plugin_settings",
         persist_plugin_settings,
     )
     report = await loader.lifecycle.update_config("cfg", {"cmd": "retry"})
@@ -205,11 +205,11 @@ async def test_cancel_during_config_save_keeps_runtime_and_disk_consistent(
 ):
     config_path = tmp_path / "config.json"
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     monkeypatch.setattr(
-        "qwenpaw.config.utils.get_config_path",
+        "aiarb.config.utils.get_config_path",
         lambda: config_path,
     )
     persist_plugin_settings("cfg", config={"cmd": "old"})
@@ -233,7 +233,7 @@ async def test_cancel_during_config_save_keeps_runtime_and_disk_consistent(
         persist_plugin_settings(*args, **kwargs)
 
     monkeypatch.setattr(
-        "qwenpaw.plugins.settings.persist_plugin_settings",
+        "aiarb.plugins.settings.persist_plugin_settings",
         blocked_save,
     )
     task = asyncio.create_task(
@@ -258,7 +258,7 @@ async def test_cancel_during_config_save_keeps_runtime_and_disk_consistent(
     ]["cmd"] == (expected)
     # A cancelled update must also release the lifecycle lock for a retry.
     monkeypatch.setattr(
-        "qwenpaw.plugins.settings.persist_plugin_settings",
+        "aiarb.plugins.settings.persist_plugin_settings",
         persist_plugin_settings,
     )
     report = await asyncio.wait_for(
@@ -275,11 +275,11 @@ async def test_set_enabled_unloads(
     monkeypatch,
 ):
     monkeypatch.setattr(
-        "qwenpaw.constant.WORKING_DIR",
+        "aiarb.constant.WORKING_DIR",
         tmp_path / "work",
     )
     monkeypatch.setattr(
-        "qwenpaw.plugins.settings.persist_plugin_settings",
+        "aiarb.plugins.settings.persist_plugin_settings",
         lambda *args, **kwargs: None,
     )
     loader, _workspace = await _load_with_workspace(

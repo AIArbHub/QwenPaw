@@ -16,9 +16,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.hooks.error.error_hook import CancelCleanupHook
-from qwenpaw.runtime.hooks import HookContext
-from qwenpaw.tool_calls import CancelReason, cancellation_reason
+from aiarb.hooks.error.error_hook import CancelCleanupHook
+from aiarb.runtime.hooks import HookContext
+from aiarb.tool_calls import CancelReason, cancellation_reason
 
 
 class _Capture(logging.Handler):
@@ -50,11 +50,11 @@ def _make_ctx(error: BaseException | None) -> HookContext:
 def fixture_capture(monkeypatch):
     """Capture cancel_cleanup logs and stub the approval service."""
     handler = _Capture()
-    logger = logging.getLogger("qwenpaw.hooks.error.error_hook")
+    logger = logging.getLogger("aiarb.hooks.error.error_hook")
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
 
-    import qwenpaw.app.approvals as approvals_pkg
+    import aiarb.app.approvals as approvals_pkg
 
     async def _noop_cancel(*_a, **_k) -> int:
         return 0

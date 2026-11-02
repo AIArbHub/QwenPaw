@@ -11,12 +11,12 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.routers import pawapps, plugins
-from qwenpaw.app.multi_agent_manager import MultiAgentManager
-from qwenpaw.plugins.architecture import PluginManifest
-from qwenpaw.plugins.lifecycle import UnloadMode
-from qwenpaw.plugins.loader import PluginLoader
-from qwenpaw.plugins.provision import provisions_dir
+from aiarb.app.routers import pawapps, plugins
+from aiarb.app.multi_agent_manager import MultiAgentManager
+from aiarb.plugins.architecture import PluginManifest
+from aiarb.plugins.lifecycle import UnloadMode
+from aiarb.plugins.loader import PluginLoader
+from aiarb.plugins.provision import provisions_dir
 
 from .timing import WAIT_TIMEOUT
 
@@ -27,7 +27,7 @@ def _patch_plugin_loader_unload() -> None:
     when the plugin is uninstalled.
     """
     try:
-        from qwenpaw.plugins.loader import PluginLoader
+        from aiarb.plugins.loader import PluginLoader
     except ImportError:
         logger.warning(
             "Cannot import PluginLoader; uninstall patch skipped",
@@ -73,8 +73,8 @@ def _patch_plugin_loader_unload() -> None:
 def legacy_cloudpaw(tmp_path, monkeypatch, fresh_registry):
     work = tmp_path / "work"
     work.mkdir()
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", work)
-    monkeypatch.setattr("qwenpaw.config.utils.WORKING_DIR", work)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", work)
+    monkeypatch.setattr("aiarb.config.utils.WORKING_DIR", work)
     monkeypatch.setattr(
         PluginLoader,
         "unload_plugin",
@@ -175,8 +175,8 @@ def _manager(agent_ids):
 
 
 def _seed_cloud_agents(work):
-    from qwenpaw.config.config import AgentProfileRef, AgentsConfig, Config
-    from qwenpaw.config.utils import save_config
+    from aiarb.config.config import AgentProfileRef, AgentsConfig, Config
+    from aiarb.config.utils import save_config
 
     profiles = {}
     for agent_id, name in (
@@ -220,7 +220,7 @@ async def test_legacy_uninstall_stops_all_agents_preserves_history(
     legacy_cloudpaw,
     loaded,
 ):
-    from qwenpaw.config.utils import load_config
+    from aiarb.config.utils import load_config
 
     loader, root, work = legacy_cloudpaw
     profiles = _seed_cloud_agents(work)
@@ -286,7 +286,7 @@ async def test_legacy_uninstall_stops_all_agents_preserves_history(
     [UnloadMode.UNLOAD, UnloadMode.SHUTDOWN, "reload"],
 )
 async def test_legacy_non_uninstall_keeps_agents(legacy_cloudpaw, mode):
-    from qwenpaw.config.utils import load_config
+    from aiarb.config.utils import load_config
 
     loader, root, work = legacy_cloudpaw
     profiles = _seed_cloud_agents(work)
@@ -315,7 +315,7 @@ async def test_legacy_cleanup_failure_keeps_retry_marker(
     monkeypatch,
     failure,
 ):
-    from qwenpaw.config import utils as config_utils
+    from aiarb.config import utils as config_utils
 
     loader, root, work = legacy_cloudpaw
     profiles = _seed_cloud_agents(work)
@@ -397,8 +397,8 @@ async def test_legacy_cleanup_failure_keeps_retry_marker(
 async def test_legacy_same_id_foreign_workspace_is_not_claimed(
     legacy_cloudpaw,
 ):
-    from qwenpaw.config.config import AgentProfileRef, AgentsConfig, Config
-    from qwenpaw.config.utils import load_config, save_config
+    from aiarb.config.config import AgentProfileRef, AgentsConfig, Config
+    from aiarb.config.utils import load_config, save_config
 
     loader, _root, work = legacy_cloudpaw
     foreign = work / "personal-workspace"
@@ -479,7 +479,7 @@ async def test_legacy_stop_timeout_reuses_pending_task(
     try:
         with monkeypatch.context() as blocked:
             blocked.setattr(
-                "qwenpaw.plugins.custody.CONNECTION_STOP_SECONDS",
+                "aiarb.plugins.custody.CONNECTION_STOP_SECONDS",
                 0.01,
             )
             for _ in range(2):
@@ -524,7 +524,7 @@ async def test_uninstall_reservation_blocks_cached_workspace_requests(
     legacy_cloudpaw,
     monkeypatch,
 ):
-    from qwenpaw.app.workspace.workspace import Workspace
+    from aiarb.app.workspace.workspace import Workspace
 
     _loader, _root, work = legacy_cloudpaw
     manager = MultiAgentManager()
@@ -537,7 +537,7 @@ async def test_uninstall_reservation_blocks_cached_workspace_requests(
         side_effect=AssertionError("request crossed reservation"),
     )
     monkeypatch.setattr(
-        "qwenpaw.app.workspace.workspace.load_agent_config",
+        "aiarb.app.workspace.workspace.load_agent_config",
         load_config,
     )
     with pytest.raises(RuntimeError, match="being uninstalled"):

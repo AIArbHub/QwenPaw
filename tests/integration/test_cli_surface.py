@@ -50,7 +50,7 @@ _SUBCOMMANDS = [
 
 def _run_cli(*args, timeout=60):
     return subprocess.run(
-        [sys.executable, "-m", "qwenpaw", *args],
+        [sys.executable, "-m", "aiarb", *args],
         capture_output=True,
         text=True,
         timeout=timeout,

@@ -19,8 +19,8 @@ import zipfile
 import httpx
 import pytest
 
-from qwenpaw.agents.skill_system import hub
-from qwenpaw.exceptions import SkillsError
+from aiarb.agents.skill_system import hub
+from aiarb.exceptions import SkillsError
 
 # ---------------------------------------------------------------------------
 # Env-driven config readers

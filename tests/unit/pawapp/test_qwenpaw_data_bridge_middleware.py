@@ -13,11 +13,11 @@ from agentscope.event import TextBlockDeltaEvent
 from agentscope.message import Msg, TextBlock
 from agentscope.state import AgentState
 
-from qwenpaw.app.chats.session import SafeJSONSession
-from qwenpaw.hooks.session.session_hook import SessionSaveHook
-from qwenpaw.runtime._state_utils import StateProxy
-from qwenpaw.runtime.hooks import HookContext, HookRegistry
-from qwenpaw.runtime.phases import Phase
+from aiarb.app.chats.session import SafeJSONSession
+from aiarb.hooks.session.session_hook import SessionSaveHook
+from aiarb.runtime._state_utils import StateProxy
+from aiarb.runtime.hooks import HookContext, HookRegistry
+from aiarb.runtime.phases import Phase
 
 
 def _user_msg(text: str) -> Msg:

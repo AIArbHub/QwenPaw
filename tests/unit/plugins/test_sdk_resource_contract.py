@@ -31,7 +31,7 @@ def make_plugin(tmp_path, body):
 
 
 async def test_partial_activation_failure_closes_created_resource(tmp_path):
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.testing import PluginTestHost
 
     source = """
 from pathlib import Path
@@ -59,7 +59,7 @@ plugin = Plugin()
 async def test_close_failure_blocks_replacement_and_remains_retryable(
     tmp_path,
 ):
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.testing import PluginTestHost
 
     source = """
 from pathlib import Path
@@ -106,7 +106,7 @@ plugin = Plugin()
 
 
 async def test_child_scope_release_is_idempotent_and_instance_local(tmp_path):
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.testing import PluginTestHost
 
     source = (
         "class Plugin:\n    def register(self, ctx):\n        "
@@ -141,8 +141,8 @@ async def test_child_scope_release_is_idempotent_and_instance_local(tmp_path):
 
 
 async def test_registration_phase_cannot_start_background_work(tmp_path):
-    from qwenpaw.plugins import SDKError
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import SDKError
+    from aiarb.plugins.testing import PluginTestHost
 
     source = """
 from pathlib import Path
@@ -228,8 +228,8 @@ async def test_unstoppable_thread_prevents_successful_unload(
     tmp_path,
     monkeypatch,
 ):
-    from qwenpaw.plugins import custody
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins import custody
+    from aiarb.plugins.testing import PluginTestHost
 
     # The release event keeps the worker blocked regardless of this budget.
     monkeypatch.setattr(custody, "THREAD_STOP_SECONDS", 0.2)
@@ -286,7 +286,7 @@ async def test_finished_managed_tasks_do_not_accumulate_live_resources(
 async def test_owned_process_stops_without_touching_independent_process(
     tmp_path,
 ):
-    from qwenpaw.plugins.testing import PluginTestHost
+    from aiarb.plugins.testing import PluginTestHost
 
     source = (
         "class Plugin:\n    def register(self, ctx):\n        "
@@ -329,7 +329,7 @@ async def test_finished_background_failure_remains_diagnosable(sdk_component):
 
 
 async def test_closed_child_scopes_release_parent_registration(sdk_component):
-    from qwenpaw.plugins import SDKError
+    from aiarb.plugins import SDKError
 
     async with sdk_component() as (host, ctx):
         initial = ctx.resources.snapshot()["resources"]

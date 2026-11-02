@@ -27,13 +27,13 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 
-from qwenpaw.app.crons.contracts import ServiceCronJob
-from qwenpaw.app.crons.manager import (
+from aiarb.app.crons.contracts import ServiceCronJob
+from aiarb.app.crons.manager import (
     HEARTBEAT_JOB_ID,
     CronManager,
 )
-from qwenpaw.app.crons.models import ScheduleSpec
-from qwenpaw.exceptions import ConfigurationException
+from aiarb.app.crons.models import ScheduleSpec
+from aiarb.exceptions import ConfigurationException
 from tests.unit.app.conftest import (
     InMemoryJobRepository,
     make_cron_job_spec,
@@ -44,7 +44,7 @@ from tests.unit.app.conftest import (
 def _no_real_inbox_writes(monkeypatch):
     """Keep cron tests from writing to the real inbox store."""
     monkeypatch.setattr(
-        "qwenpaw.app.crons.manager.append_inbox_event",
+        "aiarb.app.crons.manager.append_inbox_event",
         AsyncMock(),
     )
 
@@ -480,7 +480,7 @@ class TestHeartbeatCallback:
     ):
         runner = AsyncMock()
         monkeypatch.setattr(
-            "qwenpaw.app.crons.manager.run_heartbeat_once",
+            "aiarb.app.crons.manager.run_heartbeat_once",
             runner,
         )
         await manager._heartbeat_callback()
@@ -493,7 +493,7 @@ class TestHeartbeatCallback:
     async def test_exception_is_swallowed(self, manager, monkeypatch):
         runner = AsyncMock(side_effect=RuntimeError("hb failed"))
         monkeypatch.setattr(
-            "qwenpaw.app.crons.manager.run_heartbeat_once",
+            "aiarb.app.crons.manager.run_heartbeat_once",
             runner,
         )
         # Must not raise.
@@ -502,7 +502,7 @@ class TestHeartbeatCallback:
     async def test_cancellation_is_propagated(self, manager, monkeypatch):
         runner = AsyncMock(side_effect=asyncio.CancelledError)
         monkeypatch.setattr(
-            "qwenpaw.app.crons.manager.run_heartbeat_once",
+            "aiarb.app.crons.manager.run_heartbeat_once",
             runner,
         )
         with pytest.raises(asyncio.CancelledError):
@@ -518,7 +518,7 @@ class TestTaskDoneCb:
     async def test_cancelled_task_is_ignored(self, manager, monkeypatch):
         push = AsyncMock()
         monkeypatch.setattr(
-            "qwenpaw.app.crons.manager.push_store_append",
+            "aiarb.app.crons.manager.push_store_append",
             push,
         )
 
@@ -541,7 +541,7 @@ class TestTaskDoneCb:
     ):
         push = AsyncMock()
         monkeypatch.setattr(
-            "qwenpaw.app.crons.manager.push_store_append",
+            "aiarb.app.crons.manager.push_store_append",
             push,
         )
 
@@ -566,7 +566,7 @@ class TestTaskDoneCb:
     async def test_successful_task_pushes_nothing(self, manager, monkeypatch):
         push = AsyncMock()
         monkeypatch.setattr(
-            "qwenpaw.app.crons.manager.push_store_append",
+            "aiarb.app.crons.manager.push_store_append",
             push,
         )
 
@@ -647,7 +647,7 @@ class TestRescheduleHeartbeat:
     async def test_not_started_is_noop(self, manager, monkeypatch):
         config = SimpleNamespace(enabled=True, every="30m")
         monkeypatch.setattr(
-            "qwenpaw.app.crons.manager.get_heartbeat_config",
+            "aiarb.app.crons.manager.get_heartbeat_config",
             lambda agent_id: config,
         )
         await manager.reschedule_heartbeat()
@@ -657,7 +657,7 @@ class TestRescheduleHeartbeat:
         manager._started = True
         config = SimpleNamespace(enabled=True, every="30m")
         monkeypatch.setattr(
-            "qwenpaw.app.crons.manager.get_heartbeat_config",
+            "aiarb.app.crons.manager.get_heartbeat_config",
             lambda agent_id: config,
         )
         await manager.reschedule_heartbeat()
@@ -673,7 +673,7 @@ class TestRescheduleHeartbeat:
         manager._started = True
         enabled = SimpleNamespace(enabled=True, every="30m")
         monkeypatch.setattr(
-            "qwenpaw.app.crons.manager.get_heartbeat_config",
+            "aiarb.app.crons.manager.get_heartbeat_config",
             lambda agent_id: enabled,
         )
         await manager.reschedule_heartbeat()
@@ -681,7 +681,7 @@ class TestRescheduleHeartbeat:
 
         disabled = SimpleNamespace(enabled=False, every="30m")
         monkeypatch.setattr(
-            "qwenpaw.app.crons.manager.get_heartbeat_config",
+            "aiarb.app.crons.manager.get_heartbeat_config",
             lambda agent_id: disabled,
         )
         await manager.reschedule_heartbeat()
@@ -695,7 +695,7 @@ class TestRescheduleHeartbeat:
         manager._started = True
         config = SimpleNamespace(enabled=True, every="0 9 * * *")
         monkeypatch.setattr(
-            "qwenpaw.app.crons.manager.get_heartbeat_config",
+            "aiarb.app.crons.manager.get_heartbeat_config",
             lambda agent_id: config,
         )
         await manager.reschedule_heartbeat()
@@ -727,7 +727,7 @@ class TestExecuteOnceBranches:
         monkeypatch.setattr(manager._executor, "execute", execute)
         inbox = AsyncMock()
         monkeypatch.setattr(
-            "qwenpaw.app.crons.manager.append_inbox_event",
+            "aiarb.app.crons.manager.append_inbox_event",
             inbox,
         )
 
@@ -779,7 +779,7 @@ class TestExecuteOnceBranches:
         monkeypatch.setattr(manager._executor, "execute", execute)
         inbox = AsyncMock()
         monkeypatch.setattr(
-            "qwenpaw.app.crons.manager.append_inbox_event",
+            "aiarb.app.crons.manager.append_inbox_event",
             inbox,
         )
 
@@ -804,7 +804,7 @@ async def test_timeout_enters_inbox(
 ):
     job = make_cron_job_spec(job_id="timeout-job")
     job.save_result_to_inbox = save_result
-    from qwenpaw.app.crons.executor import CronExecutionTimeout
+    from aiarb.app.crons.executor import CronExecutionTimeout
 
     execute = AsyncMock(
         side_effect=CronExecutionTimeout(
@@ -815,7 +815,7 @@ async def test_timeout_enters_inbox(
     monkeypatch.setattr(manager._executor, "execute", execute)
     inbox = AsyncMock()
     monkeypatch.setattr(
-        "qwenpaw.app.crons.manager.append_inbox_event",
+        "aiarb.app.crons.manager.append_inbox_event",
         inbox,
     )
     with pytest.raises(asyncio.TimeoutError):

@@ -5,9 +5,9 @@ import asyncio
 
 import pytest
 
-from qwenpaw.plugins.channels import ChannelMessage
-from qwenpaw.plugins.messages import ContentBlock
-from qwenpaw.plugins.testing import PluginTestHost
+from aiarb.plugins.channels import ChannelMessage
+from aiarb.plugins.messages import ContentBlock
+from aiarb.plugins.testing import PluginTestHost
 
 from .sdk_author_fixture import make_plugin
 
@@ -16,13 +16,13 @@ from .timing import WAIT_TIMEOUT
 CHANNEL = "contract-routed-channel"
 SOURCE = """
 import asyncio
-from qwenpaw.plugins.channels import ChannelSpec
-from qwenpaw.plugins.providers import (
+from aiarb.plugins.channels import ChannelSpec
+from aiarb.plugins.providers import (
     ProviderSpec,
     ModelInfo,
     ModelChunk,
 )
-from qwenpaw.plugins.messages import ContentBlock
+from aiarb.plugins.messages import ContentBlock
 
 
 class Plugin:
@@ -323,7 +323,7 @@ async def test_run_callback_fault_does_not_cancel_real_reply(tmp_path, fault):
 async def test_late_start_callback_retains_exactly_one_terminal_notification(
     tmp_path,
 ):
-    from qwenpaw.plugins import PluginBusyError
+    from aiarb.plugins import PluginBusyError
 
     async with PluginTestHost(tmp_path / "host") as host:
         ctx = await setup(host, tmp_path)
@@ -358,7 +358,7 @@ async def test_sender_image_buffer_does_not_leak_into_same_session_peer(
     tmp_path,
 ):
     from PIL import Image
-    from qwenpaw.plugins.messages import Attachment
+    from aiarb.plugins.messages import Attachment
 
     image_path = tmp_path / "alice.png"
     Image.new("RGB", (1, 1), "blue").save(image_path)
@@ -571,7 +571,7 @@ async def test_same_session_senders_keep_stream_terminal_and_run_ids(
 async def test_channel_stop_retains_provider_tail_and_other_run(
     tmp_path,
 ):
-    from qwenpaw.plugins import SDKError, PluginBusyError
+    from aiarb.plugins import SDKError, PluginBusyError
 
     source = SOURCE.replace(
         "import asyncio\n",
@@ -677,9 +677,9 @@ def plain(value):
     return value
 
 
-from qwenpaw.plugins.channels import ChannelSpec
-from qwenpaw.plugins.commands import CommandSpec, CommandResult
-from qwenpaw.plugins.messages import ContentBlock, Message
+from aiarb.plugins.channels import ChannelSpec
+from aiarb.plugins.commands import CommandSpec, CommandResult
+from aiarb.plugins.messages import ContentBlock, Message
 
 
 class Plugin:
@@ -838,12 +838,12 @@ async def test_stop_preserves_entered_terminal_callback_and_transport(
     tmp_path,
     timeout_then_retry,
 ):
-    from qwenpaw.plugins import PluginBusyError, SDKError
+    from aiarb.plugins import PluginBusyError, SDKError
 
     source = """
 import asyncio
-from qwenpaw.plugins.channels import ChannelSpec
-from qwenpaw.plugins.providers import (
+from aiarb.plugins.channels import ChannelSpec
+from aiarb.plugins.providers import (
     ProviderSpec,
     ModelInfo,
     ModelChunk,
@@ -1020,9 +1020,9 @@ async def test_lifecycle_terminal_callback_cannot_start_new_model_work(
     import json
 
     source = SOURCE.replace(
-        "from qwenpaw.plugins.messages import ContentBlock",
+        "from aiarb.plugins.messages import ContentBlock",
         (
-            "from qwenpaw.plugins.messages import ContentBlock, "
+            "from aiarb.plugins.messages import ContentBlock, "
             "Message\nfrom qwenpaw.plugins import SDKError, "
             "PluginBusyError"
         ),
@@ -1080,8 +1080,8 @@ async def test_interrupt_reload_retains_blocked_terminal_until_public_retry(
     monkeypatch,
     bounded_dependency_environment,
 ):
-    from qwenpaw.app.channels.base import BaseChannel
-    from qwenpaw.plugins import PluginBusyError
+    from aiarb.app.channels.base import BaseChannel
+    from aiarb.plugins import PluginBusyError
 
     owner_waiting = asyncio.Event()
     owner_release = asyncio.Event()

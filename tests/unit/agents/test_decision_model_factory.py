@@ -8,11 +8,11 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from qwenpaw.agents import model_factory as module
-from qwenpaw.config.config import AgentProfileConfig, ModelSlotConfig
-from qwenpaw.exceptions import ProviderError
-from qwenpaw.providers import ProviderManager
-from qwenpaw.providers.typesafe_provider import TypeSafeProvider
+from aiarb.agents import model_factory as module
+from aiarb.config.config import AgentProfileConfig, ModelSlotConfig
+from aiarb.exceptions import ProviderError
+from aiarb.providers import ProviderManager
+from aiarb.providers.typesafe_provider import TypeSafeProvider
 
 
 @pytest.fixture(name="provider")

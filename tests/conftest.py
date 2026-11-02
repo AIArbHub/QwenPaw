@@ -131,6 +131,46 @@ def temp_copaw_home(
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 
+@pytest.fixture
+def temp_aiarb_home(
+    monkeypatch: pytest.MonkeyPatch,
+) -> Generator[Path, None, None]:
+    """Provide an isolated AIARB HOME environment.
+
+    Creates a temporary directory and sets it as HOME. Also creates
+    the standard .aiarb subdirectories.
+    """
+    temp_dir = tempfile.mkdtemp(prefix="aiarb_home_")
+    temp_path = Path(temp_dir)
+
+    (temp_path / ".aiarb").mkdir(exist_ok=True)
+    (temp_path / ".aiarb" / "skills").mkdir(exist_ok=True)
+    (temp_path / ".aiarb" / "logs").mkdir(exist_ok=True)
+    (temp_path / ".aiarb" / "media").mkdir(exist_ok=True)
+
+    monkeypatch.setenv("HOME", temp_dir)
+    monkeypatch.setenv("USERPROFILE", temp_dir)
+
+    sensitive_vars = [
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "DASHSCOPE_API_KEY",
+        "DINGTALK_APP_KEY",
+        "DINGTALK_APP_SECRET",
+        "FEISHU_APP_ID",
+        "FEISHU_APP_SECRET",
+        "DISCORD_TOKEN",
+        "TELEGRAM_BOT_TOKEN",
+    ]
+    for var in sensitive_vars:
+        monkeypatch.delenv(var, raising=False)
+
+    try:
+        yield temp_path
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+
 # =============================================================================
 # Mock Fixtures
 # =============================================================================

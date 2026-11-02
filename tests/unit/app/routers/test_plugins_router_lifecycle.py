@@ -28,8 +28,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.routers import plugins as plugins_module
-from qwenpaw.app.routers.plugins import (
+from aiarb.app.routers import plugins as plugins_module
+from aiarb.app.routers.plugins import (
     _DOWNLOAD_TIMEOUT,
     _async_download,
     _load_plugin_with_optional_force_reinstall,
@@ -257,7 +257,7 @@ class TestAsyncDownload:
         response.__enter__.return_value = response
         response.read.side_effect = [b"partial", error]
         with patch(
-            "qwenpaw.app.routers.plugins.urllib.request.urlopen",
+            "aiarb.app.routers.plugins.urllib.request.urlopen",
             return_value=response,
             side_effect=error if stage == "connect" else None,
         ):
@@ -284,7 +284,7 @@ class TestAsyncDownload:
             return response
 
         with patch(
-            "qwenpaw.app.routers.plugins.urllib.request.urlopen",
+            "aiarb.app.routers.plugins.urllib.request.urlopen",
             side_effect=_urlopen,
         ):
             await _async_download("https://example.test/p.zip", dest)
@@ -301,7 +301,7 @@ class TestAsyncDownload:
         dest = tmp_path / "out.bin"
         monkeypatch.setattr(plugins_module, "_MAX_DOWNLOAD_BYTES", 4)
         with patch(
-            "qwenpaw.app.routers.plugins.urllib.request.urlopen",
+            "aiarb.app.routers.plugins.urllib.request.urlopen",
             side_effect=lambda url, timeout=None: _FakeResponse(b"x" * 64),
         ):
             with pytest.raises(RuntimeError, match="Download aborted"):
@@ -313,7 +313,7 @@ class TestAsyncDownload:
         """Do not normalize OSError outside the known network types."""
         dest = tmp_path / "out.bin"
         with patch(
-            "qwenpaw.app.routers.plugins.urllib.request.urlopen",
+            "aiarb.app.routers.plugins.urllib.request.urlopen",
             side_effect=OSError("unclassified failure"),
         ):
             with pytest.raises(OSError, match="unclassified failure"):
@@ -335,13 +335,13 @@ def _client(
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
 
-    from qwenpaw.app.routers.plugins import router as plugins_router
-    from qwenpaw.app.routers.pawapps import router as pawapps_router
+    from aiarb.app.routers.plugins import router as plugins_router
+    from aiarb.app.routers.pawapps import router as pawapps_router
 
     app = FastAPI()
     app.state.plugin_loader = loader
     app.state.provider_manager = provider_manager
-    from qwenpaw.app.routers.frontend_plugin import router as frontend_router
+    from aiarb.app.routers.frontend_plugin import router as frontend_router
 
     app.include_router(frontend_router, prefix="/api")
     app.include_router(plugins_router, prefix="/api")
@@ -353,7 +353,7 @@ class TestListPluginsRoute:
     @pytest.fixture(autouse=True)
     def isolate_plugins_dir(self, tmp_path, monkeypatch):
         monkeypatch.setattr(
-            "qwenpaw.config.utils.get_plugins_dir",
+            "aiarb.config.utils.get_plugins_dir",
             lambda: tmp_path,
         )
 
@@ -366,7 +366,7 @@ class TestListPluginsRoute:
             encoding="utf-8",
         )
         with patch(
-            "qwenpaw.config.utils.get_plugins_dir",
+            "aiarb.config.utils.get_plugins_dir",
             return_value=monkey,
         ):
             response = _client(None).get("/api/plugins")
@@ -473,7 +473,7 @@ class TestGetPluginStatusRoute:
         loader = MagicMock()
         loader.get_loaded_plugin.return_value = None
         with patch(
-            "qwenpaw.config.utils.get_plugins_dir",
+            "aiarb.config.utils.get_plugins_dir",
             return_value=plugins_dir,
         ):
             response = _client(loader).get("/api/plugins/plug/status")
@@ -487,7 +487,7 @@ class TestGetPluginStatusRoute:
         loader = MagicMock()
         loader.get_loaded_plugin.return_value = None
         with patch(
-            "qwenpaw.config.utils.get_plugins_dir",
+            "aiarb.config.utils.get_plugins_dir",
             return_value=tmp_path / "plugins",
         ):
             response = _client(loader).get("/api/plugins/ghost/status")
@@ -500,7 +500,7 @@ class TestGetPluginStatusRoute:
         loader = MagicMock()
         loader.get_loaded_plugin.return_value = None
         with patch(
-            "qwenpaw.config.utils.get_plugins_dir",
+            "aiarb.config.utils.get_plugins_dir",
             return_value=plugins_dir,
         ):
             response = _client(loader).get("/api/plugins/plug/status")
@@ -564,7 +564,7 @@ class TestLoadPluginWithOptionalForceReinstall:
         loader.load_plugin_from_path.side_effect = load
         with (
             patch(
-                "qwenpaw.config.utils.get_plugins_dir",
+                "aiarb.config.utils.get_plugins_dir",
                 return_value=tmp_path,
             ),
         ):
@@ -600,7 +600,7 @@ class TestInstallPluginSource:
         app = _app(loader)
         with (
             patch(
-                "qwenpaw.config.utils.get_plugins_dir",
+                "aiarb.config.utils.get_plugins_dir",
                 return_value=tmp_path,
             ),
         ):
@@ -654,15 +654,15 @@ class TestInstallPluginSource:
         loader.load_plugin_from_path = AsyncMock(side_effect=_capture_load)
         with (
             patch(
-                "qwenpaw.config.utils.get_plugins_dir",
+                "aiarb.config.utils.get_plugins_dir",
                 return_value=tmp_path,
             ),
             patch(
-                "qwenpaw.app.routers.plugins._async_download",
+                "aiarb.app.routers.plugins._async_download",
                 new=_fake_download,
             ),
             patch(
-                "qwenpaw.app.routers.plugins.tempfile.mkdtemp",
+                "aiarb.app.routers.plugins.tempfile.mkdtemp",
                 side_effect=_mkdtemp,
             ),
         ):
@@ -704,15 +704,15 @@ class TestInstallPluginSource:
 
         with (
             patch(
-                "qwenpaw.config.utils.get_plugins_dir",
+                "aiarb.config.utils.get_plugins_dir",
                 return_value=tmp_path,
             ),
             patch(
-                "qwenpaw.app.routers.plugins._async_download",
+                "aiarb.app.routers.plugins._async_download",
                 new=_fake_download,
             ),
             patch(
-                "qwenpaw.app.routers.plugins.tempfile.mkdtemp",
+                "aiarb.app.routers.plugins.tempfile.mkdtemp",
                 side_effect=_mkdtemp,
             ),
         ):
@@ -731,11 +731,11 @@ class TestUninstallPluginSource:
         tmp_path,
         monkeypatch,
     ):
-        from qwenpaw.plugins import api as plugin_api
-        from qwenpaw.plugins.loader import PluginLoader
-        from qwenpaw.plugins.registry import PluginRegistry
+        from aiarb.plugins import api as plugin_api
+        from aiarb.plugins.loader import PluginLoader
+        from aiarb.plugins.registry import PluginRegistry
 
-        monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+        monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
         monkeypatch.setattr(PluginRegistry, "_instance", None)
         names = ["other_plugin_tool", "execute_shell_command"]
         source = tmp_path / "installed-directory"
@@ -759,12 +759,12 @@ class TestUninstallPluginSource:
         loader = PluginLoader([tmp_path])
         with (
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=cfg,
             ),
-            patch("qwenpaw.config.config.save_agent_config") as save,
+            patch("aiarb.config.config.save_agent_config") as save,
             patch(
-                "qwenpaw.plugins.api._remove_tool_config",
+                "aiarb.plugins.api._remove_tool_config",
                 wraps=plugin_api._remove_tool_config,
             ) as remove,
         ):
@@ -779,7 +779,7 @@ class TestUninstallPluginSource:
         self,
         reload_agents,
     ):
-        from qwenpaw.plugins.lifecycle import UnloadMode, UnloadReport
+        from aiarb.plugins.lifecycle import UnloadMode, UnloadReport
 
         log = []
         loader = _loader_stub(log)
@@ -826,7 +826,7 @@ class TestUninstallPluginSource:
         quiescent,
         loaded,
     ):
-        from qwenpaw.plugins.lifecycle import UnloadMode, UnloadReport
+        from aiarb.plugins.lifecycle import UnloadMode, UnloadReport
 
         loader = _loader_stub([], record=_record() if loaded else None)
         report = UnloadReport(
@@ -876,15 +876,15 @@ class TestInstallPluginRoute:
         file.write.side_effect = error if stage == "write" else None
         with (
             patch(
-                "qwenpaw.app.routers.plugins.tempfile.mkdtemp",
+                "aiarb.app.routers.plugins.tempfile.mkdtemp",
                 return_value=str(download_dir),
             ),
             patch(
-                "qwenpaw.app.routers.plugins.urllib.request.urlopen",
+                "aiarb.app.routers.plugins.urllib.request.urlopen",
                 return_value=response,
             ),
             patch(
-                "qwenpaw.app.routers.plugins.open",
+                "aiarb.app.routers.plugins.open",
                 return_value=file,
                 side_effect=error if stage == "open" else None,
             ),
@@ -912,7 +912,7 @@ class TestInstallPluginRoute:
         record = _record("plug")
         record.diagnostics = diagnostics
         with patch(
-            "qwenpaw.app.routers.plugins.install_plugin_source",
+            "aiarb.app.routers.plugins.install_plugin_source",
             new=AsyncMock(return_value=record),
         ):
             response = _client(loader).post(
@@ -945,7 +945,7 @@ class TestInstallPluginRoute:
     def test_error_mapping(self, error, status):
         loader = _loader_stub([])
         with patch(
-            "qwenpaw.app.routers.plugins.install_plugin_source",
+            "aiarb.app.routers.plugins.install_plugin_source",
             new=AsyncMock(side_effect=error),
         ):
             response = _client(loader).post(
@@ -958,7 +958,7 @@ class TestInstallPluginRoute:
     def test_http_exception_is_reraised_unchanged(self):
         loader = _loader_stub([])
         with patch(
-            "qwenpaw.app.routers.plugins.install_plugin_source",
+            "aiarb.app.routers.plugins.install_plugin_source",
             new=AsyncMock(
                 side_effect=HTTPException(status_code=418, detail="teapot"),
             ),
@@ -981,7 +981,7 @@ class TestInstallPluginRoute:
             return _record("plug")
 
         with patch(
-            "qwenpaw.app.routers.plugins.install_plugin_source",
+            "aiarb.app.routers.plugins.install_plugin_source",
             new=_fake,
         ):
             await install_plugin(
@@ -1007,13 +1007,13 @@ class TestSetPluginEnabledRoute:
         loaded=True,
         quiescent=True,
     ):
-        from qwenpaw.plugins.lifecycle import UnloadMode, UnloadReport
+        from aiarb.plugins.lifecycle import UnloadMode, UnloadReport
 
         plugin_dir = tmp_path / "plug"
         plugin_dir.mkdir()
         (plugin_dir / "plugin.json").write_text("{}", encoding="utf-8")
         monkeypatch.setattr(
-            "qwenpaw.config.utils.get_plugins_dir",
+            "aiarb.config.utils.get_plugins_dir",
             lambda: tmp_path,
         )
         settings = {"enabled": enabled}
@@ -1105,7 +1105,7 @@ class TestUninstallPluginRoute:
         endpoint,
         interrupt_tasks,
     ):
-        from qwenpaw.plugins.activity import PluginBusyError
+        from aiarb.plugins.activity import PluginBusyError
 
         loader = _loader_stub([], record=_record())
         error = PluginBusyError("plug", 1, can_interrupt=not interrupt_tasks)
@@ -1133,7 +1133,7 @@ class TestUninstallPluginRoute:
         endpoint,
         kind,
     ):
-        from qwenpaw.plugins.lifecycle import UnloadMode, UnloadReport
+        from aiarb.plugins.lifecycle import UnloadMode, UnloadReport
 
         loader = _loader_stub([])
         loader.lifecycle.unload = AsyncMock(
@@ -1163,7 +1163,7 @@ class TestUninstallPluginRoute:
         quiescent,
         loaded,
     ):
-        from qwenpaw.plugins.lifecycle import UnloadMode, UnloadReport
+        from aiarb.plugins.lifecycle import UnloadMode, UnloadReport
 
         loader = _loader_stub([], record=_record() if loaded else None)
         loader.lifecycle.unload = AsyncMock(
@@ -1213,10 +1213,10 @@ class TestUninstallPluginRoute:
         loaded,
         memory_in_use,
     ):
-        from qwenpaw.plugins.registry import MemoryBackendInUseError
+        from aiarb.plugins.registry import MemoryBackendInUseError
 
         monkeypatch.setattr(
-            "qwenpaw.app.routers.pawapps._get_apps_dir",
+            "aiarb.app.routers.pawapps._get_apps_dir",
             lambda: tmp_path,
         )
         error = (
@@ -1243,7 +1243,7 @@ class TestUninstallPluginRoute:
         loader.lifecycle.unload.assert_awaited_once()
 
     def test_busy_market_provider_returns_409(self):
-        from qwenpaw.market.registry import MarketProviderBusyError
+        from aiarb.market.registry import MarketProviderBusyError
 
         loader = _loader_stub([], record=_record())
         loader.lifecycle.unload.side_effect = MarketProviderBusyError(
@@ -1256,7 +1256,7 @@ class TestUninstallPluginRoute:
     def test_success_payload(self):
         loader = _loader_stub([])
         with patch(
-            "qwenpaw.app.routers.plugins.uninstall_plugin_source",
+            "aiarb.app.routers.plugins.uninstall_plugin_source",
             new=AsyncMock(return_value=None),
         ):
             response = _client(loader).delete("/api/plugins/plug")
@@ -1269,7 +1269,7 @@ class TestUninstallPluginRoute:
     def test_unknown_plugin_is_404(self):
         loader = _loader_stub([])
         with patch(
-            "qwenpaw.app.routers.plugins.uninstall_plugin_source",
+            "aiarb.app.routers.plugins.uninstall_plugin_source",
             new=AsyncMock(
                 side_effect=KeyError("Plugin 'ghost' is not loaded."),
             ),
@@ -1281,7 +1281,7 @@ class TestUninstallPluginRoute:
     def test_unexpected_error_is_500(self, caplog):
         loader = _loader_stub([])
         with patch(
-            "qwenpaw.app.routers.plugins.uninstall_plugin_source",
+            "aiarb.app.routers.plugins.uninstall_plugin_source",
             new=AsyncMock(side_effect=RuntimeError("disk on fire")),
         ):
             response = _client(loader).delete("/api/plugins/plug")
@@ -1300,7 +1300,7 @@ class TestUploadPluginRoute:
         record.diagnostics = diagnostics
         payload = _zip_bytes({"plugin.json": '{"id": "p"}'})
         with patch(
-            "qwenpaw.app.routers.plugins."
+            "aiarb.app.routers.plugins."
             "_load_plugin_with_optional_force_reinstall",
             new=AsyncMock(return_value=record),
         ):
@@ -1337,7 +1337,7 @@ class TestUploadPluginRoute:
         loader = _loader_stub([])
         payload = _zip_bytes({"../escape.txt": "evil"})
         with patch(
-            "qwenpaw.app.routers.plugins._extract_plugin_zip_bytes",
+            "aiarb.app.routers.plugins._extract_plugin_zip_bytes",
             side_effect=ValueError("Zip Slip detected"),
         ):
             response = _client(loader).post(
@@ -1350,7 +1350,7 @@ class TestUploadPluginRoute:
     def test_missing_manifest_is_400(self):
         loader = _loader_stub([])
         with patch(
-            "qwenpaw.app.routers.plugins._extract_plugin_zip_bytes",
+            "aiarb.app.routers.plugins._extract_plugin_zip_bytes",
             side_effect=FileNotFoundError("no plugin.json"),
         ):
             response = _client(loader).post(
@@ -1361,8 +1361,8 @@ class TestUploadPluginRoute:
 
     def test_manifest_without_entry_is_400(self, tmp_path, monkeypatch):
         monkeypatch.setattr(tempfile, "mkdtemp", lambda: str(tmp_path))
-        from qwenpaw.plugins.loader import PluginLoader
-        from qwenpaw.plugins.python_backend import PythonBackend
+        from aiarb.plugins.loader import PluginLoader
+        from aiarb.plugins.python_backend import PythonBackend
 
         async def validate_source(loader, request, source_path, **kwargs):
             # Real disk manifest reader and backend entry validator; no error stub.
@@ -1395,7 +1395,7 @@ class TestUploadPluginRoute:
             },
         )
         with patch(
-            "qwenpaw.app.routers.plugins."
+            "aiarb.app.routers.plugins."
             "_load_plugin_with_optional_force_reinstall",
             new=validate_source,
         ):
@@ -1409,7 +1409,7 @@ class TestUploadPluginRoute:
     def test_unexpected_error_is_500(self):
         loader = _loader_stub([])
         with patch(
-            "qwenpaw.app.routers.plugins._extract_plugin_zip_bytes",
+            "aiarb.app.routers.plugins._extract_plugin_zip_bytes",
             side_effect=OSError("disk full"),
         ):
             response = _client(loader).post(
@@ -1422,7 +1422,7 @@ class TestUploadPluginRoute:
     def test_http_exception_is_reraised_unchanged(self):
         loader = _loader_stub([])
         with patch(
-            "qwenpaw.app.routers.plugins._extract_plugin_zip_bytes",
+            "aiarb.app.routers.plugins._extract_plugin_zip_bytes",
             side_effect=HTTPException(status_code=418, detail="teapot"),
         ):
             response = _client(loader).post(
@@ -1553,7 +1553,7 @@ class TestSearchMarketPlugins:
 class TestResidualBranches:
     async def test_catalog_route_proxies_the_fetcher(self):
         with patch(
-            "qwenpaw.plugins.download_catalog.fetch_plugin_catalog_async",
+            "aiarb.plugins.download_catalog.fetch_plugin_catalog_async",
             new=AsyncMock(return_value={"plugins": [{"id": "a"}]}),
         ) as fetch:
             assert await plugins_module.get_plugin_catalog() == {
@@ -1621,7 +1621,7 @@ class TestPublicPluginAndFileContracts:
         assert "not found" in response.text.lower()
 
     def test_existing_plugin_file_guards(self, tmp_path):
-        from qwenpaw.plugins.architecture import PluginManifest
+        from aiarb.plugins.architecture import PluginManifest
 
         source = tmp_path / "plug"
         source.mkdir()

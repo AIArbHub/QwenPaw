@@ -16,7 +16,7 @@ from types import SimpleNamespace
 import pytest
 from agentscope.message import TextBlock
 
-from qwenpaw.agents.utils import message_processing as mp
+from aiarb.agents.utils import message_processing as mp
 
 
 # ---------------------------------------------------------------------------

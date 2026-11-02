@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-import qwenpaw.config.utils as cu
+import aiarb.config.utils as cu
 
 
 @pytest.fixture()
@@ -305,7 +305,7 @@ class TestLoadSaveConfig:
         )
 
     def test_save_and_reload(self, tmp_path, fresh_config_cache):
-        from qwenpaw.config.config import Config
+        from aiarb.config.config import Config
 
         path = tmp_path / "config.json"
         cfg = Config()
@@ -319,7 +319,7 @@ class TestLoadSaveConfig:
         tmp_path,
         fresh_config_cache,
     ):
-        from qwenpaw.config.config import Config
+        from aiarb.config.config import Config
 
         path = tmp_path / "config.json"
         path.write_text(
@@ -339,7 +339,7 @@ class TestLoadSaveConfig:
         assert "unknown_root_field" not in payload
 
     def test_cache_hit_on_same_mtime(self, tmp_path, fresh_config_cache):
-        from qwenpaw.config.config import Config
+        from aiarb.config.config import Config
 
         path = tmp_path / "config.json"
         cu.save_config(Config(), path)
@@ -418,7 +418,7 @@ class TestPathHelpers:
 class TestGetAvailableChannels:
     @pytest.fixture()
     def fake_registry(self, monkeypatch):
-        import qwenpaw.app.channels.registry as registry_module
+        import aiarb.app.channels.registry as registry_module
 
         monkeypatch.setattr(
             registry_module,

@@ -7,9 +7,9 @@ import httpx
 import pytest
 from openai import AsyncOpenAI
 
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.provider_catalog import BUILTIN_PROVIDERS
-from qwenpaw.providers.provider_manager import ProviderManager
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.provider_catalog import BUILTIN_PROVIDERS
+from aiarb.providers.provider_manager import ProviderManager
 
 REMOTE_OPENAI_SERVICES = [
     provider.id

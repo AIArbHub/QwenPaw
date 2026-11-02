@@ -1114,8 +1114,8 @@ def test_invalid_history_path_does_not_block_other_agents(
             ),
         ),
     }
-    import qwenpaw.config as cfg
-    import qwenpaw.config.config as cfgcfg
+    import aiarb.config as cfg
+    import aiarb.config.config as cfgcfg
 
     monkeypatch.setattr(cfg, "load_config", lambda: config, raising=False)
     monkeypatch.setattr(

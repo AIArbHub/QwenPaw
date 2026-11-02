@@ -10,20 +10,20 @@ from types import SimpleNamespace
 import pytest
 from pydantic import ValidationError
 
-from qwenpaw.app.mcp.schemas import MCPClientCreateRequest
-from qwenpaw.config.config import MCPClientConfig
-from qwenpaw.drivers.adapters.mcp_card_builder import (
+from aiarb.app.mcp.schemas import MCPClientCreateRequest
+from aiarb.config.config import MCPClientConfig
+from aiarb.drivers.adapters.mcp_card_builder import (
     build_mcp_client_info_payload,
     build_mcp_driver_card,
 )
-from qwenpaw.drivers.adapters.mcp_legacy_config import (
+from aiarb.drivers.adapters.mcp_legacy_config import (
     legacy_mcp_client_to_driver,
 )
-from qwenpaw.drivers.contracts import DriverCard
-from qwenpaw.drivers.credentials.providers import NoneProvider
-from qwenpaw.drivers.handlers import mcp as mcp_handler
-from qwenpaw.drivers.handlers.mcp_stateful_client import HttpStatefulClient
-from qwenpaw.drivers.handlers.mcp_streamable_http import HttpStatelessClient
+from aiarb.drivers.contracts import DriverCard
+from aiarb.drivers.credentials.providers import NoneProvider
+from aiarb.drivers.handlers import mcp as mcp_handler
+from aiarb.drivers.handlers.mcp_stateful_client import HttpStatefulClient
+from aiarb.drivers.handlers.mcp_streamable_http import HttpStatelessClient
 
 URL = "http://127.0.0.1:8080/mcp/sse"
 

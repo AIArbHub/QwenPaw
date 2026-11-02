@@ -19,7 +19,7 @@ from typing import Any
 
 import pytest
 
-import qwenpaw.cli.doctor_checks as dc
+import aiarb.cli.doctor_checks as dc
 
 
 # ---------------------------------------------------------------------------
@@ -37,7 +37,7 @@ def fake_working_dir(tmp_path, monkeypatch):
 
 
 def _make_config(profiles: dict[str, Any] | None = None):
-    from qwenpaw.config.config import Config
+    from aiarb.config.config import Config
 
     cfg = Config()
     cfg.agents.profiles = profiles or {}
@@ -45,7 +45,7 @@ def _make_config(profiles: dict[str, Any] | None = None):
 
 
 def _profile_ref(agent_id: str, workspace_dir: str):
-    from qwenpaw.config.config import AgentProfileRef
+    from aiarb.config.config import AgentProfileRef
 
     return AgentProfileRef(id=agent_id, workspace_dir=workspace_dir)
 
@@ -137,7 +137,7 @@ class TestCheckBrowserReadiness:
     def test_experimental_links_import_fails(self, monkeypatch):
         cfg = _make_config()
         cfg.browser.experimental = True
-        monkeypatch.setitem(sys.modules, "qwenpaw.browser.runtime.links", None)
+        monkeypatch.setitem(sys.modules, "aiarb.browser.runtime.links", None)
         ok, msg = dc.check_browser_readiness(cfg)
         assert ok is False
         assert "unavailable" in msg
@@ -436,7 +436,7 @@ class TestLoadRawConfigDict:
 
 class TestScanUnknownConfigKeys:
     def test_known_keys_clean(self):
-        from qwenpaw.config.config import Config
+        from aiarb.config.config import Config
 
         raw = {k: {} for k in list(Config.model_fields.keys())[:3]}
         assert dc.scan_unknown_config_keys(raw) == []
@@ -1112,7 +1112,7 @@ class TestEnabledChannelNotes:
         assert dc.enabled_channel_notes(cfg) == []
 
     def test_plugin_channel_enabled_noted(self, tmp_path, monkeypatch):
-        from qwenpaw.config.config import ChannelConfig
+        from aiarb.config.config import ChannelConfig
 
         ws = tmp_path / "ws"
         ws.mkdir(exist_ok=True)
@@ -1132,7 +1132,7 @@ class TestEnabledChannelNotes:
 
 class TestMcpClientProblems:
     def _mcp_with_client(self, **client_kwargs):
-        from qwenpaw.config.config import MCPClientConfig, MCPConfig
+        from aiarb.config.config import MCPClientConfig, MCPConfig
 
         # model_construct bypasses the transport validator so doctor's
         # own defensive checks (empty command/url) can be exercised.
@@ -1242,7 +1242,7 @@ class TestUrlLooksHttpish:
 
 class TestMcpClientNotes:
     def test_root_and_agent_mcp(self, tmp_path, monkeypatch):
-        from qwenpaw.config.config import MCPClientConfig, MCPConfig
+        from aiarb.config.config import MCPClientConfig, MCPConfig
 
         monkeypatch.setattr(dc.shutil, "which", lambda exe: None)
         ws = tmp_path / "ws"
@@ -1398,7 +1398,7 @@ class TestProviderOverviewNotes:
                 return _Mgr()
 
         monkeypatch.setattr(
-            "qwenpaw.providers.provider_manager.ProviderManager",
+            "aiarb.providers.provider_manager.ProviderManager",
             _PM,
         )
         notes = dc.provider_overview_notes()
@@ -1450,7 +1450,7 @@ class TestActiveLlmLocalFailureHint:
 class TestQwenpawLocalLlmDeepNotes:
     def _patch_manager(self, monkeypatch, manager):
         monkeypatch.setattr(
-            "qwenpaw.local_models.manager.LocalModelManager",
+            "aiarb.local_models.manager.LocalModelManager",
             manager,
         )
 
@@ -1643,7 +1643,7 @@ class TestCheckEnabledAgentsModelConnections:
                 return mgr
 
         monkeypatch.setattr(
-            "qwenpaw.providers.provider_manager.ProviderManager",
+            "aiarb.providers.provider_manager.ProviderManager",
             _PM,
         )
 
@@ -1983,11 +1983,11 @@ class TestConsoleStaticDiagnosticNotes:
         static.mkdir()
         (static / "index.html").write_text("<html>")
         monkeypatch.setattr(
-            "qwenpaw.utils.console_static.resolve_console_static_dir",
+            "aiarb.utils.console_static.resolve_console_static_dir",
             lambda: str(static),
         )
         monkeypatch.setattr(
-            "qwenpaw.utils.console_static.find_AIARB_source_repo_root",
+            "aiarb.utils.console_static.find_AIARB_source_repo_root",
             lambda: tmp_path,
         )
         notes = dc.console_static_diagnostic_notes()
@@ -2001,11 +2001,11 @@ class TestConsoleStaticDiagnosticNotes:
         static = tmp_path / "static"
         static.mkdir()
         monkeypatch.setattr(
-            "qwenpaw.utils.console_static.resolve_console_static_dir",
+            "aiarb.utils.console_static.resolve_console_static_dir",
             lambda: str(static),
         )
         monkeypatch.setattr(
-            "qwenpaw.utils.console_static.find_AIARB_source_repo_root",
+            "aiarb.utils.console_static.find_AIARB_source_repo_root",
             lambda: None,
         )
         notes = dc.console_static_diagnostic_notes()

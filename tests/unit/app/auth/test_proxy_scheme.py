@@ -9,9 +9,9 @@ import httpx
 import pytest
 from fastapi import FastAPI, Request
 
-from qwenpaw.app import auth
-from qwenpaw.app._app import app as production_app
-from qwenpaw.app.routers import mcp_oauth, provider_oauth, terminal
+from aiarb.app import auth
+from aiarb.app._app import app as production_app
+from aiarb.app.routers import mcp_oauth, provider_oauth, terminal
 
 
 @pytest.fixture
@@ -226,7 +226,7 @@ def _scope(kind="http", values=(), peer="127.0.0.1"):
         "path": "/api/probe",
         "root_path": "",
         "query_string": b"a=b",
-        "headers": [(b"host", b"qwenpaw.example.test")]
+        "headers": [(b"host", b"aiarb.example.test")]
         + [(b"x-forwarded-proto", value) for value in values],
         "client": (peer, 54321),
         "server": ("127.0.0.1", 8088),

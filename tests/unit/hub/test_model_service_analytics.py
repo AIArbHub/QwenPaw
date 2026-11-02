@@ -31,8 +31,8 @@ from zoneinfo import ZoneInfoNotFoundError
 
 import pytest
 
-from qwenpaw.hub.model_service import analytics as an
-from qwenpaw.hub.model_service.storage import GovernanceStore
+from aiarb.hub.model_service import analytics as an
+from aiarb.hub.model_service.storage import GovernanceStore
 
 ROW_KEYS = {
     "actual",

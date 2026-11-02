@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-import qwenpaw.cli.doctor_fix_runner as dfr
+import aiarb.cli.doctor_fix_runner as dfr
 
 
 # ---------------------------------------------------------------------------
@@ -1133,7 +1133,7 @@ class TestPlanRebuildConsole:
         dist = console / "dist"
         dist.mkdir()
         (dist / "index.html").write_text("<html></html>")
-        target = repo / "src" / "qwenpaw" / "console"
+        target = repo / "src" / "aiarb" / "console"
         target.mkdir(parents=True)
         (target / "old.js").write_text("old")
         monkeypatch.setattr(
@@ -1209,7 +1209,7 @@ class TestPlanRebuildConsole:
         dist = console / "dist"
         dist.mkdir()
         (dist / "index.html").write_text("<html></html>")
-        target = repo / "src" / "qwenpaw" / "console"
+        target = repo / "src" / "aiarb" / "console"
         target.mkdir(parents=True)
         (target / "cur.js").write_text("cur")
         monkeypatch.setattr(

@@ -50,9 +50,9 @@ import pytest
 
 # Imported for its side effect only: it makes the import-time
 # ``load_config()`` above happen before any test patches module state.
-import qwenpaw.agents.tools  # noqa: F401  pylint: disable=unused-import
-import qwenpaw.config.utils as cu
-from qwenpaw.config.config import (
+import aiarb.agents.tools  # noqa: F401  pylint: disable=unused-import
+import aiarb.config.utils as cu
+from aiarb.config.config import (
     Config,
     HeartbeatConfig,
     LastApiConfig,

@@ -611,7 +611,7 @@ async def test_failed_task_creation_leaves_no_zombie_run(monkeypatch):
     failure is injected through the module-level ``_create_task`` seam,
     leaving the process-wide ``asyncio`` module untouched.
     """
-    from qwenpaw.app import task_tracker as tracker_mod
+    from aiarb.app import task_tracker as tracker_mod
 
     tracker = TaskTracker()
 

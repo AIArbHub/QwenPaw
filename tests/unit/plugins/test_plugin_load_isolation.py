@@ -473,7 +473,7 @@ def _ownership_probe(tmp_path):
         f"lambda: Path({str(started)!r}).touch())\n"
         "plugin = Plugin()\n",
     )
-    from qwenpaw.plugins.architecture import PluginManifest
+    from aiarb.plugins.architecture import PluginManifest
 
     return (
         root,
@@ -494,7 +494,7 @@ async def test_unowned_load_has_no_local_effects(
     entry,
     activate,
 ):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     root, manifest, markers = _ownership_probe(tmp_path)
     loader.lifecycle.delegate.owns_commit = Mock(return_value=False)
     dependencies = AsyncMock()
@@ -520,7 +520,7 @@ async def test_owned_load_preserves_foreign_dependency_environment(
     monkeypatch,
     preprovisioned,
 ):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     root, manifest, markers = _ownership_probe(tmp_path)
     loader.lifecycle.delegate.owns_dependency_env = Mock(return_value=False)
     (root / "requirements.txt").write_text("foreign-environment==1")

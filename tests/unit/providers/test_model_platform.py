@@ -8,18 +8,18 @@ import json
 
 import pytest
 
-from qwenpaw.providers import model_catalog
-from qwenpaw.providers.adapters.cache_policy import (
+from aiarb.providers import model_catalog
+from aiarb.providers.adapters.cache_policy import (
     cache_request,
     mark_stable_prefix,
 )
-from qwenpaw.providers.adapters.request_context import (
+from aiarb.providers.adapters.request_context import (
     model_session,
     session_header,
 )
-from qwenpaw.providers.model_ranking import recommend
-from qwenpaw.providers.multimodal_prober import ProbeResult
-from qwenpaw.providers.openai_provider import OpenCodeProvider
+from aiarb.providers.model_ranking import recommend
+from aiarb.providers.multimodal_prober import ProbeResult
+from aiarb.providers.openai_provider import OpenCodeProvider
 
 
 def test_shards_load_only_requested_provider(monkeypatch):
@@ -130,7 +130,7 @@ def test_default_bootstrap_does_not_read_full_shards(monkeypatch):
 
 def test_atomic_shard_update_and_new_template_lookup(tmp_path, monkeypatch):
     destination = tmp_path / f"index.json"
-    from qwenpaw.providers.model_info import ModelInfo
+    from aiarb.providers.model_info import ModelInfo
 
     document = model_catalog.CatalogDocument(
         catalog_version=f"2026.09.18.1",
@@ -206,10 +206,10 @@ async def test_deepseek_nonstream_cache_header_is_request_local():
     import httpx
     from agentscope.credential import OpenAICredential
     from agentscope.message import Msg
-    from qwenpaw.providers.openai_chat_model_compat import (
+    from aiarb.providers.openai_chat_model_compat import (
         OpenAIChatModelCompat,
     )
-    from qwenpaw.providers.adapters.usage import CACHE_RESPONSE_HEADERS
+    from aiarb.providers.adapters.usage import CACHE_RESPONSE_HEADERS
 
     def handler(request):
         return httpx.Response(
@@ -264,8 +264,8 @@ async def test_deepseek_nonstream_cache_header_is_request_local():
 
 
 async def test_manual_add_overrides_ranking_gate_and_survives_restore():
-    from qwenpaw.providers.model_info import ModelInfo
-    from qwenpaw.providers.provider_manager import ProviderManager
+    from aiarb.providers.model_info import ModelInfo
+    from aiarb.providers.provider_manager import ProviderManager
 
     model = ModelInfo(id=f"unknown-free", name=f"Unknown", is_free=True)
     provider = OpenCodeProvider(
@@ -289,7 +289,7 @@ async def test_manual_add_overrides_ranking_gate_and_survives_restore():
 
 
 def test_rankings_reject_nonfinite_evidence():
-    from qwenpaw.providers.model_ranking import RankingEvidence
+    from aiarb.providers.model_ranking import RankingEvidence
 
     with pytest.raises(ValueError):
         RankingEvidence(

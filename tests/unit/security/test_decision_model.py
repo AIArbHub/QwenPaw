@@ -15,9 +15,9 @@ from agentscope.classifier import (
     RefusalAnswer,
 )
 
-from qwenpaw.providers.provider_manager import ProviderManager
-from qwenpaw.providers.typesafe_provider import TypeSafeProvider
-from qwenpaw.security.decision_model import (
+from aiarb.providers.provider_manager import ProviderManager
+from aiarb.providers.typesafe_provider import TypeSafeProvider
+from aiarb.security.decision_model import (
     _MAX_CODE_CHARS,
     _decision_provider,
     _interpret,
@@ -25,7 +25,7 @@ from qwenpaw.security.decision_model import (
     _sips_output_exists,
     assess_tool_call,
 )
-from qwenpaw.security.tool_guard.execution_level import ToolExecutionLevel
+from aiarb.security.tool_guard.execution_level import ToolExecutionLevel
 
 
 @pytest.fixture(name="typesafe_provider", autouse=True)
@@ -117,7 +117,7 @@ async def test_code_preflight_never_resolves_provider(monkeypatch, code):
         raise AssertionError("preflight must not resolve or call provider")
 
     monkeypatch.setattr(
-        "qwenpaw.security.decision_model._decision_provider",
+        "aiarb.security.decision_model._decision_provider",
         unexpected,
     )
     result = await assess_tool_call("RunCode", code, params={"code": code})
@@ -152,7 +152,7 @@ async def test_shell_preflight_is_unchanged(monkeypatch, target):
         raise AssertionError("shell disclosure filter must remain active")
 
     monkeypatch.setattr(
-        "qwenpaw.security.decision_model._decision_provider",
+        "aiarb.security.decision_model._decision_provider",
         unexpected,
     )
     assert (await assess_tool_call("Bash", target)).needs_approval
@@ -235,7 +235,7 @@ def test_agent_decision_model_takes_priority_over_global(
     )
     monkeypatch.setattr(ProviderManager, "get_instance", lambda: manager)
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda agent_id: SimpleNamespace(
             decision_model=SimpleNamespace(
                 provider_id="typesafe",
@@ -325,11 +325,11 @@ async def test_read_only_listing_skips_model_but_not_existing_ask(
 async def test_target_free_builtin_read_skips_model_but_not_existing_ask(
     monkeypatch,
 ):
-    from qwenpaw.agents.tools.get_current_time import get_current_time
-    from qwenpaw.agents.memory.reme_light_memory_manager import (
+    from aiarb.agents.tools.get_current_time import get_current_time
+    from aiarb.agents.memory.reme_light_memory_manager import (
         ReMeLightMemoryManager,
     )
-    from qwenpaw.agents.context.visual_compression.runtime.recall_tool import (
+    from aiarb.agents.context.visual_compression.runtime.recall_tool import (
         make_recall_context_tool,
     )
 
@@ -414,7 +414,7 @@ async def test_declared_local_media_read_skips_decision_model(
     monkeypatch,
     tmp_path,
 ):
-    from qwenpaw.agents.tools.view_media import view_image
+    from aiarb.agents.tools.view_media import view_image
 
     assert (
         view_image._tool_descriptor.metadata["decision_model_local_read"]
@@ -434,7 +434,7 @@ async def test_declared_local_media_read_skips_decision_model(
 
 @pytest.mark.asyncio
 async def test_remote_media_read_still_reaches_decision_model(monkeypatch):
-    from qwenpaw.agents.tools.view_media import view_image
+    from aiarb.agents.tools.view_media import view_image
 
     assert (
         view_image._tool_descriptor.metadata["decision_model_local_read"]

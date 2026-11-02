@@ -27,7 +27,7 @@ import pytest
 @pytest.mark.p1
 def test_mask_api_key_empty() -> None:
     """Empty key masks to empty string."""
-    from qwenpaw.cli.providers_cmd import _mask_api_key
+    from aiarb.cli.providers_cmd import _mask_api_key
 
     assert _mask_api_key("") == ""
 
@@ -36,7 +36,7 @@ def test_mask_api_key_empty() -> None:
 @pytest.mark.p1
 def test_mask_api_key_short_fully_masked() -> None:
     """Keys of 8 chars or fewer are fully masked."""
-    from qwenpaw.cli.providers_cmd import _mask_api_key
+    from aiarb.cli.providers_cmd import _mask_api_key
 
     assert _mask_api_key("abcd") == "****"
     assert _mask_api_key("12345678") == "********"
@@ -46,7 +46,7 @@ def test_mask_api_key_short_fully_masked() -> None:
 @pytest.mark.p1
 def test_mask_api_key_long_keeps_edges() -> None:
     """Long keys keep first 4 and last 2 chars."""
-    from qwenpaw.cli.providers_cmd import _mask_api_key
+    from aiarb.cli.providers_cmd import _mask_api_key
 
     masked = _mask_api_key("sk-abcdef1234567890xyz")
     assert masked.startswith("sk-a")
@@ -64,7 +64,7 @@ def test_mask_api_key_long_keeps_edges() -> None:
 @pytest.mark.p1
 def test_channel_mask_empty() -> None:
     """Empty secret masks to (empty)."""
-    from qwenpaw.cli.channels_cmd import _mask
+    from aiarb.cli.channels_cmd import _mask
 
     assert _mask("") == "(empty)"
 
@@ -73,7 +73,7 @@ def test_channel_mask_empty() -> None:
 @pytest.mark.p1
 def test_channel_mask_short_fully_hidden() -> None:
     """Secrets of 4 chars or fewer are fully hidden."""
-    from qwenpaw.cli.channels_cmd import _mask
+    from aiarb.cli.channels_cmd import _mask
 
     assert _mask("ab") == "****"
     assert _mask("abcd") == "****"
@@ -83,7 +83,7 @@ def test_channel_mask_short_fully_hidden() -> None:
 @pytest.mark.p1
 def test_channel_mask_long_keeps_prefix() -> None:
     """Long secrets keep the first 4 chars."""
-    from qwenpaw.cli.channels_cmd import _mask
+    from aiarb.cli.channels_cmd import _mask
 
     assert _mask("supersecrettoken") == "supe****"
 
@@ -92,7 +92,7 @@ def test_channel_mask_long_keeps_prefix() -> None:
 @pytest.mark.p1
 def test_get_channel_names_returns_dict() -> None:
     """Channel name map returns strings for registered channels."""
-    from qwenpaw.cli.channels_cmd import _get_channel_names
+    from aiarb.cli.channels_cmd import _get_channel_names
 
     names = _get_channel_names()
     assert isinstance(names, dict)
@@ -111,7 +111,7 @@ def test_get_channel_names_returns_dict() -> None:
 @pytest.mark.p1
 def test_resolve_scope_pool_flag() -> None:
     """--pool resolves to None (shared pool)."""
-    from qwenpaw.cli.skills_cmd import _resolve_scope
+    from aiarb.cli.skills_cmd import _resolve_scope
 
     assert _resolve_scope(None, pool=True) is None
 
@@ -120,7 +120,7 @@ def test_resolve_scope_pool_flag() -> None:
 @pytest.mark.p1
 def test_resolve_scope_pool_and_agent_conflict() -> None:
     """--pool together with an agent id is rejected."""
-    from qwenpaw.cli.skills_cmd import _resolve_scope
+    from aiarb.cli.skills_cmd import _resolve_scope
 
     with pytest.raises(click.ClickException, match="mutually exclusive"):
         _resolve_scope("agent-x", pool=True)
@@ -130,7 +130,7 @@ def test_resolve_scope_pool_and_agent_conflict() -> None:
 @pytest.mark.p1
 def test_resolve_scope_default_agent() -> None:
     """No agent and no pool resolves to 'default'."""
-    from qwenpaw.cli.skills_cmd import _resolve_scope
+    from aiarb.cli.skills_cmd import _resolve_scope
 
     assert _resolve_scope(None, pool=False) == "default"
     assert _resolve_scope("  ", pool=False) == "default"
@@ -140,7 +140,7 @@ def test_resolve_scope_default_agent() -> None:
 @pytest.mark.p1
 def test_resolve_scope_explicit_agent() -> None:
     """Explicit agent id is normalized and returned."""
-    from qwenpaw.cli.skills_cmd import _resolve_scope
+    from aiarb.cli.skills_cmd import _resolve_scope
 
     assert _resolve_scope("  agent-a  ", pool=False) == "agent-a"
 
@@ -149,7 +149,7 @@ def test_resolve_scope_explicit_agent() -> None:
 @pytest.mark.p1
 def test_resolve_scope_default_pool_fallback() -> None:
     """default_pool=True with no agent resolves to pool (None)."""
-    from qwenpaw.cli.skills_cmd import _resolve_scope
+    from aiarb.cli.skills_cmd import _resolve_scope
 
     assert _resolve_scope(None, pool=False, default_pool=True) is None
 
@@ -158,7 +158,7 @@ def test_resolve_scope_default_pool_fallback() -> None:
 @pytest.mark.p1
 def test_validate_skill_frontmatter_missing_file(tmp_path: Path) -> None:
     """Missing SKILL.md raises a ClickException."""
-    from qwenpaw.cli.skills_cmd import _validate_skill_frontmatter
+    from aiarb.cli.skills_cmd import _validate_skill_frontmatter
 
     with pytest.raises(click.ClickException, match="Missing SKILL.md"):
         _validate_skill_frontmatter(tmp_path)
@@ -168,7 +168,7 @@ def test_validate_skill_frontmatter_missing_file(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_validate_skill_frontmatter_valid(tmp_path: Path) -> None:
     """A valid SKILL.md frontmatter passes validation."""
-    from qwenpaw.cli.skills_cmd import _validate_skill_frontmatter
+    from aiarb.cli.skills_cmd import _validate_skill_frontmatter
 
     (tmp_path / "SKILL.md").write_text(
         "---\nname: demo-skill\ndescription: A demo skill.\n---\nBody.\n",
@@ -181,7 +181,7 @@ def test_validate_skill_frontmatter_valid(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_validate_skill_frontmatter_invalid(tmp_path: Path) -> None:
     """Missing name/description fails validation."""
-    from qwenpaw.cli.skills_cmd import _validate_skill_frontmatter
+    from aiarb.cli.skills_cmd import _validate_skill_frontmatter
 
     (tmp_path / "SKILL.md").write_text(
         "---\nname: only-name\n---\nBody.\n",
@@ -195,7 +195,7 @@ def test_validate_skill_frontmatter_invalid(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_get_agent_workspace_empty_id_rejected() -> None:
     """Empty agent id raises a ClickException."""
-    from qwenpaw.cli.skills_cmd import _get_agent_workspace
+    from aiarb.cli.skills_cmd import _get_agent_workspace
 
     with pytest.raises(click.ClickException, match="empty"):
         _get_agent_workspace("")
@@ -205,8 +205,8 @@ def test_get_agent_workspace_empty_id_rejected() -> None:
 @pytest.mark.p1
 def test_raise_conflict_formats_suggested_name() -> None:
     """Conflict message includes suggested replacement name."""
-    from qwenpaw.cli.skills_cmd import _raise_conflict
-    from qwenpaw.exceptions import SkillConflictError
+    from aiarb.cli.skills_cmd import _raise_conflict
+    from aiarb.exceptions import SkillConflictError
 
     exc = SkillConflictError(
         {"message": "already exists", "suggested_name": "skill-2"},
@@ -224,7 +224,7 @@ def test_raise_conflict_formats_suggested_name() -> None:
 @pytest.mark.p1
 def test_safe_extract_zip_normal(tmp_path: Path) -> None:
     """Normal zip members extract successfully."""
-    from qwenpaw.cli.plugin_commands import _safe_extract_zip
+    from aiarb.cli.plugin_commands import _safe_extract_zip
 
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w") as zf:
@@ -245,7 +245,7 @@ def test_safe_extract_zip_normal(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_safe_extract_zip_slip_blocked(tmp_path: Path) -> None:
     """Path-traversal members raise ValueError (Zip Slip guard)."""
-    from qwenpaw.cli.plugin_commands import _safe_extract_zip
+    from aiarb.cli.plugin_commands import _safe_extract_zip
 
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w") as zf:

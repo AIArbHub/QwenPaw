@@ -20,7 +20,7 @@ from agentscope.tool import ToolChunk
 
 import importlib
 
-rtb = importlib.import_module("qwenpaw.agents.tools.run_tool_batch")
+rtb = importlib.import_module("aiarb.agents.tools.run_tool_batch")
 
 
 # ---------------------------------------------------------------------------

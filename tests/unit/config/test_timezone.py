@@ -3,7 +3,7 @@
 
 from zoneinfo import available_timezones
 
-from qwenpaw.config.timezone import (
+from aiarb.config.timezone import (
     _WIN_TO_IANA,
     _probe_env,
     detect_system_timezone,

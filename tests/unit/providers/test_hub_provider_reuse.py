@@ -5,15 +5,15 @@
 
 import pytest
 
-from qwenpaw.hub.model_service.api_models import ConnectionBody
-from qwenpaw.hub.model_service.provider_setup import (
+from aiarb.hub.model_service.api_models import ConnectionBody
+from aiarb.hub.model_service.provider_setup import (
     connection_provider,
     provider_presets,
     supported_presets,
 )
-from qwenpaw.providers.anthropic_provider import AnthropicProvider
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.openai_response_provider import OpenAIResponseProvider
+from aiarb.providers.anthropic_provider import AnthropicProvider
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.openai_response_provider import OpenAIResponseProvider
 
 
 @pytest.mark.parametrize(f"provider_id", list(supported_presets()))
@@ -84,7 +84,7 @@ def test_unknown_builtin_does_not_fall_back_to_custom_provider():
 
 
 def test_hub_publishes_only_modalities_supported_by_its_wire_bridge():
-    from qwenpaw.hub.model_service.provider_setup import published_capabilities
+    from aiarb.hub.model_service.provider_setup import published_capabilities
 
     result = published_capabilities(
         {

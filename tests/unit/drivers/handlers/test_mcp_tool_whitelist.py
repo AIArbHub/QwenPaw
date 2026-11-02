@@ -10,9 +10,9 @@ from typing import Any
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.mcp.config_service import MCPConfigService
-from qwenpaw.drivers.adapters.agentscope_tool import build_driver_agent_tools
-from qwenpaw.drivers.capabilities import (
+from aiarb.app.mcp.config_service import MCPConfigService
+from aiarb.drivers.adapters.agentscope_tool import build_driver_agent_tools
+from aiarb.drivers.capabilities import (
     CapabilityExposure,
     DriverCapability,
     DriverInvocation,
@@ -21,9 +21,9 @@ from qwenpaw.drivers.capabilities import (
     mcp_tool_is_enabled,
     mcp_tool_whitelist,
 )
-from qwenpaw.drivers.contracts import DriverCard
-from qwenpaw.drivers.credentials.providers import NoneProvider
-from qwenpaw.drivers.handlers.mcp import (
+from aiarb.drivers.contracts import DriverCard
+from aiarb.drivers.credentials.providers import NoneProvider
+from aiarb.drivers.handlers.mcp import (
     MCPDriverHandler,
     _mcp_tool_to_capability,
 )

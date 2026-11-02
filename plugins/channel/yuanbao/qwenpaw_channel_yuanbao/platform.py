@@ -17,7 +17,7 @@ import uuid
 
 import aiohttp
 
-from qwenpaw.app.channels.utils import split_text
+from aiarb.app.channels.utils import split_text
 from .auth import TokenManager
 from .codec import (
     CMD_AUTH_BIND,
@@ -116,7 +116,7 @@ class YuanbaoPlatform:
         elif self._workspace_dir:
             self._media_dir = self._workspace_dir / "media"
         else:
-            from qwenpaw.constant import DEFAULT_MEDIA_DIR
+            from aiarb.constant import DEFAULT_MEDIA_DIR
 
             self._media_dir = DEFAULT_MEDIA_DIR / "yuanbao"
         self._token_manager = None

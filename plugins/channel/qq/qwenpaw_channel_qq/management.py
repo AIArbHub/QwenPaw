@@ -12,11 +12,11 @@ from urllib.parse import urlencode
 import httpx
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-from qwenpaw.channel_protocol.management import (
+from aiarb.channel_protocol.management import (
     ManagementRequest,
     ManagementResult,
 )
-from qwenpaw.channel_protocol.errors import ProtocolValidationError
+from aiarb.channel_protocol.errors import ProtocolValidationError
 
 
 def _generate_bind_key():

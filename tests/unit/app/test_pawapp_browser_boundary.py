@@ -4,9 +4,9 @@
 from fastapi import APIRouter, FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app.auth import RuntimeBoundaryMiddleware
-from qwenpaw.plugins.browser_access import PAWAPP_SCOPE_HEADER
-from qwenpaw.plugins.registry import PluginRegistry
+from aiarb.app.auth import RuntimeBoundaryMiddleware
+from aiarb.plugins.browser_access import PAWAPP_SCOPE_HEADER
+from aiarb.plugins.registry import PluginRegistry
 
 
 def test_scoped_cookie_cannot_read_core_or_another_app(monkeypatch):

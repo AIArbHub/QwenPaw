@@ -6,8 +6,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.portability import skill_transfer
-from qwenpaw.portability.compatibility import (
+from aiarb.portability import skill_transfer
+from aiarb.portability.compatibility import (
     AssetZone,
     CompatibilityStore,
     RunState,

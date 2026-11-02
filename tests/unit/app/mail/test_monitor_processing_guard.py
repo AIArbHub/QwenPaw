@@ -12,15 +12,15 @@ import openai
 import pytest
 from fastapi import FastAPI
 
-from qwenpaw.app.routers.mail_access_control import router
-from qwenpaw.config.config import AgentMailPushRule
+from aiarb.app.routers.mail_access_control import router
+from aiarb.config.config import AgentMailPushRule
 from .test_monitor import EventRecorder, FakeImapConn, _service
 
 
 @pytest.fixture
 def recorder():
     events = EventRecorder()
-    with patch("qwenpaw.app.mail.monitor.append_inbox_event", new=events):
+    with patch("aiarb.app.mail.monitor.append_inbox_event", new=events):
         yield events
 
 
@@ -226,7 +226,7 @@ async def test_approval_bulk_and_circuit_keep_outbox_until_success(
     assert not workspace.queries
 
     with patch(
-        "qwenpaw.app.mail.monitor.wake_agent_for_mail",
+        "aiarb.app.mail.monitor.wake_agent_for_mail",
         return_value=False,
     ) as wake:
         await _resume(service)
@@ -245,7 +245,7 @@ async def test_normal_and_approved_failures_share_one_counter(
     service, _ = _service(tmp_path, mode="agent_all")
     service._last_uid = 0
     with patch(
-        "qwenpaw.app.mail.monitor.wake_agent_for_mail",
+        "aiarb.app.mail.monitor.wake_agent_for_mail",
         return_value=False,
     ) as wake:
         await _scan(service, 1, 2)
@@ -263,7 +263,7 @@ async def test_unexpected_wake_exception_cannot_bypass_breaker(
     service, _ = _service(tmp_path, mode="agent_all")
     service._last_uid = 0
     with patch(
-        "qwenpaw.app.mail.monitor.wake_agent_for_mail",
+        "aiarb.app.mail.monitor.wake_agent_for_mail",
         side_effect=RuntimeError("completion notification failed"),
     ) as wake:
         await _scan(service, 1, 10)
@@ -317,7 +317,7 @@ async def test_paused_replay_waiter_does_not_start_another_wake(
     await asyncio.sleep(0)
     for _ in range(3):
         service._processing_guard.record_result(False)
-    with patch("qwenpaw.app.mail.monitor.wake_agent_for_mail") as wake:
+    with patch("aiarb.app.mail.monitor.wake_agent_for_mail") as wake:
         service._agent_wake_lock.release()
         assert await waiting is None
         wake.assert_not_called()
@@ -327,14 +327,14 @@ async def test_notification_failure_does_not_unlock_or_lose_notice(tmp_path):
     service, _ = _service(tmp_path, mode="agent_all")
     service._processing_guard.check_batch("scan", list(range(1, 52)), 7)
     with patch(
-        "qwenpaw.app.mail.monitor.append_inbox_event",
+        "aiarb.app.mail.monitor.append_inbox_event",
         side_effect=OSError("disk full"),
     ):
         await service._notify_processing_pause()
     pause = await service.get_processing_pause()
     assert not pause["notified"]
     events = EventRecorder()
-    with patch("qwenpaw.app.mail.monitor.append_inbox_event", new=events):
+    with patch("aiarb.app.mail.monitor.append_inbox_event", new=events):
         await service._notify_processing_pause()
         await service._notify_processing_pause()
     assert events.types() == ["processing_paused"]

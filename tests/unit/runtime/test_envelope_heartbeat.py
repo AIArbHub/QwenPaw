@@ -3,8 +3,8 @@
 
 import pytest
 
-from qwenpaw.runtime.envelope import Envelope
-from qwenpaw.schemas import (
+from aiarb.runtime.envelope import Envelope
+from aiarb.schemas import (
     ContentType,
     Message,
     Role,

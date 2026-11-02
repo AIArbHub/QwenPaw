@@ -5,14 +5,14 @@ import httpx
 import pytest
 from fastapi import FastAPI
 
-from qwenpaw.agents.skill_system import hub
-from qwenpaw.app.routers import market
-from qwenpaw.market import service
-from qwenpaw.market.builtin import BuiltinMarketProvider
-from qwenpaw.market.providers.clawhub import ClawHubProvider
-from qwenpaw.market.providers.modelscope import ModelScopeProvider
-from qwenpaw.market.providers.qwenpaw import QwenPawProvider
-from qwenpaw.market.registry import MarketRegistry
+from aiarb.agents.skill_system import hub
+from aiarb.app.routers import market
+from aiarb.market import service
+from aiarb.market.builtin import BuiltinMarketProvider
+from aiarb.market.providers.clawhub import ClawHubProvider
+from aiarb.market.providers.modelscope import ModelScopeProvider
+from aiarb.market.providers.aiarb import AIArbProvider
+from aiarb.market.registry import MarketRegistry
 
 
 @pytest.mark.integration
@@ -24,7 +24,7 @@ async def test_market_search_multiple_providers_aggregates(
 ):
     registry = MarketRegistry()
     for provider in (
-        QwenPawProvider(),
+        AIArbProvider(),
         ClawHubProvider(),
         ModelScopeProvider(),
     ):
@@ -86,7 +86,7 @@ async def test_market_search_multiple_providers_aggregates(
             "/api/market/search",
             json={
                 "provider_pages": {
-                    "qwenpaw": 2,
+                    "aiarb": 2,
                     "clawhub": 1,
                     "modelscope": 2,
                 },
@@ -96,7 +96,7 @@ async def test_market_search_multiple_providers_aggregates(
 
     assert response.status_code == 200, response.text
     payload = response.json()
-    expected = {("qwenpaw", "@tester/skill"), ("modelscope", "@tester/skill")}
+    expected = {("aiarb", "@tester/skill"), ("modelscope", "@tester/skill")}
     if clawhub_status == 200:
         expected.add(("clawhub", "tester/skill"))
         assert payload["errors"] == []
@@ -108,7 +108,7 @@ async def test_market_search_multiple_providers_aggregates(
     assert {(r["source"], r["slug"]) for r in payload["results"]} == expected
     pages = {
         key: {"has_more": True, "total": 11}
-        for key in ("qwenpaw", "modelscope")
+        for key in ("aiarb", "modelscope")
     }
     if clawhub_status == 200:
         pages["clawhub"] = {"has_more": False, "total": 0}

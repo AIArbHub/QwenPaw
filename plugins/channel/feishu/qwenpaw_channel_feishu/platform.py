@@ -25,7 +25,7 @@ import uuid
 
 import httpx
 
-from qwenpaw.app.channels.utils import file_url_to_local_path
+from aiarb.app.channels.utils import file_url_to_local_path
 from .errors import FeishuDeliveryError
 from .card_templates import (
     build_tool_guard_approval_card,

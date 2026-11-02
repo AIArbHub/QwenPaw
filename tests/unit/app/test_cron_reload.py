@@ -11,14 +11,14 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from apscheduler.events import EVENT_JOB_MAX_INSTANCES
 
-from qwenpaw.app.crons.contracts import ServiceCronJob
+from aiarb.app.crons.contracts import ServiceCronJob
 
-from qwenpaw.app.crons.manager import CronManager
-from qwenpaw.app.crons.models import CronJobSpec
-from qwenpaw.app.crons.repo.json_repo import JsonJobRepository
-from qwenpaw.app.multi_agent_manager import MultiAgentManager
-from qwenpaw.app.workspace import Workspace
-from qwenpaw.app.workspace.service_manager import (
+from aiarb.app.crons.manager import CronManager
+from aiarb.app.crons.models import CronJobSpec
+from aiarb.app.crons.repo.json_repo import JsonJobRepository
+from aiarb.app.multi_agent_manager import MultiAgentManager
+from aiarb.app.workspace import Workspace
+from aiarb.app.workspace.service_manager import (
     ServiceDescriptor,
     ServiceManager,
 )
@@ -28,7 +28,7 @@ from qwenpaw.app.workspace.service_manager import (
 def cron_workspace(tmp_path, monkeypatch):
     """Build real cron services with external model/channel seams replaced."""
     monkeypatch.setattr(
-        "qwenpaw.app.crons.manager.get_heartbeat_config",
+        "aiarb.app.crons.manager.get_heartbeat_config",
         lambda _agent: SimpleNamespace(enabled=False),
     )
     for name in (
@@ -38,7 +38,7 @@ def cron_workspace(tmp_path, monkeypatch):
         "finalize_trace",
     ):
         monkeypatch.setattr(
-            f"qwenpaw.app.crons.executor.{name}",
+            f"aiarb.app.crons.executor.{name}",
             AsyncMock(return_value=[]),
         )
 
@@ -153,7 +153,7 @@ async def test_reload_preserves_scheduled_run_until_history_saved(
     manager._create_workspace = MagicMock(return_value=new)
     manager._setup_workspace_plugins = AsyncMock()
     monkeypatch.setattr(
-        "qwenpaw.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: SimpleNamespace(
             agents=SimpleNamespace(
                 profiles={
@@ -247,7 +247,7 @@ async def test_candidate_cannot_run_crons_before_commit(
 
     manager._setup_workspace_plugins = plugin_startup
     monkeypatch.setattr(
-        "qwenpaw.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: SimpleNamespace(
             agents=SimpleNamespace(
                 profiles={
@@ -341,7 +341,7 @@ async def test_consecutive_reloads_wait_only_for_each_outgoing_workspace(
     manager._create_workspace = MagicMock(side_effect=[second, third])
     manager._setup_workspace_plugins = AsyncMock()
     monkeypatch.setattr(
-        "qwenpaw.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: SimpleNamespace(
             agents=SimpleNamespace(
                 profiles={
@@ -404,7 +404,7 @@ def reload_pair(cron_workspace, monkeypatch):
     manager._create_workspace = MagicMock(return_value=new)
     manager._setup_workspace_plugins = AsyncMock()
     monkeypatch.setattr(
-        "qwenpaw.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: SimpleNamespace(
             agents=SimpleNamespace(
                 profiles={
@@ -617,7 +617,7 @@ async def test_scheduler_limits_survive_repeated_handoffs(
         await blocked(workspaces.index(kwargs["workspace"]))
 
     monkeypatch.setattr(
-        "qwenpaw.app.crons.manager.run_heartbeat_once",
+        "aiarb.app.crons.manager.run_heartbeat_once",
         heartbeat,
     )
     job = CronJobSpec(
@@ -724,7 +724,7 @@ async def test_retired_cron_delivers_through_replacement_channel_owner(
     monkeypatch,
     handoff,
 ):
-    from qwenpaw.app.channels.manager import ChannelManager
+    from aiarb.app.channels.manager import ChannelManager
 
     def transport():
         return SimpleNamespace(
@@ -787,7 +787,7 @@ async def test_retired_cron_delivers_through_replacement_channel_owner(
         return restored_transport
 
     monkeypatch.setattr(
-        "qwenpaw.app.channels.manager.instantiate_channel",
+        "aiarb.app.channels.manager.instantiate_channel",
         restore_transport,
     )
     job = CronJobSpec(
@@ -813,7 +813,7 @@ async def test_retired_cron_delivers_through_replacement_channel_owner(
 
     manager._setup_workspace_plugins = AsyncMock(side_effect=prepared)
     monkeypatch.setattr(
-        "qwenpaw.app.multi_agent_manager.load_config",
+        "aiarb.app.multi_agent_manager.load_config",
         lambda: SimpleNamespace(
             agents=SimpleNamespace(
                 profiles={

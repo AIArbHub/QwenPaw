@@ -23,7 +23,7 @@ import pytest
 @pytest.mark.p1
 def test_validate_acl_address_plain_email() -> None:
     """A normal user@domain address passes."""
-    from qwenpaw.app.mail.mail_access_control import validate_acl_address
+    from aiarb.app.mail.mail_access_control import validate_acl_address
 
     validate_acl_address("user@example.com")  # must not raise
 
@@ -32,7 +32,7 @@ def test_validate_acl_address_plain_email() -> None:
 @pytest.mark.p1
 def test_validate_acl_address_wildcard_domain() -> None:
     """A *@domain wildcard passes."""
-    from qwenpaw.app.mail.mail_access_control import validate_acl_address
+    from aiarb.app.mail.mail_access_control import validate_acl_address
 
     validate_acl_address("*@example.com")  # must not raise
 
@@ -41,7 +41,7 @@ def test_validate_acl_address_wildcard_domain() -> None:
 @pytest.mark.p1
 def test_validate_acl_address_case_normalized() -> None:
     """Addresses are lower-cased and trimmed before validation."""
-    from qwenpaw.app.mail.mail_access_control import validate_acl_address
+    from aiarb.app.mail.mail_access_control import validate_acl_address
 
     validate_acl_address("  USER@Example.COM  ")  # must not raise
 
@@ -50,7 +50,7 @@ def test_validate_acl_address_case_normalized() -> None:
 @pytest.mark.p1
 def test_validate_acl_address_rejects_garbage() -> None:
     """Malformed addresses raise ValueError."""
-    from qwenpaw.app.mail.mail_access_control import validate_acl_address
+    from aiarb.app.mail.mail_access_control import validate_acl_address
 
     for bad in ["", "no-at-sign", "a@", "@example.com", "*@", "a b@c.com"]:
         with pytest.raises(ValueError):
@@ -66,7 +66,7 @@ def test_validate_acl_address_rejects_garbage() -> None:
 @pytest.mark.p1
 def test_mail_user_info_roundtrip() -> None:
     """MailUserInfo serializes and restores remark/display name."""
-    from qwenpaw.app.mail.mail_access_control import MailUserInfo
+    from aiarb.app.mail.mail_access_control import MailUserInfo
 
     info = MailUserInfo(remark="vip", display_name="Alice")
     restored = MailUserInfo.from_dict(info.to_dict())
@@ -78,7 +78,7 @@ def test_mail_user_info_roundtrip() -> None:
 @pytest.mark.p1
 def test_mail_user_info_from_string_legacy() -> None:
     """Legacy string data becomes a remark-only record."""
-    from qwenpaw.app.mail.mail_access_control import MailUserInfo
+    from aiarb.app.mail.mail_access_control import MailUserInfo
 
     restored = MailUserInfo.from_dict("legacy note")
     assert restored.remark == "legacy note"
@@ -88,7 +88,7 @@ def test_mail_user_info_from_string_legacy() -> None:
 @pytest.mark.p1
 def test_mail_user_info_from_none() -> None:
     """None data becomes an empty record."""
-    from qwenpaw.app.mail.mail_access_control import MailUserInfo
+    from aiarb.app.mail.mail_access_control import MailUserInfo
 
     restored = MailUserInfo.from_dict(None)
     assert restored.remark == ""
@@ -99,7 +99,7 @@ def test_mail_user_info_from_none() -> None:
 @pytest.mark.p1
 def test_mail_pending_entry_roundtrip() -> None:
     """MailPendingEntry serializes subject/sender/uid fields."""
-    from qwenpaw.app.mail.mail_access_control import MailPendingEntry
+    from aiarb.app.mail.mail_access_control import MailPendingEntry
 
     entry = MailPendingEntry.from_dict(
         {
@@ -119,7 +119,7 @@ def test_mail_pending_entry_roundtrip() -> None:
 @pytest.mark.p1
 def test_agent_mail_acl_roundtrip() -> None:
     """AgentMailACL round-trips whitelist/blacklist/pending lists."""
-    from qwenpaw.app.mail.mail_access_control import (
+    from aiarb.app.mail.mail_access_control import (
         AgentMailACL,
         MailPendingEntry,
         MailUserInfo,
@@ -141,7 +141,7 @@ def test_agent_mail_acl_roundtrip() -> None:
 @pytest.mark.p1
 def test_agent_mail_acl_empty_defaults() -> None:
     """Empty ACL exposes empty containers."""
-    from qwenpaw.app.mail.mail_access_control import AgentMailACL
+    from aiarb.app.mail.mail_access_control import AgentMailACL
 
     acl = AgentMailACL()
     data = acl.to_dict()
@@ -160,7 +160,7 @@ def test_agent_mail_acl_empty_defaults() -> None:
 @pytest.mark.p1
 def test_check_sender_unknown_agent(tmp_path: Path) -> None:
     """No ACL configured for the agent yields 'unknown'."""
-    from qwenpaw.app.mail.mail_access_control import (
+    from aiarb.app.mail.mail_access_control import (
         get_mail_access_control_store,
     )
 
@@ -174,7 +174,7 @@ def test_check_sender_unknown_agent(tmp_path: Path) -> None:
 @pytest.mark.p1
 def test_extract_domain_pure() -> None:
     """Domain extraction lowercases and splits at @."""
-    from qwenpaw.app.mail.mail_access_control import (
+    from aiarb.app.mail.mail_access_control import (
         MailAccessControlStore,
     )
 
@@ -191,7 +191,7 @@ def test_extract_domain_pure() -> None:
 @pytest.mark.p1
 def test_store_registry_singleton_per_workspace(tmp_path: Path) -> None:
     """Registry returns the same store instance per workspace dir."""
-    from qwenpaw.app.mail.mail_access_control import (
+    from aiarb.app.mail.mail_access_control import (
         get_mail_access_control_store,
     )
 

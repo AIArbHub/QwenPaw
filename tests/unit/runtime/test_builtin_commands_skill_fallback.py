@@ -14,7 +14,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 
-from qwenpaw.runtime.builtin_commands import (
+from aiarb.runtime.builtin_commands import (
     _build_skill_injection,
     _extract_block_text,
     _parse_skill_query,

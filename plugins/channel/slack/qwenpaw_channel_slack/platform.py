@@ -16,7 +16,7 @@ from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
 from slack_bolt.app.async_app import AsyncApp
 from slack_sdk.web.async_client import AsyncWebClient
 
-from qwenpaw.channel_protocol.outbound_budget import (
+from aiarb.channel_protocol.outbound_budget import (
     await_send,
     retry_delay_fits,
 )
@@ -81,7 +81,7 @@ class SlackPlatform:
         elif workspace:
             self._media_dir = Path(workspace).expanduser() / "media"
         else:
-            from qwenpaw.constant import DEFAULT_MEDIA_DIR
+            from aiarb.constant import DEFAULT_MEDIA_DIR
 
             self._media_dir = DEFAULT_MEDIA_DIR
         self._client = self._app = self._handler = None

@@ -18,7 +18,7 @@ from typing import Any
 from agentscope.message import Msg, TextBlock, ToolResultState
 from agentscope.tool import ToolChunk
 
-from qwenpaw.memory import (
+from aiarb.memory import (
     AutoMemorySearchOptions,
     BaseMemoryManager,
     MemoryBackendContext,

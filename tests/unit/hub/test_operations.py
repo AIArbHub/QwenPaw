@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.hub import operations
+from aiarb.hub import operations
 
 from aiarb.hub.operations import HubOperationsStore
 

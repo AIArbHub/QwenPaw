@@ -7,9 +7,9 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from qwenpaw.harnesses.events import HarnessHistoryItem, HarnessHistoryKind
-from qwenpaw.harnesses.codex.rollout_reader import CodexRolloutReader
-from qwenpaw.portability.providers.codex import (
+from aiarb.harnesses.events import HarnessHistoryItem, HarnessHistoryKind
+from aiarb.harnesses.codex.rollout_reader import CodexRolloutReader
+from aiarb.portability.providers.codex import (
     CodexMigrationProvider,
     _merge_threads,
 )
@@ -95,7 +95,7 @@ class _UnexpectedHarnessRuntime:
 
 
 def _workspace(tmp_path: Path):
-    config = SimpleNamespace(backend="qwenpaw", backend_settings={})
+    config = SimpleNamespace(backend="aiarb", backend_settings={})
     return SimpleNamespace(
         workspace_dir=tmp_path,
         config=config,

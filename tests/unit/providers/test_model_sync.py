@@ -8,12 +8,12 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.exceptions import ProviderError
-from qwenpaw.providers.model_info import ModelInfo
-from qwenpaw.providers.model_sync import sync_due
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.openrouter_provider import OpenRouterProvider
-from qwenpaw.providers.provider_manager import ProviderManager
+from aiarb.exceptions import ProviderError
+from aiarb.providers.model_info import ModelInfo
+from aiarb.providers.model_sync import sync_due
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.openrouter_provider import OpenRouterProvider
+from aiarb.providers.provider_manager import ProviderManager
 
 
 async def test_free_discovery_paid_transition_and_explicit_enable(

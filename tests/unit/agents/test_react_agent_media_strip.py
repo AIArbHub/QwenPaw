@@ -1,5 +1,5 @@
 ﻿# -*- coding: utf-8 -*-
-"""Tests for QwenPawAgent media classification, stripping, and retry.
+"""Tests for AIARBAgent media classification, stripping, and retry.
 
 Covers _is_media_block (dict/object/data-block detection) and
 _strip_media_blocks_from_memory (top-level media removal, nested
@@ -31,13 +31,13 @@ from agentscope.message import (
     URLSource,
 )
 
-from qwenpaw.agents import model_factory
-from qwenpaw.agents.react_agent import QwenPawAgent
-from qwenpaw.agents.tools.send_file import send_file_to_user
-from qwenpaw.constant import MEDIA_UNSUPPORTED_PLACEHOLDER
-from qwenpaw.loop.gates import StopAction, StopHandlerResult
-from qwenpaw.providers import model_capability_cache
-from qwenpaw.providers.model_capability_cache import get_capability_cache
+from aiarb.agents import model_factory
+from aiarb.agents.react_agent import AIARBAgent
+from aiarb.agents.tools.send_file import send_file_to_user
+from aiarb.constant import MEDIA_UNSUPPORTED_PLACEHOLDER
+from aiarb.loop.gates import StopAction, StopHandlerResult
+from aiarb.providers import model_capability_cache
+from aiarb.providers.model_capability_cache import get_capability_cache
 
 
 _DEEPSEEK_UNSUPPORTED_IMAGE_ERROR = (
@@ -64,9 +64,9 @@ _VIDEO_ZERO_LIMIT = (
 )
 
 
-def _agent_with_context(context: list) -> QwenPawAgent:
+def _agent_with_context(context: list) -> AIARBAgent:
     """Build a bare agent with only a state.context — no model needed."""
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIARBAgent)
     agent.state = SimpleNamespace(context=context)
     return agent
 
@@ -83,9 +83,9 @@ def _msg_with(blocks: list) -> Msg:
     return msg
 
 
-def _reasoning_agent() -> QwenPawAgent:
+def _reasoning_agent() -> AIARBAgent:
     """Build the attributes read by the reasoning retry wrapper."""
-    agent = object.__new__(QwenPawAgent)
+    agent = object.__new__(AIARBAgent)
     agent._context_manager = None
     agent._gate_pending_stop = None
     agent._request_context = {}
@@ -373,7 +373,7 @@ def test_media_payload_rejection_classifier(
 ) -> None:
     """Classify payload failures without matching capability errors."""
     assert (
-        QwenPawAgent._is_media_payload_rejection_error(RuntimeError(error))
+        AIARBAgent._is_media_payload_rejection_error(RuntimeError(error))
         is expected
     )
 
@@ -841,6 +841,6 @@ def test_video_classifier_distinguishes_capability_from_request_limits(
 ):
     error = RuntimeError(message)
     assert {
-        "retry": QwenPawAgent._is_video_fallback_error(error),
-        "learn": QwenPawAgent._is_video_capability_error(error),
+        "retry": AIARBAgent._is_video_fallback_error(error),
+        "learn": AIARBAgent._is_video_capability_error(error),
     } == {"retry": retry, "learn": learn}

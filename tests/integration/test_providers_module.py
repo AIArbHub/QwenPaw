@@ -23,7 +23,7 @@ class _Block(dict):
 @pytest.mark.p1
 def test_battr_default() -> None:
     """_battr returns the default when key missing."""
-    from qwenpaw.providers.openai_chat_model_compat import _battr
+    from aiarb.providers.openai_chat_model_compat import _battr
 
     assert _battr(_Block(), "missing", "dflt") == "dflt"
 
@@ -32,7 +32,7 @@ def test_battr_default() -> None:
 @pytest.mark.p1
 def test_bset_roundtrip() -> None:
     """_bset writes a key readable by _battr."""
-    from qwenpaw.providers.openai_chat_model_compat import (
+    from aiarb.providers.openai_chat_model_compat import (
         _battr,
         _bset,
     )
@@ -51,7 +51,7 @@ def test_bset_roundtrip() -> None:
 @pytest.mark.p1
 def test_strip_boolean_schema_special_cases() -> None:
     """_strip_boolean_schema_special_cases passes non-dict through."""
-    from qwenpaw.providers.openai_chat_model_compat import (
+    from aiarb.providers.openai_chat_model_compat import (
         _strip_boolean_schema_special_cases,
     )
 
@@ -63,7 +63,7 @@ def test_strip_boolean_schema_special_cases() -> None:
 @pytest.mark.p1
 def test_sanitize_boolean_schemas_dict() -> None:
     """_sanitize_boolean_schemas walks a dict schema."""
-    from qwenpaw.providers.openai_chat_model_compat import (
+    from aiarb.providers.openai_chat_model_compat import (
         _sanitize_boolean_schemas,
     )
 
@@ -76,7 +76,7 @@ def test_sanitize_boolean_schemas_dict() -> None:
 @pytest.mark.p1
 def test_walk_schema_list() -> None:
     """_walk_schema handles list schemas."""
-    from qwenpaw.providers.openai_chat_model_compat import _walk_schema
+    from aiarb.providers.openai_chat_model_compat import _walk_schema
 
     result = _walk_schema(
         {"items": [{"type": "boolean"}]},
@@ -95,7 +95,7 @@ def test_walk_schema_list() -> None:
 @pytest.mark.p1
 def test_sanitize_tool_call_none() -> None:
     """_sanitize_tool_call returns None for a non-tool-call block."""
-    from qwenpaw.providers.openai_chat_model_compat import (
+    from aiarb.providers.openai_chat_model_compat import (
         _sanitize_tool_call,
     )
 

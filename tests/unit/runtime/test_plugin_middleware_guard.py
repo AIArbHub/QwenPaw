@@ -11,9 +11,9 @@ import pytest
 from agentscope.middleware import MiddlewareBase
 from agentscope.event import ReplyEndEvent
 
-from qwenpaw.runtime.builder import _wrap_plugin_middleware
-from qwenpaw.plugins.api import PluginApi
-from qwenpaw.plugins.lifecycle import PluginInstance
+from aiarb.runtime.builder import _wrap_plugin_middleware
+from aiarb.plugins.api import PluginApi
+from aiarb.plugins.lifecycle import PluginInstance
 
 STREAM_HOOKS = ("on_reply", "on_reasoning", "on_acting")
 AWAIT_HOOKS = ("on_model_call", "on_check_permission", "on_compress_context")
@@ -23,7 +23,7 @@ AWAIT_HOOKS = ("on_model_call", "on_check_permission", "on_compress_context")
 def diagnostic(monkeypatch):
     note = Mock()
     monkeypatch.setattr(
-        "qwenpaw.plugins.lifecycle.note_plugin_diagnostic",
+        "aiarb.plugins.lifecycle.note_plugin_diagnostic",
         note,
     )
     return note
@@ -460,7 +460,7 @@ async def test_cancel_cleanup_is_bounded_and_keeps_unfinished_handle(
     diagnostic,
 ):
     monkeypatch.setattr(
-        "qwenpaw.runtime.plugin_middleware._CANCEL_TIMEOUT",
+        "aiarb.runtime.plugin_middleware._CANCEL_TIMEOUT",
         0.01,
     )
     started = asyncio.Event()

@@ -6,7 +6,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from qwenpaw.plugins.loader import PluginLoader
+from aiarb.plugins.loader import PluginLoader
 
 
 def test_local_runtime_rejects_dependency_installation(tmp_path, monkeypatch):

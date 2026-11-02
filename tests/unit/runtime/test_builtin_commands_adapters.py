@@ -20,9 +20,9 @@ import pytest
 from agentscope.message import Msg, TextBlock
 from agentscope.state import AgentState
 
-from qwenpaw.runtime import builtin_commands as bc
-from qwenpaw.runtime._state_utils import StateProxy
-from qwenpaw.security.tool_guard.approval import ApprovalDecision
+from aiarb.runtime import builtin_commands as bc
+from aiarb.runtime._state_utils import StateProxy
+from aiarb.security.tool_guard.approval import ApprovalDecision
 
 
 def _msg_text(msg: Any) -> str:
@@ -135,11 +135,11 @@ class TestDaemonAdapter:
         ctx, _ = _session_ctx()
         with (
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(name="MyAgent"),
             ) as load_cfg,
             patch(
-                "qwenpaw.runtime.commands.daemon.DaemonCommandHandlerMixin",
+                "aiarb.runtime.commands.daemon.DaemonCommandHandlerMixin",
             ) as mixin,
         ):
             mixin.return_value.handle_daemon_command = AsyncMock(
@@ -163,11 +163,11 @@ class TestDaemonAdapter:
         ctx, _ = _session_ctx()
         with (
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(),
             ),
             patch(
-                "qwenpaw.runtime.commands.daemon.DaemonCommandHandlerMixin",
+                "aiarb.runtime.commands.daemon.DaemonCommandHandlerMixin",
             ) as mixin,
         ):
             mixin.return_value.handle_daemon_command = AsyncMock(
@@ -184,11 +184,11 @@ class TestDaemonAdapter:
         spec = bc._make_daemon_adapter("version")
         with (
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 side_effect=RuntimeError("no such agent"),
             ),
             patch(
-                "qwenpaw.runtime.commands.daemon.DaemonCommandHandlerMixin",
+                "aiarb.runtime.commands.daemon.DaemonCommandHandlerMixin",
             ) as mixin,
         ):
             mixin.return_value.handle_daemon_command = AsyncMock(
@@ -212,11 +212,11 @@ class TestDaemonAdapter:
         ctx, _ = _session_ctx()
         with (
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(name=name),
             ),
             patch(
-                "qwenpaw.runtime.commands.daemon.DaemonCommandHandlerMixin",
+                "aiarb.runtime.commands.daemon.DaemonCommandHandlerMixin",
             ) as mixin,
         ):
             mixin.return_value.handle_daemon_command = AsyncMock(
@@ -261,11 +261,11 @@ class TestDaemonCompoundAdapter:
         assert spec.name == "daemon"
         with (
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(),
             ),
             patch(
-                "qwenpaw.runtime.commands.daemon.DaemonCommandHandlerMixin",
+                "aiarb.runtime.commands.daemon.DaemonCommandHandlerMixin",
             ) as mixin,
         ):
             mixin.return_value.handle_daemon_command = AsyncMock(
@@ -281,7 +281,7 @@ class TestDaemonCompoundAdapter:
         spec = bc._make_daemon_compound_adapter()
         ctx, _ = _session_ctx()
         with patch(
-            "qwenpaw.runtime.commands.daemon.DaemonCommandHandlerMixin",
+            "aiarb.runtime.commands.daemon.DaemonCommandHandlerMixin",
         ) as mixin:
             mixin.return_value.handle_daemon_command = AsyncMock()
             msg = await spec.handler(ctx, "not-a-real-subcommand")
@@ -295,11 +295,11 @@ class TestDaemonCompoundAdapter:
         ctx, _ = _session_ctx()
         with (
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(),
             ),
             patch(
-                "qwenpaw.runtime.commands.daemon.DaemonCommandHandlerMixin",
+                "aiarb.runtime.commands.daemon.DaemonCommandHandlerMixin",
             ) as mixin,
         ):
             mixin.return_value.handle_daemon_command = AsyncMock(
@@ -447,7 +447,7 @@ class TestCollectControlSpecs:
             create=True,
         ):
             with patch(
-                "qwenpaw.runtime.commands.control._COMMAND_REGISTRY",
+                "aiarb.runtime.commands.control._COMMAND_REGISTRY",
                 registry,
             ):
                 specs = bc._collect_control_specs()
@@ -503,7 +503,7 @@ class TestLoadAgentState:
     async def test_legacy_memory_payload_is_parsed(self):
         ctx, _ = _session_ctx({"memory": {"messages": [], "summary": "old"}})
         with patch(
-            "qwenpaw.app.chats.utils.parse_legacy_memory_state",
+            "aiarb.app.chats.utils.parse_legacy_memory_state",
             return_value=(["m1"], "legacy summary"),
         ) as parse:
             state, payload = await bc._load_agent_state(ctx)
@@ -648,7 +648,7 @@ def _patch_command_handler(**kwargs: Any):
     double = MagicMock(return_value=instance)
     return (
         patch(
-            "qwenpaw.agents.command_handler.CommandHandler",
+            "aiarb.agents.command_handler.CommandHandler",
             double,
         ),
         double,
@@ -676,7 +676,7 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(),
             ),
         ):
@@ -700,7 +700,7 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(),
             ),
         ):
@@ -718,7 +718,7 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(name="Named"),
             ),
         ):
@@ -743,7 +743,7 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(),
             ),
         ):
@@ -759,7 +759,7 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(),
             ),
         ):
@@ -778,7 +778,7 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(),
             ),
         ):
@@ -798,7 +798,7 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(),
             ),
         ):
@@ -812,7 +812,7 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 side_effect=RuntimeError("config gone"),
             ),
         ):
@@ -828,11 +828,11 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(lcc=_lcc(strategy="native")),
             ),
             patch(
-                "qwenpaw.agents.offloader.QwenPawOffloader",
+                "aiarb.agents.offloader.AIARBOffloader",
             ) as offloader,
         ):
             await spec.handler(ctx, "")
@@ -849,11 +849,11 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(lcc=_lcc(strategy="scroll")),
             ),
             patch(
-                "qwenpaw.agents.offloader.QwenPawOffloader",
+                "aiarb.agents.offloader.AIARBOffloader",
             ) as offloader,
         ):
             await spec.handler(ctx, "")
@@ -867,13 +867,13 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(
                     lcc=_lcc(strategy="scroll", offload_dialog=True),
                 ),
             ),
             patch(
-                "qwenpaw.agents.offloader.QwenPawOffloader",
+                "aiarb.agents.offloader.AIARBOffloader",
             ) as offloader,
         ):
             await spec.handler(ctx, "")
@@ -886,11 +886,11 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(),
             ),
             patch(
-                "qwenpaw.agents.offloader.QwenPawOffloader",
+                "aiarb.agents.offloader.AIARBOffloader",
             ) as offloader,
         ):
             await spec.handler(ctx, "")
@@ -905,11 +905,11 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(),
             ),
             patch(
-                "qwenpaw.agents.offloader.QwenPawOffloader",
+                "aiarb.agents.offloader.AIARBOffloader",
                 side_effect=OSError("disk full"),
             ),
         ):
@@ -924,7 +924,7 @@ class TestConversationAdapter:
         with (
             patcher,
             patch(
-                "qwenpaw.config.config.load_agent_config",
+                "aiarb.config.config.load_agent_config",
                 return_value=_cfg(),
             ),
         ):
@@ -951,7 +951,7 @@ class TestConversationSpecCollection:
         assert all(s.category == "conversation" for s in specs)
 
     def test_help_text_comes_from_the_curated_descriptions(self):
-        from qwenpaw.agents.command_handler import (
+        from aiarb.agents.command_handler import (
             SYSTEM_COMMAND_DESCRIPTIONS,
         )
 
@@ -986,7 +986,7 @@ class TestRemeApprovalContext:
         ctx, _ = _session_ctx({})
         big = {"blob": "x" * 5000}
         with patch(
-            "qwenpaw.app.approvals.get_approval_service",
+            "aiarb.app.approvals.get_approval_service",
             return_value=service,
         ):
             assert await bc._request_reme_action_approval(ctx, "act", big)
@@ -1000,7 +1000,7 @@ class TestRemeApprovalContext:
         service = _approval_service()
         ctx, _ = _session_ctx({})
         with patch(
-            "qwenpaw.app.approvals.get_approval_service",
+            "aiarb.app.approvals.get_approval_service",
             return_value=service,
         ):
             await bc._request_reme_action_approval(
@@ -1025,7 +1025,7 @@ class TestRemeApprovalContext:
             metadata=None,
         )
         with patch(
-            "qwenpaw.app.approvals.get_approval_service",
+            "aiarb.app.approvals.get_approval_service",
             return_value=service,
         ):
             await bc._request_reme_action_approval(ctx, "act", {})
@@ -1044,7 +1044,7 @@ class TestRemeApprovalContext:
         ctx.workspace.channel_manager = manager
         ctx.request = SimpleNamespace(user_id="u", channel="discord")
         with patch(
-            "qwenpaw.app.approvals.get_approval_service",
+            "aiarb.app.approvals.get_approval_service",
             return_value=service,
         ):
             approved = await bc._request_reme_action_approval(ctx, "a", {})
@@ -1058,7 +1058,7 @@ class TestRemeApprovalContext:
         manager = SimpleNamespace(get_channel=AsyncMock())
         ctx.workspace.channel_manager = manager
         with patch(
-            "qwenpaw.app.approvals.get_approval_service",
+            "aiarb.app.approvals.get_approval_service",
             return_value=service,
         ):
             await bc._request_reme_action_approval(ctx, "a", {})
@@ -1073,7 +1073,7 @@ class TestRemeApprovalContext:
             metadata={"client": "web"},
         )
         with patch(
-            "qwenpaw.app.approvals.get_approval_service",
+            "aiarb.app.approvals.get_approval_service",
             return_value=service,
         ):
             await bc._request_reme_action_approval(ctx, "a", {})
@@ -1086,7 +1086,7 @@ class TestRemeApprovalContext:
         service = _approval_service(ApprovalDecision.DENIED)
         ctx, _ = _session_ctx({})
         with patch(
-            "qwenpaw.app.approvals.get_approval_service",
+            "aiarb.app.approvals.get_approval_service",
             return_value=service,
         ):
             assert (
@@ -1102,7 +1102,7 @@ class TestRemeApprovalContext:
             agent_id="",
         )
         with patch(
-            "qwenpaw.app.approvals.get_approval_service",
+            "aiarb.app.approvals.get_approval_service",
             return_value=service,
         ):
             await bc._request_reme_action_approval(ctx, "a", {})

@@ -23,13 +23,13 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastapi import HTTPException
 
-from qwenpaw.app.routers import workspace as ws
-from qwenpaw.config.config import AgentsRunningConfig
+from aiarb.app.routers import workspace as ws
+from aiarb.config.config import AgentsRunningConfig
 
 # Audio-transcription helpers are imported lazily inside the routes, so the
 # patch target has to be spelled out in full. Kept as a constant because it
 # exceeds the 79-column line limit as a literal.
-_AUDIO_MODULE = "qwenpaw.agents.utils.audio_transcription"
+_AUDIO_MODULE = "aiarb.agents.utils.audio_transcription"
 
 
 def _agent(tmp_path: Path, **extra) -> SimpleNamespace:
@@ -609,7 +609,7 @@ async def test_put_agent_language_for_qa_agent_uses_qa_template(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """An untemplated QA agent falls back to the built-in ``qa`` template."""
-    from qwenpaw.constant import BUILTIN_QA_AGENT_ID
+    from aiarb.constant import BUILTIN_QA_AGENT_ID
 
     config = SimpleNamespace(language="en", template_id=None)
     seen: list = []

@@ -8,21 +8,21 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from qwenpaw.agents import model_factory
-from qwenpaw.config.config import AgentProfileConfig, ModelSlotConfig
-from qwenpaw.providers.provider_catalog import (
+from aiarb.agents import model_factory
+from aiarb.config.config import AgentProfileConfig, ModelSlotConfig
+from aiarb.providers.provider_catalog import (
     PROVIDER_OPENAI,
     PROVIDER_ANTHROPIC,
 )
-from qwenpaw.exceptions import ProviderError
-from qwenpaw.providers.hub_managed import managed_slot
-from qwenpaw.providers.provider_manager import ProviderManager
-from qwenpaw.runtime.builder import AgentBuilder
+from aiarb.exceptions import ProviderError
+from aiarb.providers.hub_managed import managed_slot
+from aiarb.providers.provider_manager import ProviderManager
+from aiarb.runtime.builder import AgentBuilder
 
 
 def test_hub_does_not_choose_a_model_without_user_selection(monkeypatch):
     monkeypatch.setenv(f"AIARB_HUB_MODEL_TOKEN", f"token")
-    with patch(f"qwenpaw.providers.hub_managed.directory") as directory:
+    with patch(f"aiarb.providers.hub_managed.directory") as directory:
         assert (
             ProviderManager.get_active_model(
                 SimpleNamespace(active_model=None),

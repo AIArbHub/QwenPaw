@@ -7,10 +7,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.backup._ops import create as create_module
-from qwenpaw.backup._ops.create import BackupCancelled
-from qwenpaw.backup._ops.create_helpers import add_agent_workspaces
-from qwenpaw.backup.models import BackupMeta, BackupScope
+from aiarb.backup._ops import create as create_module
+from aiarb.backup._ops.create import BackupCancelled
+from aiarb.backup._ops.create_helpers import add_agent_workspaces
+from aiarb.backup.models import BackupMeta, BackupScope
 
 
 def test_successful_create_atomically_publishes_archive(

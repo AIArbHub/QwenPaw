@@ -12,7 +12,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 
-from qwenpaw.cli import shutdown_cmd as sc
+from aiarb.cli import shutdown_cmd as sc
 
 
 # ---------------------------------------------------------------------------

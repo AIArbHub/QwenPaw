@@ -13,7 +13,7 @@ from types import SimpleNamespace
 import pytest
 from click.testing import CliRunner
 
-import qwenpaw.cli.channels_cmd as cc
+import aiarb.cli.channels_cmd as cc
 
 
 def _agent_config(channels=None):
@@ -231,7 +231,7 @@ class TestConfigureCmd:
         assert "Error" in result.output
 
     def test_app_exception_reports_and_exits_1(self, runner, monkeypatch):
-        from qwenpaw.exceptions import AppBaseException
+        from aiarb.exceptions import AppBaseException
 
         def boom(agent_id):
             raise AppBaseException(message="boom")

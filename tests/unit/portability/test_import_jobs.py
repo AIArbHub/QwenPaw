@@ -9,20 +9,20 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.portability.import_jobs import (
+from aiarb.portability.import_jobs import (
     ImportRun,
     ImportProviderSnapshot,
     PortabilityImportJobManager,
     _LiveJob,
 )
-from qwenpaw.portability.models import (
+from aiarb.portability.models import (
     ImportAssetResult,
     ImportAssetState,
     ImportSelection,
     MigrationAssetPlan,
     MigrationPlan,
 )
-from qwenpaw.portability.providers.base import report_result
+from aiarb.portability.providers.base import report_result
 
 
 @pytest.mark.asyncio
@@ -446,11 +446,11 @@ async def test_cancel_keeps_draining_mission_job_active(
     manager._jobs[(workspace.agent_id, job_id)] = live
     await asyncio.sleep(0)
     monkeypatch.setattr(
-        "qwenpaw.portability.import_jobs._CANCEL_GRACE_SECONDS",
+        "aiarb.portability.import_jobs._CANCEL_GRACE_SECONDS",
         0.01,
     )
     monkeypatch.setattr(
-        "qwenpaw.portability.import_jobs.has_draining_workers",
+        "aiarb.portability.import_jobs.has_draining_workers",
         lambda _workspace: True,
     )
 
@@ -494,7 +494,7 @@ async def test_cancel_of_uncooperative_job_is_bounded_and_keeps_ownership(
     manager._spawn(live, worker)
     await asyncio.sleep(0)
     monkeypatch.setattr(
-        "qwenpaw.portability.import_jobs._CANCEL_GRACE_SECONDS",
+        "aiarb.portability.import_jobs._CANCEL_GRACE_SECONDS",
         0.01,
     )
 
@@ -542,7 +542,7 @@ async def test_shutdown_of_uncooperative_job_is_bounded(
     manager._spawn(live, worker)
     await asyncio.sleep(0)
     monkeypatch.setattr(
-        "qwenpaw.portability.import_jobs._CANCEL_GRACE_SECONDS",
+        "aiarb.portability.import_jobs._CANCEL_GRACE_SECONDS",
         0.01,
     )
 

@@ -14,11 +14,11 @@ from pydantic import SecretStr
 
 import pytest
 
-from qwenpaw.config.config import ModelSlotConfig
-from qwenpaw.providers import model_catalog
-from qwenpaw.providers.model_info import ModelInfo
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.provider_manager import ProviderManager
+from aiarb.config.config import ModelSlotConfig
+from aiarb.providers import model_catalog
+from aiarb.providers.model_info import ModelInfo
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.provider_manager import ProviderManager
 
 
 @pytest.mark.usefixtures(f"isolated_secret_dir")

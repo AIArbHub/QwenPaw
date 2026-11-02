@@ -1,8 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
-"""Matrix SDK algorithms, owned exclusively by one shared worker instance."""
-"""
-MatrixChannel: AIArb BaseChannel implementation for Matrix (via matrix-nio).
+"""Matrix SDK algorithms, owned exclusively by one shared worker instance.
 
+MatrixChannel: AIArb BaseChannel implementation for Matrix (via matrix-nio).
 """
 
 from __future__ import annotations
@@ -71,10 +70,10 @@ from aiarb.schemas import (
 )
 
 logger = logging.getLogger("aiarb.plugins.matrix")
-from ....app.channels.renderer import ChannelDisplayConfig
-from ....app.channels.base import BaseChannel
-from ....app.channels.utils import file_url_to_local_path
-from ....constant import WORKING_DIR
+from aiarb.app.channels.renderer import ChannelDisplayConfig
+from aiarb.app.channels.base import BaseChannel
+from aiarb.app.channels.utils import file_url_to_local_path
+from aiarb.constant import WORKING_DIR
 
 logger = logging.getLogger("aiarb.channels.matrix")
 
@@ -240,9 +239,7 @@ class MatrixPlatform:
         self.share_session_in_group = config.get(
             "share_session_in_group",
             True,
-    # Streaming constants — placeholder message + in-place edit
-    _STREAM_PLACEHOLDER = "..."
-    _STREAM_DELTA_MIN_INTERVAL_S: float = 1.0
+        )
 
     def __init__(
         self,
@@ -389,32 +386,6 @@ class MatrixPlatform:
             await asyncio.gather(
                 *tuple(self._decoders),
                 return_exceptions=True,
-        return cls(
-            process=process,
-            homeserver=raw.get("homeserver", ""),
-            matrix_user_id=raw.get("user_id", ""),
-            access_token=raw.get("access_token", ""),
-            password=raw.get("password", ""),
-            device_name=raw.get("device_name", "aiarb-worker"),
-            device_id=raw.get("device_id", ""),
-            encryption=raw.get("encryption", False),
-            dm_disabled=raw.get("dm_disabled", False),
-            group_disabled=raw.get("group_disabled", False),
-            groups=raw.get("groups"),
-            vision_enabled=raw.get("vision_enabled", False),
-            history_limit=raw.get("history_limit", DEFAULT_HISTORY_LIMIT),
-            sync_timeout_ms=raw.get("sync_timeout_ms", 30000),
-            on_reply_sent=on_reply_sent,
-            display_config=display_config
-            or ChannelDisplayConfig.from_config(raw),
-            no_text_debounce=no_text_debounce,
-            streaming_enabled=raw.get("streaming_enabled", False),
-            workspace_dir=workspace_dir,
-            access_control_dm=bool(raw.get("access_control_dm", False)),
-            access_control_group=bool(raw.get("access_control_group", False)),
-            enabled=raw.get("enabled", True),
-            share_session_in_group=bool(
-                raw.get("share_session_in_group", True),
             ),
         )
         errors = [

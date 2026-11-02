@@ -14,8 +14,8 @@ from pathlib import Path
 from types import SimpleNamespace
 
 
-from qwenpaw.backup._ops import create_helpers as ch
-from qwenpaw.backup._utils.constants import (
+from aiarb.backup._ops import create_helpers as ch
+from aiarb.backup._utils.constants import (
     PREFIX_CONFIG,
     PREFIX_SECRETS,
     PREFIX_SKILL_POOL,
@@ -196,7 +196,7 @@ class TestAddSecrets:
 class TestAddSkillPool:
     def test_missing_pool_returns_true(self, tmp_path, monkeypatch):
         monkeypatch.setattr(
-            "qwenpaw.agents.skill_system.store.get_skill_pool_dir",
+            "aiarb.agents.skill_system.store.get_skill_pool_dir",
             lambda: tmp_path / "no-pool",
         )
         with _zip(tmp_path) as zf:
@@ -212,7 +212,7 @@ class TestAddSkillPool:
             encoding="utf-8",
         )
         monkeypatch.setattr(
-            "qwenpaw.agents.skill_system.store.get_skill_pool_dir",
+            "aiarb.agents.skill_system.store.get_skill_pool_dir",
             lambda: pool,
         )
 
@@ -227,7 +227,7 @@ class TestAddSkillPool:
         pool.mkdir()
         (pool / "f.txt").write_text("x", encoding="utf-8")
         monkeypatch.setattr(
-            "qwenpaw.agents.skill_system.store.get_skill_pool_dir",
+            "aiarb.agents.skill_system.store.get_skill_pool_dir",
             lambda: pool,
         )
         stop = threading.Event()

@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from qwenpaw.plugins import PluginApi, PluginLoader, PluginManifest
+from aiarb.plugins import PluginApi, PluginLoader, PluginManifest
 
 
 def write_plugin(root, source, **manifest_fields):
@@ -25,8 +25,8 @@ def write_plugin(root, source, **manifest_fields):
 def plugin_loader(tmp_path, monkeypatch, fresh_registry):
     work = tmp_path / "work"
     monkeypatch.setenv("AIARB_WORKING_DIR", str(work))
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", work)
-    monkeypatch.setattr("qwenpaw.config.utils.WORKING_DIR", work)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", work)
+    monkeypatch.setattr("aiarb.config.utils.WORKING_DIR", work)
     result = PluginLoader(plugin_dirs=[tmp_path / "plugins"])
     result.registry = fresh_registry
     return result
@@ -75,7 +75,7 @@ async def test_incompatible_sdk_rejected_before_module_execution(
     loader,
     sdk,
 ):
-    from qwenpaw.plugins import SDKCompatibilityError
+    from aiarb.plugins import SDKCompatibilityError
 
     marker = tmp_path / "module-was-executed"
     root = tmp_path / "plugins" / "incompatible-sdk-contract"
@@ -148,7 +148,7 @@ async def test_sdk_identity_cannot_escape_owned_storage_roots(
     loader,
     plugin_id,
 ):
-    from qwenpaw.plugins import SDKError
+    from aiarb.plugins import SDKError
 
     marker = tmp_path / "unsafe-id-executed"
     root = tmp_path / "plugins" / "unsafe-sdk-identity"

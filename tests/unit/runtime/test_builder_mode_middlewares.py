@@ -7,14 +7,14 @@ import types
 
 import pytest
 
-from qwenpaw.config.config import (
+from aiarb.config.config import (
     AgentProfileConfig,
     LightContextConfig,
     ModelSlotConfig,
 )
-from qwenpaw.modes.advisor import AdvisorMiddleware, AdvisorMode
-from qwenpaw.modes.base import AgentMode
-from qwenpaw.runtime.builder import AgentBuilder
+from aiarb.modes.advisor import AdvisorMiddleware, AdvisorMode
+from aiarb.modes.base import AgentMode
+from aiarb.runtime.builder import AgentBuilder
 
 
 class _Sentinel:

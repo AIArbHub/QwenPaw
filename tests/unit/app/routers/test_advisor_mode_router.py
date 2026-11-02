@@ -10,9 +10,9 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-import qwenpaw.app.routers.advisor_mode as advisor_router_module
-from qwenpaw.app.routers.advisor_mode import router as advisor_router
-from qwenpaw.config.config import AgentProfileConfig, ModelSlotConfig
+import aiarb.app.routers.advisor_mode as advisor_router_module
+from aiarb.app.routers.advisor_mode import router as advisor_router
+from aiarb.config.config import AgentProfileConfig, ModelSlotConfig
 
 
 @pytest.fixture
@@ -43,11 +43,11 @@ def client(monkeypatch, stored_config):
         get_agent_for_request,
     )
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         load_agent_config,
     )
     monkeypatch.setattr(
-        "qwenpaw.config.config.update_agent_config_async",
+        "aiarb.config.config.update_agent_config_async",
         update_agent_config_async,
     )
     app = FastAPI()
@@ -201,7 +201,7 @@ def test_get_reports_global_active_model_as_advisor_fallback(
         ),
     )
     monkeypatch.setattr(
-        "qwenpaw.providers.ProviderManager.get_instance",
+        "aiarb.providers.ProviderManager.get_instance",
         lambda: manager,
     )
     body = client.get("/api/advisor-mode").json()
@@ -228,7 +228,7 @@ def test_exit_session_keeps_chat_and_ends_advisor_mode(
     monkeypatch,
     stored_config,
 ):
-    from qwenpaw.modes.advisor import AdvisorMode
+    from aiarb.modes.advisor import AdvisorMode
 
     mode = AdvisorMode()
     mode.session_state("session-1").override = True
@@ -263,7 +263,7 @@ def test_exit_session_keeps_chat_and_ends_advisor_mode(
 
 
 def test_exit_session_rejects_a_running_chat(client, monkeypatch):
-    from qwenpaw.modes.advisor import AdvisorMode
+    from aiarb.modes.advisor import AdvisorMode
 
     mode = AdvisorMode()
     mode.session_state("session-1").override = True

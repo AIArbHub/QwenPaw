@@ -21,8 +21,8 @@ from agentscope.message import Msg, TextBlock
 from agentscope.state import AgentState
 from fastapi import HTTPException
 
-from qwenpaw.app.chats import api as chats_api
-from qwenpaw.app.chats.models import BatchArchiveResult, ChatSpec
+from aiarb.app.chats import api as chats_api
+from aiarb.app.chats.models import BatchArchiveResult, ChatSpec
 
 
 def _spec(
@@ -116,7 +116,7 @@ async def test_get_workspace_delegates_to_agent_context() -> None:
     sentinel = object()
     resolver = AsyncMock(return_value=sentinel)
     with patch(
-        "qwenpaw.app.agent_context.get_agent_for_request",
+        "aiarb.app.agent_context.get_agent_for_request",
         new=resolver,
     ):
         assert await chats_api.get_workspace(request) is sentinel
@@ -229,7 +229,7 @@ async def test_dirs_response_falls_back_to_workspace_without_override(
     """No session override and no readable agent config -> workspace."""
     chat = _spec(meta={})
     with patch(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         side_effect=RuntimeError("no agent"),
     ):
         payload = await chats_api._project_dirs_response(
@@ -250,7 +250,7 @@ async def test_dirs_response_reads_agent_default_list(dirs) -> None:
         ],
     )
     with patch(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         return_value=config,
     ):
         payload = await chats_api._project_dirs_response(
@@ -270,7 +270,7 @@ async def test_session_override_wins_over_agent_default(dirs) -> None:
     )
     config = SimpleNamespace(project_dir=str(dirs.outer), project_dirs=[])
     with patch(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         return_value=config,
     ):
         payload = await chats_api._project_dirs_response(
@@ -305,7 +305,7 @@ async def test_single_dir_response_survives_unreadable_agent_config(
 ) -> None:
     chat = _spec(meta={})
     with patch(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         side_effect=RuntimeError("boom"),
     ):
         payload = await chats_api._project_directory_response(
@@ -324,7 +324,7 @@ async def test_single_dir_response_uses_legacy_singular_agent_value(
     chat = _spec(meta={})
     config = SimpleNamespace(project_dir=str(dirs.middle), project_dirs=None)
     with patch(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         return_value=config,
     ):
         payload = await chats_api._project_directory_response(
@@ -535,7 +535,7 @@ async def test_set_project_dirs_route_rejects_blank_entries(dirs) -> None:
     """A payload of only unusable entries normalizes to nothing -> 422."""
     mgr = _mgr()
     with patch(
-        "qwenpaw.services.project_directory.normalize_project_dir_list",
+        "aiarb.services.project_directory.normalize_project_dir_list",
         return_value=[],
     ):
         with pytest.raises(HTTPException) as raised:
@@ -563,12 +563,12 @@ async def test_set_project_dirs_route_guards_the_cap(dirs) -> None:
     ``normalize_project_dir_list`` caps its own output, so the count can
     only exceed the cap if one of those two limits is ever raised.
     """
-    from qwenpaw.services.project_directory import MAX_PROJECT_DIRS
+    from aiarb.services.project_directory import MAX_PROJECT_DIRS
 
     overflowing = [(dirs.tmp / f"d{index}", None) for index in range(12)]
     mgr = _mgr()
     with patch(
-        "qwenpaw.services.project_directory.normalize_project_dir_list",
+        "aiarb.services.project_directory.normalize_project_dir_list",
         return_value=overflowing,
     ):
         with pytest.raises(HTTPException) as raised:
@@ -647,7 +647,7 @@ def _state_with_context(text: str) -> dict:
     return {"agent": {"state": AgentState(context=[msg]).model_dump()}}
 
 
-def _chat_workspace(*, backend: str = "qwenpaw", status: str = "idle"):
+def _chat_workspace(*, backend: str = "aiarb", status: str = "idle"):
     """Workspace carrying the three collaborators ``get_chat`` touches."""
     return SimpleNamespace(
         config=SimpleNamespace(backend=backend, backend_settings={}),
@@ -759,11 +759,11 @@ async def test_get_chat_swallows_failed_third_party_recovery() -> None:
 
 
 async def test_get_chat_skips_hydration_for_native_backend() -> None:
-    """``backend == 'qwenpaw'`` never reaches the recovery path."""
+    """``backend == 'aiarb'`` never reaches the recovery path."""
     session = SimpleNamespace(
         get_session_state_dict=AsyncMock(return_value={}),
     )
-    workspace = _chat_workspace(backend="qwenpaw")
+    workspace = _chat_workspace(backend="aiarb")
     await chats_api.get_chat(
         chat_id="c1",
         include_app_owned=True,

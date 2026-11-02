@@ -6,11 +6,11 @@ from __future__ import annotations
 
 import pytest
 
-import qwenpaw.browser.control_link.playwright.adapter as adapter_module
-from qwenpaw.browser.control_link.playwright.adapter import (
+import aiarb.browser.control_link.playwright.adapter as adapter_module
+from aiarb.browser.control_link.playwright.adapter import (
     PlaywrightControlLink,
 )
-from qwenpaw.browser.errors import BrowserError, ErrorCategory, ErrorCause
+from aiarb.browser.errors import BrowserError, ErrorCategory, ErrorCause
 
 
 def _owner_params(**extra):

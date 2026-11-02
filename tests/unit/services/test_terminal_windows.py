@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, call
 import psutil
 import pytest
 
-from qwenpaw.services import terminal_windows as windows
+from aiarb.services import terminal_windows as windows
 
 
 def test_worker_protocol_and_eof(monkeypatch):

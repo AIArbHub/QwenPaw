@@ -1088,7 +1088,7 @@ def _build_copied_agent_config(
     # Mail is only supported for the AIARB backend; silently drop it so
     # copies of legacy "third-party backend + mail" profiles stay valid
     # and no AIARBmail driver card is generated for the new agent.
-    if agent_config.backend != "AIARB":
+    if agent_config.backend.upper() != "AIARB":
         agent_config.mail = None
     return agent_config
 
@@ -1312,6 +1312,7 @@ async def update_agent(  # pylint: disable=too-many-statements
         if "backend" in agent_config.model_fields_set
         else getattr(existing_config_snap, "backend", "AIARB")
     ) or "AIARB"
+    effective_backend = effective_backend.upper()
     mail_was_set = "mail" in agent_config.model_fields_set
     existing_mail_snap = getattr(existing_config_snap, "mail", None)
     effective_mail = (
@@ -1401,7 +1402,7 @@ async def update_agent(  # pylint: disable=too-many-statements
             _sync_AIARBmail_driver_card,
             workspace_dir,
             updated_config.mail,
-            updated_config.backend,
+            effective_backend,
             force_rewrite=mail_was_set,
         )
     except Exception:  # pylint: disable=broad-except
@@ -1439,7 +1440,7 @@ async def update_agent(  # pylint: disable=too-many-statements
             ),
         )
 
-    if updated_config.mail is not None and updated_config.backend == "AIARB":
+    if updated_config.mail is not None and updated_config.backend.upper() == "AIARB":
         await run_sync_io(
             _ensure_contacts_file,
             workspace_dir,
@@ -2472,3 +2473,12 @@ def _initialize_agent_workspace(
                 ensure_ascii=False,
                 indent=2,
             )
+
+
+# Aliases for test import compatibility (lowercase names expected by tests).
+build_AIARBmail_env = _build_AIARBmail_env
+_build_AIARBmail_env = _build_AIARBmail_env
+_build_aiarbmail_env = _build_AIARBmail_env
+_generate_aiarbmail_driver_card = _generate_AIARBmail_driver_card
+_sync_aiarbmail_driver_card = _sync_AIARBmail_driver_card
+_resolve_aiarbmail_command = _resolve_AIARBmail_command

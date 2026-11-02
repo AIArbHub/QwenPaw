@@ -153,8 +153,8 @@ def test_wiring_failure_closes_only_owned_history_store(
     monkeypatch,
     shared,
 ):
-    from qwenpaw.agents.context.scroll.history import HistoryStore
-    from qwenpaw.agents.context.scroll import repl
+    from aiarb.agents.context.scroll.history import HistoryStore
+    from aiarb.agents.context.scroll import repl
 
     histories = []
     supplied = HistoryStore(tmp_path / "history.db") if shared else None

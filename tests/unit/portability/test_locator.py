@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from qwenpaw.portability.providers.locator import resolve_source_location
+from aiarb.portability.providers.locator import resolve_source_location
 
 
 def test_codex_location_uses_each_users_home(tmp_path: Path) -> None:

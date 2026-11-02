@@ -7,9 +7,9 @@ from unittest.mock import Mock
 import pytest
 from click.testing import CliRunner
 
-from qwenpaw.cli import app_cmd as app_module
+from aiarb.cli import app_cmd as app_module
 
-from qwenpaw.cli import init_cmd as module
+from aiarb.cli import init_cmd as module
 
 
 @pytest.mark.parametrize("existing", [False, True])

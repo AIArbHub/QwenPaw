@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 
 import pytest
-from qwenpaw.agents.skill_system import registry as skill_registry
+from aiarb.agents.skill_system import registry as skill_registry
 
 
 @pytest.fixture(autouse=True)
@@ -41,7 +41,7 @@ def test_language_preference_from_settings(
     expected,
 ):
     """#3688: language setting must drive builtin skill language."""
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path)
     (tmp_path / "settings.json").write_text(
         json.dumps(settings),
         encoding="utf-8",
@@ -50,11 +50,11 @@ def test_language_preference_from_settings(
 
 
 def test_missing_settings_file_defaults_to_en(tmp_path, monkeypatch):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path)
     assert skill_registry.get_builtin_skill_language_preference() == "en"
 
 
 def test_malformed_settings_json_defaults_to_en(tmp_path, monkeypatch):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path)
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path)
     (tmp_path / "settings.json").write_text("{not json", encoding="utf-8")
     assert skill_registry.get_builtin_skill_language_preference() == "en"

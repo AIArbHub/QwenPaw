@@ -24,7 +24,7 @@ from agentscope.tool import ToolChunk
 # Note: ``qwenpaw.agents.tools.run_tool_batch`` (the module) is shadowed by
 # the same-named function exported from ``qwenpaw.agents.tools``, so the
 # module must be imported via importlib to reach the internals.
-rtb = importlib.import_module("qwenpaw.agents.tools.run_tool_batch")
+rtb = importlib.import_module("aiarb.agents.tools.run_tool_batch")
 
 
 def _ok_chunk(

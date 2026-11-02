@@ -23,17 +23,17 @@ from types import SimpleNamespace
 import zipfile
 
 from packaging.markers import default_environment
-from qwenpaw.plugins import dependency_maintenance as maintenance
-from qwenpaw.plugins.dependency_context import DependencyEnvironmentContext
-from qwenpaw.plugins.dependency_gate import SharedDependencyError
-from qwenpaw.plugins.dependency_transaction import (
+from aiarb.plugins import dependency_maintenance as maintenance
+from aiarb.plugins.dependency_context import DependencyEnvironmentContext
+from aiarb.plugins.dependency_gate import SharedDependencyError
+from aiarb.plugins.dependency_transaction import (
     _owned,
     publish,
     rollback,
     verify_payload,
 )
-from qwenpaw.plugins.dependency_upgrade import DependencyUpgradeManager
-from qwenpaw.plugins.execution.dependencies import (
+from aiarb.plugins.dependency_upgrade import DependencyUpgradeManager
+from aiarb.plugins.execution.dependencies import (
     DependencySnapshot,
     _installed_metadata,
 )
@@ -44,7 +44,7 @@ from tests.channel_support.host import (
     local_wheel,
 )
 
-from qwenpaw.plugins.execution import CallUnknown, PluginProcess
+from aiarb.plugins.execution import CallUnknown, PluginProcess
 from tests.channel_support.process import (
     ROOT,
     alive,
@@ -66,7 +66,7 @@ async def process():
 
 @pytest.fixture
 def worker_logs(caplog, monkeypatch):
-    logger = logging.getLogger("qwenpaw.plugins.worker")
+    logger = logging.getLogger("aiarb.plugins.worker")
     monkeypatch.setattr(logger, "propagate", False)
     logger.addHandler(caplog.handler)
     try:
@@ -118,7 +118,7 @@ async def test_lifecycle_bidirectional_ipc_logs_and_repeated_stop(
     for marker in ("sample SDK connected", "sample SDK diagnostic"):
         await eventually(lambda: marker in worker_logs.text)
         record = next(r for r in worker_logs.records if marker in r.message)
-        assert record.name == "qwenpaw.plugins.worker"
+        assert record.name == "aiarb.plugins.worker"
         assert record.levelno == logging.WARNING
         for value in (
             spec.plugin_id,
@@ -137,7 +137,7 @@ async def test_log_flood_is_bounded_redacted_and_keeps_ipc_responsive(
     worker_logs,
     monkeypatch,
 ):
-    from qwenpaw.plugins.execution import worker_logs as log_bridge
+    from aiarb.plugins.execution import worker_logs as log_bridge
 
     # Keep one rate window even when a CI machine reads the pipe slowly.
     monkeypatch.setattr(log_bridge, "monotonic", lambda: 1.0)
@@ -345,7 +345,7 @@ async def test_host_exit_reaps_uncooperative_process_tree(tmp_path):
 import asyncio, json, os, sys
 from pathlib import Path
 sys.path[:0] = [sys.argv[1], str(Path(sys.argv[1]) / 'src')]
-from qwenpaw.plugins.execution import PluginProcess
+from aiarb.plugins.execution import PluginProcess
 from tests.channel_support.process import launch, eventually
 
 async def main():
@@ -449,7 +449,7 @@ async def test_large_text_and_attachment_payload_roundtrip_is_exact(
 async def test_cancelled_payload_write_retains_cleanup_until_retry(
     monkeypatch,
 ):
-    from qwenpaw.plugins.execution.payloads import PayloadStore
+    from aiarb.plugins.execution.payloads import PayloadStore
 
     store = await PayloadStore.acreate()
     process = PluginProcess()
@@ -506,8 +506,8 @@ async def test_cancelled_payload_write_retains_cleanup_until_retry(
 
 @pytest.mark.asyncio
 async def test_payload_quota_waits_for_confirmed_discard(monkeypatch):
-    from qwenpaw.plugins.execution.errors import FrameLimitError
-    from qwenpaw.plugins.execution.payloads import PayloadLimits, PayloadStore
+    from aiarb.plugins.execution.errors import FrameLimitError
+    from aiarb.plugins.execution.payloads import PayloadLimits, PayloadStore
 
     message = '"' + "原" * (400 * 1024) + '"'
     size = len(message.encode("utf-8"))
@@ -570,12 +570,12 @@ async def test_runtime_roots_interpreter_and_dependency_visible_in_worker(
     process,
     layout,
 ):
-    from qwenpaw.plugins.channel_bootstrap import (
+    from aiarb.plugins.channel_bootstrap import (
         resolve_default_channel_runtime,
     )
 
     monkeypatch.setattr(
-        "qwenpaw.config.utils.get_config_path",
+        "aiarb.config.utils.get_config_path",
         lambda: tmp_path / "config.json",
     )
     if layout == "frozen":
@@ -602,8 +602,8 @@ async def test_runtime_roots_interpreter_and_dependency_visible_in_worker(
         requirements_path=requirements,
         source_revision=digest(spec.code_root),
     )
-    from qwenpaw.envs import store
-    from qwenpaw.plugins import dependency_maintenance as maintenance
+    from aiarb.envs import store
+    from aiarb.plugins import dependency_maintenance as maintenance
 
     selected_root = maintenance.state_root()
     if layout == "source":
@@ -663,7 +663,7 @@ def test_dependency_site_permission_follows_real_target(
     layout,
     allowed,
 ):
-    from qwenpaw.plugins.dependency_transaction import (
+    from aiarb.plugins.dependency_transaction import (
         dependency_site_is_mutable,
     )
 
@@ -794,10 +794,10 @@ def test_namespace_additions_preserve_file_ownership(
 ):
     import hashlib
 
-    from qwenpaw.plugins.dependency_transaction import prepare_payload
-    from qwenpaw.plugins.dependency_gate import _write_additions
-    from qwenpaw.plugins.execution.errors import ProtocolValidationError
-    from qwenpaw.plugins.wheel_additions import (
+    from aiarb.plugins.dependency_transaction import prepare_payload
+    from aiarb.plugins.dependency_gate import _write_additions
+    from aiarb.plugins.execution.errors import ProtocolValidationError
+    from aiarb.plugins.wheel_additions import (
         WheelAddition,
         validate_additions,
     )
@@ -1271,7 +1271,7 @@ async def staged_upgrade(tmp_path, monkeypatch, request):
     # Keep disjoint installed-consumer coverage and exercise a read consumer
     # sharing the writer environment without a prebuilt full snapshot.
     import json
-    from qwenpaw.plugins import python_backend
+    from aiarb.plugins import python_backend
 
     independent_site = site if shared_reader else tmp_path / "independent-site"
     independent_site.mkdir(exist_ok=True)
@@ -1426,7 +1426,7 @@ async def test_shared_upgrade_replaces_provider_or_restores_exact_old_tree(
     assert (site / "neighbor.txt").read_bytes() == (
         b"preserve unrelated bytes\x00"
     )
-    from qwenpaw.plugins.dependency_usage import DependencyDeclaration
+    from aiarb.plugins.dependency_usage import DependencyDeclaration
 
     usage = host.registry.dependency_usage
     unknown = usage.declare(
@@ -1525,7 +1525,7 @@ async def test_frozen_ordinary_loader_gate_installs_missing_sdk_in_overlay(
     import json
     import shutil
 
-    from qwenpaw.plugins.channel_bootstrap import (
+    from aiarb.plugins.channel_bootstrap import (
         resolve_default_channel_runtime,
     )
     from tests.channel_support.host import (
@@ -1585,9 +1585,9 @@ async def test_frozen_ordinary_loader_gate_installs_missing_sdk_in_overlay(
         "PIP_CONFIG_FILE": os.devnull,
     }.items():
         monkeypatch.setenv(name, value)
-    from qwenpaw.plugins.dependency_maintenance import marker, repair_marker
-    from qwenpaw.plugins.dependency_context import DependencyEnvironmentContext
-    from qwenpaw.plugins.install_lock import environment_install_lock_path
+    from aiarb.plugins.dependency_maintenance import marker, repair_marker
+    from aiarb.plugins.dependency_context import DependencyEnvironmentContext
+    from aiarb.plugins.install_lock import environment_install_lock_path
 
     resources = support.parent
 
@@ -1669,7 +1669,7 @@ async def test_frozen_ordinary_loader_gate_installs_missing_sdk_in_overlay(
 def test_executor_inspection_preserves_immutable_support_tree(tmp_path):
     import shutil
     import packaging
-    from qwenpaw.plugins.dependency_context import DependencyEnvironmentContext
+    from aiarb.plugins.dependency_context import DependencyEnvironmentContext
 
     support = tmp_path / "Bundle.app/Contents/Resources/site"
     support.mkdir(parents=True)

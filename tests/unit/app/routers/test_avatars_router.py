@@ -7,8 +7,8 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qwenpaw.app import auth
-from qwenpaw.app.routers import avatars
+from aiarb.app import auth
+from aiarb.app.routers import avatars
 
 
 @pytest.fixture(name="avatar_client")

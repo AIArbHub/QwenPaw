@@ -8,8 +8,8 @@ import asyncio
 
 import pytest
 
-from qwenpaw.plugins import PluginBusyError, activity
-from qwenpaw.plugins.testing import PluginTestHost
+from aiarb.plugins import PluginBusyError, activity
+from aiarb.plugins.testing import PluginTestHost
 from .test_sdk_channel_routing_contract import (
     CHANNEL,
     incoming,
@@ -95,7 +95,7 @@ async def test_stop_retains_terminal_task_queued_before_callback_admission(
 ):
     # Keep this ownership/cleanup scenario and its assertions together.
     # pylint: disable=too-many-statements
-    from qwenpaw.plugins.resources import ResourceScope
+    from aiarb.plugins.resources import ResourceScope
 
     queued, release = asyncio.Event(), asyncio.Event()
     cancelled = []
@@ -186,7 +186,7 @@ async def test_host_close_retains_native_tracker_completion_callback(
     monkeypatch,
     timeout_then_retry,
 ):
-    from qwenpaw.plugins import SDKError
+    from aiarb.plugins import SDKError
 
     entered, release, finished = (
         asyncio.Event(),
@@ -268,7 +268,7 @@ async def test_host_close_retains_native_tracker_completion_callback(
 async def test_rejected_stream_admission_does_not_create_or_replace_state(
     tmp_path,
 ):
-    from qwenpaw.schemas import AgentRequest
+    from aiarb.schemas import AgentRequest
     from .sdk_author_fixture import make_plugin
     from .test_sdk_channel_routing_contract import SOURCE
 
@@ -362,7 +362,7 @@ async def test_channel_stop_closes_actual_overflow_stream_before_owner_exit(
 ):
     # Keep this ownership/cleanup scenario and its assertions together.
     # pylint: disable=too-many-statements
-    from qwenpaw.agents import react_agent
+    from aiarb.agents import react_agent
     from .sdk_author_fixture import make_plugin
     from .test_sdk_channel_routing_contract import SOURCE
 

@@ -9,13 +9,13 @@ import pytest
 from agentscope.message import Msg, TextBlock
 from agentscope.state import AgentState
 
-from qwenpaw.agents.command_handler import CommandHandler
-from qwenpaw.app.chats.manager import ChatManager
-from qwenpaw.app.chats.models import ChatSpec
-from qwenpaw.app.chats.repo import JsonChatRepository
-from qwenpaw.config.config import AgentProfileConfig, ModelSlotConfig
-from qwenpaw.runtime import builtin_commands
-from qwenpaw.runtime.builder import AgentBuilder
+from aiarb.agents.command_handler import CommandHandler
+from aiarb.app.chats.manager import ChatManager
+from aiarb.app.chats.models import ChatSpec
+from aiarb.app.chats.repo import JsonChatRepository
+from aiarb.config.config import AgentProfileConfig, ModelSlotConfig
+from aiarb.runtime import builtin_commands
+from aiarb.runtime.builder import AgentBuilder
 
 
 @pytest.fixture
@@ -62,11 +62,11 @@ async def conversation(tmp_path, monkeypatch):
         ),
     )
     monkeypatch.setattr(
-        "qwenpaw.config.config.load_agent_config",
+        "aiarb.config.config.load_agent_config",
         lambda _: config,
     )
     monkeypatch.setattr(
-        "qwenpaw.agents.command_handler.load_agent_config",
+        "aiarb.agents.command_handler.load_agent_config",
         lambda _: config,
     )
     monkeypatch.setattr(
@@ -111,7 +111,7 @@ async def test_compact_uses_effective_model(
     model = object()
     factory = AsyncMock(return_value=(model, None))
     monkeypatch.setattr(
-        "qwenpaw.agents.model_factory.create_model_and_formatter_async",
+        "aiarb.agents.model_factory.create_model_and_formatter_async",
         factory,
     )
     built = []
@@ -182,14 +182,14 @@ async def test_history_reports_effective_context_window(
     if selection == "request":
         ctx.request.model_slot_override = "request:M3"
     monkeypatch.setattr(
-        "qwenpaw.agents.command_handler.get_model_max_input_length",
+        "aiarb.agents.command_handler.get_model_max_input_length",
         lambda cfg: {"M1": 1000, "M2": 2000, "M3": 3000}[
             cfg.active_model.model
         ],
     )
     formatter = AsyncMock(return_value="History")
     monkeypatch.setattr(
-        "qwenpaw.agents.command_handler.format_history_str",
+        "aiarb.agents.command_handler.format_history_str",
         formatter,
     )
     await builtin_commands._make_conversation_adapter("history").handler(

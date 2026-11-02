@@ -11,15 +11,15 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.hub.auth import HubAuthService
-from qwenpaw.hub.credentials import TenantCredentialVault
-from qwenpaw.hub.database import connect_hub_database
-from qwenpaw.hub.invitations import (
+from aiarb.hub.auth import HubAuthService
+from aiarb.hub.credentials import TenantCredentialVault
+from aiarb.hub.database import connect_hub_database
+from aiarb.hub.invitations import (
     INVITATION_ERROR_MESSAGES,
     InvitationError,
     InvitationService,
 )
-from qwenpaw.hub.model_service.storage import GovernanceStore
+from aiarb.hub.model_service.storage import GovernanceStore
 
 
 def _service(tmp_path: Path) -> tuple[InvitationService, Path]:

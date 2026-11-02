@@ -682,6 +682,15 @@ class TestOpenAIChatModelCompatDisableThinking:
 
     def test_unknown_control_does_not_guess_wire_params(self):
         from aiarb.providers.openai_chat_model_compat import (
+            OpenAIChatModelCompat,
+        )
+
+        compat = _compat_instance(OpenAIChatModelCompat)
+        compat._disable_thinking_kwargs = {}
+        kwargs = {"disable_thinking": True}
+        compat._consume_disable_thinking(kwargs)
+        assert not kwargs
+
     def test_translates_to_extra_body(self):
         from aiarb.providers.openai_chat_model_compat import (
             OpenAIChatModelCompat,

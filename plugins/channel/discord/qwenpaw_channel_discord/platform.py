@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 import aiohttp
 import discord
 
-from qwenpaw.app.channels.utils import (
+from aiarb.app.channels.utils import (
     file_url_to_local_path,
     materialize_data_url,
 )
@@ -52,7 +52,7 @@ class DiscordPlatform:
         elif workspace:
             self._media_dir = Path(workspace) / "media"
         else:
-            from qwenpaw.constant import DEFAULT_MEDIA_DIR
+            from aiarb.constant import DEFAULT_MEDIA_DIR
 
             self._media_dir = DEFAULT_MEDIA_DIR
         self._client, self._task = None, None

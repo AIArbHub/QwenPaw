@@ -10,19 +10,19 @@ import pytest
 from acp import RequestError, text_block
 from agentscope.message import Msg, TextBlock
 
-from qwenpaw.app.agent_context import scoped_session_id
-from qwenpaw.app.routers import loops
-from qwenpaw.app.workspace.workspace_plugins import WorkspacePlugins
-from qwenpaw.config.config import (
+from aiarb.app.agent_context import scoped_session_id
+from aiarb.app.routers import loops
+from aiarb.app.workspace.workspace_plugins import WorkspacePlugins
+from aiarb.config.config import (
     CustomLoopModeConfig,
     GateInstanceConfig,
     LoopConfig,
 )
-from qwenpaw.modes.custom_loop import load_custom_loop_modes
-from qwenpaw.modes.goal import GoalMode
-from qwenpaw.plugins.registry import PluginRegistry
+from aiarb.modes.custom_loop import load_custom_loop_modes
+from aiarb.modes.goal import GoalMode
+from aiarb.plugins.registry import PluginRegistry
 
-from qwenpaw.agents.acp.server import QwenPawACPAgent
+from aiarb.agents.acp.server import AIARBACPAgent
 
 
 def _workspace(custom_modes=()):
@@ -46,7 +46,7 @@ async def test_restored_session_does_not_restart_mode(
     tmp_path,
     monkeypatch,
 ):
-    agent = QwenPawACPAgent(agent_mode=f"goal")
+    agent = AIARBACPAgent(agent_mode=f"goal")
     for name in (
         f"_cancel_active_prompt",
         f"_cancel_pending_approvals",
@@ -63,7 +63,7 @@ async def test_restored_session_does_not_restart_mode(
 
 async def test_workspace_failure_does_not_consume_mode(monkeypatch):
     """Retrying initialization must still activate the requested mode."""
-    agent = QwenPawACPAgent(agent_mode=f"goal")
+    agent = AIARBACPAgent(agent_mode=f"goal")
 
     async def fail():
         raise OSError(f"Temporary workspace failure")
@@ -87,7 +87,7 @@ async def test_stop_bridge_preserves_other_workspaces():
     )
     manager = SimpleNamespace(agents={f"app": app})
     registry.set_workspace_manager(manager)
-    first, second = QwenPawACPAgent(agent_mode=f"goal"), QwenPawACPAgent(
+    first, second = AIARBACPAgent(agent_mode=f"goal"), AIARBACPAgent(
         agent_mode=f"goal",
     )
     first._install_stop_gate_bridge(f"one", app)
@@ -116,7 +116,7 @@ async def test_custom_mode_uses_shared_catalog_and_existing_dispatch(
         gates=[GateInstanceConfig(id=f"limit", type=f"iteration")],
     )
     workspace = _workspace([config])
-    agent = QwenPawACPAgent(agent_mode=f"custom:quality-id")
+    agent = AIARBACPAgent(agent_mode=f"custom:quality-id")
     with pytest.raises(RequestError):
         agent._apply_agent_mode(
             f"Check the result",

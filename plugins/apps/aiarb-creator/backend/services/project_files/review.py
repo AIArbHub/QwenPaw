@@ -51,7 +51,7 @@ from .models import Project
 from .serialization import project_etag
 from .review_bookkeeping import is_human_review_change
 
-logger = logging.getLogger("qwenpaw.creator.project_files.review")
+logger = logging.getLogger("aiarb.creator.project_files.review")
 
 ReviewDecisionValue = Literal["ACCEPT", "REJECT"]
 

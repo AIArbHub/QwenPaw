@@ -8,29 +8,29 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.agents.skill_system.registry import reconcile_workspace_manifest
-from qwenpaw.plugins.api import PluginApi
-from qwenpaw.plugins.architecture import PluginManifest, PluginRecord
-from qwenpaw.plugins.lifecycle import UnloadMode
-from qwenpaw.plugins.loader import PluginLoader
-from qwenpaw.plugins.provision import (
+from aiarb.agents.skill_system.registry import reconcile_workspace_manifest
+from aiarb.plugins.api import PluginApi
+from aiarb.plugins.architecture import PluginManifest, PluginRecord
+from aiarb.plugins.lifecycle import UnloadMode
+from aiarb.plugins.loader import PluginLoader
+from aiarb.plugins.provision import (
     delete_inventory,
     load_inventory,
     save_inventory,
 )
-from qwenpaw.plugins.registry import PluginRegistry
+from aiarb.plugins.registry import PluginRegistry
 
 
 @pytest.fixture
 def skills(tmp_path, monkeypatch):
-    monkeypatch.setattr("qwenpaw.constant.WORKING_DIR", tmp_path / "work")
+    monkeypatch.setattr("aiarb.constant.WORKING_DIR", tmp_path / "work")
     monkeypatch.setattr(PluginRegistry, "_instance", None)
     registry = PluginRegistry()
     workspace = tmp_path / "workspace"
     workspace.mkdir()
     info = {"workspace_dir": str(workspace), "agent_id": "agent"}
     monkeypatch.setattr(
-        "qwenpaw.agents.skill_system.registry.list_workspaces",
+        "aiarb.agents.skill_system.registry.list_workspaces",
         lambda: [info],
     )
     root = tmp_path / "plugins" / "demo"

@@ -14,7 +14,7 @@ import uuid
 
 import aiohttp
 
-from qwenpaw.utils.media_paths import local_media_path
+from aiarb.utils.media_paths import local_media_path
 
 from .codec import (
     build_artifact_msg,
@@ -69,7 +69,7 @@ class XiaoYiPlatform:
         elif self._workspace_dir:
             self._media_dir = self._workspace_dir / "media"
         else:
-            from qwenpaw.constant import DEFAULT_MEDIA_DIR
+            from aiarb.constant import DEFAULT_MEDIA_DIR
 
             self._media_dir = DEFAULT_MEDIA_DIR / "xiaoyi"
         self._conn_primary = self._conn_backup = None

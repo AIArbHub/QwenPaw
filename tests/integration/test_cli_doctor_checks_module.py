@@ -15,7 +15,7 @@ import pytest
 @pytest.mark.p1
 def test_check_app_log_writable_returns_tuple() -> None:
     """App log writability check returns (bool, message)."""
-    from qwenpaw.cli.doctor_checks import check_app_log_writable
+    from aiarb.cli.doctor_checks import check_app_log_writable
 
     ok, message = check_app_log_writable()
     assert isinstance(ok, bool)
@@ -27,7 +27,7 @@ def test_check_app_log_writable_returns_tuple() -> None:
 @pytest.mark.p1
 def test_scan_unknown_config_keys_clean_dict() -> None:
     """A dict with only known root keys reports nothing."""
-    from qwenpaw.cli.doctor_checks import scan_unknown_config_keys
+    from aiarb.cli.doctor_checks import scan_unknown_config_keys
 
     findings = scan_unknown_config_keys({})
     assert not findings
@@ -37,7 +37,7 @@ def test_scan_unknown_config_keys_clean_dict() -> None:
 @pytest.mark.p1
 def test_scan_unknown_config_flags_unknown_top_level() -> None:
     """Unknown top-level keys are reported."""
-    from qwenpaw.cli.doctor_checks import scan_unknown_config_keys
+    from aiarb.cli.doctor_checks import scan_unknown_config_keys
 
     findings = scan_unknown_config_keys({"totally_unknown_key": 1})
     assert any("totally_unknown_key" in f for f in findings)
@@ -47,7 +47,7 @@ def test_scan_unknown_config_flags_unknown_top_level() -> None:
 @pytest.mark.p1
 def test_scan_unknown_config_flags_unknown_agents_key() -> None:
     """Unknown keys under agents are reported with prefix."""
-    from qwenpaw.cli.doctor_checks import scan_unknown_config_keys
+    from aiarb.cli.doctor_checks import scan_unknown_config_keys
 
     findings = scan_unknown_config_keys({"agents": {"bogus_key": {}}})
     assert any("agents." in f and "bogus_key" in f for f in findings)
@@ -57,7 +57,7 @@ def test_scan_unknown_config_flags_unknown_agents_key() -> None:
 @pytest.mark.p1
 def test_scan_unknown_config_ignores_non_dict_agents() -> None:
     """Non-dict agents value is skipped without error."""
-    from qwenpaw.cli.doctor_checks import scan_unknown_config_keys
+    from aiarb.cli.doctor_checks import scan_unknown_config_keys
 
     findings = scan_unknown_config_keys({"agents": [1, 2]})
     assert isinstance(findings, list)
@@ -68,7 +68,7 @@ def test_scan_unknown_config_ignores_non_dict_agents() -> None:
 @pytest.mark.p1
 def test_load_raw_config_dict_returns_dict_or_none() -> None:
     """Raw config loader returns a dict or None (missing file)."""
-    from qwenpaw.cli.doctor_checks import load_raw_config_dict
+    from aiarb.cli.doctor_checks import load_raw_config_dict
 
     result = load_raw_config_dict()
     assert result is None or isinstance(result, dict)
@@ -78,7 +78,7 @@ def test_load_raw_config_dict_returns_dict_or_none() -> None:
 @pytest.mark.p1
 def test_url_looks_httpish() -> None:
     """HTTP(S) URLs with netloc pass; others fail."""
-    from qwenpaw.cli.doctor_checks import _url_looks_httpish
+    from aiarb.cli.doctor_checks import _url_looks_httpish
 
     assert _url_looks_httpish("http://127.0.0.1:8088") is True
     assert _url_looks_httpish("https://example.com/api") is True
@@ -91,7 +91,7 @@ def test_url_looks_httpish() -> None:
 @pytest.mark.p1
 def test_environment_summary_lines_shape() -> None:
     """Environment summary returns a list of strings."""
-    from qwenpaw.cli.doctor_checks import environment_summary_lines
+    from aiarb.cli.doctor_checks import environment_summary_lines
 
     lines = environment_summary_lines()
     assert isinstance(lines, list)
@@ -103,7 +103,7 @@ def test_environment_summary_lines_shape() -> None:
 @pytest.mark.p1
 def test_windows_long_paths_probe_safe_on_any_os() -> None:
     """Windows long-path probe returns a safe tuple off-Windows."""
-    from qwenpaw.cli.doctor_checks import _windows_long_paths_enabled
+    from aiarb.cli.doctor_checks import _windows_long_paths_enabled
 
     enabled, _note = _windows_long_paths_enabled()
     # Off-Windows: (None, None) or (bool, str) — must not raise.
@@ -114,7 +114,7 @@ def test_windows_long_paths_probe_safe_on_any_os() -> None:
 @pytest.mark.p1
 def test_startup_extra_volume_disk_notes_shape() -> None:
     """Disk notes helper returns a list for any config."""
-    from qwenpaw.cli.doctor_checks import startup_extra_volume_disk_notes
+    from aiarb.cli.doctor_checks import startup_extra_volume_disk_notes
 
     notes = startup_extra_volume_disk_notes(None)
     assert isinstance(notes, list)
@@ -124,7 +124,7 @@ def test_startup_extra_volume_disk_notes_shape() -> None:
 @pytest.mark.p1
 def test_provider_overview_notes_shape() -> None:
     """Provider overview returns a list of strings."""
-    from qwenpaw.cli.doctor_checks import provider_overview_notes
+    from aiarb.cli.doctor_checks import provider_overview_notes
 
     notes = provider_overview_notes()
     assert isinstance(notes, list)

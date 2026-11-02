@@ -556,10 +556,10 @@ def _recording_links(
     recorder: TakeRecorder,
 ) -> tuple[tuple[RecordingControlLink, ...], Any]:
     """Wrap available providers without changing QwenPaw's registry."""
-    from qwenpaw.browser.control_link.playwright.adapter import (
+    from aiarb.browser.control_link.playwright.adapter import (
         PlaywrightControlLink,
     )
-    from qwenpaw.browser.runtime.links import registered_links
+    from aiarb.browser.runtime.links import registered_links
 
     owned_playwright = PlaywrightControlLink()
     wrapped: list[RecordingControlLink] = []
