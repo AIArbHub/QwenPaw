@@ -11,12 +11,12 @@ export const THEME_PRESETS: readonly ThemePreset[] = [
     id: "qwenpaw",
     name: "QwenPaw",
     theme: {
-      accent: "#ff7f16",
-      accent_hover: "#e96f0b",
-      accent_bg: "rgba(255, 127, 22, 0.1)",
+      accent: "#0065fd",
+      accent_hover: "#0050d4",
+      accent_bg: "rgba(0, 101, 253, 0.1)",
       dark: {
-        accent: "#ff9d4d",
-        accent_bg: "rgba(255, 157, 77, 0.16)",
+        accent: "#3d7eff",
+        accent_bg: "rgba(61, 126, 255, 0.16)",
         surface: "#1f1f1f",
       },
     },

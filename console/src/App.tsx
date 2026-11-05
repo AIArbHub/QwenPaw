@@ -105,7 +105,9 @@ export function getAppThemeToken(
     colorPrimary:
       userTheme.dark?.accent && isDark
         ? userTheme.dark.accent
-        : userTheme.accent ?? (isDark ? "#FF9D4D" : "#FF7F16"),
+        : userTheme.accent ?? (isDark ? "#3d7eff" : "#0065fd"),
+    // Ensure primary button text is always white on blue background
+    colorTextLightSolid: "#ffffff",
     borderRadius: 10,
     borderRadiusLG: 16,
     fontFamily:

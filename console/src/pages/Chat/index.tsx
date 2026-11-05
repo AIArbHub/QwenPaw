@@ -3759,7 +3759,7 @@ export default function ChatPage() {
       isDark
         ? previewTheme.dark?.accent ?? previewTheme.accent
         : previewTheme.accent,
-      defaultConfig.theme.colorPrimary ?? "#FF7F16",
+      defaultConfig.theme.colorPrimary ?? "#0065fd",
     );
     const colorPrimary = toChatThemeHex(
       extColorPrimary,

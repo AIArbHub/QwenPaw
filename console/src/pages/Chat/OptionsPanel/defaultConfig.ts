@@ -4,7 +4,7 @@ const defaultConfig = {
   theme: {
     // The upstream chat theme generator parses this value as a HEX color.
     // Runtime theme colors are normalized before they are passed to it.
-    colorPrimary: "#FF7F16",
+    colorPrimary: "#0065fd",
     darkMode: false,
     prefix: "aiarb",
     leftHeader: {
