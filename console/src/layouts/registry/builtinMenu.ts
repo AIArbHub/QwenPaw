@@ -46,6 +46,11 @@ import {
   MessagesSquare as SparkSessionsLine,
   AudioLines as SparkVoiceChat01Line,
   Wifi as SparkWifiLine,
+  Brain,
+  BookOpen,
+  NotebookPen,
+  FileSearch,
+  Files,
 } from "lucide-react";
 import i18next from "../../i18n";
 import { menuRegistry } from "../../plugins/registry/store";
@@ -80,6 +85,90 @@ export const BUILTIN_MENU: MenuItem[] = [
     label: navLabel("nav.import", "Import"),
     icon: SparkDownloadLine,
     route: "core.import",
+    order: 17,
+  },
+
+  // ── Agent Files (一级菜单, 排在最前) ──────────────────────────────────────
+  {
+    id: "core.agent-files-group",
+    location: "primary.agentScoped",
+    label: navLabel("nav.agentFiles", "智能体文件"),
+    isGroup: true,
+    order: 5,
+  },
+  {
+    id: "core.agent-files-overview",
+    location: "primary.agentScoped",
+    parentId: "core.agent-files-group",
+    label: navLabel("nav.agentFilesOverview", "总览"),
+    icon: Files,
+    route: "core.files",
+    order: 5,
+  },
+  {
+    id: "core.agent-files-workspace",
+    location: "primary.agentScoped",
+    parentId: "core.agent-files-group",
+    label: navLabel("nav.agentFilesWorkspace", "工作区文件"),
+    icon: Files,
+    route: "core.agent-files-workspace",
+    order: 10,
+  },
+  {
+    id: "core.agent-files-persona",
+    location: "primary.agentScoped",
+    parentId: "core.agent-files-group",
+    label: navLabel("nav.agentFilesPersona", "灵魂人设"),
+    icon: Sparkles,
+    route: "core.agent-files-persona",
+    order: 20,
+  },
+  {
+    id: "core.agent-files-diary",
+    location: "primary.agentScoped",
+    parentId: "core.agent-files-group",
+    label: navLabel("nav.agentFilesDiary", "日记"),
+    icon: NotebookPen,
+    route: "core.agent-files-diary",
+    order: 30,
+  },
+  {
+    id: "core.agent-files-kb",
+    location: "primary.agentScoped",
+    parentId: "core.agent-files-group",
+    label: navLabel("nav.agentFilesSpecificKB", "专属知识库"),
+    icon: BookOpen,
+    route: "core.agent-files-kb",
+    order: 40,
+  },
+
+  // ── Memory Center (一级菜单) ─────────────────────────────────────────────
+  {
+    id: "core.memory",
+    location: "primary.agentScoped",
+    label: navLabel("nav.memory", "记忆中心"),
+    icon: Brain,
+    route: "core.memory",
+    order: 15,
+  },
+
+  // ── Knowledge Base (一级菜单) ────────────────────────────────────────────
+  {
+    id: "core.knowledge-base",
+    location: "primary.agentScoped",
+    label: navLabel("nav.knowledgeBase", "知识库"),
+    icon: BookOpen,
+    route: "core.knowledge-base",
+    order: 16,
+  },
+
+  // ── Document Tools (一级菜单) ───────────────────────────────────────────
+  {
+    id: "core.document-tools",
+    location: "primary.agentScoped",
+    label: navLabel("nav.documentTools", "文档工具箱"),
+    icon: FileSearch,
+    route: "core.document-tools",
     order: 17,
   },
 
