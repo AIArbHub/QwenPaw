@@ -108,7 +108,7 @@ function AgentStatsPage() {
   const { t } = useTranslation();
   const { message } = useAppMessage();
   const { isDark: isDarkMode } = useTheme();
-  const accentColor = readCssColor("--app-accent", "#ff7f16");
+  const accentColor = readCssColor("--app-accent", "#0065fd");
   const { selectedAgent, agents } = useAgentStore();
   const selectedAgentInfo = agents.find((a) => a.id === selectedAgent);
   const agentName = selectedAgentInfo

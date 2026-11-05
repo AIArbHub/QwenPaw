@@ -93,7 +93,7 @@ describe("getAppThemeToken", () => {
   it("uses the shared control radius when unset", () => {
     const token = getAppThemeToken({}, false);
 
-    expect(token.colorPrimary).toBe("#FF7F16");
+    expect(token.colorPrimary).toBe("#0065fd");
     expect(token.borderRadius).toBe(10);
   });
 

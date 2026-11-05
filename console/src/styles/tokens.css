@@ -16,7 +16,7 @@
  *     aliases have been removed. Project modules use `--app-*` directly.
  *
  * Values are the palette already in effect (antd default algorithm surfaces
- * plus the brand orange), not a redesign.
+ * plus the brand blue), not a redesign.
  */
 
 :root {
@@ -116,9 +116,9 @@
   --app-disabled-text: rgba(20, 20, 19, 0.4);
   --app-disabled-opacity: 0.55;
 
-  /* Built-in brand accent (matches the OS shell accent). */
-  --app-accent: #ff7f16;
-  --app-accent-hover: #ff9d4d;
+  /* Built-in brand accent (blue — AIArb custom). */
+  --app-accent: #0065fd;
+  --app-accent-hover: #3d7eff;
   --app-accent-active: color-mix(in srgb, var(--app-accent) 80%, black);
   /* Accent text is mixed toward black for contrast on light surfaces. */
   --app-accent-text: color-mix(in srgb, var(--app-accent) 72%, black);
@@ -194,7 +194,8 @@
 }
 
 html.dark-mode {
-  --app-accent: #ff9d4d;
+  --app-accent: #3d7eff;
+  --app-accent-hover: #5a97ff;
   --app-shadow-panel: 0 2px 6px rgb(0 0 0 / 12%), 0 24px 64px rgb(0 0 0 / 36%);
   /* Surfaces */
   --app-bg: #141414;

@@ -29,11 +29,11 @@ THEME_GALLERY: tuple[ThemeInfo, ...] = (
         "Original",
         "🐾",
         "original",
-        # Warm, dark take on AIArb's console palette (brand orange #ff7f16).
-        "#1d1308",
-        "#2c1d0e",
-        "#5a3614",
-        "#ff7f16",
+        # Cool, dark take on AIArb's console palette (brand blue #0065fd).
+        "#08111d",
+        "#0e1a2e",
+        "#143250",
+        "#0065fd",
     ),
     ThemeInfo(
         "funky",

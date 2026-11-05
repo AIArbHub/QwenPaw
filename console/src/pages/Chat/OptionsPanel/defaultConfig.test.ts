@@ -11,7 +11,7 @@ const t = ((key: string) => key) as unknown as Parameters<
 
 describe("defaultConfig static shape", () => {
   it("carries the brand theme defaults", () => {
-    expect(defaultConfig.theme.colorPrimary).toBe("#FF7F16");
+    expect(defaultConfig.theme.colorPrimary).toBe("#0065fd");
     expect(defaultConfig.theme.darkMode).toBe(false);
     expect(defaultConfig.theme.prefix).toBe("qwenpaw");
     expect(defaultConfig.theme.leftHeader).toEqual({
@@ -65,7 +65,7 @@ describe("getDefaultConfig", () => {
     ]);
     // Untouched defaults survive the spread.
     expect(cfg.sender).not.toHaveProperty("maxLength");
-    expect(cfg.theme.colorPrimary).toBe("#FF7F16");
+    expect(cfg.theme.colorPrimary).toBe("#0065fd");
     expect(cfg.welcome.avatar).toBe("/online.svg");
     expect(cfg.api).toEqual({ baseURL: "", token: "" });
   });
