@@ -1,4 +1,4 @@
-﻿/**
+/**
  * pawapp-sdk/types.ts — Public type definitions for the PawApp SDK.
  *
  * These types define the contract between PawApps and the host AIARB console.
@@ -226,6 +226,47 @@ export interface PawPageRegistration {
   component?: React.ComponentType;
 }
 
+/** Chat-surface UI namespace with theme, welcome, header, sender, etc. */
+export interface PawChatUiNamespace {
+  theme: { set(partial: Record<string, unknown>): void };
+  welcome: {
+    set(partial: Record<string, unknown>): void;
+    render(value: unknown): void;
+  };
+  leftHeader: {
+    set(partial: Record<string, unknown>): void;
+    render(node: React.ReactNode): void;
+  };
+  rightHeader: {
+    add(node: React.ReactNode, opts?: { id?: string; order?: number }): void;
+  };
+  sender: {
+    set(partial: Record<string, unknown>): void;
+    addPrefix(node: React.ReactNode, opts?: { id?: string; order?: number }): void;
+    addSuggestion(item: { id?: string; items: unknown[] }): void;
+  };
+  actions: { add(action: unknown): void };
+  requestActions: { add(action: unknown): void };
+  requestPayload: {
+    add(transform: unknown, opts?: { id?: string; order?: number }): void;
+  };
+  request: {
+    render(render: unknown): void;
+    prepend(render: unknown, opts?: { id?: string; order?: number }): void;
+    append(render: unknown, opts?: { id?: string; order?: number }): void;
+  };
+  response: {
+    set(partial: Record<string, unknown>): void;
+    render(render: unknown): void;
+    prepend(render: unknown, opts?: { id?: string; order?: number }): void;
+    append(render: unknown, opts?: { id?: string; order?: number }): void;
+  };
+  toolRender(toolName: string, render: unknown): void;
+  approvalRender(sourceType: string, render: unknown): void;
+  card(cardName: string, render: unknown): void;
+  disposeAll(): void;
+}
+
 export interface PawUiNamespace {
   registerPage(registration: PawPageRegistration): PawDisposable;
   registerToolCard(
@@ -283,23 +324,6 @@ export interface PawUiNamespace {
   update(value: unknown): void;
   theme?: { set(partial: Record<string, unknown>): void };
   chat?: PawChatUiNamespace;
-}
-
-export interface PawChatUiNamespace {
-  theme: { set(partial: Record<string, unknown>): void };
-  welcome: { set(partial: Record<string, unknown>): void; render(value: unknown): void };
-  leftHeader: { set(partial: Record<string, unknown>): void; render(node: React.ReactNode): void };
-  rightHeader: { add(node: React.ReactNode, opts?: { id?: string; order?: number }): void };
-  sender: { set(partial: Record<string, unknown>): void; addPrefix(node: React.ReactNode, opts?: { id?: string; order?: number }): void; addSuggestion(item: { id?: string; items: unknown[] }): void };
-  actions: { add(action: unknown): void };
-  requestActions: { add(action: unknown): void };
-  requestPayload: { add(transform: unknown, opts?: { id?: string; order?: number }): void };
-  request: { render(render: unknown): void; prepend(render: unknown, opts?: { id?: string; order?: number }): void; append(render: unknown, opts?: { id?: string; order?: number }): void };
-  response: { set(partial: Record<string, unknown>): void; render(render: unknown): void; prepend(render: unknown, opts?: { id?: string; order?: number }): void; append(render: unknown, opts?: { id?: string; order?: number }): void };
-  toolRender(toolName: string, render: unknown): void;
-  approvalRender(sourceType: string, render: unknown): void;
-  card(cardName: string, render: unknown): void;
-  disposeAll(): void;
 }
 
 // ---------------------------------------------------------------------------
@@ -372,9 +396,20 @@ export interface PawDependenciesNamespace {
   list(force?: boolean): Promise<PawDependencySnapshot[]>;
   get(dependencyId: string, force?: boolean): Promise<PawDependencySnapshot>;
   check(dependencyId: string): Promise<PawDependencySnapshot>;
-  action(dependencyId: string, action: PawDependencyAction, options?: PawDependencyActionOptions): Promise<PawDependencySnapshot>;
-  restart(dependencyId: string, action: PawDependencyAction, options?: PawDependencyActionOptions): Promise<PawDependencySnapshot>;
-  subscribe(listener: (snapshot: PawDependencySnapshot) => void, options?: { intervalMs?: number; force?: boolean }): PawDisposable;
+  action(
+    dependencyId: string,
+    action: PawDependencyAction,
+    options?: PawDependencyActionOptions,
+  ): Promise<PawDependencySnapshot>;
+  restart(
+    dependencyId: string,
+    action: PawDependencyAction,
+    options?: PawDependencyActionOptions,
+  ): Promise<PawDependencySnapshot>;
+  subscribe(
+    listener: (snapshot: PawDependencySnapshot) => void,
+    options?: { intervalMs?: number; force?: boolean },
+  ): PawDisposable;
 }
 
 // ---------------------------------------------------------------------------

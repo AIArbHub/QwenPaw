@@ -58,6 +58,25 @@ const BackupsPage = lazyImportWithRetry("../../pages/Settings/Backups");
 const AppCenterPage = lazyImportWithRetry("../../pages/AppCenter");
 const MarketplacePage = lazyImportWithRetry("../../pages/Market");
 const FilesPage = lazyImportWithRetry("../../pages/Files");
+const AgentFilesWorkspacePage = lazyImportWithRetry(
+  "../../pages/Files/AgentFilesWorkspace",
+);
+const AgentFilesPersonaPage = lazyImportWithRetry(
+  "../../pages/Files/AgentFilesPersona",
+);
+const AgentFilesDiaryPage = lazyImportWithRetry(
+  "../../pages/Files/AgentFilesDiary",
+);
+const AgentFilesKBPage = lazyImportWithRetry(
+  "../../pages/Files/AgentFilesKB",
+);
+const MemoryPage = lazyImportWithRetry("../../pages/Memory");
+const KnowledgeBasePage = lazyImportWithRetry(
+  "../../pages/KnowledgeBase",
+);
+const DocumentToolsPage = lazyImportWithRetry(
+  "../../pages/DocumentTools",
+);
 const ImportPage = lazyImportWithRetry("../../pages/Import");
 const SettingsCenterPage = lazyImportWithRetry("../../pages/SettingsCenter");
 
@@ -140,6 +159,48 @@ export const BUILTIN_ROUTES: Route[] = [
     path: "/files",
     component: FilesPage,
     meta: routeMeta("nav.files", "Files", "workspace", "agent", "workbench"),
+  },
+  {
+    id: "core.agent-files-workspace",
+    path: "/agent-files/workspace",
+    component: AgentFilesWorkspacePage,
+    meta: routeMeta("nav.agentFilesWorkspace", "工作区文件", "workspace", "agent"),
+  },
+  {
+    id: "core.agent-files-persona",
+    path: "/agent-files/persona",
+    component: AgentFilesPersonaPage,
+    meta: routeMeta("nav.agentFilesPersona", "灵魂人设", "workspace", "agent"),
+  },
+  {
+    id: "core.agent-files-diary",
+    path: "/agent-files/diary",
+    component: AgentFilesDiaryPage,
+    meta: routeMeta("nav.agentFilesDiary", "日记", "workspace", "agent"),
+  },
+  {
+    id: "core.agent-files-kb",
+    path: "/agent-files/kb",
+    component: AgentFilesKBPage,
+    meta: routeMeta("nav.agentFilesSpecificKB", "专属知识库", "workspace", "agent"),
+  },
+  {
+    id: "core.memory",
+    path: "/memory",
+    component: MemoryPage,
+    meta: routeMeta("nav.memory", "记忆中心", "workspace", "agent"),
+  },
+  {
+    id: "core.knowledge-base",
+    path: "/knowledge-base",
+    component: KnowledgeBasePage,
+    meta: routeMeta("nav.knowledgeBase", "知识库", "workspace", "agent"),
+  },
+  {
+    id: "core.document-tools",
+    path: "/document-tools",
+    component: DocumentToolsPage,
+    meta: routeMeta("nav.documentTools", "文档工具箱", "workspace", "agent"),
   },
   {
     id: "core.channels",
