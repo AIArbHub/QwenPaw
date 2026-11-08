@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """A downloaded decision model keeps the chat default independent."""
 # pylint: disable=protected-access
 
@@ -7,15 +7,15 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from qwenpaw.app.routers.local_models import (
+from aiarb.app.routers.local_models import (
     StartServerRequest,
     start_llamacpp_server,
     _clear_local_runtime_provider_state,
 )
-from qwenpaw.config.config import ModelSlotConfig
-from qwenpaw.local_models.llamacpp import LlamaCppServerSetupResult
-from qwenpaw.providers import ProviderManager
-from qwenpaw.providers.provider import ModelInfo
+from aiarb.config.config import ModelSlotConfig
+from aiarb.local_models.llamacpp import LlamaCppServerSetupResult
+from aiarb.providers import ProviderManager
+from aiarb.providers.provider import ModelInfo
 
 
 @pytest.mark.asyncio

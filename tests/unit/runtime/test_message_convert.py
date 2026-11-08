@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for request-to-AgentScope message conversion."""
 
 from aiarb.constant import (

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unnecessary-lambda,unused-argument  # noqa: E501
 """Unit tests for plugins/loader.py helper functions.
 

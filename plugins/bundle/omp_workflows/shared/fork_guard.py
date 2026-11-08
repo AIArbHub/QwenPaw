@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Hard checks for forked-worker integration before phase advance."""
 
 from __future__ import annotations

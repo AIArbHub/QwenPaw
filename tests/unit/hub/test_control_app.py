@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Authorization tests for AIARB Hub control-plane APIs."""
 
 from collections.abc import AsyncIterator, Iterator, Mapping

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Plugin loader for discovering and loading plugins."""
 
 import asyncio

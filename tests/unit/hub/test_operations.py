@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for lightweight Hub telemetry and audit storage."""
 
 from pathlib import Path

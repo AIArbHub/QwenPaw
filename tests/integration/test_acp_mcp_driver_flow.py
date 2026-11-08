@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Integration coverage for ACP MCP cards through DriverManager."""
 
 from __future__ import annotations

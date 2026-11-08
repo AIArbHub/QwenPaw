@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Author-facing integration host using the production loader and lifecycle.
 
 This host owns process-wide plugin registries. Use one host per process; run

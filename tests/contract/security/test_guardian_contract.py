@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Contract tests for BaseToolGuardian subclasses.
 
 Verifies the BaseToolGuardian contract:

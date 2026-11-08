@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @aiarb/pawapp-sdk — Frontend SDK for PawApps.
  *
  * In same-origin mode (M0-M2), this is a thin convenience wrapper

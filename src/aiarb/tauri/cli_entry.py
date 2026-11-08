@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """PyInstaller entry point for the bundled AIArb CLI."""
 from __future__ import annotations
 

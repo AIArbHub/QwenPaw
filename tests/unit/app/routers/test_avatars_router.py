@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Avatar routes follow the Console middleware's authentication policy."""
 
 from types import SimpleNamespace

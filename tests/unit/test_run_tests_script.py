@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,unused-argument,protected-access
 # pylint: disable=superfluous-parens
 """Regression tests for ``scripts/run_tests.py`` (issue #7229).

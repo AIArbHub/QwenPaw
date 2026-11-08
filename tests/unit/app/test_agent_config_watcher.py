@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for disk-gated agent configuration reloads."""
 
 # pylint: disable=protected-access

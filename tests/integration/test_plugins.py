@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Integration tests for plugin install / upload / uninstall lifecycle.
 
 Covers both ingest paths (POST /install with a local source path,
@@ -42,7 +42,7 @@ def plugin_lifecycle_environment(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> Iterator[None]:
     """Check dependencies and prepare CLI discovery before lifecycle tests."""
-    from qwenpaw.plugins.dependency_gate import DependencyGate
+    from aiarb.plugins.dependency_gate import DependencyGate
 
     requirements = OFFICIAL_PLUGINS_DIR / "bundle/cloudpaw/requirements.txt"
     assert requirements.is_file(), f"missing requirements: {requirements}"

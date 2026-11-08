@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """A Google Gemini provider implementation using AgentScope's native
 GeminiChatModel."""
 

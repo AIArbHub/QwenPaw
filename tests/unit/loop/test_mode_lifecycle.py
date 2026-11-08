@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Tests for mode-owned handler selection and reset lifecycle."""
 

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for AgentScope event metadata in real-time envelopes."""
 
 from __future__ import annotations

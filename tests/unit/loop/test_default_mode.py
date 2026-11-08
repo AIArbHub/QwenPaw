@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Tests for DefaultMode gate ownership and lifecycle."""
 from __future__ import annotations

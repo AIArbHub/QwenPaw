@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Guards for the host-side response policy cache."""
 
 # pylint: disable=protected-access
@@ -9,9 +9,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.agents.tools.agent_management import _json_safe_channel_meta
-from qwenpaw.app.channels.isolated_proxy import IsolatedChannelProxy
-from qwenpaw.channel_protocol.response_policy import ResponsePolicy
+from aiarb.agents.tools.agent_management import _json_safe_channel_meta
+from aiarb.app.channels.isolated_proxy import IsolatedChannelProxy
+from aiarb.channel_protocol.response_policy import ResponsePolicy
 
 
 class _Process:

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=too-many-branches,too-many-statements
 """OneBot v11 Channel.
 

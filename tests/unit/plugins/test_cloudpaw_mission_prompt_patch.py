@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for CloudPaw prompt and toolkit patches."""
 
 import importlib.util

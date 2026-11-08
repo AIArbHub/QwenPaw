@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """In-memory extension double honoring the frozen wire protocol (tab.*)."""
 
 from __future__ import annotations

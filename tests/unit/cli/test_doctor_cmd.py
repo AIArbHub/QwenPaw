@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for cli/doctor_cmd.py.
 
 Covers the small read-only helpers (classification, health probe, python

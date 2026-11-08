@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """SQLite backup consistency and cancellation regressions."""
 
 # pylint: disable=protected-access
@@ -12,9 +12,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from qwenpaw.backup._ops.create_helpers import add_agent_workspaces
-from qwenpaw.backup._ops import sqlite_snapshot
-from qwenpaw.backup._utils.constants import PREFIX_WORKSPACES
+from aiarb.backup._ops.create_helpers import add_agent_workspaces
+from aiarb.backup._ops import sqlite_snapshot
+from aiarb.backup._utils.constants import PREFIX_WORKSPACES
 
 
 def test_live_wal_snapshot_restores_committed_data(tmp_path):

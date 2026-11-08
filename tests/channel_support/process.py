@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Test-free construction and observation of real isolated plugin workers."""
 
 import asyncio

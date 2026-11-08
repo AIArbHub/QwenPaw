@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """help_text for built-in commands comes from the definition site."""
 from __future__ import annotations
 

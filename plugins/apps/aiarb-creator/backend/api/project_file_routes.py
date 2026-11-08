@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,too-many-branches,too-many-return-statements
 # pylint: disable=too-many-statements
 """File-native Project snapshot, patch, block, and Review endpoints."""

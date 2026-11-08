@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for optional third-party agent dependencies."""
 
 from __future__ import annotations

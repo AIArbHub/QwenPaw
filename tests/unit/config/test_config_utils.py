@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument,unused-variable,use-implicit-booleaness-not-comparison  # noqa: E501
 """Unit tests for config/utils.py helpers.
 

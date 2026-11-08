@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for :mod:`qwenpaw.utils.markdown_cjk`."""
 
-from qwenpaw.utils.markdown_cjk import normalize_cjk_emphasis
+from aiarb.utils.markdown_cjk import normalize_cjk_emphasis
 
 
 def test_repairs_all_supported_emphasis_delimiters():

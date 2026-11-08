@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for unified Files workspace filesystem primitives."""
 
 from __future__ import annotations

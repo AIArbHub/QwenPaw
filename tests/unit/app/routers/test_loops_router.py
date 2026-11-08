@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for custom loop mode persistence endpoints."""
 # pylint: disable=redefined-outer-name
 from __future__ import annotations

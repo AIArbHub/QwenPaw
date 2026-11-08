@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for ``console._extract_placeholder_name``.
 
 The console handler picks an immediate placeholder name for a new chat

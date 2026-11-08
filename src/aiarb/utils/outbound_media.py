@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Host-owned snapshots created only by already-authorized media tools.
 
 URL consumers must never call ``stage_outbound_file`` to authorize a URL.

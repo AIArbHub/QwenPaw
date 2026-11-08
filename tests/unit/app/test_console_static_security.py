@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Console static serving enforces resolved filesystem containment."""
 from __future__ import annotations
 

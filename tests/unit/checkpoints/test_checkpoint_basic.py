@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Command-level tests for checkpoint basics."""
 
 # pylint: disable=redefined-outer-name

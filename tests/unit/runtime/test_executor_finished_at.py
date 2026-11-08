@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Tests for the REPLY_END ``finished_at`` backfill in AgentExecutor.
 

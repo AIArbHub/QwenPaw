@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Opt-in SDK dispatch and pre-import compatibility contracts."""
 
 import json

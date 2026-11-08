@@ -1,4 +1,4 @@
-{
+﻿{
   "id": "memory-openviking",
   "name": "OpenViking Memory",
   "version": "1.0.0",
@@ -9,7 +9,7 @@
     "backend": "plugin.py",
     "frontend": "frontend/dist/index.js"
   },
-  "qwenpaw_version": { "min": "2.2.1b1" },
+  "aiarb_version": { "min": "2.2.1b1" },
   "pack_exclude": [
     "tests",
     "frontend/src",

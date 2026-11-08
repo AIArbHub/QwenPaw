@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=wrong-import-position
 """Tests for Langfuse observability integration components.
 

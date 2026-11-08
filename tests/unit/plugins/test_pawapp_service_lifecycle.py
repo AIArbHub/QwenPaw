@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Sidecar availability must not remove a PawApp's diagnostic routes."""
 
 import asyncio

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Interaction API router for CloudPaw plugin.
 
 POST /api/interaction — resolve a pending user interaction.

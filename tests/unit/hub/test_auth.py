@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for AIARB Hub users, roles, and token invalidation."""
 
 import json

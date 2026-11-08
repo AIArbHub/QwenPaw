@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Team pipeline gate — 5-phase with fix retry limit."""
 
 from __future__ import annotations

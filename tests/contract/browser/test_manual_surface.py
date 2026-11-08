@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Every locator call named in the manual must exist on LocatorView."""
 import re
 

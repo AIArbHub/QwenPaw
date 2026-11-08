@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Session reasoning persists independently from agent and workspace state."""
 
 import asyncio

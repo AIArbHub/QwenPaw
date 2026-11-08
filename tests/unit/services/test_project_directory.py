@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for mode-independent project directory resolution."""
 
 from pathlib import Path

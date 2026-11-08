@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """PTY interrupt contracts and a Windows-only native smoke test."""
 
 import ctypes

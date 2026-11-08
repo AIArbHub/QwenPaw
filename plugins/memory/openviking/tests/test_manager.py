@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Behavioral tests for the OpenViking memory plugin manager."""
 
@@ -26,11 +26,11 @@ from plugins.memory.openviking.backend.manager import OpenVikingMemoryManager
 from plugins.memory.openviking.backend.prompts import (
     OPENVIKING_UNTRUSTED_HISTORY_NOTICE,
 )
-from qwenpaw.governance import PolicyGuardedTool
-from qwenpaw.governance.policy import GovernanceAction, GovernancePolicy
-from qwenpaw.governance.tool_registry import DEFAULT_REGISTRY
-from qwenpaw.memory import BaseMemoryManager, MemoryBackendContext
-from qwenpaw.runtime.builder import AgentBuilder
+from aiarb.governance import PolicyGuardedTool
+from aiarb.governance.policy import GovernanceAction, GovernancePolicy
+from aiarb.governance.tool_registry import DEFAULT_REGISTRY
+from aiarb.memory import BaseMemoryManager, MemoryBackendContext
+from aiarb.runtime.builder import AgentBuilder
 
 
 def _manager(
@@ -326,7 +326,7 @@ def test_openviking_policy_marker_does_not_change_base_search_identity(
     manager.list_memory_tools()
 
     assert (
-        getattr(BaseMemoryManager.memory_search, "_qwenpaw_policy_name", "")
+        getattr(BaseMemoryManager.memory_search, "_AIARB_policy_name", "")
         == ""
     )
     base_search = MethodType(BaseMemoryManager.memory_search, manager)

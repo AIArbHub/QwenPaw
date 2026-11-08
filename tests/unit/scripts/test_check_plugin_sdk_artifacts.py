@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """The exported author suite collects without repository test helpers."""
 
 import os

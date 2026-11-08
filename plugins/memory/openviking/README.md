@@ -1,4 +1,4 @@
-# OpenViking Memory Backend
+﻿# OpenViking Memory Backend
 
 [中文文档](README_ZH.md)
 
@@ -62,7 +62,7 @@ cd ../../../../
 Then install the local plugin:
 
 ```bash
-qwenpaw plugin install plugins/memory/openviking
+aiarb plugin install plugins/memory/openviking
 ```
 
 Use `--force` when reinstalling a changed copy. QwenPaw must have memory

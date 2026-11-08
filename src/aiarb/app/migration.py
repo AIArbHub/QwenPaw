@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Configuration migration utilities for multi-agent support.
 
 Handles migration from legacy single-agent config to new multi-agent structure.

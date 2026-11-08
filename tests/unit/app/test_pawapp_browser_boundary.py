@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Browser grants must follow runtime route ownership, not URL spelling."""
 
 from fastapi import APIRouter, FastAPI

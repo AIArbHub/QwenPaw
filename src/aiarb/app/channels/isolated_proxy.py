@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=unused-argument
 """SDK-free BaseChannel adapter for an explicitly owned channel process."""
 

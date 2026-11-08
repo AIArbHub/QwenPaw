@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for Codex app-server JSON-RPC request handling."""
 
 # pylint: disable=protected-access

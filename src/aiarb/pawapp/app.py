@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """PawApp class — Developer-facing SDK entry point.
 
 Wraps PluginApi under the hood. Provides decorator sugar for:

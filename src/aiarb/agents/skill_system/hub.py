@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Skills hub client and install helpers."""
 
 from __future__ import annotations

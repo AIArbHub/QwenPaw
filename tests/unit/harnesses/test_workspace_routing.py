@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for workspace routing into a selected third-party agent."""
 
 # pylint: disable=protected-access

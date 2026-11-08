@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for utils.logging (S级模块).
 
 S级: Core utilities with high risk of cascading failures.

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=arguments-renamed
 """DingTalk Stream callback handler: message -> native dict -> reply."""
 

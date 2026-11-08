@@ -1,4 +1,4 @@
-﻿"""
+"""
 Redaction Detector - 敏感实体识别器
 
 职责：

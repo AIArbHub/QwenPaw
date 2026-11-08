@@ -1,4 +1,4 @@
-﻿/**
+/**
  * moduleRegistry.ts
  *
  * Runtime module registry for plugin system monkey-patching

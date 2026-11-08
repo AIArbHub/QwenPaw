@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Token rotation recovery coverage for the Native Messaging bridge."""
 
 # pylint: disable=protected-access,redefined-outer-name

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for fail-closed Hub runtime process isolation."""
 
 import mimetypes

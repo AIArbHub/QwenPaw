@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for console background chat-task timeout handling."""
 # pylint: disable=protected-access,redefined-outer-name,unused-argument
 from __future__ import annotations

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Application access decisions owned by the Computer Use plugin."""
 
 from __future__ import annotations

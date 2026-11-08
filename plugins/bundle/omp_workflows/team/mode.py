@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """TeamMode — multi-agent collaboration pipeline."""
 
 from __future__ import annotations

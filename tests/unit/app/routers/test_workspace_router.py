@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Focused unit tests for workspace running-config update ordering."""
 
 # pylint: disable=protected-access

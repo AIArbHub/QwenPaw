@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Integration tests for the browser module.
 
 Tests the browser subsystem's public API: error codes, SDK contracts,
@@ -18,7 +18,7 @@ def test_browser_errors_module_exists() -> None:
       error definitions used throughout the browser subsystem.
 
     Test flow:
-    1. Import qwenpaw.browser.errors.
+    1. import aiarb.browser.errors.
     2. Verify import succeeds.
     """
     from aiarb.browser import errors
@@ -34,7 +34,7 @@ def test_browser_governance_error_codes() -> None:
       Contains error code definitions for browser governance.
 
     Test flow:
-    1. Import qwenpaw.browser.governance.error_codes.
+    1. import aiarb.browser.governance.error_codes.
     2. Verify import succeeds.
     """
     from aiarb.browser.governance import error_codes
@@ -50,7 +50,7 @@ def test_browser_sdk_contracts_module() -> None:
       contract definitions for browser SDK.
 
     Test flow:
-    1. Import qwenpaw.browser.sdk.contracts.
+    1. import aiarb.browser.sdk.contracts.
     2. Verify import succeeds.
     """
     from aiarb.browser.sdk import contracts
@@ -66,7 +66,7 @@ def test_browser_sdk_execution_context_module() -> None:
       Contains execution context management for browser operations.
 
     Test flow:
-    1. Import qwenpaw.browser.sdk.execution_context.
+    1. import aiarb.browser.sdk.execution_context.
     2. Verify import succeeds.
     """
     from aiarb.browser.sdk import execution_context
@@ -82,7 +82,7 @@ def test_browser_sdk_facade_module() -> None:
       main browser SDK facade.
 
     Test flow:
-    1. Import qwenpaw.browser.sdk.facade.
+    1. import aiarb.browser.sdk.facade.
     2. Verify import succeeds.
     """
     from aiarb.browser.sdk import facade
@@ -98,7 +98,7 @@ def test_browser_sdk_page_module() -> None:
       abstraction for browser operations.
 
     Test flow:
-    1. Import qwenpaw.browser.sdk.page.
+    1. import aiarb.browser.sdk.page.
     2. Verify import succeeds.
     """
     from aiarb.browser.sdk import page
@@ -114,7 +114,7 @@ def test_browser_sdk_tabs_module() -> None:
       management for browser operations.
 
     Test flow:
-    1. Import qwenpaw.browser.sdk.tabs.
+    1. import aiarb.browser.sdk.tabs.
     2. Verify import succeeds.
     """
     from aiarb.browser.sdk import tabs
@@ -130,7 +130,7 @@ def test_browser_runtime_engine_module() -> None:
       the browser runtime engine.
 
     Test flow:
-    1. Import qwenpaw.browser.runtime.engine.
+    1. import aiarb.browser.runtime.engine.
     2. Verify import succeeds.
     """
     from aiarb.browser.runtime import engine
@@ -146,7 +146,7 @@ def test_browser_runtime_identity_module() -> None:
       identity management for browser runtime.
 
     Test flow:
-    1. Import qwenpaw.browser.runtime.identity.
+    1. import aiarb.browser.runtime.identity.
     2. Verify import succeeds.
     """
     from aiarb.browser.runtime import identity
@@ -162,7 +162,7 @@ def test_browser_runtime_launch_resolve_module() -> None:
       Contains launch resolution logic for browser.
 
     Test flow:
-    1. Import qwenpaw.browser.runtime.launch_resolve.
+    1. import aiarb.browser.runtime.launch_resolve.
     2. Verify import succeeds.
     """
     from aiarb.browser.runtime import launch_resolve
@@ -178,7 +178,7 @@ def test_browser_runtime_locator_module() -> None:
       element locator logic for browser automation.
 
     Test flow:
-    1. Import qwenpaw.browser.runtime.locator.
+    1. import aiarb.browser.runtime.locator.
     2. Verify import succeeds.
     """
     from aiarb.browser.runtime import locator
@@ -194,7 +194,7 @@ def test_browser_runtime_ownership_module() -> None:
       ownership management for browser resources.
 
     Test flow:
-    1. Import qwenpaw.browser.runtime.ownership.
+    1. import aiarb.browser.runtime.ownership.
     2. Verify import succeeds.
     """
     from aiarb.browser.runtime import ownership
@@ -210,7 +210,7 @@ def test_browser_runtime_ports_module() -> None:
       port management for browser runtime.
 
     Test flow:
-    1. Import qwenpaw.browser.runtime.ports.
+    1. import aiarb.browser.runtime.ports.
     2. Verify import succeeds.
     """
     from aiarb.browser.runtime import ports
@@ -226,7 +226,7 @@ def test_browser_telemetry_trace_module() -> None:
       tracing/telemetry for browser operations.
 
     Test flow:
-    1. Import qwenpaw.browser.telemetry.trace.
+    1. import aiarb.browser.telemetry.trace.
     2. Verify import succeeds.
     """
     from aiarb.browser.telemetry import trace
@@ -242,7 +242,7 @@ def test_browser_control_link_identity_module() -> None:
       Contains identity management for browser control links.
 
     Test flow:
-    1. Import qwenpaw.browser.control_link.identity.
+    1. import aiarb.browser.control_link.identity.
     2. Verify import succeeds.
     """
     from aiarb.browser.control_link import identity
@@ -258,7 +258,7 @@ def test_browser_handoff_signal_module() -> None:
       handoff signal definitions for browser control transfer.
 
     Test flow:
-    1. Import qwenpaw.browser.handoff_signal.
+    1. import aiarb.browser.handoff_signal.
     2. Verify import succeeds.
     """
     from aiarb.browser import handoff_signal
@@ -274,7 +274,7 @@ def test_browser_tool_entrypoint_module() -> None:
       the tool entrypoint for browser automation.
 
     Test flow:
-    1. Import qwenpaw.browser.tool_entrypoint.
+    1. import aiarb.browser.tool_entrypoint.
     2. Verify import succeeds.
     """
     from aiarb.browser import tool_entrypoint

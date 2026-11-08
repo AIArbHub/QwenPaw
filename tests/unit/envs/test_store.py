@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for persisted environment overrides."""
 # pylint: disable=protected-access,redefined-outer-name
 

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Ownership-boundary tests for the global chat API."""
 
 import asyncio

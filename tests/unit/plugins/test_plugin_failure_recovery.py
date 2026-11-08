@@ -1524,7 +1524,7 @@ async def test_uninstall_retires_recovered_state_before_reinstall(
     monkeypatch,
     state,
 ):
-    from qwenpaw.plugins import provision
+    from aiarb.plugins import provision
 
     plugin_id = "uninstall_recovery"
     plugins = tmp_path / "plugins"

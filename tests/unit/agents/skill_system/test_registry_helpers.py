@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument,unused-import  # noqa: E501
 """Pure-logic unit tests for skill_system/registry.py helpers.
 

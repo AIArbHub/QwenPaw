@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Qwen-Image Tool Plugin Entry Point."""
 
 import importlib.util

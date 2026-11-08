@@ -1,4 +1,4 @@
-﻿import type { ChatSubmitInput } from "../../plugins/types/aiarb";
+import type { ChatSubmitInput } from "../../plugins/types/aiarb";
 import {
   MAX_QUEUE_SIZE,
   useMessageQueueStore,

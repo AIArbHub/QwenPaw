@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Real shell resource regressions for Windows, macOS and Linux.
 
 The existing nightly unit-test matrix runs these on all three systems.
@@ -22,12 +22,12 @@ import psutil
 import pytest
 from agentscope.message import ToolResultState
 
-from qwenpaw.agents.tools import shell
-from qwenpaw.agents.tools.shell import execute_shell_command
-from qwenpaw.sandbox import SandboxConfig, SandboxMode
-from qwenpaw.sandbox import windows_appcontainer_sandbox as appcontainer
-from qwenpaw.sandbox import windows_unelevated_sandbox as windows_readers
-from qwenpaw.utils.shell_resources import (
+from aiarb.agents.tools import shell
+from aiarb.agents.tools.shell import execute_shell_command
+from aiarb.sandbox import SandboxConfig, SandboxMode
+from aiarb.sandbox import windows_appcontainer_sandbox as appcontainer
+from aiarb.sandbox import windows_unelevated_sandbox as windows_readers
+from aiarb.utils.shell_resources import (
     SHELL_GUARD,
     ShellGuard,
     watch_shell_process_async,

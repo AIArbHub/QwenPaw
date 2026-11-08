@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Yuanbao signs HTTP credentials and uses native protobuf WebSocket frames."""
 
 import asyncio

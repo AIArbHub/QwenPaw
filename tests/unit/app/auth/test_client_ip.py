@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for the auth bypass fix (NVDB-TEMP-CAIVD-2026671557).
 
 Validates that _resolve_client_ip and _should_skip_auth correctly handle

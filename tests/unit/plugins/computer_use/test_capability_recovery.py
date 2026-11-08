@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Recovering after the native helper goes away.
 
 The capability names a pipe or socket the helper is listening on. It used to be

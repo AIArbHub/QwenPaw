@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument
 # pylint: disable=use-implicit-booleaness-not-comparison
 """Unit tests for the runtime resolution layer of the skill registry.

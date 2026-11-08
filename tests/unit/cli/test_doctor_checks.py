@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for cli/doctor_checks.py read-only diagnostics.
 
 Every function under test is side-effect free (read-only checks for

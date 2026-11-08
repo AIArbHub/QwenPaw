@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tool-guard utility helpers.
 
 * Configuration resolution – which tools to guard and which to deny.

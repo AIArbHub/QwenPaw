@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for ``AIARB.app.routers.agents``.
 
 Covers the highest-value flows:

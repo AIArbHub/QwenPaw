@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for file_search module — _is_text_file and _walk_and_grep."""
 
 # pylint: disable=protected-access,redefined-outer-name,reimported

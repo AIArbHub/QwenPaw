@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """OpenViking memory plugin entry point."""
 
 try:
@@ -6,7 +6,7 @@ try:
     from backend import OpenVikingMemoryConfig, OpenVikingMemoryManager
 except ModuleNotFoundError:  # pragma: no cover - package-import test path
     from .backend import OpenVikingMemoryConfig, OpenVikingMemoryManager
-from qwenpaw.plugins.api import PluginApi
+from aiarb.plugins.api import PluginApi
 
 
 class OpenVikingMemoryPlugin:

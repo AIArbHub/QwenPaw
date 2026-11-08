@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for asynchronous and atomic filesystem utilities."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Matrix SDK algorithms, owned exclusively by one shared worker instance.
 
 MatrixChannel: AIArb BaseChannel implementation for Matrix (via matrix-nio).

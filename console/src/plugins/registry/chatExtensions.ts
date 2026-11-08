@@ -1,4 +1,4 @@
-﻿/**
+/**
  * registry/chatExtensions.ts — singleton store for plugin-contributed Chat customizations.
  *
  * Two storage shapes:

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Session-scoped controls for the Computer Use plugin page."""
 
 from __future__ import annotations

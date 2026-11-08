@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Regression tests for background console task completion."""
 # pylint: disable=protected-access,unused-argument
 from __future__ import annotations

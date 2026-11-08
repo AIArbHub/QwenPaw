@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Install and upgrade the exact runtime selected by QwenPaw Local."""
 
 import hashlib
@@ -12,12 +12,12 @@ import zipfile
 import httpx
 import pytest
 
-from qwenpaw.local_models.download_manager import (
+from aiarb.local_models.download_manager import (
     DownloadTaskResult,
     DownloadTaskStatus,
 )
-from qwenpaw.local_models.llamacpp import LlamaCppBackend
-from qwenpaw.local_models.runtime_release import RELEASE, RUNTIME_METADATA
+from aiarb.local_models.llamacpp import LlamaCppBackend
+from aiarb.local_models.runtime_release import RELEASE, RUNTIME_METADATA
 
 
 def backend_for(target, directory):

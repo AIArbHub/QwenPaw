@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for desktop backend port allocation."""
 
 from unittest.mock import patch

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Token counting utilities."""
 
 from typing import TYPE_CHECKING

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """GPT Image 2 Tool Plugin Entry Point."""
 
 import importlib.util

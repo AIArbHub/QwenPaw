@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-argument,unused-variable,use-implicit-booleaness-not-comparison  # noqa: E501
 """Unit tests for skills hub helpers (qwenpaw.agents.skill_system.hub).
 

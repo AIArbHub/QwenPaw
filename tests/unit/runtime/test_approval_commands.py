@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for root-session approval fallback to spawned subagents."""
 
 from __future__ import annotations

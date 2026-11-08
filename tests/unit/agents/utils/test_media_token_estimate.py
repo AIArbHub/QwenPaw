@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for inlined media token estimates."""
 
 # pylint: disable=protected-access

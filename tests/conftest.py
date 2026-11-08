@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name
 # pylint: disable=reimported,unused-argument,unnecessary-pass
 """

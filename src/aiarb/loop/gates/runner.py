@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Run registered stop handlers and return result.
 
 Decouples stop handler execution logic from the agent class.

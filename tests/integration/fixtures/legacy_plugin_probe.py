@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Run real legacy-plugin lifecycle phases in separate host processes.
 
 Set AIARB_WORKING_DIR to synthetic data before starting Python. ``seed``

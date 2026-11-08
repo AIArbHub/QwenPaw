@@ -23,7 +23,7 @@ from agentscope.classifier import (
     ChoiceQuestion,
 )
 
-from ...constant import QWENPAW_MESSAGE_TAG_KEY, SYNTHETIC_USER_MESSAGE_TAGS
+from ...constant import AIARB_MESSAGE_TAG_KEY, SYNTHETIC_USER_MESSAGE_TAGS
 from ...utils.io_utils import run_sync_io
 from .base import (
     StopAction,
@@ -382,7 +382,7 @@ class QualitativeRubricGate(LoopGate):
             conversation.append(
                 {
                     "role": msg.role,
-                    "synthetic": msg.metadata.get(QWENPAW_MESSAGE_TAG_KEY)
+                    "synthetic": msg.metadata.get(AIARB_MESSAGE_TAG_KEY)
                     in SYNTHETIC_USER_MESSAGE_TAGS,
                     "content": content,
                 },

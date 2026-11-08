@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Shared factories for AIArb Hub unit tests."""
 
 from pathlib import Path

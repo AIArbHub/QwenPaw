@@ -109,7 +109,7 @@ async def test_unknown_version_respects_operation_and_environment(
         raising=False,
     )
     loader = PluginLoader([])
-    from qwenpaw.plugins.dependency_context import DependencyEnvironmentContext
+    from aiarb.plugins.dependency_context import DependencyEnvironmentContext
 
     context = DependencyEnvironmentContext(
         sys.executable,
@@ -125,7 +125,7 @@ async def test_unknown_version_respects_operation_and_environment(
         (info / "METADATA").write_text(
             "Name: unknown-dependency\nVersion: 1.0\n",
         )
-    from qwenpaw.plugins.architecture import PluginManifest
+    from aiarb.plugins.architecture import PluginManifest
 
     description = loader._python_backend.describe(
         source,
@@ -210,8 +210,8 @@ def test_wheel_preserves_package_executable_modes(tmp_path):
     import sys
 
     from packaging.markers import default_environment
-    from qwenpaw.plugins.execution.dependencies import DependencySnapshot
-    from qwenpaw.plugins.wheel_additions import (
+    from aiarb.plugins.execution.dependencies import DependencySnapshot
+    from aiarb.plugins.wheel_additions import (
         WheelAddition,
         validate_additions,
     )
@@ -255,8 +255,8 @@ def test_wheel_preserves_package_executable_modes(tmp_path):
 def test_wheel_unpacked_size_budget(tmp_path, monkeypatch, over_budget):
     import hashlib
     import zipfile
-    from qwenpaw.plugins import wheel_additions
-    from qwenpaw.plugins.execution.errors import ProtocolValidationError
+    from aiarb.plugins import wheel_additions
+    from aiarb.plugins.execution.errors import ProtocolValidationError
 
     wheel = write_wheel(tmp_path, "b01-probe")
     with zipfile.ZipFile(wheel) as archive:
@@ -389,9 +389,9 @@ def test_wheel_data_cannot_overwrite_files_or_add_metadata(tmp_path, payload):
 
     from packaging.markers import default_environment
 
-    from qwenpaw.plugins.execution.dependencies import DependencySnapshot
-    from qwenpaw.plugins.execution.errors import ProtocolValidationError
-    from qwenpaw.plugins.wheel_additions import (
+    from aiarb.plugins.execution.dependencies import DependencySnapshot
+    from aiarb.plugins.execution.errors import ProtocolValidationError
+    from aiarb.plugins.wheel_additions import (
         WheelAddition,
         validate_additions,
     )
@@ -509,8 +509,8 @@ async def main():
     async with PluginTestHost(root) as host:
         if sys.argv[6] == 'tool':
             import shutil
-            from qwenpaw.plugins.execution.dependencies import observe_dependencies
-            from qwenpaw.plugins.dependency_usage import DependencyDeclaration
+            from aiarb.plugins.execution.dependencies import observe_dependencies
+            from aiarb.plugins.dependency_usage import DependencyDeclaration
             candidate = root.parent / 'candidate-source'
             backend = candidate / 'backend'
             backend.mkdir(parents=True)
@@ -721,7 +721,7 @@ async def test_both_constraints_apply_when_same_package_is_declared_twice(
         f"httpx=={version('httpx')}\n",
         sdk=sdk,
     )
-    from qwenpaw.plugins.dependency_gate import (
+    from aiarb.plugins.dependency_gate import (
         combined_requirements,
         DependencyGate,
     )
@@ -825,8 +825,8 @@ def test_requirement_readers_accept_bom_extras_and_preserve_constraints(
     tmp_path,
     monkeypatch,
 ):
-    from qwenpaw.plugins.execution.runtime import _requirements
-    from qwenpaw.channel_protocol.shared import _read_requirements
+    from aiarb.plugins.execution.runtime import _requirements
+    from aiarb.channel_protocol.shared import _read_requirements
 
     path = tmp_path / "requirements.txt"
     path.write_text("\ufeffsample[feature]>=1\nsample<2\n", encoding="utf-8")

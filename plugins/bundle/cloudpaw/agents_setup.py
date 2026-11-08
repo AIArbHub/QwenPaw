@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Agent registration and workspace initialization for CloudPaw plugin."""
 
 import json

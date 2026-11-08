@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """UT for GovernancePolicy — default policy load + assert_policy/audit."""
 

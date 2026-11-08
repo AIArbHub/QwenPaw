@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Shared fixtures for tool_guard tests."""
 # pylint: disable=redefined-outer-name,unused-argument,protected-access
 from __future__ import annotations

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Integration tests for Agent Status API endpoints.
 
 The agent-status router is mounted under the agent-scoped prefix, so the

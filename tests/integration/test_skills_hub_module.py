@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Integration tests for the skills-hub client internals.
 
 Covers src/qwenpaw/agents/skill_system/hub.py (663 uncovered lines):

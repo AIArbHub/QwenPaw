@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for WorkspaceBootstrapFactory."""
 from __future__ import annotations
 

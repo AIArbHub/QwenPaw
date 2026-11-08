@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """GuardedFunctionTool — permission-checked tool wrapper."""
 from __future__ import annotations
 

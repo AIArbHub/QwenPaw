@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """iLink login, native messages, media and polling lifecycle."""
 import asyncio
 import base64

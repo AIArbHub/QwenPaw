@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=too-few-public-methods,protected-access
 """The scroll first-run notice.
 

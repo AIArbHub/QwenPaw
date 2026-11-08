@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access,import-outside-toplevel
 """Unit tests for plugin API extensions: #8, #10, #16.
 

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for the module-level app helpers in ``qwenpaw/app/_app.py``.
 
 ``test_scroll_startup_io.py`` pins the worker-thread offload of the scroll

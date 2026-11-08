@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name
 """Unit tests for the global settings router (/api/settings/language)."""
 from __future__ import annotations

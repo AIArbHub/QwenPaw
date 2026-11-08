@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=too-many-instance-attributes,too-many-arguments
 """Mattermost channel: WebSocket event listener + REST API replies."""
 from __future__ import annotations

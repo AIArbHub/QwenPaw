@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """AIARB Agent - Main agent implementation.
 
 This module provides the main AIArbAgent class built on ReActAgent,

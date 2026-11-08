@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # flake8: noqa: E501
 # pylint: disable=too-many-public-methods,too-many-statements
 """Filesystem session aggregate for the SQLite-free Creator Runtime.

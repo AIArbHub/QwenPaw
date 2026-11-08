@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,protected-access
 """Unit tests for the structured ``recall_history`` tool.
 

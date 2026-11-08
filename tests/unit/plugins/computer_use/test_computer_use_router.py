@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for the Computer Use plugin status route."""
 
 # Fixtures are requested for their side effects, so some are never read.

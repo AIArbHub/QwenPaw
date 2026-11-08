@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Reusable role identity prompts and spawn_subagent formatting."""
 
 from __future__ import annotations

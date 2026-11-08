@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Integration tests for QwenPaw Hub control-app helpers.
 
 Covers src/qwenpaw/hub/control_app.py (570 uncovered lines):

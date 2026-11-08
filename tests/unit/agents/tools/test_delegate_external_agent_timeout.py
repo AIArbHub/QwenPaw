@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """ACP stream loop respects dynamic kill_deadline / extend."""
 # pylint: disable=protected-access
 from __future__ import annotations

@@ -1204,7 +1204,7 @@ class TestCumulativeBudgetThroughProductionWrapper:
 
     @pytest.mark.asyncio
     async def test_anthropic_wrapper_keeps_the_newest_media(self) -> None:
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingAnthropicFormatter,
@@ -1221,7 +1221,7 @@ class TestCumulativeBudgetThroughProductionWrapper:
 
     @pytest.mark.asyncio
     async def test_openai_wrapper_keeps_the_newest_media(self) -> None:
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingOpenAIFormatter,
@@ -1249,7 +1249,7 @@ class TestRepeatedMediaSurvivesTheBudget:
     async def test_anthropic_wrapper_keeps_the_newest_repeated_media(
         self,
     ) -> None:
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingAnthropicFormatter,
@@ -1277,7 +1277,7 @@ class TestRepeatedMediaSurvivesTheBudget:
         self,
     ) -> None:
         """A repeated source that fits the budget is still deduplicated."""
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingAnthropicFormatter,
@@ -1299,7 +1299,7 @@ class TestRepeatedMediaSurvivesTheBudget:
     async def test_anthropic_wrapper_keeps_the_newest_repeated_tool_media(
         self,
     ) -> None:
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingAnthropicFormatter,
@@ -1323,7 +1323,7 @@ class TestRepeatedMediaSurvivesTheBudget:
     async def test_openai_wrapper_keeps_the_newest_repeated_media(
         self,
     ) -> None:
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingOpenAIFormatter,
@@ -1347,7 +1347,7 @@ class TestRepeatedMediaSurvivesTheBudget:
     async def test_responses_wrapper_keeps_the_newest_repeated_media(
         self,
     ) -> None:
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingOpenAIResponseFormatter,
@@ -1382,7 +1382,7 @@ class TestDeduplicatedPayloadFitsTheBudget:
         self,
     ) -> None:
         """A -> B -> B at a 1200-byte budget keeps both A and B."""
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingAnthropicFormatter,
@@ -1410,7 +1410,7 @@ class TestDeduplicatedPayloadFitsTheBudget:
         """One A followed by six copies of B (1.5 MiB each) fits the
         default 8 MiB budget after dedup: the distinct media total
         3 MiB, so A must not be dropped."""
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         mib = 1024 * 1024
         b64_chars = ((3 * mib // 2 + 2) // 3) * 4
@@ -1479,7 +1479,7 @@ class TestVideoUnderThePerRequestBudget:
         formatter_cls,
     ) -> None:
         """Three 312-byte videos at a 900-byte budget keep two of them."""
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls_with_wrapper = (
             model_factory._create_file_block_support_formatter(formatter_cls)
@@ -1504,7 +1504,7 @@ class TestVideoUnderThePerRequestBudget:
         self,
     ) -> None:
         """A video the budget allows is inlined, not replaced."""
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingAnthropicFormatter,
@@ -1528,7 +1528,7 @@ class TestVideoUnderThePerRequestBudget:
         video any more — the video is substituted around the formatter's
         ``format()`` call — so the production path has its own check.
         """
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingDashScopeFormatter,
@@ -1550,7 +1550,7 @@ class TestVideoUnderThePerRequestBudget:
         the copy the budget dropped is nowhere in the request, so the
         later copy may not be folded as "already shown above".
         """
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingAnthropicFormatter,
@@ -1580,7 +1580,7 @@ class TestVideoUnderThePerRequestBudget:
         A -> B -> A at a 900-byte budget carries 624 bytes of distinct
         media, so nothing is dropped and the duplicate is folded.
         """
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingAnthropicFormatter,
@@ -1629,7 +1629,7 @@ class TestVideoAtThePerFileCap:
         formatter_cls,
     ) -> None:
         """512 raw bytes at ``max_bytes=512``: padding is not payload."""
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         data = base64.b64encode(b"\0" * 512).decode("ascii")
         # 684 base64 characters, one of them '=': the old measurement
@@ -1665,7 +1665,7 @@ class TestVideoAtThePerFileCap:
     @pytest.mark.asyncio
     async def test_video_just_over_the_cap_is_still_capped(self) -> None:
         """One raw byte more than the cap is still replaced."""
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         data = base64.b64encode(b"\0" * 513).decode("ascii")
         msg = Msg(
@@ -1720,7 +1720,7 @@ class TestLocalPdfAttachmentsSpendTheBudget:
         tmp_path,
     ) -> None:
         """Three 512-byte PDFs at a 900-byte budget keep the newest one."""
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingOpenAIFormatter,
@@ -1743,7 +1743,7 @@ class TestLocalPdfAttachmentsSpendTheBudget:
         tmp_path,
     ) -> None:
         """The Responses API path bounds local PDF attachments as well."""
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingOpenAIResponseFormatter,
@@ -1766,7 +1766,7 @@ class TestLocalPdfAttachmentsSpendTheBudget:
         tmp_path,
     ) -> None:
         """A PDF the budget allows is inlined, not replaced."""
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingOpenAIFormatter,
@@ -1787,7 +1787,7 @@ class TestLocalPdfAttachmentsSpendTheBudget:
         tmp_path,
     ) -> None:
         """A local PDF obeys the per-file cap, like every other media."""
-        from qwenpaw.agents import model_factory
+        from aiarb.agents import model_factory
 
         formatter_cls = model_factory._create_file_block_support_formatter(
             _CappingOpenAIFormatter,

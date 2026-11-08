@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """LM Studio Provider implementation."""
 
 from aiarb.providers.openai_provider import OpenAIProvider

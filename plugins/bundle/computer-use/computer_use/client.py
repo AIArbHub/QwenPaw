@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Controlled client for the host-managed Computer Use native runtime."""
 
 from __future__ import annotations

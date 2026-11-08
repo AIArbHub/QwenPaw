@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { routeRegistry } from "../registry/store";
 import type {
   PawChatUiNamespace,

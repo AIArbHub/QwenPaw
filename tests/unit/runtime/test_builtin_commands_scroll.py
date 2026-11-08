@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for the conversation-command adapter's scroll-checkpoint handling.
 
 Pins ``_resolve_scroll_block`` — the rule that keeps the scroll context

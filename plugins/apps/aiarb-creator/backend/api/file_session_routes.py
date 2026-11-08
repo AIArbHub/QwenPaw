@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # flake8: noqa: E501
 """File-native Creator Session, Conversation, Message, Event, and stop routes."""
 

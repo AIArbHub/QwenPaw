@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for ``ApprovalService``.
 
 Covers the full approval lifecycle (create → resolve / cancel / timeout /

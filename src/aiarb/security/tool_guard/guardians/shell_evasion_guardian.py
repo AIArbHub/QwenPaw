@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Quote-aware shell evasion and obfuscation detection guardian.
 
 The checks detect obfuscation/evasion techniques that attempt to hide

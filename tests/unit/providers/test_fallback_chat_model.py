@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for cross-model fallback boundaries."""
 
 # pylint: disable=protected-access

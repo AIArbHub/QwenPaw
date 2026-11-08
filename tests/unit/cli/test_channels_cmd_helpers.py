@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-import
 """Unit tests for cli/channels_cmd.py helper functions.
 

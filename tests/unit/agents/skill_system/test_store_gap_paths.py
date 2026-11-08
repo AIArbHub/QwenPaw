@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for skill_system.store gap paths.
 
 Covers skill-name normalization and path-safety guards, the bounded

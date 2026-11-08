@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tauri sidecar entry point for starting the Python backend."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Small external component used by the real generic worker supervisor."""
 
 import asyncio

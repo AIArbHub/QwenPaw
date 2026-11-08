@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """SSRF-safe, bounded HTTP(S) download primitives.
 
 Every caller uses the same URL, DNS, connected-peer, redirect, compression and

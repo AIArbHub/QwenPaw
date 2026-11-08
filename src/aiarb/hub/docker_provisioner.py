@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Docker-backed managed runtimes for AIARB Hub."""
 
 from __future__ import annotations

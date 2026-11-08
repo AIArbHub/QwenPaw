@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Whether Computer Use reports itself usable, and on what grounds.
 
 The desktop shell offers a control endpoint on every platform it runs on, but

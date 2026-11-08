@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Slack channel utility functions.
 
 Pure helpers with no side effects — string manipulation, session-id

@@ -1,4 +1,4 @@
-# OpenViking 记忆插件
+﻿# OpenViking 记忆插件
 
 [English](README.md)
 
@@ -57,7 +57,7 @@ cd ../../../../
 再安装本地插件：
 
 ```bash
-qwenpaw plugin install plugins/memory/openviking
+aiarb plugin install plugins/memory/openviking
 ```
 
 重新安装已修改的插件时使用 `--force`。宿主 QwenPaw 版本需满足

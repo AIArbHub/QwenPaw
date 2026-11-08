@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for agent-level runtime backend configuration."""
 
 from aiarb.config.config import AgentProfileConfig

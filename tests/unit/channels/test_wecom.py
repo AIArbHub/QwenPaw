@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """WeCom native SDK over loopback TLS: stream, media, routing and shutdown."""
 import asyncio
 import base64

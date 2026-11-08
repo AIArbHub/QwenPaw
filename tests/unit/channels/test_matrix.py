@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Local Matrix API transport; actual nio/client/platform remain unmocked."""
 import asyncio
 import hashlib

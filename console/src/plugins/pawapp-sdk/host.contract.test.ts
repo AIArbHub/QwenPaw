@@ -1,4 +1,4 @@
-﻿/**
+/**
  * host.contract.test.ts - contract coverage for plugins/pawapp-sdk/host.ts.
  *
  * host.ts had no test file before this one: a repo-wide grep for

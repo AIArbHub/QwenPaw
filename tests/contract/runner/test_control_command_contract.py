@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Contract tests for :class:`BaseControlCommandHandler` subclasses.
 
 These tests pin down the contract that anything registered into the

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for AIArb capability projection into Codex."""
 
 from __future__ import annotations

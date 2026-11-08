@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Local runtimes never invoke dependency package managers."""
 
 # pylint: disable=protected-access

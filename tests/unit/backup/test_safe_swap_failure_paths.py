@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,unused-argument,protected-access
 # pylint: disable=use-implicit-booleaness-not-comparison
 """Unit tests for the crash-safe swap helpers that are platform neutral.

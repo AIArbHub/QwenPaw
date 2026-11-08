@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Minimal ACP agent subprocess used by the fault-injection tests.
 
 The scenario is selected with ``AIARB_FAULT_SCENARIO``.  The module

@@ -1,4 +1,4 @@
-﻿/** Public types for the AIARB plugin system.
+/** Public types for the AIARB plugin system.
  *
  *  Re-exports host-facing type aliases from the canonical definitions in
  *  `src/aiarb/plugins/frontend/host.d.ts`.

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for the Windows AppContainer reverse TCP tunnel."""
 
 from __future__ import annotations

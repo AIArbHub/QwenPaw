@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """App-owned agent profiles for PawApps.
 
 This module keeps AIArb configuration details behind the PawApp SDK.  A

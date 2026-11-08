@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for ${VAR} env-reference parsing in legacy MCP migration."""
 import pytest
 

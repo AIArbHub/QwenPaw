@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Regression tests for path-aware MCP OAuth metadata discovery."""
 
 import httpx

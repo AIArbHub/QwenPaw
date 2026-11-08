@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Log capture for the Tauri Python sidecar runtime."""
 from __future__ import annotations
 

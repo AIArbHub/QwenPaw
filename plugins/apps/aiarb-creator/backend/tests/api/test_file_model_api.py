@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=use-implicit-booleaness-not-comparison,protected-access
 # pylint: disable=redefined-outer-name
 from __future__ import annotations

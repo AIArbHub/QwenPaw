@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Path-based sensitive file guardian.
 
 Blocks tool calls that target files explicitly listed in a sensitive-file set.

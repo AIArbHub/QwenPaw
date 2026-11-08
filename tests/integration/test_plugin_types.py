@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name
 # -*- coding: utf-8 -*-
 """Integration tests for the 7 plugin types via mock sample plugins

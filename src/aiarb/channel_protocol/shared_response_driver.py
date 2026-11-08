@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=unused-argument,too-many-return-statements
 """SDK-free durable reply lifecycle shared by platform Drivers."""
 

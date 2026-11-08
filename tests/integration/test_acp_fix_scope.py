@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Scope guards for the selective ACP failure normalization.
 
 These tests pin the boundary of the fix: only content-safety refusals and

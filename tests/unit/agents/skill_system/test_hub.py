@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for agents/skill_system/hub.py pure logic & mocked I/O.
 
 Coverage-driven backfill: hub.py sat at ~14% coverage. These tests

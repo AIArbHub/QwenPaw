@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for stop-handler result application."""
 from types import SimpleNamespace
 from typing import Any

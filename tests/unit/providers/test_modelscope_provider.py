@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for ModelScope model catalog filtering."""
 
 # pylint: disable=protected-access

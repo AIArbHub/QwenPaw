@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for message_request_normalizer module."""
 
 # pylint: disable=redefined-outer-name,protected-access

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Sandbox configuration, capability probing, and factory.
 
 This is the entry point of the :mod:`aiarb.sandbox` package: it defines

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Explicit SDK dependency checks. Static inspection never imports a plugin."""
 
 import ast

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for current-agent token aggregation in AgentStatsService."""
 
 from __future__ import annotations

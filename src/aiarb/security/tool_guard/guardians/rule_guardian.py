@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """YAML-signature rule-based tool-call guardian.
 
 Loads security rules from YAML files (see ``rules/``) and performs fast

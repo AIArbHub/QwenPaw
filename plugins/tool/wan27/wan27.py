@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Wan 2.7 Video Generation Tool Plugin Entry Point."""
 
 import importlib.util

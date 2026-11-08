@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Feishu native parsing, response cards and SDK lifecycle."""
 import asyncio
 import io

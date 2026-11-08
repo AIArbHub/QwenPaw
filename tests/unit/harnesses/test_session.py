@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for materialized third-party Agent sessions."""
 
 from pathlib import Path

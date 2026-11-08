@@ -976,14 +976,18 @@ export default function SettingsCenter({
             !activePage?.key.startsWith("extension-")
           }
         >
-          {ActiveComponent ? (
-            <ChunkErrorBoundary resetKey={activePage?.key ?? "settings"}>
-              <ChunkRecoverySuspense
-                fallback={
-                  <div className={styles.loading}>
-                    <Spin tip={t("common.loading")}><div /></Spin>
-                  </div>
-                }
+          <SettingsSearchRequest.Provider value={activeSearchTarget}>
+            {searchHint && (
+              <Alert
+                type="info"
+                message={searchHint}
+                closable
+                onClose={() => setSearchTarget(null)}
+              />
+            )}
+            {ActiveComponent ? (
+              <ChunkErrorBoundary
+                resetKey={routeId ?? activePage?.key ?? "settings"}
               >
                 <ChunkRecoverySuspense
                   fallback={

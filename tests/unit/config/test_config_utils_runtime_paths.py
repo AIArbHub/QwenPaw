@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument
 # pylint: disable=use-implicit-booleaness-not-comparison
 # ^ C1803 kept on purpose: ``== []`` / ``== {}`` is an *equality* assertion

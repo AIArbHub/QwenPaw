@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for Driver policy coercion and typed shape."""
 from __future__ import annotations
 

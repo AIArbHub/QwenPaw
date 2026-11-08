@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Changed-file planning against the Console and official plugin layout."""
 
 from __future__ import annotations

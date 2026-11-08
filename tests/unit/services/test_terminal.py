@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Exercise real PTYs as well as terminal ownership and bounded replay."""
 # pylint: disable=protected-access
 

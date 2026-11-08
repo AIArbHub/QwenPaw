@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Inbound media localization for the OneBot channel."""
 
 from __future__ import annotations

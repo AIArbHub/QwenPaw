@@ -363,7 +363,7 @@ class TestEnvironmentIdentity:
         import subprocess
         import sys
 
-        from qwenpaw.plugins import dependency_maintenance as maintenance
+        from aiarb.plugins import dependency_maintenance as maintenance
 
         passwd_home = tmp_path / "passwd-home"
         passwd_home.mkdir()
@@ -427,7 +427,7 @@ class TestEnvironmentIdentity:
         import pwd
         from types import SimpleNamespace
 
-        from qwenpaw.plugins import dependency_maintenance as maintenance
+        from aiarb.plugins import dependency_maintenance as maintenance
 
         spec = importlib.util.spec_from_file_location(
             "fresh_dependency_maintenance_unusable",
@@ -472,7 +472,7 @@ class TestEnvironmentIdentity:
         import pwd
         from types import SimpleNamespace
 
-        from qwenpaw.plugins import dependency_maintenance as maintenance
+        from aiarb.plugins import dependency_maintenance as maintenance
 
         spec = importlib.util.spec_from_file_location(
             "fresh_dependency_maintenance_dangling",
@@ -514,7 +514,7 @@ class TestEnvironmentIdentity:
         import pwd
         from types import SimpleNamespace
 
-        from qwenpaw.plugins import dependency_maintenance as maintenance
+        from aiarb.plugins import dependency_maintenance as maintenance
 
         spec = importlib.util.spec_from_file_location(
             "fresh_dependency_maintenance_read_only",
@@ -561,7 +561,7 @@ class TestEnvironmentIdentity:
         import pwd
         from types import SimpleNamespace
 
-        from qwenpaw.plugins import dependency_maintenance as maintenance
+        from aiarb.plugins import dependency_maintenance as maintenance
 
         spec = importlib.util.spec_from_file_location(
             "fresh_dependency_maintenance_prepared",
@@ -607,7 +607,7 @@ class TestEnvironmentIdentity:
         import pwd
         from types import SimpleNamespace
 
-        from qwenpaw.plugins import dependency_maintenance as maintenance
+        from aiarb.plugins import dependency_maintenance as maintenance
 
         spec = importlib.util.spec_from_file_location(
             "fresh_dependency_maintenance_read_only_root",
@@ -667,7 +667,7 @@ class TestEnvironmentIdentity:
         import pwd
         from types import SimpleNamespace
 
-        from qwenpaw.plugins import dependency_maintenance as maintenance
+        from aiarb.plugins import dependency_maintenance as maintenance
 
         spec = importlib.util.spec_from_file_location(
             "fresh_dependency_maintenance_deferred",

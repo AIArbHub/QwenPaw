@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for Console Session project-directory request handling."""
 
 from pathlib import Path

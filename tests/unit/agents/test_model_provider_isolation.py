@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Hub is an optional provider, never a personal-model proxy."""
 
 # pylint: disable=protected-access

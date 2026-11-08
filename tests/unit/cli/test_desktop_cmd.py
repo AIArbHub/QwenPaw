@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for the legacy pywebview desktop bridge."""
 
 # pylint: disable=protected-access

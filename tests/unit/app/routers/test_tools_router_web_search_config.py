@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for the ``web_search`` builtin-tool Console config plumbing
 in ``aiarb.app.routers.tools``.
 

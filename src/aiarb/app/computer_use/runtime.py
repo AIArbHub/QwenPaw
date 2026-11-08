@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Host-provided Computer Use runtime capability and turn context."""
 
 from __future__ import annotations

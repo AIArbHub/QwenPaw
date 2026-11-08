@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # The host runtime is a plain third-party dependency of this plugin; pylint
 # resolves it as first-party from the repo root; the order check is off.
 # pylint: disable=wrong-import-order

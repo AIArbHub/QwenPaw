@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Session hook persistence behavior."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """cancellable_wait cancel vs timeout reason separation."""
 from __future__ import annotations
 

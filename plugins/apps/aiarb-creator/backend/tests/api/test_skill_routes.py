@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,wrong-import-order
 """Skill routes: discovery stays off the loop; content reads the raw file."""
 

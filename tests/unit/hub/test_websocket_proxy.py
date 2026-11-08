@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """WebSocket relay lifecycle tests for AIArb Hub."""
 
 from __future__ import annotations

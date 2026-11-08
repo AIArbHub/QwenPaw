@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for the Qoder third-party agent adapter."""
 
 # pylint: disable=protected-access

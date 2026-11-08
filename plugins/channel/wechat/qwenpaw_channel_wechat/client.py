@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """iLink Bot HTTP client for WeChat (WeChat personal account Bot API).
 
 All iLink API endpoints live under https://ilinkai.weixin.qq.com.

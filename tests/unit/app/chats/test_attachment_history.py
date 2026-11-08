@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Console attachment execution and saved transcript regression tests."""
 
 # pylint: disable=protected-access

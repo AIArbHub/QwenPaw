@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=consider-using-with
 """Unit tests for backup/_utils/meta.py and backup/_utils/constants.py.
 

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Legacy plugins retain their lifecycle behavior across fresh processes."""
 
 import json

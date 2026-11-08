@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Transparent Qt desktop pet window."""
 
 from __future__ import annotations

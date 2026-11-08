@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,unused-argument
 """Unit tests for the `env` CLI group (list / set / delete)."""
 

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """MQTT subscriptions, native payloads and confirmed delivery."""
 
 import json

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Cross-model fallback wrapper for transient pre-output failures."""
 
 from __future__ import annotations

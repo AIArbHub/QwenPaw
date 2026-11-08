@@ -351,10 +351,10 @@ async def test_channel_worker_checks_declared_dependency_closure(
 ):
     import logging
     from dataclasses import replace
-    from qwenpaw.__version__ import __version__
-    from qwenpaw.app.channels.process_supervisor import ChannelProcess
-    from qwenpaw.plugins.architecture import PluginManifest
-    from qwenpaw.plugins.channel_adapter import describe_channel
+    from aiarb.__version__ import __version__
+    from aiarb.app.channels.process_supervisor import ChannelProcess
+    from aiarb.plugins.architecture import PluginManifest
+    from aiarb.plugins.channel_adapter import describe_channel
 
     source = host.artifact(sdk=True)
     selected = "[feature]" if scenario == "missing-extra" else ""
@@ -705,8 +705,8 @@ async def test_channel_preflight_rechecks_metadata_read_during_probe(
     monkeypatch,
 ):
     import zipfile
-    from qwenpaw.app.channels.process_supervisor import ChannelProcess
-    from qwenpaw.plugins.dependency_gate import SharedDependencyError
+    from aiarb.app.channels.process_supervisor import ChannelProcess
+    from aiarb.plugins.dependency_gate import SharedDependencyError
 
     source = host.artifact(sdk=True)
     wheel = next(local_wheel(host.root / "wheels").glob("*.whl"))
@@ -788,7 +788,7 @@ async def test_real_agent_stream_final_reply_and_saved_session(
     host,
     monkeypatch,
 ):
-    from qwenpaw.app.channels.process_supervisor import ChannelProcess
+    from aiarb.app.channels.process_supervisor import ChannelProcess
 
     real_probe, probes = ChannelProcess.probe, []
 
@@ -982,7 +982,7 @@ async def test_update_replaces_worker_and_preserves_data(
     data.write_text('{"retained":true}')
     candidate = host.artifact("2.0.0", sdk=dependency_change)
     if dependency_change:
-        from qwenpaw.plugins.dependency_upgrade import (
+        from aiarb.plugins.dependency_upgrade import (
             DependencyUpgradeRequired,
             dependency_upgrades,
             install_with_upgrade,

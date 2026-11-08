@@ -1,4 +1,4 @@
-﻿﻿/**
+/**
  * registry/sdk.ts — public plugin API factory.
  *
  * `buildPluginSdk()` returns an object suitable for attaching to

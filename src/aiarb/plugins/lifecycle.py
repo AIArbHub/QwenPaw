@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Plugin instance ledger, unload modes, and lifecycle facade."""
 
 from __future__ import annotations

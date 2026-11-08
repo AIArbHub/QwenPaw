@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Chrome plugin entry point."""
 
 from __future__ import annotations

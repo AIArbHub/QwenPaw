@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Synthetic module injectors for CloudPaw plugin."""
 
 import logging

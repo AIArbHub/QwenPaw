@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for provider-neutral third-party agent routing."""
 
 # pylint: disable=protected-access

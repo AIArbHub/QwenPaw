@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Cancellation-safe workspace service lifecycle tests."""
 
 # pylint: disable=protected-access,redefined-outer-name

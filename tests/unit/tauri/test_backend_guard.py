@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Runtime ownership survives clients without replacing a live backend."""
 
 import json

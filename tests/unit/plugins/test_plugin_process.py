@@ -641,13 +641,13 @@ async def test_runtime_roots_interpreter_and_dependency_visible_in_worker(
     store._apply_to_environ({key: str(tmp_path / "untrusted-state")})
     assert maintenance.state_root() == selected_root
     monkeypatch.setenv(key, str(tmp_path / "direct-mutation"))
-    from qwenpaw.plugins.dependency_gate import admit_shared_dependencies
-    from qwenpaw.plugins.dependency_usage import (
+    from aiarb.plugins.dependency_gate import admit_shared_dependencies
+    from aiarb.plugins.dependency_usage import (
         DependencyDeclaration,
         DependencyUsageRegistry,
     )
-    from qwenpaw.plugins.install_lock import environment_observation
-    from qwenpaw.plugins.ownership import RuntimeOwners
+    from aiarb.plugins.install_lock import environment_observation
+    from aiarb.plugins.ownership import RuntimeOwners
 
     async def audit():
         async with environment_observation(runtime.dependency_paths):
@@ -1186,7 +1186,7 @@ async def test_shared_upgrade_resolves_paired_dependencies(
             assert refused.value.reason_code == "DEPENDENCY_CONFLICT"
         else:
             if scenario == "paired-sdk":
-                from qwenpaw.plugins.dependency_upgrade import (
+                from aiarb.plugins.dependency_upgrade import (
                     DependencyUpgradeRequired,
                 )
 
@@ -1713,7 +1713,7 @@ async def test_shared_change_ignores_disjoint_inactive_runtime(
     assert operation["changes"] == prepared.operation["changes"]
 
     if pending_target is True:
-        from qwenpaw.plugins.dependency_usage import DependencyDeclaration
+        from aiarb.plugins.dependency_usage import DependencyDeclaration
 
         usage = prepared.host.registry.dependency_usage
         declaration = DependencyDeclaration("feishu", "parallel", (), None)
@@ -1736,8 +1736,8 @@ async def test_shared_change_ignores_disjoint_inactive_runtime(
 
     elif pending_target == "embedded":
         from types import ModuleType
-        from qwenpaw.plugins import python_backend
-        from qwenpaw.plugins.dependency_usage import DependencyDeclaration
+        from aiarb.plugins import python_backend
+        from aiarb.plugins.dependency_usage import DependencyDeclaration
 
         prepared.module.unlink()
         shutil.rmtree(prepared.site / "sample_shared_sdk-0.5.dist-info")
@@ -1796,9 +1796,9 @@ async def test_shared_change_ignores_disjoint_inactive_runtime(
             "requires_restart"
         ]  # A new public provider shadows loaded embedded code.
     elif pending_target == "private-worker":
-        from qwenpaw.plugins.dependency_usage import DependencyDeclaration
-        from qwenpaw.plugins.execution.dependencies import observe_dependencies
-        from qwenpaw.plugins.ownership import RuntimeKey, RuntimeStopReceipt
+        from aiarb.plugins.dependency_usage import DependencyDeclaration
+        from aiarb.plugins.execution.dependencies import observe_dependencies
+        from aiarb.plugins.ownership import RuntimeKey, RuntimeStopReceipt
 
         usage = prepared.host.registry.dependency_usage
         owners = prepared.host.registry.runtime_owners
@@ -1929,7 +1929,7 @@ async def test_shared_upgrade_replaces_provider_or_restores_exact_old_tree(
                 "-B",
                 "-c",
                 "import asyncio,sys;sys.path.insert(0,sys.argv[1]);"
-                "from qwenpaw.plugins.dependency_upgrade import continue_operation;"
+                "from aiarb.plugins.dependency_upgrade import continue_operation;"
                 "asyncio.run(continue_operation(sys.argv[2],preflight=True))",
                 str(ROOT / "src"),
                 str(manager._directory(retry["id"])),

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """UT for approval scope plumbing (EXACT vs SIMILAR).
 
 Covers the new ``ApprovalScope`` enum, ``ApprovalService.resolve_request``

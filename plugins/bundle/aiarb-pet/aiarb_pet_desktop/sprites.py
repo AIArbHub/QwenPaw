@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Codex-compatible pet atlas constants."""
 
 CELL_WIDTH = 192

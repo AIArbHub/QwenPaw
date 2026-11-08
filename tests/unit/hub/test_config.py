@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for strict AIArb Hub startup configuration."""
 
 import sqlite3

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Workspace and skill-pool APIs."""
 
 from __future__ import annotations

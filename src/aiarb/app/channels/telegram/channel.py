@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=too-many-branches
 """Telegram channel: Bot API with polling; receive/send via chat_id."""
 

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Run by absolute path with -I -B -S: never import the environment being changed."""
 
 from __future__ import annotations

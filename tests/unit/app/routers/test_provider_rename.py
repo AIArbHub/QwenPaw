@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for renaming custom providers via the config endpoint."""
 
 from types import SimpleNamespace

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Fail-closed isolated local process provisioner for AIARB Hub."""
 
 from __future__ import annotations

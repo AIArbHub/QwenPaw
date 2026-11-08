@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 # ChannelManager is the framework owner of BaseChannel and must call
 # _is_native_payload and _consume_one_request as part of the contract.

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Signature smoke test for the AgentScope 2.0 private internals the scroll
 manager depends on.
 

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=too-many-return-statements,too-many-branches
 # pylint: disable=too-many-statements,too-many-locals
 """Wan 2.7 video generation tools."""

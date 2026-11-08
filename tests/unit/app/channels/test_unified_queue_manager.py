@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for aiarb.app.channels.unified_queue_manager."""
 
 from __future__ import annotations

@@ -25,7 +25,7 @@ def test_probe_restores_only_candidate_path_additions(
     monkeypatch,
     fails,
 ):
-    from qwenpaw.plugins.module_isolation import probe_plugin_source
+    from aiarb.plugins.module_isolation import probe_plugin_source
 
     source, other = tmp_path / "candidate", tmp_path / "other"
     source.mkdir()

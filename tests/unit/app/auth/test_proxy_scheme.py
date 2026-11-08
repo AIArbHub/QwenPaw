@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Trusted proxy schemes preserve HTTPS URLs and the real TCP peer."""
 
 from types import SimpleNamespace

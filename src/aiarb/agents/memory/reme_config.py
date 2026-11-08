@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Embedded ReMe application configuration for AIArb memory.
 
 ReMe's standalone CLI normally loads YAML such as

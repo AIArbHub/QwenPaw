@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # flake8: noqa: E501
 # pylint: disable=wrong-import-order,wrong-import-position,ungrouped-imports
 """AIARB Creator — PawApp backend entry point.

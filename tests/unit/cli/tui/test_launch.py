@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for launching the bundled TUI (`aiarb` / `aiarb tui`).
 
 Replaces paw's old ``test_cli.py`` + ``test_resolve.py``: the standalone

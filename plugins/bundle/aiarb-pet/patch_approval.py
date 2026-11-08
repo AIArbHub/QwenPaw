@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Hook ApprovalService so console pending approvals drive the desktop pet."""
 
 from __future__ import annotations

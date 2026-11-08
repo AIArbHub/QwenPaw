@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for the thin Computer Use protocol adapter."""
 
 # Tests reach into module internals to pin the protocol contract, and their

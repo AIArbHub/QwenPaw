@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tool guard engine – orchestrates all registered guardians.
 
 :class:`ToolGuardEngine` follows the same lazy-singleton pattern used by

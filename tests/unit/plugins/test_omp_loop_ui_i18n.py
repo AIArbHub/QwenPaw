@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """OMP loop UI i18n catalog and CommandSpec metadata wiring."""
 
 from __future__ import annotations

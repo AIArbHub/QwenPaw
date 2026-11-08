@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Retry wrapper for ChatModelBase instances.
 
 Transparently retries LLM API calls on transient errors (rate-limit,

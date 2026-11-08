@@ -1,4 +1,4 @@
-﻿/**
+/**
  * pawapp-sdk/host.ts — Host capability wrappers for PawApps.
  *
  * Provides `paw.chat()`, `paw.storage`, `paw.toast()`, `paw.notify()`

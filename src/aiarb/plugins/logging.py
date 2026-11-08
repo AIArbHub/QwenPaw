@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Structured logging with host-owned plugin and invocation identity."""
 
 # Host adapters access private ownership state behind the public SDK.

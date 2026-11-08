@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """AutopilotMode — full lifecycle pipeline."""
 
 from __future__ import annotations

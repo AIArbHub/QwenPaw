@@ -1,4 +1,4 @@
-﻿/**
+/**
  * hostSdk/hooks.ts — React hooks exposed on `window.AIARB.host.*`.
  *
  * These are thin wrappers over existing host contexts. Plugin components

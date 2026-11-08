@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """HTTP smoke tests for agents lifecycle (list/create/update/order/toggle)."""
 from __future__ import annotations
 

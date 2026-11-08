@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Managed environment commands update the runtime, never local files."""
 
 import httpx

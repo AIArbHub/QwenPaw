@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Tests for ``CommandHandler``'s scroll-aware ``/compact`` wiring.
 

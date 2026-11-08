@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Runtime provisioner contract used by the AIArb Hub control plane."""
 
 from __future__ import annotations

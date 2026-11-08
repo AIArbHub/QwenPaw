@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Factory for creating chat and decision models.
 
 This module creates configured provider models and chat formatters.

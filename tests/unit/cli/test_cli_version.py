@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from importlib.metadata import version as package_version
 
 from packaging.version import Version

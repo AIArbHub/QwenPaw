@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Headline extraction and display-cleanup regressions."""
 
 import pytest

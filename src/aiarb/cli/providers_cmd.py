@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """CLI commands for managing LLM providers."""
 
 from __future__ import annotations

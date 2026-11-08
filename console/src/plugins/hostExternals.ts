@@ -1,4 +1,4 @@
-﻿import {
+import {
   prepareBrowserSession,
   usesBrowserSession,
 } from "./pawapp-sdk/browserSession";
@@ -281,8 +281,8 @@ export function installHostExternals(): void {
   if (!window.AIARB.memoryBackends) {
     window.AIARB.memoryBackends = memoryBackendNamespace;
   }
-  if (!window.QwenPaw.settingsSearch) {
-    window.QwenPaw.settingsSearch = settingsSearchNamespace;
+  if (!window.AIARB.settingsSearch) {
+    window.AIARB.settingsSearch = settingsSearchNamespace;
   }
 
   // ── Back-compat shim ───────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Behavioural tests for the MCP OAuth router flows.
 
 Covers the module-level helpers and the four endpoints of

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Local Hub initialization preserves existing user settings."""
 
 from types import SimpleNamespace

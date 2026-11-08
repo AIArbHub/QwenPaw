@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """QQ native gateway, routing, media and heartbeat with local wire peers."""
 import asyncio
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer

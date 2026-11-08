@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for Hub authentication abuse protection."""
 
 from fastapi import Request

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """ADBPG Memory Manager for AIArb agents.
 
 Provides long-term memory backed by AnalyticDB for PostgreSQL (ADBPG).

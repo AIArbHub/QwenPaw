@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tracing Middleware Demo Plugin.
 
 Demonstrates `on_acting` middleware that logs every tool call with

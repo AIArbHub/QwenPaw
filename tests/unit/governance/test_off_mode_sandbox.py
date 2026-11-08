@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """UT for OFF-mode sandbox provisioning.
 
 approval_level=OFF skips "ask the user" but must NOT skip "run it in a

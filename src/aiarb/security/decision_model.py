@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Decision-model assessment for potentially effectful tool calls.
 
 The deterministic guard always runs first. Only a provenance-marked soft

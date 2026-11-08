@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Behavioral contract for Console lifecycle, input and output."""
 
 from __future__ import annotations

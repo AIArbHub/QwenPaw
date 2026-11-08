@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Regression tests for approval decisions racing with their consumers."""
 # pylint: disable=protected-access
 

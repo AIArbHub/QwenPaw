@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=not-callable
 """Crash-safe JSON records backed by same-directory atomic publication."""
 

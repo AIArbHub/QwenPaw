@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """The sandboxed ``recall_history_python`` recall tool.
 
 This is raw conversation-history recall — the agent's own recorded turns

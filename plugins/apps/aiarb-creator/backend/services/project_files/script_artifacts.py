@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """timeline_script artifact 的索引写入辅助（方案 2.3）。
 
 一条 Timeline（叙事节点）的剧本是一个 ``timeline_script`` ArtifactSlot，

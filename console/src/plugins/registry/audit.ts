@@ -1,4 +1,4 @@
-﻿/**
+/**
  * registry/audit.ts — single override log shared by all AIArb registries
  * (console-wide menu/route/slot + chat extensions).
  *

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for :mod:`aiarb.app.approvals.display`.
 
 The scope-gating fields (``exact_target`` / ``similar_target`` /

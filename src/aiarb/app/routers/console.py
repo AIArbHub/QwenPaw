@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Console APIs: push messages, chat, and file upload for chat."""
 
 from __future__ import annotations

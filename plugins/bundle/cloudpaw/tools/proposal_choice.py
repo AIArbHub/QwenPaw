@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Proposal choice tool for interactive resource selection.
 
 Presents resource proposals to users in table format and waits for

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Regression coverage for damaged history image repair."""
 
 from unittest.mock import MagicMock

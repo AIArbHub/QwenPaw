@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Short-lived signals shared by session lifecycle consumers."""
 
 SESSION_SAVE_SUCCEEDED_KEY = "aiarb.session_save_succeeded"

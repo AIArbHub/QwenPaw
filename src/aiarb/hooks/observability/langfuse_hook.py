@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Langfuse trace lifecycle hooks.
 
 Applies ``agent_trace_scope`` as a PRE_EXECUTE / FINALLY hook pair,

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Reading and writing environment variables.
 
 Persistence strategy (two layers):

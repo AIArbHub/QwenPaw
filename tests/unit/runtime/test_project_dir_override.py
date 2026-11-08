@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Trusted request-scoped project directory overrides."""
 
 from __future__ import annotations

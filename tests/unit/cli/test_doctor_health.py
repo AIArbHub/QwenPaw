@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for the API health probe used by ``aiarb doctor``."""
 # pylint: disable=protected-access
 from __future__ import annotations

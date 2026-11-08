@@ -17,15 +17,15 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from agentscope.message import HintBlock, Msg, TextBlock
 
-from qwenpaw.agents.memory.base_memory_manager import BaseMemoryManager
-from qwenpaw.agents.middlewares import MemoryMiddleware
-from qwenpaw.app.chats.utils import agentscope_msg_to_message
-from qwenpaw.constant import (
+from aiarb.agents.memory.base_memory_manager import BaseMemoryManager
+from aiarb.agents.middlewares import MemoryMiddleware
+from aiarb.app.chats.utils import agentscope_msg_to_message
+from aiarb.constant import (
     AUTO_MEMORY_SEARCH_BLOCK_IDS_KEY,
     EXTERNAL_USER_QUERY_MESSAGE_TAG,
-    QWENPAW_MESSAGE_TAG_KEY,
+    AIARB_MESSAGE_TAG_KEY,
 )
-from qwenpaw.providers.capping_formatter import (
+from aiarb.providers.capping_formatter import (
     MAX_INLINE_MEDIA_BYTES,
     _CappingAnthropicFormatter,
     _CappingDashScopeFormatter,
@@ -93,7 +93,7 @@ def _user_msg(text: str = "hello", *, msg_id: str = "turn-1") -> Msg:
         role="user",
         content=[TextBlock(type="text", text=text)],
         metadata={
-            QWENPAW_MESSAGE_TAG_KEY: EXTERNAL_USER_QUERY_MESSAGE_TAG,
+            AIARB_MESSAGE_TAG_KEY: EXTERNAL_USER_QUERY_MESSAGE_TAG,
         },
     )
     msg.id = msg_id

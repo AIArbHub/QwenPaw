@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for aiarb.agents.utils.setup_utils.
 
 Covers:

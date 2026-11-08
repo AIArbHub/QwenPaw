@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """OpenViking memory backend implemented as a QwenPaw memory plugin."""
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from typing import Any
 from agentscope.message import Msg, TextBlock, ToolResultState
 from agentscope.tool import ToolChunk
 
-from qwenpaw.memory import (
+from aiarb.memory import (
     AutoMemorySearchOptions,
     BaseMemoryManager,
     MemoryBackendContext,
@@ -193,7 +193,7 @@ class OpenVikingMemoryManager(BaseMemoryManager):
         # bound method keeps its public name and signature without a wrapper.
         setattr(
             search_tool.__func__,
-            "_qwenpaw_policy_name",
+            "_AIARB_policy_name",
             "OpenVikingMemorySearch",
         )
         return [search_tool]
@@ -241,7 +241,7 @@ class OpenVikingMemoryManager(BaseMemoryManager):
         max_results = max(1, int(options.max_results))
         text = await self._search_context_for_session(
             query=query,
-            qwenpaw_session_id=session_id,
+            aiarb_session_id=session_id,
             max_results=max_results,
             estimate_divisor=options.estimate_divisor,
         )
@@ -436,7 +436,7 @@ class OpenVikingMemoryManager(BaseMemoryManager):
         self,
         *,
         query: str,
-        qwenpaw_session_id: str,
+        aiarb_session_id: str,
         max_results: int,
         estimate_divisor: float,
     ) -> str | None:
@@ -465,7 +465,7 @@ class OpenVikingMemoryManager(BaseMemoryManager):
             await self._ensure_identity()
             result = await client.search_context(
                 query=query,
-                session_id=self._map_session_id(qwenpaw_session_id),
+                session_id=self._map_session_id(aiarb_session_id),
                 max_results=max_results,
                 token_budget=remote_token_budget,
             )
@@ -524,18 +524,18 @@ class OpenVikingMemoryManager(BaseMemoryManager):
             return
         self._identity = await self._client.resolve_identity()
 
-    def _map_session_id(self, qwenpaw_session_id: str) -> str:
+    def _map_session_id(self, aiarb_session_id: str) -> str:
         identity = self._identity or OpenVikingIdentity("unknown", "unknown")
         material = "\x1f".join(
             (
                 identity.namespace,
                 self._installation_id,
                 self.agent_id,
-                qwenpaw_session_id,
+                aiarb_session_id,
             ),
         )
         return (
-            "qwenpaw-"
+            "aiarb-"
             + hashlib.sha256(
                 material.encode("utf-8"),
             ).hexdigest()[:40]

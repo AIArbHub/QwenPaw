@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Shared ACP metadata keys.
 
 This module is intentionally lightweight so CLI code can import constants

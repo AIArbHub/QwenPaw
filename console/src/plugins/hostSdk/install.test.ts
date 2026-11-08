@@ -1,4 +1,4 @@
-﻿/**
+/**
  * install.test.ts — validates the public window.AIARB.chat API surface.
  *
  * Focuses on the sugar/wiring layer in install.ts; the underlying registry
@@ -98,11 +98,11 @@ describe("window.AIARB.chat.theme / sender", () => {
   });
 
   it("theme.overrideTokens(pluginId, tokens) is exposed", () => {
-    expect(typeof window.QwenPaw.chat!.theme.overrideTokens).toBe("function");
+    expect(typeof window.AIARB.chat!.theme.overrideTokens).toBe("function");
   });
 
   it("theme.overrideTokens writes both schemes per token", () => {
-    window.QwenPaw.chat!.theme.overrideTokens("p1", {
+    window.AIARB.chat!.theme.overrideTokens("p1", {
       surface: { light: "#fff", dark: "#111" },
       "surface-raised": { light: "#fafafa", dark: "#222" },
     });
@@ -116,7 +116,7 @@ describe("window.AIARB.chat.theme / sender", () => {
   });
 
   it("theme.overrideTokens dispose reverts only that plugin's tokens", () => {
-    const d = window.QwenPaw.chat!.theme.overrideTokens("p1", {
+    const d = window.AIARB.chat!.theme.overrideTokens("p1", {
       border: { light: "#ccc", dark: "#333" },
     });
     d.dispose();
@@ -124,10 +124,10 @@ describe("window.AIARB.chat.theme / sender", () => {
   });
 
   it("theme.overrideTokens stacks per token and falls back on dispose", () => {
-    const first = window.QwenPaw.chat!.theme.overrideTokens("p1", {
+    const first = window.AIARB.chat!.theme.overrideTokens("p1", {
       text: { light: "#111", dark: "#eee" },
     });
-    const second = window.QwenPaw.chat!.theme.overrideTokens("p2", {
+    const second = window.AIARB.chat!.theme.overrideTokens("p2", {
       text: { light: "#222", dark: "#ddd" },
     });
     expect(chatExtensions.getThemeTokenSnapshot().text?.value.light).toBe(
@@ -144,7 +144,7 @@ describe("window.AIARB.chat.theme / sender", () => {
   it("theme.overrideTokens rejects a token missing one scheme", () => {
     const partial = { bg: { light: "#fff" } } as unknown as ThemeTokenOverrides;
     expect(() =>
-      window.QwenPaw.chat!.theme.overrideTokens("p1", partial),
+      window.AIARB.chat!.theme.overrideTokens("p1", partial),
     ).toThrow(/both "light" and "dark"/);
   });
 
@@ -153,15 +153,15 @@ describe("window.AIARB.chat.theme / sender", () => {
       accent: { light: "#fff", dark: "#000" },
     } as unknown as ThemeTokenOverrides;
     expect(() =>
-      window.QwenPaw.chat!.theme.overrideTokens("p1", unknown),
+      window.AIARB.chat!.theme.overrideTokens("p1", unknown),
     ).toThrow(/unknown token "accent"/);
   });
 
   it("disposeAll(pluginId) clears theme tokens too", () => {
-    window.QwenPaw.chat!.theme.overrideTokens("p1", {
+    window.AIARB.chat!.theme.overrideTokens("p1", {
       bg: { light: "#fff", dark: "#000" },
     });
-    window.QwenPaw.chat!.disposeAll("p1");
+    window.AIARB.chat!.disposeAll("p1");
     expect(chatExtensions.getThemeTokenSnapshot().bg).toBeUndefined();
   });
 

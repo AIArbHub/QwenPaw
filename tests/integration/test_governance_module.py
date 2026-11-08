@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Integration tests for the governance module.
 
 Tests the governance subsystem's public API: GovernanceAction enum,
@@ -132,7 +132,7 @@ def test_governance_detectors_module_exists() -> None:
       detection logic for sensitive operations.
 
     Test flow:
-    1. Import qwenpaw.governance.detectors.
+    1. import aiarb.governance.detectors.
     2. Verify import succeeds.
     """
     from aiarb.governance import detectors
@@ -148,7 +148,7 @@ def test_governance_tool_registry_module_exists() -> None:
       tool registration logic for governance.
 
     Test flow:
-    1. Import qwenpaw.governance.tool_registry.
+    1. import aiarb.governance.tool_registry.
     2. Verify import succeeds.
     """
     from aiarb.governance import tool_registry
@@ -164,7 +164,7 @@ def test_governance_tool_adapter_module_exists() -> None:
       PolicyGuardedTool adapter.
 
     Test flow:
-    1. Import qwenpaw.governance.tool_adapter.
+    1. import aiarb.governance.tool_adapter.
     2. Verify import succeeds.
     """
     from aiarb.governance import tool_adapter
@@ -180,7 +180,7 @@ def test_governance_generalize_module_exists() -> None:
       generalization logic for policy rules.
 
     Test flow:
-    1. Import qwenpaw.governance.generalize.
+    1. import aiarb.governance.generalize.
     2. Verify import succeeds.
     """
     from aiarb.governance import generalize
@@ -196,7 +196,7 @@ def test_governance_audit_module_exists() -> None:
       logging for governance decisions.
 
     Test flow:
-    1. Import qwenpaw.governance.audit.
+    1. import aiarb.governance.audit.
     2. Verify import succeeds.
     """
     from aiarb.governance import audit

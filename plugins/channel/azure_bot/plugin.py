@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Azure Bot Service channel plugin entry point."""
 
 import logging

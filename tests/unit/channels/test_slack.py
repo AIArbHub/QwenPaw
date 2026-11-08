@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Slack native callbacks and sends through an SDK boundary."""
 
 import asyncio

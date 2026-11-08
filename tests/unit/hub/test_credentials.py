@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for tenant-qualified AIARB Hub credential storage."""
 
 import os

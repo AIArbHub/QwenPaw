@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for chat-group API routing and mutations."""
 from pathlib import Path
 

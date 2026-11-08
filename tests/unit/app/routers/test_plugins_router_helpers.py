@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Tests for plugin router helpers: safe zip extraction, plugin dir
 discovery, disk-based plugin listing, and plugin UI file serving.
 
@@ -46,8 +46,8 @@ def _zip_bytes(entries: dict[str, str]) -> bytes:
     ],
 )
 def test_dependency_refusal_instructions_match_failure_stage(code, expected):
-    from qwenpaw.app.routers.plugins import dependency_http_error
-    from qwenpaw.plugins.dependency_gate import (
+    from aiarb.app.routers.plugins import dependency_http_error
+    from aiarb.plugins.dependency_gate import (
         GateDecision,
         SharedDependencyError,
     )

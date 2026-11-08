@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """The unsandboxed-recall escape hatch is gated by deployment, not agent.json.
 
 Running recall without a sandbox executes model-authored Python as the agent

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Install / app startup smoke regression tests.
 
 Regression for #5379: install must produce a working app.

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * registry/store.ts — Menu / Route / Slot singletons backed by a shared notify bus.
  *
  * Three sub-registries share one subscriber set (`notify`) so a single

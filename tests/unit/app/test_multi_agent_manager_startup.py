@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for bounded multi-agent startup scheduling."""
 
 # pylint: disable=protected-access

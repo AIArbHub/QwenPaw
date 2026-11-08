@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for src/AIARB/plugins/download_catalog.py."""
 
 from __future__ import annotations

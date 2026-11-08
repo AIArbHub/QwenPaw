@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Integration tests for the observability module (Langfuse integration).
 
 Tests the Langfuse trace context management and availability detection.
@@ -220,7 +220,7 @@ def test_observability_init_exports() -> None:
       expected structure.
 
     Test flow:
-    1. Import qwenpaw.observability.
+    1. import aiarb.observability.
     2. Verify import succeeds (package exists).
     """
     import aiarb.observability

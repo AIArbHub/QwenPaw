@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """AIArb Pet backend plugin entry point."""
 
 # pylint: disable=wrong-import-position,wrong-import-order

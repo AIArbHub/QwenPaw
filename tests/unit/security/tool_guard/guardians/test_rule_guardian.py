@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for aiarb.security.tool_guard.guardians.rule_guardian."""
 # pylint: disable=redefined-outer-name,unused-argument
 from __future__ import annotations

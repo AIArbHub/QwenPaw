@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Suppress sandbox exit logs without affecting other execution contexts."""
 
 from contextlib import contextmanager

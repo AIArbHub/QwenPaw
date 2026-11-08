@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Checkpoint hook scheduling behavior."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for third-party agent authentication routes."""
 
 from __future__ import annotations

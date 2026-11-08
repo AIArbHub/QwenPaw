@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Integration tests for the environment variables router.
 
 Covers GET /api/envs (list), PUT /api/envs (batch save), and

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Pilot-driven smoke tests for the Textual app with a fake transport."""
 
 from __future__ import annotations

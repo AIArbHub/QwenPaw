@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for ``aiarb.app.task_tracker.TaskTracker``.
 
 Covers:

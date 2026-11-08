@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Lightweight resource-boundary sandbox (interface only).
 
 The concrete implementation is provided by a separate workstream.

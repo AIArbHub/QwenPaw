@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for SlashCommandRegistry.advertisable_commands()."""
 
 from __future__ import annotations

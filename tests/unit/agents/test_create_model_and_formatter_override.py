@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for ``create_model_and_formatter`` model override support."""
 
 # pylint: disable=protected-access,redefined-outer-name

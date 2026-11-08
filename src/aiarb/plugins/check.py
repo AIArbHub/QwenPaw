@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Run with ``python -m AIARB.plugins.check PATH``; opt in to execution."""
 
 import argparse

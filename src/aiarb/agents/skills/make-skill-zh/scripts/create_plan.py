@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Normalize and create or update a make-skill v2 plan."""
 
 from __future__ import annotations

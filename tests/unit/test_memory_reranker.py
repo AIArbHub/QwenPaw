@@ -598,8 +598,8 @@ async def test_auto_memory_search_uses_reranker(manager):
 async def test_load_reranker_config_requires_non_empty_api_key():
     from unittest.mock import patch
 
-    from qwenpaw.agents.memory.reme_reranker import load_reranker_config
-    from qwenpaw.config.config import RerankerConfig
+    from aiarb.agents.memory.reme_reranker import load_reranker_config
+    from aiarb.config.config import RerankerConfig
 
     for empty_key in ("", "   "):
         cfg = RerankerConfig(
@@ -629,8 +629,8 @@ async def test_load_reranker_config_requires_non_empty_api_key():
 async def test_load_reranker_config_success_with_valid_api_key():
     from unittest.mock import patch
 
-    from qwenpaw.agents.memory.reme_reranker import load_reranker_config
-    from qwenpaw.config.config import RerankerConfig
+    from aiarb.agents.memory.reme_reranker import load_reranker_config
+    from aiarb.config.config import RerankerConfig
 
     cfg = RerankerConfig(
         enabled=True,
@@ -661,8 +661,8 @@ async def test_load_reranker_config_success_with_valid_api_key():
 async def test_call_reranker_api_guards_empty_api_key(caplog):
     import logging
 
-    from qwenpaw.agents.memory.reme_reranker import call_reranker_api
-    from qwenpaw.config.config import RerankerConfig
+    from aiarb.agents.memory.reme_reranker import call_reranker_api
+    from aiarb.config.config import RerankerConfig
 
     for empty_key in ("", "   "):
         cfg = RerankerConfig(

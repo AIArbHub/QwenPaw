@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Ollama CLI selection through the real SDK, HTTP, and provider storage."""
 # pylint: disable=redefined-outer-name
 
@@ -10,11 +10,11 @@ import threading
 from click.testing import CliRunner
 import pytest
 
-from qwenpaw.cli import providers_cmd
-from qwenpaw.exceptions import ModelNotFoundException
-from qwenpaw.providers import model_catalog
-from qwenpaw.providers.provider import ModelInfo
-from qwenpaw.providers.provider_manager import ProviderManager
+from aiarb.cli import providers_cmd
+from aiarb.exceptions import ModelNotFoundException
+from aiarb.providers import model_catalog
+from aiarb.providers.provider import ModelInfo
+from aiarb.providers.provider_manager import ProviderManager
 
 
 @pytest.fixture

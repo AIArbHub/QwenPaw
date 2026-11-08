@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=unused-argument,protected-access,unused-variable
 """Unit tests for Windows AppContainer sandbox.
 

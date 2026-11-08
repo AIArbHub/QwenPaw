@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Workspace APIs for agent files, settings, and project directories.
 
 Includes language settings, audio/transcription configuration, running

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """A2A mode — ``AgentMode`` for A2A agent communication.
 
 Exposes ``/a2a`` slash command via ``SlashCommandRegistry``.

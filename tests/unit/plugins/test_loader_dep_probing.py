@@ -30,8 +30,8 @@ from aiarb.plugins.execution.dependencies import canonical_environment_path
 async def test_additions_recheck_current_dependency_state(tmp_path, change):
     from dataclasses import replace
     from packaging.markers import default_environment
-    from qwenpaw.plugins.dependency_gate import prepare_shared_dependencies
-    from qwenpaw.plugins.execution.dependencies import DependencySnapshot
+    from aiarb.plugins.dependency_gate import prepare_shared_dependencies
+    from aiarb.plugins.execution.dependencies import DependencySnapshot
 
     site = tmp_path / "site"
     site.mkdir()
@@ -289,7 +289,7 @@ async def test_dependency_failure_logs_bounded_redacted_pip_tail(
     monkeypatch,
     caplog,
 ):
-    from qwenpaw.plugins.dependency_gate import SharedDependencyError
+    from aiarb.plugins.dependency_gate import SharedDependencyError
 
     loader = PluginLoader([tmp_path])
     requirements = tmp_path / "requirements.txt"
@@ -981,7 +981,7 @@ async def test_existing_dependency_read_admission_keeps_safety_boundaries(
             is None
         )
         if case in {"missing", "duplicate"}:
-            from qwenpaw.plugins.execution.dependencies import (
+            from aiarb.plugins.execution.dependencies import (
                 read_dependency_inventory,
             )
 
@@ -1141,7 +1141,7 @@ async def test_host_observation_reuses_only_scoped_raw_inputs(
         observation_inputs,
         observation_write,
     )
-    from qwenpaw.plugins.dependency_usage import HostModuleFact
+    from aiarb.plugins.dependency_usage import HostModuleFact
 
     site, source = tmp_path / "site", tmp_path / "plugin"
     info = site / "sdk-1.0.dist-info"
@@ -1336,10 +1336,10 @@ async def test_host_dependency_observation_recovers_concurrent_imports(
     withdrawn,
 ):
     import importlib
-    from qwenpaw.plugins import python_backend as backend
-    from qwenpaw.plugins.dependency_usage import DependencyUsageRegistry
-    from qwenpaw.plugins.execution_backend import PluginDescription
-    from qwenpaw.plugins.ownership import RuntimeOwners
+    from aiarb.plugins import python_backend as backend
+    from aiarb.plugins.dependency_usage import DependencyUsageRegistry
+    from aiarb.plugins.execution_backend import PluginDescription
+    from aiarb.plugins.ownership import RuntimeOwners
 
     site = tmp_path / "site"
     site.mkdir()

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # flake8: noqa: E501
 # pylint: disable=too-many-return-statements,consider-using-with,line-too-long
 # pylint: disable=too-many-branches,too-many-statements

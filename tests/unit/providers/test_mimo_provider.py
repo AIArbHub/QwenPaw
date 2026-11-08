@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,unused-argument,protected-access
 # pylint: disable=no-name-in-module
 """Tests for the Xiaomi MiMo built-in providers (Standard API + Token Plan)."""

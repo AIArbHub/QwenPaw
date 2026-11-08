@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # flake8: noqa: E501
 # pylint: disable=line-too-long,protected-access,too-many-statements
 # pylint: disable=unused-argument,use-implicit-booleaness-not-comparison

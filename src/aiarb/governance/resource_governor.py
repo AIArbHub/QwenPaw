@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Resource Governor — Policy evaluation + audit logging +
 sandbox config compilation.
 

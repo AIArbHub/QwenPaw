@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Official mirrors keep source, repository identity and model role aligned."""
 
 import fnmatch
@@ -6,8 +6,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from qwenpaw.local_models.llamacpp import LlamaCppBackend
-from qwenpaw.local_models.model_manager import (
+from aiarb.local_models.llamacpp import LlamaCppBackend
+from aiarb.local_models.model_manager import (
     DownloadSource,
     ModelManager,
     repository_for_source,

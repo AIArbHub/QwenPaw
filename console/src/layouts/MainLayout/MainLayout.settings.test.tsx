@@ -128,7 +128,7 @@ function renderLayout(path: string | Partial<Location> = "/settings/general") {
 }
 
 function registerSettingsPlugin(path: string, withMeta = true) {
-  window.QwenPaw.route!.add("example", {
+  window.AIARB.route!.add("example", {
     id: "example.settings",
     path,
     component: PluginPage,
@@ -142,7 +142,7 @@ function registerSettingsPlugin(path: string, withMeta = true) {
       },
     }),
   });
-  window.QwenPaw.menu!.add("example", {
+  window.AIARB.menu!.add("example", {
     id: "example.settings.menu",
     label: "Example extension",
     location: "primary.settings",
@@ -153,7 +153,7 @@ function registerSettingsPlugin(path: string, withMeta = true) {
 
 function registerSharedPlugin(withMeta = true) {
   registerSettingsPlugin("/my-plugin", withMeta);
-  window.QwenPaw.menu!.add("example", {
+  window.AIARB.menu!.add("example", {
     id: "example.chat.menu",
     label: "Example workspace",
     location: "primary.agentScoped",
@@ -292,7 +292,7 @@ describe("plugin settings navigation", () => {
 
   it("renders a separately registered child under /settings without redirecting", async () => {
     registerSharedPlugin(false);
-    window.QwenPaw.route!.add("example", {
+    window.AIARB.route!.add("example", {
       id: "example.child",
       path: "/settings/example-child",
       component: () => <div>Separate settings child</div>,
@@ -316,12 +316,12 @@ describe("plugin settings navigation", () => {
 
   it("preserves settings across query, hash and separate same-plugin child routes", async () => {
     registerSharedPlugin();
-    window.QwenPaw.route!.add("example", {
+    window.AIARB.route!.add("example", {
       id: "example.details",
       path: "/example-details/:section",
       component: () => <div>Plugin child configuration</div>,
     });
-    window.QwenPaw.route!.add("other", {
+    window.AIARB.route!.add("other", {
       id: "other.workspace",
       path: "/other-plugin",
       component: () => <div>Other plugin workspace</div>,
@@ -374,7 +374,7 @@ describe("plugin settings navigation", () => {
 
   it("keeps the original app return URL after a separate child route", async () => {
     registerSettingsPlugin("/my-plugin");
-    window.QwenPaw.route!.add("example", {
+    window.AIARB.route!.add("example", {
       id: "example.details",
       path: "/example-details/:section",
       component: () => <div>Plugin child configuration</div>,
@@ -468,7 +468,7 @@ describe("plugin settings navigation", () => {
   it.each([undefined, "Legacy settings"])(
     "keeps legacy registerRoutes pages in settings with title %s",
     (title) => {
-      window.QwenPaw.registerRoutes!("legacy-example", [
+      window.AIARB.registerRoutes!("legacy-example", [
         {
           path: "/legacy-settings",
           component: PluginPage,
@@ -487,12 +487,12 @@ describe("plugin settings navigation", () => {
   );
 
   it("keeps the app sidebar for plugin routes outside the settings menu", () => {
-    window.QwenPaw.route!.add("example", {
+    window.AIARB.route!.add("example", {
       id: "example.workspace",
       path: "/settings/workspace",
       component: PluginPage,
     });
-    window.QwenPaw.menu!.add("example", {
+    window.AIARB.menu!.add("example", {
       id: "example.workspace.menu",
       location: "primary.agentScoped",
       label: "Example workspace",

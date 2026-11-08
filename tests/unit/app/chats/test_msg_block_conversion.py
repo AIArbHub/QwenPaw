@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Cover the block-conversion paths of agentscope_msg_to_message.
 
 ``tests/unit/app/chats/test_utils.py`` drives the transcript-filtering

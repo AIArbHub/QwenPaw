@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument
 """Exercise ReMe proposals against host archives and atomic commits."""
 
@@ -136,7 +136,7 @@ async def test_local_model_splits_evidence_without_changing_user_settings(
     model,
     monkeypatch,
 ):
-    from qwenpaw.providers.local_decision_model import LocalDecisionModel
+    from aiarb.providers.local_decision_model import LocalDecisionModel
 
     class LocalFixture(LocalDecisionModel):
         def __init__(self):

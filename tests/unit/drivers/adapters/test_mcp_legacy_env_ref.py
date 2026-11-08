@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Migration tests: legacy ${VAR} header/env values -> env: credential refs."""
 
 from types import SimpleNamespace

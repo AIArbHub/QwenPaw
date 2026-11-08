@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Async background task that asks the LLM to generate a chat title.
 
 The console handler creates a chat with a placeholder name from the first

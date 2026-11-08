@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """End-to-end test of AcpTransport against a fake ACP agent subprocess."""
 
 from __future__ import annotations

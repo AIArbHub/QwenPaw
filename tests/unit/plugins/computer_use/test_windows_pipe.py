@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Regression tests for the overlapped Windows pipe transport.
 
 Every test here deadlocks or hangs forever with the pre-fix synchronous pipe

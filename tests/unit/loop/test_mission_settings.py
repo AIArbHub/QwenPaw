@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for user-editable Mission defaults."""
 from __future__ import annotations
 

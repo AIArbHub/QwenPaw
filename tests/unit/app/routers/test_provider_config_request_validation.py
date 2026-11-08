@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """``ModelConfigRequest.thinking_budget`` must carry the ``ge=1`` bound.
 
 ``ModelInfo.thinking_budget`` declares ``ge=1`` and the sibling
@@ -10,7 +10,7 @@ that the write path then persisted and every read path rejected.
 import pytest
 from pydantic import ValidationError
 
-from qwenpaw.app.routers.providers import ModelConfigRequest
+from aiarb.app.routers.providers import ModelConfigRequest
 
 
 @pytest.mark.parametrize("bad_budget", [-5, 0])

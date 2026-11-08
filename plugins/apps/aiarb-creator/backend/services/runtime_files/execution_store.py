@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # flake8: noqa: E501
 # pylint: disable=redefined-builtin,too-many-public-methods
 # pylint: disable=use-sequence-for-iteration

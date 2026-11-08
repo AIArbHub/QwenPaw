@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Native SystemOne decisions feed approval and ReMe consumers."""
 
 # pylint: disable=protected-access
@@ -12,10 +12,10 @@ import pytest
 from typesafe_sdk import AsyncTypeSafeClient
 from agentscope.classifier import BinaryQuestion
 
-from qwenpaw.config.config import AgentProfileConfig, ModelSlotConfig
-from qwenpaw.providers import ProviderManager
-from qwenpaw.providers.services.qwenpaw import QwenPawProvider
-from qwenpaw.security import decision_model
+from aiarb.config.config import AgentProfileConfig, ModelSlotConfig
+from aiarb.providers import ProviderManager
+from aiarb.providers.services.qwenpaw import QwenPawProvider
+from aiarb.security import decision_model
 
 
 @pytest.fixture(name="local")
@@ -177,7 +177,7 @@ async def test_native_approval_uses_local_selection_and_fails_closed(
 
 @pytest.mark.asyncio
 async def test_factory_and_reme_keep_native_answer_interface(local):
-    from qwenpaw.agents.model_factory import create_decision_model_async
+    from aiarb.agents.model_factory import create_decision_model_async
     from reme.components.as_decision_model import AgentScopeAsDecisionModel
 
     model = await create_decision_model_async(
@@ -214,7 +214,7 @@ async def test_chat_model_is_not_silently_used_as_decision_model(local):
 
 @pytest.mark.asyncio
 async def test_cancelled_request_closes_client(local, monkeypatch):
-    from qwenpaw.providers.local_decision_model import LocalDecisionModel
+    from aiarb.providers.local_decision_model import LocalDecisionModel
 
     async def cancel(*_args, **_kwargs):
         raise asyncio.CancelledError

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """AIArb Agents Module.
 
 This module provides the main agent implementation and supporting utilities

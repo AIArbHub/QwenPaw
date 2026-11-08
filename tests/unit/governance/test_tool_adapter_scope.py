@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """UT for the tool_adapter approval-scope consumer (the lever).
 
 ``_ask_user_approval`` must pick the recorded rule target from the user's

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """DingTalk native callbacks, sends, cards and SDK cleanup."""
 import asyncio
 import hashlib

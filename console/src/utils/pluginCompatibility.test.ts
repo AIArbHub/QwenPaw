@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Unit tests for the market plugin compatibility check.
  *
  * What this file pins:

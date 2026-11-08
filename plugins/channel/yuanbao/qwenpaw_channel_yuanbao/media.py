@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Yuanbao media upload: COS pre-signed upload via genUploadInfo API.
 
 Flow:

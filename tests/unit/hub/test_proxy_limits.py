@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for personal runtime proxy resource limits."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for channel Bot identity extraction."""
 
 from types import SimpleNamespace

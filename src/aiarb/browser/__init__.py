@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Core browser-control abstractions."""
 
 from typing import TYPE_CHECKING

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for :mod:`aiarb.app.approvals.models`.
 
 The module is tiny but it ships the data contract that every approval

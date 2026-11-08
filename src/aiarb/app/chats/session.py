@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Safe JSON session with filename sanitization for cross-platform
 compatibility.
 

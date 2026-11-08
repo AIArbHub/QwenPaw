@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for desktop backend port persistence helpers.
 
 Complements ``test_port.py`` (socket construction failure) by covering

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for cli/doctor_fix_runner.py.
 
 Covers path-allowlist helpers, cron normalization, backup/meta plumbing,

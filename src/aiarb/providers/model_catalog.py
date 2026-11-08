@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Versioned model catalog loading and atomic OTA updates."""
 
 from __future__ import annotations

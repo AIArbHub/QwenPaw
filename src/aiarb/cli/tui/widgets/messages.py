@@ -11,7 +11,7 @@ from textual.app import ComposeResult
 from textual.widget import Widget
 from textual.widgets import Collapsible, Markdown, Static
 
-from qwenpaw.utils.markdown_cjk import normalize_cjk_emphasis
+from aiarb.utils.markdown_cjk import normalize_cjk_emphasis
 
 from ._anim import TICK, pulse, spinner
 from ._format import summarize_params

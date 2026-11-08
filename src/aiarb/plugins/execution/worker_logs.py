@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Bounded, best-effort worker stderr forwarding to host logging."""
 
 from __future__ import annotations

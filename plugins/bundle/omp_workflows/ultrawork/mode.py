@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """UltraworkMode — parallel execution engine."""
 
 from __future__ import annotations

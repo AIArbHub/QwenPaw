@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=unused-argument
 """Tests for provider discovery policy and model visibility preferences."""
 

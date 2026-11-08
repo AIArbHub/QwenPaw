@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for cli/plugin_commands.py.
 
 All network (HTTPX/urllib), subprocess (pip/uv), filesystem (plugins dir) and

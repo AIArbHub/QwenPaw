@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Verify transient notification events and successful console completion."""
 
 from __future__ import annotations
@@ -9,9 +9,9 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from qwenpaw.app import inbox_store, notification_store
-from qwenpaw.app.channels.console.channel import ConsoleChannel
-from qwenpaw.schemas import RunStatus
+from aiarb.app import inbox_store, notification_store
+from aiarb.app.channels.console.channel import ConsoleChannel
+from aiarb.schemas import RunStatus
 
 pytestmark = [pytest.mark.unit, pytest.mark.p1]
 

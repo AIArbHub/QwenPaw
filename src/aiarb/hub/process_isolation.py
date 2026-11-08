@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Fail-closed OS process isolation for local Hub runtimes."""
 
 from __future__ import annotations

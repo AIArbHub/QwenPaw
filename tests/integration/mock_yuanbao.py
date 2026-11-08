@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Minimal mock Yuanbao backend for integration tests.
 
 Serves both Yuanbao surfaces:

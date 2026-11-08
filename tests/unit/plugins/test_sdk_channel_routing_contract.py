@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Public channel identities and callbacks through the real shared queue."""
 
 import asyncio
@@ -1023,7 +1023,7 @@ async def test_lifecycle_terminal_callback_cannot_start_new_model_work(
         "from aiarb.plugins.messages import ContentBlock",
         (
             "from aiarb.plugins.messages import ContentBlock, "
-            "Message\nfrom qwenpaw.plugins import SDKError, "
+            "Message\nfrom aiarb.plugins import SDKError, "
             "PluginBusyError"
         ),
     ).replace(

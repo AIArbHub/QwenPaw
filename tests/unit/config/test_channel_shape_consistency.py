@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Consistency guards for legacy channel shape declarations.
 
 ``ChannelConfig`` retains legacy config shapes while official channels

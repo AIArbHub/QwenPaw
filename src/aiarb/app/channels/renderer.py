@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=too-many-branches,too-many-statements
 """
 Pluggable message renderer: Message -> sendable parts (runtime Content).
@@ -20,7 +20,7 @@ from aiarb.schemas import (
     TextContent,
     VideoContent,
 )
-from qwenpaw.utils.markdown_cjk import normalize_cjk_emphasis
+from aiarb.utils.markdown_cjk import normalize_cjk_emphasis
 
 logger = logging.getLogger(__name__)
 

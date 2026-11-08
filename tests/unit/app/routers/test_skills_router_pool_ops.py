@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Unit tests for the skills router pool operations and install worker.
 
 The read-side, mutation-side and helper-side test files already cover

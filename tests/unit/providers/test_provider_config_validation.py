@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # pylint: disable=missing-function-docstring
 """Write-path validation for per-model provider configuration.
 
@@ -19,12 +19,12 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from qwenpaw.providers.context_windows import DEFAULT_CONTEXT_WINDOW
-from qwenpaw.providers.model_info import ModelInfo
-from qwenpaw.providers.openai_provider import OpenAIProvider
-from qwenpaw.providers.provider_manager import ProviderManager
-from qwenpaw.providers.provider_discovery import apply_discovery_metadata
-from qwenpaw.providers.provider_model_state import migrate_provider_snapshot
+from aiarb.providers.context_windows import DEFAULT_CONTEXT_WINDOW
+from aiarb.providers.model_info import ModelInfo
+from aiarb.providers.openai_provider import OpenAIProvider
+from aiarb.providers.provider_manager import ProviderManager
+from aiarb.providers.provider_discovery import apply_discovery_metadata
+from aiarb.providers.provider_model_state import migrate_provider_snapshot
 
 
 def make_provider(**model_kwargs) -> OpenAIProvider:

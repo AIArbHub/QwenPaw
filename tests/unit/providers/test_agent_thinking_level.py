@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # White-box assertions and pytest fixture parameters are intentional.
 # pylint: disable=protected-access
 """Model-card capabilities determine legal provider wire settings."""

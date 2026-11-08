@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for transient Driver scope isolation and lifecycle."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """A complete public-SDK plugin with workspace-local persistent data."""
 
 import asyncio
