@@ -806,16 +806,24 @@ async def prepare_shared_dependencies(
                 _canonical_dependency_roots,
                 snapshot.dependency_sites or (),
             )
-            != keys
-        ):
-            raise SharedDependencyError(
-                GateDecision(
-                    False,
-                    False,
-                    reason="DEPENDENCY_PLAN_UNVERIFIED: environment changed",
-                    reason_code="DEPENDENCY_PLAN_UNVERIFIED",
-                ),
-            )
+            if not actual <= observation_roots:
+                observation_roots |= actual
+                continue
+            if target is None and (
+                await run_sync_io(
+                    _canonical_dependency_roots,
+                    snapshot.dependency_sites or (),
+                )
+                != keys
+            ):
+                raise SharedDependencyError(
+                    GateDecision(
+                        False,
+                        False,
+                        reason="DEPENDENCY_PLAN_UNVERIFIED: environment changed",
+                        reason_code="DEPENDENCY_PLAN_UNVERIFIED",
+                    ),
+                )
         decision = await evaluate(snapshot)
         if decision.already_satisfied:
             return snapshot
@@ -837,9 +845,9 @@ async def prepare_shared_dependencies(
                 in {str(canonical(path)) for path in snapshot.sites}
             )
 
-        if os.environ.get("AIARB_RUNTIME_PROVISIONER") == "local" or not (
-            await run_sync_io(valid_target)
-        ):
+        if os.environ.get(
+            "AIARB_RUNTIME_PROVISIONER",
+        ) == "local" or not (await run_sync_io(valid_target)):
             raise SharedDependencyError(
                 GateDecision(
                     False,
@@ -848,45 +856,9 @@ async def prepare_shared_dependencies(
                         "DEPENDENCY_PLAN_UNVERIFIED: "
                         "invalid publication target"
                     ),
-                )
-            decision = await evaluate(snapshot)
-            if decision.already_satisfied:
-                return snapshot
-            if (
-                not wheels
-                or target is None
-                or decision.require_restart
-                or decision.unsupported
-            ):
-                raise SharedDependencyError(decision)
-
-            def valid_target():
-                return (
-                    snapshot.dependency_sites is not None
-                    and not protected_dependency_target(target)
-                    and str(target)
-                    in {
-                        str(canonical(path))
-                        for path in snapshot.dependency_sites
-                    }
-                    and str(target)
-                    in {str(canonical(path)) for path in snapshot.sites}
-                )
-
-            if os.environ.get(
-                "QWENPAW_RUNTIME_PROVISIONER",
-            ) == "local" or not (await run_sync_io(valid_target)):
-                raise SharedDependencyError(
-                    GateDecision(
-                        False,
-                        False,
-                        reason=(
-                            "DEPENDENCY_PLAN_UNVERIFIED: "
-                            "invalid publication target"
-                        ),
-                        reason_code="DEPENDENCY_PLAN_UNVERIFIED",
-                    ),
-                )
+                    reason_code="DEPENDENCY_PLAN_UNVERIFIED",
+                ),
+            )
             try:
                 from dataclasses import replace
 
