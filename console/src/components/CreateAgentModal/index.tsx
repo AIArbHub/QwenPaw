@@ -77,7 +77,7 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({
       centered
       width={520}
       className={styles.modalRoot}
-      destroyOnClose
+      destroyOnHidden
       footer={
         <div className={styles.modalFooter}>
           <span />

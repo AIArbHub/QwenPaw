@@ -140,7 +140,7 @@ def _catalog_files():
         plugin_id = official["plugin_id"]
         try:
             descriptions[plugin_id] = bundled_channel_description(plugin_id)
-        except (OSError, ValueError, KeyError) as exc:
+        except (OSError, ValueError, KeyError, ModuleNotFoundError) as exc:
             descriptions[plugin_id] = str(exc)
         installed[plugin_id] = (
             plugins_dir / plugin_id / "plugin.json"

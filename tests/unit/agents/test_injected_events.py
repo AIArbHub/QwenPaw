@@ -9,7 +9,7 @@ import asyncio
 import pytest
 
 from aiarb.agents.injected_events import merge_injected_events
-from aiarb.agents.react_agent import AIARBAgent
+from aiarb.agents.react_agent import AIArbAgent
 
 
 async def _collect(inner, queue):
@@ -17,13 +17,13 @@ async def _collect(inner, queue):
 
 
 def test_unarmed_agent_drops_injected_events():
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent._injected_events = None
     assert agent.emit_injected_event("plan") is False
 
 
 def test_armed_agent_queues_injected_events():
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent._injected_events = asyncio.Queue()
     assert agent.emit_injected_event("plan") is True
     assert agent._injected_events.get_nowait() == "plan"

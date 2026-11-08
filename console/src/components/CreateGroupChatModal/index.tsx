@@ -511,7 +511,7 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
       centered
       width={680}
       className={styles.modalRoot}
-      destroyOnClose
+      destroyOnHidden
     >
       <Steps
         current={step}

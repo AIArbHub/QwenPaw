@@ -113,7 +113,6 @@ class ReMeEmbedding:
             raise ValueError("Unsupported reindex scope")
         if self.runtime.is_reindexing:
             raise RuntimeError("Memory index rebuild is already running")
-        rebuilds_embedding = scope in {"all", "embedding"}
         async with (
             self.runtime._reindex_lock,
             self.runtime._exclusive_reme_lifecycle("reindex"),
@@ -122,7 +121,7 @@ class ReMeEmbedding:
             if reme is None or not getattr(reme, "is_started", False):
                 return None
             fingerprint = None
-            if rebuilds_embedding:
+            if scope in {"all", "embedding"}:
                 agent_config = await self.load_agent_config(
                     self.runtime.agent_id,
                 )
@@ -136,16 +135,23 @@ class ReMeEmbedding:
                             "Embedding index rebuild requires an enabled "
                             "embedding configuration",
                         )
-                    raise EmbeddingReindexUnavailableError(
-                        "An all-scope index rebuild requires an enabled "
-                        "embedding configuration",
+                    # Auto-degrade all-scope to bm25-only when embedding is
+                    # not configured so users can still rebuild the keyword
+                    # index without first setting up an embedding provider.
+                    logger.info(
+                        "All-scope reindex auto-degraded to bm25 for "
+                        "agent '%s': embedding not configured",
+                        self.runtime.agent_id,
                     )
-                fingerprint = embedding_vector_space_fingerprint(target)
-                prepared = await run_async_to_completion(
-                    self._prepare_embedding_reindex(target, fingerprint),
-                )
-                if not prepared:
-                    return None
+                    scope = "bm25"
+                else:
+                    fingerprint = embedding_vector_space_fingerprint(target)
+                    prepared = await run_async_to_completion(
+                        self._prepare_embedding_reindex(target, fingerprint),
+                    )
+                    if not prepared:
+                        return None
+            rebuilds_embedding = scope in {"all", "embedding"}
 
             response = await self.runtime._run_reme_job(
                 "reindex",

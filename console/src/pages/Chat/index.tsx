@@ -66,6 +66,7 @@ import {
   AIARB_CLIENT_MESSAGE_ID_KEY,
 } from "../../utils/clientMessageId";
 import defaultConfig, { getDefaultConfig } from "./OptionsPanel/defaultConfig";
+import RotatingDisclaimer from "./components/RotatingDisclaimer";
 import { chatApi } from "../../api/modules/chat";
 import { agentApi } from "../../api/modules/agent";
 import { skillApi } from "../../api/modules/skill";
@@ -113,6 +114,8 @@ import {
   type ModelFallbackEvent,
 } from "./fallbackNotice";
 import ChatSessionInitializer from "./components/ChatSessionInitializer";
+import ChatSessionDrawer from "./components/ChatSessionDrawer";
+import { useSessionHistoryDrawer } from "./hooks/useSessionHistoryDrawer";
 import { ApprovalCard } from "../../components/ApprovalCard/ApprovalCard";
 import { commandsApi } from "../../api/modules/commands";
 import { useApprovalContext } from "../../contexts/ApprovalContext";
@@ -1213,6 +1216,11 @@ export default function ChatPage() {
   const location = useLocation();
   const { isDark, previewTheme = {} } = useTheme();
   const { selectedAgent, agents } = useAgentStore();
+  const {
+    historyOpen,
+    openHistoryDrawer,
+    closeHistoryDrawer,
+  } = useSessionHistoryDrawer();
   // useLocation().pathname is already basename-relative. React Router
   // strips the basename before exposing it (Desktop `/console/chat/<id>`
   // is `/chat/<id>` here). Do not strip again: a basename of `/chat`
@@ -1656,15 +1664,66 @@ export default function ChatPage() {
         }
 
         if (currentQueueId) {
+          const accErr = accepted.error as
+            | { message?: string; code?: string }
+            | undefined;
+          const accErrCode = accErr?.code || "";
+          let accErrMsg =
+            accErr instanceof Error
+              ? accErr.message
+              : i18n.t("chat.queue.sendFailed");
+          if (accErrCode === "UNAUTHORIZED_MODEL_ACCESS") {
+            accErrMsg = i18n.t("chat.errorUnauthorizedModel", {
+              message: accErr?.message || "",
+            });
+            notification.error({
+              message: i18n.t("chat.errorSettingsToast"),
+              duration: 0,
+              btn: (
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={() => {
+                    notification.destroy();
+                    navigate("/models");
+                  }}
+                >
+                  {i18n.t("modelConfig.configureButton")}
+                </Button>
+              ),
+            });
+          } else if (accErrCode === "MODEL_QUOTA_EXCEEDED") {
+            accErrMsg = i18n.t("chat.errorModelQuotaExceeded", {
+              message: accErr?.message || "",
+            });
+            notification.error({
+              message: i18n.t("chat.errorSettingsToast"),
+              duration: 0,
+              btn: (
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={() => {
+                    notification.destroy();
+                    navigate("/models");
+                  }}
+                >
+                  {i18n.t("modelConfig.configureButton")}
+                </Button>
+              ),
+            });
+          } else if (accErrCode && accErrCode !== "CHAT_STREAM_ERROR") {
+            accErrMsg = i18n.t("chat.errorUnknown", {
+              message: accErr?.message || accErrMsg,
+            });
+          }
           useMessageQueueStore
             .getState()
             .setItemStatus(
               currentQueueId,
               item.id,
               "failed",
-              accepted.error instanceof Error
-                ? accepted.error.message
-                : i18n.t("chat.queue.sendFailed"),
+              accErrMsg,
             );
         }
       } catch (error) {
@@ -1674,15 +1733,64 @@ export default function ChatPage() {
         if (signal.aborted) return false;
         const currentQueueId = locateQueue();
         if (currentQueueId) {
+          const caughtErrCode =
+            (error as { code?: string })?.code || "";
+          let caughtErrMsg =
+            error instanceof Error
+              ? error.message
+              : i18n.t("chat.queue.sendFailed");
+          if (caughtErrCode === "UNAUTHORIZED_MODEL_ACCESS") {
+            caughtErrMsg = i18n.t("chat.errorUnauthorizedModel", {
+              message: caughtErrMsg,
+            });
+            notification.error({
+              message: i18n.t("chat.errorSettingsToast"),
+              duration: 0,
+              btn: (
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={() => {
+                    notification.destroy();
+                    navigate("/models");
+                  }}
+                >
+                  {i18n.t("modelConfig.configureButton")}
+                </Button>
+              ),
+            });
+          } else if (caughtErrCode === "MODEL_QUOTA_EXCEEDED") {
+            caughtErrMsg = i18n.t("chat.errorModelQuotaExceeded", {
+              message: caughtErrMsg,
+            });
+            notification.error({
+              message: i18n.t("chat.errorSettingsToast"),
+              duration: 0,
+              btn: (
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={() => {
+                    notification.destroy();
+                    navigate("/models");
+                  }}
+                >
+                  {i18n.t("modelConfig.configureButton")}
+                </Button>
+              ),
+            });
+          } else if (caughtErrCode && caughtErrCode !== "CHAT_STREAM_ERROR") {
+            caughtErrMsg = i18n.t("chat.errorUnknown", {
+              message: caughtErrMsg,
+            });
+          }
           useMessageQueueStore
             .getState()
             .setItemStatus(
               currentQueueId,
               item.id,
               "failed",
-              error instanceof Error
-                ? error.message
-                : i18n.t("chat.queue.sendFailed"),
+              caughtErrMsg,
             );
         }
       } finally {
@@ -2000,7 +2108,7 @@ export default function ChatPage() {
     scheduleReadyQueue();
     return sdkSessionAdapter.subscribe(scheduleReadyQueue);
   }, [sdkSessionAdapter, scheduleNextSend]);
-  const { message } = useAppMessage();
+  const { message, notification } = useAppMessage();
   const { approvals, setApprovals } = useApprovalContext();
   const [approvalRequests, setApprovalRequests] = useState<
     Map<string, ApprovalMessageData>
@@ -3984,7 +4092,7 @@ export default function ChatPage() {
         leftHeader: mergedLeftHeader,
         rightHeader: (
           <>
-            <ChatSessionInitializer />
+            <ChatSessionInitializer onOpenHistory={openHistoryDrawer} />
             <ChatSessionActivation
               sessionId={chatId}
               sdkRef={chatRef}
@@ -4196,7 +4304,9 @@ export default function ChatPage() {
             }
           : {}),
         placeholder: extPlaceholder ?? t("chat.inputPlaceholder"),
-        ...(extDisclaimer !== undefined ? { disclaimer: extDisclaimer } : {}),
+        ...(extDisclaimer !== undefined
+          ? { disclaimer: extDisclaimer }
+          : { disclaimer: <RotatingDisclaimer /> }),
         suggestions: [...baseSuggestions, ...activePluginSuggestions],
       },
       session: {
@@ -4262,14 +4372,74 @@ export default function ChatPage() {
             // flushed delta only when that canonical output is absent, so it
             // is neither lost nor duplicated.
             if (!output || (Array.isArray(output) && output.length === 0)) {
-              const errorMsg =
-                (payload.error as { message?: string } | undefined)?.message ||
-                t("chat.emptyOutputError");
+              const errorObj = payload.error as
+                | { message?: string; code?: string }
+                | undefined;
+              const rawErrorMsg = errorObj?.message || t("chat.emptyOutputError");
+              const errorCode = errorObj?.code || "";
+
+              // Map well-known error codes to user-friendly messages with
+              // actionable guidance, instead of showing raw provider text.
+              let enhancedErrorMsg = rawErrorMsg;
+              let showSettingsPrompt = false;
+              if (errorCode === "UNAUTHORIZED_MODEL_ACCESS") {
+                enhancedErrorMsg = t("chat.errorUnauthorizedModel", {
+                  message: rawErrorMsg,
+                });
+                showSettingsPrompt = true;
+              } else if (errorCode === "MODEL_QUOTA_EXCEEDED") {
+                enhancedErrorMsg = t("chat.errorModelQuotaExceeded", {
+                  message: rawErrorMsg,
+                });
+                showSettingsPrompt = true;
+              } else if (errorCode === "MODEL_NOT_FOUND") {
+                enhancedErrorMsg = t("chat.errorModelNotFound", {
+                  message: rawErrorMsg,
+                });
+                showSettingsPrompt = true;
+              } else if (errorCode === "MODEL_EXECUTION_ERROR") {
+                enhancedErrorMsg = t("chat.errorModelExecution", {
+                  message: rawErrorMsg,
+                });
+                showSettingsPrompt = true;
+              } else if (
+                errorCode !== "CHAT_STREAM_ERROR" &&
+                errorCode !== ""
+              ) {
+                enhancedErrorMsg = t("chat.errorUnknown", {
+                  message: rawErrorMsg,
+                });
+                showSettingsPrompt = true;
+              }
+
+              // Pop up a notification with a "Go to Settings" button so the
+              // user can navigate to model configuration in one click.
+              if (showSettingsPrompt) {
+                notification.error({
+                  message: t("chat.errorSettingsToast"),
+                  duration: 0,
+                  btn: (
+                    <Button
+                      type="primary"
+                      size="small"
+                      onClick={() => {
+                        notification.destroy();
+                        navigate("/models");
+                      }}
+                    >
+                      {t("modelConfig.configureButton")}
+                    </Button>
+                  ),
+                });
+              }
+
               payload.output = [
                 {
                   type: "message",
                   role: "assistant",
-                  content: [{ type: "text", text: trailing || errorMsg }],
+                  content: [
+                    { type: "text", text: trailing || enhancedErrorMsg },
+                  ],
                 },
               ];
             }
@@ -4816,6 +4986,10 @@ export default function ChatPage() {
             />
           ) : null}
         </AnimatePresence>
+        <ChatSessionDrawer
+          open={historyOpen}
+          onClose={closeHistoryDrawer}
+        />
       </div>
     </TerminalDock>
   );

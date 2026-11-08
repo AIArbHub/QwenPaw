@@ -235,7 +235,7 @@ const EditGroupChatModal: React.FC<EditGroupChatModalProps> = ({
       centered
       width={680}
       className={styles.modalRoot}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form layout="vertical" className={styles.form}>
         <Form.Item

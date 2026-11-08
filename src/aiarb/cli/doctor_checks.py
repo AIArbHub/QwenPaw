@@ -60,7 +60,7 @@ APP_LOG_BASENAME = LOG_FILE_BASENAME
 
 # Built-in local llama.cpp provider id; legacy configs may still use
 # copaw-local.
-_AIARB_LOCAL_PROVIDER_IDS = frozenset({"AIARB-local", "copaw-local"})
+_AIARB_LOCAL_PROVIDER_IDS = frozenset({"aiarb-local", "AIARB-local", "copaw-local"})
 
 
 def _resolve_existing_path_anchor(path: Path) -> Path | None:

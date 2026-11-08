@@ -1,13 +1,13 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Model→event bridge tests for fallback transparency metadata.
 
 The pinned agentscope release drops ``ChatResponse.metadata`` when it
-converts model output into agent events, so ``AIARBAgent._reasoning``
+converts model output into agent events, so ``AIArbAgent._reasoning``
 re-attaches the fallback data published by ``FallbackChatModel`` through
 the request sink.  These tests cover that real chain: a model that
 actually falls back during ``Agent._reasoning`` and events that leave
-``AIARBAgent._reasoning`` carrying the notice.
+``AIArbAgent._reasoning`` carrying the notice.
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ from agentscope.message import AssistantMsg, Msg
 from agentscope.model import ChatModelBase
 from agentscope.model._model_response import ChatResponse
 
-from aiarb.agents.react_agent import AIARBAgent
+from aiarb.agents.react_agent import AIArbAgent
 from aiarb.loop.gates import StopAction
 from aiarb.providers.fallback_chat_model import FallbackChatModel
 
@@ -49,9 +49,9 @@ class _HttpError(Exception):
         self.status_code = status_code
 
 
-def _bare_agent(model: ChatModelBase) -> AIARBAgent:
+def _bare_agent(model: ChatModelBase) -> AIArbAgent:
     """Build a minimal agent without running heavy __init__."""
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent.model = model
     agent._context_manager = None
 

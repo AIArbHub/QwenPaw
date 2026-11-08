@@ -23,8 +23,10 @@
   height: var(--app-hit-desktop);
   display: flex;
   justify-content: flex-end;
-  z-index: 20;
+  z-index: 40;
   pointer-events: none;
+  /* Ensure transport never blocks clicks on underlying content */
+  /* Only the .handle child should receive pointer events. */
 }
 .handle,
 .dockButton {

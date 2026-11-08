@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useState, useRef, memo } from "react";
+import { Suspense, useEffect, useMemo, useState, useRef, useCallback } from "react";
 import type { ReactNode } from "react";
 import { Layout, Tooltip, Badge, Avatar, Spin, Divider, Popover, Input } from "antd";
 import {
@@ -14,7 +14,6 @@ import {
   MessageSquarePlus,
   History,
   ChevronLeft,
-  ChevronRight,
   Search,
   Users2,
   Info,
@@ -32,11 +31,10 @@ import {
   Settings,
   Copy,
   Trash2,
-  Check,
-  X,
-  Cpu,
   SquareTerminal,
   PawPrint,
+  PanelLeft,
+  PanelLeftClose,
 } from "lucide-react";
 import {
   SparkSettingLine,
@@ -50,14 +48,15 @@ import {
   flattenMenu,
   renderIcon,
   resolveLabel,
-  findMenuItem,
 } from "../registry/adapter";
 import { filterMenuForAgentCapabilities } from "../registry/capabilities";
+import {
+  filterSidebarMenuItems,
+} from "../registry/sidebarEntries";
+import { useSidebarStore } from "../../stores/sidebarStore";
+import { isFixedSidebarItemId } from "../../constants/sidebarItems";
 import type { MenuItem } from "../../plugins/registry/types";
-import type { AgentSummary, AgentProfileConfig } from "../../api/types/agents";
-import type { ProviderInfo } from "../../api/types/provider";
-import { providerApi } from "../../api/modules/provider";
-import { providerIcon } from "../../pages/Settings/Models/components/providerIcon";
+import type { AgentSummary } from "../../api/types/agents";
 import { buildChatPath } from "../../utils/sessionRoute";
 import ConsolePollService from "../../components/ConsolePollService";
 import { AgentStatusPollingController } from "../../components/AgentStatusPollingController";
@@ -65,6 +64,8 @@ import { ChunkErrorBoundary } from "../../components/ChunkErrorBoundary";
 import { Slot } from "../../plugins/registry/Slot";
 import { useTheme } from "../../contexts/ThemeContext";
 import SidebarSettingsPanel from "../SidebarSettingsPanel";
+import DockableSidebar from "../DockableSidebar";
+import SidebarSessionList from "../SidebarSessionList";
 import CreateGroupChatModal from "../../components/CreateGroupChatModal";
 import EditGroupChatModal from "../../components/EditGroupChatModal";
 import CreateAgentModal from "../../components/CreateAgentModal";
@@ -236,114 +237,6 @@ function GroupTag({
   );
 }
 
-// ── ModelPicker: inline model selector for the middle panel ──────────────────
-
-interface ModelPickerProps {
-  providers: ProviderInfo[];
-  loading: boolean;
-  currentProviderId?: string;
-  currentModelId?: string;
-  saving: boolean;
-  onSave: (providerId: string | undefined, modelId: string | undefined) => void;
-  onCancel: () => void;
-}
-
-const ModelPicker = memo(function ModelPicker({
-  providers,
-  loading,
-  currentProviderId,
-  currentModelId,
-  saving,
-  onSave,
-  onCancel,
-}: ModelPickerProps) {
-  const { t } = useTranslation();
-  const [selProvider, setSelProvider] = useState<string | undefined>(currentProviderId);
-  const [selModel, setSelModel] = useState<string | undefined>(currentModelId);
-
-  const eligibleProviders = useMemo(
-    () =>
-      providers
-        .filter((p) => {
-          const hasModels =
-            (p.models?.length ?? 0) + (p.extra_models?.length ?? 0) > 0;
-          if (!hasModels) return false;
-          if (p.require_api_key === false) return !!p.base_url;
-          if (p.is_custom) return !!p.base_url;
-          if (p.require_api_key ?? true) return !!p.api_key;
-          return true;
-        })
-        .map((p) => ({
-          id: p.id,
-          name: p.name,
-          models: [...(p.models ?? []), ...(p.extra_models ?? [])],
-        })),
-    [providers],
-  );
-
-  const availableModels = useMemo(() => {
-    if (!selProvider) return [];
-    const p = eligibleProviders.find((ep) => ep.id === selProvider);
-    return p?.models ?? [];
-  }, [selProvider, eligibleProviders]);
-
-  return (
-    <div className={styles.modelPicker}>
-      <select
-        className={styles.modelPickerSelect}
-        value={selProvider ?? ""}
-        onChange={(e) => {
-          setSelProvider(e.target.value || undefined);
-          setSelModel(undefined);
-        }}
-        disabled={loading || saving}
-      >
-        <option value="">{t("agent.modelPlaceholder", "使用全局默认")}</option>
-        {eligibleProviders.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.name}
-          </option>
-        ))}
-      </select>
-      {selProvider && (
-        <select
-          className={styles.modelPickerSelect}
-          value={selModel ?? ""}
-          onChange={(e) => setSelModel(e.target.value || undefined)}
-          disabled={loading || saving || !selProvider}
-        >
-          <option value="">{t("agent.model", "模型")}</option>
-          {availableModels.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.name || m.id}
-            </option>
-          ))}
-        </select>
-      )}
-      <div className={styles.modelPickerActions}>
-        <button
-          type="button"
-          className={styles.inlineEditSave}
-          onClick={() => onSave(selProvider, selModel)}
-          disabled={saving}
-          title={t("common.save", "保存")}
-        >
-          <Check size={12} />
-        </button>
-        <button
-          type="button"
-          className={styles.inlineEditCancel}
-          onClick={onCancel}
-          disabled={saving}
-          title={t("common.cancel", "取消")}
-        >
-          <X size={12} />
-        </button>
-      </div>
-    </div>
-  );
-});
-
 // ── Component ───────────────────────────────────────────────────────────────
 
 /**
@@ -375,6 +268,7 @@ export default function DesignLayout({
   );
   const [createAgentOpen, setCreateAgentOpen] = useState(false);
   const [listTab, setListTab] = useState<"agents" | "groups">("agents");
+  const [detailTab, setDetailTab] = useState<"sessions" | "features">("sessions");
   const [drawerAgent, setDrawerAgent] = useState<AgentSummary | null>(null);
   const [drawerTab, setDrawerTab] = useState("basic");
   const [searchQuery, setSearchQuery] = useState("");
@@ -383,17 +277,6 @@ export default function DesignLayout({
   );
   const [sessionHits, setSessionHits] = useState<SessionSearchHit[]>([]);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
-
-  // Inline edit state for description in the middle panel detail view
-  const [editingDesc, setEditingDesc] = useState(false);
-  const [descDraft, setDescDraft] = useState("");
-  const [savingDesc, setSavingDesc] = useState(false);
-
-  // Inline model selector state
-  const [modelProviders, setModelProviders] = useState<ProviderInfo[]>([]);
-  const [loadingProviders, setLoadingProviders] = useState(false);
-  const [modelPickerOpen, setModelPickerOpen] = useState(false);
-  const [savingModel, setSavingModel] = useState(false);
 
   // ── Hooks ──────────────────────────────────────────────────────────────────
   const location = useLocation();
@@ -413,6 +296,17 @@ export default function DesignLayout({
   const rawSettingsMenu = useMenuItems("primary.settings");
   const rawBottomMenu = useMenuItems("primary.bottom");
 
+  // ── Sidebar configuration (same as main-mode Sidebar) ──────────────────────
+  // The user can configure which entries appear in the sidebar via the
+  // Settings Center → Navigation settings page. This store persists those
+  // preferences and we apply them here to filter & order the rail items.
+  const { focusItemIds, hiddenPluginItemIds } = useSidebarStore();
+  const focusItemIdSet = useMemo(() => new Set(focusItemIds), [focusItemIds]);
+  const hiddenPluginItemIdSet = useMemo(
+    () => new Set(hiddenPluginItemIds),
+    [hiddenPluginItemIds],
+  );
+
   const currentPath = location.pathname;
   const isChatActive =
     currentPath.startsWith("/chat") ||
@@ -429,7 +323,7 @@ export default function DesignLayout({
 // const openWorkspaceTab = useChatWorkspaceStore((s) => s.openTab);
 // Noop 占位符，使 `if (isWorkspaceActive)` 分支能通过类型检查
 // （它们是死代码 — isWorkspaceActive 始终为 false）。
-const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) => {};
+const openWorkspaceTab = () => {};
 
   // ── Auto-collapse middle panel when content is unrelated to agents ────────
   // If the user hasn't manually toggled, auto-collapse when navigating away
@@ -474,11 +368,32 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
     [rawAgentMenu, backendCapabilities],
   );
 
+  // ── Derived: sidebar configuration-filtered menus ──────────────────────────
+  const filteredAgentMenu = useMemo(
+    () =>
+      filterSidebarMenuItems(agentMenu, focusItemIdSet, hiddenPluginItemIdSet),
+    [agentMenu, focusItemIdSet, hiddenPluginItemIdSet],
+  );
+  const filteredSettingsMenu = useMemo(
+    () =>
+      filterSidebarMenuItems(
+        rawSettingsMenu,
+        focusItemIdSet,
+        hiddenPluginItemIdSet,
+      ),
+    [rawSettingsMenu, focusItemIdSet, hiddenPluginItemIdSet],
+  );
+
   // ── Derived: left rail items ────────────────────────────────────────────────
+  // Uses the same sidebarStore configuration as the main-mode Sidebar so that
+  // changes in Settings → Navigation are reflected in design mode too.
+  // Unlike the main Sidebar (which flattens everything), we preserve the
+  // group structure from builtinMenu so the expanded rail shows section
+  // headers like "智能体文件", "控制", "工作区", "全局设置".
   const railItems = useMemo<RailItem[]>(() => {
     const items: RailItem[] = [];
 
-    // 1. Chat (sticky, always visible)
+    // 1. Chat (sticky, always visible — not configurable)
     items.push({
       key: "core.chat",
       icon: <MessageSquareText size={RAIL_ICON_SIZE} />,
@@ -486,74 +401,95 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
       path: buildChatPath(),
     });
 
-    // (Inbox is rendered in the bottom toolbar — same as full-mode Sidebar.)
+    /** Check if a leaf item is visible according to sidebar config. */
+    const isLeafVisible = (item: TreeMenuItem): boolean => {
+      if (item.visible?.() === false) return false;
+      if (item.id.startsWith("core.")) {
+        return isFixedSidebarItemId(item.id) || focusItemIdSet.has(item.id);
+      }
+      return !hiddenPluginItemIdSet.has(item.id);
+    };
 
-    // 2. Memory center (global entry in design mode)
-    const memoryItem = findMenuItem(rawAgentMenu, "core.memory");
-    if (memoryItem) {
-      items.push({
-        key: "core.memory",
-        icon: renderIcon(memoryItem.icon, RAIL_ICON_SIZE),
-        label: resolveLabel(memoryItem.label),
-        path: routeIdToPath(memoryItem.route, routes),
-        href: memoryItem.href,
-      });
+    // 2. Walk the agent menu preserving group structure
+    for (const rawItem of filteredAgentMenu) {
+      const item = rawItem as TreeMenuItem;
+      if (item.divider) continue;
+
+      if (item.isGroup || (item.__children && item.__children.length > 0)) {
+        // Group: emit header then visible children
+        const visibleChildren = (item.__children ?? []).filter(
+          (c) => !c.divider && isLeafVisible(c as TreeMenuItem),
+        );
+        if (visibleChildren.length === 0) continue;
+        // Push group header
+        items.push({
+          key: item.id,
+          icon: null,
+          label: resolveLabel(item.label),
+          isGroupHeader: true,
+        });
+        for (const child of visibleChildren) {
+          const path = routeIdToPath(child.route, routes);
+          if (!path && !child.href) continue;
+          items.push({
+            key: child.id,
+            icon: renderIcon(child.icon, RAIL_ICON_SIZE),
+            label: resolveLabel(child.label),
+            path,
+            href: child.href,
+          });
+        }
+      } else {
+        // Top-level leaf (e.g. core.memory, core.knowledge-base, core.inbox)
+        if (!isLeafVisible(item)) continue;
+        const path = routeIdToPath(item.route, routes);
+        if (!path && !item.href) continue;
+        items.push({
+          key: item.id,
+          icon: renderIcon(item.icon, RAIL_ICON_SIZE),
+          label: resolveLabel(item.label),
+          path,
+          href: item.href,
+        });
+      }
     }
 
-    // 3. Shared knowledge base (global entry in design mode)
-    const kbItem = findMenuItem(rawAgentMenu, "core.knowledge-base");
-    if (kbItem) {
-      items.push({
-        key: "core.knowledge-base",
-        icon: renderIcon(kbItem.icon, RAIL_ICON_SIZE),
-        label: resolveLabel(kbItem.label),
-        path: routeIdToPath(kbItem.route, routes),
-        href: kbItem.href,
+    // 3. Walk the settings menu (always under a "全局设置" group header)
+    const visibleSettings = filteredSettingsMenu
+      .flatMap((rawItem) => {
+        const item = rawItem as TreeMenuItem;
+        if (item.isGroup || (item.__children && item.__children.length > 0)) {
+          return (item.__children ?? []).filter(
+            (c) => !c.divider && isLeafVisible(c as TreeMenuItem),
+          );
+        }
+        return isLeafVisible(item) ? [item] : [];
+      })
+      .filter((item) => {
+        const path = routeIdToPath(item.route, routes);
+        return path || item.href;
       });
-    }
 
-    // 4. Document Tools (global entry in design mode)
-    const docItem = findMenuItem(rawAgentMenu, "core.document-tools");
-    if (docItem) {
+    if (visibleSettings.length > 0) {
       items.push({
-        key: "core.document-tools",
-        icon: renderIcon(docItem.icon, RAIL_ICON_SIZE),
-        label: resolveLabel(docItem.label),
-        path: routeIdToPath(docItem.route, routes),
-        href: docItem.href,
+        key: "settings-group-header",
+        icon: null,
+        label: t("nav.globalSettings", "全局设置"),
+        isGroupHeader: true,
       });
-    }
-
-    // 5. Global Settings group header (hidden when collapsed)
-    items.push({
-      key: "settings-group-header",
-      icon: null,
-      label: t("nav.globalSettings", "全局设置"),
-      isGroupHeader: true,
-    });
-
-    // 5. Settings items — when collapsed only the 4 primary entries remain
-    // (agents / models / skill-pool / token-usage); expanded shows all.
-    const settingsFlat = flattenMenu(rawSettingsMenu, routes, RAIL_ICON_SIZE);
-    const collapsedSettings = new Set([
-      "core.agents",
-      "core.models",
-      "core.skill-pool",
-      "core.token-usage",
-    ]);
-    for (const entry of settingsFlat) {
-      if (railCollapsed && !collapsedSettings.has(entry.key)) continue;
-      items.push({
-        key: entry.key,
-        icon: entry.icon,
-        label: entry.label,
-        path: entry.path,
-        href: entry.href,
-      });
+      for (const item of visibleSettings) {
+        items.push({
+          key: item.id,
+          icon: renderIcon(item.icon, RAIL_ICON_SIZE),
+          label: resolveLabel(item.label),
+          path: routeIdToPath(item.route, routes),
+          href: item.href,
+        });
+      }
     }
 
     return items;
-  }, [rawAgentMenu, rawBottomMenu, rawSettingsMenu, routes, t, railCollapsed]);
+  }, [filteredAgentMenu, filteredSettingsMenu, routes, t, focusItemIdSet, hiddenPluginItemIdSet]);
 
   // ── Derived: feature groups for the "功能" tab ─────────────────────────────
   const featureGroups = useMemo(() => {
@@ -710,23 +646,9 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
     refreshAgents();
   }, [refreshAgents]);
 
-  // Load providers when a panel agent is selected (for model picker)
+  // Reset detail tab when panel agent changes
   useEffect(() => {
-    if (!panelAgentId || panelAgent?.backend !== "aiarb") return;
-    setLoadingProviders(true);
-    providerApi
-      .listProviders()
-      .then((data) => {
-        if (Array.isArray(data)) setModelProviders(data);
-      })
-      .catch((err) => console.error("Failed to load providers:", err))
-      .finally(() => setLoadingProviders(false));
-  }, [panelAgentId, panelAgent?.backend]);
-
-  // Reset inline edit state when panel agent changes
-  useEffect(() => {
-    setEditingDesc(false);
-    setModelPickerOpen(false);
+    setDetailTab("sessions");
   }, [panelAgentId]);
 
   // 全量会话搜索：在搜索框输入时，按标题/ID 检索所有智能体的会话。
@@ -783,6 +705,14 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
   }, [searchQuery, agents]);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
+
+  const handleOpenSettings = useCallback(() => {
+    navigate("/settings/general", {
+      state: {
+        settingsReturnTo: `${location.pathname}${location.search}${location.hash}`,
+      },
+    });
+  }, [navigate, location]);
 
   const handleRailItemClick = (item: RailItem) => {
     if (item.isGroupHeader) return;
@@ -846,13 +776,6 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
     }
   };
 
-  const handleHistorySessions = () => {
-    if (panelAgent) {
-      setSelectedAgent(panelAgent.id);
-    }
-    openHistoryPanel();
-  };
-
   const handleProfileCardClick = (card: FeatureCardData) => {
     if (!panelAgent) return;
     if (card.key === "basic") {
@@ -912,55 +835,6 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
       message.error(
         err instanceof Error ? err.message : t("agent.pinFailed", "置顶失败"),
       );
-    }
-  };
-
-  // 中栏内联编辑简介：保存到后端。
-  const handleSaveDesc = async () => {
-    if (!panelAgent) return;
-    const trimmed = descDraft.trim();
-    if (trimmed === (panelAgent.description || "")) {
-      setEditingDesc(false);
-      return;
-    }
-    setSavingDesc(true);
-    try {
-      const config = await agentsApi.getAgent(panelAgent.id);
-      const payload: AgentProfileConfig = {
-        ...config,
-        description: trimmed,
-      };
-      await agentsApi.updateAgent(panelAgent.id, payload);
-      updateAgent(panelAgent.id, { description: trimmed });
-      message.success(t("agent.updateSuccess", "更新成功"));
-      setEditingDesc(false);
-    } catch (err: unknown) {
-      message.error(
-        err instanceof Error ? err.message : t("agent.saveFailed", "保存失败"),
-      );
-    } finally {
-      setSavingDesc(false);
-    }
-  };
-
-  // 中栏内联选择模型：保存到后端。
-  const handleSaveModel = async (providerId: string | undefined, modelId: string | undefined) => {
-    if (!panelAgent) return;
-    setSavingModel(true);
-    try {
-      const config = await agentsApi.getAgent(panelAgent.id);
-      const active_model = providerId && modelId ? { provider_id: providerId, model: modelId } : null;
-      const payload: AgentProfileConfig = { ...config, active_model };
-      await agentsApi.updateAgent(panelAgent.id, payload);
-      updateAgent(panelAgent.id, { active_model });
-      message.success(t("agent.updateSuccess", "更新成功"));
-      setModelPickerOpen(false);
-    } catch (err: unknown) {
-      message.error(
-        err instanceof Error ? err.message : t("agent.saveFailed", "保存失败"),
-      );
-    } finally {
-      setSavingModel(false);
     }
   };
 
@@ -1377,12 +1251,14 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
 
   return (
     <div
-      className={`${styles.designLayout}${isDark ? ` ${styles.dark}` : ""}${
-        !railCollapsed ? ` ${styles.expanded}` : ""
-      }${middleCollapsed ? ` ${styles.middleCollapsed}` : ""}`}
+      className={`${styles.designLayout}${isDark ? ` ${styles.dark}` : ""}`}
     >
-      {/* ── Column 1: Left Rail ─────────────────────────────────────────────── */}
-      <aside className={styles.leftRail}>
+      {/* ── Column 1: Left Rail (floatable via DockableSidebar) ──────────── */}
+      <DockableSidebar
+        width={railCollapsed ? 72 : 240}
+        mobile={false}
+      >
+      <aside className={`${styles.leftRail}${railCollapsed ? ` ${styles.railCollapsed}` : ""}`}>
         {/* Logo: collapsed → "A" letter, expanded → full SVG logo */}
         <div className={styles.railLogo}>
           {railCollapsed ? (
@@ -1499,7 +1375,10 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
             placement={railCollapsed ? "rightBottom" : "topRight"}
             trigger="click"
             content={
-              <SidebarSettingsPanel onClose={() => setSettingsOpen(false)} />
+              <SidebarSettingsPanel
+                onClose={() => setSettingsOpen(false)}
+                onOpenSettings={handleOpenSettings}
+              />
             }
           >
             <button
@@ -1510,6 +1389,23 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
               <SparkSettingLine size={RAIL_ICON_SIZE} />
             </button>
           </Popover>
+          {/* Middle panel toggle — show/hide the agent list panel */}
+          <Tooltip
+            title={middleCollapsed ? t("common.expand", "展开") : t("common.collapse", "收起")}
+            placement={railCollapsed ? "right" : "top"}
+          >
+            <button
+              type="button"
+              className={styles.railBottomButton}
+              onClick={handleMiddleToggle}
+            >
+              {middleCollapsed ? (
+                <PanelLeft size={RAIL_ICON_SIZE} />
+              ) : (
+                <PanelLeftClose size={RAIL_ICON_SIZE} />
+              )}
+            </button>
+          </Tooltip>
           <Tooltip
             title={railCollapsed ? t("common.expand") : t("common.collapse")}
             placement={railCollapsed ? "right" : "top"}
@@ -1528,11 +1424,16 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
           </Tooltip>
         </div>
       </aside>
+      </DockableSidebar>
 
-      {/* ── Column 2: Middle Panel ──────────────────────────────────────────── */}
+      {/* ── Column 2: Middle Panel (floatable via DockableSidebar) ─────────── */}
+      {!middleCollapsed && (
+      <DockableSidebar
+        width={320}
+        mobile={false}
+      >
       <section className={styles.middlePanel}>
-        {!middleCollapsed && (
-          panelAgentId && panelAgent ? (
+        {panelAgentId && panelAgent ? (
           /* ── State B: Agent Detail ── */
           <div className={styles.agentDetail}>
             {/* Back button + agent name */}
@@ -1681,63 +1582,14 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
                     </span>
                   )}
                 </div>
-                {/* Description with inline edit */}
-                {!panelIsHost && panelAgent.id !== "default" ? (
-                  editingDesc ? (
-                    <div className={styles.inlineEditRow} onClick={(e) => e.stopPropagation()}>
-                      <Input.TextArea
-                        autoFocus
-                        value={descDraft}
-                        onChange={(e) => setDescDraft(e.target.value)}
-                        rows={2}
-                        maxLength={200}
-                        showCount
-                        className={styles.inlineEditInput}
-                        placeholder={t("agent.descriptionPlaceholder", "简要介绍这个智能体")}
-                      />
-                      <div className={styles.inlineEditActions}>
-                        <button
-                          type="button"
-                          className={styles.inlineEditSave}
-                          onClick={() => void handleSaveDesc()}
-                          disabled={savingDesc}
-                          title={t("common.save", "保存")}
-                        >
-                          <Check size={14} />
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.inlineEditCancel}
-                          onClick={() => setEditingDesc(false)}
-                          disabled={savingDesc}
-                          title={t("common.cancel", "取消")}
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div
-                      className={`${styles.detailInfoDesc} ${styles.editableDesc}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDescDraft(panelAgent.description || "");
-                        setEditingDesc(true);
-                      }}
-                      title={t("agent.clickToEdit", "点击编辑简介")}
-                    >
-                      {panelAgent.description || t("agent.noDescription", "暂无简介")}
-                    </div>
-                  )
-                ) : (
-                  <div className={styles.detailInfoDesc}>
-                    {panelIsHost
-                      ? panelHostCleanDesc ||
-                        panelHostMemberNames.join("、") ||
-                        t("agent.noDescription")
-                      : panelAgent.description || t("agent.noDescription")}
-                  </div>
-                )}
+                {/* Description (read-only; edit in drawer) */}
+                <div className={styles.detailInfoDesc}>
+                  {panelIsHost
+                    ? panelHostCleanDesc ||
+                      panelHostMemberNames.join("、") ||
+                      t("agent.noDescription")
+                    : panelAgent.description || t("agent.noDescription", "暂无简介")}
+                </div>
                 {panelIsHost && (
                   <div className={styles.detailHostBadgeRow}>
                     {panelHostModeLabel && (
@@ -1755,63 +1607,6 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
                     )}
                   </div>
                 )}
-                {/* Model display with inline selector */}
-                {!panelIsHost && panelAgent.id !== "default" && panelAgent.backend === "aiarb" && (
-                  <div className={styles.detailModelRow} onClick={(e) => e.stopPropagation()}>
-                    <span className={styles.detailModelLabel}>
-                      <Cpu size={12} />
-                      {t("agent.model", "模型")}
-                    </span>
-                    {modelPickerOpen ? (
-                      <ModelPicker
-                        providers={modelProviders}
-                        loading={loadingProviders}
-                        currentProviderId={panelAgent.active_model?.provider_id}
-                        currentModelId={panelAgent.active_model?.model}
-                        saving={savingModel}
-                        onSave={handleSaveModel}
-                        onCancel={() => setModelPickerOpen(false)}
-                      />
-                    ) : (
-                      <button
-                        type="button"
-                        className={styles.detailModelValue}
-                        onClick={() => setModelPickerOpen(true)}
-                        title={t("agent.clickToChangeModel", "点击更改模型")}
-                      >
-                        {panelAgent.active_model ? (
-                          <>
-                            <img
-                              src={providerIcon(panelAgent.active_model.provider_id)}
-                              alt=""
-                              style={{ width: 14, height: 14 }}
-                            />
-                            <span>{panelAgent.active_model.model}</span>
-                          </>
-                        ) : (
-                          <span className={styles.detailModelPlaceholder}>
-                            {t("agent.modelPlaceholder", "使用全局默认")}
-                          </span>
-                        )}
-                      </button>
-                    )}
-                  </div>
-                )}
-                {/* Backend model for third-party agents */}
-                {!panelIsHost && panelAgent.id !== "default" && panelAgent.backend !== "aiarb" && panelAgent.backend_model && (
-                  <div className={styles.detailModelRow}>
-                    <span className={styles.detailModelLabel}>
-                      <SquareTerminal size={12} />
-                      {t("agent.model", "模型")}
-                    </span>
-                    <span className={styles.detailModelValueStatic}>
-                      {panelAgent.backend_model}
-                      {panelAgent.backend_reasoning_effort
-                        ? ` · ${panelAgent.backend_reasoning_effort}`
-                        : ""}
-                    </span>
-                  </div>
-                )}
                 <div
                   className={styles.detailInfoMeta}
                   onClick={(e) => e.stopPropagation()}
@@ -1825,35 +1620,93 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
               </div>
             </div>
 
-            {/* Quick actions: 新增聊天 / 历史会话 */}
-            <div className={styles.quickActions}>
+            {/* Detail tabs: 会话 / 功能 */}
+            <div className={styles.detailTabs}>
               <button
                 type="button"
-                className={styles.quickActionButton}
-                onClick={handleNewChat}
+                className={`${styles.detailTab}${
+                  detailTab === "sessions" ? ` ${styles.detailTabActive}` : ""
+                }`}
+                onClick={() => setDetailTab("sessions")}
               >
-                <MessageSquarePlus size={16} />
-                <span>{t("chat.newChat", "新增聊天")}</span>
+                <MessageSquareText size={14} />
+                <span>{t("chat.historySessions", "会话")}</span>
               </button>
               <button
                 type="button"
-                className={styles.quickActionButton}
-                onClick={handleHistorySessions}
+                className={`${styles.detailTab}${
+                  detailTab === "features" ? ` ${styles.detailTabActive}` : ""
+                }`}
+                onClick={() => setDetailTab("features")}
               >
-                <History size={16} />
-                <span>{t("chat.historySessions", "历史会话")}</span>
+                <Zap size={14} />
+                <span>{t("nav.features", "功能")}</span>
               </button>
             </div>
 
             <Divider className={styles.detailDivider} />
 
-            {/* Feature grid — 基本信息 + 控制 + 工作区 */}
-            <div className={styles.detailScrollArea}>
-              <div className={styles.featureGrid}>
-              {featureGroups.profile.length > 0 && (
-                <>
-                  <div className={styles.featureGroupHeader}>
-                    {t("agent.basicInfoGroup", "基本信息")}
+            {/* Tab content */}
+            {detailTab === "sessions" ? (
+              <div className={styles.detailSessionList}>
+                <SidebarSessionList
+                  onSessionClick={(chatId: string) => {
+                    navigate(buildChatPath(chatId));
+                  }}
+                />
+              </div>
+            ) : (
+              <div className={styles.detailFeatureTab}>
+                {/* 控制区 */}
+                {featureGroups.control.length > 0 && (
+                  <div className={styles.featureSection}>
+                    <div className={styles.featureSectionHeader}>
+                      {t("nav.control", "控制")}
+                    </div>
+                    <div className={styles.featureCards}>
+                      {featureGroups.control.map((card) => (
+                        <button
+                          key={card.key}
+                          type="button"
+                          className={styles.featureCard}
+                          onClick={() => handleFeatureClick(card)}
+                          title={typeof card.label === "string" ? card.label : undefined}
+                        >
+                          <span className={styles.featureCardIcon}>{card.icon}</span>
+                          <span className={styles.featureCardLabel}>{card.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 工作区 */}
+                {featureGroups.workspace.length > 0 && (
+                  <div className={styles.featureSection}>
+                    <div className={styles.featureSectionHeader}>
+                      {t("nav.workspace", "工作区")}
+                    </div>
+                    <div className={styles.featureCards}>
+                      {featureGroups.workspace.map((card) => (
+                        <button
+                          key={card.key}
+                          type="button"
+                          className={styles.featureCard}
+                          onClick={() => handleFeatureClick(card)}
+                          title={typeof card.label === "string" ? card.label : undefined}
+                        >
+                          <span className={styles.featureCardIcon}>{card.icon}</span>
+                          <span className={styles.featureCardLabel}>{card.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 基本信息 */}
+                <div className={styles.featureSection}>
+                  <div className={styles.featureSectionHeader}>
+                    {t("agent.basicInfo", "基本信息")}
                   </div>
                   <div className={styles.featureCards}>
                     {featureGroups.profile.map((card) => (
@@ -1862,85 +1715,36 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
                         type="button"
                         className={styles.featureCard}
                         onClick={() => handleProfileCardClick(card)}
+                        title={typeof card.label === "string" ? card.label : undefined}
                       >
-                        <span className={styles.featureCardIcon}>
-                          {card.icon}
-                        </span>
-                        <span className={styles.featureCardLabel}>
-                          {card.label}
-                        </span>
+                        <span className={styles.featureCardIcon}>{card.icon}</span>
+                        <span className={styles.featureCardLabel}>{card.label}</span>
                       </button>
                     ))}
                   </div>
-                </>
-              )}
-              {panelIsHost && (
-                <>
-                  <div className={styles.featureGroupHeader}>
-                    {t("hostModal.groupManagement", "群聊管理")}
-                  </div>
-                  <div className={styles.featureCards}>
-                    <button
-                      type="button"
-                      className={styles.featureCard}
-                      onClick={() => setEditGroupAgent(panelAgent)}
-                    >
-                      <span className={styles.featureCardIcon}>
-                        <Users2 size={FEATURE_ICON_SIZE} />
-                      </span>
-                      <span className={styles.featureCardLabel}>
-                        {t("hostModal.editTitle", "编辑群聊")}
-                      </span>
-                    </button>
-                  </div>
-                </>
-              )}
-              {featureGroups.control.length > 0 && (
-                <>
-                  <div className={styles.featureGroupHeader}>控制</div>
-                  <div className={styles.featureCards}>
-                    {featureGroups.control.map((card) => (
-                      <button
-                        key={card.key}
-                        type="button"
-                        className={styles.featureCard}
-                        onClick={() => handleFeatureClick(card)}
-                      >
-                        <span className={styles.featureCardIcon}>
-                          {card.icon}
-                        </span>
-                        <span className={styles.featureCardLabel}>
-                          {card.label}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-              {featureGroups.workspace.length > 0 && (
-                <>
-                  <div className={styles.featureGroupHeader}>工作区</div>
-                  <div className={styles.featureCards}>
-                    {featureGroups.workspace.map((card) => (
-                      <button
-                        key={card.key}
-                        type="button"
-                        className={styles.featureCard}
-                        onClick={() => handleFeatureClick(card)}
-                      >
-                        <span className={styles.featureCardIcon}>
-                          {card.icon}
-                        </span>
-                        <span className={styles.featureCardLabel}>
-                          {card.label}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
+                </div>
+
+                {/* New chat shortcut */}
+                <div className={styles.featureSection}>
+                  <button
+                    type="button"
+                    className={styles.newChatShortcut}
+                    onClick={handleNewChat}
+                  >
+                    <MessageSquarePlus size={16} />
+                    <span>{t("chat.newChat", "新增聊天")}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.newChatShortcut}
+                    onClick={() => handleOpenDrawer(panelAgent, "basic")}
+                  >
+                    <Info size={16} />
+                    <span>{t("agent.details", "详情")}</span>
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         ) : (
           /* ── State A: Agent List ── */
@@ -2035,26 +1839,10 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
             </div>
           </div>
         )
-        )}
-      </section>
-
-      {/* ── Middle panel collapse toggle (independent, floats above all) ──── */}
-      <button
-        type="button"
-        className={styles.middleToggle}
-        onClick={handleMiddleToggle}
-        title={
-          middleCollapsed
-            ? t("common.expand", "展开")
-            : t("common.collapse", "收起")
         }
-      >
-        {middleCollapsed ? (
-          <ChevronRight size={16} />
-        ) : (
-          <ChevronLeft size={16} />
-        )}
-      </button>
+      </section>
+      </DockableSidebar>
+      )}
 
       {/* ── Column 3: Content ────────────────────────────────────────────────── */}
       <Layout.Content className={styles.content}>
@@ -2071,7 +1859,9 @@ const openWorkspaceTab = (_agentId: string, _chatId?: string, _title?: string) =
                 <Spin
                   tip={t("common.loading")}
                   style={{ display: "block", margin: "20vh auto" }}
-                />
+                >
+                  <div />
+                </Spin>
               }
             >
               <Routes>

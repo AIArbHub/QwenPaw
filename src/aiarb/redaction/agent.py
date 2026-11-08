@@ -556,6 +556,26 @@ def redact_file(file_path: str, policy: str = "external_client",
             except Exception as e:
                 result["pdf_redaction_error"] = str(e)
 
+        # 保存脱敏后的文本文件（与 DOCX/TXT 路径保持一致）
+        output_path = path.parent / f"{path.stem}.redacted.md"
+        output_path.write_text(result.get("redacted_text", ""), encoding="utf-8")
+        result["output_file"] = str(output_path)
+
+        # 生成映射文件
+        mapping_path = path.parent / f"{path.stem}.mapping.enc"
+        try:
+            from .renderer import RedactionRenderer
+            renderer = RedactionRenderer()
+            renderer.generate_mapping_file(
+                result.get("mappings", []),
+                str(mapping_path),
+                encrypt=False,
+                cluster_table=result.get("cluster_table", []),
+            )
+            result["mapping_file"] = str(mapping_path)
+        except Exception as e:
+            result["mapping_file_error"] = str(e)
+
         return _serialize_mappings(result)
 
     # --- DOCX 文件脱敏 ---

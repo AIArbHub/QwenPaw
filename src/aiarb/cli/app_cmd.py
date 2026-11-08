@@ -43,7 +43,7 @@ Anyone who can reach this address may access AIARB APIs without login.
 
 Recommended:
   - Restrict access to a trusted network interface or protected environment.
-  - Enable authentication with AIARB_AUTH_ENABLED=true if untrusted users or
+  - Remove AIARB_AUTH_ENABLED=false or set it to true if untrusted users or
     processes may reach this address.
 ============================================================
 """.strip()

@@ -107,7 +107,11 @@ export const chatApi = {
 
   getChat: (
     chatId: string,
-    options?: { signal?: AbortSignal; include_app_owned?: boolean },
+    options?: {
+      signal?: AbortSignal;
+      include_app_owned?: boolean;
+      agentId?: string;
+    },
   ) => {
     const searchParams = new URLSearchParams();
     if (options?.include_app_owned !== undefined)
@@ -120,6 +124,9 @@ export const chatApi = {
       `/chats/${encodeURIComponent(chatId)}${query ? `?${query}` : ""}`,
       {
         signal: options?.signal,
+        headers: options?.agentId
+          ? { "X-Agent-Id": options.agentId }
+          : undefined,
       },
     );
   },
@@ -145,9 +152,12 @@ export const chatApi = {
       body: JSON.stringify(chat),
     }),
 
-  deleteChat: (chatId: string) =>
+  deleteChat: (chatId: string, opts?: { agentId?: string }) =>
     request<ChatDeleteResponse>(`/chats/${encodeURIComponent(chatId)}`, {
       method: "DELETE",
+      headers: opts?.agentId
+        ? { "X-Agent-Id": opts.agentId }
+        : undefined,
     }),
 
   batchDeleteChats: (chatIds: string[]) =>

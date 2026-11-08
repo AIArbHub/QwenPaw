@@ -58,7 +58,7 @@ class TestAuthDisabled:
 
         assert result.exit_code == 0
         assert "Authentication is not enabled." in result.output
-        assert "AIARB_AUTH_ENABLED=true" in result.output
+        assert "AIARB_AUTH_ENABLED=false" in result.output
 
     def test_does_not_prompt_or_save_when_disabled(self, auth_env):
         auth_env["enabled"] = False

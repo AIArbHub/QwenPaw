@@ -416,9 +416,14 @@ class OpenAIResponseProvider(OpenAIProvider):
     def get_chat_model_instance(self, model_id: str) -> ChatModelBase:
         from agentscope.credential import OpenAICredential
 
+        # Guard: local / free-tier providers may have an empty api_key.
+        effective_api_key = self.api_key
+        if not effective_api_key and not self.require_api_key:
+            effective_api_key = f"not-required-{self.id}"
+
         credential = OpenAICredential(
             id=f"aiarb-{self.id}",
-            api_key=self.api_key,
+            api_key=effective_api_key,
             base_url=self.base_url,
         )
 

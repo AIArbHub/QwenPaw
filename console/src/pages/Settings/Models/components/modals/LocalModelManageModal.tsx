@@ -958,6 +958,7 @@ export function LocalModelManageModal({
                         <Button
                           danger
                           size="small"
+                          iconSize="1em"
                           icon={<CloseOutlined size="1em" />}
                           onClick={() =>
                             handleCancelModelDownload(currentModelDownloadName)
@@ -1035,6 +1036,7 @@ export function LocalModelManageModal({
                   <Button
                     type="primary"
                     size="small"
+                    iconSize="1em"
                     icon={<DownloadOutlined size="1em" />}
                     onClick={() => {
                       void handleStartCustomModelDownload();
@@ -1111,6 +1113,7 @@ export function LocalModelManageModal({
                 <Button
                   type="primary"
                   size="small"
+                  iconSize="1em"
                   icon={<SaveOutlined size="1em" />}
                   loading={advancedSaving}
                   disabled={maxContextLength === savedMaxContextLength}
@@ -1153,6 +1156,7 @@ export function LocalModelManageModal({
                 <Button
                   type="primary"
                   size="small"
+                  iconSize="1em"
                   icon={<SaveOutlined size="1em" />}
                   loading={advancedSaving}
                   disabled={serverPort === savedServerPort}
@@ -1192,6 +1196,7 @@ export function LocalModelManageModal({
                 <Button
                   type="primary"
                   size="small"
+                  iconSize="1em"
                   icon={<SaveOutlined size="1em" />}
                   loading={advancedSaving}
                   disabled={

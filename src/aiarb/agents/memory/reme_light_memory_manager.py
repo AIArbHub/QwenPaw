@@ -343,6 +343,18 @@ class ReMeLightMemoryManager(BaseMemoryManager, MemoryActionProvider):
                 self.agent_id,
                 exc,
             )
+        except Exception as exc:
+            # The model factory may raise low-level errors (e.g.
+            # ``openai.OpenAIError`` for missing credentials) that are not
+            # ``ProviderError`` subclasses.  ReMe's provider-free jobs must
+            # still be available in that state, same as above.
+            logger.warning(
+                "ReMe starting without an active AIARB model for agent "
+                "'%s': %s: %s",
+                self.agent_id,
+                type(exc).__name__,
+                exc,
+            )
         try:
             await self._reme.start()
             logger.info(

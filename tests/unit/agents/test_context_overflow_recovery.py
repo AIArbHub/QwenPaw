@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-argument
 """Tests for one-shot recovery from context and request body overflow."""
 
@@ -32,7 +32,7 @@ from aiarb.agents.model_factory import (
     _count_wire_media_blocks,
     _create_file_block_support_formatter,
 )
-from aiarb.agents.react_agent import AIARBAgent
+from aiarb.agents.react_agent import AIArbAgent
 from aiarb.agents.utils.message_request_normalizer import (
     mark_media_omitted_after_overflow,
 )
@@ -85,7 +85,7 @@ class _NoOpScrollManager(_ScrollManager):
 
 
 def _agent(*, context_manager=None):
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent._context_manager = context_manager
     agent.state = SimpleNamespace(context=["old-1", "old-2"])
     agent._prepare_model_input = AsyncMock(
@@ -274,7 +274,7 @@ def test_context_overflow_classifier_requires_400_and_specific_marker(
     expected,
 ):
     exc = Exception(message)
-    assert AIARBAgent._is_context_overflow_error(exc) is expected
+    assert AIArbAgent._is_context_overflow_error(exc) is expected
 
 
 @pytest.mark.parametrize(
@@ -300,13 +300,13 @@ def test_context_overflow_classifier_supports_gemini_client_error(message):
             },
         },
     )
-    assert AIARBAgent._is_context_overflow_error(exc) is True
+    assert AIArbAgent._is_context_overflow_error(exc) is True
 
 
 def test_context_overflow_classifier_supports_aiohttp_response_status():
     exc = Exception("context length exceeded")
     exc.response = SimpleNamespace(status=400)
-    assert AIARBAgent._is_context_overflow_error(exc) is True
+    assert AIArbAgent._is_context_overflow_error(exc) is True
 
 
 class _BodyOverflowError(Exception):
@@ -350,7 +350,7 @@ def _media_history():
 
 
 def _media_agent(history):
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent.state = AgentState(context=history)
     agent._context_manager = None
     agent.formatter = _create_file_block_support_formatter(
@@ -392,7 +392,7 @@ def test_body_limit_classifier(status, message, expected):
     error = _BodyOverflowError(status, message)
     assert is_request_body_too_large(error) is expected
     if expected:
-        assert AIARBAgent._is_context_overflow_error(error) is False
+        assert AIArbAgent._is_context_overflow_error(error) is False
 
 
 @pytest.mark.parametrize(

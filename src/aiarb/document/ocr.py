@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """OCR abstraction layer for aiarb document pipeline.
 
 Supports multiple OCR engines with unified interface:
@@ -44,8 +44,10 @@ Hardware requirements:
   │ MinerU       │ CPU: any; GPU: strongly recommended             │
   │              │ RAM: 8GB+ (16GB+ for GPU mode)                  │
   │              │ Disk: ~10GB (full model download)                │
-  │              │ Install: pip install magic-pdf[full]            │
-  │              │ Requires Python 3.10+                            │
+  │              │ Install: pip install mineru                      │
+  │              │   (formerly magic-pdf, renamed in v4.x)          │
+  │              │ Requires Python 3.11+                            │
+  │              │ Cloud API: mineru.net (no local hardware needed) │
   └──────────────┴──────────────────────────────────────────────────┘
 
 Usage::
@@ -72,6 +74,7 @@ Usage::
 from __future__ import annotations
 
 import base64
+import io
 import json
 import logging
 import tempfile
@@ -91,6 +94,7 @@ class OCREngineType(str, Enum):
     PADDLE = "paddleocr"
     EASY = "easyocr"
     TESSERACT = "tesseract"
+    MINICPM = "minicpm"  # MiniCPM-V multimodal OCR (best accuracy, GPU recommended)
     CLOUD_OCR_SPACE = "cloud-ocr-space"
     CLOUD_BAIDU = "cloud-baidu"
     CLOUD_TENCENT = "cloud-tencent"
@@ -447,6 +451,8 @@ class PaddleOCREngine(BaseOCREngine):
     def is_available(self) -> bool:
         try:
             import paddleocr  # noqa: F401
+            # Verify paddlex sub-dependency is also importable
+            import paddlex  # noqa: F401
             return True
         except ImportError:
             return False
@@ -720,6 +726,216 @@ class TesseractOCREngine(BaseOCREngine):
         )
 
 
+class MiniCPMOCREngine(BaseOCREngine):
+    """MiniCPM-V multimodal OCR engine — best overall accuracy.
+
+    Uses MiniCPM-V (a multimodal LLM) to perform OCR by treating the
+    page image as a visual question-answering task.  This approach
+    excels at:
+      - Handwritten notes and signatures
+      - Low-quality / faded scans
+      - Mixed Chinese-English layouts
+      - Tables with complex structure
+      - Stamps and seal text
+
+    The model is loaded via the ``transformers`` or ``llama-cpp-python``
+    backend (auto-detected).  When a local LLM provider (e.g. Ollama)
+    serves a MiniCPM model, the engine can also delegate through the
+    OpenAI-compatible API.
+
+    Requirements::
+        # Option A: transformers (recommended for GPU)
+        pip install torch transformers accelerate
+        # Model auto-downloads on first use (~4GB for MiniCPM-V-2_6)
+
+        # Option B: through Ollama / llama.cpp (no Python deps)
+        # Just ensure the model is served at http://localhost:11434
+
+    Hardware:
+        - GPU: NVIDIA VRAM ≥ 6GB (strongly recommended)
+        - CPU: works but very slow (~15 sec/page)
+        - RAM: 8GB+ (GPU) / 16GB+ (CPU)
+        - Disk: ~4GB (model weights, cached after first download)
+    """
+
+    engine_name = "minicpm"
+    _model: Any = None
+    _processor: Any = None
+    _backend: str = ""  # "transformers" | "api"
+
+    def __init__(self, config: OCRConfig):
+        super().__init__(config)
+        self._available: bool | None = None
+
+    def is_available(self) -> bool:
+        if self._available is not None:
+            return self._available
+        # Check if transformers + MiniCPM model is importable
+        try:
+            import transformers  # noqa: F401
+            self._backend = "transformers"
+            self._available = True
+            return True
+        except ImportError:
+            pass
+        # Check if there's a local API endpoint configured
+        te = self.config.text_engine
+        if te.mode == "cloud_api" and te.provider in ("minicpm", "ollama"):
+            self._backend = "api"
+            self._available = True
+            return True
+        # Check default Ollama endpoint
+        try:
+            import urllib.request
+            req = urllib.request.Request("http://localhost:11434/api/tags", method="GET")
+            with urllib.request.urlopen(req, timeout=2) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                models = [m.get("name", "") for m in data.get("models", [])]
+                if any("minicpm" in m.lower() for m in models):
+                    self._backend = "api"
+                    self._available = True
+                    return True
+        except Exception:
+            pass
+        self._available = False
+        return False
+
+    def _get_model(self) -> tuple[Any, Any]:
+        """Lazy-load MiniCPM-V model and processor (transformers backend)."""
+        if self._model is not None and self._processor is not None:
+            return self._model, self._processor
+        try:
+            from transformers import AutoModel, AutoTokenizer
+            import torch
+
+            model_name = "openbmb/MiniCPM-V-2_6"
+            logger.info("Loading MiniCPM-V model: %s", model_name)
+
+            device = "cuda" if self.config.text_engine.use_gpu and torch.cuda.is_available() else "cpu"
+            dtype = torch.float16 if device == "cuda" else torch.float32
+
+            self._model = AutoModel.from_pretrained(
+                model_name,
+                trust_remote_code=True,
+                torch_dtype=dtype,
+                device_map="auto" if device == "cuda" else None,
+            )
+            self._processor = AutoTokenizer.from_pretrained(
+                model_name,
+                trust_remote_code=True,
+            )
+            self._model.eval()
+            logger.info("MiniCPM-V loaded on %s", device)
+            return self._model, self._processor
+        except Exception as exc:
+            logger.error("Failed to load MiniCPM-V model: %s", exc)
+            raise RuntimeError(f"MiniCPM-V model loading failed: {exc}") from exc
+
+    def _ocr_via_api(self, image: Any, page_number: int) -> OCRResult:
+        """Call MiniCPM-V through an OpenAI-compatible API (e.g. Ollama)."""
+        import io
+        from PIL import Image
+        import urllib.request
+
+        start = time.perf_counter()
+
+        # Convert image to base64
+        if not isinstance(image, Image.Image):
+            image = Image.fromarray(image)
+        buf = io.BytesIO()
+        image.save(buf, format="PNG")
+        b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+
+        te = self.config.text_engine
+        endpoint = te.endpoint or "http://localhost:11434/v1/chat/completions"
+        model_name = te.model_size or "minicpm-v"
+        # If api_key looks like a model name override, use it
+        if te.api_key and te.api_key.startswith("minicpm"):
+            model_name = te.api_key
+
+        payload = {
+            "model": model_name,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}},
+                        {"type": "text", "text": "请识别并输出图片中的所有文字内容，保持原始排版格式。"},
+                    ],
+                }
+            ],
+            "max_tokens": 4096,
+            "temperature": 0.1,
+        }
+
+        req = urllib.request.Request(
+            endpoint,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            result = json.loads(resp.read().decode("utf-8"))
+
+        elapsed_ms = int((time.perf_counter() - start) * 1000)
+
+        text = ""
+        try:
+            text = result["choices"][0]["message"]["content"].strip()
+        except (KeyError, IndexError):
+            text = json.dumps(result, ensure_ascii=False)
+
+        return OCRResult(
+            text=text,
+            blocks=[{"text": text, "confidence": 0.95, "bbox": None}],
+            confidence=0.95,
+            engine="minicpm",
+            elapsed_ms=elapsed_ms,
+            page_number=page_number,
+            raw=result,
+        )
+
+    def ocr_image(self, image: Any, page_number: int = 0) -> OCRResult:
+        # If using API backend, delegate
+        if self._backend == "api":
+            return self._ocr_via_api(image, page_number)
+
+        # transformers backend
+        import torch
+        from PIL import Image
+
+        start = time.perf_counter()
+        model, tokenizer = self._get_model()
+
+        if not isinstance(image, Image.Image):
+            image = Image.fromarray(image)
+
+        # MiniCPM-V chat API
+        question = "请识别并输出图片中的所有文字内容，保持原始排版格式。"
+        msgs = [{"role": "user", "content": [image, question]}]
+
+        with torch.no_grad():
+            response = model.chat(
+                image=None,
+                msgs=msgs,
+                tokenizer=tokenizer,
+                sampling=False,
+            )
+
+        elapsed_ms = int((time.perf_counter() - start) * 1000)
+        text = response.strip() if isinstance(response, str) else str(response).strip()
+
+        return OCRResult(
+            text=text,
+            blocks=[{"text": text, "confidence": 0.95, "bbox": None}],
+            confidence=0.95,
+            engine="minicpm",
+            elapsed_ms=elapsed_ms,
+            page_number=page_number,
+            raw=response,
+        )
+
+
 class CloudOCREngine(BaseOCREngine):
     """Cloud OCR engine — uses external API (OCR.space by default).
 
@@ -735,8 +951,13 @@ class CloudOCREngine(BaseOCREngine):
     engine_name = "cloud-api"
 
     def is_available(self) -> bool:
-        # Cloud engine always "available" but needs API key at runtime
-        return bool(self.config.cloud_api_key) or self.config.cloud_api_url != ""
+        # Cloud engine available if:
+        # 1. API key is configured, OR
+        # 2. text_engine.mode == "cloud_api" (user explicitly chose cloud mode)
+        te = self.config.text_engine
+        if te.mode == "cloud_api":
+            return True  # User explicitly chose cloud; will fail at runtime if no key
+        return bool(te.api_key) and te.api_key.strip() != ""
 
     def ocr_image(self, image: Any, page_number: int = 0) -> OCRResult:
         import io
@@ -759,48 +980,105 @@ class CloudOCREngine(BaseOCREngine):
         b64 = base64.b64encode(image_bytes).decode("ascii")
 
         # Determine which cloud provider to use
-        url = self.config.cloud_api_url or "https://api.ocr.space/parse/image"
-        headers = {"apikey": self.config.cloud_api_key}
-
         import urllib.request
+        import urllib.parse
 
-        payload = {
-            "base64Image": f"data:image/png;base64,{b64}",
-            "language": self.config.language.upper(),
-            "isOverlayRequired": False,
-            "OCREngine": 2,  # 1=Free, 2=Premium (more accurate)
-            "scale": True,
-            "detectOrientation": True,
-        }
+        te = self.config.text_engine
+        provider = te.provider or "ocr-space"
 
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={**headers, "Content-Type": "application/json"},
-            method="POST",
-        )
+        if provider == "baidu-ocr":
+            # Baidu Cloud OCR: uses access_token query param + form data
+            url = te.endpoint or "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic"
+            params = urllib.parse.urlencode({"access_token": te.api_key})
+            url = f"{url}?{params}"
+            form_data = urllib.parse.urlencode({
+                "image": b64,
+                "language_type": "CHN_ENG" if self.config.language in ("ch", "ch_en") else "ENG",
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                url,
+                data=form_data,
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+                method="POST",
+            )
+        elif provider == "tencent-ocr":
+            # Tencent Cloud OCR: requires signed requests (TC3-HMAC-SHA256)
+            # Simplified: use Bearer token (actual SDK integration recommended)
+            url = te.endpoint or "https://ocr.tencentcloudapi.com/"
+            req = urllib.request.Request(
+                url,
+                data=json.dumps({"Image": b64}).encode("utf-8"),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {te.api_key}",
+                },
+                method="POST",
+            )
+        else:
+            # OCR.space (default)
+            url = te.endpoint or "https://api.ocr.space/parse/image"
+            payload = {
+                "base64Image": f"data:image/png;base64,{b64}",
+                "language": self.config.language.upper(),
+                "isOverlayRequired": False,
+                "OCREngine": 2,
+                "scale": True,
+                "detectOrientation": True,
+            }
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"apikey": te.api_key, "Content-Type": "application/json"},
+                method="POST",
+            )
 
         with urllib.request.urlopen(req, timeout=30) as resp:
             result = json.loads(resp.read().decode("utf-8"))
 
         elapsed_ms = int((time.perf_counter() - start) * 1000)
 
-        # Parse OCR.space response
-        parsed_results = result.get("ParsedResults", [])
+        # Parse response — support multiple cloud provider formats
         text_parts: list[str] = []
         blocks: list[dict[str, Any]] = []
         confidences: list[float] = []
 
-        for pr in parsed_results:
-            line_text = pr.get("ParsedText", "").strip()
-            if line_text:
-                text_parts.append(line_text)
-                confidences.append(1.0)  # OCR.space doesn't provide per-block confidence
-                blocks.append({
-                    "text": line_text,
-                    "confidence": 1.0,
-                    "bbox": None,  # Available if isOverlayRequired=True
-                })
+        # OCR.space format: {"ParsedResults": [{"ParsedText": "..."}]}
+        parsed_results = result.get("ParsedResults", [])
+        if parsed_results:
+            for pr in parsed_results:
+                line_text = pr.get("ParsedText", "").strip()
+                if line_text:
+                    text_parts.append(line_text)
+                    confidences.append(1.0)
+                    blocks.append({"text": line_text, "confidence": 1.0, "bbox": None})
+        else:
+            # Baidu format: {"words_result": [{"words": "..."}]}
+            baidu_results = result.get("words_result", [])
+            if baidu_results:
+                for br in baidu_results:
+                    line_text = br.get("words", "").strip()
+                    if line_text:
+                        text_parts.append(line_text)
+                        confidences.append(1.0)
+                        blocks.append({"text": line_text, "confidence": 1.0, "bbox": None})
+            else:
+                # Tencent format: {"TextDetections": [{"DetectedText": "..."}]}
+                tencent_results = result.get("TextDetections", [])
+                if tencent_results:
+                    for tr in tencent_results:
+                        line_text = tr.get("DetectedText", "").strip()
+                        if line_text:
+                            text_parts.append(line_text)
+                            confidences.append(1.0)
+                            blocks.append({"text": line_text, "confidence": 1.0, "bbox": None})
+                else:
+                    # Fallback: try to extract text from any common field
+                    for key in ("text", "Text", "content", "result"):
+                        if key in result and isinstance(result[key], str):
+                            text_parts.append(result[key])
+                            blocks.append({"text": result[key], "confidence": 1.0, "bbox": None})
+                            confidences.append(1.0)
+                            break
 
         avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
 
@@ -808,7 +1086,7 @@ class CloudOCREngine(BaseOCREngine):
             text="\n".join(text_parts),
             blocks=blocks,
             confidence=avg_conf,
-            engine=f"cloud-{url.split('//')[1].split('.')[0]}",
+            engine=f"cloud-{provider}",
             elapsed_ms=elapsed_ms,
             page_number=page_number,
             raw=result,
@@ -844,11 +1122,11 @@ class MinerUParser:
       - Formula extraction (LaTeX output)
       - Header/footer removal
 
-    Requirements (Python 3.10+)::
-        pip install "magic-pdf[full]"
+    Requirements (Python 3.11+)::
+        pip install mineru
 
-        # Or minimal install:
-        pip install magic-pdf detectron2
+        # Formerly known as magic-pdf (renamed in MinerU 4.x)
+        # Cloud API also available at https://mineru.net
 
     Hardware:
         - CPU: any (very slow, ~30 sec/page)
@@ -867,8 +1145,21 @@ class MinerUParser:
         self._available: bool | None = None
 
     def is_available(self) -> bool:
+        """Check if MinerU is installed.
+
+        Supports both the new ``mineru`` package (v4.x+) and the
+        legacy ``magic_pdf`` package name.
+        """
         if self._available is not None:
             return self._available
+        # Try new package name first (MinerU 4.x+)
+        try:
+            import mineru  # noqa: F401
+            self._available = True
+            return True
+        except ImportError:
+            pass
+        # Fallback to legacy package name
         try:
             import magic_pdf  # noqa: F401
             self._available = True
@@ -968,6 +1259,7 @@ class OCREngine:
             OCREngineType.PADDLE.value: PaddleOCREngine(self.config),
             OCREngineType.EASY.value: EasyOCREngine(self.config),
             OCREngineType.TESSERACT.value: TesseractOCREngine(self.config),
+            OCREngineType.MINICPM.value: MiniCPMOCREngine(self.config),
             OCREngineType.CLOUD_OCR_SPACE.value: CloudOCREngine(self.config),
         }
 
@@ -1016,7 +1308,8 @@ class OCREngine:
         # Auto mode or fallback: try local engines in priority order
         if te.mode == "local" or te.provider == "auto" or te.mode == "cloud_api":
             priority = [
-                OCREngineType.PADDLE.value,
+                OCREngineType.MINICPM.value,   # Best accuracy (multimodal LLM)
+                OCREngineType.PADDLE.value,    # Best Chinese text accuracy
                 OCREngineType.EASY.value,
                 OCREngineType.TESSERACT.value,
             ]
@@ -1071,6 +1364,7 @@ class OCREngine:
             # Try fallback engines
             # Try fallback engines (local priority order, then cloud if enabled)
             fallback_chain = [
+                OCREngineType.MINICPM.value,
                 OCREngineType.PADDLE.value,
                 OCREngineType.EASY.value,
                 OCREngineType.TESSERACT.value,
@@ -1324,6 +1618,7 @@ __all__ = [
     "PaddleOCREngine",
     "EasyOCREngine",
     "TesseractOCREngine",
+    "MiniCPMOCREngine",
     "CloudOCREngine",
     "MinerUParser",
     # Facade

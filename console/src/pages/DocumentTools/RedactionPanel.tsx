@@ -19,6 +19,8 @@ import {
   Empty,
   Divider,
   Progress,
+  Radio,
+  Collapse,
 } from "antd";
 import {
   SafetyCertificateOutlined,
@@ -56,7 +58,6 @@ import {
 import { providerApi } from "../../api/modules/provider";
 import type { ProviderInfo } from "../../api/types";
 import { entityColor, modeColor, formatMode } from "./utils";
-import { Collapse } from "antd";
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -142,7 +143,6 @@ export default function RedactionPanel() {
   );
   const [redactionMode, setRedactionMode] = useState<RedactionMode>("standard");
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("md");
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // --- 处理状态 ---
   const [processing, setProcessing] = useState(false);
@@ -452,6 +452,7 @@ export default function RedactionPanel() {
   const showTextResult = mode === "text" && result;
   const showFileResult = mode === "file" && result;
   const showBatchResult = mode === "batch" && (batchResult || batchResults.length > 0);
+  const isBlackout = redactionMode === "standard" && policy === "public_release";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -560,113 +561,99 @@ export default function RedactionPanel() {
         )}
       </Card>
 
-      {/* 操作栏 */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-        <Space wrap>
-          {/* 脱敏模式快速切换 */}
-          <div style={{ display: "flex", gap: 8 }}>
-            <div
-              onClick={() => setRedactionMode("standard")}
-              style={{
-                cursor: "pointer",
-                borderRadius: 8,
-                border: redactionMode === "standard" ? "2px solid #1677ff" : "1px solid #d9d9d9",
-                background: redactionMode === "standard" ? "rgba(22,119,255,0.04)" : "transparent",
-                padding: "8px 12px",
-                transition: "all 0.2s",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <SafetyOutlined style={{ color: redactionMode === "standard" ? "#1677ff" : "#999" }} />
-              <Text strong style={{ fontSize: 13 }}>{t("documentTools.redaction.standardMode", "标准脱敏")}</Text>
-            </div>
-            <div
-              onClick={() => setRedactionMode("agent_enhanced")}
-              style={{
-                cursor: "pointer",
-                borderRadius: 8,
-                border: redactionMode === "agent_enhanced" ? "2px solid #1677ff" : "1px solid #d9d9d9",
-                background: redactionMode === "agent_enhanced" ? "rgba(22,119,255,0.04)" : "transparent",
-                padding: "8px 12px",
-                transition: "all 0.2s",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <ScanOutlined style={{ color: redactionMode === "agent_enhanced" ? "#1677ff" : "#999" }} />
-              <Text strong style={{ fontSize: 13 }}>{t("documentTools.redaction.agentEnhanced", "Agent 增强")}</Text>
-            </div>
-            <div
-              onClick={() => { setRedactionMode("standard"); setPolicy("public_release"); setStrengthLevel("L1"); }}
-              style={{
-                cursor: "pointer",
-                borderRadius: 8,
-                border: redactionMode === "standard" && policy === "public_release" ? "2px solid #ff4d4f" : "1px solid #d9d9d9",
-                background: redactionMode === "standard" && policy === "public_release" ? "rgba(255,77,79,0.04)" : "transparent",
-                padding: "8px 12px",
-                transition: "all 0.2s",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <div style={{ width: 14, height: 14, borderRadius: 2, background: "#333", border: "1px solid #555" }} />
-              <Text strong style={{ fontSize: 13 }}>{t("documentTools.redaction.blackoutMode", "涂黑")}</Text>
-            </div>
-          </div>
-
-          {/* Agent 模型选择（仅 Agent 模式） */}
-          {redactionMode === "agent_enhanced" && (
+      {/* 脱敏方式选择 — 紧凑Radio */}
+      <Card size="small">
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+          <Tag color="blue" style={{ fontSize: 14, padding: "2px 10px", borderRadius: 6 }}>2</Tag>
+          <Text strong style={{ fontSize: 16 }}>选择脱敏方式</Text>
+        </div>
+        <Radio.Group
+          value={isBlackout ? "blackout" : redactionMode}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (val === "blackout") {
+              setRedactionMode("standard");
+              setPolicy("public_release");
+              setStrengthLevel("L1");
+            } else {
+              setRedactionMode(val as RedactionMode);
+              if (policy === "public_release") setPolicy("external_client");
+            }
+          }}
+          buttonStyle="solid"
+          style={{ width: "100%" }}
+        >
+          <Radio.Button value="standard" style={{ height: 44, fontSize: 15, textAlign: "center", width: "33.3%" }}>
+            <SafetyOutlined style={{ marginRight: 6 }} />
+            标准脱敏
+            <div style={{ fontSize: 11, fontWeight: 400, opacity: 0.7 }}>保留姓氏，如「张某某」</div>
+          </Radio.Button>
+          <Radio.Button value="agent_enhanced" style={{ height: 44, fontSize: 15, textAlign: "center", width: "33.3%" }}>
+            <ScanOutlined style={{ marginRight: 6 }} />
+            AI 复核脱敏
+            <div style={{ fontSize: 11, fontWeight: 400, opacity: 0.7 }}>AI 智能复核，防遗漏</div>
+          </Radio.Button>
+          <Radio.Button value="blackout" style={{ height: 44, fontSize: 15, textAlign: "center", width: "33.3%" }}>
+            <div style={{ width: 14, height: 14, borderRadius: 2, background: "#333", border: "1px solid #555", display: "inline-block", marginRight: 6, verticalAlign: "middle" }} />
+            完全涂黑
+            <div style={{ fontSize: 11, fontWeight: 400, opacity: 0.7 }}>不可逆，适合公开发布</div>
+          </Radio.Button>
+        </Radio.Group>
+        {redactionMode === "agent_enhanced" && (
+          <div style={{ marginTop: 10 }}>
             <Select
-              value={agentModel}
-              onChange={setAgentModel}
-              style={{ width: 280 }}
-              loading={loadingModels}
-              allowClear
-              placeholder={t("documentTools.redaction.useGlobalDefault", "使用全局默认模型")}
+              value={agentModel} onChange={setAgentModel}
+              style={{ width: 320 }}
+              loading={loadingModels} allowClear
+              placeholder={t("documentTools.redaction.useGlobalDefault", "使用默认模型")}
               options={agentModelOptions}
-              notFoundContent={
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("documentTools.redaction.noModelsAvailable", "暂无可用模型")} style={{ padding: "8px 0" }} />
-              }
+              notFoundContent={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("documentTools.redaction.noModelsAvailable", "暂无可用模型")} style={{ padding: "8px 0" }} />}
             />
-          )}
-        </Space>
+          </div>
+        )}
+        <Collapse
+          size="small" ghost
+          style={{ marginTop: 4 }}
+          items={[{
+            key: "advanced",
+            label: <span style={{ fontSize: 13, color: "#888" }}>{t("documentTools.redaction.advancedSettings", "高级设置")}</span>,
+            children: (
+              <Row gutter={[12, 8]}>
+                <Col span={8}>
+                  <Select value={policy} onChange={setPolicy} style={{ width: "100%" }} options={policies.map((p) => ({ label: `${p.name} (${p.id})`, value: p.id }))} />
+                </Col>
+                <Col span={8}>
+                  <Select value={strengthLevel} onChange={setStrengthLevel} style={{ width: "100%" }} allowClear placeholder="强度级别"
+                    options={[{ label: "L1 - 高度", value: "L1" }, { label: "L2 - 中度", value: "L2" }, { label: "L3 - 轻度", value: "L3" }, { label: "L4 - 名义", value: "L4" }]}
+                  />
+                </Col>
+                {mode !== "text" && (
+                  <Col span={8}>
+                    <Select value={outputFormat} onChange={setOutputFormat} style={{ width: "100%" }}
+                      options={[{ label: "Markdown", value: "md" }, { label: "TXT", value: "txt" }, { label: "PDF", value: "pdf" }]}
+                    />
+                  </Col>
+                )}
+              </Row>
+            ),
+          }]}
+        />
+      </Card>
 
-        <Space>
-          {/* History toggle */}
-          <Button
-            type="text"
-            size="small"
-            icon={<HistoryOutlined />}
-            onClick={() => setShowHistory(!showHistory)}
-          >
-            {t("documentTools.redaction.history", "脱敏记录")}
-            {history.length > 0 && <Tag style={{ marginLeft: 4 }} color="blue">{history.length}</Tag>}
-          </Button>
-
-          {/* Advanced settings toggle */}
-          <Button type="text" size="small" onClick={() => setShowAdvanced(!showAdvanced)}>
-            {t("documentTools.redaction.advancedSettings", "高级设置")}
-            {showAdvanced ? " ▲" : " ▼"}
-          </Button>
-
-          {/* 执行按钮 */}
-          <Button
-            type="primary"
-            size="large"
-            icon={processing ? <LoadingOutlined /> : <SafetyCertificateOutlined />}
-            onClick={handleRedact}
-            loading={processing}
-            disabled={!hasInput}
-          >
-            {processing
-              ? t("documentTools.redaction.processing", "正在脱敏...")
-              : t("documentTools.redaction.execute", "执行脱敏")}
-          </Button>
-        </Space>
+      {/* 操作栏 */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <Button type="text" icon={<HistoryOutlined />} onClick={() => setShowHistory(!showHistory)} style={{ fontSize: 14 }}>
+          {t("documentTools.redaction.history", "脱敏记录")}
+          {history.length > 0 && <Tag style={{ marginLeft: 4 }} color="blue">{history.length}</Tag>}
+        </Button>
+        <Button
+          type="primary" size="large"
+          icon={processing ? <LoadingOutlined /> : <SafetyCertificateOutlined />}
+          onClick={handleRedact} loading={processing} disabled={!hasInput}
+          style={{ fontSize: 17, height: 48, paddingLeft: 40, paddingRight: 40 }}
+        >
+          {processing ? t("documentTools.redaction.processing", "正在脱敏...") : t("documentTools.redaction.execute", "开始脱敏")}
+        </Button>
       </div>
 
       {/* Redaction history (collapsible) */}
@@ -749,70 +736,6 @@ export default function RedactionPanel() {
                 },
               ]}
             />
-          )}
-        </Card>
-      )}
-
-      {/* 高级设置（折叠） */}
-      {showAdvanced && (
-        <Card size="small" style={{ background: "#fafafa" }}>
-          <Row gutter={[16, 12]}>
-            <Col span={8}>
-              <div>
-                <Text strong style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
-                  {t("documentTools.redaction.selectPolicy", "脱敏策略")}
-                </Text>
-                <Select
-                  value={policy}
-                  onChange={setPolicy}
-                  style={{ width: "100%" }}
-                  options={policies.map((p) => ({ label: `${p.name} (${p.id})`, value: p.id }))}
-                />
-              </div>
-            </Col>
-            <Col span={8}>
-              <div>
-                <Text strong style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
-                  {t("documentTools.redaction.strengthLevel", "强度级别")}
-                </Text>
-                <Select
-                  value={strengthLevel}
-                  onChange={setStrengthLevel}
-                  style={{ width: "100%" }}
-                  allowClear
-                  options={[
-                    { label: "L1 - 高度", value: "L1" },
-                    { label: "L2 - 中度", value: "L2" },
-                    { label: "L3 - 轻度", value: "L3" },
-                    { label: "L4 - 名义", value: "L4" },
-                  ]}
-                />
-              </div>
-            </Col>
-            {mode !== "text" && (
-              <Col span={8}>
-                <div>
-                  <Text strong style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
-                    {t("documentTools.redaction.outputFormat", "输出格式")}
-                  </Text>
-                  <Select
-                    value={outputFormat}
-                    onChange={setOutputFormat}
-                    style={{ width: "100%" }}
-                    options={[
-                      { label: "Markdown", value: "md" },
-                      { label: "TXT", value: "txt" },
-                      { label: "PDF", value: "pdf" },
-                    ]}
-                  />
-                </div>
-              </Col>
-            )}
-          </Row>
-          {strengthLevel && strengthLevels.length > 0 && (
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              {strengthLevels.find((s) => s.id === strengthLevel)?.description || ""}
-            </Text>
           )}
         </Card>
       )}
@@ -946,44 +869,6 @@ export default function RedactionPanel() {
         </Card>
       )}
 
-      {/* Bottom reference info — collapsed by default to keep page clean */}
-      <Collapse
-        size="small"
-        items={[
-          {
-            key: "strength-levels",
-            label: t("documentTools.redaction.strengthLevelsTitle", "脱敏强度级别说明"),
-            children: strengthLevels.length > 0 ? (
-              <Space wrap>
-                {strengthLevels.map((s) => (
-                  <Tooltip key={s.id} title={s.description}>
-                    <Tag color={s.id === "L1" ? "red" : s.id === "L2" ? "orange" : s.id === "L3" ? "blue" : "green"} style={{ padding: "4px 12px", fontSize: 13 }}>
-                      <Text strong>{s.id}</Text> - {s.name}
-                    </Tag>
-                  </Tooltip>
-                ))}
-              </Space>
-            ) : (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("documentTools.redaction.noData", "暂无数据")} />
-            ),
-          },
-          {
-            key: "entity-types",
-            label: t("documentTools.redaction.entityTypes", "支持的实体类型"),
-            children: entities.length > 0 ? (
-              <Space wrap>
-                {entities.map((e) => (
-                  <Tooltip key={e.id} title={e.description}>
-                    <Tag color={entityColor(e.id)}>{e.name} ({e.id})</Tag>
-                  </Tooltip>
-                ))}
-              </Space>
-            ) : (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("documentTools.redaction.noData", "暂无数据")} />
-            ),
-          },
-        ]}
-      />
     </div>
   );
 }
@@ -1031,143 +916,158 @@ function RedactionResult({
         />
       )}
 
-      {result.cluster_table.length > 0 && (
-        <div style={{ marginTop: 12 }}>
-          <Text strong>{t("documentTools.redaction.clusterTable", "实体聚类表（同一主体多称谓统一映射）")}</Text>
-          <Table
-            size="small"
-            style={{ marginTop: 8 }}
-            pagination={false}
-            dataSource={result.cluster_table}
-            rowKey="cluster_id"
-            columns={[
-              { title: "Cluster ID", dataIndex: "cluster_id", width: 200 },
-              { title: t("documentTools.redaction.canonicalName", "规范名称"), dataIndex: "canonical", width: 200 },
-              { title: t("documentTools.redaction.redactedForm", "脱敏形式"), dataIndex: "redacted", width: 200 },
-              {
-                title: t("documentTools.redaction.mentions", "所有称谓"),
-                dataIndex: "mentions",
-                render: (mentions: string[]) => (
-                  <Space wrap>{mentions.map((m, i) => <Tag key={i}>{m}</Tag>)}</Space>
-                ),
-              },
-            ]}
-          />
-        </div>
-      )}
-
-      {result.mappings.length > 0 && (
-        <div style={{ marginTop: 12 }}>
-          <Divider><Text strong>{t("documentTools.redaction.mappingDetails", "脱敏映射详情")}</Text></Divider>
-          <Table
-            size="small"
-            pagination={{ pageSize: 20, showSizeChanger: true }}
-            scroll={{ x: 800 }}
-            dataSource={result.mappings}
-            rowKey={(r) => r.entity_id}
-            columns={[
-              { title: "ID", dataIndex: "entity_id", width: 120, ellipsis: true },
-              { title: t("documentTools.redaction.type", "类型"), dataIndex: "entity_type", width: 120, render: (v: string) => <Tag color={entityColor(v)}>{v}</Tag> },
-              { title: t("documentTools.redaction.original", "原文"), dataIndex: "original", width: 200, ellipsis: true },
-              { title: t("documentTools.redaction.redacted", "脱敏后"), dataIndex: "redacted", width: 200, ellipsis: true, render: (v: string) => <Text code>{v}</Text> },
-              { title: t("documentTools.redaction.mode", "模式"), dataIndex: "mode", width: 120, render: (v: string) => <Tag color={modeColor(v)}>{formatMode(v)}</Tag> },
-              { title: t("documentTools.redaction.confidence", "置信度"), dataIndex: "confidence", width: 80, render: (v: number) => v.toFixed(2) },
-            ]}
-          />
-        </div>
-      )}
-
       {result.mappings.length === 0 && (
         <Empty description={t("documentTools.redaction.noEntitiesFound", "未检测到敏感实体")} style={{ marginTop: 16 }} />
       )}
 
-      {(result.output_file || result.mapping_file) && (
-        <div style={{ marginTop: 12 }}>
-          <Divider><Text strong>{t("documentTools.redaction.outputInfo", "输出文件")}</Text></Divider>
-          <Space style={{ marginBottom: 12 }}>
-            {result.output_file && (
-              <>
-                <Button
-                  size="small"
-                  icon={<EyeOutlined />}
-                  onClick={async () => {
-                    try {
-                      const preview = await documentToolsApi.previewFile(result.output_file!);
-                      if (preview.is_binary) {
-                        // For binary files, open with system app
-                        await documentToolsApi.openFile(result.output_file!);
-                      } else if (preview.content) {
-                        // For text files, show in new window
-                        const w = window.open("", "_blank");
-                        if (w) {
-                          w.document.write(`<pre style="white-space:pre-wrap;word-break:break-word;font-family:monospace;font-size:14px;padding:16px;">${preview.content.replace(/</g, "&lt;")}</pre>`);
-                          w.document.title = preview.file_name;
-                        }
-                      }
-                    } catch (e: any) {
-                      message.error(e?.message || "预览失败");
-                    }
-                  }}
-                >
-                  {t("documentTools.redaction.preview", "预览")}
-                </Button>
-                <Button
-                  size="small"
-                  icon={<FileDoneOutlined />}
-                  onClick={async () => {
-                    try {
-                      await documentToolsApi.openFile(result.output_file!);
-                    } catch (e: any) {
-                      message.error(e?.message || "打开文件失败");
-                    }
-                  }}
-                >
-                  {t("documentTools.redaction.openFile", "打开")}
-                </Button>
-                <Button
-                  size="small"
-                  icon={<FolderOpenOutlined />}
-                  onClick={async () => {
-                    try {
-                      const parts = result.output_file!.split(/[\\/]/);
-                      const folder = parts.slice(0, -1).join("/");
-                      await documentToolsApi.revealInFolder(folder, result.output_file!);
-                    } catch (e: any) {
-                      message.error(e?.message || "打开文件夹失败");
-                    }
-                  }}
-                >
-                  {t("documentTools.redaction.openFolder", "所在文件夹")}
-                </Button>
-              </>
-            )}
-          </Space>
-          <Descriptions size="small" column={1} bordered>
-            {result.output_file && (
-              <Descriptions.Item label={t("documentTools.redaction.outputFile", "脱敏后文件")}>
-                <Space>
-                  <Tooltip title={result.output_file}>
-                    <Text copyable={{ text: result.output_file }} ellipsis style={{ maxWidth: 350 }}>{result.output_file.split(/[\\/]/).pop()}</Text>
-                  </Tooltip>
-                  <Tag color="green">{result.output_format || "md"}</Tag>
-                </Space>
-              </Descriptions.Item>
-            )}
-            {result.mapping_file && (
-              <Descriptions.Item label={t("documentTools.redaction.mappingFile", "映射还原文件")}>
-                <Space>
-                  <Tooltip title={result.mapping_file}>
-                    <Text copyable={{ text: result.mapping_file }} ellipsis style={{ maxWidth: 350 }}>{result.mapping_file.split(/[\\/]/).pop()}</Text>
-                  </Tooltip>
-                  <Tag color="blue">.mapping.enc</Tag>
-                </Space>
-              </Descriptions.Item>
-            )}
-            {result.document_name && (
-              <Descriptions.Item label={t("documentTools.redaction.documentName", "文档名称")}>{result.document_name}</Descriptions.Item>
-            )}
-          </Descriptions>
-        </div>
+      {/* 聚类表 + 映射详情 + 输出文件 — 默认折叠 */}
+      {(result.cluster_table.length > 0 || result.mappings.length > 0 || result.output_file || result.mapping_file) && (
+        <Collapse
+          size="small"
+          style={{ marginTop: 12 }}
+          items={[
+            {
+              key: "details",
+              label: <span style={{ fontSize: 13, fontWeight: 500 }}>脱敏详情（点击展开）</span>,
+              children: (
+                <>
+                  {result.cluster_table.length > 0 && (
+                    <div style={{ marginBottom: 12 }}>
+                      <Text strong>{t("documentTools.redaction.clusterTable", "实体聚类表（同一主体多称谓统一映射）")}</Text>
+                      <Table
+                        size="small"
+                        style={{ marginTop: 8 }}
+                        pagination={false}
+                        dataSource={result.cluster_table}
+                        rowKey="cluster_id"
+                        columns={[
+                          { title: "Cluster ID", dataIndex: "cluster_id", width: 200 },
+                          { title: t("documentTools.redaction.canonicalName", "规范名称"), dataIndex: "canonical", width: 200 },
+                          { title: t("documentTools.redaction.redactedForm", "脱敏形式"), dataIndex: "redacted", width: 200 },
+                          {
+                            title: t("documentTools.redaction.mentions", "所有称谓"),
+                            dataIndex: "mentions",
+                            render: (mentions: string[]) => (
+                              <Space wrap>{mentions.map((m, i) => <Tag key={i}>{m}</Tag>)}</Space>
+                            ),
+                          },
+                        ]}
+                      />
+                    </div>
+                  )}
+
+                  {result.mappings.length > 0 && (
+                    <div>
+                      <Divider><Text strong>{t("documentTools.redaction.mappingDetails", "脱敏映射详情")}</Text></Divider>
+                      <Table
+                        size="small"
+                        pagination={{ pageSize: 20, showSizeChanger: true }}
+                        scroll={{ x: 800 }}
+                        dataSource={result.mappings}
+                        rowKey={(r) => r.entity_id}
+                        columns={[
+                          { title: "ID", dataIndex: "entity_id", width: 120, ellipsis: true },
+                          { title: t("documentTools.redaction.type", "类型"), dataIndex: "entity_type", width: 120, render: (v: string) => <Tag color={entityColor(v)}>{v}</Tag> },
+                          { title: t("documentTools.redaction.original", "原文"), dataIndex: "original", width: 200, ellipsis: true },
+                          { title: t("documentTools.redaction.redacted", "脱敏后"), dataIndex: "redacted", width: 200, ellipsis: true, render: (v: string) => <Text code>{v}</Text> },
+                          { title: t("documentTools.redaction.mode", "模式"), dataIndex: "mode", width: 120, render: (v: string) => <Tag color={modeColor(v)}>{formatMode(v)}</Tag> },
+                          { title: t("documentTools.redaction.confidence", "置信度"), dataIndex: "confidence", width: 80, render: (v: number) => v.toFixed(2) },
+                        ]}
+                      />
+                    </div>
+                  )}
+
+                  {(result.output_file || result.mapping_file) && (
+                    <div style={{ marginTop: 12 }}>
+                      <Divider><Text strong>{t("documentTools.redaction.outputInfo", "输出文件")}</Text></Divider>
+                      <Space style={{ marginBottom: 12 }}>
+                        {result.output_file && (
+                          <>
+                            <Button
+                              size="small"
+                              icon={<EyeOutlined />}
+                              onClick={async () => {
+                                try {
+                                  const preview = await documentToolsApi.previewFile(result.output_file!);
+                                  if (preview.is_binary) {
+                                    await documentToolsApi.openFile(result.output_file!);
+                                  } else if (preview.content) {
+                                    const w = window.open("", "_blank");
+                                    if (w) {
+                                      w.document.write(`<pre style="white-space:pre-wrap;word-break:break-word;font-family:monospace;font-size:14px;padding:16px;">${preview.content.replace(/</g, "&lt;")}</pre>`);
+                                      w.document.title = preview.file_name;
+                                    }
+                                  }
+                                } catch (e: any) {
+                                  message.error(e?.message || "预览失败");
+                                }
+                              }}
+                            >
+                              {t("documentTools.redaction.preview", "预览")}
+                            </Button>
+                            <Button
+                              size="small"
+                              icon={<FileDoneOutlined />}
+                              onClick={async () => {
+                                try {
+                                  await documentToolsApi.openFile(result.output_file!);
+                                } catch (e: any) {
+                                  message.error(e?.message || "打开文件失败");
+                                }
+                              }}
+                            >
+                              {t("documentTools.redaction.openFile", "打开")}
+                            </Button>
+                            <Button
+                              size="small"
+                              icon={<FolderOpenOutlined />}
+                              onClick={async () => {
+                                try {
+                                  const parts = result.output_file!.split(/[\\/]/);
+                                  const folder = parts.slice(0, -1).join("/");
+                                  await documentToolsApi.revealInFolder(folder, result.output_file!);
+                                } catch (e: any) {
+                                  message.error(e?.message || "打开文件夹失败");
+                                }
+                              }}
+                            >
+                              {t("documentTools.redaction.openFolder", "所在文件夹")}
+                            </Button>
+                          </>
+                        )}
+                      </Space>
+                      <Descriptions size="small" column={1} bordered>
+                        {result.output_file && (
+                          <Descriptions.Item label={t("documentTools.redaction.outputFile", "脱敏后文件")}>
+                            <Space>
+                              <Tooltip title={result.output_file}>
+                                <Text copyable={{ text: result.output_file }} ellipsis style={{ maxWidth: 350 }}>{result.output_file.split(/[\\/]/).pop()}</Text>
+                              </Tooltip>
+                              <Tag color="green">{result.output_format || "md"}</Tag>
+                            </Space>
+                          </Descriptions.Item>
+                        )}
+                        {result.mapping_file && (
+                          <Descriptions.Item label={t("documentTools.redaction.mappingFile", "映射还原文件")}>
+                            <Space>
+                              <Tooltip title={result.mapping_file}>
+                                <Text copyable={{ text: result.mapping_file }} ellipsis style={{ maxWidth: 350 }}>{result.mapping_file.split(/[\\/]/).pop()}</Text>
+                              </Tooltip>
+                              <Tag color="blue">.mapping.enc</Tag>
+                            </Space>
+                          </Descriptions.Item>
+                        )}
+                        {result.document_name && (
+                          <Descriptions.Item label={t("documentTools.redaction.documentName", "文档名称")}>{result.document_name}</Descriptions.Item>
+                        )}
+                      </Descriptions>
+                    </div>
+                  )}
+                </>
+              ),
+            },
+          ]}
+        />
       )}
 
       {/* Agent 增强建议 */}

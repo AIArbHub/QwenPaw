@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """ACP streaming regressions and real stdio shutdown checks."""
 
 # pylint: disable=protected-access,unreachable,unused-argument
@@ -27,7 +27,7 @@ import aiarb
 from aiarb.agents.acp import server as acp_server
 from aiarb.agents.acp.server import (
     ACP_KEEPALIVE_META_KEY,
-    AIARBACPAgent,
+    AIArbACPAgent,
 )
 from aiarb.schemas import MessageType, RunStatus
 
@@ -77,7 +77,7 @@ def _unmapped_event():
 
 
 async def _agent_with_stream(monkeypatch, stream):
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
     conn = _RecordingConn()
     agent.on_connect(conn)
 
@@ -139,7 +139,7 @@ async def test_keepalive_covers_workspace_initialization(monkeypatch):
     async def _normal_stream():
         yield _content_event("ok")
 
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
     conn = _RecordingConn()
     agent.on_connect(conn)
 

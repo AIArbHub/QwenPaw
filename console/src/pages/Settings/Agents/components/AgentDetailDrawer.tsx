@@ -945,6 +945,7 @@ export function AgentDetailDrawer({
       onClose={onClose}
       width={720}
       destroyOnHidden
+      forceRender
       extra={
         <Space>
           <Button onClick={onClose}>{t("common.cancel")}</Button>

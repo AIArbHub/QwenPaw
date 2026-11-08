@@ -433,7 +433,7 @@ export default function SettingsCenter() {
         data-theme={isDark ? "dark" : "light"}
       >
         <div className={styles.loading}>
-          <Spin tip={t("common.loading")} />
+          <Spin tip={t("common.loading")}><div /></Spin>
         </div>
       </div>
     );
@@ -639,7 +639,7 @@ export default function SettingsCenter() {
               <ChunkRecoverySuspense
                 fallback={
                   <div className={styles.loading}>
-                    <Spin tip={t("common.loading")} />
+                    <Spin tip={t("common.loading")}><div /></Spin>
                   </div>
                 }
               >

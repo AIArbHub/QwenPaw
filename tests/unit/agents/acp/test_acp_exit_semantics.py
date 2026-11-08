@@ -15,7 +15,7 @@ from google.genai import errors as genai_errors
 
 from aiarb.agents.acp.server import (
     ACPClientDisconnected,
-    AIARBACPAgent,
+    AIArbACPAgent,
     _EnvelopeTracker,
     _prompt_failure_stop_reason,
 )
@@ -109,7 +109,7 @@ def test_internal_error_text_is_not_content_safety():
     ],
 )
 def test_send_update_wraps_transport_failure(error, expected):
-    agent = AIARBACPAgent(agent_id=f"default")
+    agent = AIArbACPAgent(agent_id=f"default")
     agent.on_connect(
         SimpleNamespace(
             session_update=AsyncMock(side_effect=error),

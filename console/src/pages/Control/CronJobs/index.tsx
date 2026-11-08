@@ -843,6 +843,7 @@ function CronJobsPage() {
                       <Button
                         type="text"
                         size="small"
+                        iconSize="1em"
                         aria-label={`${job.name} · ${t("cronJobs.action")}`}
                         className={styles.mobileMoreBtn}
                         icon={<MoreOutlined size="1em" />}

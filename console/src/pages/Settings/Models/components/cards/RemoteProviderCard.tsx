@@ -4,6 +4,7 @@ import { ProviderCardStatus } from "./ProviderCardStatus";
 import { InteractiveCard } from "@/components/interaction/InteractiveCard";
 import { ChevronRight } from "lucide-react";
 import { ProviderCloseButton } from "./ProviderCloseButton";
+import { Alert } from "antd";
 import React, { useState } from "react";
 import { Modal } from "@agentscope-ai/design";
 import type { ProviderInfo } from "../../../../../api/types";
@@ -108,6 +109,29 @@ export const RemoteProviderCard = React.memo(function RemoteProviderCard({
 
       {/* Content - same layout as GroupCard */}
       <div className={styles.groupCardContent}>
+        {/* SiliconFlow promotion */}
+        {provider.id.includes("siliconflow") && (
+          <Alert
+            type="info"
+            showIcon
+            message={
+              <span>
+                硅基流动注册即送全平台通用代金券 16 元（须填写邀请码
+                KvmTp5P8）。
+                <a
+                  href="https://cloud.siliconflow.cn/i/KvmTp5P8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ marginLeft: 4 }}
+                >
+                  点击立即领取 →
+                </a>
+              </span>
+            }
+            style={{ marginBottom: 12 }}
+          />
+        )}
+
         {!isManaged && (
           <>
             <div className={styles.groupCardField}>

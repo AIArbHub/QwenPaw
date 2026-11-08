@@ -15,6 +15,7 @@ import {
   Spin,
   Empty,
   Typography,
+  Space,
 } from "antd";
 import {
   InboxOutlined,
@@ -22,6 +23,8 @@ import {
   FileTextOutlined,
   WarningFilled,
   CheckCircleFilled,
+  RocketOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import {
@@ -103,19 +106,22 @@ export default function IntakePanel() {
                   onChange={(e) => setText(e.target.value)}
                   placeholder={t(
                     "documentTools.intake.textPlaceholder",
-                    "粘贴仲裁文书、合同、法律意见书等文本内容，系统将自动识别文档类型并提取关键实体...",
+                    "粘贴仲裁文书、合同、法律意见书等文本内容，系统将自动识别文档类型并提取关键信息...",
                   )}
                   rows={8}
                   showCount
                   maxLength={50000}
+                  style={{ fontSize: 15 }}
                 />
                 <div style={{ marginTop: 12, textAlign: "right" }}>
                   <Button
                     type="primary"
+                    size="large"
                     icon={<SearchOutlined />}
                     onClick={handleAnalyzeText}
                     loading={analyzing}
                     disabled={!text.trim()}
+                    style={{ fontSize: 16, height: 44 }}
                   >
                     {t("documentTools.intake.analyze", "分析文档类型")}
                   </Button>
@@ -123,7 +129,7 @@ export default function IntakePanel() {
 
                 {analyzing && (
                   <div style={{ textAlign: "center", padding: 40 }}>
-                    <Spin tip={t("common.loading", "加载中...")} />
+                    <Spin tip={t("common.loading", "加载中...")}><div /></Spin>
                   </div>
                 )}
 
@@ -140,6 +146,35 @@ export default function IntakePanel() {
             ),
             children: (
               <div>
+                {/* 适老化提示：扫描件处理说明 */}
+                <Alert
+                  type="info"
+                  showIcon
+                  icon={<RocketOutlined />}
+                  style={{ marginBottom: 12 }}
+                  message="智能文档解析说明"
+                  description={
+                    <div style={{ fontSize: 14, lineHeight: 1.8 }}>
+                      <Space direction="vertical" size={4}>
+                        <div>
+                          <CheckCircleFilled style={{ color: "#52c41a", marginRight: 6 }} />
+                          支持 PDF、Word、TXT、Markdown、HTML 等格式
+                        </div>
+                        <div>
+                          <InfoCircleOutlined style={{ color: "#1677ff", marginRight: 6 }} />
+                          扫描件、图片 PDF 会自动调用 OCR 识别文字
+                        </div>
+                        <div>
+                          <RocketOutlined style={{ color: "#722ed1", marginRight: 6 }} />
+                          复杂表格、双栏排版可启用 MinerU 版面解析（在「OCR 设置」中配置）
+                        </div>
+                        <div style={{ color: "#999", fontSize: 13, marginTop: 4 }}>
+                          提示：解析完成后可查看文档类型、关键信息预览和质量评估报告
+                        </div>
+                      </Space>
+                    </div>
+                  }
+                />
                 <Upload.Dragger
                   accept=".pdf,.docx,.doc,.txt,.md,.markdown,.html,.htm"
                   beforeUpload={handleUpload}
@@ -153,7 +188,9 @@ export default function IntakePanel() {
                           "documentTools.intake.processing",
                           "正在解析文档...",
                         )}
-                      />
+                      >
+                        <div />
+                      </Spin>
                     </div>
                   ) : (
                     <>
@@ -242,14 +279,14 @@ function TextAnalysisResult({ result }: { result: IntakeTextResult }) {
 
       {result.entity_preview.length > 0 && (
         <div style={{ marginTop: 12 }}>
-          <Text strong>
-            {t("documentTools.intake.entityPreview", "实体预览（前30条）")}
+          <Text strong style={{ fontSize: 15 }}>
+            {t("documentTools.intake.entityPreview", "关键信息预览（前30条）")}
           </Text>
           <Row gutter={[8, 8]} style={{ marginTop: 8 }}>
             {result.entity_preview.map((e, i) => (
               <Col key={i} span={12}>
-                <Tag color="geekblue">{e.type}</Tag>
-                <Text ellipsis style={{ maxWidth: 200 }}>
+                <Tag color="geekblue" style={{ fontSize: 13 }}>{e.type}</Tag>
+                <Text ellipsis style={{ maxWidth: 200, fontSize: 14 }}>
                   {e.text}
                 </Text>
               </Col>
@@ -262,7 +299,7 @@ function TextAnalysisResult({ result }: { result: IntakeTextResult }) {
         <Empty
           description={t(
             "documentTools.intake.noEntities",
-            "未提取到法律实体",
+            "未提取到关键信息",
           )}
           style={{ marginTop: 16 }}
         />

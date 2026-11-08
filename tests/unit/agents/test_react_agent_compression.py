@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access
 """Agent-level tests for compression strategy middleware wiring."""
 
@@ -17,7 +17,7 @@ from aiarb.agents.middlewares import (
     MemoryMiddleware,
     auto_memory_turn_state,
 )
-from aiarb.agents.react_agent import AIARBAgent
+from aiarb.agents.react_agent import AIArbAgent
 from aiarb.constant import (
     EXTERNAL_USER_QUERY_MESSAGE_TAG,
     AIARB_MESSAGE_TAG_KEY,
@@ -54,7 +54,7 @@ class _MemoryManager:
 
 def test_aiarb_agent_disables_runtime_state_injection() -> None:
     """The AgentScope 2.0.6 opt-in must preserve AIArb's old prompts."""
-    agent = AIARBAgent(
+    agent = AIArbAgent(
         name="AIArb",
         model=_TokenModel(),
         system_prompt="",
@@ -87,8 +87,8 @@ class _ScrollManager:
 def _scroll_agent(
     memory_manager: _MemoryManager,
     scroll_manager: _ScrollManager,
-) -> AIARBAgent:
-    agent = object.__new__(AIARBAgent)
+) -> AIArbAgent:
+    agent = object.__new__(AIArbAgent)
     Agent.__init__(
         agent,
         name="AIArb",

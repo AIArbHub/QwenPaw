@@ -176,7 +176,7 @@ def test_list_agents_returns_all_profiles(client, fake_config):
     assert {a["id"] for a in body["agents"]} == {"default", "bot"}
     assert {a["startup_status"] for a in body["agents"]} == {"running"}
     backends = {a["id"]: a["backend"] for a in body["agents"]}
-    assert backends == {"default": "AIARB", "bot": "codex"}
+    assert backends == {"default": "aiarb", "bot": "codex"}
 
 
 def test_list_agents_falls_back_to_id_when_load_fails(client, fake_config):
@@ -688,18 +688,16 @@ def test_rebuild_memory_index_rejects_disabled_embedding(
     assert "requires an enabled" in response.json()["detail"]
 
 
-def test_rebuild_all_rejects_disabled_embedding(
+def test_rebuild_all_degrades_to_bm25_when_embedding_disabled(
     client,
     fake_config,
     manager_mock,
 ):
+    """All-scope reindex should succeed (degrade to bm25) when embedding off."""
     agent_config = AgentProfileConfig(id="bot", name="Bot")
     memory_manager = MagicMock(spec=MemoryActionProvider)
     memory_manager.run_action = AsyncMock(
-        side_effect=EmbeddingReindexUnavailableError(
-            "An all-scope index rebuild requires an enabled embedding "
-            "configuration",
-        ),
+        return_value=SimpleNamespace(success=True, answer="ok"),
     )
     manager_mock.get_agent = AsyncMock(
         return_value=MagicMock(memory_manager=memory_manager),
@@ -717,8 +715,8 @@ def test_rebuild_all_rejects_disabled_embedding(
     ):
         response = client.post("/api/agents/bot/memory/reindex")
 
-    assert response.status_code == 409
-    assert "all-scope" in response.json()["detail"]
+    assert response.status_code == 200
+    assert response.json()["status"] == "completed"
 
 
 def test_undo_pending_embedding_reindex_restores_indexed_config(

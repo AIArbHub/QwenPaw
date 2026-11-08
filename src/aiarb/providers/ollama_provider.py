@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """An Ollama provider implementation."""
 
 import os
@@ -44,9 +44,12 @@ class OllamaProvider(OpenAIProvider):
         self.base_url = self._normalize_base_url(self.base_url)
 
     def _client(self, timeout: float = 5) -> AsyncOpenAI:
+        # Ollama never requires an API key, but the OpenAI SDK rejects
+        # empty credentials, so inject a placeholder.
+        effective_api_key = self.api_key or "ollama"
         kwargs: dict = {
             "base_url": self._openai_compatible_base_url(),
-            "api_key": self.api_key,
+            "api_key": effective_api_key,
             "timeout": timeout,
         }
         headers = self._build_default_headers()

@@ -73,7 +73,7 @@ def _api_error(exc: Exception) -> HTTPException:
 async def _require_AIARB_backend(workspace) -> None:
     if (
         await load_agent_config_async(workspace.agent_id)
-    ).backend != "AIARB":
+    ).backend.lower() != "aiarb":
         raise RuntimeError(
             "PawPort requires the destination Agent to use the AIARB "
             "backend",

@@ -215,7 +215,7 @@ export default function CuratorPanel({ open, onClose, onTaskCompleted }: Curator
       open={open}
       onClose={onClose}
       width={480}
-      destroyOnClose
+      destroyOnHidden
     >
       <Tabs
         defaultActiveKey="submit"

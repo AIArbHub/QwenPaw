@@ -165,7 +165,7 @@ def _with_session_model(config, selected):
 
 def decision_settings(config, override: bool | None) -> dict:
     """Resolve the session toggle against agent and global configuration."""
-    configured = config.backend == "AIARB" and bool(
+    configured = config.backend.lower() == "aiarb" and bool(
         config.decision_model
         or ProviderManager.get_instance().default_models["decision"],
     )
@@ -204,7 +204,7 @@ async def thinking_view(
     )
 
     def model_view():
-        if config.backend != f"AIARB":
+        if config.backend.lower() != "aiarb":
             return None, None, ThinkingControl(), None, None, None
         manager = ProviderManager.get_instance()
         slot = config.active_model or manager.get_active_model()

@@ -7,6 +7,8 @@
  *   • markdown – react-markdown with GFM
  *   • html   – read-only sandboxed document
  *   • csv    – parsed table
+ *   • office – xlsx/xls (editable table), docx (editable HTML),
+ *              pptx (text outline), doc/ppt (download prompt)
  */
 
 import {
@@ -32,6 +34,7 @@ import {
   parseMarkdownFrontmatter,
   parseMemoryTags,
 } from "../../utils/markdown";
+import OfficePreview from "./OfficePreview";
 import styles from "./FilePreview.module.less";
 
 // ---------------------------------------------------------------------------
@@ -49,12 +52,22 @@ const IMAGE_EXTS = new Set([
   "bmp",
 ]);
 
+const OFFICE_EXTS = new Set([
+  "doc",
+  "docx",
+  "ppt",
+  "pptx",
+  "xls",
+  "xlsx",
+]);
+
 export type PreviewType =
   | "image"
   | "pdf"
   | "markdown"
   | "html"
   | "csv"
+  | "office"
   | "none";
 
 export function getPreviewType(filePath: string): PreviewType {
@@ -64,6 +77,7 @@ export function getPreviewType(filePath: string): PreviewType {
   if (ext === "md" || ext === "mdx") return "markdown";
   if (ext === "html" || ext === "htm") return "html";
   if (ext === "csv") return "csv";
+  if (OFFICE_EXTS.has(ext)) return "office";
   return "none";
 }
 
@@ -602,6 +616,10 @@ export interface FilePreviewProps {
   projectDirOverride?: string;
   workspaceBacked?: boolean;
   onMemoryTagClick?: (tag: string) => void;
+  /** Called when an Office file is saved as binary. */
+  onSaveBinary?: (path: string, data: ArrayBuffer) => Promise<void>;
+  /** Called when a legacy Office file download is requested. */
+  onDownload?: () => Promise<void>;
 }
 
 export default function FilePreview({
@@ -613,9 +631,23 @@ export default function FilePreview({
   projectDirOverride,
   workspaceBacked,
   onMemoryTagClick,
+  onSaveBinary,
+  onDownload,
 }: FilePreviewProps) {
   const type = getPreviewType(filePath);
 
+  if (type === "office") {
+    return (
+      <OfficePreview
+        filePath={filePath}
+        chatId={chatId}
+        binaryUrl={binaryUrl}
+        root={root}
+        onSaveBinary={onSaveBinary}
+        onDownload={onDownload}
+      />
+    );
+  }
   if (type === "image") {
     return (
       <ImagePreview

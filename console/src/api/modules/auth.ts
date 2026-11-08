@@ -21,6 +21,16 @@ export interface AuthUserResponse {
   username: string;
 }
 
+export interface PasswordResetGuideResponse {
+  cli_command: string;
+  manual_method: {
+    description: string;
+    file_path: string;
+    command: string;
+  };
+  platform: "windows" | "unix";
+}
+
 export const authApi = {
   login: async (username: string, password: string): Promise<LoginResponse> => {
     const res = await fetch(getApiUrl("/auth/login"), {
@@ -59,6 +69,13 @@ export const authApi = {
     if (!res.ok) throw new Error("Failed to check auth status");
     return res.json();
   },
+
+  getPasswordResetGuide:
+    async (): Promise<PasswordResetGuideResponse> => {
+      const res = await fetch(getApiUrl("/auth/password-reset-guide"));
+      if (!res.ok) throw new Error("Failed to get password reset guide");
+      return res.json();
+    },
 
   getCurrentUser: async (): Promise<AuthUserResponse> => {
     const res = await fetch(getApiUrl("/auth/verify"), {

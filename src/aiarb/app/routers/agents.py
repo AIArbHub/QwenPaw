@@ -600,7 +600,7 @@ async def list_agents(request: Request = None) -> AgentListResponse:
                 if template_id.startswith("pawapp:")
                 else None
             )
-            if agent_config.backend == "AIARB":
+            if agent_config.backend.lower() == "aiarb":
                 backend_capabilities = {"workspace_ui": True}
             else:
                 try:
@@ -754,7 +754,7 @@ async def update_backend_settings(
     values = {field: getattr(body, field) for field in body.model_fields_set}
 
     def apply_settings(agent_config: AgentProfileConfig) -> None:
-        if agent_config.backend == "AIARB":
+        if agent_config.backend.lower() == "aiarb":
             raise HTTPException(
                 status_code=409,
                 detail="AIARB models use the native model configuration",
@@ -891,7 +891,7 @@ async def _rollback_AIARBmail_update(
                 _sync_AIARBmail_driver_card,
                 workspace_dir,
                 previous_config.mail,
-                previous_config.backend or "AIARB",
+                previous_config.backend or "aiarb",
                 force_rewrite=previous_config.mail is not None,
             )
         except Exception:  # pylint: disable=broad-except
@@ -921,7 +921,7 @@ async def create_agent(
     uniqueness).  Otherwise a random short UUID is generated.
     """
     _validate_mail_backend_compatibility(request.backend, request.mail)
-    if request.backend != "AIARB":
+    if request.backend.lower() != "aiarb":
         _get_available_third_party_provider(request.backend)
 
     config = await run_sync_io(load_config)
@@ -967,7 +967,7 @@ async def create_agent(
     )
 
     active_model = (
-        request.active_model if request.backend == "AIARB" else None
+        request.active_model if request.backend.lower() == "aiarb" else None
     )
     agent_config = AgentProfileConfig(
         id=new_id,
@@ -1088,7 +1088,7 @@ def _build_copied_agent_config(
     # Mail is only supported for the AIARB backend; silently drop it so
     # copies of legacy "third-party backend + mail" profiles stay valid
     # and no AIARBmail driver card is generated for the new agent.
-    if agent_config.backend.upper() != "AIARB":
+    if agent_config.backend.lower() != "aiarb":
         agent_config.mail = None
     return agent_config
 
@@ -1310,9 +1310,9 @@ async def update_agent(  # pylint: disable=too-many-statements
     effective_backend = (
         agent_config.backend
         if "backend" in agent_config.model_fields_set
-        else getattr(existing_config_snap, "backend", "AIARB")
-    ) or "AIARB"
-    effective_backend = effective_backend.upper()
+        else getattr(existing_config_snap, "backend", "aiarb")
+    ) or "aiarb"
+    # effective_backend is used in case-insensitive comparisons below;
     mail_was_set = "mail" in agent_config.model_fields_set
     existing_mail_snap = getattr(existing_config_snap, "mail", None)
     effective_mail = (
@@ -1440,7 +1440,7 @@ async def update_agent(  # pylint: disable=too-many-statements
             ),
         )
 
-    if updated_config.mail is not None and updated_config.backend.upper() == "AIARB":
+    if updated_config.mail is not None and updated_config.backend.lower() == "aiarb":
         await run_sync_io(
             _ensure_contacts_file,
             workspace_dir,
@@ -2205,7 +2205,7 @@ def _validate_mail_backend_compatibility(
     mail: AgentMailConfig | None,
 ) -> None:
     """Reject mailbox configuration on unsupported agent backends."""
-    if mail is not None and (backend or "AIARB") != "AIARB":
+    if mail is not None and (backend or "aiarb").lower() != "aiarb":
         raise HTTPException(
             status_code=400,
             detail="Mail configuration is only supported for AIARB backend",

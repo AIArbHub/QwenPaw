@@ -189,6 +189,7 @@ export function ACPDrawer({
           <Button
             type="text"
             size="small"
+            iconSize="1em"
             icon={<LinkOutlined size="1em" />}
             onClick={() => openExternalLink(getACPDocsUrl(i18n.language))}
             title={t("acp.docsHelp")}

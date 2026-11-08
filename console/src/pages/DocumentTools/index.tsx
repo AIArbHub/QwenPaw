@@ -5,6 +5,7 @@ import {
   SafetyCertificateOutlined,
   ScanOutlined,
   FileSearchOutlined,
+  UndoOutlined,
 } from "@ant-design/icons";
 import styles from "./index.module.less";
 
@@ -12,6 +13,7 @@ import styles from "./index.module.less";
 const RedactionPanel = lazy(() => import("./RedactionPanel"));
 const OCRConfigPanel = lazy(() => import("./OCRConfigPanel"));
 const IntakePanel = lazy(() => import("./IntakePanel"));
+const RestorePanel = lazy(() => import("./RestorePanel"));
 
 const PanelFallback = () => (
   <div style={{ textAlign: "center", padding: 40 }}>
@@ -25,32 +27,50 @@ export default function DocumentToolsPage() {
   // Sub-panel visibility — controlled by drawer, not tabs
   const [ocrDrawerOpen, setOcrDrawerOpen] = useState(false);
   const [intakeDrawerOpen, setIntakeDrawerOpen] = useState(false);
+  const [restoreDrawerOpen, setRestoreDrawerOpen] = useState(false);
 
   return (
     <section className={styles.documentToolsPage}>
-      {/* Header — minimal, legalwork-inspired */}
+      {/* Header — 大字体、清晰导航 */}
       <header className={styles.docToolsHeader}>
         <div className={styles.docToolsHeaderLeft}>
-          <SafetyCertificateOutlined style={{ fontSize: 22 }} />
+          <SafetyCertificateOutlined style={{ fontSize: 28 }} />
           <span className={styles.docToolsTitle}>
-            {t("documentTools.redaction.tab", "脱敏处理")}
+            {t("documentTools.redaction.tab", "卷宗脱敏")}
           </span>
         </div>
         <div className={styles.docToolsHeaderRight}>
+          <Tooltip title={t("documentTools.restore.tab", "还原")}>
+            <button
+              className={styles.headerActionBtn}
+              onClick={() => setRestoreDrawerOpen(true)}
+            >
+              <UndoOutlined />
+              <span className={styles.headerActionLabel}>
+                {t("documentTools.restore.tab", "还原")}
+              </span>
+            </button>
+          </Tooltip>
           <Tooltip title={t("documentTools.intake.tab", "文档解析")}>
             <button
               className={styles.headerActionBtn}
               onClick={() => setIntakeDrawerOpen(true)}
             >
               <FileSearchOutlined />
+              <span className={styles.headerActionLabel}>
+                {t("documentTools.intake.tab", "文档解析")}
+              </span>
             </button>
           </Tooltip>
-          <Tooltip title={t("documentTools.ocr.tab", "OCR 引擎配置")}>
+          <Tooltip title={t("documentTools.ocr.tab", "OCR 设置")}>
             <button
               className={styles.headerActionBtn}
               onClick={() => setOcrDrawerOpen(true)}
             >
               <ScanOutlined />
+              <span className={styles.headerActionLabel}>
+                {t("documentTools.ocr.tab", "OCR 设置")}
+              </span>
             </button>
           </Tooltip>
         </div>
@@ -63,17 +83,37 @@ export default function DocumentToolsPage() {
         </Suspense>
       </div>
 
-      {/* OCR Config — in a drawer, not a tab */}
+      {/* Restore — in a drawer */}
       <Drawer
         title={
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 16 }}>
+            <UndoOutlined />
+            {t("documentTools.restore.tab", "脱敏还原")}
+          </div>
+        }
+        open={restoreDrawerOpen}
+        onClose={() => setRestoreDrawerOpen(false)}
+        width={720}
+        styles={{
+          body: { padding: 16, overflow: "auto" },
+        }}
+      >
+        <Suspense fallback={<PanelFallback />}>
+          <RestorePanel />
+        </Suspense>
+      </Drawer>
+
+      {/* OCR Config — in a drawer */}
+      <Drawer
+        title={
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 16 }}>
             <ScanOutlined />
-            {t("documentTools.ocr.tab", "OCR 引擎配置")}
+            {t("documentTools.ocr.tab", "OCR 设置")}
           </div>
         }
         open={ocrDrawerOpen}
         onClose={() => setOcrDrawerOpen(false)}
-        width={520}
+        width={560}
         styles={{
           body: { padding: 16, overflow: "auto" },
         }}
@@ -86,14 +126,14 @@ export default function DocumentToolsPage() {
       {/* Intake / Document analysis — in a drawer */}
       <Drawer
         title={
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 16 }}>
             <FileSearchOutlined />
             {t("documentTools.intake.tab", "文档解析")}
           </div>
         }
         open={intakeDrawerOpen}
         onClose={() => setIntakeDrawerOpen(false)}
-        width={640}
+        width={680}
         styles={{
           body: { padding: 16, overflow: "auto" },
         }}

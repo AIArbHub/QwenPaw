@@ -133,7 +133,7 @@ def _infer_type_from_meta(  # pylint: disable=too-many-return-statements
     return PluginType.GENERAL
 
 
-class AIARBVersionConstraint(BaseModel):
+class AIArbVersionConstraint(BaseModel):
     """AIARB version compatibility range (left-closed, right-open).
 
     Semantics: ``>=min, <max``.  When ``max`` is omitted the allowed
@@ -177,7 +177,7 @@ class PluginManifest(BaseModel):
     dependencies: List[str] = Field(default_factory=list)
     min_version: str = "0.1.0"
     max_version: Optional[str] = None
-    AIARB_version: Optional[AIARBVersionConstraint] = None
+    AIARB_version: Optional[AIArbVersionConstraint] = None
     sdk: Optional[Dict[str, Any]] = None
     meta: Dict[str, Any] = Field(default_factory=dict)
     plugin_type: PluginType = PluginType.GENERAL

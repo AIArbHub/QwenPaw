@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for ACP session-scoped MCP Driver registration."""
 
 # pylint: disable=protected-access
@@ -20,7 +20,7 @@ from acp.schema import (
     SseMcpServer,
 )
 
-from aiarb.agents.acp.server import AIARBACPAgent
+from aiarb.agents.acp.server import AIArbACPAgent
 from aiarb.agents.acp.session_mcp import (
     acp_mcp_scope_id,
     build_acp_mcp_driver_cards,
@@ -139,7 +139,7 @@ def test_build_acp_mcp_driver_cards_rejects_duplicate_environment() -> None:
 
 
 async def test_acp_advertises_supported_remote_mcp_transports() -> None:
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
 
     response = await agent.initialize(protocol_version=1)
 
@@ -191,7 +191,7 @@ class _FakeWorkspace:
             yield event
 
 
-class _TestACPAgent(AIARBACPAgent):
+class _TestACPAgent(AIArbACPAgent):
     def __init__(self, workspace: _FakeWorkspace) -> None:
         super().__init__(agent_id="default")
         self._fake_workspace = workspace

@@ -1,5 +1,5 @@
-﻿# -*- coding: utf-8 -*-
-"""Tests for AIARBAgent media classification, stripping, and retry.
+# -*- coding: utf-8 -*-
+"""Tests for AIArbAgent media classification, stripping, and retry.
 
 Covers _is_media_block (dict/object/data-block detection) and
 _strip_media_blocks_from_memory (top-level media removal, nested
@@ -32,7 +32,7 @@ from agentscope.message import (
 )
 
 from aiarb.agents import model_factory
-from aiarb.agents.react_agent import AIARBAgent
+from aiarb.agents.react_agent import AIArbAgent
 from aiarb.agents.tools.send_file import send_file_to_user
 from aiarb.constant import MEDIA_UNSUPPORTED_PLACEHOLDER
 from aiarb.loop.gates import StopAction, StopHandlerResult
@@ -64,9 +64,9 @@ _VIDEO_ZERO_LIMIT = (
 )
 
 
-def _agent_with_context(context: list) -> AIARBAgent:
+def _agent_with_context(context: list) -> AIArbAgent:
     """Build a bare agent with only a state.context — no model needed."""
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent.state = SimpleNamespace(context=context)
     return agent
 
@@ -83,9 +83,9 @@ def _msg_with(blocks: list) -> Msg:
     return msg
 
 
-def _reasoning_agent() -> AIARBAgent:
+def _reasoning_agent() -> AIArbAgent:
     """Build the attributes read by the reasoning retry wrapper."""
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent._context_manager = None
     agent._gate_pending_stop = None
     agent._request_context = {}
@@ -373,7 +373,7 @@ def test_media_payload_rejection_classifier(
 ) -> None:
     """Classify payload failures without matching capability errors."""
     assert (
-        AIARBAgent._is_media_payload_rejection_error(RuntimeError(error))
+        AIArbAgent._is_media_payload_rejection_error(RuntimeError(error))
         is expected
     )
 
@@ -841,6 +841,6 @@ def test_video_classifier_distinguishes_capability_from_request_limits(
 ):
     error = RuntimeError(message)
     assert {
-        "retry": AIARBAgent._is_video_fallback_error(error),
-        "learn": AIARBAgent._is_video_capability_error(error),
+        "retry": AIArbAgent._is_video_fallback_error(error),
+        "learn": AIArbAgent._is_video_capability_error(error),
     } == {"retry": retry, "learn": learn}

@@ -1,4 +1,4 @@
-﻿# Config & Working Directory
+﻿﻿# Config & Working Directory
 
 This page covers:
 
@@ -140,7 +140,7 @@ The two streaming timeouts count only upstream wait time, excluding rate-limiter
 
 | Variable                     | Default | Description                                        |
 | ---------------------------- | ------- | -------------------------------------------------- |
-| `AIARB_AUTH_ENABLED`       | `false` | Whether to enable Web console login authentication |
+| `AIARB_AUTH_ENABLED`       | `true`  | Whether to enable Web console login authentication |
 | `AIARB_AUTH_USERNAME`      | -       | Admin username for auto-registration (optional)    |
 | `AIARB_AUTH_PASSWORD`      | -       | Admin password for auto-registration (optional)    |
 | `AIARB_TOOL_GUARD_ENABLED` | `true`  | Whether to enable tool guard                       |

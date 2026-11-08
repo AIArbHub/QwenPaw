@@ -73,7 +73,7 @@ export const OS_APPS: OsAppDef[] = [
     labelKey: "nav.files",
     fallback: "Files",
     Icon: Files,
-    accent: "#f36b21",
+    accent: "#0065fd",
     defaultW: 1180,
     defaultH: 720,
     minW: 760,

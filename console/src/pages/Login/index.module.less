@@ -218,3 +218,133 @@
     max-height: 55vh;
   }
 }
+
+/* ── Forgot password link ── */
+.forgotPasswordRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.forgotPasswordLink {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--app-text-tertiary);
+  font-size: var(--app-font-caption);
+  cursor: pointer;
+  transition: color 160ms ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--app-text-secondary);
+  }
+}
+
+/* ── Password reset guide modal ── */
+.resetGuide {
+  --reset-code-bg: #f5f5f5;
+  --reset-code-text: #333;
+  --reset-border: #e8e8e8;
+  --reset-warning-bg: #fff7e6;
+  --reset-warning-border: #ffd591;
+  --reset-warning-text: #ad6800;
+  --reset-section-title: #1f1f1f;
+  --reset-hint: #666;
+
+  :global(html.dark-mode) & {
+    --reset-code-bg: rgba(255, 255, 255, 0.06);
+    --reset-code-text: rgba(255, 255, 255, 0.85);
+    --reset-border: rgba(255, 255, 255, 0.1);
+    --reset-warning-bg: rgba(255, 165, 0, 0.08);
+    --reset-warning-border: rgba(255, 165, 0, 0.25);
+    --reset-warning-text: #ffa940;
+    --reset-section-title: rgba(255, 255, 255, 0.9);
+    --reset-hint: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.resetGuideDesc {
+  margin: 0 0 18px;
+  color: var(--reset-hint);
+  font-size: var(--app-font-secondary);
+  line-height: 1.6;
+}
+
+.resetSection {
+  margin-bottom: 20px;
+}
+
+.resetSectionTitle {
+  margin: 0 0 6px;
+  color: var(--reset-section-title);
+  font-size: var(--app-font-body);
+  font-weight: 600;
+}
+
+.resetSectionHint {
+  margin: 0 0 8px;
+  color: var(--reset-hint);
+  font-size: var(--app-font-caption);
+  line-height: 1.5;
+}
+
+.codeBlock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--reset-border);
+  border-radius: 8px;
+  background: var(--reset-code-bg);
+
+  code {
+    flex: 1;
+    overflow-x: auto;
+    color: var(--reset-code-text);
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+.copyBtn {
+  flex-shrink: 0;
+  padding: 2px 10px;
+  border: 1px solid var(--reset-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--reset-hint);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 160ms ease;
+
+  &:hover {
+    color: var(--reset-code-text);
+    border-color: var(--reset-code-text);
+  }
+}
+
+.resetFilePath {
+  margin: 6px 0 0;
+  color: var(--reset-hint);
+  font-size: var(--app-font-caption);
+
+  code {
+    color: var(--reset-code-text);
+    font-size: 12px;
+    word-break: break-all;
+  }
+}
+
+.resetWarning {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--reset-warning-border);
+  border-radius: 8px;
+  background: var(--reset-warning-bg);
+  color: var(--reset-warning-text);
+  font-size: var(--app-font-caption);
+  line-height: 1.6;
+}

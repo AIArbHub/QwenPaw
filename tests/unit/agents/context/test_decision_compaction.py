@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,redefined-outer-name,unused-argument
 """Exercise ReMe proposals against host archives and atomic commits."""
 
@@ -19,8 +19,8 @@ from aiarb.agents.context.types import (
 )
 from aiarb.agents.context.scroll.history import HistoryStore
 from aiarb.agents.context.scroll.manager import ScrollContextManager
-from aiarb.agents.react_agent import AIARBAgent
-from aiarb.agents.offloader import AIARBOffloader
+from aiarb.agents.react_agent import AIArbAgent
+from aiarb.agents.offloader import AIArbOffloader
 from aiarb.config.config import AgentProfileConfig, DecisionCompactConfig
 
 
@@ -72,7 +72,7 @@ def make_agent():
         ),
         _tool_message("active", "active evidence ", tool_input="{}"),
     ]
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent.__dict__.update(
         _agent_config=config,
         _model_session_id="session",
@@ -295,7 +295,7 @@ async def test_failures_and_cancellation_preserve_original_context(
 async def test_native_retries_reuse_archives(model, tmp_path, outcome):
     agent = make_agent()
     original = agent.state.context
-    agent.offloader = AIARBOffloader(
+    agent.offloader = AIArbOffloader(
         str(tmp_path / "dialog"),
         str(tmp_path / "results"),
     )
@@ -337,7 +337,7 @@ async def test_disabled_compaction_does_not_create_component_or_model(
     automatic,
     decision,
 ):
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent._agent_config = AgentProfileConfig(id="agent", name="Agent")
     config = agent._agent_config.running.light_context_config
     config.context_compact_config.enabled = automatic
@@ -518,7 +518,7 @@ async def test_native_dispatch_preserves_manual_compact(
     from agentscope.agent import Agent
 
     fake = make_agent()
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent.__dict__.update(vars(fake))
     agent._context_manager = None
     agent._get_active_formatter = lambda: None

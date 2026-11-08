@@ -2,7 +2,7 @@ import { InteractiveCard } from "@/components/interaction/InteractiveCard";
 import InlineHelp from "@/components/InlineHelp";
 import { Button, Checkbox, Tooltip } from "@agentscope-ai/design";
 import { Dropdown } from "antd";
-import { MoreHorizontal, Send, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pin, PinOff, Send, Trash2 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import cardStyles from "./PoolSkillCard.module.less";
 import { RefreshCw as SyncOutlined } from "lucide-react";
@@ -27,6 +27,8 @@ interface PoolSkillCardProps {
   onBroadcast: (skill: PoolSkillSpec) => void;
   onDelete: (skill: PoolSkillSpec) => void;
   onAutomationQuickAction: (skill: PoolSkillSpec) => void | Promise<void>;
+  onTogglePin?: (name: string) => void;
+  isPinned?: boolean;
 }
 
 export function PoolSkillCard({
@@ -39,6 +41,8 @@ export function PoolSkillCard({
   onBroadcast,
   onDelete,
   onAutomationQuickAction,
+  onTogglePin,
+  isPinned = false,
 }: PoolSkillCardProps) {
   const { t } = useTranslation();
   const reduced = useReducedMotion();
@@ -105,6 +109,29 @@ export function PoolSkillCard({
             {t(isBuiltin ? "skillPool.builtin" : "skillPool.custom")}
             {skill.version_text && <span>v{skill.version_text}</span>}
           </div>
+          {onTogglePin && (
+            <Tooltip
+              title={
+                isPinned
+                  ? t("skills.unpin", "取消置顶")
+                  : t("skills.pin", "置顶")
+              }
+            >
+              <Button
+                type="text"
+                aria-label={
+                  isPinned
+                    ? t("skills.unpin", "取消置顶")
+                    : t("skills.pin", "置顶")
+                }
+                icon={isPinned ? <PinOff size={15} /> : <Pin size={15} />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTogglePin(skill.name);
+                }}
+              />
+            </Tooltip>
+          )}
           {batchModeEnabled ? (
             <Checkbox
               aria-label={skill.name}

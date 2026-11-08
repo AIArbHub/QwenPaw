@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""AIARBLocalWorkspace — routes tool management to ToolRegistry.
+"""AIArbLocalWorkspace — routes tool management to ToolRegistry.
 
 Subclasses AgentScope's :class:`LocalWorkspace` so that
 :meth:`list_tools` returns AIARB's own tools (managed by
@@ -38,7 +38,7 @@ def _is_builtin_self_authorizing_tool(name: str, descriptor: Any) -> bool:
     )
 
 
-class AIARBLocalWorkspace(AgentScopeLocalWorkspace):
+class AIArbLocalWorkspace(AgentScopeLocalWorkspace):
     """LocalWorkspace whose ``list_tools`` delegates to ToolRegistry."""
 
     def __init__(self, tool_registry: ToolRegistry, **kwargs: Any) -> None:
@@ -158,4 +158,4 @@ class AIARBLocalWorkspace(AgentScopeLocalWorkspace):
         return None, denied
 
 
-__all__ = ["AIARBLocalWorkspace"]
+__all__ = ["AIArbLocalWorkspace"]

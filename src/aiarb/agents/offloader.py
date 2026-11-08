@@ -37,7 +37,7 @@ def _write_or_refresh_archive(path: Path, content: str) -> None:
             write_text_atomic(path, content)
 
 
-class AIARBOffloader:
+class AIArbOffloader:
     """Persist compressed context and tool results to disk.
 
     * ``offload_context`` — messages to

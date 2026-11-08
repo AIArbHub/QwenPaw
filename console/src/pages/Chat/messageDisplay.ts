@@ -248,3 +248,39 @@ export function getMemberReplyText(
     .filter(Boolean)
     .join("\n");
 }
+
+/** Check if a member reply was produced by a human (human_override). */
+export function isHumanOverrideMessage(
+  message: IAgentScopeRuntimeMessage,
+): boolean {
+  const meta = (message as unknown as { metadata?: Record<string, unknown> })
+    .metadata;
+  return Boolean(meta?.human_override);
+}
+
+/** Check if a member reply is awaiting human input (human_pending). */
+export function isHumanPendingMessage(
+  message: IAgentScopeRuntimeMessage,
+): boolean {
+  const meta = (message as unknown as { metadata?: Record<string, unknown> })
+    .metadata;
+  return Boolean(meta?.human_pending);
+}
+
+/** Check if a member reply timed out waiting for human input. */
+export function isHumanPendingTimeoutMessage(
+  message: IAgentScopeRuntimeMessage,
+): boolean {
+  const meta = (message as unknown as { metadata?: Record<string, unknown> })
+    .metadata;
+  return Boolean(meta?.human_pending_timeout);
+}
+
+/** Check if a member reply is awaiting human approval (approval_pending). */
+export function isApprovalPendingMessage(
+  message: IAgentScopeRuntimeMessage,
+): boolean {
+  const meta = (message as unknown as { metadata?: Record<string, unknown> })
+    .metadata;
+  return Boolean(meta?.approval_pending);
+}

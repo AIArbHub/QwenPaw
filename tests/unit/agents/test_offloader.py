@@ -23,7 +23,7 @@ import pytest
 from agentscope.message import Msg
 from agentscope.message._block import TextBlock, ToolResultBlock
 
-from aiarb.agents.offloader import AIARBOffloader
+from aiarb.agents.offloader import AIArbOffloader
 from aiarb.utils.io_utils import run_sync_io
 
 
@@ -44,8 +44,8 @@ def _today() -> str:
 
 
 @pytest.fixture(name="offloader")
-def _offloader(tmp_path) -> AIARBOffloader:
-    return AIARBOffloader(
+def _offloader(tmp_path) -> AIArbOffloader:
+    return AIArbOffloader(
         str(tmp_path / "dialog"),
         str(tmp_path / "tools"),
     )
@@ -345,7 +345,7 @@ class TestOffloadToolResult:
 
     async def test_creates_missing_directory(self, tmp_path):
         nested = tmp_path / "deep" / "nested" / "tools"
-        off = AIARBOffloader(str(tmp_path / "dialog"), str(nested))
+        off = AIArbOffloader(str(tmp_path / "dialog"), str(nested))
 
         path = await off.offload_tool_result("s1", _tool_result("x"))
 
@@ -502,7 +502,7 @@ def _age_file(path: Path, days: float) -> None:
 
 class TestCleanupExpired:
     def test_missing_directory_returns_zero(self, tmp_path):
-        off = AIARBOffloader(
+        off = AIArbOffloader(
             str(tmp_path / "dialog"),
             str(tmp_path / "absent"),
         )
@@ -514,7 +514,7 @@ class TestCleanupExpired:
         tools.mkdir()
         keep = tools / "fresh.txt"
         keep.write_text("now", encoding="utf-8")
-        off = AIARBOffloader(str(tmp_path / "dialog"), str(tools))
+        off = AIArbOffloader(str(tmp_path / "dialog"), str(tools))
 
         assert off.cleanup_expired(retention_days=5) == 0
         assert keep.exists()
@@ -527,7 +527,7 @@ class TestCleanupExpired:
         _age_file(old, days=10)
         fresh = tools / "fresh.txt"
         fresh.write_text("recent", encoding="utf-8")
-        off = AIARBOffloader(str(tmp_path / "dialog"), str(tools))
+        off = AIArbOffloader(str(tmp_path / "dialog"), str(tools))
 
         assert off.cleanup_expired(retention_days=5) == 1
         assert not old.exists()
@@ -539,7 +539,7 @@ class TestCleanupExpired:
         three_days = tools / "three.txt"
         three_days.write_text("3d", encoding="utf-8")
         _age_file(three_days, days=3)
-        off = AIARBOffloader(str(tmp_path / "dialog"), str(tools))
+        off = AIArbOffloader(str(tmp_path / "dialog"), str(tools))
 
         # Inside the window: kept.
         assert off.cleanup_expired(retention_days=5) == 0
@@ -554,7 +554,7 @@ class TestCleanupExpired:
         other = tools / "notes.json"
         other.write_text("{}", encoding="utf-8")
         _age_file(other, days=30)
-        off = AIARBOffloader(str(tmp_path / "dialog"), str(tools))
+        off = AIArbOffloader(str(tmp_path / "dialog"), str(tools))
 
         assert off.cleanup_expired(retention_days=1) == 0
         assert other.exists()
@@ -569,7 +569,7 @@ class TestCleanupExpired:
         survivor = tools / "old.txt"
         survivor.write_text("y", encoding="utf-8")
         _age_file(survivor, days=20)
-        off = AIARBOffloader(str(tmp_path / "dialog"), str(tools))
+        off = AIArbOffloader(str(tmp_path / "dialog"), str(tools))
 
         from unittest.mock import patch
 
@@ -592,7 +592,7 @@ class TestCleanupExpired:
         bad = tools / "bad.txt"
         bad.write_text("x", encoding="utf-8")
         _age_file(bad, days=20)
-        off = AIARBOffloader(str(tmp_path / "dialog"), str(tools))
+        off = AIArbOffloader(str(tmp_path / "dialog"), str(tools))
 
         from unittest.mock import patch
 
@@ -619,7 +619,7 @@ class TestCleanupExpired:
         six = tools / "six.txt"
         six.write_text("6d", encoding="utf-8")
         _age_file(six, days=6)
-        off = AIARBOffloader(str(tmp_path / "dialog"), str(tools))
+        off = AIArbOffloader(str(tmp_path / "dialog"), str(tools))
 
         assert off.cleanup_expired() == 1
         assert four.exists()
@@ -643,7 +643,7 @@ class TestCleanupExpired:
         target = tools / "archive.txt"
         target.write_text("x", encoding="utf-8")
         _age_file(target, days=mtime_days)
-        off = AIARBOffloader(str(tmp_path / "dialog"), str(tools))
+        off = AIArbOffloader(str(tmp_path / "dialog"), str(tools))
         real_stat = os.stat
         creation = time.time() - creation_days * 86400
 

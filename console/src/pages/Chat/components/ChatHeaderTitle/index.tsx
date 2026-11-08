@@ -4,6 +4,15 @@ import { useChatAnywhereSessionsState } from "@agentscope-ai/chat";
 import { Check, ChevronDown, Pencil, X, Clock3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCodingMode } from "../../../../stores/codingModeStore";
+import { useAgentStore } from "../../../../stores/agentStore";
+import {
+  agentAvatarColor,
+  agentInitial,
+  isHostAgent,
+  parseHostMeta,
+} from "../../../../utils/hostAgent";
+import { useSidebarModeStore } from "../../../../stores/sidebarModeStore";
+import { getApiUrl } from "../../../../api/config";
 import type { ExtendedSession } from "../../../../stores/sessionListStore";
 import { buildChatPath } from "../../../../utils/sessionRoute";
 import sessionApi from "../../sessionApi";
@@ -41,6 +50,8 @@ const ChatHeaderTitle: React.FC = () => {
     return () => window.clearInterval(timer);
   }, []);
   const { codingMode } = useCodingMode();
+  const { selectedAgent, agents } = useAgentStore();
+  const { mode: sidebarMode } = useSidebarModeStore();
   const currentSession = sessions.find(
     (s) =>
       !!currentSessionId &&
@@ -48,6 +59,68 @@ const ChatHeaderTitle: React.FC = () => {
         (s as ExtendedSession).realId === currentSessionId),
   );
   const chatName = currentSession?.name || "New Chat";
+
+  // When the current agent is a 群聊主持人, show its member avatar stack.
+  const currentAgent = agents.find((a) => a.id === selectedAgent);
+  const isHost = currentAgent ? isHostAgent(currentAgent) : false;
+  const hostMeta =
+    currentAgent && isHost ? parseHostMeta(currentAgent) : null;
+
+  // Resolve agent avatar URL (for non-host agents in design mode).
+  const agentAvatarSrc = (() => {
+    if (!currentAgent || isHost) return "";
+    const avatar = currentAgent.avatar;
+    if (!avatar) return "";
+    if (/^https?:\/\//.test(avatar)) return avatar;
+    const path = avatar.replace(/^\/api/, "");
+    return getApiUrl(path);
+  })();
+
+  // In design mode, show the current agent name + avatar next to the
+  // session title so the user always knows which agent they are chatting
+  // with.  In full / simple mode the sidebar already provides this context.
+  const showAgentBadge = sidebarMode === "design" && currentAgent;
+  const agentBadge = showAgentBadge ? (
+    <span className={styles.agentBadge}>
+      {agentAvatarSrc ? (
+        <img
+          src={agentAvatarSrc}
+          alt={currentAgent!.name}
+          className={styles.agentBadgeAvatar}
+        />
+      ) : (
+        <span
+          className={styles.agentBadgeFallback}
+          style={{
+            backgroundColor: agentAvatarColor(currentAgent!.name),
+          }}
+        >
+          {agentInitial(currentAgent!.name)}
+        </span>
+      )}
+      <span className={styles.agentBadgeName}>{currentAgent!.name}</span>
+    </span>
+  ) : null;
+
+  const memberStack = hostMeta ? (
+    <span className={styles.hostHeaderStack}>
+      {hostMeta.members.slice(0, 4).map((m) => (
+        <span
+          key={m.id}
+          className={styles.hostHeaderAvatar}
+          style={{ backgroundColor: agentAvatarColor(m.name) }}
+          title={m.name}
+        >
+          {agentInitial(m.name)}
+        </span>
+      ))}
+      {hostMeta.members.length > 4 && (
+        <span className={styles.hostHeaderAvatarMore}>
+          +{hostMeta.members.length - 4}
+        </span>
+      )}
+    </span>
+  ) : null;
 
   const [open, setOpen] = useState(false);
 
@@ -197,19 +270,39 @@ const ChatHeaderTitle: React.FC = () => {
           </form>
         ) : (
           <>
-            <button
-              type="button"
-              className={styles.titleEdit}
-              title={backendId ? t("chat.contextMenu.rename") : chatName}
-              disabled={!backendId}
-              onClick={() => {
-                setDraft(chatName);
-                setEditing(true);
-              }}
-            >
-              <span className={className}>{chatName}</span>
-              {backendId && <Pencil size={13} className={styles.editIcon} />}
-            </button>
+            {agentBadge}
+            {memberStack ? (
+              <span className={styles.hostHeaderWrap}>
+                {memberStack}
+                <button
+                  type="button"
+                  className={styles.titleEdit}
+                  title={backendId ? t("chat.contextMenu.rename") : chatName}
+                  disabled={!backendId}
+                  onClick={() => {
+                    setDraft(chatName);
+                    setEditing(true);
+                  }}
+                >
+                  <span className={className}>{chatName}</span>
+                  {backendId && <Pencil size={13} className={styles.editIcon} />}
+                </button>
+              </span>
+            ) : (
+              <button
+                type="button"
+                className={styles.titleEdit}
+                title={backendId ? t("chat.contextMenu.rename") : chatName}
+                disabled={!backendId}
+                onClick={() => {
+                  setDraft(chatName);
+                  setEditing(true);
+                }}
+              >
+                <span className={className}>{chatName}</span>
+                {backendId && <Pencil size={13} className={styles.editIcon} />}
+              </button>
+            )}
             {sessions.length > 1 && (
               <Dropdown
                 menu={{ items: menuItems }}

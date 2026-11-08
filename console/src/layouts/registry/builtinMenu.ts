@@ -119,7 +119,7 @@ export const BUILTIN_MENU: MenuItem[] = [
     location: "primary.agentScoped",
     parentId: "core.agent-files-group",
     label: navLabel("nav.agentFilesPersona", "灵魂人设"),
-    icon: Sparkles,
+    icon: SparkSkillPoolLine,
     route: "core.agent-files-persona",
     order: 20,
   },

@@ -605,7 +605,7 @@ curl -X POST http://localhost:8088/api/console/chat \
 
 ### Web 认证令牌（可选）
 
-如果启用了 [Web 登录认证](./security#Web-登录认证)（`AIARB_AUTH_ENABLED=true`），所有 API 请求都需要提供身份验证令牌。
+如果启用了 [Web 登录认证](./security#Web-登录认证)（默认已开启），所有 API 请求都需要提供身份验证令牌。
 
 #### 注册账号
 
@@ -685,7 +685,6 @@ docker exec -it <容器名> aiarb auth reset-password
 你也可以在启动 AIArb 时通过环境变量自动创建账号：
 
 ```bash
-export AIARB_AUTH_ENABLED=true
 export AIARB_AUTH_USERNAME=admin
 export AIARB_AUTH_PASSWORD=admin123
 aiarb app
@@ -864,25 +863,25 @@ curl -X POST http://localhost:8088/api/auth/update-profile \
 
 如果你不想使用 Web 认证，可以关闭它：
 
-**方法 1：移除环境变量**
+**方法 1：设置 `AIARB_AUTH_ENABLED=false`**
 
 ```bash
 # Linux / macOS
-unset AIARB_AUTH_ENABLED
+export AIARB_AUTH_ENABLED=false
 aiarb app
 
 # Windows (CMD)
-set AIARB_AUTH_ENABLED=
+set AIARB_AUTH_ENABLED=false
 aiarb app
 
 # Windows (PowerShell)
-Remove-Item Env:\AIARB_AUTH_ENABLED
+$env:AIARB_AUTH_ENABLED = "false"
 aiarb app
 ```
 
 **方法 2：Docker 部署**
 
-移除 `-e AIARB_AUTH_ENABLED=true` 参数：
+添加 `-e AIARB_AUTH_ENABLED=false` 参数：
 
 ```bash
 docker run -p 127.0.0.1:8088:8088 \

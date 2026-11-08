@@ -38,7 +38,7 @@ def _get_config_path() -> Path:
 def load_config() -> CloudBackupConfig:
     path = _get_config_path()
     if not path.is_file():
-        logger.info("Cloud config file does not exist: %s", path)
+        logger.debug("Cloud config file does not exist: %s", path)
         return CloudBackupConfig()
     try:
         data = json.loads(path.read_text(encoding="utf-8"))

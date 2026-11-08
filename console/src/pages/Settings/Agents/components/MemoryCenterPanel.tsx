@@ -784,7 +784,7 @@ export function MemoryCenterPanel({ agentId }: MemoryCenterPanelProps) {
         activeKey={activeTab}
         onChange={setActiveTab}
         items={tabs}
-        destroyInactiveTabPane={false}
+        destroyOnHidden={false}
         size="small"
         className={styles.memoryTabs}
       />

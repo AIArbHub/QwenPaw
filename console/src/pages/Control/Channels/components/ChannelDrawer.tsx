@@ -1918,6 +1918,7 @@ export function ChannelDrawer({
           <Button
             type="text"
             size="small"
+            iconSize="1em"
             icon={<LinkOutlined size="1em" />}
             onClick={() => {
               const url =
@@ -1951,6 +1952,7 @@ export function ChannelDrawer({
           <Button
             type="text"
             size="small"
+            iconSize="1em"
             icon={<LinkOutlined size="1em" />}
             onClick={() => openExternalLink(url)}
             className={styles.dingtalkDocBtn}
@@ -1964,6 +1966,7 @@ export function ChannelDrawer({
         <Button
           type="text"
           size="small"
+          iconSize="1em"
           icon={<LinkOutlined size="1em" />}
           onClick={() => openExternalLink(TWILIO_CONSOLE_URL)}
           className={styles.dingtalkDocBtn}

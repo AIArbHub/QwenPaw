@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Authentication module: password hashing, JWT tokens, and FastAPI middleware.
 
-Login is disabled by default and only enabled when the environment
-variable ``AIARB_AUTH_ENABLED`` is set to a truthy value (``true``,
-``1``, ``yes``).  Credentials are created through a web-based
+Login is **enabled by default**.  To disable authentication, set the
+environment variable ``AIARB_AUTH_ENABLED`` to a falsy value (``false``,
+``0``, ``no``).  Credentials are created through a web-based
 registration flow rather than environment variables, so that agents
 running inside the process cannot read plaintext passwords.
 
@@ -77,6 +77,7 @@ _PUBLIC_PATHS: frozenset[str] = frozenset(
         "/api/auth/login",
         "/api/auth/status",
         "/api/auth/register",
+        "/api/auth/password-reset-guide",
         "/api/runtime/shutdown",
         "/api/runtime/connect",
         "/api/runtime/clients",
@@ -144,10 +145,20 @@ def verify_password(password: str, stored_hash: str, salt: str) -> bool:
 
 
 def _get_jwt_secret() -> str:
-    """Return the signing secret, creating one if absent."""
+    """Return the signing secret, creating one if absent.
+
+    When the persisted ``jwt_secret`` cannot be decrypted (e.g. the master
+    key changed after a reinstall or migration), the stored ciphertext is
+    unusable as an HMAC key.  In that case a fresh secret is generated and
+    persisted so that subsequent token operations work correctly.  All
+    previously issued tokens become invalid, which is the expected outcome
+    of a key rotation.
+    """
     data = _load_auth_data()
     secret = data.get("jwt_secret", "")
-    if not secret:
+    if not secret or is_encrypted(secret):
+        # ``is_encrypted`` is True only when decryption failed and the
+        # raw ciphertext was returned by ``decrypt_dict_fields``.
         secret = secrets.token_hex(32)
         data["jwt_secret"] = secret
         _save_auth_data(data)
@@ -360,13 +371,16 @@ def _clean_expired_revocations() -> None:
 def is_auth_enabled() -> bool:
     """Check whether authentication is enabled via environment variable.
 
-    Returns ``True`` when ``AIARB_AUTH_ENABLED`` is set to a truthy
-    value (``true``, ``1``, ``yes``).  The presence of a registered
-    user is checked separately by the middleware so that the first
-    user can still reach the registration page.
+    Authentication is **enabled by default**.  Returns ``False`` only
+    when ``AIARB_AUTH_ENABLED`` is explicitly set to a falsy value
+    (``false``, ``0``, ``no``).  The presence of a registered user is
+    checked separately by the middleware so that the first user can
+    still reach the registration page.
     """
     env_flag = EnvVarLoader.get_str("AIARB_AUTH_ENABLED", "").strip().lower()
-    return env_flag in ("true", "1", "yes")
+    if not env_flag:
+        return True
+    return env_flag not in ("false", "0", "no")
 
 
 def has_registered_users() -> bool:

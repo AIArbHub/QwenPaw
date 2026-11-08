@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Button, Checkbox, Form, Input, Modal } from "antd";
+import { Button, Checkbox, Form, Input, Modal, Spin, message as antMessage } from "antd";
 import { useAppMessage } from "../../hooks/useAppMessage";
 import {
   Github,
@@ -11,8 +11,8 @@ import {
   ShieldAlert,
   UserRound,
 } from "lucide-react";
-import { authApi } from "../../api/modules/auth";
-import { setAuthToken } from "../../api/config";
+import { authApi, type PasswordResetGuideResponse } from "../../api/modules/auth";
+import { setAuthToken, setHubMode } from "../../api/config";
 import { useTheme } from "../../contexts/ThemeContext";
 import { getPostLoginHref } from "../../utils/navigationMode";
 import styles from "./index.module.less";
@@ -36,6 +36,10 @@ export default function LoginPage() {
     password: string;
     invite_code?: string;
   } | null>(null);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [resetGuide, setResetGuide] = useState<PasswordResetGuideResponse | null>(null);
+  const [resetGuideLoading, setResetGuideLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
   const { message } = useAppMessage();
   const rawRedirect = searchParams.get("redirect") || "/chat";
   const redirect =
@@ -66,6 +70,7 @@ export default function LoginPage() {
         setHasUsers(res.has_users);
         setRegistrationEnabled(Boolean(res.registration_enabled));
         setIsHub(res.mode === "hub");
+        setHubMode(res.mode === "hub");
         setInvitationEnabled(res.registration_mode === "invite");
         if (!res.has_users) {
           setIsRegister(true);
@@ -155,6 +160,40 @@ export default function LoginPage() {
     setPendingCredentials(null);
   };
 
+  const openForgotPassword = async () => {
+    setForgotOpen(true);
+    setResetGuideLoading(true);
+    setCopied(false);
+    try {
+      const guide = await authApi.getPasswordResetGuide();
+      setResetGuide(guide);
+    } catch {
+      // Fallback with generic instructions
+      setResetGuide({
+        cli_command: "aiarb auth reset-password",
+        manual_method: {
+          description: "Delete the auth file and restart the service to re-register.",
+          file_path: "~/.aiarb.secret/auth.json",
+          command: 'rm "~/.aiarb.secret/auth.json"',
+        },
+        platform: "unix",
+      });
+    } finally {
+      setResetGuideLoading(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      antMessage.success(t("login.copied"));
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      antMessage.error(t("login.copyFailed"));
+    }
+  };
+
   const isChinese = (i18n.resolvedLanguage || i18n.language || "en").startsWith(
     "zh",
   );
@@ -225,6 +264,7 @@ export default function LoginPage() {
                 />
               }
               placeholder={t("login.usernamePlaceholder")}
+              autoComplete="username"
               autoFocus
             />
           </Form.Item>
@@ -243,6 +283,7 @@ export default function LoginPage() {
                 />
               }
               placeholder={t("login.passwordPlaceholder")}
+              autoComplete="current-password"
             />
           </Form.Item>
 
@@ -307,6 +348,17 @@ export default function LoginPage() {
           >
             {isRegister ? t("login.returnToSignIn") : t("login.createAccount")}
           </Button>
+        )}
+        {hasUsers && !isRegister && (
+          <div className={styles.forgotPasswordRow}>
+            <button
+              type="button"
+              className={styles.forgotPasswordLink}
+              onClick={openForgotPassword}
+            >
+              {t("login.forgotPassword")}
+            </button>
+          </div>
         )}
         {isHub && (
           <nav className={styles.hubLinks} aria-label={t("login.hubLinks")}>
@@ -379,6 +431,79 @@ export default function LoginPage() {
           )}
         </Modal>
       )}
+      <Modal
+        open={forgotOpen}
+        title={t("login.forgotPasswordTitle")}
+        onCancel={() => setForgotOpen(false)}
+        footer={
+          <Button onClick={() => setForgotOpen(false)}>
+            {t("login.forgotPasswordClose")}
+          </Button>
+        }
+        centered
+        width={520}
+        destroyOnHidden
+      >
+        {resetGuideLoading ? (
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <Spin />
+          </div>
+        ) : resetGuide ? (
+          <div className={styles.resetGuide}>
+            <p className={styles.resetGuideDesc}>
+              {t("login.forgotPasswordDesc")}
+            </p>
+
+            <div className={styles.resetSection}>
+              <h4 className={styles.resetSectionTitle}>
+                {t("login.resetMethodCli")}
+              </h4>
+              <p className={styles.resetSectionHint}>
+                {t("login.resetMethodCliHint")}
+              </p>
+              <div className={styles.codeBlock}>
+                <code>{resetGuide.cli_command}</code>
+                <button
+                  type="button"
+                  className={styles.copyBtn}
+                  onClick={() => copyToClipboard(resetGuide.cli_command)}
+                >
+                  {copied ? t("login.copied") : t("login.copy")}
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.resetSection}>
+              <h4 className={styles.resetSectionTitle}>
+                {t("login.resetMethodManual")}
+              </h4>
+              <p className={styles.resetSectionHint}>
+                {t("login.resetMethodManualHint")}
+              </p>
+              <div className={styles.codeBlock}>
+                <code>{resetGuide.manual_method.command}</code>
+                <button
+                  type="button"
+                  className={styles.copyBtn}
+                  onClick={() =>
+                    copyToClipboard(resetGuide.manual_method.command)
+                  }
+                >
+                  {copied ? t("login.copied") : t("login.copy")}
+                </button>
+              </div>
+              <p className={styles.resetFilePath}>
+                {t("login.authFilePath")}:{" "}
+                <code>{resetGuide.manual_method.file_path}</code>
+              </p>
+            </div>
+
+            <div className={styles.resetWarning}>
+              {t("login.resetWarning")}
+            </div>
+          </div>
+        ) : null}
+      </Modal>
     </div>
   );
 }

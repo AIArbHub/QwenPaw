@@ -207,6 +207,7 @@ export const LocalRuntimePanel = memo(function LocalRuntimePanel({
                 <Button
                   danger
                   size="small"
+                  iconSize="1em"
                   icon={<CloseOutlined size="1em" />}
                   loading={isCanceling}
                   disabled={isCanceling}

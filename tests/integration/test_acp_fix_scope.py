@@ -24,7 +24,7 @@ from acp import RequestError, text_block
 from aiarb.agents.acp import server as acp_server
 from aiarb.agents.acp.server import (
     ACP_KEEPALIVE_META_KEY,
-    AIARBACPAgent,
+    AIArbACPAgent,
     _EnvelopeTracker,
 )
 from aiarb.harnesses import runtime as harness_runtime
@@ -98,7 +98,7 @@ def _tool_output_event(call_id: str):
 
 
 async def _agent_with_stream(monkeypatch, stream):
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
     conn = _RecordingConn()
     agent.on_connect(conn)
 
@@ -228,19 +228,19 @@ async def test_entry_point_reraises_unrelated_errors(monkeypatch, exc):
         calls.append("shutdown")
 
     monkeypatch.setattr(
-        acp_server.AIARBACPAgent,
+        acp_server.AIArbACPAgent,
         "_install_runtime_provider",
         _install_noop,
     )
     monkeypatch.setattr(
-        acp_server.AIARBACPAgent,
+        acp_server.AIArbACPAgent,
         "_shutdown_workspace",
         _shutdown,
     )
     monkeypatch.setattr(acp_server, "run_agent", _fail)
 
     with pytest.raises(type(exc)):
-        await acp_server.run_AIARB_agent()
+        await acp_server.run_aiarb_agent()
     assert calls == ["shutdown"]
 
 
@@ -257,18 +257,18 @@ async def test_entry_point_swallows_verified_disconnect(monkeypatch):
         calls.append("shutdown")
 
     monkeypatch.setattr(
-        acp_server.AIARBACPAgent,
+        acp_server.AIArbACPAgent,
         "_install_runtime_provider",
         _install_noop,
     )
     monkeypatch.setattr(
-        acp_server.AIARBACPAgent,
+        acp_server.AIArbACPAgent,
         "_shutdown_workspace",
         _shutdown,
     )
     monkeypatch.setattr(acp_server, "run_agent", _fail)
 
-    await acp_server.run_AIARB_agent()
+    await acp_server.run_aiarb_agent()
     assert calls == ["shutdown"]
 
 
@@ -365,7 +365,7 @@ async def test_disconnect_does_not_write_an_error_frame(monkeypatch):
         yield _content_event(f"tail")
 
     monkeypatch.setattr(
-        AIARBACPAgent,
+        AIArbACPAgent,
         f"_advertise_commands",
         AsyncMock(),
     )
@@ -416,7 +416,7 @@ async def test_harness_terminal_preserves_output_and_status(
         f"adapter",
         AsyncMock(return_value=SimpleNamespace(run_turn=run_turn)),
     )
-    agent = AIARBACPAgent(agent_id=f"default")
+    agent = AIArbACPAgent(agent_id=f"default")
     conn = _RecordingConn()
     agent.on_connect(conn)
     session_id = f"harness-review"

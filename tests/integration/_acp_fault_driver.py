@@ -88,16 +88,16 @@ async def _shutdown_workspace(self):
         pathlib.Path(marker).write_text("shutdown", encoding="utf-8")
 
 
-server.AIARBACPAgent._ensure_workspace = _ensure_workspace
-server.AIARBACPAgent._advertise_commands = _advertise_commands
-server.AIARBACPAgent._bridge_approval_requests = _bridge_approval_requests
-server.AIARBACPAgent._build_model_state = _build_model_state
-server.AIARBACPAgent._sync_session_mcp = _sync_session_mcp
-server.AIARBACPAgent._shutdown_workspace = _shutdown_workspace
+server.AIArbACPAgent._ensure_workspace = _ensure_workspace
+server.AIArbACPAgent._advertise_commands = _advertise_commands
+server.AIArbACPAgent._bridge_approval_requests = _bridge_approval_requests
+server.AIArbACPAgent._build_model_state = _build_model_state
+server.AIArbACPAgent._sync_session_mcp = _sync_session_mcp
+server.AIArbACPAgent._shutdown_workspace = _shutdown_workspace
 
 
 if __name__ == "__main__":
     try:
-        asyncio.run(server.run_AIARB_agent())
+        asyncio.run(server.run_aiarb_agent())
     finally:
         server.silence_stdout()
