@@ -954,13 +954,13 @@ policy:
 
 ## Web 登录认证
 
-AIArb 支持可选的 Web 登录认证,保护控制台免受未授权访问。认证**默认关闭**,需要通过 `AIARB_AUTH_ENABLED` 环境变量显式启用。
+AIArb 支持 Web 登录认证,保护控制台免受未授权访问。认证**默认开启**。如需关闭,请将 `AIARB_AUTH_ENABLED` 环境变量设为 `false`。
 
 ![login](https://img.alicdn.com/imgextra/i4/O1CN01VdXCuP1tWpsl0TlQ5_!!6000000005910-2-tps-3822-2070.png)
 
 ### 工作原理
 
-1. **启用认证** — 设置 `AIARB_AUTH_ENABLED=true` 并启动 AIArb
+1. **认证默认开启** — 启动 AIArb 即已启用认证
 2. **注册流程**:
    - 首次访问时,控制台显示**注册页面**
    - 创建唯一的管理员账户(用户名 + 密码)
@@ -986,7 +986,7 @@ AIArb 支持可选的 Web 登录认证,保护控制台免受未授权访问。�
 
 | 变量                    | 说明                         | 是否必填 |
 | ----------------------- | ---------------------------- | -------- |
-| `AIARB_AUTH_ENABLED`  | 设为 `true` 启用认证         | **是**   |
+| `AIARB_AUTH_ENABLED`  | 设为 `false` 关闭认证(默认已开启) | 可选     |
 | `AIARB_AUTH_USERNAME` | 自动注册时预设的管理员用户名 | 可选     |
 | `AIARB_AUTH_PASSWORD` | 自动注册时预设的管理员密码   | 可选     |
 
@@ -1012,49 +1012,42 @@ AIArb 支持可选的 Web 登录认证,保护控制台免受未授权访问。�
 
 **配置说明**:
 
-- `AIARB_AUTH_ENABLED=true` 是启用认证的唯一必需变量
+- 认证默认开启;`AIARB_AUTH_ENABLED` 仅用于**关闭**认证(设为 `false`)
 - `AIARB_AUTH_USERNAME` 和 `AIARB_AUTH_PASSWORD` 成对使用:
   - 两者都设置 → 启动时自动创建管理员账户(适用于自动化部署)
   - 不设置或只设置其一 → 首次访问通过网页注册(交互式部署)
 - 如果已有注册用户,自动注册环境变量会被忽略
 
-### 启用认证
+### 认证(默认开启)
+
+认证默认已开启。仅在需要**关闭**认证或使用**自动注册**时才需设置环境变量。
 
 #### 脚本安装 / pip 安装
 
-在启动前设置环境变量:
+**自动注册模式**(可选 — 如偏好网页注册可跳过):
 
 **Linux / macOS:**
 
 ```bash
-# 基础启用(网页注册)
-export AIARB_AUTH_ENABLED=true
-aiarb app
-
-# 或: 自动注册模式
-export AIARB_AUTH_ENABLED=true
+# 认证默认已开启;仅需添加自动注册(可选)
 export AIARB_AUTH_USERNAME=admin
 export AIARB_AUTH_PASSWORD=mypassword
 aiarb app
 ```
 
-如需永久生效,将 `export` 行添加到 `~/.bashrc`、`~/.zshrc` 或等效文件中。
-
 **Windows (CMD):**
 
 ```cmd
-set AIARB_AUTH_ENABLED=true
-rem 可选: 自动注册
-rem set AIARB_AUTH_USERNAME=admin
-rem set AIARB_AUTH_PASSWORD=mypassword
+rem 认证默认已开启;可选添加自动注册
+set AIARB_AUTH_USERNAME=admin
+set AIARB_AUTH_PASSWORD=mypassword
 aiarb app
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-$env:AIARB_AUTH_ENABLED = "true"
-# 可选: 自动注册
+# 认证默认已开启;可选添加自动注册
 # $env:AIARB_AUTH_USERNAME = "admin"
 # $env:AIARB_AUTH_PASSWORD = "mypassword"
 aiarb app
@@ -1062,10 +1055,10 @@ aiarb app
 
 #### Docker
 
-通过 `-e` 传递环境变量(推荐使用自动注册):
+认证默认已开启;仅需添加自动注册(推荐):
 
 ```bash
-docker run -e AIARB_AUTH_ENABLED=true \
+docker run \
   -e AIARB_AUTH_USERNAME=admin \
   -e AIARB_AUTH_PASSWORD=mypassword \
   -p 127.0.0.1:8088:8088 \
@@ -1086,7 +1079,6 @@ services:
     ports:
       - "127.0.0.1:8088:8088"
     environment:
-      - AIARB_AUTH_ENABLED=true
       - AIARB_AUTH_USERNAME=admin
       - AIARB_AUTH_PASSWORD=mypassword
     volumes:
@@ -1100,7 +1092,6 @@ services:
 也可以使用 `.env` 文件：
 
 ```
-AIARB_AUTH_ENABLED=true
 AIARB_AUTH_USERNAME=admin
 AIARB_AUTH_PASSWORD=mypassword
 ```
@@ -1109,15 +1100,28 @@ AIARB_AUTH_PASSWORD=mypassword
 
 ### 关闭认证
 
-移除或取消环境变量并重启 AIArb：
+设置 `AIARB_AUTH_ENABLED=false` 并重启 AIArb：
 
 ```bash
 # Linux / macOS
-unset AIARB_AUTH_ENABLED
+export AIARB_AUTH_ENABLED=false
 aiarb app
 
-# Docker — 移除 -e 参数即可。以下示例包含用于持久化的卷。
-docker run -p 127.0.0.1:8088:8088 -v aiarb-data:/app/working -v aiarb-secrets:/app/working.secret -v aiarb-backups:/app/working.backups agentscope/aiarb:latest
+# Windows (CMD)
+set AIARB_AUTH_ENABLED=false
+aiarb app
+
+# Windows (PowerShell)
+$env:AIARB_AUTH_ENABLED = "false"
+aiarb app
+
+# Docker
+docker run -e AIARB_AUTH_ENABLED=false \
+  -p 127.0.0.1:8088:8088 \
+  -v aiarb-data:/app/working \
+  -v aiarb-secrets:/app/working.secret \
+  -v aiarb-backups:/app/working.backups \
+  agentscope/aiarb:latest
 ```
 
 ### 重置密码

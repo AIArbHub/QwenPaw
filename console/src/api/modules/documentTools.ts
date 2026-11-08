@@ -58,8 +58,18 @@ export interface RedactTextResult {
   cluster_table: EntityClusterEntry[];
   output_file?: string;
   mapping_file?: string;
+  report_file?: string;
   document_name?: string;
   output_format?: string;
+  agent_mode?: string;
+  agent_review?: Record<string, any> | null;
+  has_agent_suggestions?: boolean;
+  agent_suggestions?: Array<{
+    original: string;
+    entity_type: string;
+    suggested_replacement: string;
+    reason: string;
+  }>;
 }
 
 export interface RedactionMapping {
@@ -330,6 +340,81 @@ export const documentToolsApi = {
         }
       }
       return null; // Streaming complete, results delivered via callbacks
+    });
+  },
+
+  /** 卷宗级文件夹脱敏（SSE 流式进度） */
+  volumeRedact: (
+    files: File[],
+    options?: {
+      policy?: string;
+      entityTypes?: string[];
+      strengthLevel?: string;
+      volumeName?: string;
+      onProgress?: (event: BatchSSEEvent) => void;
+      onDone?: (summary: BatchRedactResult & {
+        volume_dir?: string;
+        redacted_dir?: string;
+        mappings_dir?: string;
+        report_file?: string;
+        volume_name?: string;
+      }) => void;
+      onError?: (error: string) => void;
+    },
+  ) => {
+    const form = new FormData();
+    for (const f of files) form.append("files", f);
+    const opts = options || {};
+    if (opts.policy) form.append("policy", opts.policy);
+    if (opts.entityTypes?.length)
+      form.append("entity_types", JSON.stringify(opts.entityTypes));
+    if (opts.strengthLevel) form.append("strength_level", opts.strengthLevel);
+    if (opts.volumeName) form.append("volume_name", opts.volumeName);
+
+    const url = "/document-tools/redact/volume";
+    return fetch(url, {
+      method: "POST",
+      body: form,
+      headers: { Accept: "text/event-stream" },
+    }).then(async (response) => {
+      if (!response.ok) {
+        const errText = await response.text().catch(() => "卷宗脱敏失败");
+        opts.onError?.(errText);
+        throw new Error(errText);
+      }
+      const reader = response.body?.getReader();
+      if (!reader) {
+        const data = await response.json();
+        opts.onDone?.(data);
+        return data;
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const event = JSON.parse(line.slice(6)) as BatchSSEEvent;
+              if (event.type === "progress") {
+                opts.onProgress?.(event);
+              } else if (event.type === "result") {
+                opts.onProgress?.(event);
+              } else if (event.type === "done") {
+                opts.onDone?.(event as any);
+              } else if (event.type === "error") {
+                opts.onError?.(event.error || "Unknown error");
+              }
+            } catch { /* skip malformed */ }
+          }
+        }
+      }
+      return null;
     });
   },
 

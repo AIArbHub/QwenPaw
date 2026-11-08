@@ -226,7 +226,7 @@ def sync_AIARBmail_driver_card(
     """
     del force_rewrite  # Compatibility with existing callers.
     driver_card = workspace_dir / "drivers" / "mcp" / "AIARBmail.yaml"
-    if backend != "AIARB" or mail is None:
+    if backend.lower() != "aiarb" or mail is None:
         driver_card.unlink(missing_ok=True)
         save_agent_mail_credentials(workspace_dir, None)
         return True
@@ -237,3 +237,8 @@ def sync_AIARBmail_driver_card(
         driver_card.unlink(missing_ok=True)
         return False
     return True
+
+
+# Lowercase aliases for callers that import snake_case names.
+is_managed_aiarbmail_card = is_managed_AIARBmail_card
+sync_aiarbmail_driver_card = sync_AIARBmail_driver_card

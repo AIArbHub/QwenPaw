@@ -295,9 +295,9 @@ class CronExecutor:
                 backend = getattr(
                     getattr(self._workspace, "config", None),
                     "backend",
-                    "AIARB",
+                    "aiarb",
                 )
-                if backend != "AIARB":
+                if backend.lower() != "aiarb":
                     raise ValueError(
                         "Per-task execution models require the AIARB "
                         "backend; select Default for this agent",

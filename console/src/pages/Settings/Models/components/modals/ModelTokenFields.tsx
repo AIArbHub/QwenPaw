@@ -52,6 +52,7 @@ export function ContextLengthField({
           <Button
             type="text"
             size="small"
+            iconSize={14}
             icon={<RotateCcw size={14} />}
             aria-label={t("models.resetContextLength")}
             title={t("models.resetContextLength")}
@@ -123,6 +124,7 @@ export function OutputTokenLimitField({
           <Button
             type="text"
             size="small"
+            iconSize={14}
             icon={<RotateCcw size={14} />}
             aria-label={t("models.resetMaxTokens")}
             title={t("models.resetMaxTokens")}

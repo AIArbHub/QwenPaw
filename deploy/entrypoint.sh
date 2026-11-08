@@ -10,7 +10,8 @@ export QWENPAW_CHANNEL_PRESET="${QWENPAW_CHANNEL_PRESET:-light}"
 is_auth_enabled() {
   flag="${AIARB_AUTH_ENABLED:-}"
   flag="$(printf '%s' "$flag" | tr '[:upper:]' '[:lower:]')"
-  [ "$flag" = "true" ] || [ "$flag" = "1" ] || [ "$flag" = "yes" ]
+  # Auth is enabled by default; only disabled when explicitly set to false/0/no
+  [ "$flag" != "false" ] && [ "$flag" != "0" ] && [ "$flag" != "no" ]
 }
 
 warn_if_auth_off_container_bind() {
@@ -27,7 +28,7 @@ network. Anyone who can reach the service may access AIArb APIs without login.
 
 Recommended:
   - Restrict access to a trusted network or protected environment.
-  - Enable authentication with AIARB_AUTH_ENABLED=true if untrusted users or
+  - Remove AIARB_AUTH_ENABLED=false or set it to true if untrusted users or
     processes may reach the service.
 ============================================================
 EOF

@@ -62,6 +62,7 @@ export function Toolbar({
           <Button
             danger
             size="small"
+            iconSize="1em"
             icon={<SparkDeleteLine size="1em" />}
             onClick={onRemoveSelected}
             disabled={saving}

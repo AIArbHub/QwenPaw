@@ -880,7 +880,7 @@ async def get_chat(
     )
     backend = workspace.config.backend
     context = ((state.get("agent") or {}).get("state") or {}).get("context")
-    if not context and backend != "aiarb":
+    if not context and backend.lower() != "aiarb":
         try:
             await workspace.harness_runtime.hydrate_session(
                 backend=backend,

@@ -710,7 +710,7 @@ export default function SettingsCenter({
         data-theme={isDark ? "dark" : "light"}
       >
         <div className={styles.loading}>
-          <Spin tip={t("common.loading")} />
+          <Spin tip={t("common.loading")}><div /></Spin>
         </div>
       </div>
     );
@@ -976,18 +976,14 @@ export default function SettingsCenter({
             !activePage?.key.startsWith("extension-")
           }
         >
-          <SettingsSearchRequest.Provider value={activeSearchTarget}>
-            {searchHint && (
-              <Alert
-                type="info"
-                message={searchHint}
-                closable
-                onClose={() => setSearchTarget(null)}
-              />
-            )}
-            {ActiveComponent ? (
-              <ChunkErrorBoundary
-                resetKey={routeId ?? activePage?.key ?? "settings"}
+          {ActiveComponent ? (
+            <ChunkErrorBoundary resetKey={activePage?.key ?? "settings"}>
+              <ChunkRecoverySuspense
+                fallback={
+                  <div className={styles.loading}>
+                    <Spin tip={t("common.loading")}><div /></Spin>
+                  </div>
+                }
               >
                 <ChunkRecoverySuspense
                   fallback={

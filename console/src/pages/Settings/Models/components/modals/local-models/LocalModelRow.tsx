@@ -61,6 +61,7 @@ export const LocalModelRow = memo(function LocalModelRow({
           <Button
             type="primary"
             size="small"
+            iconSize="1em"
             icon={<DownloadOutlined size="1em" />}
             onClick={() => onStartDownload(model)}
             disabled={isModelDownloading || isServerBusy}
@@ -72,6 +73,7 @@ export const LocalModelRow = memo(function LocalModelRow({
             <Button
               danger
               size="small"
+              iconSize="1em"
               icon={<StopOutlined size="1em" />}
               loading={stoppingServer}
               onClick={onStopServer}
@@ -81,6 +83,7 @@ export const LocalModelRow = memo(function LocalModelRow({
             <Button
               danger
               size="small"
+              iconSize="1em"
               icon={<DeleteOutlined size="1em" />}
               loading={isDeleting}
               disabled
@@ -94,6 +97,7 @@ export const LocalModelRow = memo(function LocalModelRow({
             <Button
               type="primary"
               size="small"
+              iconSize="1em"
               icon={<PlayCircleOutlined size="1em" />}
               loading={isStarting}
               onClick={() => onStartServer(model)}
@@ -104,6 +108,7 @@ export const LocalModelRow = memo(function LocalModelRow({
             <Button
               danger
               size="small"
+              iconSize="1em"
               icon={<DeleteOutlined size="1em" />}
               loading={isDeleting}
               onClick={() => onDeleteModel(model)}

@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 """AIARB Agent - Main agent implementation.
 
-This module provides the main AIARBAgent class built on ReActAgent,
+This module provides the main AIArbAgent class built on ReActAgent,
 with integrated tools, skills, and memory management.
 
 Agent construction is fully delegated to :class:`AgentBuilder` — the
@@ -232,7 +232,7 @@ def _effective_artifact_retention_days(light_context_config: Any) -> int:
     )
 
 
-class AIARBAgent(Agent):
+class AIArbAgent(Agent):
     """AIARB Agent with integrated tools, skills, and memory management.
 
     This agent extends agentscope 2.0 ``Agent`` with:
@@ -267,7 +267,7 @@ class AIARBAgent(Agent):
         effective_skills: Optional[list[str]] = None,
         governor: Any = None,
     ):
-        """Initialize AIARBAgent.
+        """Initialize AIArbAgent.
 
         All construction dependencies (model, prompt, toolkit, middlewares)
         are provided externally by :class:`AgentBuilder`. The agent does
@@ -889,7 +889,7 @@ class AIARBAgent(Agent):
     @staticmethod
     def _is_video_fallback_error(exc: Exception) -> bool:
         """Recognize video type/capability rejections and count limits."""
-        if AIARBAgent._is_content_safety_error(exc):
+        if AIArbAgent._is_content_safety_error(exc):
             return False
         error_str = " ".join(str(exc).lower().split())
         # Schema errors can list image/audio parts as accepted alternatives.
@@ -916,7 +916,7 @@ class AIARBAgent(Agent):
     @staticmethod
     def _is_video_capability_error(exc: Exception) -> bool:
         """Allow learning only for rejected video types or zero budgets."""
-        if not AIARBAgent._is_video_fallback_error(exc):
+        if not AIArbAgent._is_video_fallback_error(exc):
             return False
         limit = _VIDEO_COUNT_LIMIT_RE.search(str(exc).lower())
         return limit is None or int(limit.group(1)) == 0
@@ -1516,7 +1516,7 @@ class AIARBAgent(Agent):
 
         # Veto: content safety/moderation rejections are about a
         # particular input, not about whether the model supports media.
-        if AIARBAgent._is_content_safety_error(exc):
+        if AIArbAgent._is_content_safety_error(exc):
             return False
 
         # Veto: errors clearly about request size / context length are
@@ -1566,7 +1566,7 @@ class AIARBAgent(Agent):
         error_str = " ".join(str(exc).lower().split())
         if not any(noun in error_str for noun in _MEDIA_PAYLOAD_MEDIA_NOUNS):
             return False
-        if AIARBAgent._is_content_safety_error(exc):
+        if AIArbAgent._is_content_safety_error(exc):
             return False
         return any(
             signal in error_str for signal in _MEDIA_PAYLOAD_REJECTION_SIGNALS

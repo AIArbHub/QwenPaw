@@ -40,7 +40,40 @@ def _resource_root():
         from .channel_bootstrap import runtime_manifest
 
         return runtime_manifest()[1] / "AIARB/official_channels"
-    return resources.files("AIARB").joinpath("official_channels")
+    return resources.files("aiarb").joinpath("official_channels")
+
+
+@lru_cache(maxsize=1)
+def _dev_channel_plugins_dir() -> Path | None:
+    """Locate the ``plugins/channel/`` directory in source (development) mode.
+
+    Walks up from this file looking for a sibling ``plugins/channel/``
+    directory.  Returns ``None`` when not found (e.g. packaged builds or
+    when the repository layout does not include channel plugin sources).
+    """
+    if getattr(sys, "frozen", False):
+        return None
+    cur = Path(__file__).resolve().parent
+    for _ in range(20):
+        candidate = cur / "plugins" / "channel"
+        if candidate.is_dir():
+            # Verify it contains at least one plugin.json
+            for child in candidate.iterdir():
+                if child.is_dir() and (child / "plugin.json").is_file():
+                    return candidate
+        if cur.parent == cur:
+            break
+        cur = cur.parent
+    return None
+
+
+def _has_bundled_index() -> bool:
+    """Check whether the official_channels/index.json resource exists."""
+    try:
+        root = _resource_root()
+        return root.joinpath("index.json").is_file()
+    except Exception:
+        return False
 
 
 def _digest(content):
@@ -155,9 +188,31 @@ def _extracted_channel_source(plugin_id, row, payload, *, retain=None):
 
 @contextmanager
 def bundled_channel_source(plugin_id, *, retain=None):
-    """Verify installed resource bytes and yield a private extracted source."""
+    """Verify installed resource bytes and yield a private extracted source.
+
+    In packaged builds this reads an authenticated ZIP from
+    ``official_channels/``.  In development mode, when the bundled
+    index is absent, it falls back to the live ``plugins/channel/``
+    source directory.
+    """
     if official_channel_for_plugin(plugin_id) is None:
         raise ValueError("Unknown official channel")
+
+    # Development-mode fallback: use the live source directory directly.
+    if not _has_bundled_index():
+        plugins_dir = _dev_channel_plugins_dir()
+        if plugins_dir is not None:
+            official = official_channel_for_plugin(plugin_id)
+            source_dir_name = official.get("source_dir", plugin_id)
+            source = plugins_dir / source_dir_name
+            if source.is_dir() and (source / "plugin.json").is_file():
+                yield source
+                return
+        raise FileNotFoundError(
+            f"Official channel source not available for '{plugin_id}': "
+            f"no bundled index.json and no plugins/channel/ directory",
+        )
+
     root = _resource_root()
     index = _bundled_index(root)
     row = {row["plugin_id"]: row for row in index["plugins"]}[plugin_id]
@@ -207,7 +262,11 @@ def _metadata_slot(root_identity, plugin_id):
 
 
 def bundled_channel_description(plugin_id: str):
-    """Cache authenticated passive fields, never paths or executable data."""
+    """Cache authenticated passive fields, never paths or executable data.
+
+    In development mode, when the bundled index is absent, this falls
+    back to reading the descriptor directly from ``plugins/channel/``.
+    """
     from ..__version__ import __version__
     from ..utils.io_utils import get_sync_path_lock
     from .architecture import PluginManifest
@@ -215,6 +274,40 @@ def bundled_channel_description(plugin_id: str):
 
     if official_channel_for_plugin(plugin_id) is None:
         raise ValueError("Unknown official channel")
+
+    # Development-mode fallback: read description from the live source.
+    if not _has_bundled_index():
+        plugins_dir = _dev_channel_plugins_dir()
+        if plugins_dir is not None:
+            official = official_channel_for_plugin(plugin_id)
+            source_dir_name = official.get("source_dir", plugin_id)
+            source = plugins_dir / source_dir_name
+            if source.is_dir() and (source / "plugin.json").is_file():
+                manifest = PluginManifest.from_dict(
+                    json.loads(
+                        (source / "plugin.json").read_text(encoding="utf-8"),
+                    ),
+                )
+                description = describe_channel(source, manifest)
+                descriptor = description.descriptor
+                return SimpleNamespace(
+                    plugin_id=description.plugin_id,
+                    version=description.version,
+                    descriptor=SimpleNamespace(
+                        channel_key=descriptor.channel_key,
+                        label=dict(descriptor.label),
+                        config_schema=deepcopy(descriptor.config_schema),
+                        config_fields=descriptor.config_fields,
+                        capabilities=descriptor.capabilities,
+                        process_mode=descriptor.process_mode,
+                    ),
+                    name=description.name,
+                    description=description.description,
+                )
+        raise FileNotFoundError(
+            f"Official channel source not available for '{plugin_id}'",
+        )
+
     root = _resource_root()
     with get_sync_path_lock(str(root) + "/" + plugin_id):
         cached = _metadata_slot((type(root), str(root)), plugin_id)

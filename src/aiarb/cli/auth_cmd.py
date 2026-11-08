@@ -24,7 +24,7 @@ def reset_password_cmd() -> None:
     if not is_auth_enabled():
         click.echo(
             "Authentication is not enabled.\n"
-            "Set AIARB_AUTH_ENABLED=true to enable it first.",
+            "Authentication is enabled by default. To disable it, set AIARB_AUTH_ENABLED=false.",
         )
         return
 

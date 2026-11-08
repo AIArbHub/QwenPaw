@@ -354,7 +354,7 @@ async def create_mail_monitor_service(
     # Mail push is only supported for the aiarb backend: third-party
     # harness runtimes cannot handle the dict wake requests built by the
     # monitor and would fail on every incoming email.
-    if getattr(ws._config, "backend", "aiarb") != "aiarb":
+    if getattr(ws._config, "backend", "aiarb").lower() != "aiarb":
         return None
     mail = getattr(ws._config, "mail", None)
     if mail is None or mail.push is None or mail.push.mode == "off":

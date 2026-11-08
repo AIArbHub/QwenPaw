@@ -980,13 +980,13 @@ Here's a complete `config.json` with all security features configured:
 
 ## Web Authentication
 
-AIArb supports optional web login authentication to protect the Console from unauthorized access. Authentication is **disabled by default** and must be explicitly enabled via the `AIARB_AUTH_ENABLED` environment variable.
+AIArb supports web login authentication to protect the Console from unauthorized access. Authentication is **enabled by default**. To disable it, set the `AIARB_AUTH_ENABLED` environment variable to `false`.
 
 ![login](https://img.alicdn.com/imgextra/i1/O1CN01wh3Sv01SxPEXpb6Wj_!!6000000002313-2-tps-3822-2070.png)
 
 ### How it works
 
-1. **Enable authentication** — Set `AIARB_AUTH_ENABLED=true` and start AIArb
+1. **Authentication is enabled by default** — Start AIArb and authentication is on
 2. **Registration flow**:
    - On first visit, the Console shows a **registration page**
    - Create the single admin account (username + password)
@@ -1012,7 +1012,7 @@ AIArb supports optional web login authentication to protect the Console from una
 
 | Variable                | Description                                  | Required |
 | ----------------------- | -------------------------------------------- | -------- |
-| `AIARB_AUTH_ENABLED`  | Set to `true` to enable authentication       | **Yes**  |
+| `AIARB_AUTH_ENABLED`  | Set to `false` to disable authentication (enabled by default) | Optional |
 | `AIARB_AUTH_USERNAME` | Pre-set admin username for auto-registration | Optional |
 | `AIARB_AUTH_PASSWORD` | Pre-set admin password for auto-registration | Optional |
 
@@ -1038,49 +1038,42 @@ This can also be managed from the Console under **Settings → Security**.
 
 **Configuration notes**:
 
-- `AIARB_AUTH_ENABLED=true` is the only required variable to enable authentication
+- Authentication is enabled by default; `AIARB_AUTH_ENABLED` is only needed to **disable** it (set to `false`)
 - `AIARB_AUTH_USERNAME` and `AIARB_AUTH_PASSWORD` are used together:
   - Both set → Auto-creates admin account on startup (for automated deployments)
   - Not set or only one set → Register via web UI on first visit (interactive deployments)
 - If a user is already registered, auto-registration environment variables are ignored
 
-### Enable authentication
+### Authentication (enabled by default)
+
+Authentication is enabled by default. You only need to take action if you want to **disable** it or use **auto-registration**.
 
 #### Script install / pip install
 
-Set environment variables before starting:
+**Auto-registration mode** (optional — skip if you prefer web registration):
 
 **Linux / macOS:**
 
 ```bash
-# Basic enable (web registration)
-export AIARB_AUTH_ENABLED=true
-aiarb app
-
-# Or: Auto-registration mode
-export AIARB_AUTH_ENABLED=true
+# Auth is already enabled by default; just add auto-registration (optional)
 export AIARB_AUTH_USERNAME=admin
 export AIARB_AUTH_PASSWORD=mypassword
 aiarb app
 ```
 
-To make it permanent, add the `export` lines to your `~/.bashrc`, `~/.zshrc`, or equivalent.
-
 **Windows (CMD):**
 
 ```cmd
-set AIARB_AUTH_ENABLED=true
-rem Optional: auto-registration
-rem set AIARB_AUTH_USERNAME=admin
-rem set AIARB_AUTH_PASSWORD=mypassword
+rem Auth is already enabled by default; optionally add auto-registration
+set AIARB_AUTH_USERNAME=admin
+set AIARB_AUTH_PASSWORD=mypassword
 aiarb app
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-$env:AIARB_AUTH_ENABLED = "true"
-# Optional: auto-registration
+# Auth is already enabled by default; optionally add auto-registration
 # $env:AIARB_AUTH_USERNAME = "admin"
 # $env:AIARB_AUTH_PASSWORD = "mypassword"
 aiarb app
@@ -1088,10 +1081,10 @@ aiarb app
 
 #### Docker
 
-Pass environment variables with `-e` (recommended with auto-registration):
+Auth is enabled by default; just add auto-registration (recommended):
 
 ```bash
-docker run -e AIARB_AUTH_ENABLED=true \
+docker run \
   -e AIARB_AUTH_USERNAME=admin \
   -e AIARB_AUTH_PASSWORD=mypassword \
   -p 127.0.0.1:8088:8088 \
@@ -1112,7 +1105,6 @@ services:
     ports:
       - "127.0.0.1:8088:8088"
     environment:
-      - AIARB_AUTH_ENABLED=true
       - AIARB_AUTH_USERNAME=admin
       - AIARB_AUTH_PASSWORD=mypassword
     volumes:
@@ -1126,7 +1118,6 @@ services:
 You can also use a `.env` file:
 
 ```
-AIARB_AUTH_ENABLED=true
 AIARB_AUTH_USERNAME=admin
 AIARB_AUTH_PASSWORD=mypassword
 ```
@@ -1135,15 +1126,28 @@ Then pass it to Docker with `--env-file .env`, or source it in your shell before
 
 ### Disable authentication
 
-Remove or unset the environment variable and restart AIArb:
+Set `AIARB_AUTH_ENABLED=false` and restart AIArb:
 
 ```bash
 # Linux / macOS
-unset AIARB_AUTH_ENABLED
+export AIARB_AUTH_ENABLED=false
 aiarb app
 
-# Docker — simply remove the -e flag. The example below includes volumes for persistence.
-docker run -p 127.0.0.1:8088:8088 -v aiarb-data:/app/working -v aiarb-secrets:/app/working.secret -v aiarb-backups:/app/working.backups agentscope/aiarb:latest
+# Windows (CMD)
+set AIARB_AUTH_ENABLED=false
+aiarb app
+
+# Windows (PowerShell)
+$env:AIARB_AUTH_ENABLED = "false"
+aiarb app
+
+# Docker
+docker run -e AIARB_AUTH_ENABLED=false \
+  -p 127.0.0.1:8088:8088 \
+  -v aiarb-data:/app/working \
+  -v aiarb-secrets:/app/working.secret \
+  -v aiarb-backups:/app/working.backups \
+  agentscope/aiarb:latest
 ```
 
 ### Password reset

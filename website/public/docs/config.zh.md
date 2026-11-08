@@ -1,4 +1,4 @@
-﻿# 配置与工作目录
+﻿﻿# 配置与工作目录
 
 AIARB 的所有配置和数据都存储在**工作目录**中。本页说明：
 
@@ -103,7 +103,7 @@ $AIARB_SECRET_DIR/                       # 默认 ~/.AIARB.secret
 
 | 变量                         | 默认值  | 说明                                     |
 | ---------------------------- | ------- | ---------------------------------------- |
-| `AIARB_AUTH_ENABLED`       | `false` | 是否启用 Web 控制台登录认证              |
+| `AIARB_AUTH_ENABLED`       | `true`  | 是否启用 Web 控制台登录认证              |
 | `AIARB_AUTH_USERNAME`      | -       | 自动注册时的管理员用户名（可选）         |
 | `AIARB_AUTH_PASSWORD`      | -       | 自动注册时的管理员密码（可选）           |
 | `AIARB_TOOL_GUARD_ENABLED` | `true`  | 是否启用工具守卫                         |

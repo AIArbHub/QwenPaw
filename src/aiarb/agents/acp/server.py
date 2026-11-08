@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """AIARB ACP Agent server.
 
 Exposes AIARB as an ACP-compliant agent that external clients
@@ -352,7 +352,7 @@ class _EnvelopeTracker:
         return []
 
 
-class AIARBACPAgent(Agent):
+class AIArbACPAgent(Agent):
     """ACP Agent backed by a full ``Workspace``.
 
     Instead of creating a bare ``AgentRunner``, this class boots a
@@ -439,7 +439,7 @@ class AIARBACPAgent(Agent):
         info: dict[str, Any] = {
             "cwd": cwd,
             "user_id": f"acp_{session_id[:8]}",
-            "mode": AIARBACPAgent.MODE_DEFAULT,
+            "mode": AIArbACPAgent.MODE_DEFAULT,
             DRIVER_SCOPE_CONTEXT_KEY: acp_mcp_scope_id(session_id),
         }
         project_dir = meta.get(ACP_PROJECT_DIR_META_KEY)
@@ -913,7 +913,7 @@ class AIARBACPAgent(Agent):
             stop_reason = _prompt_failure_stop_reason(exc)
             if stop_reason is None:
                 raise RequestError.internal_error(
-                    {"details": "AIARB runtime failed"},
+                    {"details": "AIArb runtime failed"},
                 ) from None
             return PromptResponse(stop_reason=stop_reason)
         finally:
@@ -1371,7 +1371,7 @@ class AIARBACPAgent(Agent):
     @staticmethod
     def _approval_options(pending: Any) -> list[PermissionOption]:
         """Build ACP permission options for a pending AIARB approval."""
-        display = AIARBACPAgent._approval_display(pending)
+        display = AIArbACPAgent._approval_display(pending)
         if (
             display.get("is_generalized")
             and display.get("similar_target")
@@ -1433,7 +1433,7 @@ class AIARBACPAgent(Agent):
         if not isinstance(raw_input, dict):
             return None
         result = dict(raw_input)
-        display = AIARBACPAgent._approval_display(pending)
+        display = AIArbACPAgent._approval_display(pending)
         if display.get("is_generalized") and (
             display.get("exact_target") or display.get("similar_target")
         ):
@@ -1884,7 +1884,7 @@ class AIARBACPAgent(Agent):
         return slot
 
 
-async def run_AIARB_agent(
+async def run_aiarb_agent(
     agent_id: str | None = None,
     workspace_dir: Path | None = None,
     local_diagnostics: bool = False,
@@ -1893,7 +1893,7 @@ async def run_AIARB_agent(
     goal_token_budget: int = 0,
 ) -> None:
     """Entry point: run AIARB as an ACP agent over stdio."""
-    agent = AIARBACPAgent(
+    agent = AIArbACPAgent(
         agent_id=agent_id,
         workspace_dir=workspace_dir,
         local_diagnostics=local_diagnostics,

@@ -41,7 +41,7 @@ from .service_factories import (
     create_agent_config_watcher,
     create_mail_monitor_service,
 )
-from .local_workspace import AIARBLocalWorkspace
+from .local_workspace import AIArbLocalWorkspace
 from ..task_tracker import TaskTracker
 from ..chats.session import SafeJSONSession
 from ..crons.manager import CronManager
@@ -177,7 +177,7 @@ class Workspace:  # pylint: disable=too-many-public-methods
 
         # Per-workspace pluggable registries (tools, hooks, commands, prompts)
         self.plugins = WorkspacePlugins()
-        self._local_workspace = AIARBLocalWorkspace(
+        self._local_workspace = AIArbLocalWorkspace(
             tool_registry=self.plugins.tool_registry,
             workdir=str(self.workspace_dir),
             workspace_id=agent_id,
@@ -290,7 +290,7 @@ class Workspace:  # pylint: disable=too-many-public-methods
             return None
 
     @property
-    def local_workspace(self) -> AIARBLocalWorkspace:
+    def local_workspace(self) -> AIArbLocalWorkspace:
         """AgentScope LocalWorkspace routing tools to ToolRegistry."""
         return self._local_workspace
 
@@ -453,7 +453,7 @@ class Workspace:  # pylint: disable=too-many-public-methods
 
         config = load_agent_config(self.agent_id)
         backend = config.backend
-        if backend != "AIARB":
+        if backend.lower() != "aiarb":
             request_context = dict(
                 getattr(request, "request_context", None) or {},
             )
@@ -546,7 +546,7 @@ class Workspace:  # pylint: disable=too-many-public-methods
             ws: "Workspace",
             _service: Any,
             _publish: Callable[[Any], None],
-        ) -> "AIARBLocalWorkspace":
+        ) -> "AIArbLocalWorkspace":
             return ws._local_workspace  # pylint: disable=protected-access
 
         sm.register(

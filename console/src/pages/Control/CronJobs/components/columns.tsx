@@ -211,6 +211,7 @@ export const createColumns = (
               <Button
                 type="text"
                 size="small"
+                iconSize="1em"
                 aria-label={handlers.t("cronJobs.action")}
                 icon={<MoreOutlined size="1em" />}
               />

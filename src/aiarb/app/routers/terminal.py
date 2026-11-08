@@ -51,7 +51,7 @@ async def context(request: Request, group: UUID):
     if not is_auth_enabled():
         raise HTTPException(
             403,
-            "Terminal requires AIARB_AUTH_ENABLED=true",
+            "Terminal requires authentication (AIARB_AUTH_ENABLED must not be false)",
         )
     origin = request.headers.get("origin")
     runtime_token = os.environ.get("AIARB_RUNTIME_INTERNAL_TOKEN", "")

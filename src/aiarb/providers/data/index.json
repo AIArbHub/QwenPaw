@@ -9497,6 +9497,137 @@
         ]
       },
       "free_model_ids": []
+    },
+    "github-models": {
+      "path": "providers/github-models.json",
+      "sha256": "1ac508c42980b5426b9a75641b3144e44815389747032b79d50df8b5f1930299",
+      "api_urls": [
+        "https://models.github.ai/inference"
+      ],
+      "templates": [],
+      "defaults": {
+        "api_urls": [
+          "https://models.github.ai/inference"
+        ],
+        "remote_id": null,
+        "template_owner": false,
+        "default_model_ids": [
+          "openai/gpt-4o-mini",
+          "openai/gpt-4o"
+        ],
+        "models": [
+          {
+            "id": "openai/gpt-4o-mini",
+            "name": "GPT-4o Mini",
+            "supports_image": true,
+            "supports_video": false,
+            "probe_source": "documentation",
+            "is_free": true,
+            "source": "builtin",
+            "availability_status": "unverified",
+            "availability_retryable": true,
+            "config_overrides": [],
+            "max_input_length": 131072,
+            "max_input_length_configured": false,
+            "generate_kwargs": {},
+            "relay_reasoning": true
+          },
+          {
+            "id": "openai/gpt-4o",
+            "name": "GPT-4o",
+            "supports_image": true,
+            "supports_video": false,
+            "probe_source": "documentation",
+            "is_free": true,
+            "source": "builtin",
+            "availability_status": "unverified",
+            "availability_retryable": true,
+            "config_overrides": [],
+            "max_input_length": 131072,
+            "max_input_length_configured": false,
+            "generate_kwargs": {},
+            "relay_reasoning": true
+          }
+        ]
+      },
+      "free_model_ids": [
+        "openai/gpt-4o-mini",
+        "openai/gpt-4o"
+      ]
+    },
+    "agnes": {
+      "path": "providers/agnes.json",
+      "sha256": "12846a5775934cfe615a19e91ded1aceda8d95c865d3786dee4e6bfd440674c2",
+      "api_urls": [
+        "https://apihub.agnes-ai.com/v1"
+      ],
+      "templates": [],
+      "defaults": {
+        "api_urls": [
+          "https://apihub.agnes-ai.com/v1"
+        ],
+        "remote_id": null,
+        "template_owner": false,
+        "default_model_ids": [
+          "agnes-2.5-flash",
+          "agnes-2.5-pro",
+          "agnes-2.5-pro-beta"
+        ],
+        "models": [
+          {
+            "id": "agnes-2.5-flash",
+            "name": "Agnes 2.5 Flash",
+            "supports_image": true,
+            "supports_video": false,
+            "probe_source": "documentation",
+            "is_free": true,
+            "is_recommended": true,
+            "source": "builtin",
+            "availability_status": "unverified",
+            "availability_retryable": true,
+            "config_overrides": [],
+            "max_input_length": 131072,
+            "max_input_length_configured": false,
+            "generate_kwargs": {},
+            "relay_reasoning": true
+          },
+          {
+            "id": "agnes-2.5-pro",
+            "name": "Agnes 2.5 Pro",
+            "supports_image": true,
+            "supports_video": false,
+            "probe_source": "documentation",
+            "is_free": false,
+            "source": "builtin",
+            "availability_status": "unverified",
+            "availability_retryable": true,
+            "config_overrides": [],
+            "max_input_length": 131072,
+            "max_input_length_configured": false,
+            "generate_kwargs": {},
+            "relay_reasoning": true
+          },
+          {
+            "id": "agnes-2.5-pro-beta",
+            "name": "Agnes 2.5 Pro Beta",
+            "supports_image": true,
+            "supports_video": false,
+            "probe_source": "documentation",
+            "is_free": false,
+            "source": "builtin",
+            "availability_status": "unverified",
+            "availability_retryable": true,
+            "config_overrides": [],
+            "max_input_length": 131072,
+            "max_input_length_configured": false,
+            "generate_kwargs": {},
+            "relay_reasoning": true
+          }
+        ]
+      },
+      "free_model_ids": [
+        "agnes-2.5-flash"
+      ]
     }
   }
 }

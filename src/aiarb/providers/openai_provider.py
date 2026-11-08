@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """An OpenAI provider implementation."""
 
 from __future__ import annotations
@@ -182,9 +182,14 @@ class OpenAIProvider(Provider):
         )
 
     def _client(self, timeout: float = 5) -> AsyncOpenAI:
+        # Local / free-tier providers may have an empty api_key; the OpenAI
+        # SDK rejects empty credentials, so inject a placeholder.
+        effective_api_key = self.api_key
+        if not effective_api_key and not self.require_api_key:
+            effective_api_key = f"not-required-{self.id}"
         kwargs: dict = {
             "base_url": self.base_url,
-            "api_key": self.api_key,
+            "api_key": effective_api_key,
             "timeout": timeout,
         }
         headers = self._build_default_headers()
@@ -554,9 +559,17 @@ class OpenAIProvider(Provider):
 
         from .openai_chat_model_compat import OpenAIChatModelCompat
 
+        # Local / free-tier providers (Ollama, LM Studio, Kilo, etc.) may
+        # have ``require_api_key=False`` with an empty ``api_key``.  The
+        # OpenAI SDK (>=1.x) rejects empty credentials at client init time,
+        # so inject a harmless placeholder when no real key is configured.
+        effective_api_key = self.api_key
+        if not effective_api_key and not self.require_api_key:
+            effective_api_key = f"not-required-{self.id}"
+
         credential = OpenAICredential(
             id=f"aiarb-{self.id}",
-            api_key=self.api_key,
+            api_key=effective_api_key,
             base_url=self.base_url,
         )
 
@@ -1060,3 +1073,99 @@ class KiloProvider(_FreeSuffixProviderMixin, OpenAIProvider):
     cache_documentation: ClassVar[
         str | None
     ] = f"https://kilo.ai/docs/gateway/authentication"
+
+
+class GitHubModelsProvider(OpenAIProvider):
+    """GitHub Models provider.
+
+    GitHub Models exposes an OpenAI-compatible chat completions endpoint at
+    ``https://models.github.ai/inference``.  Unlike many OpenAI-compatible
+    providers it does **not** implement the ``/models`` listing endpoint, so
+    the generic ``OpenAIProvider.check_connection`` (which calls
+    ``client.models.list()``) receives a 404 response.  This override checks
+    connectivity by issuing a minimal chat completion request instead.
+    """
+
+    async def check_connection(self, timeout: float = 5) -> tuple[bool, str]:
+        """Check connectivity via a tiny chat completion request."""
+        # Prefer a built-in model; fall back to a well-known GitHub Models id.
+        model_id = ""
+        for candidate in ("openai/gpt-4o-mini", "gpt-4o-mini"):
+            if any(m.id == candidate for m in self.models):
+                model_id = candidate
+                break
+        if not model_id:
+            model_id = (
+                self.models[0].id if self.models else "openai/gpt-4o-mini"
+            )
+
+        client = self._client(timeout=timeout)
+        try:
+            res = await client.chat.completions.create(
+                model=model_id,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "ping",
+                            },
+                        ],
+                    },
+                ],
+                timeout=timeout,
+                stream=True,
+                **token_limit_kwargs(model_id, 5),
+            )
+            try:
+                async for _ in res:
+                    break
+            finally:
+                await res.response.aclose()
+            return True, ""
+        except APIError as exc:
+            detail = self.connection_error_message(exc)
+            status = getattr(exc, "status_code", "unknown")
+            return (
+                False,
+                f"API error when connecting to `{self.base_url}` "
+                f"(status={status}): {detail}",
+            )
+        except Exception as exc:
+            return (
+                False,
+                f"Unknown exception when connecting to `{self.base_url}`: "
+                f"{self.connection_error_message(exc)}",
+            )
+        finally:
+            await self._close_client(client)
+
+
+class AgnesProvider(OpenAIProvider):
+    """Agnes AI provider.
+
+    Agnes AI (https://agnes-ai.com) exposes an OpenAI-compatible API at
+    ``https://apihub.agnes-ai.com/v1``.  Some CDN/proxy configurations cause
+    TLS handshake failures when Python's default ``httpx`` client inherits
+    system proxy settings (``trust_env=True``).  This override passes a
+    custom ``httpx.AsyncClient`` with ``trust_env=False`` so the SDK talks
+    directly to the Agnes AI gateway, bypassing any local proxy that may
+    break the TLS connection.
+    """
+
+    def _client(self, timeout: float = 5) -> AsyncOpenAI:
+        http_client = httpx.AsyncClient(
+            trust_env=False,
+            timeout=timeout,
+        )
+        kwargs: dict = {
+            "base_url": self.base_url,
+            "api_key": self.api_key,
+            "timeout": timeout,
+            "http_client": http_client,
+        }
+        headers = self._build_default_headers()
+        if headers:
+            kwargs["default_headers"] = headers
+        return AsyncOpenAI(**kwargs)

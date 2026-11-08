@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-argument
 """Tests for Scroll's successful-model-input acknowledgement hook."""
 from types import SimpleNamespace
@@ -9,7 +9,7 @@ from agentscope.event import ModelCallEndEvent
 from agentscope.message import HintBlock, Msg, TextBlock
 from agentscope.model import FinishedReason
 
-from aiarb.agents.react_agent import AIARBAgent
+from aiarb.agents.react_agent import AIArbAgent
 from aiarb.loop.gates import StopAction, StopHandlerResult
 from aiarb.providers.model_capability_cache import get_capability_cache
 
@@ -31,7 +31,7 @@ _AUDIO_INPUT_PART_ERROR = (
 
 
 class SeenTracker:
-    """Minimal Scroll manager surface used by ``AIARBAgent._reasoning``."""
+    """Minimal Scroll manager surface used by ``AIArbAgent._reasoning``."""
 
     def __init__(self) -> None:
         self.acknowledged: list[set[str]] = []
@@ -73,9 +73,9 @@ class ThinkingOmissionModel:
         return True
 
 
-def make_agent(tracker: SeenTracker) -> AIARBAgent:
+def make_agent(tracker: SeenTracker) -> AIArbAgent:
     """Build only the attributes the reasoning wrapper reads."""
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent._context_manager = tracker
     agent._gate_pending_stop = None
     agent._request_context = {}
@@ -97,7 +97,7 @@ def make_agent(tracker: SeenTracker) -> AIARBAgent:
 
 def test_thinking_omissions_delegate_to_model_wrapper() -> None:
     """Fallback-aware model interfaces take precedence over one formatter."""
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     model = ThinkingOmissionModel()
     agent.model = model
     agent.formatter = SimpleNamespace()
@@ -177,7 +177,7 @@ async def test_interrupted_model_call_does_not_acknowledge_results(
 
 async def test_compress_context_forwards_one_shot_instructions():
     tracker = CompressionTracker()
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent._context_manager = tracker
     agent._compress_context_middlewares = []
     agent.state = SimpleNamespace(context=[])
@@ -260,5 +260,5 @@ def test_audio_fallback_error_classifies_unknown_audio_parts(
 ) -> None:
     """Recognize unsupported input_audio variants without broad 422 matches."""
     assert (
-        AIARBAgent._is_audio_fallback_error(RuntimeError(error)) is expected
+        AIArbAgent._is_audio_fallback_error(RuntimeError(error)) is expected
     )

@@ -58,7 +58,9 @@ export default function PawAppsPage() {
           <Spin
             tip={t("common.loading")}
             style={{ display: "block", margin: "10vh auto" }}
-          />
+          >
+            <div />
+          </Spin>
         ) : apps.length === 0 ? (
           <Empty
             image={<AppWindow size={48} strokeWidth={1} />}

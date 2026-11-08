@@ -10,6 +10,7 @@ import {
   FileText,
   Info,
   Languages,
+  LayoutGrid,
   ListCollapse,
   LogOut,
   MessageSquareText,
@@ -62,6 +63,7 @@ import {
 } from "./constants";
 import styles from "./sidebarSettingsPanel.module.less";
 import LocalAvatarPicker from "./LocalAvatarPicker";
+import { useSidebarModeStore, type SidebarMode } from "../stores/sidebarModeStore";
 
 type ContentWidth = "standard" | "wide";
 
@@ -203,6 +205,8 @@ export default function SidebarSettingsPanel({
   onLogout,
 }: SidebarSettingsPanelProps) {
   const { t, i18n } = useTranslation();
+  const sidebarMode = useSidebarModeStore((s) => s.mode);
+  const setSidebarMode = useSidebarModeStore((s) => s.setMode);
   const panelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     panelRef.current
@@ -367,6 +371,30 @@ export default function SidebarSettingsPanel({
     />
   );
 
+  const layoutModeChoices = (
+    <ChoicePanel<SidebarMode>
+      choices={[
+        {
+          value: "simple",
+          label: t("sidebar.settings.layoutSimple", "Simple mode"),
+          icon: <UnfoldHorizontal size={15} />,
+        },
+        {
+          value: "full",
+          label: t("sidebar.settings.layoutFull", "Full mode"),
+          icon: <LayoutGrid size={15} />,
+        },
+        {
+          value: "design",
+          label: t("sidebar.settings.layoutDesign", "Design mode"),
+          icon: <Monitor size={15} />,
+        },
+      ]}
+      value={sidebarMode}
+      onChange={(mode) => finishAction(() => setSidebarMode(mode))}
+    />
+  );
+
   const appearanceContent = (
     <div className={styles.flyoutPanel}>
       <FlyoutItem
@@ -378,6 +406,11 @@ export default function SidebarSettingsPanel({
         icon={<Palette size={16} />}
         label={t("sidebar.settings.theme", "Theme")}
         content={themeChoices}
+      />
+      <FlyoutItem
+        icon={<LayoutGrid size={16} />}
+        label={t("sidebar.settings.layout", "Layout mode")}
+        content={layoutModeChoices}
       />
       <button
         type="button"

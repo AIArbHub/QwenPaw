@@ -23,6 +23,8 @@ import {
   WarningFilled,
   InfoCircleOutlined,
   DeleteOutlined,
+  FolderOpenOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import {
@@ -41,6 +43,10 @@ export default function RestorePanel() {
   const [restoring, setRestoring] = useState(false);
   const [result, setResult] = useState<RestoreResult | null>(null);
 
+  // 多映射文件批量还原
+  const [batchMappings, setBatchMappings] = useState<Array<{ name: string; content: string }>>([]);
+  const [batchResults, setBatchResults] = useState<Array<{ name: string; result: RestoreResult | null; error?: string }>>([]);
+
   // 通知区域
   const [notice, setNotice] = useState<{
     tone: "info" | "error" | "success";
@@ -54,6 +60,47 @@ export default function RestorePanel() {
       );
       return;
     }
+
+    // 如果有多个映射文件，执行批量还原
+    if (batchMappings.length > 0) {
+      setRestoring(true);
+      setResult(null);
+      setBatchResults([]);
+      setNotice(null);
+      const results: Array<{ name: string; result: RestoreResult | null; error?: string }> = [];
+      let totalReplacements = 0;
+      let totalUnmatched = 0;
+      let currentText = redactedText;
+
+      for (const mapping of batchMappings) {
+        try {
+          const res = await documentToolsApi.restoreText(currentText, mapping.content);
+          results.push({ name: mapping.name, result: res });
+          if (res.success) {
+            totalReplacements += res.replacements.length;
+            totalUnmatched += res.unmatched.length;
+            // 用还原后的文本继续下一个映射
+            currentText = res.restored_text;
+          }
+        } catch (err: any) {
+          results.push({ name: mapping.name, result: null, error: err?.message || "还原失败" });
+        }
+      }
+
+      setBatchResults(results);
+      const lastSuccess = [...results].reverse().find(r => r.result?.success);
+      if (lastSuccess?.result) {
+        setResult(lastSuccess.result);
+        setRedactedText(currentText);
+      }
+      setNotice({
+        tone: totalUnmatched > 0 ? "success" : "success",
+        text: `批量还原完成（${batchMappings.length} 个映射文件），共替换 ${totalReplacements} 处${totalUnmatched > 0 ? `，${totalUnmatched} 个代号未匹配` : ""}`,
+      });
+      setRestoring(false);
+      return;
+    }
+
     if (!mappingJson.trim()) {
       message.warning(
         t("documentTools.restore.pasteMapping", "请先输入映射文件内容"),
@@ -74,7 +121,7 @@ export default function RestorePanel() {
           tone: "success",
           text: `还原完成，替换 ${res.replacements.length} 处${
             res.unmatched.length > 0
-              ? `，${res.unmatched.length} 个 token 未匹配`
+              ? `，${res.unmatched.length} 个代号未匹配`
               : ""
           }`,
         });
@@ -95,7 +142,7 @@ export default function RestorePanel() {
     } finally {
       setRestoring(false);
     }
-  }, [redactedText, mappingJson, t]);
+  }, [redactedText, mappingJson, batchMappings, t]);
 
   const handleUploadMapping = useCallback(
     (file: File) => {
@@ -120,9 +167,37 @@ export default function RestorePanel() {
     [],
   );
 
+  // 批量加载映射文件（支持文件夹选择）
+  const handleBatchUploadMappings = useCallback(
+    (files: File[]) => {
+      let loaded = 0;
+      for (const file of files) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setBatchMappings(prev => [...prev, { name: file.name, content: String(reader.result || "") }]);
+          loaded++;
+          if (loaded === files.length) {
+            setNotice({
+              tone: "info",
+              text: `已加载 ${files.length} 个映射文件，点击「执行还原」将逐一应用`,
+            });
+          }
+        };
+        reader.readAsText(file);
+      }
+      return false;
+    },
+    [],
+  );
+
   const handleClearMapping = useCallback(() => {
     setMappingJson("");
     setMappingFileName("");
+  }, []);
+
+  const handleClearBatchMappings = useCallback(() => {
+    setBatchMappings([]);
+    setBatchResults([]);
   }, []);
 
   const handleCopyResult = useCallback(
@@ -141,14 +216,14 @@ export default function RestorePanel() {
         showIcon
         icon={<InfoCircleOutlined />}
         style={{ marginBottom: 12 }}
-        message={t(
-          "documentTools.restore.description",
-          "脱敏还原工具",
-        )}
-        description={t(
-          "documentTools.restore.descriptionText",
-          "将脱敏后的文本（含 Token 如 COMPANY_001、甲方等代词）还原为原始名称。需要提供脱敏时生成的映射文件（.mapping.enc）。",
-        )}
+          message={t(
+            "documentTools.restore.description",
+            "脱敏还原工具",
+          )}
+          description={t(
+            "documentTools.restore.descriptionText",
+            "将脱敏后的文本（含代号如 COMPANY_001、甲方等）还原为原始名称。需要提供脱敏时生成的映射文件。",
+          )}
       />
 
       {/* 通知区域 */}
@@ -170,7 +245,7 @@ export default function RestorePanel() {
       )}
 
       {/* 映射文件状态 */}
-      {mappingFileName && (
+      {mappingFileName && !batchMappings.length && (
         <Card
           size="small"
           style={{ marginBottom: 12 }}
@@ -186,6 +261,65 @@ export default function RestorePanel() {
         </Card>
       )}
 
+      {/* 批量映射文件区域 — 卷宗级还原 */}
+      <Card
+        size="small"
+        style={{ marginBottom: 12, background: "#fafafa" }}
+        title={
+          <Space>
+            <FolderOpenOutlined />
+            <span style={{ fontSize: 15 }}>映射文件（可加载多个，适用于卷宗级还原）</span>
+          </Space>
+        }
+        extra={
+          batchMappings.length > 0 ? (
+            <Button size="small" danger icon={<DeleteOutlined />} onClick={handleClearBatchMappings}>
+              清空
+            </Button>
+          ) : null
+        }
+      >
+        {batchMappings.length === 0 ? (
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <Upload
+              accept=".enc,.json"
+              beforeUpload={handleUploadMapping}
+              showUploadList={false}
+            >
+              <Button icon={<UploadOutlined />} style={{ fontSize: 15, height: 40 }}>
+                加载单个映射文件
+              </Button>
+            </Upload>
+            <Upload
+              accept=".enc,.json"
+              beforeUpload={(file) => { handleBatchUploadMappings([file]); return false; }}
+              showUploadList={false}
+              multiple
+            >
+              <Button icon={<FolderOpenOutlined />} style={{ fontSize: 15, height: 40 }}>
+                加载多个映射文件
+              </Button>
+            </Upload>
+            <Text type="secondary" style={{ fontSize: 13 }}>
+              卷宗脱敏时，每个文件会生成单独的映射文件。加载全部映射文件后，系统会逐一还原。
+            </Text>
+          </Space>
+        ) : (
+          <div>
+            {batchMappings.map((m, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0", borderBottom: i < batchMappings.length - 1 ? "1px solid #f0f0f0" : "none" }}>
+                <Space>
+                  <CheckCircleFilled style={{ color: "#52c41a" }} />
+                  <Tag color="cyan">{i + 1}</Tag>
+                  <Text ellipsis style={{ maxWidth: 250, fontSize: 14 }}>{m.name}</Text>
+                </Space>
+                <Button type="text" size="small" danger icon={<DeleteOutlined />} onClick={() => setBatchMappings(prev => prev.filter((_, idx) => idx !== i))} />
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
       <Row gutter={16}>
         <Col span={12}>
           <Text strong>
@@ -196,7 +330,7 @@ export default function RestorePanel() {
             onChange={(e) => setRedactedText(e.target.value)}
             placeholder={t(
               "documentTools.restore.redactedPlaceholder",
-              "粘贴脱敏后的文本（包含 COMPANY_001、A公司、甲方等 Token）...",
+              "粘贴脱敏后的文本（包含 COMPANY_001、A公司、甲方等代号）...",
             )}
             rows={10}
             style={{ marginTop: 4 }}
@@ -234,7 +368,7 @@ export default function RestorePanel() {
             onChange={(e) => setMappingJson(e.target.value)}
             placeholder={t(
               "documentTools.restore.mappingPlaceholder",
-              "粘贴映射文件内容（JSON 或 base64 编码），或点击上方按钮上传 .mapping.enc 文件...",
+              "粘贴映射文件内容，或点击上方按钮上传映射文件...",
             )}
             rows={10}
             style={{
@@ -254,6 +388,7 @@ export default function RestorePanel() {
           onClick={handleRestore}
           loading={restoring}
           disabled={!redactedText.trim() || !mappingJson.trim()}
+          style={{ fontSize: 17, height: 48, paddingLeft: 32, paddingRight: 32 }}
         >
           {t("documentTools.restore.execute", "执行还原")}
         </Button>
@@ -279,7 +414,7 @@ export default function RestorePanel() {
                   <Statistic
                     title={t(
                       "documentTools.restore.unmatched",
-                      "未匹配Token",
+                      "未匹配代号",
                     )}
                     value={result.unmatched.length}
                     valueStyle={{
@@ -391,7 +526,7 @@ export default function RestorePanel() {
                   style={{ marginTop: 12 }}
                   message={t(
                     "documentTools.restore.unmatchedTokens",
-                    "未匹配的 Token（映射文件中可能缺失）",
+                    "未匹配的代号（映射文件中可能缺失）",
                   )}
                   description={
                     <Space wrap>
@@ -423,6 +558,60 @@ export default function RestorePanel() {
               }
             />
           )}
+        </Card>
+      )}
+
+      {/* 批量还原结果 */}
+      {batchResults.length > 0 && (
+        <Card
+          size="small"
+          style={{ marginTop: 12 }}
+          title={
+            <Space>
+              <FileTextOutlined />
+              <span style={{ fontSize: 15 }}>批量还原结果（{batchResults.length} 个映射文件）</span>
+            </Space>
+          }
+        >
+          <Table
+            size="small"
+            pagination={false}
+            dataSource={batchResults}
+            rowKey={(r, i) => `${r.name}-${i}`}
+            columns={[
+              {
+                title: "映射文件",
+                dataIndex: "name",
+                width: 200,
+                ellipsis: true,
+                render: (v: string) => <Text ellipsis style={{ maxWidth: 180 }}>{v}</Text>,
+              },
+              {
+                title: "状态",
+                width: 80,
+                render: (_: any, r: any) =>
+                  r.result?.success ? <Tag color="green" icon={<CheckCircleFilled />}>成功</Tag>
+                  : r.error ? <Tag color="red">失败</Tag>
+                  : <Tag color="blue">部分成功</Tag>,
+              },
+              {
+                title: "替换数",
+                width: 80,
+                render: (_: any, r: any) => r.result?.replacements?.length ?? "-",
+              },
+              {
+                title: "未匹配",
+                width: 80,
+                render: (_: any, r: any) => r.result?.unmatched?.length ?? "-",
+              },
+              {
+                title: "错误",
+                dataIndex: "error",
+                ellipsis: true,
+                render: (v: string) => v ? <Text type="danger">{v}</Text> : "-",
+              },
+            ]}
+          />
         </Card>
       )}
     </div>

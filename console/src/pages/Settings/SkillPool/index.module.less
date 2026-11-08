@@ -900,3 +900,41 @@
   align-items: flex-start;
   gap: 8px;
 }
+
+/* ─── Category Tabs ────────────────────────────────────────────────────────── */
+.categoryTabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.categoryTab,
+.categoryTabActive {
+  padding: 4px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  background: transparent;
+  color: var(--app-text-secondary);
+
+  &:hover {
+    border-color: var(--app-accent-border);
+    color: var(--app-accent);
+  }
+}
+
+.categoryTabActive {
+  background: var(--app-accent);
+  border-color: var(--app-accent);
+  color: #fff;
+
+  &:hover {
+    background: var(--app-accent);
+    color: #fff;
+  }
+}

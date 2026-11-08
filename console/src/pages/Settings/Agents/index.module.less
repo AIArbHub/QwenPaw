@@ -4,13 +4,224 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+
+  :global {
+    .ant-card-body,
+    .aiarb-card-body {
+      padding: 0 !important;
+    }
+
+    .aiarb-table-wrapper
+      .aiarb-table-container
+      .aiarb-table-thead
+      > tr
+      > th {
+      background: var(--app-surface) !important;
+    }
+
+    .aiarb-table-cell {
+      padding: 8px 16px !important;
+    }
+
+    .aiarb-table-wrapper
+      .aiarb-table-container
+      table
+      > thead
+      > tr:first-child
+      > *:last-child {
+      border-radius: 0px !important;
+    }
+  }
 }
 
 .headerRight {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-wrap: wrap;
+}
+
+/* ---- Search Box ---- */
+.searchBox {
+  width: 240px;
+  height: 36px;
+  border-radius: 999px !important;
+  border-color: var(--app-border) !important;
+  background: var(--app-surface) !important;
+
+  &:hover,
+  &:focus {
+    border-color: var(--app-text-secondary) !important;
+  }
+}
+
+/* ---- Stats Cards ---- */
+.statsRow {
+  display: flex;
+  gap: 16px;
+  padding: 0 16px 16px;
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+.statCard {
+  flex: 1;
+  min-height: 100px;
+  border-radius: 12px;
+  background: var(--app-fill-subtle);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  transition: box-shadow 0.2s ease;
+}
+
+.statNum {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--app-text);
+  line-height: 1.2;
+}
+
+.statLbl {
+  font-size: 13px;
+  color: var(--app-text-tertiary);
+}
+
+/* ---- Page-level Tabs (single vs group) ---- */
+.pageTabs {
+  padding: 0 16px;
+
+  :global {
+    .ant-tabs-nav,
+    .aiarb-tabs-nav {
+      margin-bottom: 0;
+
+      &::before {
+        border-bottom: none;
+      }
+    }
+
+    .ant-tabs-tab,
+    .aiarb-tabs-tab {
+      padding: 12px 0;
+      font-size: 15px;
+      font-weight: 500;
+
+      &.ant-tabs-tab-active .ant-tabs-tab-btn,
+      &.aiarb-tabs-tab-active .aiarb-tabs-tab-btn {
+        font-weight: 600;
+        color: var(--app-accent);
+      }
+    }
+
+    .ant-tabs-ink-bar,
+    .aiarb-tabs-ink-bar {
+      background: var(--app-accent);
+      height: 3px;
+    }
+  }
+}
+
+/* ---- Tabs Row ---- */
+.tabsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  margin-bottom: 4px;
+  gap: 16px;
+}
+
+/* ---- View Toggle ---- */
+.viewToggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.viewToggleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--app-text-tertiary);
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: all 0.2s;
+
+  &:hover {
+    color: var(--app-text);
+    background: var(--app-fill-subtle);
+  }
+
+  &.viewToggleBtnActive {
+    color: var(--app-text);
+    background: var(--app-fill);
+  }
+}
+
+/* ---- Card Grid ---- */
+.agentsGrid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  auto-rows: minmax(262px, auto);
+  gap: 32px;
+  padding: 16px;
+
+  @media (max-width: 768px) {
+    gap: 18px;
+  }
+}
+
+/* ---- Table Card ---- */
+.tableCard {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: 0 16px;
+
+  :global {
+    .ant-card,
+    .aiarb-card {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ant-card-body,
+    .aiarb-card-body {
+      padding: 0 !important;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .aiarb-table-wrapper {
+      flex: 1;
+      min-height: 0;
+    }
+
+    .aiarb-table-container {
+      max-height: 100%;
+      overflow: auto;
+    }
+  }
 }
 
 .galleryContainer {
@@ -20,6 +231,58 @@
   padding: 4px;
 }
 
+.backendTag {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-color: var(--app-border);
+  color: var(--app-text-secondary);
+  background: var(--app-fill-subtle);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.backendTagThirdParty {
+  border-color: var(--app-accent-border);
+  color: var(--app-accent);
+  background: var(--app-accent-faint);
+}
+
+.dragHandleButton {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--app-text-tertiary);
+  cursor: grab;
+}
+
+.dragHandleButton:hover {
+  background: var(--app-fill-subtle);
+  color: var(--app-text-secondary);
+}
+
+.dragHandleButton:active {
+  cursor: grabbing;
+}
+
+.dragHandleButton[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.sortableRowDragging {
+  background: var(--app-accent-faint);
+}
+
+/* ─── Skill Picker (agent create/edit modal) ───────────────────────────────── */
 .pickerGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -51,6 +314,11 @@
   &.pickerCardSelected {
     border-color: var(--app-accent);
     background: var(--app-accent-soft);
+  }
+
+  &.pickerCardDisabled {
+    cursor: default;
+    opacity: 0.55;
   }
 }
 

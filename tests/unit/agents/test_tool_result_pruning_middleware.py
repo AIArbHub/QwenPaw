@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # pylint: disable=protected-access,unused-argument,wrong-import-position
 """Tests for tool-result pruning middleware."""
 
@@ -35,7 +35,7 @@ from aiarb.config.config import (  # noqa: E402
 )
 from aiarb.constant import TRUNCATION_NOTICE_MARKER  # noqa: E402
 from aiarb.runtime.builder import AgentBuilder  # noqa: E402
-from aiarb.agents.react_agent import AIARBAgent  # noqa: E402
+from aiarb.agents.react_agent import AIArbAgent  # noqa: E402
 from aiarb.tool_calls import (  # noqa: E402
     COORDINATOR_OWNED_EXEC_TIMEOUT_SECS,
     ToolCoordinator,
@@ -74,7 +74,7 @@ async def test_scroll_artifact_retention_uses_tool_result_setting():
         ),
         scroll_config=ScrollContextConfig(history_retention_days=45),
     )
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent.__dict__.update(
         _governor=None,
         _context_manager=None,
@@ -84,12 +84,12 @@ async def test_scroll_artifact_retention_uses_tool_result_setting():
         ),
     )
 
-    await AIARBAgent.close(agent)
+    await AIArbAgent.close(agent)
     assert offloader.retention_days == [7]
 
     lcc.scroll_config.history_retention_days = 0
     offloader.retention_days.clear()
-    await AIARBAgent.close(agent)
+    await AIArbAgent.close(agent)
     assert offloader.retention_days == [7]
 
 
@@ -113,7 +113,7 @@ async def test_compactor_close_keeps_history_and_artifact_cleanup(
     )
     context_manager = types.SimpleNamespace(close=Mock())
     offloader = types.SimpleNamespace(cleanup_expired=Mock())
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent.__dict__.update(
         _decision_compactor=compactor,
         _context_manager=context_manager,
@@ -690,7 +690,7 @@ def test_spawn_subagent_hook_exposes_internal_timeout_cap():
         _get_tool_coordinator=lambda: coordinator,
     )
 
-    AIARBAgent._register_tool_call_hooks(agent)
+    AIArbAgent._register_tool_call_hooks(agent)
 
     hook = coordinator.hooks.get("spawn_subagent")
     assert hook.default_timeout_secs is None

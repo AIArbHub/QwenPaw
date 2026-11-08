@@ -48,7 +48,7 @@ _CATALOG_PLAN = ProviderDiscoveryPolicy(
 
 BUILTIN_DISCOVERY_POLICIES: dict[str, ProviderDiscoveryPolicy] = {
     "typesafe": ProviderDiscoveryPolicy("provider_specific"),
-    "AIARB-local": ProviderDiscoveryPolicy(
+    "aiarb-local": ProviderDiscoveryPolicy(
         "unsupported",
         sync_mode="disabled",
         requires_auth=False,
@@ -118,6 +118,7 @@ BUILTIN_DISCOVERY_POLICIES: dict[str, ProviderDiscoveryPolicy] = {
     "volcengine-cn-agentplan": _CATALOG_PLAN,
     "mimo-tokenplan": _CATALOG_PLAN,
     "mimo": _OPENAI_DYNAMIC,
+    "github-models": _CATALOG_PLAN,
     "agnes": ProviderDiscoveryPolicy(
         "openai_models",
         sync_mode="startup",

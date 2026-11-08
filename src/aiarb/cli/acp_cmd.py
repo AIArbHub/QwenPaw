@@ -98,7 +98,7 @@ def acp_cmd(
         except ValueError as exc:
             raise click.UsageError(str(exc)) from exc
 
-    from ..agents.acp.server import run_AIARB_agent, silence_stdout
+    from ..agents.acp.server import run_aiarb_agent, silence_stdout
 
     # Warm-up heavy native imports before the event loop starts. In the full
     # ACP runtime, the first `import numpy` (via agentscope.embedding inside
@@ -116,7 +116,7 @@ def acp_cmd(
 
     try:
         asyncio.run(
-            run_AIARB_agent(
+            run_aiarb_agent(
                 agent_id=agent,
                 workspace_dir=workspace_dir,
                 local_diagnostics=local_diagnostics,

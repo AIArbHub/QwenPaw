@@ -3,7 +3,7 @@
 """Audio-fallback error classifier (follow-up to issue #7015).
 
 ``_is_audio_fallback_error`` gates the strip-audio-and-retry path in
-``AIARBAgent._reasoning``.  The original classifier only recognized
+``AIArbAgent._reasoning``.  The original classifier only recognized
 DashScope's modality rejection ("incorrect modal ... audio ...").  Two
 rejection shapes fell through and killed the whole agent turn even
 though the audio file had already been delivered to the user:
@@ -22,7 +22,7 @@ audio rejections.
 """
 from __future__ import annotations
 
-from aiarb.agents.react_agent import AIARBAgent
+from aiarb.agents.react_agent import AIArbAgent
 
 
 class _FakeAPIError(Exception):
@@ -43,7 +43,7 @@ def test_dashscope_modality_rejection_matches() -> None:
         '(e.g., in system/assistant)."}',
         status_code=400,
     )
-    assert AIARBAgent._is_audio_fallback_error(exc) is True
+    assert AIArbAgent._is_audio_fallback_error(exc) is True
 
 
 def test_dashscope_invalid_url_rejection_matches() -> None:
@@ -55,7 +55,7 @@ def test_dashscope_invalid_url_rejection_matches() -> None:
         'it is correctly formatted.","type":"invalid_request_error"}}',
         status_code=400,
     )
-    assert AIARBAgent._is_audio_fallback_error(exc) is True
+    assert AIArbAgent._is_audio_fallback_error(exc) is True
 
 
 def test_llama_server_audio_unsupported_matches() -> None:
@@ -67,14 +67,14 @@ def test_llama_server_audio_unsupported_matches() -> None:
         'provide the mmproj","type":"server_error"}}',
         status_code=500,
     )
-    assert AIARBAgent._is_audio_fallback_error(exc) is True
+    assert AIArbAgent._is_audio_fallback_error(exc) is True
 
 
 def test_llama_server_audio_unsupported_without_status_matches() -> None:
     """The llama-server message is unambiguous on its own; status
     extraction is not required for this shape."""
     exc = Exception("audio input is not supported")
-    assert AIARBAgent._is_audio_fallback_error(exc) is True
+    assert AIArbAgent._is_audio_fallback_error(exc) is True
 
 
 def test_invalid_url_without_bad_request_status_does_not_match() -> None:
@@ -84,7 +84,7 @@ def test_invalid_url_without_bad_request_status_does_not_match() -> None:
         "The provided URL does not appear to be valid.",
         status_code=503,
     )
-    assert AIARBAgent._is_audio_fallback_error(exc) is False
+    assert AIArbAgent._is_audio_fallback_error(exc) is False
 
 
 def test_generic_server_error_does_not_match() -> None:
@@ -92,7 +92,7 @@ def test_generic_server_error_does_not_match() -> None:
         'Error code: 500 - {"error":{"message":"internal server error"}}',
         status_code=500,
     )
-    assert AIARBAgent._is_audio_fallback_error(exc) is False
+    assert AIArbAgent._is_audio_fallback_error(exc) is False
 
 
 def test_image_decode_error_does_not_match() -> None:
@@ -101,7 +101,7 @@ def test_image_decode_error_does_not_match() -> None:
         'Error code: 500 - {"error":{"message":"failed to decode image"}}',
         status_code=500,
     )
-    assert AIARBAgent._is_audio_fallback_error(exc) is False
+    assert AIArbAgent._is_audio_fallback_error(exc) is False
 
 
 def test_context_overflow_error_does_not_match() -> None:
@@ -111,7 +111,7 @@ def test_context_overflow_error_does_not_match() -> None:
         "Error code: 400 - context length exceeded",
         status_code=400,
     )
-    assert AIARBAgent._is_audio_fallback_error(exc) is False
+    assert AIArbAgent._is_audio_fallback_error(exc) is False
 
 
 def test_lm_studio_zero_audio_limit_matches() -> None:
@@ -122,7 +122,7 @@ def test_lm_studio_zero_audio_limit_matches() -> None:
         'in one prompt."}',
         status_code=400,
     )
-    assert AIARBAgent._is_audio_fallback_error(exc) is True
+    assert AIArbAgent._is_audio_fallback_error(exc) is True
 
 
 def test_lm_studio_nonzero_audio_limit_does_not_match() -> None:
@@ -133,4 +133,4 @@ def test_lm_studio_nonzero_audio_limit_does_not_match() -> None:
         "prompt.",
         status_code=400,
     )
-    assert AIARBAgent._is_audio_fallback_error(exc) is False
+    assert AIArbAgent._is_audio_fallback_error(exc) is False

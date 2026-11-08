@@ -1,24 +1,24 @@
 .documentToolsPage {
   padding: 0;
-  max-width: 960px;
+  max-width: 1000px;
   margin: 0 auto;
 
   .docToolsHeader {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 0 16px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    margin-bottom: 16px;
+    padding: 16px 0 20px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
 
     .docToolsHeaderLeft {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     .docToolsTitle {
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 700;
       letter-spacing: -0.01em;
     }
@@ -26,26 +26,38 @@
     .docToolsHeaderRight {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 8px;
     }
 
     .headerActionBtn {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
-      border: none;
-      border-radius: 8px;
-      background: transparent;
-      color: rgba(0, 0, 0, 0.5);
+      gap: 6px;
+      height: 40px;
+      min-width: 44px;
+      padding: 0 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      background: #fff;
+      color: rgba(0, 0, 0, 0.65);
       cursor: pointer;
-      font-size: 16px;
+      font-size: 14px;
       transition: all 0.2s;
 
       &:hover {
-        background: rgba(0, 0, 0, 0.05);
-        color: rgba(0, 0, 0, 0.85);
+        background: rgba(22, 119, 255, 0.06);
+        color: #1677ff;
+        border-color: #1677ff;
+      }
+
+      .headerActionLabel {
+        font-size: 14px;
+        font-weight: 500;
+
+        @media (max-width: 768px) {
+          display: none;
+        }
       }
     }
   }
@@ -55,8 +67,8 @@
   }
 
   .spinFallback {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     margin: 0 auto;
     border: 3px solid rgba(0, 0, 0, 0.08);
     border-top-color: #1677ff;

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Minimal loader and workspace wiring for a synthetic platform."""
 
 import base64
@@ -264,7 +264,7 @@ class Host:
         from agentscope.model import ChatModelBase
         from agentscope.model._model_response import ChatResponse
         from aiarb.agents import model_factory
-        from aiarb.agents.react_agent import AIARBAgent
+        from aiarb.agents.react_agent import AIArbAgent
         from aiarb.app.channels.manager import ChannelManager
         from aiarb.app.chats.session import SafeJSONSession
         from aiarb.app.workspace.workspace_plugins import WorkspacePlugins
@@ -357,7 +357,7 @@ class Host:
             phase, name = Phase.POST_AGENT_BUILD, "observe_real_agent"
 
             async def run(self, ctx):
-                assert isinstance(ctx.agent, AIARBAgent)
+                assert isinstance(ctx.agent, AIArbAgent)
                 ws.builds.append(
                     {"pid": os.getpid(), "session_id": ctx.session_id},
                 )

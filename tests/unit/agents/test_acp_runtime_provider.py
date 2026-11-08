@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for the ephemeral ACP OpenAI-compatible provider."""
 
 # pylint: disable=protected-access
@@ -16,7 +16,7 @@ from aiarb.agents.acp.runtime_provider import (
     RUNTIME_OPENAI_PROVIDER_ID,
     OpenAIRuntimeProviderConfig,
 )
-from aiarb.agents.acp.server import AIARBACPAgent
+from aiarb.agents.acp.server import AIArbACPAgent
 from aiarb.config.config import ModelSlotConfig
 
 
@@ -167,7 +167,7 @@ def test_runtime_provider_rejects_invalid_model_info(model_info):
 async def test_runtime_provider_is_registered_only_in_memory(monkeypatch):
     manager = _FakeManager()
     original_model = manager.active_model
-    agent = AIARBACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
@@ -191,7 +191,7 @@ async def test_runtime_provider_is_registered_only_in_memory(monkeypatch):
 async def test_runtime_provider_initialization_uses_sync_io(monkeypatch):
     manager = _FakeManager()
     operations = []
-    agent = AIARBACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
@@ -220,7 +220,7 @@ async def test_runtime_provider_initialization_uses_sync_io(monkeypatch):
 async def test_runtime_provider_credentials_are_not_persisted(
     isolated_secret_dir,
 ):
-    agent = AIARBACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
@@ -241,7 +241,7 @@ async def test_runtime_provider_credentials_are_not_persisted(
 async def test_runtime_provider_forces_model_override(monkeypatch):
     manager = _FakeManager()
     workspace = _FakeWorkspace()
-    agent = AIARBACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
@@ -273,7 +273,7 @@ async def test_runtime_provider_forces_model_override(monkeypatch):
 
 async def test_runtime_provider_is_advertised_as_current_model(monkeypatch):
     manager = _FakeManager()
-    agent = AIARBACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
@@ -293,7 +293,7 @@ async def test_runtime_provider_is_advertised_as_current_model(monkeypatch):
 
 
 async def test_runtime_provider_rejects_other_model():
-    agent = AIARBACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
@@ -323,7 +323,7 @@ async def test_runtime_failure_is_an_acp_request_error(monkeypatch):
             del request
             yield await _raise_runtime_error()
 
-    agent = AIARBACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
@@ -364,7 +364,7 @@ async def test_cancel_stops_active_prompt(monkeypatch):
                 raise
             yield
 
-    agent = AIARBACPAgent(
+    agent = AIArbACPAgent(
         agent_id="default",
         runtime_provider=_config(),
     )
@@ -434,7 +434,7 @@ async def test_failed_workspace_start_cleans_up(
         f"Workspace",
         Mock(return_value=workspace),
     )
-    agent = AIARBACPAgent(agent_id=f"default", workspace_dir=tmp_path)
+    agent = AIArbACPAgent(agent_id=f"default", workspace_dir=tmp_path)
     monkeypatch.setattr(agent, f"_ensure_app_services", AsyncMock())
     monkeypatch.setattr(agent, f"_build_bootstrap_kwargs", lambda _: {})
     with pytest.raises(failure):

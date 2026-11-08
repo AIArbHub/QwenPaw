@@ -1714,10 +1714,10 @@ const useOsStylesBase = createStyles(({ css }, { p }: { p: OsPalette }) => ({
     overflow: auto;
     position: relative;
     @media (max-width: 600px) {
-      .qwenpaw-btn {
+      .aiarb-btn {
         min-height: 44px;
       }
-      .qwenpaw-btn-icon-only {
+      .aiarb-btn-icon-only {
         min-width: 44px;
       }
       .qwenpaw-select-selector {

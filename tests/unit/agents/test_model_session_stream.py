@@ -10,7 +10,7 @@ import openai
 import pytest
 from agentscope.agent import Agent
 
-from aiarb.agents.react_agent import AIARBAgent
+from aiarb.agents.react_agent import AIArbAgent
 from aiarb.exceptions import (
     ModelContextLengthExceededException,
     UnauthorizedModelAccessException,
@@ -21,7 +21,7 @@ from aiarb.runtime.heartbeat import _iter_with_heartbeat
 
 
 def bare_agent(session):
-    agent = object.__new__(AIARBAgent)
+    agent = object.__new__(AIArbAgent)
     agent._request_context = {f"session_id": session}
     agent._model_session_id = f"fallback"
     return agent

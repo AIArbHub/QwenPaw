@@ -52,7 +52,7 @@ def check_plugin_version_compat(
     if current.pre is not None:
         current = Version(f"{current.major}.{current.minor}.{current.micro}")
 
-    qv = manifest.aiarb_version
+    qv = manifest.AIARB_version
     if qv is not None:
         min_v = Version(qv.min)
         max_v = Version(qv.max) if qv.max else _derive_exclusive_max(qv.min)

@@ -7,7 +7,7 @@ from ..openai_provider import OpenAIProvider
 from ..local_decision_model import LocalDecisionProviderMixin
 
 
-class AIARBProvider(OpenAIProvider):
+class AIArbProvider(OpenAIProvider):
     """Keep service-specific policy separate from wire protocol support."""
 
     cache_modes: ClassVar[frozenset[str]] = frozenset([])

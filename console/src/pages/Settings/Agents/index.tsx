@@ -1,21 +1,42 @@
-import { AgentGallery } from "./components/AgentGallery";
-import { useState, useRef } from "react";
-import { Button, Form } from "antd";
+import { useState, useMemo } from "react";
+import { Card, Button, Form, Input, Tabs } from "antd";
+import {
+  Plus as PlusOutlined,
+  LayoutGrid as AppstoreOutlined,
+  List as UnorderedListOutlined,
+  Search as SearchOutlined,
+} from "lucide-react";
 import { useAppMessage } from "../../../hooks/useAppMessage";
-import { Plus as PlusOutlined } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { agentsApi } from "../../../api/modules/agents";
+import { invalidateSkillCache } from "../../../api/modules/skill";
 import type { AgentSummary, CopyAgentRequest } from "../../../api/types/agents";
 import { useAgentStore } from "../../../stores/agentStore";
 import { useAgents } from "./useAgents";
-import { AgentModal, CopyAgentModal } from "./components";
+import { useAgentStatsBatch } from "./hooks/useAgentStatsBatch";
+import CreateGroupChatModal from "../../../components/CreateGroupChatModal";
+import {
+  AgentTable,
+  AgentCard,
+  AgentModal,
+  CopyAgentModal,
+  AgentDetailDrawer,
+} from "./components";
 import { MAIL_DOMAIN_WHITELIST } from "./components/mailDomains";
 import { PageHeader } from "@/components/PageHeader";
+import { UnderlineTabs } from "@/components/UnderlineTabs";
 import { reorderAgents } from "./reorder";
+import { isHostAgent } from "../../../utils/hostAgent";
 import styles from "./index.module.less";
+
+type FilterMode = "all" | "enabled" | "disabled";
+type AgentTypeMode = "single" | "group";
 
 export default function AgentsPage() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const {
     agents,
     loading,
@@ -26,66 +47,96 @@ export default function AgentsPage() {
     setAgents,
   } = useAgents();
   const { selectedAgent, setSelectedAgent } = useAgentStore();
+
+  // 会话统计：仅对当前正在展示的智能体批量拉取，避免无谓请求。
+  const agentIds = useMemo(
+    () => (agents || []).map((a) => a.id),
+    [agents],
+  );
+  const { statsMap } = useAgentStatsBatch(agentIds);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingAgent, setEditingAgent] = useState<AgentSummary | null>(null);
   const [copyModalVisible, setCopyModalVisible] = useState(false);
   const [copyingAgent, setCopyingAgent] = useState<AgentSummary | null>(null);
   const [copying, setCopying] = useState(false);
-  const orderQueue = useRef<string[] | null>(null);
-  const orderSaving = useRef(false);
+  const [detailAgent, setDetailAgent] = useState<AgentSummary | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [reordering, setReordering] = useState(false);
   const [form] = Form.useForm();
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const { message } = useAppMessage();
+
+  const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
+  const [createGroupOpen, setCreateGroupOpen] = useState(false);
+  const [typeMode, setTypeMode] = useState<AgentTypeMode>(() =>
+    searchParams.get("type") === "group" ? "group" : "single",
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // 区分单个智能体与群聊（host）智能体：默认仅展示单个智能体，
+  // 群聊保持入口（typeMode 切到 "group" 后显示）。
+  const singleAgents = useMemo(
+    () => (agents || []).filter((a) => !isHostAgent(a)),
+    [agents],
+  );
+  const groupAgents = useMemo(
+    () => (agents || []).filter((a) => isHostAgent(a)),
+    [agents],
+  );
+  const typeCounts = useMemo(
+    () => ({ single: singleAgents.length, group: groupAgents.length }),
+    [singleAgents, groupAgents],
+  );
+
+  const enabledCount = useMemo(
+    () =>
+      (typeMode === "single" ? singleAgents : groupAgents).filter(
+        (a) => a.enabled,
+      ).length,
+    [singleAgents, groupAgents, typeMode],
+  );
+  const typeBaseAgents = typeMode === "single" ? singleAgents : groupAgents;
+  const disabledCount = typeBaseAgents.length - enabledCount;
+
+  const filteredAgents = useMemo(() => {
+    let result = typeBaseAgents;
+    if (filterMode === "enabled") {
+      result = result.filter((a) => a.enabled);
+    } else if (filterMode === "disabled") {
+      result = result.filter((a) => !a.enabled);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter(
+        (a) =>
+          a.name?.toLowerCase().includes(q) ||
+          a.id.toLowerCase().includes(q) ||
+          a.description?.toLowerCase().includes(q),
+      );
+    }
+    return result;
+  }, [typeBaseAgents, filterMode, searchQuery]);
 
   const handleCreate = () => {
     setEditingAgent(null);
     form.resetFields();
     form.setFieldsValue({
       workspace_dir: "",
+      active_model_provider: undefined,
+      active_model_model: undefined,
       mail_mode: "none",
       mail_credential: undefined,
       mail_push: undefined,
-      backend: "AIARB",
+      backend: "aiarb",
     });
     setSelectedSkills([]);
     setModalVisible(true);
   };
 
-  const handleEdit = async (agent: AgentSummary) => {
-    try {
-      setSelectedSkills([]);
-      const config = await agentsApi.getAgent(agent.id);
-      setEditingAgent(agent);
-      const { mail, ...configRest } = config;
-      form.setFieldsValue({
-        ...configRest,
-        mail_mode: mail
-          ? mail.is_new_account
-            ? "dedicated"
-            : "personal"
-          : "none",
-        mail_credential: mail ? mail.credential : undefined,
-        mail_push: mail?.push
-          ? {
-              mode: mail.push.mode ?? "off",
-              // Legacy field "subject" is displayed and saved as
-              // "content" (subject + body matching).
-              rules: (mail.push.rules ?? []).map((rule) =>
-                rule.field === "subject"
-                  ? { ...rule, field: "content" as const }
-                  : rule,
-              ),
-              poll_interval_seconds: mail.push.poll_interval_seconds,
-              // Missing in legacy configs → backend defaults to false.
-              access_control_enabled: mail.push.access_control_enabled ?? false,
-            }
-          : undefined,
-      });
-      setModalVisible(true);
-    } catch (error) {
-      console.error("Failed to load agent config:", error);
-      message.error(t("agent.loadConfigFailed"));
-    }
+  const handleEdit = (agent: AgentSummary) => {
+    setDetailAgent(agent);
+    setDetailOpen(true);
   };
 
   const handleDelete = async (agentId: string) => {
@@ -150,6 +201,17 @@ export default function AgentsPage() {
     }
   };
 
+  const handleChat = (agentId: string) => {
+    setSelectedAgent(agentId);
+    navigate("/chat");
+  };
+
+  const handleHistory = (agentId: string) => {
+    setSelectedAgent(agentId);
+    sessionStorage.setItem("aiarb_pending_open_history", "1");
+    navigate("/chat");
+  };
+
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
@@ -159,11 +221,23 @@ export default function AgentsPage() {
           ? workspaceRaw.trim() || undefined
           : workspaceRaw;
 
-      const { mail_mode, mail_credential, mail_push, ...rest } = values;
-      // 0.2.0: the rules editor UI is hidden, so `mail_push.rules` is no
-      // longer a registered form field and won't appear in validateFields()
-      // results. Read the form store directly to pass legacy rules through
-      // unchanged (hidden-but-preserved policy).
+      const providerId = values.active_model_provider;
+      const modelId = values.active_model_model;
+      const active_model =
+        values.backend === "aiarb" && providerId && modelId
+          ? { provider_id: providerId, model: modelId }
+          : null;
+
+      const {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        active_model_provider: _active_model_provider,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        active_model_model: _active_model_model,
+        mail_mode,
+        mail_credential,
+        mail_push,
+        ...rest
+      } = values;
       const storedMailPush = form.getFieldValue("mail_push") as
         | {
             mode?: string;
@@ -178,8 +252,6 @@ export default function AgentsPage() {
           }
         | undefined;
       const pushMode = mail_push?.mode ?? storedMailPush?.mode ?? "off";
-      // Preserve existing rules as-is regardless of mode so editing an old
-      // agent never wipes its rule config on the backend.
       const pushRules = (
         (mail_push?.rules ?? storedMailPush?.rules ?? []) as Array<{
           field?: string;
@@ -188,7 +260,6 @@ export default function AgentsPage() {
           param?: string;
         }>
       ).map((rule) => ({
-        // Never submit the legacy "subject" value.
         field: rule?.field === "subject" ? "content" : rule?.field || "from",
         contains: (rule?.contains ?? "").trim(),
         action: rule?.action || "notify",
@@ -197,8 +268,6 @@ export default function AgentsPage() {
       const pollIntervalSeconds =
         mail_push?.poll_interval_seconds ??
         storedMailPush?.poll_interval_seconds;
-      // Explicitly persist the access-control switch; access control is
-      // opt-in, so a missing field falls back to disabled.
       const accessControlEnabled =
         mail_push?.access_control_enabled ??
         storedMailPush?.access_control_enabled ??
@@ -214,18 +283,14 @@ export default function AgentsPage() {
                 : {}),
               access_control_enabled: accessControlEnabled,
             };
-      // Mail is only supported for the AIARB backend; never submit
-      // mail config for third-party backends (the server rejects it).
       const mail =
-        values.backend === "AIARB" &&
+        values.backend === "aiarb" &&
         (mail_mode === "personal" || mail_mode === "dedicated")
           ? {
               is_new_account: mail_mode === "dedicated",
               credential: {
                 name: (mail_credential?.name ?? "").trim(),
                 domain: mail_credential?.domain || "163.com",
-                // Whitelisted domains must use an empty provider; custom
-                // enterprise domains carry the selected provider.
                 provider: MAIL_DOMAIN_WHITELIST.includes(
                   mail_credential?.domain || "163.com",
                 )
@@ -236,20 +301,17 @@ export default function AgentsPage() {
               ...(push ? { push } : {}),
             }
           : null;
-      const payload = {
-        ...rest,
-        workspace_dir,
-        mail,
-      };
+      const payload = { ...rest, workspace_dir, active_model, mail };
 
       if (editingAgent) {
         await agentsApi.updateAgent(editingAgent.id, payload);
+        invalidateSkillCache({ agentId: editingAgent.id });
         message.success(t("agent.updateSuccess"));
       } else {
         const result = await agentsApi.createAgent({
           ...payload,
           language: i18n.language,
-          skill_names: values.backend === "AIARB" ? selectedSkills : [],
+          skill_names: values.backend === "aiarb" ? selectedSkills : [],
         });
         message.success(`${t("agent.createSuccess")} (ID: ${result.id})`);
       }
@@ -258,6 +320,9 @@ export default function AgentsPage() {
       await loadAgents();
     } catch (error: unknown) {
       console.error("Failed to save agent:", error);
+      if (editingAgent) {
+        invalidateSkillCache({ agentId: editingAgent.id });
+      }
       message.error(
         error instanceof Error ? error.message : t("agent.saveFailed"),
       );
@@ -265,39 +330,24 @@ export default function AgentsPage() {
   };
 
   const handleReorder = async (activeId: string, overId: string) => {
-    const current = useAgentStore.getState().agents;
-    const next = reorderAgents(current, activeId, overId);
-    if (next === current) return;
-    setAgents(next);
-    orderQueue.current = next.map((item) => item.id);
-    if (orderSaving.current) return;
-    orderSaving.current = true;
-    let confirmed = current.map((item) => item.id);
+    const nextAgents = reorderAgents(agents, activeId, overId);
+    if (nextAgents === agents) {
+      return;
+    }
+
+    const previousAgents = agents;
+    setAgents(nextAgents);
+    setReordering(true);
+
     try {
-      while (orderQueue.current) {
-        const order = orderQueue.current;
-        orderQueue.current = null;
-        try {
-          await agentsApi.reorderAgents(order);
-          confirmed = order;
-        } catch (error) {
-          console.error("Failed to reorder agents:", error);
-          if (!orderQueue.current) {
-            const latest = useAgentStore.getState().agents;
-            const rank = new Map(confirmed.map((id, index) => [id, index]));
-            setAgents(
-              [...latest].sort(
-                (a, b) =>
-                  (rank.get(a.id) ?? confirmed.length) -
-                  (rank.get(b.id) ?? confirmed.length),
-              ),
-            );
-            message.error(t("agent.reorderFailed"));
-          }
-        }
-      }
+      await agentsApi.reorderAgents(nextAgents.map((agent) => agent.id));
+      message.success(t("agent.reorderSuccess"));
+    } catch (error) {
+      console.error("Failed to reorder agents:", error);
+      setAgents(previousAgents);
+      message.error(t("agent.reorderFailed"));
     } finally {
-      orderSaving.current = false;
+      setReordering(false);
     }
   };
 
@@ -307,30 +357,153 @@ export default function AgentsPage() {
         current={t("agent.agents")}
         extra={
           <div className={styles.headerRight}>
+            <Input
+              className={styles.searchBox}
+              placeholder={t("agent.searchPlaceholder")}
+              prefix={<SearchOutlined size={14} />}
+              allowClear
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
             <Button
               type="primary"
               icon={<PlusOutlined size="1em" />}
-              onClick={handleCreate}
+              onClick={
+                typeMode === "single"
+                  ? handleCreate
+                  : () => setCreateGroupOpen(true)
+              }
+              title={
+                typeMode === "single"
+                  ? t("agent.createTitle", "创建新智能体")
+                  : t("hostModal.title", "新建群聊")
+              }
             >
-              {t("agent.create")}
+              {typeMode === "single"
+                ? t("agent.create", "创建智能体")
+                : t("hostModal.create", "创建群聊")}
             </Button>
           </div>
         }
       />
 
-      <div className={styles.galleryContainer}>
-        <AgentGallery
-          agents={agents}
-          loading={loading}
-          reordering={false}
-          onEdit={handleEdit}
-          onCopy={handleOpenCopy}
-          onDelete={handleDelete}
-          onToggle={handleToggle}
-          onPin={handlePin}
-          onReorder={handleReorder}
+      <div className={styles.pageTabs}>
+        <Tabs
+          activeKey={typeMode}
+          onChange={(key) => {
+            const next = key as AgentTypeMode;
+            setTypeMode(next);
+            const params = new URLSearchParams(searchParams);
+            params.set("type", next);
+            setSearchParams(params, { replace: true });
+          }}
+          items={[
+            {
+              key: "single",
+              label: `${t("agent.typeSingle")} (${typeCounts.single})`,
+            },
+            {
+              key: "group",
+              label: `${t("agent.typeGroup")} (${typeCounts.group})`,
+            },
+          ]}
         />
       </div>
+
+      <div className={styles.statsRow}>
+        <div className={styles.statCard}>
+          <span className={styles.statNum}>{typeBaseAgents.length}</span>
+          <span className={styles.statLbl}>{t("agent.statsTotal")}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statNum}>{enabledCount}</span>
+          <span className={styles.statLbl}>{t("agent.filterEnabled")}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statNum}>{disabledCount}</span>
+          <span className={styles.statLbl}>{t("agent.filterDisabled")}</span>
+        </div>
+      </div>
+
+      <div className={styles.tabsRow}>
+        <UnderlineTabs
+          items={[
+            {
+              key: "all",
+              label: t("agent.filterAll"),
+              count: typeBaseAgents.length,
+            },
+            {
+              key: "enabled",
+              label: t("agent.filterEnabled"),
+              count: enabledCount,
+            },
+            {
+              key: "disabled",
+              label: t("agent.filterDisabled"),
+              count: disabledCount,
+            },
+          ]}
+          active={filterMode}
+          onChange={(key) => setFilterMode(key as FilterMode)}
+        />
+        <div className={styles.viewToggle}>
+          <button
+            className={`${styles.viewToggleBtn} ${
+              viewMode === "list" ? styles.viewToggleBtnActive : ""
+            }`}
+            onClick={() => setViewMode("list")}
+            title={t("agent.listView")}
+          >
+            <UnorderedListOutlined size={16} />
+          </button>
+          <button
+            className={`${styles.viewToggleBtn} ${
+              viewMode === "card" ? styles.viewToggleBtnActive : ""
+            }`}
+            onClick={() => setViewMode("card")}
+            title={t("agent.gridView")}
+          >
+            <AppstoreOutlined size={16} />
+          </button>
+        </div>
+      </div>
+
+      {viewMode === "card" ? (
+        <div className={styles.agentsGrid}>
+          {filteredAgents.map((agent) => (
+            <AgentCard
+              key={agent.id}
+              agent={agent}
+              stats={statsMap[agent.id]}
+              isSelected={selectedAgent === agent.id}
+              onSelect={setSelectedAgent}
+              onEdit={handleEdit}
+              onChat={handleChat}
+              onHistory={handleHistory}
+              onDelete={handleDelete}
+              onToggle={handleToggle}
+              onPin={handlePin}
+              onCopy={handleOpenCopy}
+              onFilterByGroup={(group) => setSearchQuery(group)}
+            />
+          ))}
+        </div>
+      ) : (
+        <Card className={styles.tableCard}>
+          <AgentTable
+            agents={filteredAgents}
+            loading={loading || reordering}
+            reordering={reordering}
+            onEdit={handleEdit}
+            onCopy={handleOpenCopy}
+            onDelete={handleDelete}
+            onToggle={handleToggle}
+            onPin={handlePin}
+            onReorder={handleReorder}
+          />
+        </Card>
+      )}
 
       <AgentModal
         open={modalVisible}
@@ -342,6 +515,16 @@ export default function AgentsPage() {
         onCancel={() => setModalVisible(false)}
       />
 
+      <CreateGroupChatModal
+        open={createGroupOpen}
+        onCancel={() => setCreateGroupOpen(false)}
+        navigate={navigate}
+        onCreated={() => {
+          setCreateGroupOpen(false);
+          void loadAgents();
+        }}
+      />
+
       <CopyAgentModal
         open={copyModalVisible}
         sourceAgent={copyingAgent}
@@ -351,6 +534,13 @@ export default function AgentsPage() {
           setCopyModalVisible(false);
           setCopyingAgent(null);
         }}
+      />
+
+      <AgentDetailDrawer
+        open={detailOpen}
+        agent={detailAgent}
+        onClose={() => setDetailOpen(false)}
+        onUpdated={loadAgents}
       />
     </div>
   );

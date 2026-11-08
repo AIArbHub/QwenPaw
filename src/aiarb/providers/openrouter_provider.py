@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """An OpenRouter provider implementation."""
 
 from __future__ import annotations
@@ -71,9 +71,13 @@ class OpenRouterProvider(Provider):
         return {**self._DEFAULT_HEADERS, **self.custom_headers}
 
     def _client(self, timeout: float = 30) -> AsyncOpenAI:
+        # Guard: local / free-tier providers may have an empty api_key.
+        effective_api_key = self.api_key
+        if not effective_api_key and not self.require_api_key:
+            effective_api_key = f"not-required-{self.id}"
         return AsyncOpenAI(
             base_url=self.base_url,
-            api_key=self.api_key,
+            api_key=effective_api_key,
             timeout=timeout,
             default_headers=self._build_default_headers(),
         )
@@ -465,9 +469,14 @@ class OpenRouterProvider(Provider):
 
         from .openai_chat_model_compat import OpenAIChatModelCompat
 
+        # Guard: local / free-tier providers may have an empty api_key.
+        effective_api_key = self.api_key
+        if not effective_api_key and not self.require_api_key:
+            effective_api_key = f"not-required-{self.id}"
+
         credential = OpenAICredential(
             id=f"aiarb-{self.id}",
-            api_key=self.api_key,
+            api_key=effective_api_key,
             base_url=self.base_url,
         )
         gen_kwargs = self.get_effective_generate_kwargs(model_id)

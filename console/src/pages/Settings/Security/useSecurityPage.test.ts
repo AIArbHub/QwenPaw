@@ -256,7 +256,7 @@ describe("useSecurityPage", () => {
     expect(fetchAllMock).toHaveBeenCalledTimes(1);
   });
 
-  it("openAddRule sets editingRule null, edits form, and opens modal", () => {
+  it("openAddRule sets editingRule null and opens modal", () => {
     const { result } = renderHook(() => useSecurityPage());
 
     expect(result.current.editModal).toBe(false);
@@ -267,13 +267,6 @@ describe("useSecurityPage", () => {
 
     expect(result.current.editModal).toBe(true);
     expect(result.current.editingRule).toBeNull();
-    // editForm shares mockFormInstance in this mock.
-    expect(mockFormResetFields).toHaveBeenCalledTimes(1);
-    expect(mockFormSetFieldsValue).toHaveBeenCalledTimes(1);
-    const setArg = mockFormSetFieldsValue.mock.calls[0][0];
-    expect(setArg.severity).toBe("HIGH");
-    expect(setArg.category).toBe("command_injection");
-    expect(setArg.patterns).toBe("");
   });
 
   it("handleSave skips updateSandbox when sandbox value unchanged", async () => {

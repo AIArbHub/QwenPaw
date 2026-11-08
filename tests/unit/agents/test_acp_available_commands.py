@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Tests for the ACP agent advertising its slash commands.
 
 The ACP server sends an ``available_commands_update`` notification after a
@@ -20,7 +20,7 @@ from aiarb.agents.acp.server import (
     _EnvelopeTracker,
     ACP_AGENT_META_KEY,
     ACP_ERROR_META_KEY,
-    AIARBACPAgent,
+    AIArbACPAgent,
 )
 
 
@@ -118,7 +118,7 @@ async def _drain(conn: _FakeConn, *, timeout: float = 5.0) -> None:
 
 
 def test_build_available_commands_set():
-    agent = object.__new__(AIARBACPAgent)
+    agent = object.__new__(AIArbACPAgent)
     agent._workspace = None
     commands = agent._build_available_commands()
     names = {c.name for c in commands}
@@ -161,7 +161,7 @@ async def test_registered_help_text_command_is_executed_and_advertised():
     assert executed == ["hello"]
 
     # Auto-advertised through ACP without touching any advertise map.
-    agent = object.__new__(AIARBACPAgent)
+    agent = object.__new__(AIArbACPAgent)
     agent._workspace = SimpleNamespace(
         plugins=SimpleNamespace(slash_command_registry=registry),
     )
@@ -171,7 +171,7 @@ async def test_registered_help_text_command_is_executed_and_advertised():
 
 
 async def test_new_session_advertises_commands():
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -194,7 +194,7 @@ async def test_new_session_advertises_commands():
 
 
 async def test_load_session_advertises_commands():
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -211,7 +211,7 @@ async def test_load_session_advertises_commands():
 
 
 async def test_new_session_reports_agent_id_in_meta():
-    agent = AIARBACPAgent(agent_id="my-agent")
+    agent = AIArbACPAgent(agent_id="my-agent")
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -229,7 +229,7 @@ async def test_prompt_passes_resolved_agent_id_to_runtime(monkeypatch):
             if self.request is None:
                 yield None
 
-    agent = AIARBACPAgent(agent_id="my-agent")
+    agent = AIArbACPAgent(agent_id="my-agent")
     conn = _FakeConn()
     workspace = _FakeWorkspace()
     agent.on_connect(conn)
@@ -250,7 +250,7 @@ async def test_prompt_passes_resolved_agent_id_to_runtime(monkeypatch):
 async def test_report_prompt_error_is_sent_to_client():
     from aiarb.exceptions import AppBaseException
 
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -270,7 +270,7 @@ async def test_report_prompt_error_is_sent_to_client():
 
 
 async def test_report_prompt_error_hides_unexpected_exception_details():
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -290,7 +290,7 @@ async def test_report_prompt_error_hides_unexpected_exception_details():
 
 
 async def test_report_prompt_error_shows_details_for_local_diagnostics():
-    agent = AIARBACPAgent(agent_id="default", local_diagnostics=True)
+    agent = AIArbACPAgent(agent_id="default", local_diagnostics=True)
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -323,7 +323,7 @@ async def test_approval_bridge_resolves_pending_approval(monkeypatch):
         approval_svc,
     )
 
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
     conn = _ApprovalConn()
     agent.on_connect(conn)
 
@@ -414,7 +414,7 @@ async def test_approval_bridge_resolves_pattern_scope(monkeypatch):
         approval_svc,
     )
 
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
     conn = _ApprovalConn(option_id="allow_always")
     agent.on_connect(conn)
 
@@ -502,7 +502,7 @@ async def test_approval_bridge_expires_when_pending_times_out(
         approval_svc,
     )
 
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
     conn = _HangingApprovalConn()
     agent.on_connect(conn)
 
@@ -584,7 +584,7 @@ async def test_approval_bridge_survives_wait_for_timeout(monkeypatch):
         approval_svc,
     )
 
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
     conn = _HangingApprovalConn()
     agent.on_connect(conn)
 
@@ -644,7 +644,7 @@ async def test_approval_bridge_survives_wait_for_timeout(monkeypatch):
 def test_acp_bootstrap_includes_runtime_slash_commands():
     from aiarb.app.app_services import AppServiceManager
 
-    kwargs = AIARBACPAgent._build_bootstrap_kwargs(AppServiceManager())
+    kwargs = AIArbACPAgent._build_bootstrap_kwargs(AppServiceManager())
     command_names = {
         spec.name for spec in kwargs.get("builtin_command_specs", [])
     }
@@ -737,7 +737,7 @@ def test_usage_meta_includes_model(monkeypatch):
         ),
     )
 
-    assert AIARBACPAgent._pop_session_usage("sess-usage") == {
+    assert AIArbACPAgent._pop_session_usage("sess-usage") == {
         "usage": {
             "inputTokens": 12,
             "outputTokens": 34,
@@ -773,7 +773,7 @@ def test_usage_meta_includes_context_size(monkeypatch):
     # The model context window and the compaction threshold flow through so the
     # TUI can render occupancy (inputTokens / contextSize) and mark the point
     # where context starts getting evicted.
-    meta = AIARBACPAgent._pop_session_usage("sess-usage")
+    meta = AIArbACPAgent._pop_session_usage("sess-usage")
     assert meta["usage"]["inputTokens"] == 123_000
     assert meta["usage"]["contextSize"] == 1_000_000
     assert meta["usage"]["compactRatio"] == 0.8
@@ -804,7 +804,7 @@ async def test_emit_usage_emits_usage_update_with_threshold(monkeypatch):
             },
         ),
     )
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
     conn = _FakeConn()
     agent.on_connect(conn)
 
@@ -836,7 +836,7 @@ async def test_emit_usage_clears_bar_when_window_unknown(monkeypatch):
             },
         ),
     )
-    agent = AIARBACPAgent(agent_id="default")
+    agent = AIArbACPAgent(agent_id="default")
     conn = _FakeConn()
     agent.on_connect(conn)
 

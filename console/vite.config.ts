@@ -158,9 +158,6 @@ export default defineConfig(({ command, mode }) => {
         },
       },
     },
-    optimizeDeps: {
-      include: ["diff"],
-    },
     build: {
       ...(desktop ? { outDir: "dist-tauri" } : {}),
       // Output to AIARB's console directory,

@@ -2,28 +2,39 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { DEFAULT_FOCUS_ITEM_IDS, useSidebarStore } from "./sidebarStore";
 
-const FOCUS_ITEMS_STORAGE_KEY = "qwenpaw_sidebar_focus_items_v1";
+const FOCUS_ITEMS_STORAGE_KEY = "qwenpaw_sidebar_focus_items_v4";
 const HIDDEN_PLUGIN_ITEMS_STORAGE_KEY =
-  "qwenpaw_sidebar_hidden_plugin_items_v1";
+  "qwenpaw_sidebar_hidden_plugin_items_v4";
 
 describe("sidebarStore", () => {
   beforeEach(() => {
     localStorage.removeItem(FOCUS_ITEMS_STORAGE_KEY);
     localStorage.removeItem(HIDDEN_PLUGIN_ITEMS_STORAGE_KEY);
+    localStorage.removeItem("qwenpaw_sidebar_focus_items_v3");
+    localStorage.removeItem("qwenpaw_sidebar_hidden_plugin_items_v3");
+    localStorage.removeItem("qwenpaw_sidebar_focus_items_v2");
+    localStorage.removeItem("qwenpaw_sidebar_hidden_plugin_items_v2");
     useSidebarStore.setState({
-      focusItemIds: DEFAULT_FOCUS_ITEM_IDS,
+      focusItemIds: [...DEFAULT_FOCUS_ITEM_IDS],
       hiddenPluginItemIds: [],
     });
   });
 
-  it("uses the requested default sidebar shortcuts in display order", () => {
+  it("uses a curated default sidebar with 8 high-frequency items", () => {
     expect(DEFAULT_FOCUS_ITEM_IDS).toEqual([
+      "core.memory",
+      "core.knowledge-base",
+      "core.document-tools",
+      "core.skills",
       "core.cron-jobs",
       "core.files",
-      "core.agent-config",
+      "core.agents",
       "core.models",
-      "core.marketplace",
     ]);
+    // Curated default should NOT include every single core item
+    expect(DEFAULT_FOCUS_ITEM_IDS).not.toContain("core.tools");
+    expect(DEFAULT_FOCUS_ITEM_IDS).not.toContain("core.mcp");
+    expect(DEFAULT_FOCUS_ITEM_IDS).not.toContain("core.debug");
   });
 
   it("persists preferences without fixed sidebar entries", () => {

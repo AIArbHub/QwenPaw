@@ -605,7 +605,7 @@ curl -X POST http://localhost:8088/api/console/chat \
 
 ### Web Authentication Token (Optional)
 
-If [Web Login Authentication](./security#web-authentication) is enabled (`AIARB_AUTH_ENABLED=true`), all API requests require an authentication token.
+If [Web Login Authentication](./security#web-authentication) is enabled (enabled by default), all API requests require an authentication token.
 
 #### Register Account
 
@@ -685,7 +685,6 @@ docker exec -it <container_name> aiarb auth reset-password
 You can also auto-create an account via environment variables when starting AIArb:
 
 ```bash
-export AIARB_AUTH_ENABLED=true
 export AIARB_AUTH_USERNAME=admin
 export AIARB_AUTH_PASSWORD=admin123
 aiarb app
@@ -864,25 +863,25 @@ curl -X POST http://localhost:8088/api/auth/update-profile \
 
 If you don't want to use Web authentication, you can disable it:
 
-**Method 1: Remove Environment Variable**
+**Method 1: Set `AIARB_AUTH_ENABLED=false`**
 
 ```bash
 # Linux / macOS
-unset AIARB_AUTH_ENABLED
+export AIARB_AUTH_ENABLED=false
 aiarb app
 
 # Windows (CMD)
-set AIARB_AUTH_ENABLED=
+set AIARB_AUTH_ENABLED=false
 aiarb app
 
 # Windows (PowerShell)
-Remove-Item Env:\AIARB_AUTH_ENABLED
+$env:AIARB_AUTH_ENABLED = "false"
 aiarb app
 ```
 
 **Method 2: Docker Deployment**
 
-Remove the `-e AIARB_AUTH_ENABLED=true` parameter:
+Add the `-e AIARB_AUTH_ENABLED=false` parameter:
 
 ```bash
 docker run -p 127.0.0.1:8088:8088 \

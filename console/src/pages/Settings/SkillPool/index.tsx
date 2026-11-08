@@ -1,12 +1,13 @@
 import { Search } from "lucide-react";
 import { Button, Tooltip } from "@agentscope-ai/design";
-import { Badge } from "antd";
+import { Badge, Dropdown } from "antd";
 import {
   X as CloseOutlined,
   Trash2 as DeleteOutlined,
   RefreshCw as ReloadOutlined,
   Send as SendOutlined,
   RefreshCw as SyncOutlined,
+  ChevronDown,
 } from "lucide-react";
 import { LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { useId, useCallback } from "react";
@@ -24,6 +25,7 @@ import {
 } from "./components";
 import { getBuiltinNoticeLines } from "./builtinNotice";
 import { useSkillPool } from "./useSkillPool";
+import { useBuiltinUpdatePrefs } from "./useBuiltinUpdatePrefs";
 import { useProgressiveRender } from "../../../hooks/useProgressiveRender";
 import { PageHeader } from "@/components/PageHeader";
 import type { PoolSkillSpec } from "../../../api/types";
@@ -35,11 +37,13 @@ function SkillPoolPage() {
   const transferId = useId();
   const reduced = useReducedMotion();
   const builtinNoticeLines = getBuiltinNoticeLines(pool.builtinNotice, t);
+  const { policy: builtinUpdatePolicy, setPolicy: setBuiltinUpdatePolicy } =
+    useBuiltinUpdatePrefs();
   const {
     visibleItems: visibleSkills,
     hasMore,
     sentinelRef,
-  } = useProgressiveRender(pool.sortedSkills);
+  } = useProgressiveRender(pool.categoryFilteredSkills);
 
   const navigate = useNavigate();
 
@@ -179,24 +183,106 @@ function SkillPoolPage() {
         <div className={styles.content}>
           {/* Toolbar */}
           {!pool.loading && pool.skills.length > 0 && (
-            <SkillsToolbar
-              searchQuery={pool.searchQuery}
-              onSearchChange={pool.setSearchQuery}
-              searchTags={pool.searchTags}
-              onTagsChange={pool.setSearchTags}
-              allTags={pool.allTags}
-              filterOpen={pool.filterOpen}
-              onFilterOpenChange={pool.setFilterOpen}
-              viewMode={pool.viewMode}
-              onViewModeChange={pool.setViewMode}
-            />
+            <>
+              <SkillsToolbar
+                searchQuery={pool.searchQuery}
+                onSearchChange={pool.setSearchQuery}
+                searchTags={pool.searchTags}
+                onTagsChange={pool.setSearchTags}
+                allTags={pool.allTags}
+                filterOpen={pool.filterOpen}
+                onFilterOpenChange={pool.setFilterOpen}
+                viewMode={pool.viewMode}
+                onViewModeChange={pool.setViewMode}
+              />
+              {/* Category tabs */}
+              {pool.categories.length > 1 && (
+                <div className={styles.categoryTabs}>
+                  <button
+                    type="button"
+                    className={
+                      pool.activeCategory === "all"
+                        ? styles.categoryTabActive
+                        : styles.categoryTab
+                    }
+                    onClick={() => pool.setActiveCategory("all")}
+                  >
+                    {t("skills.allCategories", "全部")}
+                  </button>
+                  {pool.categories.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      className={
+                        pool.activeCategory === cat
+                          ? styles.categoryTabActive
+                          : styles.categoryTab
+                      }
+                      onClick={() => pool.setActiveCategory(cat)}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {/* Update strategy dropdown */}
+              <Dropdown
+                trigger={["click"]}
+                menu={{
+                  items: [
+                    {
+                      key: "safe_update",
+                      label: t(
+                        "skillPool.policySafeUpdate",
+                        "智能更新（未修改的自动更新）",
+                      ),
+                    },
+                    {
+                      key: "ask",
+                      label: t(
+                        "skillPool.policyAsk",
+                        "每次询问",
+                      ),
+                    },
+                    {
+                      key: "never",
+                      label: t(
+                        "skillPool.policyNever",
+                        "从不自动更新",
+                      ),
+                    },
+                  ],
+                  selectedKeys: [builtinUpdatePolicy],
+                  onClick: ({ key }) =>
+                    setBuiltinUpdatePolicy(
+                      key as "safe_update" | "ask" | "never",
+                    ),
+                }}
+              >
+                <Button
+                  type="text"
+                  size="small"
+                  iconSize={14}
+                  icon={<ChevronDown size={14} />}
+                  iconPosition="end"
+                >
+                  {t("skillPool.updateStrategy", "更新策略")}:
+                  {builtinUpdatePolicy === "safe_update"
+                    ? t("skillPool.policySafeUpdateShort", "智能")
+                    : builtinUpdatePolicy === "ask"
+                      ? t("skillPool.policyAskShort", "询问")
+                      : t("skillPool.policyNeverShort", "从不")}
+                </Button>
+              </Dropdown>
+            </>
           )}
 
           {pool.loading ? (
             <div className={styles.loading}>
               <span className={styles.loadingText}>{t("common.loading")}</span>
             </div>
-          ) : pool.sortedSkills.length === 0 && pool.skills.length > 0 ? (
+          ) : pool.categoryFilteredSkills.length === 0 &&
+            pool.skills.length > 0 ? (
             <div className={styles.noSearchResults}>
               <span className={styles.noSearchResultsIcon}>
                 <Search size={28} aria-hidden="true" />
@@ -221,6 +307,8 @@ function SkillPoolPage() {
                   onBroadcast={pool.openBroadcast}
                   onDelete={pool.handleDelete}
                   onAutomationQuickAction={pool.handleAutomationQuickAction}
+                  onTogglePin={pool.togglePin}
+                  isPinned={pool.pinnedSkills.has(skill.name)}
                 />
               ))}
               {hasMore && <div ref={sentinelRef} style={{ height: 1 }} />}

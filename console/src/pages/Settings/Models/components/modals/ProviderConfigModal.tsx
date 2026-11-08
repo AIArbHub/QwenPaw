@@ -1,7 +1,7 @@
 import { ChatGPTAccountPanel } from "../cards/ChatGPTAccountPanel";
 import { OAuthConfirmModal } from "@/pages/Chat/ModelSelector/OAuthConfirmModal";
 import { SharedModal } from "@/components/interaction/SharedModal";
-import { Switch } from "antd";
+import { Alert, Switch } from "antd";
 import { useState, useEffect, useMemo, useRef } from "react";
 import type { KeyboardEvent, ReactNode, UIEvent } from "react";
 import {
@@ -668,6 +668,7 @@ export function ProviderConfigModal({
             {provider.support_connection_check && (
               <Button
                 size="small"
+                iconSize="1em"
                 icon={<ApiOutlined size="1em" />}
                 onClick={handleTest}
                 loading={testing}
@@ -691,6 +692,28 @@ export function ProviderConfigModal({
       }
       destroyOnHidden
     >
+      {/* SiliconFlow promotion */}
+      {provider.id.includes("siliconflow") && (
+        <Alert
+          type="info"
+          showIcon
+          message={
+            <span>
+              硅基流动注册即送全平台通用代金券 16 元（须填写邀请码 KvmTp5P8）。
+              <a
+                href="https://cloud.siliconflow.cn/i/KvmTp5P8"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ marginLeft: 4 }}
+              >
+                点击立即领取 →
+              </a>
+            </span>
+          }
+          style={{ marginBottom: 16 }}
+        />
+      )}
+
       <Form
         form={form}
         layout="vertical"

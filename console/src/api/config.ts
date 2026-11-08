@@ -3,6 +3,13 @@ declare const TOKEN: string;
 
 const AUTH_TOKEN_KEY = "AIARB_auth_token";
 let runtimeApiBaseUrl: string | null = null;
+let hubMode = false;
+
+/** Set whether the backend is running in hub mode.
+ *  In hub mode, browser session cleanup calls the hub-only DELETE endpoint. */
+export function setHubMode(enabled: boolean): void {
+  hubMode = enabled;
+}
 
 /** Desktop clients receive their host address from the native supervisor. */
 export function setRuntimeApiBaseUrl(url: string): void {
@@ -25,6 +32,7 @@ export function updateBrowserSession<T>(
 }
 
 function clearBrowserSessions(): void {
+  if (!hubMode) return;
   void updateBrowserSession(() =>
     fetch(getApiUrl("/hub/pawapps/sessions"), {
       method: "DELETE",

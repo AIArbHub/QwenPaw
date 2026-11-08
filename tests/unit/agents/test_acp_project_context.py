@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """ACP session project context metadata."""
 
 from __future__ import annotations
@@ -9,7 +9,7 @@ from aiarb.agents.acp.meta import (
     ACP_EPHEMERAL_META_KEY,
     ACP_PROJECT_DIR_META_KEY,
 )
-from aiarb.agents.acp.server import AIARBACPAgent
+from aiarb.agents.acp.server import AIArbACPAgent
 
 
 class _FakeConn:
@@ -28,7 +28,7 @@ class _FakeWorkspace:
             yield event
 
 
-class _TestACPAgent(AIARBACPAgent):
+class _TestACPAgent(AIArbACPAgent):
     def __init__(self, workspace: _FakeWorkspace) -> None:
         super().__init__(agent_id="default")
         self._fake_workspace = workspace

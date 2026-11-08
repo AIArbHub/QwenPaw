@@ -344,7 +344,7 @@ async def _check_active_llm(
 
     deep_notes: list[str] = []
     pid = (slot.provider_id or "").strip()
-    if deep and pid in ("AIARB-local", "copaw-local"):
+    if deep and pid in ("aiarb-local", "copaw-local"):
         deep_notes = AIARB_local_llm_deep_notes()
 
     if not getattr(provider, "support_connection_check", True):
@@ -364,7 +364,7 @@ async def _check_active_llm(
         if getattr(provider, "is_local", False) or slot.provider_id in (
             "ollama",
             "lmstudio",
-            "AIARB-local",
+            "aiarb-local",
             "copaw-local",
         ):
             hint = active_llm_local_failure_hint(provider, slot.provider_id)
@@ -998,7 +998,7 @@ def run_doctor_checks(
     is_flag=True,
     help=(
         "Run extra checks: enabled-channel reachability (non-fatal notes; "
-        "uses --timeout) and, when the active model is AIARB-local, "
+        "uses --timeout) and, when the active model is aiarb-local, "
         "llama.cpp install/server status notes."
     ),
 )

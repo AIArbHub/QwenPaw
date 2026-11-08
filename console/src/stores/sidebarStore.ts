@@ -2,16 +2,24 @@ import { create } from "zustand";
 
 import { isFixedSidebarItemId } from "@/constants/sidebarItems";
 
-const FOCUS_ITEMS_STORAGE_KEY = "qwenpaw_sidebar_focus_items_v1";
+const FOCUS_ITEMS_STORAGE_KEY = "qwenpaw_sidebar_focus_items_v4";
 const HIDDEN_PLUGIN_ITEMS_STORAGE_KEY =
-  "qwenpaw_sidebar_hidden_plugin_items_v1";
+  "qwenpaw_sidebar_hidden_plugin_items_v4";
+const LEGACY_FOCUS_ITEMS_KEY = "qwenpaw_sidebar_focus_items_v3";
+const LEGACY_HIDDEN_PLUGIN_ITEMS_KEY =
+  "qwenpaw_sidebar_hidden_plugin_items_v3";
 
 export const DEFAULT_FOCUS_ITEM_IDS = [
+  // High-frequency agent-scoped items
+  "core.memory",
+  "core.knowledge-base",
+  "core.document-tools",
+  "core.skills",
   "core.cron-jobs",
   "core.files",
-  "core.agent-config",
+  // Settings items
+  "core.agents",
   "core.models",
-  "core.marketplace",
 ];
 
 interface SidebarStoreState {
@@ -32,7 +40,14 @@ interface SidebarVisibilityState {
 function loadFocusItemIds(): string[] {
   try {
     const stored = localStorage.getItem(FOCUS_ITEMS_STORAGE_KEY);
-    if (!stored) return [...DEFAULT_FOCUS_ITEM_IDS];
+    if (!stored) {
+      // v4 upgrade: clean break from v3. The old v3 default had 11 items,
+      // still too noisy. v4 curates an even more concise set of 7 items.
+      // We do NOT inherit the v3 list because it was auto-generated.
+      // Just clean up the legacy key and start fresh.
+      localStorage.removeItem(LEGACY_FOCUS_ITEMS_KEY);
+      return [...DEFAULT_FOCUS_ITEM_IDS];
+    }
     const parsed: unknown = JSON.parse(stored);
     if (!Array.isArray(parsed)) return [...DEFAULT_FOCUS_ITEM_IDS];
     return parsed.filter(
@@ -54,14 +69,26 @@ function persistFocusItemIds(itemIds: string[]) {
 
 function loadHiddenPluginItemIds(): string[] {
   try {
-    const stored = localStorage.getItem(HIDDEN_PLUGIN_ITEMS_STORAGE_KEY);
-    if (!stored) return [];
+    let stored = localStorage.getItem(HIDDEN_PLUGIN_ITEMS_STORAGE_KEY);
+    if (!stored) {
+      // Migrate from v2 if present.
+      stored = localStorage.getItem(LEGACY_HIDDEN_PLUGIN_ITEMS_KEY);
+      if (stored) {
+        localStorage.removeItem(LEGACY_HIDDEN_PLUGIN_ITEMS_KEY);
+        // Persist migrated value to v2 key.
+      }
+    }
     const parsed: unknown = JSON.parse(stored);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
+    const result = parsed.filter(
       (itemId): itemId is string =>
         typeof itemId === "string" && !itemId.startsWith("core."),
     );
+    // If we read from the legacy key, persist to the new key.
+    if (stored && !localStorage.getItem(HIDDEN_PLUGIN_ITEMS_STORAGE_KEY)) {
+      persistHiddenPluginItemIds(result);
+    }
+    return result;
   } catch {
     return [];
   }

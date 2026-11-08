@@ -12,6 +12,8 @@ from .mimo_provider import MiMoProvider
 from .modelscope_provider import ModelScopeProvider
 from .ollama_provider import OllamaProvider
 from .openai_provider import (
+    AgnesProvider,
+    GitHubModelsProvider,
     KiloProvider,
     OpenAIProvider,
     OpenCodeProvider,
@@ -30,7 +32,7 @@ from .services.volcengine import VolcengineProvider
 from .services.aliyun import AliyunPlanProvider
 from .services.minimax import MiniMaxProvider
 from .services.azure import AzureOpenAIProvider
-from .services.aiarb_provider import AIARBProvider
+from .services.aiarb_provider import AIArbProvider
 from .services.mimo_plan import MiMoPlanProvider
 from .provider_discovery_policy import apply_discovery_policy
 
@@ -63,6 +65,8 @@ VOLCENGINE_AGENTPLAN_MODELS = _models("volcengine-cn-agentplan")
 ANTHROPIC_MODELS = _models("anthropic")
 GEMINI_MODELS = _models("gemini")
 KIMI_CODINGPLAN_MODELS = _models("kimi-codingplan")
+GITHUB_MODELS_MODELS = _models("github-models")
+AGNES_MODELS = _models("agnes")
 
 PROVIDER_MODELSCOPE = ModelScopeProvider(
     id="modelscope",
@@ -226,8 +230,8 @@ PROVIDER_ZHIPU_INTL_CODINGPLAN = ZhipuProvider(
     provider_variant="coding_plan_intl",
 )
 
-PROVIDER_AIARB = AIARBProvider(
-    id="AIARB-local",
+PROVIDER_AIARB = AIArbProvider(
+    id="aiarb-local",
     name="AIARB Local",
     is_local=True,
     require_api_key=False,
@@ -300,12 +304,19 @@ PROVIDER_OPENCODE = OpenCodeProvider(
 
 PROVIDER_KILO = KiloProvider(
     id="kilo",
-    name="Kilo Code",
+    name="Kilo Code (Free Tier)",
     base_url="https://api.kilo.ai/api/gateway",
     api_key_prefix="",
     models=_models("kilo"),
-    require_api_key=False,
+    require_api_key=True,
     freeze_url=True,
+    meta={
+        "api_key_url": "https://kilo.ai",
+        "signup_url": "https://kilo.ai",
+        "docs_url": "https://kilo.ai/docs/gateway/authentication",
+        "is_free_tier": True,
+        "free_models_note": "kilo-auto/free and other :free models are free to use with a Kilo account",
+    },
 )
 
 PROVIDER_AZURE_OPENAI = AzureOpenAIProvider(
@@ -542,6 +553,33 @@ PROVIDER_MIMO = MiMoProvider(
     provider_variant="standard",
 )
 
+PROVIDER_GITHUB_MODELS = GitHubModelsProvider(
+    id="github-models",
+    name="GitHub Models",
+    base_url="https://models.github.ai/inference",
+    api_key_prefix="ghp_",
+    api_key_prefixes=["ghp_", "github_pat_"],
+    models=GITHUB_MODELS_MODELS,
+    freeze_url=False,
+    meta={
+        "is_free_tier": True,
+    },
+)
+
+PROVIDER_AGNES = AgnesProvider(
+    id="agnes",
+    name="Agnes AI",
+    base_url="https://apihub.agnes-ai.com/v1",
+    api_key_prefix="sk-",
+    models=AGNES_MODELS,
+    freeze_url=True,
+    require_api_key=True,
+    support_model_discovery=True,
+    meta={
+        "is_free_tier": True,
+    },
+)
+
 
 BUILTIN_PROVIDERS: tuple[Provider, ...] = (
     PROVIDER_TYPESAFE,
@@ -581,6 +619,8 @@ BUILTIN_PROVIDERS: tuple[Provider, ...] = (
     PROVIDER_VOLCENGINE_CN_AGENTPLAN,
     PROVIDER_MIMO_TOKENPLAN,
     PROVIDER_MIMO,
+    PROVIDER_GITHUB_MODELS,
+    PROVIDER_AGNES,
 )
 
 BUILTIN_PROVIDER_CATALOG_KEYS = {
@@ -607,6 +647,8 @@ __all__ = [
     "KILO_MODELS",
     "KIMI_CODINGPLAN_MODELS",
     "KIMI_MODELS",
+    "AGNES_MODELS",
+    "GITHUB_MODELS_MODELS",
     "MIMO_MODELS",
     "MIMO_TOKENPLAN_MODELS",
     "MINIMAX_MODELS",
@@ -636,6 +678,8 @@ __all__ = [
     "PROVIDER_OPENCODE",
     "PROVIDER_OPENAI",
     "PROVIDER_AGENTSCOPE_PLATFORM",
+    "PROVIDER_AGNES",
+    "PROVIDER_GITHUB_MODELS",
     "PROVIDER_OPENAI_RESPONSE",
     "PROVIDER_OPENROUTER",
     "PROVIDER_AIARB",

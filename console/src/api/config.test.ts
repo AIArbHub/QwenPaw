@@ -5,6 +5,7 @@ import {
   setAuthToken,
   clearAuthToken,
   updateBrowserSession,
+  setHubMode,
 } from "./config";
 
 // VITE_API_BASE_URL / TOKEN are declared globals in config.ts — set via globalThis
@@ -74,6 +75,7 @@ describe("setAuthToken / clearAuthToken", () => {
 
   it("clearAuthToken clears cross-origin browser grants", async () => {
     setViteBase("http://localhost:8088");
+    setHubMode(true);
     const request = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValue(new Response());
@@ -86,6 +88,7 @@ describe("setAuthToken / clearAuthToken", () => {
       expect.objectContaining({ method: "DELETE", credentials: "include" }),
     );
     request.mockRestore();
+    setHubMode(false);
     setViteBase("");
   });
 

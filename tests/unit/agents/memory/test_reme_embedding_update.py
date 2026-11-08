@@ -219,7 +219,8 @@ async def test_reindex_rejects_disabled_target_without_mutation() -> None:
 
 
 @pytest.mark.asyncio
-async def test_all_reindex_rejects_disabled_embedding() -> None:
+async def test_all_reindex_degrades_to_bm25_when_embedding_disabled() -> None:
+    """All-scope reindex should auto-degrade to bm25 when embedding is off."""
     disabled = _config(model_name="")
     manager, _wrapper, _store = _manager(disabled)
     profile = AgentProfileConfig(id="bot", name="Bot")
@@ -239,18 +240,19 @@ async def test_all_reindex_rejects_disabled_embedding() -> None:
             "aiarb.agents.memory.reme_light_memory_manager."
             "update_agent_config_async",
         ) as update_config,
-        pytest.raises(
-            EmbeddingReindexUnavailableError,
-            match="all-scope index rebuild requires an enabled",
-        ),
     ):
-        await manager._rebuild_index("all")
+        response = await manager._rebuild_index("all")
 
-    assert memory_config.needs_reindex is True
-    assert memory_config.pending_reindex_embedding_config == indexed
+    # ReMe job should have been called with scope=bm25 (degraded)
+    manager._run_reme_job.assert_awaited_once()
+    _call_kwargs = manager._run_reme_job.call_args.kwargs
+    assert _call_kwargs.get("scope") == "bm25"
+    # Embedding finalization must not run
     update_config.assert_not_awaited()
-    manager._run_reme_job.assert_not_awaited()
     manager._reme.file_store.require_embedding_rebuild.assert_not_awaited()
+    # Response should be the mock success
+    assert response is not None
+    assert response.success is True
 
 
 @pytest.mark.asyncio

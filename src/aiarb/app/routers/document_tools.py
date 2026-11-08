@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Document tools API — LDIR intake pipeline + redaction.
 
 Exposes the A4 (LDIR document pipeline) and A5 (redaction module)
@@ -22,6 +22,8 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, Body, File, Form, HTTPException, UploadFile, Request
 from pydantic import BaseModel, Field
+import time
+import hashlib
 
 logger = logging.getLogger(__name__)
 
@@ -238,11 +240,72 @@ async def get_intake_result(doc_id: str) -> dict[str, Any]:
 # -- A5: Redaction API ------------------------------------------------------
 
 
+def _save_text_redaction_output(text: str, result: dict, policy_name: str) -> dict:
+    """将文本脱敏结果写入文件，返回 output_file / mapping_file / report_file 路径。
+
+    文本模式不像文件模式有源文件路径，因此基于内容 hash 生成唯一文件名，
+    统一写入 upload_dir/redacted/ 目录下。
+    """
+    upload_dir = _ensure_upload_dir()
+    redacted_dir = upload_dir / "redacted"
+    redacted_dir.mkdir(parents=True, exist_ok=True)
+
+    # 基于文本内容 hash 生成唯一前缀
+    content_hash = hashlib.md5(text.encode("utf-8")).hexdigest()[:12]
+    base_name = f"text_{content_hash}"
+
+    # 1. 保存脱敏后的 Markdown
+    redacted_text = result.get("redacted_text", "")
+    md_path = redacted_dir / f"{base_name}.redacted.md"
+    md_path.write_text(redacted_text, encoding="utf-8")
+    result["output_file"] = str(md_path)
+    result["output_format"] = "md"
+
+    # 2. 保存 mapping.enc 映射文件
+    mappings = result.get("mappings", [])
+    if mappings:
+        try:
+            from aiarb.redaction.renderer import RedactionRenderer
+
+            renderer = RedactionRenderer()
+            mapping_path = redacted_dir / f"{base_name}.mapping.enc"
+            renderer.generate_mapping_file(
+                mappings,
+                str(mapping_path),
+                encrypt=False,
+                cluster_table=result.get("cluster_table", []),
+            )
+            result["mapping_file"] = str(mapping_path)
+        except Exception as e:
+            logger.warning("Failed to generate mapping file for text redaction: %s", e)
+            result["mapping_file_error"] = str(e)
+
+    # 3. 生成 HTML 脱敏报告
+    if mappings:
+        try:
+            from aiarb.redaction.renderer import RedactionRenderer
+
+            renderer = RedactionRenderer()
+            report_path = redacted_dir / f"{base_name}.redaction_report.html"
+            renderer.generate_report(
+                mappings,
+                policy_name=policy_name,
+                source_file="<text input>",
+                output_path=str(report_path),
+            )
+            result["report_file"] = str(report_path)
+        except Exception as e:
+            logger.warning("Failed to generate report for text redaction: %s", e)
+
+    return result
+
+
 @router.post("/redact/text", summary="Redact text")
 async def redact_text(req: RedactTextRequest) -> dict[str, Any]:
     """Run redaction on plain text.
 
-    Returns the redacted text, entity mappings, and review items.
+    Returns the redacted text, entity mappings, review items,
+    and output file paths (redacted.md, mapping.enc, report.html).
     """
     try:
         from aiarb.redaction.agent import redact_text as _redact
@@ -254,6 +317,8 @@ async def redact_text(req: RedactTextRequest) -> dict[str, Any]:
             custom_rules=req.custom_rules,
             strength_level=req.strength_level,
         )
+        # 文本模式也生成输出文件
+        result = _save_text_redaction_output(req.text, result, req.policy)
         return result
     except Exception as e:
         logger.exception("Text redaction failed")
@@ -320,6 +385,8 @@ async def agent_enhanced_redact_text(req: AgentRedactTextRequest) -> dict[str, A
             provider_id=req.provider_id,
             model_id=req.model_id,
         )
+        # Agent 增强模式也生成输出文件
+        result = _save_text_redaction_output(req.text, result, req.policy)
         return result
     except Exception as e:
         logger.exception("Agent enhanced redaction failed")
@@ -484,6 +551,194 @@ async def redact_batch(
 
         # Send final summary
         yield f"data: {_json.dumps({'type': 'done', 'total_files': total_files, 'success_count': success_count, 'fail_count': fail_count, 'total_entity_count': total_entities}, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@router.post("/redact/volume", summary="卷宗级文件夹脱敏（SSE 流式进度）")
+async def redact_volume(
+    request: Request,
+    policy: str = Form(default="external_client"),
+    entity_types: Optional[str] = Form(default=None),
+    strength_level: Optional[str] = Form(default=None),
+    volume_name: Optional[str] = Form(default=None),
+):
+    """对整个仲裁卷宗文件夹进行脱敏处理。
+
+    仲裁员的典型场景：
+      1. 收到一个仲裁卷宗文件夹（裁决书 + 申请书 + 答辩书 + 证据 + 合同...）
+      2. 一次性脱敏整个文件夹，保持目录结构
+      3. 脱敏后的文件夹可直接!`` 或 AI 工具使用
+
+    上传方式：multipart/form-data，所有文件以相对路径作为 filename
+    （前端通过 webkitdirectory 选择文件夹时自动提供相对路径）。
+
+    输出结构：
+      upload_dir/volume_{timestamp}/
+        ├── redacted/          ← 脱敏后的文件（保持原始目录结构）
+        │   ├── 裁决书.redacted.md
+        │   ├── 证据/合同.redacted.md
+        │   └── ...
+        ├── mappings/          ← 映射文件（用于还原）
+        │   └── ...
+        └── volume_report.json ← 卷宗级汇总报告
+
+    返回 SSE 流：
+      - {type: "progress", file: "...", index: N, total: N}
+      - {type: "result", file: "...", success: true, entity_count: N, output_file: "..."}
+      - {type: "done", total_files: N, success_count: N, fail_count: N, ...}
+    """
+    from fastapi.responses import StreamingResponse
+    import json as _json
+
+    async def event_stream():
+        form = await request.form()
+        upload_files = []
+        for key, value in form.items():
+            if hasattr(value, "filename") and hasattr(value, "read"):
+                upload_files.append(value)
+
+        if not upload_files:
+            yield f"data: {_json.dumps({'type': 'error', 'error': '没有文件'}, ensure_ascii=False)}\n\n"
+            return
+
+        # 创建卷宗输出目录
+        upload_dir = _ensure_upload_dir()
+        vol_id = f"volume_{int(time.time()):.0f}"
+        vol_dir = upload_dir / vol_id
+        redacted_dir = vol_dir / "redacted"
+        mappings_dir = vol_dir / "mappings"
+        redacted_dir.mkdir(parents=True, exist_ok=True)
+        mappings_dir.mkdir(parents=True, exist_ok=True)
+
+        et_list: Optional[list[str]] = None
+        if entity_types:
+            try:
+                et_list = _json.loads(entity_types)
+            except _json.JSONDecodeError:
+                et_list = [t.strip() for t in entity_types.split(",") if t.strip()]
+
+        from aiarb.redaction.agent import redact_file as _redact_file
+        import asyncio
+        from concurrent.futures import ThreadPoolExecutor
+
+        loop = asyncio.get_event_loop()
+        executor = ThreadPoolExecutor(max_workers=4)
+        total_files = len(upload_files)
+        success_count = 0
+        fail_count = 0
+        total_entities = 0
+        all_results: list[dict] = []
+
+        def process_one(upload_file) -> dict:
+            original_name = getattr(upload_file, "filename", None) or "unknown"
+            try:
+                content = upload_file.read() if hasattr(upload_file, "read") else b""
+            except Exception as e:
+                return {"success": False, "error": f"读取失败: {e}", "file": original_name}
+
+            if not content:
+                return {"success": False, "error": "空文件", "file": original_name}
+
+            # 保存原始文件到临时位置
+            src_path = vol_dir / "originals" / original_name
+            src_path.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                src_path.write_bytes(content)
+            except Exception as e:
+                return {"success": False, "error": f"写入失败: {e}", "file": original_name}
+
+            try:
+                result = _redact_file(
+                    file_path=str(src_path),
+                    policy=policy,
+                    entity_types=et_list,
+                    strength_level=strength_level,
+                )
+                result["file"] = original_name
+
+                # 将脱敏后的文件复制到 redactedG 目录，保持相对路径
+                if result.get("output_file"):
+                    out_src = Path(result["output_file"])
+                    if out_src.exists():
+                        out_dst = redacted_dir / original_name
+                        # 替换扩展名为 .redacted.md
+                        out_dst = out_dst.with_suffix(".redacted.md")
+                        out_dst.parent.mkdir(parents=True, exist_ok=True)
+                        out_dst.write_text(result.get("redacted_text", ""), encoding="utf-8")
+                        result["output_file"] = str(out_dst)
+
+                # 将映射文件复制到 mappings 目录
+                if result.get("mapping_file"):
+                    map_src = Path(result["mapping_file"])
+                    if map_src.exists():
+                        map_dst = mappings_dir / (Path(original_name).stem + ".mapping.enc")
+                        map_dst.write_bytes(map_src.read_bytes())
+                        result["mapping_file"] = str(map_dst)
+
+                return result
+            except Exception as e:
+                logger.exception(f"卷宗脱敏失败: {original_name}")
+                return {"success": False, "error": str(e), "file": original_name}
+
+        # 发送开始事件
+        vol_label = volume_name or vol_id
+        yield f"data: {_json.dumps({'type': 'start', 'total_files': total_files, 'volume_name': vol_label}, ensure_ascii=False)}\n\n"
+
+        for idx, uf in enumerate(upload_files):
+            filename = getattr(uf, "filename", None) or f"file_{idx}"
+            yield f"data: {_json.dumps({'type': 'progress', 'file': filename, 'index': idx + 1, 'total': total_files}, ensure_ascii=False)}\n\n"
+
+            result = await loop.run_in_executor(executor, lambda u=uf: process_one(u))
+
+            if result.get("success"):
+                success_count += 1
+                total_entities += result.get("entity_count", 0)
+            else:
+                fail_count += 1
+            all_results.append(result)
+
+            yield f"data: {_json.dumps({'type': 'result', **result}, ensure_ascii=False)}\n\n"
+
+        # 生成卷宗级汇总报告
+        report = {
+            "volume_name": vol_label,
+            "volume_dir": str(vol_dir),
+            "redacted_dir": str(redacted_dir),
+            "mappings_dir": str(mappings_dir),
+            "total_files": total_files,
+            "success_count": success_count,
+            "fail_count": fail_count,
+            "total_entities": total_entities,
+            "policy": policy,
+            "strength_level": strength_level,
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        report_path = vol_dir / "volume_report.json"
+        report_path.write_text(_json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+
+        # 发送完成事件
+        done_event = {
+            "type": "done",
+            "total_files": total_files,
+            "success_count": success_count,
+            "fail_count": fail_count,
+            "total_entity_count": total_entities,
+            "volume_dir": str(vol_dir),
+            "redacted_dir": str(redacted_dir),
+            "mappings_dir": str(mappings_dir),
+            "report_file": str(report_path),
+            "volume_name": vol_label,
+        }
+        yield f"data: {_json.dumps(done_event, ensure_ascii=False)}\n\n"
 
     return StreamingResponse(
         event_stream(),
@@ -721,7 +976,7 @@ async def get_ocr_config() -> dict[str, Any]:
                     "name": "PaddleOCR",
                     "description": "Best Chinese text accuracy, moderate resources",
                     "installed": OCREngineType.PADDLE.value in available,
-                    "install": "pip install paddlepaddle paddleocr",
+                    "install": "pip install paddlepaddle paddleocr paddlex",
                     "hw_req": "CPU: any; GPU: NVIDIA CUDA recommended, VRAM ≥4GB",
                 },
                 OCREngineType.EASY.value: {
@@ -735,11 +990,20 @@ async def get_ocr_config() -> dict[str, Any]:
                     "name": "Tesseract",
                     "description": "Lightweight, fast, lower CJK accuracy",
                     "installed": OCREngineType.TESSERACT.value in available,
-                    "install": "# Ubuntu/Debian:\nsudo apt-get install tesseract-ocr tesseract-ocr-chi-sim\n"
-                               "# macOS:\nbrew install tesseract tesseract-lang\n"
-                               "# Windows: download from UB-Mannheim/tesseract GitHub\n"
+                    "install": "# 一键安装（Windows 自动下载二进制）：\n"
+                               "# 点击下方 Tesseract 按钮即可\n"
+                               "# Ubuntu/Debian: sudo apt-get install tesseract-ocr tesseract-ocr-chi-sim\n"
+                               "# macOS: brew install tesseract tesseract-lang\n"
+                               "# Windows: 自动下载 UB-Mannheim/tesseract 安装\n"
                                "pip install pytesseract pdf2image pillow",
                     "hw_req": "Very lightweight: <100MB RAM, any CPU",
+                },
+                OCREngineType.MINICPM.value: {
+                    "name": "MiniCPM-V (AI 智能识别)",
+                    "description": "多模态 AI 模型，准确率最高，支持手写/印章/低质量扫描",
+                    "installed": OCREngineType.MINICPM.value in available,
+                    "install": "pip install torch transformers accelerate",
+                    "hw_req": "GPU: 显存 ≥6GB（强烈推荐）; CPU: 可用但慢; 内存: 8GB+",
                 },
             },
             "cloud_engines": {
@@ -768,8 +1032,11 @@ async def get_ocr_config() -> dict[str, Any]:
                 "mode": lp.mode if lp else "disabled",
                 "provider": lp.provider if lp else "",
                 "available": bool(ocr._mineru and ocr._mineru.is_available()) if lp else False,
-                "install": "pip install 'magic-pdf[full]'  # Requires Python 3.10+",
-                "hw_req": "GPU strongly recommended (NVIDIA VRAM ≥8GB); RAM: 16GB+; Disk: ~10GB models",
+                "install": "pip install mineru  # 本地运行，需 Python 3.11+（原 magic-pdf 已更名为 mineru）",
+                "hw_req": "本地：GPU 强烈推荐（NVIDIA VRAM ≥8GB）; 内存: 16GB+; 磁盘: ~10GB 模型。云端：无需本地硬件，访问 mineru.net 获取 API Token，按量付费",
+                "cloud_api": True,
+                "cloud_endpoint": "https://mineru.net",
+                "cloud_note": "MinerU 官方提供云端 API 服务（mineru.net），支持 Flash/Basic/Standard/Advanced 四种解析层级，无需本地 GPU",
             } if lp else {
                 "enabled": False,
                 "mode": "disabled",
@@ -964,6 +1231,86 @@ def _detect_china_network() -> bool:
     return False
 
 
+async def _install_tesseract_binary_windows() -> dict[str, Any]:
+    """Download and install Tesseract OCR binary on Windows.
+
+    Downloads the UB-Mannheim Tesseract installer and runs it silently.
+    Returns a dict with ``success``, ``message``, and ``tesseract_path``.
+    """
+    import asyncio
+    import urllib.request
+
+    # URL for Tesseract OCR installer (UB-Mannheim build, commonly used)
+    # Using a stable GitHub release URL
+    tess_url = (
+        "https://github.com/UB-Mannheim/tesseract/releases/download/v5.4.0.20240606/"
+        "tesseract-ocr-w64-setup-v5.4.0.20240606.exe"
+    )
+
+    # Default install path for UB-Mannheim Tesseract on 64-bit Windows
+    tess_install_dir = os.environ.get(
+        "TESSERACT_HOME",
+        os.path.join(os.environ.get("PROGRAMFILES", r"C:\Program Files"), "Tesseract-OCR"),
+    )
+    tess_exe = os.path.join(tess_install_dir, "tesseract.exe")
+
+    # If already installed, skip download
+    if os.path.exists(tess_exe):
+        return {"success": True, "message": "Tesseract binary already installed", "tesseract_path": tess_exe}
+
+    # Download the installer to temp dir
+    tmp_dir = tempfile.gettempdir()
+    installer_path = os.path.join(tmp_dir, "tesseract-ocr-installer.exe")
+
+    try:
+        logger.info("Downloading Tesseract installer from %s", tess_url)
+        # Use a longer timeout for slow connections
+        req = urllib.request.Request(tess_url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            with open(installer_path, "wb") as f:
+                # Read in chunks to handle large files
+                while True:
+                    chunk = resp.read(65536)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+        logger.info("Tesseract installer downloaded to %s", installer_path)
+    except Exception as e:
+        return {"success": False, "message": f"Failed to download Tesseract installer: {e}", "tesseract_path": ""}
+
+    # Run installer silently: /S = silent, /D = install directory (must be last)
+    # The UB-Mannheim installer uses NSIS, so /S and /D work
+    install_cmd = [installer_path, "/S", f"/D={tess_install_dir}"]
+    logger.info("Running Tesseract installer: %s", " ".join(install_cmd))
+
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            *install_cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await proc.communicate()
+    except Exception as e:
+        return {"success": False, "message": f"Failed to run Tesseract installer: {e}", "tesseract_path": ""}
+
+    # Clean up installer
+    try:
+        os.remove(installer_path)
+    except OSError:
+        pass
+
+    # Verify installation
+    if os.path.exists(tess_exe):
+        return {"success": True, "message": "Tesseract binary installed successfully", "tesseract_path": tess_exe}
+    else:
+        stderr_tail = stderr.decode("utf-8", errors="replace")[-500:] if stderr else ""
+        return {
+            "success": False,
+            "message": f"Tesseract installer completed but binary not found. stderr: {stderr_tail}",
+            "tesseract_path": "",
+        }
+
+
 @router.post("/ocr/install", summary="Auto-install OCR engine dependencies")
 async def install_ocr_engines(
     req: Request = None,
@@ -977,14 +1324,16 @@ async def install_ocr_engines(
     Args:
         engine: Which engine to install. Options:
             - "auto" (default): Install the recommended bundle (PaddleOCR + deps)
-            - "paddleocr": Install paddlepaddle + paddleocr
+            - "paddleocr": Install paddlepaddle + paddleocr + paddlex
             - "easyocr": Install easyocr only
-            - "tesseract": Install pytesseract (note: tesseract binary also needed)
+            - "tesseract": Install pytesseract + download Tesseract binary on Windows
+            - "minicpm": Install torch + transformers for MiniCPM-V (AI 智能识别)
             - "mineru": Install magic-pdf[full] for layout parsing
             - "all": Install all engines + mineru
         use_mirror: Force mirror usage. None = auto-detect based on IP.
     """
     import asyncio
+    import sys
 
     # Parse body (JSON or query params for flexibility)
     engine = "auto"
@@ -1006,17 +1355,30 @@ async def install_ocr_engines(
 
     # Build pip install command
     pip_args: list[str] = []
+    need_tesseract_binary = False
 
     if engine in ("auto", "paddleocr"):
-        pip_args = ["paddlepaddle", "paddleocr"]
+        # Include paddlex explicitly — PaddleOCR requires it at runtime but
+        # the paddleocr pip package may not always pull it as a hard dependency.
+        pip_args = ["paddlepaddle", "paddleocr", "paddlex"]
     elif engine == "easyocr":
         pip_args = ["easyocr"]
     elif engine == "tesseract":
-        pip_args = ["pytesseract", "pdf2image"]
+        pip_args = ["pytesseract", "pdf2image", "Pillow"]
+        # On Windows, also download and install the Tesseract binary
+        if sys.platform == "win32":
+            need_tesseract_binary = True
+    elif engine == "minicpm":
+        # MiniCPM-V needs torch + transformers + accelerate
+        pip_args = ["torch", "transformers", "accelerate", "Pillow"]
     elif engine == "mineru":
         pip_args = ['magic-pdf[full]']
     elif engine == "all":
-        pip_args = ["paddlepaddle", "paddleocr", "easyocr", "pytesseract", "pdf2image"]
+        pip_args = ["torch", "transformers", "accelerate", "Pillow",
+                    "paddlepaddle", "paddleocr", "paddlex",
+                    "easyocr", "pytesseract", "pdf2image", "Pillow"]
+        if sys.platform == "win32":
+            need_tesseract_binary = True
     else:
         raise HTTPException(status_code=400, detail=f"Unknown engine: {engine}")
 
@@ -1055,6 +1417,12 @@ async def install_ocr_engines(
 
     result = await _run_install()
 
+    # If pip install succeeded and we also need Tesseract binary, install it
+    tess_result = None
+    if need_tesseract_binary and result["returncode"] == 0:
+        logger.info("Also installing Tesseract binary on Windows...")
+        tess_result = await _install_tesseract_binary_windows()
+
     if result["returncode"] == 0:
         # Verify installation by checking engine availability
         try:
@@ -1064,12 +1432,21 @@ async def install_ocr_engines(
         except Exception:
             available = []
 
+        # Build response message
+        msg = f"OCR engine '{engine}' installed successfully"
+        if tess_result:
+            if tess_result.get("success"):
+                msg += f". Tesseract binary: {tess_result['message']}"
+            else:
+                msg += f". Tesseract binary installation: {tess_result['message']}"
+
         return {
             "success": True,
-            "message": f"OCR engine '{engine}' installed successfully",
+            "message": msg,
             "installed_packages": pip_args,
             "mirror_used": use_mirror,
             "available_engines": available,
+            "tesseract_binary": tess_result,
             "stdout_tail": result["stdout"][-500:],
         }
     else:

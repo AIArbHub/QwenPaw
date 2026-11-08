@@ -1053,6 +1053,7 @@ function SortableGateCard({
           <Button
             type="text"
             size="small"
+            iconSize={14}
             icon={<Trash2 size={14} />}
             aria-label={t("agentConfig.loopMode.removeGate", "Remove gate")}
             onClick={onRemove}
@@ -1060,6 +1061,7 @@ function SortableGateCard({
           <Button
             type="text"
             size="small"
+            iconSize={14}
             icon={
               expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />
             }

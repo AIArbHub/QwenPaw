@@ -201,7 +201,7 @@ class TestDaemonAdapter:
             1
         ]
         assert daemon_ctx.agent_id == "default"
-        assert daemon_ctx.agent_name == "QwenPaw"
+        assert daemon_ctx.agent_name == "AIArb"
         assert daemon_ctx.session_id == ""
         assert daemon_ctx.memory_manager is None
         assert daemon_ctx.manager is None
@@ -227,7 +227,7 @@ class TestDaemonAdapter:
         daemon_ctx = mixin.return_value.handle_daemon_command.await_args.args[
             1
         ]
-        assert daemon_ctx.agent_name == "QwenPaw"
+        assert daemon_ctx.agent_name == "AIArb"
 
 
 class TestDaemonSpecCollection:
@@ -818,7 +818,7 @@ class TestConversationAdapter:
         ):
             result = await spec.handler(ctx, "")
         assert result == "cmd-result"
-        assert double.call_args.kwargs["agent_name"] == "QwenPaw"
+        assert double.call_args.kwargs["agent_name"] == "AIArb"
         assert double.call_args.kwargs["offloader"] is None
 
     async def test_native_strategy_builds_an_offloader(self, tmp_path):
@@ -832,7 +832,7 @@ class TestConversationAdapter:
                 return_value=_cfg(lcc=_lcc(strategy="native")),
             ),
             patch(
-                "aiarb.agents.offloader.AIARBOffloader",
+                "aiarb.agents.offloader.AIArbOffloader",
             ) as offloader,
         ):
             await spec.handler(ctx, "")
@@ -853,7 +853,7 @@ class TestConversationAdapter:
                 return_value=_cfg(lcc=_lcc(strategy="scroll")),
             ),
             patch(
-                "aiarb.agents.offloader.AIARBOffloader",
+                "aiarb.agents.offloader.AIArbOffloader",
             ) as offloader,
         ):
             await spec.handler(ctx, "")
@@ -873,7 +873,7 @@ class TestConversationAdapter:
                 ),
             ),
             patch(
-                "aiarb.agents.offloader.AIARBOffloader",
+                "aiarb.agents.offloader.AIArbOffloader",
             ) as offloader,
         ):
             await spec.handler(ctx, "")
@@ -890,7 +890,7 @@ class TestConversationAdapter:
                 return_value=_cfg(),
             ),
             patch(
-                "aiarb.agents.offloader.AIARBOffloader",
+                "aiarb.agents.offloader.AIArbOffloader",
             ) as offloader,
         ):
             await spec.handler(ctx, "")
@@ -909,7 +909,7 @@ class TestConversationAdapter:
                 return_value=_cfg(),
             ),
             patch(
-                "aiarb.agents.offloader.AIARBOffloader",
+                "aiarb.agents.offloader.AIArbOffloader",
                 side_effect=OSError("disk full"),
             ),
         ):

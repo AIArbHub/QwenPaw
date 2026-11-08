@@ -5,7 +5,6 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
-from ...constant import EnvVarLoader
 from ..auth import (
     authenticate,
     has_registered_users,
@@ -112,8 +111,7 @@ async def register(req: RegisterRequest):
     - 0 or -1: permanent token (100 years)
     - None/omitted: default 7 days
     """
-    env_flag = EnvVarLoader.get_str("AIARB_AUTH_ENABLED", "").strip().lower()
-    if env_flag not in ("true", "1", "yes"):
+    if not is_auth_enabled():
         raise HTTPException(
             status_code=403,
             detail="Authentication is not enabled",
@@ -148,6 +146,35 @@ async def auth_status():
         enabled=is_auth_enabled(),
         has_users=has_registered_users(),
     )
+
+
+@router.get("/password-reset-guide")
+async def password_reset_guide():
+    """Return instructions for resetting a forgotten password.
+
+    This is a public endpoint (no auth required) so users locked out
+    of the console can still learn how to reset their password.
+    """
+    import platform
+
+    from ..auth import AUTH_FILE
+
+    is_windows = platform.system() == "Windows"
+    auth_file_path = str(AUTH_FILE)
+
+    return {
+        "cli_command": "aiarb auth reset-password",
+        "manual_method": {
+            "description": "Delete the auth file and restart the service to re-register.",
+            "file_path": auth_file_path,
+            "command": (
+                f'del "{auth_file_path}"'
+                if is_windows
+                else f'rm "{auth_file_path}"'
+            ),
+        },
+        "platform": "windows" if is_windows else "unix",
+    }
 
 
 @router.get("/verify")

@@ -9,13 +9,20 @@ import {
 } from "../../../../stores/sessionListStore";
 import { useCreateNewSession } from "../../hooks/useCreateNewSession";
 
+interface ChatSessionInitializerProps {
+  /** Called when the user requests the session history drawer. */
+  onOpenHistory?: () => void;
+}
+
 /**
  * Mirror SDK sessions for the sidebar and translate sidebar intents to routes.
  * ChatPage's controlled session.currentSessionId is the only route-to-SDK
  * writer. A list refresh must never select an old local alias after the route
  * and completed response have moved to a Chat UUID.
  */
-const ChatSessionInitializer: React.FC = () => {
+const ChatSessionInitializer: React.FC<ChatSessionInitializerProps> = ({
+  onOpenHistory,
+}) => {
   const navigate = useNavigate();
   const { sessions, setSessions } = useChatAnywhereSessionsState();
   const createNewSession = useCreateNewSession();
@@ -37,6 +44,10 @@ const ChatSessionInitializer: React.FC = () => {
 
   const createNewSessionRef = useRef(createNewSession);
   createNewSessionRef.current = createNewSession;
+
+  // Keep the latest callback in a ref so the effect closure stays stable.
+  const openHistoryRef = useRef(onOpenHistory);
+  openHistoryRef.current = onOpenHistory;
 
   /** AbortController for embedded session switch — aborted when a new switch starts. */
   const switchControllerRef = useRef<AbortController | null>(null);
@@ -108,18 +119,37 @@ const ChatSessionInitializer: React.FC = () => {
       void createNewSessionRef.current();
     };
 
+    const handleOpenHistory = () => {
+      openHistoryRef.current?.();
+    };
+
     window.addEventListener(
       "AIARB:sidebar-select-session",
       handleSelectSession,
     );
     window.addEventListener("AIARB:sidebar-new-chat", handleNewChat);
+    // Also listen for lowercase variant emitted by DesignLayout.
+    window.addEventListener("aiarb:sidebar-new-chat", handleNewChat);
+    // Open the session history drawer when requested by DesignLayout.
+    window.addEventListener("aiarb:open-history-panel", handleOpenHistory);
 
     // Check for pending new-chat flag set by Sidebar when navigating from
     // another page. Must be deferred so the library has initialized.
-    const pendingNewChat = sessionStorage.getItem("AIARB_pending_new_chat");
+    // Check both case variants for robustness.
+    const pendingNewChat =
+      sessionStorage.getItem("AIARB_pending_new_chat") ??
+      sessionStorage.getItem("aiarb_pending_new_chat");
     if (pendingNewChat) {
       sessionStorage.removeItem("AIARB_pending_new_chat");
+      sessionStorage.removeItem("aiarb_pending_new_chat");
       requestAnimationFrame(() => handleNewChat());
+    }
+
+    // Check for pending open-history flag set by DesignLayout.
+    const pendingHistory = sessionStorage.getItem("aiarb_pending_open_history");
+    if (pendingHistory) {
+      sessionStorage.removeItem("aiarb_pending_open_history");
+      requestAnimationFrame(() => handleOpenHistory());
     }
 
     return () => {
@@ -139,6 +169,8 @@ const ChatSessionInitializer: React.FC = () => {
         handleSelectSession,
       );
       window.removeEventListener("AIARB:sidebar-new-chat", handleNewChat);
+      window.removeEventListener("aiarb:sidebar-new-chat", handleNewChat);
+      window.removeEventListener("aiarb:open-history-panel", handleOpenHistory);
     };
   }, [navigate]);
 
